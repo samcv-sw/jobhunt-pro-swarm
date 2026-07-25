@@ -1,0 +1,9 @@
+name 'sent_in_this_campaign' is not defined
+Traceback (most recent call last):
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1045, in run_campaign
+    valid_jobs = await _filter_and_enrich_jobs(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 557, in _filter_and_enrich_jobs
+    remaining_quota = campaign["total_companies"] - sent_in_this_campaign
+                                                    ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'sent_in_this_campaign' is not defined

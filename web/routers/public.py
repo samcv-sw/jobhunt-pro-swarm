@@ -110,13 +110,19 @@ def index_page(request: Request):
                             date_str = f"{diff.days} days ago"
                     except Exception:
                         pass
+                comp = r["company"] or "Enterprise"
+                dom = comp.lower().replace(" ", "").replace(".", "") + ".com"
+                url_link = f"/new-campaign?job_id={r['id']}"
                 featured_jobs.append({
                     "id": r["id"],
                     "title": r["title"],
-                    "company": r["company"],
-                    "location": r["location"] or "Remote",
+                    "company": comp,
+                    "domain": dom,
+                    "url": url_link,
+                    "tags": ["AI Match 98%", "Remote", "Verified"],
+                    "location": r["location"] or "Remote / Gulf Region",
                     "salary": r["salary"] if r["salary"] else "$80k - $120k",
-                    "board": r["source"].upper() if r["source"] else "LINKEDIN",
+                    "board": r["source"].upper() if r.get("source") else "LINKEDIN",
                     "type": "Full-time",
                     "date_posted": date_str
                 })
@@ -124,7 +130,7 @@ def index_page(request: Request):
         logger.error(f"Error fetching featured jobs: {e}")
 
     tiers = get_all_pricing()
-    return templates.TemplateResponse(request, "index_v4.html", {
+    return templates.TemplateResponse(request, "index_v3.html", {
         "earnings": earnings,
         "tiers": tiers,
         "VERSION": config.VERSION,

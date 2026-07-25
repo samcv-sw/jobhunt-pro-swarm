@@ -278,42 +278,41 @@
   color: #94a3b8;
 }
 .tailor-meta-item strong { color: #d4d4d8; }
+.tailor-scale {
+  inline-size: 100%;
+  max-inline-size: 1400px;
+  margin: 0 auto;
+  zoom: 1.05;
+}
+.tailor-scale h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-block-end: 4px;
+}
+.tailor-scale .subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-block-end: 20px;
+}
 </style>
-<style>
-        body {
-          font-family: 'Cairo', 'Georgia', 'Times New Roman', serif;
-          font-size: 14px;
-          line-height: 1.6;
-          color: #1a1a1a;
-          max-inline-size: 800px;
-          margin: 40px auto;
-          padding: 20px;
-        }
-        pre {
-          font-family: 'Cairo', 'Georgia', serif;
-          white-space: pre-wrap;
-          font-size: 14px;
-          line-height: 1.6;
-          margin: 0;
-        }
-        @media print {
-          body { margin: 0; padding: 20px; }
-        }
-      </style>
+
+<div class="tailor-scale">
 <h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي</h1>
 <p class="subtitle">قم بلصق سيرتك الذاتية الأساسية والوصف الوظيفي — سيقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية لتطابق الوظيفة بشكل مثالي.</p>
+
 <div class="tailor-container">
 <!-- inset-inline-start: Base Resume -->
 <div class="tailor-panel">
 <h3>📄 سيرتك الذاتية الأساسية</h3>
-<div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
-      📎 أسقط ملف سيرتك الذاتية هنا أو انقر للصق النص أدناه
+<div class="file-drop" id="resume-drop" style="cursor:pointer; position:relative;" onclick="document.getElementById('cv-file-input').click()">
+      <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFileSelect(event)">
+      <span id="drop-text">📎 أسقط ملف سيرتك الذاتية هنا أو انقر لاختيار ملف من جهازك</span>
     </div>
 <textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
 
-SAM SALAMEH
-Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
-samsalameh.cv@gmail.com | +961 70 841 1009
+أحمد خليل
+مهندس شبكات وسحابيات | CCNA, Cloud Specialist
+ahmad.khalil.demo@example.com | +961 70 000 000
 
 PROFESSIONAL SUMMARY
 15+ years as a Network Engineer specializing in enterprise network design..." dir="auto"></textarea>
@@ -388,7 +387,7 @@ Requirements:
 <h3>✨ سيرتك الذاتية المخصصة</h3>
 <div class="tailor-output-actions">
 <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
-<button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">{{ _('📥 تحميل بصيغة PDF') }}</button>
+<button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
 </div>
 </div>
 <div class="tailor-output-body" id="tailored-output"></div>
@@ -580,14 +579,13 @@ function downloadAsPDF() {
   // Create a print-friendly version
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
-
     <pre>${escapeHtml(tailoredText)}</pre>
       <script>
         window.onload = function() {
           window.print();
           setTimeout(() => window.close(), 1000);
         };
-      </script>
+      <\/script>
   `);
   printWindow.document.close();
 }
@@ -624,5 +622,80 @@ dropZone.addEventListener('drop', e => {
     showError('Please drop a .txt or .md file, or paste text directly.');
   }
 });
+</script>
+</div>
+</div>
 
+<script>
+// File Drag & Drop Handling
+document.addEventListener('DOMContentLoaded', () => {
+    const dropZone = document.getElementById('resume-drop');
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
 
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                uploadAndExtractCV(files[0]);
+            }
+        }, false);
+    }
+});
+
+function handleFileSelect(event) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        uploadAndExtractCV(files[0]);
+    }
+}
+
+async function uploadAndExtractCV(file) {
+    const dropText = document.getElementById('drop-text');
+    dropText.innerHTML = `⏳ جاري قراءة واستخراج نص الملف (${file.name})...`;
+
+    if (file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('tailor-resume').value = e.target.result;
+            dropText.innerHTML = `✅ تم استخراج النص بنجاح: <strong>${file.name}</strong>`;
+        };
+        reader.readAsText(file);
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('cv_file', file);
+
+    try {
+        const res = await fetch('/api/parse-cv-file', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.text) {
+            document.getElementById('tailor-resume').value = data.text;
+            dropText.innerHTML = `✅ تم استخراج نص الملف بنجاح: <strong>${file.name}</strong>`;
+        } else {
+            dropText.innerHTML = `⚠️ تعذر استخراج النص تلقائياً من (${file.name})، يرجى نسخ النص ولصقه أدناه.`;
+        }
+    } catch (err) {
+        console.error("Upload error:", err);
+        dropText.innerHTML = `⚠️ حدث خطأ في رفع الملف، يرجى التكرم بلصق النص أدناه.`;
+    }
+}
+</script>

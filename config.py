@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
+os.environ["FORCE_SQLITE"] = "1"
 
 
 # Database Engine strictly enforces PostgreSQL
@@ -12,20 +13,21 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 logger = logging.getLogger(__name__)
 
-VERSION = "17.0"
+VERSION = "1"
 APP_NAME = "JobHunt Pro"
 DB_PATH = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHERE_DOMAIN") or ""
 
-CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
+CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "JobHunt Pro Team")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
 CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "samsalameh.cv@gmail.com")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
 # SECRET_KEY: must be set via .env — generates random fallback if missing (but warns loudly)
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "427002552579-30li2c3vkjdehr7rs15sh4r80pdbs265.apps.googleusercontent.com")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "487d1da1-69fb-4a84-8446-227973d977df")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 _secret_key = os.getenv("SECRET_KEY", "")
 if not _secret_key:
@@ -33,7 +35,7 @@ if not _secret_key:
     _secret_key = _secrets.token_urlsafe(64)
     logger.critical("SECRET_KEY NOT SET in .env! Using a random ephemeral key — sessions will be invalidated on every restart. Set SECRET_KEY in .env immediately.")
 SECRET_KEY = _secret_key
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 71 019 053")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+12494985866")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
 CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/sam-salameh"
 YEARS_EXPERIENCE = 15
@@ -165,8 +167,8 @@ CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
 if not os.path.exists(CV_PATH):
     logger.warning(f"CV file not found at {CV_PATH}, will send without attachment")
     CV_PATH = None
-# Database configuration strictly pointing to PostgreSQL
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jobhunt:jobhunt_password@localhost:5432/jobhunt_db")
+POSTGRES_URL = os.getenv("POSTGRES_URL", "")
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("NEON_URL") or "sqlite:///./data/jobhunt_saas_v2.db"
 NEON_URL = os.getenv("NEON_URL", DATABASE_URL)
 TURSO_DATABASE_URL = os.getenv("TURSO_DATABASE_URL", "")
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
@@ -179,8 +181,9 @@ JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
-NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
-NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
+NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "3C4BHM5-V7641D9-KHBEJY7-865AFER")
+NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "hCGQjbcilPsaJQkW073hfzg5ziDyszfl")
+NOWPAYMENTS_PUBLIC_KEY = os.getenv("NOWPAYMENTS_PUBLIC_KEY", "d5bd644a-297c-44b6-82cf-ff62a3d891bd")
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
 B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "").split(",") if k.strip()]

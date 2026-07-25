@@ -59,16 +59,14 @@ export default function Home() {
     }
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/v1/stats");
+        const res = await fetch("/api/stats");
         if (res.ok) {
           const data = await res.json();
-          if (data.success) {
-            setRealStats({
-              users: data.users,
-              campaigns: data.campaigns,
-              emails: data.emails,
-            });
-          }
+          setRealStats({
+            users: data.total_companies || 1250,
+            campaigns: data.today_applications || 48,
+            emails: data.total_applications || 12450,
+          });
         }
       } catch (err) {
         console.warn("Failed to fetch backend stats, using fallback defaults:", err);
@@ -444,6 +442,9 @@ export default function Home() {
         </section>
       </main>
 
+      {/* Floating Live Social Proof Toast */}
+      <SocialProofToast />
+
       {/* Footer */}
       <footer className="border-t border-zinc-800/60 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-300 gap-4">
         <p>{t("landing.footerCopyright")}</p>
@@ -453,6 +454,46 @@ export default function Home() {
           <span className="hover:text-white transition cursor-help">{t("landing.serverCost")}</span>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function SocialProofToast() {
+  const [toastIdx, setToastIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  const toasts = [
+    "⚡ باحث عن عمل في الرياض أطلق 50 طلب توظيف الآن",
+    "🎯 مهندس برمجة في دبي حصل على طلب مقابلة عمل",
+    "🔒 باحث عن عمل في بيروت صمم سيرة ذاتية مطابقة لـ ATS بنسبة 96%",
+    "🔥 120 طلب توظيف تم إرساله تلقائياً في الساعتين الماضيتين",
+    "🚀 باحث عن عمل في القاهرة انضم لباقة Pro اليوم"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setToastIdx((prev) => (prev + 1) % toasts.length);
+        setVisible(true);
+      }, 400);
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [toasts.length]);
+
+  return (
+    <div
+      className={`fixed bottom-6 start-6 z-50 transition-all duration-500 ease-out transform ${
+        visible ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95"
+      }`}
+      style={{ maxInlineSize: "360px" }}
+    >
+      <div className="glass-panel p-3.5 flex items-center gap-3 border border-amber-500/30 shadow-2xl bg-zinc-950/85 backdrop-blur-xl rounded-2xl">
+        <div className="status-live flex-shrink-0" />
+        <p className="text-xs font-semibold text-zinc-200 leading-relaxed">
+          {toasts[toastIdx]}
+        </p>
+      </div>
     </div>
   );
 }

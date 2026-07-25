@@ -743,7 +743,8 @@ class CircuitBreaker:
 
     def record_failure(self, name: str):
         self._failures[name] = self._failures.get(name, 0) + 1
-        if self._failures[name] >= self._max_failures:
+        max_fails = 50 if name == "hotmail_pool" else self._max_failures
+        if self._failures[name] >= max_fails:
             self._disabled_until[name] = time.time() + self._cooldown
             logger.warning(f"Circuit OPEN: {name} disabled for {self._cooldown}s")
 
@@ -1011,15 +1012,18 @@ class EmailEngine:
         self._register_active_providers()
 
     def _register_active_providers(self):
-        """Register providers that have valid credentials.
+        """Register providers that have valid credentials or OAuth2 pools.
         Hotmail pool gets priority — its ProviderState is pre-configured with
         25,000/day capacity so weighted rotation uses it ~90% of the time."""
         for p in config.EMAIL_PROVIDERS:
-            if p.get("user") and p.get("password"):
+            if p.get("oauth2") or (p.get("user") and p.get("password")):
                 self.scheduler.register_provider(p["name"])
-                logger.info(f"Active provider: {p['name']}")
+                logger.info(f"Active provider registered: {p['name']}")
             else:
                 logger.debug(f"Skipping provider (no creds): {p['name']}")
+        
+        # Ensure hotmail pool is initialized and registered
+        self._ensure_hotmail_pool()
 
     def _ensure_hotmail_pool(self):
         """Lazy-init the Hotmail Graph API pool.
@@ -1037,6 +1041,7 @@ class EmailEngine:
             if stats["active_accounts"] > 0:
                 self._hotmail_pool = True  # non-None signals initialized
                 self._hotmail_pool_available = True
+                self.scheduler.register_provider("hotmail_pool")
                 logger.info(
                     f"HotmailPool active: {stats['active_accounts']}/{stats['total_accounts']} accounts via Graph API, {stats['max_daily_capacity']}/day"
                 )
@@ -1990,8 +1995,8 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             except Exception as e:
                 logger.warning(f"[EmailEngine] Batch commit failed: {e}")
 
-        sent = sum(1 for r in results_list if r.get("status") == "sent")
-        failed = sum(1 for r in results_list if r.get("status") in ("failed", "error"))
+        sent = sum(1 for r in results_list if isinstance(r, dict) and r.get("status") == "sent")
+        failed = sum(1 for r in results_list if isinstance(r, dict) and r.get("status") in ("failed", "error"))
         return sent, failed, results_list
 
     def get_stats(self) -> dict:

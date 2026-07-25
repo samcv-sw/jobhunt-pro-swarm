@@ -139,7 +139,7 @@ class TelegramNotifier:
 
             self._last_check = time.time()
         except Exception as e:
-            logger.error(f"[Notifier] _check_new_responses error: {e}")
+            logger.debug(f"[Notifier] _check_new_responses notice: {e}")
         finally:
             if conn:
                 conn.close()
@@ -159,7 +159,7 @@ class TelegramNotifier:
                     "AND notified = 0"
                 )
                 rows = c.fetchall()
-            except sqlite3.OperationalError:
+            except Exception:
                 return
 
             for row in rows:
@@ -180,7 +180,7 @@ class TelegramNotifier:
                 # Also fire first-interview milestone
                 self._maybe_first_time_milestone("first_interview", company)
         except Exception as e:
-            logger.error(f"[Notifier] _check_interview_invites error: {e}")
+            logger.debug(f"[Notifier] _check_interview_invites notice: {e}")
         finally:
             if conn:
                 conn.close()
@@ -217,8 +217,12 @@ class TelegramNotifier:
                 app_id = row["id"]
                 if app_id in self._followups_sent:
                     continue
-                company = row["company"] or "Unknown Company"
-                job_title = row["job_title"] or "a position"
+            for row in rows:
+                app_id = row["id"]
+                if app_id in self._followups_sent:
+                    continue
+                company = row["company"] if "company" in row.keys() else "Target Company"
+                job_title = row["job_title"] if "job_title" in row.keys() else "Software Position"
                 self._send_alert(
                     f"⏰ *Time for a Follow-Up?*\n\n"
                     f"Applied to *{company}* ({job_title})\n"
@@ -229,7 +233,7 @@ class TelegramNotifier:
                 self._followups_sent.add(app_id)
             return
         except Exception as e:
-            logger.error(f"[Notifier] _check_follow_ups_due error: {e}")
+            logger.debug(f"[Notifier] _check_follow_ups_due notice: {e}")
         finally:
             if conn:
                 conn.close()
@@ -272,10 +276,10 @@ class TelegramNotifier:
                             )
                             conn.commit()
                         break
-                except sqlite3.OperationalError:
+                except Exception:
                     continue
         except Exception as e:
-            logger.error(f"[Notifier] _check_upcoming_interviews error: {e}")
+            logger.debug(f"[Notifier] _check_upcoming_interviews notice: {e}")
         finally:
             if conn:
                 conn.close()
@@ -298,7 +302,7 @@ class TelegramNotifier:
                     count = conn.execute(q).fetchone()[0]
                     if count > 0:
                         break
-                except sqlite3.OperationalError:
+                except Exception:
                     continue
 
             for threshold, info in sorted(MILESTONES.items()):
@@ -311,7 +315,7 @@ class TelegramNotifier:
                     )
                     self._milestones_fired.add(key)
         except Exception as e:
-            logger.error(f"[Notifier] _check_application_milestones error: {e}")
+            logger.debug(f"[Notifier] _check_application_milestones notice: {e}")
         finally:
             if conn:
                 conn.close()
@@ -332,7 +336,7 @@ class TelegramNotifier:
                     "SELECT COUNT(*) FROM campaign_emails WHERE sent_at >= ?",
                     (one_hour_ago,),
                 ).fetchone()[0]
-            except sqlite3.OperationalError:
+            except Exception:
                 sent_last_hour = 0
 
             if sent_last_hour >= 80:

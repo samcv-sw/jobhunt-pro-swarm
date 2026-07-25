@@ -36,7 +36,7 @@ Investigate the codebase and recommend how to implement Milestone 9 (WhatsApp Bo
 ## Key Decisions Made
 - Use a database-backed global flag in the `system_config` table (e.g., `campaign_runner_paused`) to coordinate the `/pause` and `/start` commands across the web server and background runners.
 - Extend `ZeroCostWhatsAppAutomator` in `core/zero_cost_whatsapp.py` to support sending generic text replies (free-form messaging within the 24h customer service window) instead of template-only formats.
-- Restrict command execution to the sanitized version of `CANDIDATE_PHONE` from `config.py` (+961 71 019 053).
+- Restrict command execution to the sanitized version of `CANDIDATE_PHONE` from `config.py` (+12494985866).
 
 ## Artifact Index
 - `.agents/explorer_m9_whatsapp_1/ORIGINAL_REQUEST.md` — Original dispatch request.

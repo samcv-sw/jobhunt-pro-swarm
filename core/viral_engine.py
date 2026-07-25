@@ -194,7 +194,7 @@ def generate_social_hook_card(tool: str, user_id: str = "guest", score: int = 85
 
 PH_ASSETS = {
     "tagline": "Apply to 1000s of jobs automatically with 200+ AI agents",
-    "description": "JobHunt Pro uses a swarm of 200 AI agents to search, match, and auto-apply to jobs across 10+ platforms. AI-generated cover letters, ATS-optimized resumes, and BanShield anti-detection. From $2.",
+    "description": "JobHunt Pro uses a swarm of 200 AI agents to search, match, and auto-apply to jobs across Graham Search Engine Matrix. AI-generated cover letters, ATS-optimized resumes, and BanShield anti-detection. From $2.",
     "maker_comment": """Hey Product Hunt! 👋
 
 I'm Sam, a network engineer from Lebanon who spent 3+ hours/day manually applying to jobs. It was exhausting.
@@ -203,7 +203,7 @@ So I built JobHunt Pro — an AI that applies to jobs FOR you.
 
 **How it works:**
 1. You upload your CV and set your preferences
-2. 200 AI agents search 10+ job boards simultaneously
+2. 200 AI agents search Graham Search Engine Matrix simultaneously
 3. AI matches jobs to your skills, writes personalized cover letters
 4. Applications submit automatically with BanShield anti-detection
 

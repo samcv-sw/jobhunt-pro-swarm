@@ -291,30 +291,50 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
         company_info=None,
         description: str = "",
         language: str = None,
+        user_details: dict = None,
     ) -> str:
         """Synchronous cover letter generation (template-based, for backward compatibility)."""
+        import config
+
+        ud = user_details or {}
+        c_info = company_info
+        if isinstance(company_info, dict) and any(k in company_info for k in ("name", "email", "skills", "profession", "phone", "cv_text")):
+            ud = {**company_info, **ud}
+            c_info = None
+
         if language is None:
             language = cls._detect_language(company, description)
 
         if language in ("ar", "bilingual"):
             # Use Arabic template for ME companies
             return cls._write_template_fallback(
-                company, title, description, company_info, language
+                company, title, description, c_info, language, user_details=ud
             )
 
         template = random.choice(cls.ALL_TEMPLATES)
-        icebreaker = cls._get_icebreaker(company, title, company_info)
+        icebreaker = cls._get_icebreaker(company, title, c_info)
+
+        skills_val = ud.get("skills") or getattr(config, "CANDIDATE_SKILLS", None) or ", ".join(getattr(config, "SKILLS", [])[:10]) or "Networking, Cloud, Security, Automation"
+        name_val = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Job Applicant")
+        email_val = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "")
+        phone_val = ud.get("phone") or getattr(config, "CANDIDATE_PHONE", "")
+        address_val = ud.get("address") or getattr(config, "CANDIDATE_ADDRESS", "")
+        linkedin_val = ud.get("linkedin") or getattr(config, "CANDIDATE_LINKEDIN", "")
+        profession_val = ud.get("profession") or getattr(config, "PROFESSION", "Software Engineer")
+        exp_val = str(ud.get("experience_years") or getattr(config, "EXPERIENCE_YEARS", "3"))
+
         return template.format(
             title=title,
             company=company,
-            name=config.CANDIDATE_NAME,
+            name=name_val,
             icebreaker=icebreaker,
-            email=config.CANDIDATE_EMAIL,
-            phone=config.CANDIDATE_PHONE,
-            address=config.CANDIDATE_ADDRESS,
-            linkedin=config.CANDIDATE_LINKEDIN,
-            profession=getattr(config, "PROFESSION", "Software Engineer"),
-            experience_years=getattr(config, "EXPERIENCE_YEARS", "3"),
+            email=email_val,
+            phone=phone_val,
+            address=address_val,
+            linkedin=linkedin_val,
+            profession=profession_val,
+            experience_years=exp_val,
+            skills=skills_val,
         )
 
     @classmethod
@@ -326,12 +346,20 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
         description: str = "",
         language: str = None,
         ai_letter: str = None,
+        user_details: dict = None,
     ) -> str:
         """Convert a cover letter to professional HTML. If ai_letter is provided, use it directly."""
         if language is None:
             language = cls._detect_language(company, description)
 
-        text = ai_letter or cls.write(company, title, company_info, description, language)
+        text = ai_letter or cls.write(
+            company=company,
+            title=title,
+            company_info=company_info,
+            description=description,
+            language=language,
+            user_details=user_details,
+        )
 
         return cls._text_to_html(text, company, language)
 
@@ -404,8 +432,13 @@ Best regards,
         """Generate a cover letter using templates when AI is unavailable."""
         import config
 
-        icebreaker = cls._get_icebreaker(company, title, company_info)
         ud = user_details or {}
+        c_info = company_info
+        if isinstance(company_info, dict) and any(k in company_info for k in ("name", "email", "skills", "profession", "phone", "cv_text")):
+            ud = {**company_info, **ud}
+            c_info = None
+
+        icebreaker = cls._get_icebreaker(company, title, c_info)
 
         name = ud.get("name") or config.CANDIDATE_NAME
         email = ud.get("email") or config.CANDIDATE_EMAIL

@@ -101,160 +101,19 @@ PRICING_TIERS = [
     },
 ]
 
+# Import SERVICE_CATALOG directly to ensure 100% sync
+from services.catalog import SERVICE_CATALOG, BOUQUET_CATALOG
+
 SERVICE_PACKAGES = [
-    # --- V3 Weapons ---
     {
-        "package": "ats-dominator",
-        "name": "🧠 ATS++ Keyword Dominator",
-        "price_usd": 5,
-        "description": "Scans job descriptions → rewrites your CV with exact keywords → 2.6x higher ATS pass rate",
-        "icon": "🧠",
-        "result": "+160% ATS pass rate",
-    },
-    {
-        "package": "the-insider",
-        "name": "🕵️ The Insider",
-        "price_usd": 5,
-        "description": "Real-time company intel: financials, Glassdoor, news, CEO, culture → personalized application",
-        "icon": "🕵️",
-        "result": "Stand out with insider knowledge",
-    },
-    {
-        "package": "penetration-letter",
-        "name": "✍️ Penetration Letter",
-        "price_usd": 3,
-        "description": "Cover letter that name-drops company news + aligns your skills to THEIR pain points",
-        "icon": "✍️",
-        "result": "5x more likely to be read",
-    },
-    {
-        "package": "follow-up-trio",
-        "name": "📬 The 3-Tap Follow-Up",
-        "price_usd": 5,
-        "description": "Day 3 gentle → Day 7 value-add → Day 14 closing. Auto-scheduled, different tone each",
-        "icon": "📬",
-        "result": "3 extra chances to land interview",
-    },
-    {
-        "package": "interview-arsenal",
-        "name": "🎙️ Interview Arsenal",
-        "price_usd": 10,
-        "description": "15+ predicted questions with model answers → tech + behavioral + company-specific",
-        "icon": "🎙️",
-        "result": "Walk in fully prepared",
-    },
-    {
-        "package": "warp-speed",
-        "name": "⚡ Warp Speed",
-        "price_usd": 8,
-        "description": "Llama 70B AI (9x smarter) + priority processing queue → 3x faster, higher quality",
-        "icon": "⚡",
-        "result": "Smarter AI, no waiting",
-    },
-    {
-        "package": "global-strike",
-        "name": "🌍 Global Strike",
-        "price_usd": 10,
-        "description": "Multi-platform auto-apply: LinkedIn Easy Apply + company portals + job boards at once",
-        "icon": "🌍",
-        "result": "3x more applications",
-    },
-    {
-        "package": "competition-radar",
-        "name": "👁️ Competition Radar",
-        "price_usd": 7,
-        "description": "Analyzes who else applied → ranks YOUR odds → tells you where you win",
-        "icon": "👁️",
-        "result": "Apply where you have the edge",
-    },
-    # --- V4 Weapons (NEW) ---
-    {
-        "package": "mock-interview",
-        "name": "🎭 Mock Interview AI",
-        "price_usd": 15,
-        "description": "Interactive voice/video interview simulator → AI grades answers, flags weaknesses, suggests improvements",
-        "icon": "🎭",
-        "result": "Ace every interview",
-    },
-    {
-        "package": "linkedin-dominator",
-        "name": "🔗 LinkedIn Dominator",
-        "price_usd": 10,
-        "description": "AI rewrites entire LinkedIn profile: headline, About, Skills, Experience → keyword-optimized for recruiters",
-        "icon": "🔗",
-        "result": "5x more recruiter InMails",
-    },
-    {
-        "package": "salary-negotiator",
-        "name": "💸 Salary Negotiator",
-        "price_usd": 8,
-        "description": "Real-time market salary data + custom negotiation scripts + counter-offer email generator",
-        "icon": "💸",
-        "result": "Get paid what you're worth",
-    },
-    {
-        "package": "career-agent",
-        "name": "🧠 Career Agent 24/7",
-        "price_usd": 12,
-        "description": "AI chatbot that knows your CV, target market, skills → answers any career question instantly",
-        "icon": "🧠",
-        "result": "Your personal career advisor",
-    },
-    {
-        "package": "networking-missile",
-        "name": "🎯 Networking Missile",
-        "price_usd": 7,
-        "description": "Auto-finds hiring managers → crafts personalized LinkedIn messages → tracks response rates",
-        "icon": "🎯",
-        "result": "Turn strangers into interviews",
-    },
-    {
-        "package": "interview-ninja",
-        "name": "🥷 Interview Ninja",
-        "price_usd": 20,
-        "description": "Live browser overlay during video interviews → real-time answer prompts + anti-ramble detection",
-        "icon": "🥷",
-        "result": "Secret weapon in live interviews",
-    },
-    {
-        "package": "mena-multilang",
-        "name": "🌍 MENA Multi-Lang Pro",
-        "price_usd": 5,
-        "description": "Professional CV + cover letter translation: Arabic ↔ English ↔ French, culturally adapted",
-        "icon": "🌍",
-        "result": "Dominate MENA & Gulf market",
-    },
-    # --- Follow-Up Automation (PAID add-on) ---
-    {
-        "package": "follow-up-automation-starter",
-        "name": "📬 Follow-Up Automation – Starter",
-        "price_usd": 4.99,
-        "description": "Up to 50 AI follow-ups per campaign. Day 3 + Day 7 auto follow-ups with Groq AI messages. Boosts response rate +40%.",
-        "icon": "📬",
-        "result": "+40% response rate",
-        "tier": "starter",
-        "max_followups": 50,
-    },
-    {
-        "package": "follow-up-automation-pro",
-        "name": "📬 Follow-Up Automation – Pro",
-        "price_usd": 19.99,
-        "description": "Up to 200 AI follow-ups per campaign. Full 2-cycle automation with personalized Groq AI messages. +65% response rate.",
-        "icon": "📬",
-        "result": "+65% response rate",
-        "tier": "pro",
-        "max_followups": 200,
-    },
-    {
-        "package": "follow-up-automation-enterprise",
-        "name": "📬 Follow-Up Automation – Enterprise",
-        "price_usd": 49.99,
-        "description": "Up to 500 AI follow-ups per campaign. Maximum coverage with priority AI + multi-tone follow-up cycles.",
-        "icon": "📬",
-        "result": "+85% response rate",
-        "tier": "enterprise",
-        "max_followups": 500,
-    },
+        "package": s["id"],
+        "name": s["name"],
+        "price_usd": float(s["price"]),
+        "features": s["features"],
+        "what_they_get": s.get("what_they_get", s["description"]),
+        "delivery": s.get("delivery", "instant")
+    }
+    for s in SERVICE_CATALOG
 ]
 
 # Bundle definitions: which features are unlocked by each bouquet

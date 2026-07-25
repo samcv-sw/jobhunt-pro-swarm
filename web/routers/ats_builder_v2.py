@@ -49,6 +49,7 @@ def calculate_ats_score(resume_text: str, target_jd: str) -> Dict[str, Any]:
         ]
     }
 
+@router.post("/ats-v2/analyze")
 @router.post("/analyze")
 async def analyze_ats(
     resume_text: str = Body(...),
@@ -59,6 +60,7 @@ async def analyze_ats(
     return {"status": "success", "data": result}
 
 @router.get("/builder", response_class=HTMLResponse)
+@router.get("/ats-v2/builder", response_class=HTMLResponse)
 async def view_ats_builder(request: Request):
     """Render the Interactive ATS Live Builder Canvas page."""
     try:

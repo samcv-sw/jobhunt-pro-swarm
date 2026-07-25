@@ -230,6 +230,13 @@ def launch_services():
         ping_thread = threading.Thread(target=keep_alive_ping, daemon=True, name="keep_alive_ping")
         ping_thread.start()
 
+        try:
+            from core.telegram_daemon import start_telegram_daemon_background
+            start_telegram_daemon_background()
+            logger.info("24/7 Telegram Bot Daemon initialization: SUCCESS")
+        except Exception as tg_daemon_err:
+            logger.warning(f"Telegram Bot Daemon startup notice: {tg_daemon_err}")
+
     # Attempt psutil import at startup — but use sys.modules lookup in the loop
     # so that test mocks via patch.dict(sys.modules, {'psutil': ...}) take effect.
     try:

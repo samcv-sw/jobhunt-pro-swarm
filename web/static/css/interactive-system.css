@@ -4,13 +4,15 @@
    ========================================================================== */
 
 :root {
-  --fsm-primary: #38bdf8;
-  --fsm-primary-hover: #0284c7;
+  --fsm-primary: #00f0ff;
+  --fsm-primary-hover: #00c8d6;
+  --fsm-gold: #f0c040;
+  --fsm-purple: #8b5cf6;
   --fsm-success: #10b981;
   --fsm-error: #ef4444;
-  --fsm-bg-dark: #0f172a;
+  --fsm-bg-dark: #0a0a1a;
   --fsm-text-light: #f8fafc;
-  --fsm-transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  --fsm-transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* FSM Ready Button Styles */
@@ -24,15 +26,25 @@
   padding-inline: 1.25rem;
   font-family: inherit;
   font-weight: 600;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   transition: var(--fsm-transition);
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
   user-select: none;
+  cursor: pointer;
+}
+
+.fsm-btn-ready:hover {
+  transform: translate3d(0, -2px, 0) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25);
+}
+
+.fsm-btn-ready:active {
+  transform: translate3d(0, 0, 0) scale(0.98);
 }
 
 /* States */
-[data-fsm-state="loading"] {
+[data-fsm-state="loading"], .is-loading {
   opacity: 0.85;
   cursor: wait !important;
   pointer-events: none;
@@ -42,25 +54,25 @@
   background-color: var(--fsm-success) !important;
   color: #ffffff !important;
   border-color: var(--fsm-success) !important;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
 }
 
 .fsm-state-error {
   background-color: var(--fsm-error) !important;
   color: #ffffff !important;
   border-color: var(--fsm-error) !important;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
 }
 
 /* Spinner Animation */
-.fsm-spinner {
+.fsm-spinner, .spinner {
   display: inline-block;
-  inline-size: 1.125rem;
-  block-size: 1.125rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  border-top-color: currentColor;
-  animation: fsm-spin 0.75s linear infinite;
+  border-top-color: var(--fsm-primary);
+  animation: fsm-spin 0.75s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
 }
 
 @keyframes fsm-spin {
@@ -68,13 +80,91 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Icons */
-.fsm-icon-success, .fsm-icon-error {
-  font-weight: bold;
-  font-size: 1.1em;
+/* Pulsing Status Badges */
+.pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--fsm-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.pulse-badge-dot {
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background: var(--fsm-success);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Toast Notifications Container */
+.toast-container {
+  position: fixed;
+  inset-block-end: 1.5rem;
+  inset-inline-end: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast-message {
+  pointer-events: auto;
+  min-inline-size: 280px;
+  max-inline-size: 400px;
+  padding-block: 1rem;
+  padding-inline: 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.9rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: toast-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* RTL Logical Utilities */
-[dir="rtl"] .fsm-btn-ready {
+[dir="rtl"] .fsm-btn-ready,
+[dir="rtl"] .toast-message {
   font-family: 'Cairo', 'Tajawal', sans-serif;
 }
+

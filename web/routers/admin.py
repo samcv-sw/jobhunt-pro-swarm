@@ -288,7 +288,8 @@ from fastapi import BackgroundTasks, Form
 def admin_panel(request: Request):
     """Admin dashboard — full system overview."""
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import get_payment_stats, require_admin
+    from web.app_v2 import require_admin
+    from payments import get_payment_stats
     if not require_admin(request):
         return RedirectResponse("/login", status_code=303)
 
@@ -350,11 +351,13 @@ def admin_panel(request: Request):
             campaigns=campaigns,
             orders=orders,
             redeem_codes=redeem_codes,
-            payment_stats=payment_stats,
             manual_emails=manual_emails,
             flash_sales=flash_sales,
+            payment_stats=payment_stats,
         )
-        return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, "Admin Panel", "admin"))
+        is_en = request and (request.query_params.get("lang") == "en" or getattr(request.state, "lang", None) == "en" or request.cookies.get("lang") == "en")
+        title = "Admin Panel" if is_en else "لوحة الإدارة"
+        return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, title, "admin", request=request))
 
 
 @router.get("/admin/sys-logs", response_class=HTMLResponse)
@@ -740,7 +743,7 @@ def admin_user_detail(request: Request, target_user_id: str):
             user=user, campaigns=campaigns,
             transactions=transactions, orders=orders
         )
-        return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, f"User {user.get('name', 'Details')}", "admin"))
+        return HTMLResponse(_build_dashboard_shell(None, require_admin(request), content_html, f"User {user.get('name', 'Details')}", "admin", request=request))
 
 
 @router.get("/antigravity", response_class=HTMLResponse)

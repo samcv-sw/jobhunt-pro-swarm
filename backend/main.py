@@ -183,32 +183,39 @@ async def lifespan(app: FastAPI):
         bot_instance = TelegramBot()
         app.state.bot_instance = bot_instance
         if bot_instance.enabled:
-            logger.info("Initializing Telegram bot in Webhook mode...")
+            logger.info("Initializing Telegram bot...")
             bot_instance.notifier.start()
 
             from . import config
 
             site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
-            render_url = config.RENDER_URL
+            render_url = getattr(config, "RENDER_URL", None)
             base_url = (render_url or site_url).rstrip("/")
             webhook_url = f"{base_url}/webhook/telegram"
 
-            logger.info(f"Setting Telegram webhook to: {webhook_url}")
-            import httpx
+            is_local = "localhost" in base_url or "127.0.0.1" in base_url or not base_url.startswith("https")
 
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                res = await client.post(
-                    f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
-                    json={"url": webhook_url},
-                )
-                if res.status_code == 200:
-                    logger.info("Telegram webhook registered successfully.")
-                else:
-                    logger.warning(
-                        f"Failed to set Telegram webhook: {res.status_code} - {res.text}"
+            if not is_local:
+                logger.info(f"Setting Telegram webhook to: {webhook_url}")
+                import httpx
+
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    res = await client.post(
+                        f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
+                        json={"url": webhook_url},
                     )
+                    if res.status_code == 200:
+                        logger.info("Telegram webhook registered successfully.")
+                    else:
+                        logger.warning(
+                            f"Failed to set Telegram webhook: {res.status_code} - {res.text}. Falling back to polling."
+                        )
+                        app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
+            else:
+                logger.info("Local environment detected. Starting Telegram bot in polling mode...")
+                app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
     except Exception as e:
-        logger.error(f"Failed to initialize Telegram webhook: {e}")
+        logger.error(f"Failed to initialize Telegram bot: {e}")
 
     yield
 
@@ -628,11 +635,14 @@ from backend.routers.autopoietic_swarm_router import router as autopoietic_swarm
 from backend.routers.p2p_fabric_router import router as p2p_fabric_router
 from backend.routers.omni_yield_router import router as omni_yield_router
 from backend.routers.knowledge_graph_router import router as knowledge_graph_router
+from backend.routers.cloud_edge_router import router as cloud_edge_router
 
 app.include_router(autopoietic_swarm_router)
 app.include_router(p2p_fabric_router)
 app.include_router(omni_yield_router)
 app.include_router(knowledge_graph_router)
+app.include_router(cloud_edge_router)
+
 
 
 

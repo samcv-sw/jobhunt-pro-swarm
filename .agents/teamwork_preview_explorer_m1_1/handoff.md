@@ -1,61 +1,119 @@
-# Handoff Report — teamwork_preview_explorer_m1_1
+# Handoff Report — Database Auto-Detection & Fallback Analysis
 
 ## 1. Observation
-- **Next.js Font Stack**: Located in `frontend/src/app/page.tsx:195`:
-  `fontFamily: isArabic ? "'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif" : undefined`
-  And `frontend/src/app/globals.css:28`:
-  `--font-arabic: var(--font-cairo), var(--font-tajawal), 'IBM Plex Arabic', sans-serif;`
-  And `frontend/src/app/layout.tsx:6-17` loads `Cairo` and `Tajawal` from Google Fonts and maps them to `--font-cairo` and `--font-tajawal`.
-- **Next.js Logical Styles**: Checked `frontend/src/app/page.tsx` and `globals.css`. Direct inline styles and layout classes utilize logical properties:
-  `style={{ minBlockSize: "100vh" }}` (line 194), `style={{ inlineSize: "3rem", blockSize: "3rem" }}` (line 203), and `padding-block`, `padding-inline` (globals.css lines 174, 175, 209, 210, 289, 290). No physical margins (`ml-`, `mr-`), paddings (`pl-`, `pr-`), or offsets (`left-`, `right-`) were found.
-- **Tailwind Base Font Stack**: Located in `web/templates/_base_tailwind.html:67-69`:
-  ```javascript
-  fontFamily: {
-      sans: ['Cairo', 'sans-serif'],
-      display: ['Cairo', 'sans-serif'],
-      mono: ['Fira Code', 'monospace'],
-  }
-  ```
-- **LTR Base Bug**: Located in `web/templates/en/base.html:23-24`:
-  ```html
-  <link rel="stylesheet" href="/static/css/index-rtl.css">
-  <link rel="stylesheet" href="/static/css/index.css">
-  ```
-- **Custom Font Overrides in Templates**: A search for `font-family` revealed that multiple files override the font stack using incomplete font lists, e.g.:
-  - `web/templates/_public_shell.html:84`: `font-family:'Cairo','Inter',sans-serif;`
-  - `web/templates/_dashboard_shell.html:27`: `font-family: 'Cairo', 'Tajawal', sans-serif;`
-  - `web/templates/admin.html:6`: `body { font-family: 'Cairo', 'Segoe UI',sans-serif; ... }`
-- **Letter-Spacing Overrides**: Checked `web/templates/_public_shell.html:73`:
-  `[dir="rtl"], [dir="rtl"] *, [lang="ar"], [lang="ar"] * { letter-spacing: normal !important; }`
-  And `web/templates/_sidebar_head.html:79`:
-  `letter-spacing: normal !important;`
-  And `frontend/src/app/globals.css:44-46`:
-  `[dir="rtl"], [dir="rtl"] *, [lang="ar"], [lang="ar"] * { letter-spacing: normal !important; }`
+Direct inspection of `config.py`, `core/database.py`, `core/pg_sqlite_shim.py`, `backend/database.py`, and `core/async_db.py` yielded the following facts:
+
+1. **`config.py` (Line 169-170)**:
+   ```python
+   DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://jobhunt:jobhunt_password@localhost:5432/jobhunt_db")
+   NEON_URL = os.getenv("NEON_URL", DATABASE_URL)
+   ```
+   `config.DATABASE_URL` provides a default PostgreSQL URL when `DATABASE_URL` is omitted from environment variables. `POSTGRES_URL` is not checked.
+
+2. **`core/database.py` (Lines 14-23)**:
+   ```python
+   NEON_URL = os.getenv("DATABASE_URL", "")
+   if NEON_URL.startswith("postgresql://"):
+       NEON_URL = NEON_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+   elif NEON_URL.startswith("postgres://"):
+       NEON_URL = NEON_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+   IS_SQLITE = not NEON_URL or "sqlite" in NEON_URL
+   ```
+   Reads only `DATABASE_URL`. Does not read `POSTGRES_URL` or `NEON_URL` env vars. Does not format host with `format_neon_connection_string`. Unconditionally applies WAL mode on SQLite connect (Line 70).
+
+3. **`core/pg_sqlite_shim.py` (Lines 107-116, 755-770, 880-915)**:
+   ```python
+   _raw_uri = (
+       os.getenv("NEON_URL")
+       or os.getenv("DATABASE_URL")
+       or os.getenv("DATABASE_URL_SYNC")
+       or ""
+   )
+   ```
+   - Missing `POSTGRES_URL` in `_raw_uri` list.
+   - `_translate_for_sqlite(query)` replaces `ILIKE` → `LIKE`, strips `::type` casts and `RETURNING` clauses, but does **not** translate `$1, $2, ...` positional parameters to `?`.
+   - `connect()` catches `Exception` during `PgConnectionWrapper()` creation and successfully falls back to `SqliteConnectionWrapper(sqlite_db)` (Lines 908-914).
+
+4. **`backend/database.py` (Lines 72-97)**:
+   ```python
+   TURSO_URL = os.getenv("TURSO_DATABASE_URL")
+   LOCAL_DB_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_saas_v2.db")
+   REMOTE_PG_URL = (
+       format_neon_connection_string(os.getenv("DATABASE_URL")) if os.getenv("DATABASE_URL") else None
+   )
+   ```
+   Reads `TURSO_DATABASE_URL`, `DATABASE_URL`, and `LOCAL_DATABASE_URL`. Ignores `POSTGRES_URL`, `NEON_URL`, `DATABASE_URL_SYNC`. Resolves `ACTIVE_DB_URL` once at module load time; if PostgreSQL connection fails at runtime, `get_db()` raises `OperationalError` without falling back to `LOCAL_DB_URL`.
+
+5. **`core/async_db.py` (Lines 9-14)**:
+   ```python
+   NEON_URI = (
+       os.getenv("NEON_URL")
+       or os.getenv("DATABASE_URL")
+       or os.getenv("DATABASE_URL_SYNC")
+       or ""
+   )
+   ```
+   Ignores `POSTGRES_URL`. Translates `?` → `$1, $2` for `asyncpg`.
 
 ---
 
 ## 2. Logic Chain
-1. Since the Tailwind CDN config in `web/templates/_base_tailwind.html` only specifies `Cairo` and `sans-serif` (Observation 3), it misses `Tajawal` and `IBM Plex Arabic` fallback fonts.
-2. Because `web/templates/en/base.html` imports `index-rtl.css` (Observation 4), it introduces redundant CSS variable definitions (e.g. setting `--font-sans` to the Arabic stack instead of `Inter`), which is unnecessary and bloats the page payload.
-3. Multiple templates have custom `font-family` styles with partial font stacks like `Cairo, Inter` or `Cairo, Segoe UI` (Observation 5), causing inconsistent rendering depending on system-installed LTR fonts.
-4. The letter-spacing rules successfully enforce zero letter spacing (`normal !important`) for Arabic text (Observation 6), which prevents breaking cursives.
-5. The Next.js page `frontend/src/app/page.tsx` and its global stylesheet `globals.css` strictly use CSS logical properties, custom scrollbar inline-size/block-size, and define appropriate responsive minimum sizes and dark glassmorphism effects (Observation 2).
+
+1. **`POSTGRES_URL` Unhandled**:
+   - *Observation*: `PROJECT.md` specifies `DATABASE_URL` / `POSTGRES_URL` detection contract, but no file in the codebase reads `os.getenv("POSTGRES_URL")`.
+   - *Deduction*: When deployed on hosting platforms that provide `POSTGRES_URL` (e.g. Supabase, Vercel, Railway), the system fails to detect the remote PostgreSQL database and defaults to local SQLite.
+
+2. **`config.py` Default Collision**:
+   - *Observation*: `config.py` sets a default PostgreSQL connection string when `DATABASE_URL` is empty.
+   - *Deduction*: Modules reading `config.DATABASE_URL` assume PostgreSQL is available even when no database environment variable is provided, attempting to connect to `localhost:5432` and failing instead of using SQLite.
+
+3. **`$1/$2` Parameter Breakdown on SQLite Fallback**:
+   - *Observation*: `convert_sql` translates `?` → `%s` for PostgreSQL in `PgCursorWrapper`, but `_translate_for_sqlite` in `SqliteConnectionWrapper` does not translate `$1, $2` → `?`.
+   - *Deduction*: If code structured with PostgreSQL `$1, $2` parameters runs under SQLite fallback, SQLite execution throws `sqlite3.OperationalError: near "$1": syntax error`.
+
+4. **Lack of Dynamic Fallback in `backend/database.py`**:
+   - *Observation*: `backend/database.py` fixes `ACTIVE_DB_URL` at import time.
+   - *Deduction*: If `DATABASE_URL` is present but the database server is temporarily down or unreachable, `backend/database.py` sessions will fail on every request without attempting `LOCAL_DB_URL`.
+
+5. **SQLite Journal Mode Locking on NFS**:
+   - *Observation*: `core/database.py` and `backend/database.py` force `PRAGMA journal_mode=WAL` without checking for PythonAnywhere environment variables, whereas `core/pg_sqlite_shim.py` checks `PYTHONANYWHERE_SITE`.
+   - *Deduction*: Running `core/database.py` or `backend/database.py` on PythonAnywhere leads to `database is locked` errors due to NFS filesystem limitations with WAL mode.
 
 ---
 
 ## 3. Caveats
-- Checked static stylesheet files (`.css`) under `web/static/css/`. Some of them are minified, but our analysis showed they do not contain layout-breaking physical margins or paddings.
-- Assumed standard Google font definitions for `Cairo` and `Tajawal` are correctly preloaded via scripts inside templates.
+
+- **Uninvestigated Areas**: Specific cloud deployment logs (Vercel/Render live environment runtime outputs) were not inspected directly as this is a local static codebase analysis.
+- **Assumptions**: Assumed standard behaviour of `psycopg2`, `asyncpg`, `aiosqlite`, and `libsql_experimental` based on Python type signatures and imports.
+- **Alternative Interpretations Considered**: `config.py`'s default PostgreSQL URL may have been intended for local docker-compose setups, but it conflicts with the auto-detection fallback contract.
 
 ---
 
 ## 4. Conclusion
-The codebase is mostly RTL-compliant and conforms to CSS Logical Properties. The primary areas requiring refactoring are unifying the font family stack inside Jinja2 templates (standardizing on `Cairo, Tajawal, IBM Plex Arabic, sans-serif`), removing a redundant stylesheet link in the English `base.html` template, and updating the Tailwind font config in `_base_tailwind.html`.
+
+The database layer exhibits strong connection pooling resilience (PID fork resetting, 280s connection recycling before Neon's 300s suspend, pre-ping heartbeats) and comprehensive query translation (`convert_sql`). However, 7 distinct gaps must be addressed to achieve 100% zero-crash auto-detection and seamless fallback:
+
+1. Add `POSTGRES_URL` to environment resolution chains across all 5 files.
+2. Remove hardcoded PostgreSQL default in `config.py` (default to `""` or `LOCAL_DATABASE_URL`).
+3. Implement `$1, $2, ...` → `?` translation in `_translate_for_sqlite()` within `core/pg_sqlite_shim.py`.
+4. Implement dynamic runtime fallback in `backend/database.py` when PostgreSQL initialization/execution fails.
+5. Standardize Neon URI host pooler formatting by calling `format_neon_connection_string` in `core/database.py`.
+6. Preserving custom database ports in `format_neon_connection_string`.
+7. Add PythonAnywhere NFS detection (`journal_mode=DELETE`) to `core/database.py` and `backend/database.py`.
 
 ---
 
 ## 5. Verification Method
-- Check that the Next.js page matches these settings and starts successfully.
-- Check template rendering using FastAPI to verify that typography fallback works when default system fonts are changed.
-- Validate that the redundant stylesheet import in `web/templates/en/base.html` is removed.
-- Run `pytest` to ensure no routes are broken by these investigations.
+
+1. **Inspect Analysis Report**:
+   Read `analysis.md` in `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\analysis.md`.
+
+2. **Run Pytest Verification**:
+   Execute pytest to ensure existing tests remain green:
+   `pytest`
+
+3. **Check Code Locations**:
+   - `config.py` line 169
+   - `core/database.py` lines 14-23, 70
+   - `core/pg_sqlite_shim.py` lines 107-116, 755-770
+   - `backend/database.py` lines 72-97

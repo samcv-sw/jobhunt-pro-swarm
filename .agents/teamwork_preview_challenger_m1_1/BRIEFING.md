@@ -1,43 +1,33 @@
-# BRIEFING — 2026-07-12T12:38:00+03:00
+# BRIEFING — 2026-07-22T09:44:00Z
 
 ## Mission
-Empirically challenge and verify the correctness of Milestone 1: Cloudflare Pages Deployment.
+Empirically stress test database adapter fallback and query parameter translation ($1/$2 -> ?) in JobHunt Pro. Inspect tests/test_milestone1_resilience.py and execute empirical verification suites.
 
 ## 🔒 My Identity
-- Archetype: empirical_challenger
+- Archetype: EMPIRICAL CHALLENGER
 - Roles: critic, specialist
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_challenger_m1_1
-- Original parent: 5f8466d7-63b0-4f1b-bd45-05caf7bba64e
-- Milestone: Milestone 1: Cloudflare Pages Deployment
+- Original parent: 406220be-1f6c-42b2-a120-82564783a9e5
+- Milestone: milestone1_resilience
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
-- Review-only — do NOT modify implementation code
-- Network restriction: CODE_ONLY
+- Empirically test and verify all claims by running tests/scripts
+- Write Findings to handoff.md in working directory
+- Do NOT edit core application code directly unless instructed, focus on testing and empirical verification
+- Report results to parent via send_message
 
 ## Current Parent
-- Conversation ID: 5f8466d7-63b0-4f1b-bd45-05caf7bba64e
-- Updated: 2026-07-12T12:38:00+03:00
+- Conversation ID: 406220be-1f6c-42b2-a120-82564783a9e5
+- Updated: 2026-07-22T09:44:00Z
 
 ## Review Scope
-- **Files to review**: frontend build outputs, frontend/public/_worker.js, web/app_v2.py
-- **Interface contracts**: PROJECT.md
-- **Review criteria**: Static route compilation, proxy routing logic, custom headers & methods, CORS regex matching.
+- **Files to review**: `PROJECT.md`, `core/pg_sqlite_shim.py`, `tests/test_milestone1_resilience.py`, and related DB modules.
+- **Interface contracts**: Database fallback, PostgreSQL to SQLite failover, `$1/$2` parameter translation to `?`.
 
 ## Key Decisions Made
-- Executed node module test harness to verify `_worker.js` routing, WebSocket protocol upgrade, headers/methods forwarding, and 502 error fallbacks.
-- Executed python/FastAPI TestClient verification script to test CORS matching rules for allowed and blocked origins using actual Starlette CORSMiddleware.
+- Initializing empirical testing suite.
 
 ## Artifact Index
-- `scratch/verify_worker_proxy.mjs` — Test harness for JS Cloudflare Worker proxy validation.
-- `scratch/verify_cors.py` — Test harness for Python/FastAPI CORS validation.
-
-## Attack Surface
-- **Hypotheses tested**: 
-  - CORS regex prevents TLD extension attacks and sibling subdomain hijacking.
-  - Proxy logic correctly forwards headers, WebSocket handshake protocols, request bodies, and provides robust 502 gateway error fallbacks.
-- **Vulnerabilities found**: None. CORS regex validation matches exactly and prevents bypasses. Worker proxy logic handles Host-based routing properly.
-- **Untested angles**: Real-world Cloudflare Edge execution constraints (CPU limits, memory limits on free tier, which are usually 50ms execution time, though our worker is extremely simple and lightweight, well within the limits).
-
-## Loaded Skills
-- None
+- `.agents/teamwork_preview_challenger_m1_1/ORIGINAL_REQUEST.md` — Original request
+- `.agents/teamwork_preview_challenger_m1_1/handoff.md` — Handoff report (TBD)

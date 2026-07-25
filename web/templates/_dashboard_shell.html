@@ -13,8 +13,8 @@
 
   <!-- PREMIUM SIDEBAR -->
   <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
-    class="fixed inset-y-0 inset-inline-start-0 z-40 flex flex-col transition-transform duration-300 ease-in-out"
-    style="inline-size:260px;background:rgba(10,10,26,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inline-end:1px solid rgba(255,255,255,0.08);box-shadow:4px 0 40px rgba(0,0,0,0.4);">
+    class="fixed md:sticky inset-y-0 inset-inline-start-0 top-0 h-screen z-40 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out"
+    style="inline-size:260px;flex-shrink:0;background:rgba(10,10,26,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inline-end:1px solid rgba(255,255,255,0.08);box-shadow:4px 0 40px rgba(0,0,0,0.4);">
 
     <!-- Sidebar Header -->
     <div style="padding:24px 20px 16px;border-block-end:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
@@ -41,13 +41,18 @@
       <div class="sb-section-label">الرئيسية</div>
       <a href="/user-dashboard" class="sb-link {{ 'sb-active' if active_page == 'dashboard' else '' }}"><i data-lucide="layout-dashboard" class="sb-icon"></i><span>لوحة القيادة</span></a>
       <a href="/upload-cv" class="sb-link {{ 'sb-active' if active_page == 'upload-cv' else '' }}"><i data-lucide="file-text" class="sb-icon"></i><span>رفع السيرة الذاتية</span></a>
-      <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>{{ _('مقياس ATS') }}</span></a>
+      <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>مقياس ATS</span></a>
       <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>تخصيص السيرة الذاتية</span></a>
 
       <div class="sb-section-label">الحملات</div>
       <a href="/new-campaign" class="sb-link {{ 'sb-active' if active_page == 'new-campaign' else '' }}"><i data-lucide="rocket" class="sb-icon lucide-dir-aware"></i><span>حملة جديدة</span></a>
       <a href="/sent-emails" class="sb-link {{ 'sb-active' if active_page == 'sent-emails' else '' }}"><i data-lucide="send" class="sb-icon lucide-dir-aware"></i><span>الرسائل المرسلة</span></a>
       <a href="/funnel-analytics" class="sb-link {{ 'sb-active' if active_page == 'funnel-analytics' else '' }}"><i data-lucide="bar-chart-2" class="sb-icon"></i><span>تحليلات التوظيف</span></a>
+
+      <div class="sb-section-label" style="color:#fbbf24;font-weight:800;">🏢 أصحاب العمل والشركات</div>
+      <a href="/for-employers" class="sb-link {{ 'sb-active' if active_page == 'employers' or active_page == 'b2b' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="search" class="sb-icon"></i><span>التفتيش عن الموظفين والسير الذاتية</span></a>
+      <a href="/for-employers" class="sb-link" style="color:#f59e0b;padding-inline-start:24px;"><i data-lucide="briefcase" class="sb-icon"></i><span>نشر وظيفة جديدة</span></a>
+      <a href="/employer/track" class="sb-link {{ 'sb-active' if active_page == 'employer_track' else '' }}" style="color:#60a5fa;padding-inline-start:24px;"><i data-lucide="users" class="sb-icon"></i><span>تتبع المتقدمين للشركات</span></a>
 
       <div class="sb-section-label">الأدوات</div>
       <a href="/battle-station" class="sb-link {{ 'sb-active' if active_page == 'battle-station' else '' }}"><i data-lucide="swords" class="sb-icon"></i><span>محطة المعركة</span></a>
@@ -78,7 +83,7 @@
   </aside>
 
   <!-- MAIN CONTENT -->
-  <main class="relative flex-1 overflow-x-hidden" style="margin-inline-start:260px;z-index:1;">
+  <main class="relative flex-1 min-w-0 overflow-x-hidden" style="z-index:1;">
 
     <!-- Top Bar -->
     <header style="position:sticky;inset-block-start:0;z-index:20;background:rgba(10,10,26,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-block-end:1px solid rgba(255,255,255,0.07);">
@@ -107,13 +112,22 @@
     </header>
 
     <!-- Content -->
-    <div style="padding:28px;">
+    <div style="padding:16px 20px; max-width:1400px; margin:0 auto;">
       {{ content_html | safe }}
     </div>
 
     <!-- Footer -->
-    <footer style="padding:20px 28px;border-block-start:1px solid rgba(255,255,255,0.06);text-align:center;color:#374151;font-size:14px;">
-      نظام جوبهانت برو هايدرا v{{ VERSION }} © {{ current_year }} | مشفر بالكامل
+    <footer style="padding:24px 28px; border-block-start:1px solid rgba(0, 240, 255, 0.15); background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-block-start: 32px; border-radius: 14px;">
+      <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; font-size:13.5px; font-weight:600; color:#cbd5e1;">
+        <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 14px; background:rgba(0, 240, 255, 0.1); border:1px solid rgba(0, 240, 255, 0.3); border-radius:20px; color:#00f0ff; font-weight:700; font-size:12.5px;">
+          🛡️ جدار حماية هايدرا نشط
+        </span>
+        <span>نظام جوبهانت برو هايدرا <strong style="color:#ffffff;">v{{ VERSION }}</strong> © {{ current_year }}</span>
+        <span style="color:rgba(255,255,255,0.2);">|</span>
+        <span style="color:#4ade80; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+          🔒 مشفر بالكامل (End-to-End Encrypted)
+        </span>
+      </div>
     </footer>
   </main>
 </div>
@@ -176,6 +190,22 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const successParam = urlParams.get('success');
+  if (successParam === 'campaign_started') {
+    const isAr = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl' || !window.location.pathname.startsWith('/en');
+    const msg = isAr 
+      ? '🚀 تم إطلاق الحملة وتفعيل السرب بنجاح 100%! جاري معالجة الطلبات تلقائياً.'
+      : '🚀 Campaign Swarm Successfully Initialized 100%! Autonomous processing active.';
+    
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-6 start-1/2 -translate-x-1/2 bg-slate-900/95 text-emerald-400 border-2 border-emerald-500/80 px-6 py-4 rounded-2xl shadow-[0_0_40px_rgba(16,185,129,0.5)] font-black text-sm z-[999999] flex items-center gap-3 animate-bounce';
+    toast.innerHTML = '<i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-400"></i> <span>' + msg + '</span>';
+    document.body.appendChild(toast);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    setTimeout(() => { toast.remove(); }, 6000);
+  }
 });
 </script>
 {% endblock %}

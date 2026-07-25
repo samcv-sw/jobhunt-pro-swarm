@@ -10,8 +10,24 @@ _sqlite_dequeue_lock = threading.Lock()
 
 
 def _ensure_job_queue_columns(conn):
-    """Ensures that the job_queue table has all necessary columns for core.job_queue functionality."""
+    """Ensures that the job_queue table exists and has all necessary columns for core.job_queue functionality."""
     try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS job_queue (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                task_type TEXT NOT NULL,
+                payload TEXT,
+                status TEXT DEFAULT 'pending',
+                priority INTEGER DEFAULT 5,
+                max_retries INTEGER DEFAULT 3,
+                retry_count INTEGER DEFAULT 0,
+                next_retry_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                locked_at TIMESTAMP,
+                error TEXT
+            )
+        """)
         cols = []
         try:
             cur = conn.execute("PRAGMA table_info(job_queue)")
@@ -25,11 +41,12 @@ def _ensure_job_queue_columns(conn):
             ("retry_count", "INTEGER DEFAULT 0"),
             ("next_retry_at", "TIMESTAMP"),
         ]:
-            if not cols or col not in cols:
+            if col not in cols:
                 with contextlib.suppress(Exception):
                     conn.execute(f"ALTER TABLE job_queue ADD COLUMN {col} {typ}")
     except Exception as e:
         logger.debug(f"Ensuring job_queue columns ignored/handled: {e}")
+
 
 
 def enqueue_task(
@@ -62,27 +79,32 @@ def dequeue_task():
             # If backend is sqlite, we do a simple non-concurrent fetch (for local dev)
             if get_backend() == "sqlite":
                 with _sqlite_dequeue_lock:
-                    conn.execute("BEGIN IMMEDIATE")
-                    cur = conn.execute("""
-                        SELECT id, task_type, payload FROM job_queue
-                        WHERE (status = 'pending' OR status = 'failed')
-                          AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC
-                        LIMIT 1
-                    """)
-                    row = cur.fetchone()
-                    if not row:
-                        return None
-                    task_id = row[0]
-                    conn.execute(
-                        "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
-                        (task_id,),
-                    )
-                    return {
-                        "id": task_id,
-                        "task_type": row[1],
-                        "payload": json.loads(row[2]),
-                    }
+                    try:
+                        conn.execute("BEGIN IMMEDIATE")
+                        cur = conn.execute("""
+                            SELECT id, task_type, payload FROM job_queue
+                            WHERE (status = 'pending' OR status = 'failed')
+                              AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
+                            ORDER BY priority ASC, next_retry_at ASC, created_at ASC
+                            LIMIT 1
+                        """)
+                        row = cur.fetchone()
+                        if not row:
+                            return None
+                        task_id = row[0]
+                        conn.execute(
+                            "UPDATE job_queue SET status = 'running', locked_at = CURRENT_TIMESTAMP WHERE id = ?",
+                            (task_id,),
+                        )
+                        return {
+                            "id": task_id,
+                            "task_type": row[1],
+                            "payload": json.loads(row[2]),
+                        }
+                    except Exception as sqle:
+                        if "locked" in str(sqle).lower():
+                            return None
+                        raise sqle
             else:
                 # PostgreSQL atomic concurrent dequeue
                 cur = conn.execute("""

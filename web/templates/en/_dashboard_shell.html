@@ -1,11 +1,11 @@
 {% extends "_base_tailwind.html" %}
 
 {% block content %}
-<div class="flex min-h-screen bg-slate-950 text-slate-300 font-sans mt-[-4rem]"> <!-- offset navbar padding -->
+<div class="flex min-h-screen bg-slate-950 text-slate-300 font-sans">
     
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 border-e border-white/10 hidden md:flex flex-col fixed h-full z-40">
-        <div class="p-6 border-b border-white/10 mt-16">
+    <aside class="w-64 flex-shrink-0 bg-slate-900 border-e border-white/10 hidden md:flex flex-col sticky top-0 h-screen z-40">
+        <div class="p-6 border-b border-white/10">
             <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">Command Center</h2>
             <div class="flex items-center gap-2 mt-2">
                 <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
@@ -14,41 +14,95 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-            <a href="/dashboard" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">Dashboard</span>
+            <!-- MAIN SECTION -->
+            <div class="px-3 pt-2 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Main</div>
+            <a href="/user-dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span class="text-sm">Dashboard</span>
             </a>
-            
-            <a href="/upload-cv" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'profiles' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="file-text" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">CV Profiles</span>
+            <a href="/upload-cv" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'upload-cv' or active_page == 'profiles' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span class="text-sm">Upload CV & Profiles</span>
             </a>
-            
-            <a href="/campaigns" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'campaigns' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="rocket" class="w-5 h-5 lucide-dir-aware"></i>
-                <span class="font-medium text-sm">Active Campaigns</span>
+            <a href="/ats-scorer" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'ats-scorer' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="target" class="w-4 h-4"></i>
+                <span class="text-sm">ATS Scorer</span>
             </a>
-            
-            <a href="/sent-emails" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'sent' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="mail" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">Dispatches</span>
-            </a>
-
-            <div class="my-4 border-t border-white/5"></div>
-
-            <a href="/services" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'arsenal' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="crosshair" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">Arsenal (Upgrades)</span>
+            <a href="/resume-tailor" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'resume-tailor' else 'text-indigo-400 hover:text-indigo-300 hover:bg-white/5' }}">
+                <i data-lucide="wand-2" class="w-4 h-4"></i>
+                <span class="text-sm">Tailor Resume</span>
             </a>
 
-            <a href="/wallet" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="wallet" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">Crypto Wallet</span>
+            <!-- CAMPAIGNS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Campaigns</div>
+            <a href="/new-campaign" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'new-campaign' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="rocket" class="w-4 h-4 lucide-dir-aware"></i>
+                <span class="text-sm">New Campaign</span>
             </a>
-            
-            <a href="/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400' if active_page == 'settings' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="font-medium text-sm">Settings</span>
+            <a href="/sent-emails" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'sent-emails' or active_page == 'sent' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="send" class="w-4 h-4 lucide-dir-aware"></i>
+                <span class="text-sm">Dispatches</span>
+            </a>
+            <a href="/funnel-analytics" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'funnel-analytics' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                <span class="text-sm">Hiring Analytics</span>
+            </a>
+
+            <!-- RECRUITERS & EMPLOYERS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-amber-400 uppercase tracking-wider">Employers & Talent Search</div>
+            <a href="/for-employers" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-amber-500/10 text-amber-400 font-bold' if active_page == 'employers' or active_page == 'b2b' else 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10' }}">
+                <i data-lucide="search" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-sm font-bold">Search Candidate Talent (CVs)</span>
+            </a>
+            <a href="/for-employers" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-amber-300/90 hover:text-white hover:bg-white/5 ps-6">
+                <i data-lucide="briefcase" class="w-4 h-4"></i>
+                <span class="text-sm">Post a Job Opening</span>
+            </a>
+            <a href="/employer/track" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'employer_track' else 'text-slate-400 hover:text-white hover:bg-white/5' }} ps-6">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                <span class="text-sm">Track Applicants (ATS)</span>
+            </a>
+
+            <!-- TOOLS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tools & Arsenal</div>
+            <a href="/battle-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'battle-station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="swords" class="w-4 h-4"></i>
+                <span class="text-sm">Battle Station</span>
+            </a>
+            <a href="/services" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'services' or active_page == 'arsenal' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="star" class="w-4 h-4"></i>
+                <span class="text-sm">Premium Services</span>
+            </a>
+            <a href="/wallet" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                <span class="text-sm">Crypto Wallet</span>
+            </a>
+            <a href="/my-purchases" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'my-purchases' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="package" class="w-4 h-4"></i>
+                <span class="text-sm">My Subscriptions</span>
+            </a>
+            <a href="/stats" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'stats' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                <span class="text-sm">Statistics</span>
+            </a>
+            <a href="/growth-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'growth_station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="megaphone" class="w-4 h-4"></i>
+                <span class="text-sm">Growth Station & Leads</span>
+            </a>
+
+            <!-- SYSTEM SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">System</div>
+            <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-red-400 hover:bg-red-500/10">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                <span class="text-sm font-semibold">Admin Panel</span>
+            </a>
+            <a href="/contact" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span class="text-sm">Tech Support</span>
+            </a>
+            <a href="/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'settings' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span class="text-sm">Settings</span>
             </a>
         </nav>
         
@@ -70,7 +124,7 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 md:ms-64 p-4 md:p-8 pt-24 min-h-screen relative overflow-x-hidden">
+    <main class="flex-1 min-w-0 p-4 md:p-6 min-h-screen relative overflow-x-hidden">
         <!-- Dashboard Header / Welcome -->
         <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -93,12 +147,29 @@
         </header>
 
         <!-- Dynamic Content injected here -->
-        {{ content_html | safe }}
+        <div style="max-width:1400px; margin:0 auto; padding:16px 20px;">
+          {{ content_html | safe }}
+        </div>
         
         <!-- Footer -->
-        <footer class="mt-12 pt-6 border-t border-white/10 text-center text-slate-500 text-sm">
-            JobHunt Pro Hydra System v{{ VERSION }} &copy; {{ current_year }} | End-to-End Encrypted
+        <footer style="padding:24px 28px; border-block-start:1px solid rgba(0, 240, 255, 0.15); background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-block-start: 32px; border-radius: 14px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; font-size:13.5px; font-weight:600; color:#cbd5e1;">
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 14px; background:rgba(0, 240, 255, 0.1); border:1px solid rgba(0, 240, 255, 0.3); border-radius:20px; color:#00f0ff; font-weight:700; font-size:12.5px;">
+              🛡️ Hydra Shield Active
+            </span>
+            <span>JobHunt Pro Hydra System <strong style="color:#ffffff;">v{{ VERSION }}</strong> &copy; {{ current_year }}</span>
+            <span style="color:rgba(255,255,255,0.2);">|</span>
+            <span style="color:#4ade80; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+              🔒 End-to-End Encrypted
+            </span>
+          </div>
         </footer>
     </main>
 </div>
+
+<style>
+@media(max-width:767px) {
+  main { margin-inline-start:0 !important; padding:16px !important; }
+}
+</style>
 {% endblock %}

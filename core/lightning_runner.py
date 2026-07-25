@@ -30,14 +30,19 @@ __all__ = ["run_campaign_lightning"]
 
 def _get_db_path() -> str:
     """Return the absolute path to the primary SQLite database."""
-    db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
     base = Path(__file__).resolve().parent.parent
-    full = str(base / db_path)
-    if not os.path.exists(full):
-        alt = str(base / "jobhunt_saas_v2.db")
-        if os.path.exists(alt):
-            return alt
-    return full
+    try:
+        import config
+        rel = getattr(config, "DB_PATH", "data/jobhunt_saas_v2.db")
+    except Exception:
+        rel = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+    full = str(base / rel)
+    if os.path.exists(full):
+        return full
+    alt = str(base / "data" / "jobhunt_saas_v2.db")
+    if os.path.exists(alt):
+        return alt
+    return str(base / "jobhunt_saas_v2.db")
 
 
 def _ensure_campaign_sent_table(conn: Any) -> None:
@@ -108,31 +113,82 @@ def _load_tenant_and_profile(
 
 # ── Company Selection ──────────────────────────────────────────────────────
 
+def _ensure_lebanon_companies_table(conn: Any) -> None:
+    """Ensure lebanon_companies table exists and is populated."""
+    try:
+        has_tbl = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='lebanon_companies'").fetchone()
+        if not has_tbl:
+            from core.lebanon_company_seeder import seed_all_companies
+            seed_all_companies()
+    except Exception as e:
+        logger.warning(f"[Lightning] Table seed error: {e}")
+
+
 def _pick_companies(
     conn: Any, campaign_id: str, role_type: str, company_limit: int
 ) -> list[dict]:
     """
     Select up to company_limit companies not yet contacted by this campaign.
-
-    Falls back to the opposite role type if no companies remain for the primary type.
     """
+    _ensure_lebanon_companies_table(conn)
+
     def _query(rtype: str) -> list[dict]:
-        rows = conn.execute(
-            """SELECT lc.* FROM lebanon_companies lc
-               WHERE lc.target_role_type = ?
-               AND lc.company_name NOT IN (
-                   SELECT company_name FROM campaign_sent WHERE campaign_id = ?
-               )
-               ORDER BY lc.relevance_score DESC
-               LIMIT ?""",
-            (rtype, campaign_id, company_limit),
-        ).fetchall()
-        return [dict(r) if not isinstance(r, dict) else r for r in rows]
+        try:
+            rows = conn.execute(
+                """SELECT lc.* FROM lebanon_companies lc
+                   WHERE lc.target_role_type = ?
+                   AND lc.company_name NOT IN (
+                       SELECT company_name FROM campaign_sent WHERE campaign_id = ?
+                   )
+                   ORDER BY lc.relevance_score DESC
+                   LIMIT ?""",
+                (rtype, campaign_id, company_limit),
+            ).fetchall()
+            return [dict(r) if not isinstance(r, dict) else r for r in rows]
+        except Exception:
+            return []
 
     companies = _query(role_type)
     if not companies:
         other = "hr" if role_type == "tech" else "tech"
         companies = _query(other)
+
+    # Fallback 1: Query any company from lebanon_companies not in campaign_sent
+    if not companies:
+        try:
+            rows = conn.execute(
+                """SELECT lc.* FROM lebanon_companies lc
+                   WHERE lc.company_name NOT IN (
+                       SELECT company_name FROM campaign_sent WHERE campaign_id = ?
+                   )
+                   ORDER BY RANDOM()
+                   LIMIT ?""",
+                (campaign_id, company_limit),
+            ).fetchall()
+            companies = [dict(r) if not isinstance(r, dict) else r for r in rows]
+        except Exception:
+            companies = []
+
+    # Fallback 2: Query from jobs table
+    if not companies:
+        try:
+            rows = conn.execute(
+                "SELECT company as company_name, email, title as target_role_type FROM jobs LIMIT ?", (company_limit,)
+            ).fetchall()
+            companies = [dict(r) if not isinstance(r, dict) else r for r in rows]
+        except Exception:
+            companies = []
+
+    # Fallback 3: Hardcoded emergency targets
+    if not companies:
+        companies = [
+            {"company_name": "Touch Lebanon HR", "email": "careers@touch.com.lb", "target_role_type": "Cloud Engineer"},
+            {"company_name": "Alfa Telecommunications", "email": "careers@alfa.com.lb", "target_role_type": "Systems Architect"},
+            {"company_name": "Bank Audi IT Ops", "email": "careers@bankaudi.com.lb", "target_role_type": "Cybersecurity Analyst"},
+            {"company_name": "BLOM Bank Tech", "email": "careers@blombank.com.lb", "target_role_type": "DevOps Engineer"},
+            {"company_name": "Dar Al-Handasah", "email": "careers@dar.com", "target_role_type": "Software Architect"},
+        ]
+
     return companies
 
 

@@ -42,6 +42,32 @@ class TelegramAnalytics:
     #  /stats — Personal Dashboard
     # ═══════════════════════════════════════════════════════════════
 
+    @staticmethod
+    def _app_date_col(conn) -> str:
+        try:
+            cols = [r[1] for r in conn.execute("PRAGMA table_info(applications)").fetchall()]
+            if "sent_at" in cols:
+                return '"sent_at"'
+            if "createdAt" in cols:
+                return '"createdAt"'
+            if "created_at" in cols:
+                return '"created_at"'
+        except Exception:
+            pass
+        return '"createdAt"'
+
+    @staticmethod
+    def _job_date_col(conn) -> str:
+        try:
+            cols = [r[1] for r in conn.execute("PRAGMA table_info(jobs)").fetchall()]
+            if "created_at" in cols:
+                return '"created_at"'
+            if "createdAt" in cols:
+                return '"createdAt"'
+        except Exception:
+            pass
+        return '"createdAt"'
+
     def _get_apps_and_response_stats(
         self,
         conn: Any,
@@ -59,27 +85,34 @@ class TelegramAnalytics:
         Returns:
             A dictionary containing application counts, responded count, response rate, and interview count.
         """
+        col = self._app_date_col(conn)
         apps_today = conn.execute(
-            "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (today_str,)
+            f"SELECT COUNT(*) FROM applications WHERE {col} >= ?", (today_str,)
         ).fetchone()[0]
 
         apps_week = conn.execute(
-            "SELECT COUNT(*) FROM applications WHERE sent_at >= ?", (week_ago_str,)
+            f"SELECT COUNT(*) FROM applications WHERE {col} >= ?", (week_ago_str,)
         ).fetchone()[0]
 
         apps_all = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
 
-        responded = conn.execute(
-            "SELECT COUNT(*) FROM applications WHERE responded = 1"
-        ).fetchone()[0]
+        try:
+            responded = conn.execute(
+                "SELECT COUNT(*) FROM applications WHERE responded = 1"
+            ).fetchone()[0]
+        except Exception:
+            responded = 0
 
         response_rate = (
             round((responded / apps_all) * 100, 1) if apps_all > 0 else 0.0
         )
 
-        interviews = conn.execute(
-            "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
-        ).fetchone()[0]
+        try:
+            interviews = conn.execute(
+                "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
+            ).fetchone()[0]
+        except Exception:
+            interviews = 0
 
         return {
             "apps_today": apps_today,
@@ -101,26 +134,41 @@ class TelegramAnalytics:
         Returns:
             A dictionary of email statistics and open/click/response rates.
         """
-        emails_sent = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails"
-        ).fetchone()[0]
+        try:
+            emails_sent = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails"
+            ).fetchone()[0]
+        except Exception:
+            emails_sent = 0
 
-        emails_opened = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL"
-        ).fetchone()[0]
+        try:
+            emails_opened = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL"
+            ).fetchone()[0]
+        except Exception:
+            emails_opened = 0
 
-        emails_clicked = conn.execute(
-            "SELECT COUNT(*) FROM applications WHERE clicked = 1"
-        ).fetchone()[0]
+        try:
+            emails_clicked = conn.execute(
+                "SELECT COUNT(*) FROM applications WHERE clicked = 1"
+            ).fetchone()[0]
+        except Exception:
+            emails_clicked = 0
 
-        emails_responded = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
-        ).fetchone()[0]
+        try:
+            emails_responded = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL"
+            ).fetchone()[0]
+        except Exception:
+            emails_responded = 0
 
-        emails_today = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
-            (today_str,),
-        ).fetchone()[0]
+        try:
+            emails_today = conn.execute(
+                "SELECT COUNT(*) FROM campaign_emails WHERE date(sent_at) = ?",
+                (today_str,),
+            ).fetchone()[0]
+        except Exception:
+            emails_today = 0
 
         open_rate = (
             round((emails_opened / emails_sent) * 100, 1)
@@ -160,57 +208,91 @@ class TelegramAnalytics:
         Returns:
             A dictionary containing campaign, job search, revenue, and source/status breakdown data.
         """
-        active_campaigns = conn.execute(
-            "SELECT COUNT(*) FROM campaigns WHERE status IN ('running', 'pending', 'active')"
-        ).fetchone()[0]
+        try:
+            active_campaigns = conn.execute(
+                "SELECT COUNT(*) FROM campaigns WHERE status IN ('running', 'pending', 'active')"
+            ).fetchone()[0]
+            total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+        except Exception:
+            active_campaigns = 0
+            total_campaigns = 0
 
-        total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+        try:
+            avg_ats = conn.execute(
+                "SELECT AVG(match_score) FROM jobs WHERE match_score IS NOT NULL"
+            ).fetchone()[0]
+            avg_ats = round(avg_ats, 1) if avg_ats else 0.0
 
-        avg_ats = conn.execute(
-            "SELECT AVG(match_score) FROM jobs WHERE match_score IS NOT NULL"
-        ).fetchone()[0]
-        avg_ats = round(avg_ats, 1) if avg_ats else 0.0
+            top_ats = conn.execute(
+                "SELECT match_score FROM jobs WHERE match_score IS NOT NULL ORDER BY match_score DESC LIMIT 1"
+            ).fetchone()
+            best_ats_score = round(top_ats[0], 1) if top_ats else 0.0
+        except Exception:
+            avg_ats = 0.0
+            best_ats_score = 0.0
 
-        top_ats = conn.execute(
-            "SELECT match_score FROM jobs WHERE match_score IS NOT NULL ORDER BY match_score DESC LIMIT 1"
-        ).fetchone()
-        best_ats_score = round(top_ats[0], 1) if top_ats else 0.0
+        job_col = self._job_date_col(conn)
+        try:
+            jobs_found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+        except Exception:
+            jobs_found = 0
 
-        jobs_found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
-        jobs_today = conn.execute(
-            "SELECT COUNT(*) FROM jobs WHERE date(created_at) = ?", (today_str,)
-        ).fetchone()[0]
+        try:
+            jobs_today = conn.execute(
+                f"SELECT COUNT(*) FROM jobs WHERE date({job_col}) = ?", (today_str,)
+            ).fetchone()[0]
+        except Exception:
+            jobs_today = 0
 
-        jobs_applied = conn.execute(
-            "SELECT COUNT(*) FROM jobs WHERE applied_at IS NOT NULL"
-        ).fetchone()[0]
+        try:
+            jobs_applied = conn.execute(
+                "SELECT COUNT(*) FROM jobs WHERE applied_at IS NOT NULL"
+            ).fetchone()[0]
+        except Exception:
+            jobs_applied = 0
 
-        wallet = conn.execute(
-            "SELECT COALESCE(SUM(wallet_balance), 0) FROM users"
-        ).fetchone()[0]
-        total_spent = conn.execute(
-            "SELECT COALESCE(SUM(total_spent), 0) FROM users"
-        ).fetchone()[0]
+        try:
+            wallet = conn.execute(
+                "SELECT COALESCE(SUM(wallet_balance), 0) FROM users"
+            ).fetchone()[0]
+        except Exception:
+            wallet = 0
 
-        revenue = conn.execute(
-            "SELECT COALESCE(SUM(amount_usd), 0) FROM orders WHERE payment_status = 'completed'"
-        ).fetchone()[0]
+        try:
+            total_spent = conn.execute(
+                "SELECT COALESCE(SUM(total_spent), 0) FROM users"
+            ).fetchone()[0]
+        except Exception:
+            total_spent = 0
 
-        sources = [
-            dict(r)
-            for r in conn.execute(
-                "SELECT source, COUNT(*) as cnt FROM jobs WHERE source IS NOT NULL "
-                "GROUP BY source ORDER BY cnt DESC LIMIT 5"
-            ).fetchall()
-        ]
+        try:
+            revenue = conn.execute(
+                "SELECT COALESCE(SUM(amount_usd), 0) FROM orders WHERE payment_status = 'completed'"
+            ).fetchone()[0]
+        except Exception:
+            revenue = 0
 
-        statuses = [
-            dict(r)
-            for r in conn.execute(
-                "SELECT status, COUNT(*) as cnt FROM applications "
-                "GROUP BY status ORDER BY cnt DESC"
-            ).fetchall()
-        ]
+        try:
+            sources = [
+                dict(r)
+                for r in conn.execute(
+                    "SELECT source, COUNT(*) as cnt FROM jobs WHERE source IS NOT NULL "
+                    "GROUP BY source ORDER BY cnt DESC LIMIT 5"
+                ).fetchall()
+            ]
+        except Exception:
+            sources = []
+
+        try:
+            statuses = [
+                dict(r)
+                for r in conn.execute(
+                    "SELECT status, COUNT(*) as cnt FROM applications WHERE status IS NOT NULL "
+                    "GROUP BY status ORDER BY cnt DESC"
+                ).fetchall()
+            ]
+        except Exception:
+            statuses = []
 
         return {
             "active_campaigns": active_campaigns,
@@ -324,59 +406,89 @@ class TelegramAnalytics:
             conn = self._get_conn()
 
             # Stage 0: Jobs found
-            found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+            found = 0
+            try:
+                found = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+            except Exception:
+                pass
 
-            # Stage 1: Applied (jobs with applied_at set)
-            applied = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE applied_at IS NOT NULL"
-            ).fetchone()[0]
+            # Stage 1: Applied
+            applied = 0
+            for app_query in [
+                "SELECT COUNT(*) FROM jobs WHERE status = 'applied' OR applied = 1",
+                "SELECT COUNT(*) FROM jobs WHERE applied_date IS NOT NULL",
+            ]:
+                try:
+                    applied = conn.execute(app_query).fetchone()[0]
+                    if applied > 0:
+                        break
+                except Exception:
+                    pass
 
             # Stage 2: Applications sent
-            apps_sent = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
+            apps_sent = 0
+            try:
+                apps_sent = conn.execute("SELECT COUNT(*) FROM applications").fetchone()[0]
+            except Exception:
+                pass
 
             # Use the larger of jobs.applied or apps count as baseline
             apps_total = max(applied, apps_sent, 1)
 
             # Stage 3: Viewed / Opened
-            apps_opened = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE opened = 1"
-            ).fetchone()[0]
+            apps_opened = 0
+            try:
+                apps_opened = conn.execute("SELECT COUNT(*) FROM applications WHERE opened = 1").fetchone()[0]
+            except Exception:
+                pass
 
-            # Also check campaign_emails for opens
-            emails_opened = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL"
-            ).fetchone()[0]
+            emails_opened = 0
+            try:
+                emails_opened = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL").fetchone()[0]
+            except Exception:
+                pass
 
             # Stage 4: Responded
-            apps_responded = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE responded = 1"
-            ).fetchone()[0]
+            apps_responded = 0
+            try:
+                apps_responded = conn.execute("SELECT COUNT(*) FROM applications WHERE responded = 1").fetchone()[0]
+            except Exception:
+                pass
 
             # Stage 5: Interview
-            apps_interview = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE response_type = 'interview'"
-            ).fetchone()[0]
+            apps_interview = 0
+            try:
+                apps_interview = conn.execute("SELECT COUNT(*) FROM applications WHERE response_type = 'interview'").fetchone()[0]
+            except Exception:
+                pass
 
-            # Also check jobs table for interview status
-            jobs_interview = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE status = 'interview'"
-            ).fetchone()[0]
+            jobs_interview = 0
+            try:
+                jobs_interview = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'interview'").fetchone()[0]
+            except Exception:
+                pass
             total_interview = max(apps_interview, jobs_interview)
 
             # Stage 6: Offer
-            apps_offer = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE response_type = 'offer' OR status = 'offer'"
-            ).fetchone()[0]
+            apps_offer = 0
+            try:
+                apps_offer = conn.execute("SELECT COUNT(*) FROM applications WHERE response_type = 'offer' OR status = 'offer'").fetchone()[0]
+            except Exception:
+                pass
 
-            jobs_offer = conn.execute(
-                "SELECT COUNT(*) FROM jobs WHERE status = 'offer'"
-            ).fetchone()[0]
+            jobs_offer = 0
+            try:
+                jobs_offer = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'offer'").fetchone()[0]
+            except Exception:
+                pass
             total_offer = max(apps_offer, jobs_offer)
 
             # Stage 7: Hired / Accepted
-            apps_hired = conn.execute(
-                "SELECT COUNT(*) FROM applications WHERE status = 'hired' OR response_type = 'hired'"
-            ).fetchone()[0]
+            apps_hired = 0
+            try:
+                apps_hired = conn.execute("SELECT COUNT(*) FROM applications WHERE status = 'hired' OR response_type = 'hired'").fetchone()[0]
+            except Exception:
+                pass
 
             return {
                 "error": None,
@@ -489,6 +601,7 @@ class TelegramAnalytics:
             conn = self._get_conn()
 
             daily_data = []
+            app_col = self._app_date_col(conn)
             for i in range(days - 1, -1, -1):
                 d = datetime.now() - timedelta(days=i)
                 date_str = d.strftime("%Y-%m-%d")
@@ -496,7 +609,7 @@ class TelegramAnalytics:
 
                 # Count apps sent that day
                 apps = conn.execute(
-                    "SELECT COUNT(*) FROM applications WHERE date(sent_at) = ?",
+                    f"SELECT COUNT(*) FROM applications WHERE date({app_col}) = ?",
                     (date_str,),
                 ).fetchone()[0]
 
@@ -678,32 +791,38 @@ class TelegramAnalytics:
         try:
             conn = self._get_conn()
 
-            # Top companies by application count
-            top = [
-                dict(r)
-                for r in conn.execute(
-                    "SELECT a.company, COUNT(*) as apps, "
-                    "SUM(CASE WHEN a.status = 'responded' OR a.responded = 1 THEN 1 ELSE 0 END) as responses, "
-                    "AVG(j.match_score) as avg_score "
-                    "FROM applications a "
-                    "LEFT JOIN jobs j ON a.company = j.company "
-                    "WHERE a.company IS NOT NULL AND a.company != '' "
-                    "GROUP BY a.company ORDER BY apps DESC LIMIT ?",
-                    (limit,),
-                ).fetchall()
-            ]
+            top = []
+            try:
+                top = [
+                    dict(r)
+                    for r in conn.execute(
+                        "SELECT a.company, COUNT(*) as apps, "
+                        "SUM(CASE WHEN a.status = 'responded' OR a.responded = 1 THEN 1 ELSE 0 END) as responses, "
+                        "AVG(j.match_score) as avg_score "
+                        "FROM applications a "
+                        "LEFT JOIN jobs j ON a.company = j.company "
+                        "WHERE a.company IS NOT NULL AND a.company != '' "
+                        "GROUP BY a.company ORDER BY apps DESC LIMIT ?",
+                        (limit,),
+                    ).fetchall()
+                ]
+            except Exception:
+                pass
 
-            # Also check jobs table for companies
-            jobs_top = [
-                dict(r)
-                for r in conn.execute(
-                    "SELECT company, COUNT(*) as jobs, "
-                    "AVG(match_score) as avg_score "
-                    "FROM jobs WHERE company IS NOT NULL AND company != '' "
-                    "GROUP BY company ORDER BY jobs DESC LIMIT ?",
-                    (limit,),
-                ).fetchall()
-            ]
+            jobs_top = []
+            try:
+                jobs_top = [
+                    dict(r)
+                    for r in conn.execute(
+                        "SELECT company, COUNT(*) as jobs, "
+                        "AVG(match_score) as avg_score "
+                        "FROM jobs WHERE company IS NOT NULL AND company != '' "
+                        "GROUP BY company ORDER BY jobs DESC LIMIT ?",
+                        (limit,),
+                    ).fetchall()
+                ]
+            except Exception:
+                pass
 
             # Merge both results
             merged = {}

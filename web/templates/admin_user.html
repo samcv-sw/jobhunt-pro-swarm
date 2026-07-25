@@ -41,7 +41,7 @@
 <div class="info-item"><label>إجمالي المنفق</label><span>${{ "%.2f"|format(user.total_spent or 0) }}</span></div>
 <div class="info-item"><label>الحالة</label><span>{% if user.is_active %}<span class="badge badge-green">نشط</span>{% else %}<span class="badge badge-red">معطل</span>{% endif %}</span></div>
 <div class="info-item"><label>تاريخ الانضمام</label><span class="mono">{{ (user.created_at or '')[:16] }}</span></div>
-<div class="info-item"><label>{{ _('مفتاح API') }}</label><span class="mono" style="font-size:14px;">{{ (user.api_key or '')[:24] }}...</span></div>
+<div class="info-item"><label>مفتاح API</label><span class="mono" style="font-size:14px;">{{ (user.api_key or '')[:24] }}...</span></div>
 </div>
 <!-- Quick add credits -->
 <div style="margin-block-start:20px; display:flex; gap:10px; align-items:center;">

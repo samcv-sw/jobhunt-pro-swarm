@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.jobhuntpro.app",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:7F:CD:A2:2C:17:81:BE:76:CD:00:23:44:03:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+      ]
+    }
+  }
+]

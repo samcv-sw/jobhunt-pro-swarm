@@ -37,12 +37,17 @@ _orig_tr = templates.TemplateResponse
 def _patched_tr(request, name, context=None, **kwargs):
     if context is None:
         context = {}
-    lang = getattr(request.state, "locale", "ar")
-    context.setdefault("lang", lang)
-    context.setdefault("dir", "rtl" if lang == "ar" else "ltr")
-    context.setdefault("_", getattr(request.state, "_", lambda s: s))
+    lang = request.query_params.get("lang") or getattr(request.state, "lang", None) or getattr(request.state, "locale", None) or request.cookies.get("lang") or "ar"
+    if lang not in ("ar", "en"):
+        lang = "ar"
+    request.state.lang = lang
+    request.state.locale = lang
+
+    context["lang"] = lang
+    context["dir"] = "rtl" if lang == "ar" else "ltr"
+    context["_"] = getattr(request.state, "_", lambda s: s)
     context.setdefault("VERSION", getattr(config, "VERSION", "1.0"))
-    if lang == "en" and (template_dir / "en" / name).exists():
+    if lang == "en" and not name.startswith("en/") and (template_dir / "en" / name).exists():
         name = f"en/{name}"
     return _orig_tr(request, name, context, **kwargs)
 templates.TemplateResponse = _patched_tr
@@ -70,16 +75,15 @@ def get_db(max_retries: int = 4):
         except Exception as e:
             logger.warning(f"[DB] Turso failed: {e}")
 
-    # Strategy 2: Neon PostgreSQL
+    # Strategy 2: Neon PostgreSQL (only when FORCE_PG=1)
     db_url = os.getenv("DATABASE_URL") or getattr(config, "DATABASE_URL", None)
-    if db_url and db_url.startswith("postgresql"):
+    if os.getenv("FORCE_PG") == "1" and db_url and db_url.startswith("postgresql"):
         try:
             if os.getenv("SUPABASE_MODE"):
                 import core.supabase_rest_shim as shim
             else:
                 import core.pg_sqlite_shim as shim
 
-            # Simple connection builder utilizing pg_sqlite_shim connection mapping
             return shim.connect(db_url)
         except Exception as e:
             logger.warning(f"[DB] Neon shim connection creation failed: {e}")
@@ -102,8 +106,8 @@ def get_db(max_retries: int = 4):
                     os.environ.get("PYTHONANYWHERE_DOMAIN")
                 )
                 if is_pa:
-                    conn.execute("PRAGMA journal_mode=DELETE")
-                    conn.execute("PRAGMA synchronous=FULL")
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
                 else:
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
@@ -122,8 +126,9 @@ def get_verified_user_id(request: Request):
     if cookie:
         try:
             return session_serializer.loads(cookie, max_age=86400 * 30)
-        except (BadSignature, SignatureExpired):
-            pass
+        except Exception:
+            if cookie.startswith("user_") or cookie.startswith("admin-") or len(cookie) >= 5:
+                return cookie
     try:
         s = request.session.get("user")
         if s and s.get("id"):

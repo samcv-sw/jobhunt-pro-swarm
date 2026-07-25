@@ -72,8 +72,9 @@ def format_neon_connection_string(url: str) -> str:
 TURSO_URL = os.getenv("TURSO_DATABASE_URL")  # e.g. libsql://my-db.turso.io
 TURSO_AUTH_TOKEN = os.getenv("TURSO_AUTH_TOKEN", "")
 LOCAL_DB_URL = os.getenv("LOCAL_DATABASE_URL", "sqlite+aiosqlite:///./data/jobhunt_saas_v2.db")
+_raw_pg_url = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL") or os.getenv("NEON_URL") or ""
 REMOTE_PG_URL = (
-    format_neon_connection_string(os.getenv("DATABASE_URL")) if os.getenv("DATABASE_URL") else None
+    format_neon_connection_string(_raw_pg_url) if _raw_pg_url and "sqlite" not in _raw_pg_url else None
 )
 
 
@@ -152,7 +153,7 @@ else:
 engine = create_async_engine(ACTIVE_DB_URL, **engine_kwargs)
 
 
-# Enable Foreign Keys and WAL mode for SQLite
+# Enable Foreign Keys and WAL mode for SQLite (handling PythonAnywhere / NFS)
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     if "sqlite" in type(dbapi_connection).__name__.lower() or isinstance(
@@ -160,14 +161,46 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     ):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
+        is_pa_or_nfs = bool(
+            os.environ.get("PYTHONANYWHERE_SITE")
+            or os.environ.get("PYTHONANYWHERE_DOMAIN")
+            or os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes")
+            or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
+        )
+        if is_pa_or_nfs:
+            cursor.execute("PRAGMA journal_mode=DELETE")
+            cursor.execute("PRAGMA synchronous=FULL")
+        else:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.execute("PRAGMA cache_size=-2000")
         cursor.execute("PRAGMA temp_store=MEMORY")
         cursor.close()
 
 
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+
+def _switch_to_sqlite_fallback() -> None:
+    """Dynamic runtime fallback to LOCAL_DATABASE_URL if PostgreSQL connection fails at runtime."""
+    global engine, async_session, ACTIVE_DB_URL
+    if "sqlite" not in ACTIVE_DB_URL:
+        _db_logger.warning(
+            "[backend.database] PostgreSQL connection failed at runtime. Switching to local SQLite fallback: %s",
+            LOCAL_DB_URL,
+        )
+        ACTIVE_DB_URL = LOCAL_DB_URL
+        sqlite_engine_kwargs: dict = {
+            "echo": False,
+            "execution_options": {"isolation_level": "AUTOCOMMIT"},
+            "connect_args": {"timeout": 30.0},
+        }
+        if TURSO_AUTH_TOKEN:
+            sqlite_engine_kwargs["connect_args"]["auth_token"] = TURSO_AUTH_TOKEN
+        engine = create_async_engine(LOCAL_DB_URL, **sqlite_engine_kwargs)
+        event.listen(engine.sync_engine, "connect", set_sqlite_pragma)
+        async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
 
 Base = declarative_base()
 
@@ -181,19 +214,33 @@ async def get_db():
     Raises:
         Exception: Re-raises any database exception after ensuring the session is closed.
     """
-    async with async_session() as session:
-        try:
-            yield session
-        except Exception:
+    global async_session, ACTIVE_DB_URL
+    session = None
+    try:
+        session = async_session()
+        yield session
+    except Exception as exc:
+        if session:
             await session.rollback()
+        if "sqlite" not in ACTIVE_DB_URL and any(
+            err_kw in str(exc).lower()
+            for err_kw in ("connection", "connect", "operationalerror", "timeout", "refused")
+        ):
+            _switch_to_sqlite_fallback()
+            async with async_session() as fallback_session:
+                yield fallback_session
+        else:
             raise
+    finally:
+        if session:
+            await session.close()
 
 
 async def warmup_db() -> None:
     """Pre-warm the SQLAlchemy connection pool on startup.
 
     Runs a lightweight ``SELECT 1`` through every connection in the pool so
-    Neon/PostgreSQL wakes up before the first real request arrives.  Safe to
+    Neon/PostgreSQL wakes up before the first real request arrives. Safe to
     call once from the FastAPI ``lifespan`` or ``startup`` event.
     """
     if "sqlite" in ACTIVE_DB_URL:
@@ -204,7 +251,6 @@ async def warmup_db() -> None:
 
     pool_size = engine_kwargs.get("pool_size", 1)
     _db_logger.info("[warmup_db] Warming up %d DB connection(s)…", pool_size)
-    tasks = []
 
     async def _ping() -> None:
         async with async_session() as session:
@@ -215,10 +261,11 @@ async def warmup_db() -> None:
     failures = [r for r in results if isinstance(r, Exception)]
     if failures:
         _db_logger.warning(
-            "[warmup_db] %d/%d warm-up pings failed: %s",
+            "[warmup_db] %d/%d warm-up pings failed: %s. Initiating SQLite fallback.",
             len(failures),
             len(tasks),
             failures[0],
         )
+        _switch_to_sqlite_fallback()
     else:
         _db_logger.info("[warmup_db] All %d connections warmed up successfully.", pool_size)

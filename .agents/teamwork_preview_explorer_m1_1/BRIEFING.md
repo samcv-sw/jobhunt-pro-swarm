@@ -1,39 +1,40 @@
-# BRIEFING — 2026-07-16T20:31:00+03:00
+# BRIEFING — 2026-07-22T09:39:52Z
 
 ## Mission
-Audit Jinja2 templates and Next.js frontend pages for RTL compatibility, Arabic typography rules, and CSS logical properties.
+Investigate database layer (`core/database.py`, `core/pg_sqlite_shim.py`, `backend/database.py`, `config.py`) for cloud PostgreSQL / Supabase / Neon auto-detection vs local SQLite fallback, connection pooling, query translation, and zero-crash auto-detection gaps.
 
 ## 🔒 My Identity
-- Archetype: explorer
-- Roles: read-only investigator, auditor
+- Archetype: Teamwork Explorer
+- Roles: Read-only investigator, analyzer
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1
-- Original parent: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
-- Milestone: Milestone 1 - UI/UX Audit and Analysis
+- Original parent: 406220be-1f6c-42b2-a120-82564783a9e5
+- Milestone: Database Auto-Detection & Fallback Analysis
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement code changes.
-- CSS Logical Properties must be used (e.g. margin-inline-start instead of margin-left).
-- Font family stack for Arabic templates: Cairo, Tajawal, IBM Plex Arabic, sans-serif.
-- Arabic font size >= 14px, line-height 1.6 to 2.0, letter-spacing = 0.
-- Next.js layout, RTL typography, glassmorphism, and transitions audit.
+- Read-only investigation — do NOT implement changes in project source code files
+- Output analysis to `analysis.md` and handoff report to `handoff.md` in working directory
+- Send findings back via send_message to parent
 
 ## Current Parent
-- Conversation ID: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
-- Updated: 2026-07-16T20:31:00+03:00
+- Conversation ID: 406220be-1f6c-42b2-a120-82564783a9e5
+- Updated: 2026-07-22T09:39:52Z
 
 ## Investigation State
-- **Explored paths**: `web/templates/`, `web/templates/en/`, `web/static/css/`, `frontend/src/app/page.tsx`, `frontend/src/app/globals.css`, `frontend/src/app/layout.tsx`.
+- **Explored paths**: `PROJECT.md`, `config.py`, `core/database.py`, `core/pg_sqlite_shim.py`, `backend/database.py`, `core/async_db.py`, `web/app_v2.py`.
 - **Key findings**:
-  1. Tailwind config in `web/templates/_base_tailwind.html` lacks `Tajawal` and `IBM Plex Arabic` fallback fonts.
-  2. Redundant loading of `index-rtl.css` in `web/templates/en/base.html`.
-  3. Over 30 individual templates override the font stack using partial configurations or LTR fonts instead of standard Arabic stack.
-  4. Next.js page matches all typography and layout constraints, using dark glassmorphism effects and transitions.
-- **Unexplored areas**: None.
+  1. `POSTGRES_URL` environment variable is completely ignored across all database files (violates `PROJECT.md` contract).
+  2. `config.py` hardcodes a default PostgreSQL URL when `DATABASE_URL` is empty, breaking fallback to SQLite.
+  3. `_translate_for_sqlite` in `core/pg_sqlite_shim.py` lacks `$1, $2` to `?` placeholder conversion.
+  4. `backend/database.py` lacks dynamic runtime fallback to SQLite on PostgreSQL connection failure.
+  5. `core/database.py` does not call `format_neon_connection_string()` and forces WAL mode without checking for PythonAnywhere NFS storage.
+- **Unexplored areas**: None (all requested files and cross-references investigated).
 
 ## Key Decisions Made
-- Confirmed that physical CSS layout selectors (`margin-left`, `margin-right`) have been successfully replaced by logical properties.
+- Completed static investigation, cataloged findings in `analysis.md`, generated 5-component handoff report in `handoff.md`.
 
 ## Artifact Index
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\analysis.md — Audit report and refactoring strategy
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\handoff.md — Handoff report to parent
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_1\progress.md — Liveness progress update
+- ORIGINAL_REQUEST.md — Original request context
+- BRIEFING.md — Working memory index
+- progress.md — Heartbeat progress tracking
+- analysis.md — Detailed analysis report
+- handoff.md — 5-component handoff summary

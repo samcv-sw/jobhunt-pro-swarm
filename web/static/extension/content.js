@@ -359,7 +359,7 @@
 
           <div class="form-group">
             <label>Phone</label>
-            <input type="tel" id="jh-prof-phone" value="${escapeAttr(p.phone || '')}" placeholder="+961 70 841 1009">
+            <input type="tel" id="jh-prof-phone" value="${escapeAttr(p.phone || '')}" placeholder="+1 (555) 000-0000">
           </div>
 
           <div class="form-group">

@@ -6,7 +6,7 @@
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
-<meta content="أنشئ حسابك المجاني في JobHunt Pro. دع 200 وكيل ذكاء اصطناعي يقدمون لآلاف الوظائف نيابة عنك — تلقائياً." name="description"/>
+<meta content="أنشئ حسابك المجاني في JobHunt Pro. دع سوارم غراهام الذكي الفائق (Graham's Swarm Agents) يقدمون لآلاف الوظائف نيابة عنك — تلقائياً." name="description"/>
 <meta property="og:title" content="إنشاء حساب — جوب هانت برو"/>
 <meta property="og:description" content="ابدأ مجاناً ودع الذكاء الاصطناعي يتولى تقديماتك الوظيفية 24/7."/>
 <title>إنشاء حساب — جوب هانت برو</title>
@@ -151,6 +151,150 @@ body.auth-page {
   .benefits-card { animation: fadeSlideUp 0.6s ease-out; }
 }
 </style>
+
+<style id="oauth-logo-fix">
+.btn-oauth img, .btn-oauth svg {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  flex-shrink: 0 !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+}
+</style>
+
+
+<style id="login-contrast-fix">
+.auth-card h1, .auth-card h2, .auth-header h1, .auth-header h2 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 800 !important;
+}
+.auth-header .sub, .auth-card label, .auth-footer, .pw-row a {
+  color: #cbd5e1 !important;
+}
+.form-group label {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+.form-group input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.form-group input::placeholder {
+  color: #94a3b8 !important;
+}
+.btn-submit {
+  background: linear-gradient(135deg, #00f0ff, #00b8ff) !important;
+  color: #0a0a1a !important;
+  -webkit-text-fill-color: #0a0a1a !important;
+  font-weight: 800 !important;
+}
+</style>
+
+
+<style id="auth-glass-perfection">
+.page-wrap, div[style*="margin-block-start:140px"] {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 75vh !important;
+  padding-top: 140px !important;
+  padding-bottom: 60px !important;
+  width: 100% !important;
+}
+.auth-container {
+  width: 100% !important;
+  max-width: 440px !important;
+  margin: 0 auto !important;
+}
+.auth-card {
+  background: rgba(15, 23, 42, 0.9) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  border-radius: 24px !important;
+  padding: 40px 32px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.12) !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+.auth-header h1 {
+  font-size: 26px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.auth-header .sub, .auth-card label, .auth-footer, .pw-row a {
+  color: #94a3b8 !important;
+}
+.form-group label {
+  color: #cbd5e1 !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  display: block !important;
+}
+.form-group input {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+.form-group input:focus {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2) !important;
+}
+.btn-submit {
+  background: linear-gradient(135deg, #00f0ff 0%, #00b8ff 100%) !important;
+  color: #0a0a1a !important;
+  -webkit-text-fill-color: #0a0a1a !important;
+  font-weight: 800 !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.3) !important;
+  width: 100% !important;
+  border: none !important;
+}
+.btn-oauth {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  font-weight: 600 !important;
+}
+.btn-oauth:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
+}
+.btn-oauth img, .btn-oauth svg {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+  inline-size: 20px !important;
+  block-size: 20px !important;
+  flex-shrink: 0 !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+}
+</style>
+
 </head>
 <body class="auth-page">
 <div class="bg-particles">
@@ -176,11 +320,11 @@ body.auth-page {
 <div class="oauth-row">
 <a class="btn-oauth" href="/auth/google/login">
 <img alt="Google" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
-        {{ _('Google') }}
+        Google
       </a>
 <a class="btn-oauth" href="/auth/microsoft/login">
 <img alt="Microsoft" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
-        {{ _('Microsoft') }}
+        Microsoft
       </a>
 </div>
 <div class="oauth-divider">أو</div>
@@ -205,7 +349,7 @@ body.auth-page {
 </label>
 <label class="plan-option" for="plan-pro">
 <input dir="auto" id="plan-pro" name="plan" type="radio" value="pro"/ dir="auto">
-<div class="plan-name">{{ _('Pro ⭐') }}</div>
+<div class="plan-name">Pro ⭐</div>
 <div class="plan-price">$15 <span>مرة واحدة</span></div>
 <div class="plan-apps">500 تقديم</div>
 <div class="checkmark">✓</div>
@@ -225,7 +369,7 @@ body.auth-page {
 <input dir="auto" name="ref" type="hidden" value="{{ ref }}"/ dir="auto">
 <div class="form-group">
 <label for="regName">الاسم الكامل</label>
-<input autocomplete="name" class="glass-input" dir="auto" id="regName" name="name" oninput="validateName(this)" placeholder="e.g. Sam Salameh" required="" type="text"/ dir="auto">
+<input autocomplete="name" class="glass-input" dir="auto" id="regName" name="name" oninput="validateName(this)" placeholder="مثال: طارق المعلوف" required="" type="text"/ dir="auto">
 <div class="validation-feedback" id="nameFeedback"></div>
 </div>
 <div class="form-group">
@@ -279,7 +423,7 @@ body.auth-page {
 <h2>✨ شو بتحصل</h2>
 <div class="benefit-item">
 <span class="benefit-icon">🤖</span>
-<div><strong>200 وكيل ذكاء اصطناعي 24/7</strong><span>{{ _('مئات الوكلاء شغالين على مدار الساعة searching & applying') }}</span></div>
+<div><strong>سوارم غراهام الذكي الفائق (Graham's Swarm Agents) 24/7</strong><span>مئات الوكلاء شغالين على مدار الساعة searching & applying</span></div>
 </div>
 <div class="benefit-item">
 <span class="benefit-icon">✉️</span>
@@ -287,11 +431,11 @@ body.auth-page {
 </div>
 <div class="benefit-item">
 <span class="benefit-icon">📧</span>
-<div><strong>أكثر من 20 مزود بريد</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
+<div><strong>شبكة تناوب غراهام الفائقة للبريد (Graham's Infinite Email Mesh)</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
 </div>
 <div class="benefit-item">
 <span class="benefit-icon">🌍</span>
-<div><strong>أكثر من 50 دولة</strong><span>بحث في لبنان، الإمارات، السعودية، قطر، الكويت، عن بعد وغيرها</span></div>
+<div><strong>🌍 جميع دول العالم 100% (Worldwide Coverage)</strong><span>بحث في لبنان، الإمارات، السعودية، قطر، الكويت، عن بعد وغيرها</span></div>
 </div>
 <div class="benefit-item">
 <span class="benefit-icon">📊</span>
@@ -307,7 +451,7 @@ body.auth-page {
 </div>
 <div class="benefit-item">
 <span class="benefit-icon">₿</span>
-<div><strong>مدفوعات الكريبتو</strong><span>{{ _('ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود') }}</span></div>
+<div><strong>مدفوعات الكريبتو</strong><span>ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود</span></div>
 </div>
 </div>
 </div>

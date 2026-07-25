@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional
 from core.salary_negotiation_oracle import salary_oracle
-from core.negotiator_agent import negotiator_agent
+from core.negotiator_agent import salary_negotiator as negotiator_agent
 
 router = APIRouter(prefix="/api/negotiator", tags=["AI Salary Negotiator"])
 

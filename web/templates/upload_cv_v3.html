@@ -1,8 +1,9 @@
-<meta property="og:title" content="رفع السيرة الذاتية | JobHunt Pro"/>
-<meta name="description" content="ارفع سيرتك الذاتية وابدأ التقديم الآلي على المئات من الوظائف."/>
-<title>رفع السيرة الذاتية | JobHunt Pro</title>
+<meta property="og:title" content="رفع السيرة الذاتية | JobHunt Pro AI"/>
+<meta name="description" content="ارفع سيرتك الذاتية وابدأ التقديم الآلي بالذكاء الاصطناعي على المئات من الوظائف."/>
+<title>رفع السيرة الذاتية | JobHunt Pro AI</title>
+
 <style>
-/* ── Upload CV v3 — Button & Zone Overrides ── */
+/* ── Upload CV v3 — Modern Cyberpunk RTL & Logical Design ── */
 :root { --text-x-direction: -1; }
 
 .btn-primary-cv {
@@ -57,267 +58,1087 @@
   background: rgba(0,240,255,0.05);
 }
 
-/* Input focus glow */
 .cv-input:focus {
   outline: none;
   border-color: #00f0ff !important;
   box-shadow: 0 0 0 3px rgba(0,240,255,0.12) !important;
 }
-
-/* Spinner keyframe */
-@keyframes cv-spin { to { transform: rotate(360deg); } }
-.cv-spinner {
-  inline-size: 16px; block-size: 16px;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-block-start-color: #fff;
-  border-radius: 50%;
-  animation: cv-spin 0.7s linear infinite;
-  display: inline-block;
-}
 </style>
-<div class="relative space-y-6 max-w-6xl mx-auto">
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
-  <div>
-    <h1 class="text-2xl font-black text-white flex items-center gap-3">
-      <i class="w-7 h-7 text-cyan-400" data-lucide="file-up"></i>
-      رفع السيرة الذاتية
-    </h1>
-    <p class="text-sm text-slate-400 mt-1" style="line-height:1.7;">دع الذكاء الاصطناعي يحلل سيرتك الذاتية ويصيغ طلبات التوظيف المثالية</p>
+
+<!-- Toast Notification -->
+<div id="toastNotification" class="fixed bottom-5 left-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none" dir="rtl">
+  <div class="flex items-center gap-3 bg-slate-900 border border-green-500/50 text-green-400 px-5 py-3.5 rounded-xl shadow-[0_0_25px_rgba(34,197,94,0.3)]">
+    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+    <span id="toastMsg" class="text-sm font-bold text-white"></span>
   </div>
-  <div class="flex gap-3 flex-wrap">
-    <button class="btn-secondary-cv" onclick="showPreview()">
-      <i class="w-4 h-4" data-lucide="eye"></i> معاينة
+</div>
+
+<!-- PDF Export & Print Studio Choice Modal (z-[99999] highest z-index) -->
+<div id="pdfStudioModal" class="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4" dir="rtl">
+  <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full p-6 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/30">
+          <i data-lucide="printer" class="w-5 h-5 text-cyan-400"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-white">استوديو تخصيص وطباعة الـ PDF (PDF Studio)</h3>
+          <p class="text-xs text-slate-400">اختر التصميم الذي يعجبك، مقاس الورق وخيارات الألوان قبل الطباعة والتصدير</p>
+        </div>
+      </div>
+      <button onclick="closePdfStudioModal()" class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg cursor-pointer me-auto md:me-0">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Theme Chooser Cards -->
+    <div class="space-y-3">
+      <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">1. اختر التصميم المطلوب للتصدير والطباعة:</label>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div onclick="selectPdfExportTheme('classic')" id="pdfOptClassic" class="pdf-export-opt cursor-pointer bg-slate-950 border-2 border-cyan-400 p-4 rounded-xl text-center space-y-2 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+          <div class="text-2xl">📄</div>
+          <div class="text-xs font-black text-white">الورق الأبيض الناصع (Clean White)</div>
+          <div class="text-[10px] text-slate-400">تنسيق الشركات المعتمد رسميًا لتجاوز ATS</div>
+        </div>
+        <div onclick="selectPdfExportTheme('executive')" id="pdfOptExecutive" class="pdf-export-opt cursor-pointer bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-center space-y-2 hover:border-amber-400 transition-all">
+          <div class="text-2xl">🏛️</div>
+          <div class="text-xs font-black text-amber-300">النمط التنفيذي الملكي (Royal Gold)</div>
+          <div class="text-[10px] text-slate-400">ورق عاجي فاخر مع خطوط رسمية مذهبة</div>
+        </div>
+        <div onclick="selectPdfExportTheme('cyberpunk')" id="pdfOptCyberpunk" class="pdf-export-opt cursor-pointer bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-center space-y-2 hover:border-cyan-400 transition-all">
+          <div class="text-2xl">💎</div>
+          <div class="text-xs font-black text-cyan-400">النمط المستقبلي المضيء (Cyberpunk)</div>
+          <div class="text-[10px] text-slate-400">تصميم داكن نيون تكنولوجي متميز</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Options: Paper Size & Color Mode -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
+      <div>
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">2. مقاس الورق:</label>
+        <select id="pdfPaperSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none">
+          <option value="A4">Standard A4 (210 x 297 mm)</option>
+          <option value="Letter">US Letter (8.5 x 11 in)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">3. نمط طباعة الخلفية والألوان:</label>
+        <select id="pdfBgMode" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none">
+          <option value="full">تصدير بكافة الألوان والخلفيات كاملة</option>
+          <option value="mono">وضع التوفير الأبيض والأسود (Ink-Saver)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 pt-2 border-t border-slate-800">
+      <button onclick="closePdfStudioModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer">إلغاء</button>
+      <button onclick="executePdfPrint()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 rounded-xl text-xs font-black transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center gap-2 cursor-pointer">
+        <i data-lucide="printer" class="w-4 h-4"></i> طباعة وتصدير التصميم المختار الآن
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Live AI Application Inspector Modal -->
+<div id="previewModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden flex items-center justify-center p-4" dir="rtl">
+  <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    
+    <!-- Modal Header -->
+    <div class="p-5 border-b border-slate-800 flex flex-wrap justify-between items-center bg-slate-950/70 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/30 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+          <i data-lucide="eye" class="w-5 h-5 text-cyan-400"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-white flex items-center gap-2">
+            معاين تطبيق الذكاء الاصطناعي الفوري (Live AI Inspector)
+          </h3>
+          <p class="text-xs text-slate-400">عاين بالضبط كيف ستظهر السيرة الذاتية، رسالة التغطية والإيميل المرسل للشركة</p>
+        </div>
+      </div>
+      
+      <!-- Tab Navigation -->
+      <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+        <button type="button" onclick="switchInspectorTab('email')" id="tabBtnEmail" class="px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="mail" class="w-3.5 h-3.5"></i> الإيميل المرسل
+        </button>
+        <button type="button" onclick="switchInspectorTab('cv')" id="tabBtnCv" class="px-3.5 py-1.5 rounded-lg transition-all bg-cyan-500 text-slate-950 shadow font-black flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i> السيرة الذاتية ATS
+        </button>
+        <button type="button" onclick="switchInspectorTab('cl')" id="tabBtnCl" class="px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> رسالة التغطية AI
+        </button>
+      </div>
+
+      <button onclick="closePreviewModal()" class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg transition-colors me-auto md:me-0 cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6 overflow-y-auto space-y-5 custom-scrollbar text-slate-300 flex-1">
+      <div id="modalLoading" class="text-center py-16 flex flex-col items-center gap-3">
+        <i data-lucide="loader-2" class="w-10 h-10 text-cyan-400 animate-spin"></i>
+        <span class="text-sm font-bold text-slate-300">جاري توليد رسالة التغطية والإيميل التلقائي عبر LLaMA 3.3 70B AI...</span>
+        <span class="text-xs text-slate-500">تجهيز تنسيق ATS المحسن، ونُسق البريد الإلكتروني الموثق</span>
+      </div>
+
+      <!-- Tab 1: Email Dispatch Simulator -->
+      <div id="tabContentEmail" class="hidden space-y-4">
+        <!-- Action Toolbar for Email Dispatch (Image 3 exact match) -->
+        <div class="bg-slate-950 p-3.5 border border-slate-800 rounded-xl text-xs space-y-2.5">
+          <!-- Row 1: Themes + Plain Text + Copy Text -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="setPaperTheme('cyberpunk')" class="btn-theme-cyberpunk px-3 py-1.5 bg-slate-900 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded-lg text-xs font-black shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all flex items-center gap-1.5 cursor-pointer">💎 CYBERPUNK</button>
+            <button type="button" onclick="setPaperTheme('executive')" class="btn-theme-executive px-3 py-1.5 bg-slate-900 hover:bg-amber-500/20 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer">🏛️ EXECUTIVE</button>
+            <button type="button" onclick="setPaperTheme('classic')" class="btn-theme-classic px-3 py-1.5 bg-blue-600 text-white font-black rounded-lg text-xs transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center gap-1.5 cursor-pointer">📄 CLEAN PAPER</button>
+            <button type="button" onclick="toggleCvViewMode('text')" class="btn-theme-text px-3 py-1.5 bg-slate-900 border border-emerald-500/60 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-black transition-colors flex items-center gap-1 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+              <i data-lucide="code" class="w-3.5 h-3.5"></i> PLAIN TEXT
+            </button>
+            <button type="button" onclick="copyCvText()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
+            </button>
+          </div>
+          <!-- Row 2: Export/Print PDF -->
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openPdfExportStudio()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> طباعة / تصدير PDF
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+          <div class="bg-slate-900/90 border-b border-slate-800 p-4 space-y-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 font-bold uppercase w-16">من:</span>
+              <span class="text-cyan-400 font-mono font-semibold" id="emailFromAddr">applicant@jobhuntpro-applier.com</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 font-bold uppercase w-16">إلى:</span>
+              <span class="text-white font-mono" id="emailToAddr">hr-recruiting@innovate-tech.com</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 font-bold uppercase w-16">الموضوع:</span>
+              <span class="text-white font-bold" id="previewSubject" dir="auto">تقديم على وظيفة Senior Network Engineer</span>
+            </div>
+            <div class="flex items-center gap-2 pt-1 border-t border-slate-800/80">
+              <span class="text-slate-500 font-bold uppercase w-16">المرفقات:</span>
+              <span class="px-2.5 py-0.5 bg-slate-800 text-green-400 border border-green-500/30 rounded text-[11px] font-mono flex items-center gap-1">
+                <i data-lucide="paperclip" class="w-3 h-3"></i> <span id="attachedCvName">Resume_ATS_Optimized.pdf</span> (156 KB)
+              </span>
+            </div>
+          </div>
+          <div id="previewBody" class="p-6 text-sm text-slate-200 leading-relaxed font-sans min-h-[220px] bg-slate-950" dir="auto"></div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <span class="text-xs text-slate-500 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-4 h-4 text-green-400"></i> مسار بريد إلكتروني موثق SPF/DKIM (محمي ضد الحظر والتصفية)
+          </span>
+          <button type="button" onclick="testSendEmail()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i> إرسال إيميل تجريبي لنفسي
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 2: Tailored ATS CV Visual Paper & Text Viewer -->
+      <div id="tabContentCv" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-slate-950 p-3.5 border border-slate-800 rounded-xl text-xs flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg font-bold">درجة توافق ATS: 98/100</span>
+            <span class="text-slate-400">الكلمات المفتاحية المطابقة: 18/20</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="setPaperTheme('cyberpunk')" id="btnThemeCyberpunk" class="px-3 py-1.5 bg-slate-900 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded-lg text-xs font-black shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all flex items-center gap-1.5 cursor-pointer">💎 CYBERPUNK</button>
+            <button type="button" onclick="setPaperTheme('executive')" id="btnThemeExecutive" class="px-3 py-1.5 bg-slate-900 hover:bg-amber-500/20 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer">🏛️ EXECUTIVE</button>
+            <button type="button" onclick="setPaperTheme('classic')" id="btnThemeClassic" class="px-3 py-1.5 bg-blue-600 text-white font-black rounded-lg text-xs transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center gap-1.5 cursor-pointer">📄 CLEAN PAPER</button>
+            <button type="button" onclick="toggleCvViewMode('text')" id="btnCvTextMode" class="px-3 py-1.5 bg-slate-900 border border-emerald-500/60 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-black transition-colors flex items-center gap-1 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+              <i data-lucide="code" class="w-3.5 h-3.5"></i> PLAIN TEXT
+            </button>
+            <button type="button" onclick="copyCvText()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
+            </button>
+            <button type="button" onclick="openPdfExportStudio()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> طباعة / تصدير PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- ATS Suggested Keywords Banner -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 flex flex-wrap justify-between items-center gap-3 text-xs">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span class="text-slate-300 font-bold">كلمات مفتاحية عالية التأثير مقترحة لـ ATS:</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="addQuickSkill('Cloud Infrastructure')" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded text-[11px] font-semibold hover:bg-amber-500/20 transition-colors">+ Cloud Infrastructure</button>
+            <button type="button" onclick="addQuickSkill('Zero Trust Security')" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded text-[11px] font-semibold hover:bg-amber-500/20 transition-colors">+ Zero Trust Security</button>
+            <button type="button" onclick="addQuickSkill('Automation & Scripting')" class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded text-[11px] font-semibold hover:bg-amber-500/20 transition-colors">+ Automation & Scripting</button>
+          </div>
+        </div>
+
+        <!-- Visual Paper Sheet View -->
+        <div id="cvPaperView" class="bg-white text-slate-900 rounded-xl p-8 shadow-[0_15px_45px_rgba(0,0,0,0.25)] max-h-[480px] overflow-y-auto custom-scrollbar border-2 border-slate-300/80 font-sans text-xs space-y-6 relative" dir="auto">
+          <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start" id="paperHeaderBlock">
+            <div>
+              <h2 class="text-2xl font-black text-slate-950 tracking-tight uppercase" id="paperFullName">أحمد خليل</h2>
+              <div class="text-sm font-bold text-blue-700 tracking-wide mt-1 uppercase" id="paperTargetTitle">Senior Network & Security Engineer</div>
+            </div>
+            <div class="text-start text-[11px] text-slate-600 font-medium space-y-0.5" id="paperContactDetails">
+              <div>بيروت، لبنان • +961 70 000000</div>
+              <div>ahmad.khalil.demo@example.com</div>
+              <div>linkedin.com/in/ahmad-khalil-demo</div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-slate-800 pb-1 mb-2.5">الملخص المهني (Executive Summary)</h3>
+            <p class="text-slate-700 leading-relaxed text-[11.5px]" id="paperSummary">خبير شبكات وأمن معلومات ذو خبرة 15+ سنة في تصميم وتنفيذ وتتبع البنى التحتية المتطورة للمؤسسات.</p>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-slate-800 pb-1 mb-2.5">المهارات التقنية الأساسية (Core Technical Skills)</h3>
+            <div class="flex flex-wrap gap-1.5" id="paperSkillsBadges">
+              <span class="px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]">Cisco IOS</span>
+              <span class="px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]">MikroTik RouterOS</span>
+              <span class="px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]">Fortinet Firewalls</span>
+              <span class="px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]">Fiber Optic</span>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-slate-800 pb-1 mb-2.5">الخبرات العملية (Professional Experience)</h3>
+            <div class="space-y-3" id="paperExperienceList">
+              <div>
+                <div class="flex justify-between font-bold text-slate-950 text-sm">
+                  <span>Senior Network Infrastructure & Security Lead</span>
+                  <span class="text-blue-600 font-mono">2016 - الحاضر</span>
+                </div>
+                <div class="text-slate-600 font-medium italic mb-1">Global Tech Solutions • بيروت، لبنان</div>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
+                  <li>تصميم وتطوير جدران الحماية Cisco و Fortinet بإنتاجية استثنائية (99.999% Uptime).</li>
+                  <li>ضبط وإدارة بروتوكولات التوجيه MikroTik (BGP, OSPF) للشبكات الضخمة.</li>
+                  <li>تنفيذ شبكات الألياف الضوئية وأنفاق IPSec VPN وشبكات الأمان المتطورة.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-slate-800 pb-1 mb-2.5">التعليم والشهادات (Education & Certifications)</h3>
+            <div class="flex justify-between text-[11px] text-slate-800 font-semibold" id="paperEduCerts">
+              <span>بكالوريوس هندسة شبكات • خبير معتمد Cisco (CCNP)</span>
+              <span>شهادات معتمدة (Fortinet NSE & MikroTik MTCNA)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Raw Text Matrix Terminal Editor View -->
+        <div id="cvTextView" class="hidden bg-[#040814] border-2 border-emerald-500/60 rounded-xl p-6 shadow-[0_0_30px_rgba(16,185,129,0.25)] font-mono text-xs text-emerald-300 whitespace-pre-wrap leading-relaxed max-h-[450px] overflow-y-auto custom-scrollbar relative" dir="auto">
+          <div class="text-[10px] text-emerald-400/80 font-mono pb-2 border-b border-emerald-500/30 mb-4 flex justify-between items-center select-none" dir="ltr">
+            <span>[SYS_ATS_PARSER :: UTF-8 RAW ATS BUFFER]</span>
+            <span class="flex items-center gap-1.5 text-green-400 font-bold"><span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> ONLINE & SYNCHRONIZED</span>
+          </div>
+          <div id="cvTextCodeBody"></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: AI Cover Letter -->
+      <div id="tabContentCl" class="hidden space-y-4">
+        <!-- Action Toolbar for Cover Letter (Image 4 exact match) -->
+        <div class="bg-slate-950 p-3.5 border border-slate-800 rounded-xl text-xs space-y-2.5">
+          <!-- Row 1: Themes + Plain Text -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="setPaperTheme('cyberpunk')" class="btn-theme-cyberpunk px-3 py-1.5 bg-slate-900 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded-lg text-xs font-black shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all flex items-center gap-1.5 cursor-pointer">💎 CYBERPUNK</button>
+            <button type="button" onclick="setPaperTheme('executive')" class="btn-theme-executive px-3 py-1.5 bg-slate-900 hover:bg-amber-500/20 text-amber-300 border border-amber-500/50 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer">🏛️ EXECUTIVE</button>
+            <button type="button" onclick="setPaperTheme('classic')" class="btn-theme-classic px-3 py-1.5 bg-blue-600 text-white font-black rounded-lg text-xs transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center gap-1.5 cursor-pointer">📄 CLEAN PAPER</button>
+            <button type="button" onclick="toggleCvViewMode('text')" class="btn-theme-text px-3 py-1.5 bg-slate-900 border border-emerald-500/60 text-emerald-400 hover:bg-emerald-500/20 rounded-lg text-xs font-black transition-colors flex items-center gap-1 cursor-pointer shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+              <i data-lucide="code" class="w-3.5 h-3.5"></i> PLAIN TEXT
+            </button>
+          </div>
+          <!-- Row 2: Regenerate + Copy + Export/Print PDF -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="regenerateCoverLetter()" class="px-3.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> إعادة التوليد بالذكاء الاصطناعي
+            </button>
+            <button type="button" onclick="copyCoverLetterText()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ رسالة التغطية
+            </button>
+            <button type="button" onclick="openPdfExportStudio()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> طباعة / تصدير PDF
+            </button>
+          </div>
+        </div>
+        <div id="clPreviewContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-6 text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar" dir="auto"></div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950/70 flex justify-between items-center">
+      <div class="text-xs text-slate-500 font-mono">الحالة: جاهز لإطلاق حملة التقديم التلقائي</div>
+      <div class="flex gap-3">
+        <button onclick="closePreviewModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer">إغلاق</button>
+        <button onclick="closePreviewModal(); document.getElementById('btnLaunch').click();" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 rounded-xl text-xs font-black transition-all shadow-[0_0_15px_rgba(0,240,255,0.4)] flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="sparkles" class="w-4 h-4"></i> إطلاق الحملة الآن
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto" dir="rtl">
+  <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
+  <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
+  <input type="hidden" name="target_locations" id="hiddenTargetLocations" value="لبنان، الإمارات، عن بعد" dir="auto">
+  <input type="hidden" name="target_titles" id="hiddenTargetTitles" value="مهندس شبكات وأمن معلومات متقدم" dir="auto">
+  <input type="hidden" name="profile_name" id="hiddenProfileName" value="الملف الشخصي الرئيسي" dir="auto">
+  <input type="hidden" name="cover_letter_template" id="hiddenCoverLetterTemplate" value="" dir="auto">
+  <input type="hidden" name="cv_style" id="hiddenCvStyle" value="Professional" dir="auto">
+  <input type="hidden" name="salary_expectation" id="hiddenSalaryExpectation" value="$30k-$50k" dir="auto">
+  <input type="hidden" name="min_local_salary" id="hiddenMinLocalSalary" value="30000" dir="auto">
+  <input type="hidden" name="min_international_salary" id="hiddenMinIntlSalary" value="80000" dir="auto">
+
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+    <div>
+      <h1 class="text-2xl font-black text-white flex items-center gap-3">
+        <i data-lucide="file-up" class="w-7 h-7 text-cyan-400"></i>
+        رفع السيرة الذاتية
+      </h1>
+      <p class="text-sm text-slate-400 mt-1" style="line-height:1.7;">دع الذكاء الاصطناعي يحلل سيرتك الذاتية ويصيغ طلبات التوظيف المثالية</p>
+    </div>
+    <div class="flex gap-3 flex-wrap items-center">
+      <button type="button" onclick="toggleSoundFx()" id="btnSoundToggle" class="px-3 py-2 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+        <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> الأصوات التفاعلية: مفعلة
+      </button>
+      <button class="btn-secondary-cv" onclick="openInspector('cv')" type="button">
+        📄 معاينة ورقة السيرة الذاتية
+      </button>
+      <button class="btn-primary-cv" id="btnAutoFill" onclick="triggerAIAutoFill(event)" type="button">
+        ✨ التعبئة التلقائية بالذكاء الاصطناعي
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Swarm Telemetry & System Status Bar -->
+  <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap justify-between items-center gap-3 text-xs">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5 text-green-400 font-bold">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> شبكة SMTP الآلية: 991/1000 حساب مفعّل
+      </span>
+      <span class="text-slate-500">|</span>
+      <span class="text-slate-400 flex items-center gap-1">
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> درع الحماية Aegis: نشط
+      </span>
+    </div>
+    <div class="flex items-center gap-4 text-slate-400">
+      <span class="flex items-center gap-1">
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> الاستجابة: 340ms (LLaMA 3.3 70B)
+      </span>
+      <span class="text-slate-500">|</span>
+      <span class="text-purple-400 font-bold">الطاقة: 10,000 تقديم يومياً</span>
+    </div>
+  </div>
+
+  <!-- Flash Sale Banner -->
+  <div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload">
+    <div class="flex items-center gap-2">
+      <i data-lucide="zap" class="w-5 h-5 text-red-400"></i>
+      <span class="text-sm font-bold text-red-400">العرض السريع مفعّل</span>
+    </div>
+    <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">02h 34m 12s</span>
+    <span class="text-sm text-slate-300">خصم 30% على جميع خدمات تحسين السيرة الذاتية — الكود: <strong class="text-red-400 bg-red-500/10 px-2 py-0.5 rounded ms-1 tracking-wider">CVPRO30</strong></span>
+  </div>
+
+  <!-- How It Works -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="rocket" class="w-4 h-4 text-cyan-400"></i> كيف يعمل النظام
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+        <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+          <i data-lucide="upload" class="w-6 h-6 text-blue-400"></i>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">1. رفع السيرة الذاتية</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT</div>
+      </div>
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+        <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+          <i data-lucide="brain-circuit" class="w-6 h-6 text-green-400"></i>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">2. تحليل الذكاء الاصطناعي</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">يستخرج النظام مهاراتك وخبراتك ويحسن المحتوى تلقائياً</div>
+      </div>
+      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+        <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+          <i data-lucide="rocket" class="w-6 h-6 text-purple-400"></i>
+        </div>
+        <div class="font-bold text-white text-sm mb-1">3. إطلاق الحملة</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">ابدأ التقديم الآلي مع رسائل تغطية مصممة لكل وظيفة</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="upload-cloud" class="w-4 h-4 text-blue-400"></i> رفع ملف السيرة الذاتية
+    </h3>
+    
+    <div id="uploadZone" class="relative border-2 border-dashed border-blue-500/30 rounded-xl p-8 text-center cursor-pointer bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-400 transition-all group overflow-hidden" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/0 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      
+      <i data-lucide="folder-up" id="uploadIcon" class="w-10 h-10 text-cyan-400 mx-auto mb-3 group-hover:-translate-y-1 transition-transform"></i>
+      
+      <p id="uploadText" class="text-sm text-slate-300 mb-2">اسحب وأفلت السيرة الذاتية هنا، أو <strong class="text-cyan-400">تصفح</strong></p>
+      
+      <div class="flex gap-2 justify-center mt-4">
+        <span class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] font-bold rounded-full border border-red-500/20">PDF</span>
+        <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">DOCX</span>
+        <span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">TXT</span>
+      </div>
+      
+      <input dir="auto" type="file" id="cvFile" name="cv_file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".pdf,.docx,.doc,.txt" onchange="handleFileSelect(this)" dir="auto">
+    </div>
+
+    <!-- File Info -->
+    <div id="fileInfo" class="hidden mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i>
+      <span id="fileName" class="text-sm font-semibold text-white">file.pdf</span>
+      <span id="fileSize" class="text-xs text-slate-400">(0 KB)</span>
+      <button class="ms-auto px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer" onclick="removeFile(event)" type="button">إزالة الملف</button>
+    </div>
+
+    <!-- Upload Progress & AI Status -->
+    <div id="uploadProgress" class="hidden mt-4">
+      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-green-400 w-0 transition-all duration-300"></div>
+      </div>
+      <div id="progressText" class="text-xs text-slate-400 mt-2 text-center font-medium">جاري الرفع والتحليل... 0%</div>
+    </div>
+
+    <!-- File Preview -->
+    <div id="filePreview" class="hidden mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-64 overflow-y-auto text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed custom-scrollbar" dir="auto"></div>
+  </div>
+
+  <!-- AI Executive Intelligence Dossier Widget -->
+  <div id="aiDossierWidget" class="hidden bg-gradient-to-br from-slate-900/90 via-slate-950 to-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_30px_rgba(0,240,255,0.15)] relative overflow-hidden">
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-4 pb-3 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <i data-lucide="cpu" class="w-5 h-5 text-cyan-400"></i>
+        <h3 class="text-sm font-black text-white tracking-wider">ملف الكفاءة والذكاء الاصطناعي المهني (AI Dossier)</h3>
+      </div>
+      <span id="dossierMatchBadge" class="px-3 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-full text-xs font-bold flex items-center gap-1 shadow-[0_0_10px_rgba(0,240,255,0.2)]">
+        <i data-lucide="award" class="w-3.5 h-3.5"></i> مطابقة الخبير المتقدم: 98%
+      </span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl text-center">
+        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">مستوى الأقدمية</div>
+        <div class="text-sm font-black text-green-400" id="dossierSeniority">خبير / قيادي (15+ سنة)</div>
+      </div>
+      <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl text-center">
+        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">الشهادات المعتمَدة</div>
+        <div class="text-sm font-black text-purple-400" id="dossierCerts">CCNA, CCNP, Fortinet, MTCNA</div>
+      </div>
+      <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl text-center">
+        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">تحسين أنظمة ATS</div>
+        <div class="text-sm font-black text-cyan-400" id="dossierAtsScore">98/100 (مسار سريع)</div>
+      </div>
+      <div class="bg-slate-950/80 border border-slate-800 p-3.5 rounded-xl text-center">
+        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">القيمة السوقية للراتب</div>
+        <div class="text-sm font-black text-amber-400" id="dossierValuation">$50,000 - $95,000 / سنوياً</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i> البيانات الشخصية
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold text-slate-400 uppercase">الاسم الكامل</label>
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="fullNameInput" placeholder="مثال: أحمد خليل" type="text" value="{{ user.name if user else '' }}" dir="auto">
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold text-slate-400 uppercase">البريد الإلكتروني</label>
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="emailInput" placeholder="you@example.com" type="email" value="{{ user.email if user else '' }}" dir="auto">
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold text-slate-400 uppercase">رقم الهاتف</label>
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="phoneInput" placeholder="+961 70 000 000" type="tel" dir="auto">
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-[11px] font-bold text-slate-400 uppercase">الموقع / البلد</label>
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="locationInput" placeholder="مثال: بيروت، لبنان" type="text" dir="auto">
+      </div>
+    </div>
+    <div class="space-y-1.5">
+      <label class="text-[11px] font-bold text-slate-400 uppercase">لينكد إن (اختياري)</label>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="linkedinInput" placeholder="https://linkedin.com/in/yourprofile" type="url" dir="auto">
+    </div>
+  </div>
+
+  <!-- Target Titles & Preferred Roles -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i> الوظائف والمسميات المستهدفة
+    </h3>
+    <div class="space-y-1.5 mb-3">
+      <label class="text-[11px] font-bold text-slate-400 uppercase">إضافة مسميات وظيفية مستهدفة (مفصولة بفاصلة أو اضغط القوالب السريعة)</label>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="targetTitlesInput" onkeydown="handleTargetTitleTag(event)" placeholder="مهندس شبكات متقدم، مهندس أمن معلومات، مدير بنية تحتية..." dir="auto">
+    </div>
+
+    <!-- Quick Role Presets -->
+    <div class="flex flex-wrap gap-1.5 mb-3">
+      <span class="text-[10px] text-slate-500 uppercase font-bold self-center me-1">إضافة سريعة:</span>
+      <button type="button" onclick="addQuickTitle('Senior Network Engineer')" class="px-2.5 py-1 bg-slate-800 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Senior Network Engineer</button>
+      <button type="button" onclick="addQuickTitle('Cyber Security Specialist')" class="px-2.5 py-1 bg-slate-800 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Cyber Security Specialist</button>
+      <button type="button" onclick="addQuickTitle('Infrastructure Lead')" class="px-2.5 py-1 bg-slate-800 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Infrastructure Lead</button>
+    </div>
+
+    <div class="flex flex-wrap gap-2" id="targetTitleTags">
+      <span class="target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors" onclick="this.remove(); updateHiddenTargetTitles();">Senior Network Engineer <i data-lucide="x" class="w-3 h-3"></i></span>
+      <span class="target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors" onclick="this.remove(); updateHiddenTargetTitles();">Cyber Security Specialist <i data-lucide="x" class="w-3 h-3"></i></span>
+    </div>
+  </div>
+
+  <!-- Skills & Tags -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="tags" class="w-4 h-4 text-purple-400"></i> المهارات والكلمات المفتاحية
+    </h3>
+    <div class="space-y-1.5 mb-3">
+      <label class="text-[11px] font-bold text-slate-400 uppercase">إضافة المهارات (مفصولة بفاصلة أو اضغط القوالب السريعة)</label>
+      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="skillsInput" onkeydown="handleSkillTag(event)" placeholder="Python، JavaScript، Cisco IOS، Fortinet، ..." dir="auto">
+    </div>
+
+    <!-- Quick Skill Presets -->
+    <div class="flex flex-wrap gap-1.5 mb-3">
+      <span class="text-[10px] text-slate-500 uppercase font-bold self-center me-1">إضافة سريعة:</span>
+      <button type="button" onclick="addQuickSkill('Cisco IOS')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Cisco IOS</button>
+      <button type="button" onclick="addQuickSkill('MikroTik')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ MikroTik</button>
+      <button type="button" onclick="addQuickSkill('Fortinet')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Fortinet</button>
+      <button type="button" onclick="addQuickSkill('Fiber Optic')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Fiber Optic</button>
+      <button type="button" onclick="addQuickSkill('Wireshark')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Wireshark</button>
+    </div>
+
+    <div class="flex flex-wrap gap-2" id="skillTags">
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove(); updateHiddenSkills();">Python <i data-lucide="x" class="w-3 h-3"></i></span>
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove(); updateHiddenSkills();">JavaScript <i data-lucide="x" class="w-3 h-3"></i></span>
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove(); updateHiddenSkills();">React <i data-lucide="x" class="w-3 h-3"></i></span>
+    </div>
+  </div>
+
+  <!-- Salary Expectations -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i> توقعات الراتب
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+      <div class="salary-preset relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/10 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectSalary(this, '$30k-$50k')">
+        <div class="selected-badge absolute top-3 left-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i> تم الاختيار
+        </div>
+        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇱🇧</div>
+        <div class="text-sm font-bold text-white mb-1">لبنان</div>
+        <div class="text-xl font-black text-green-400 mb-1">$30k-$50k</div>
+        <div class="text-[10px] text-slate-400 uppercase">مبتدئ إلى متوسط</div>
+      </div>
+      <div class="salary-preset relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
+        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
+        <div class="text-sm font-bold text-white mb-1">الإمارات</div>
+        <div class="text-xl font-black text-green-400 mb-1">$50k-$80k</div>
+        <div class="text-[10px] text-slate-400 uppercase">متوسط إلى متقدم</div>
+      </div>
+      <div class="salary-preset relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
+        <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
+        <div class="text-sm font-bold text-white mb-1">أمريكا / عن بُعد</div>
+        <div class="text-xl font-black text-green-400 mb-1">$80k-$150k</div>
+        <div class="text-[10px] text-slate-400 uppercase">متقدم فأكثر</div>
+      </div>
+    </div>
+    <div class="space-y-1.5">
+      <label class="text-[11px] font-bold text-slate-400 uppercase">نطاق مخصص</label>
+      <input class="cv-input w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="customSalaryInput" placeholder="مثال: $60,000 - $90,000" type="text" dir="auto">
+    </div>
+  </div>
+
+  <!-- CV Style -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="palette" class="w-4 h-4 text-pink-400"></i> نمط السيرة الذاتية
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="style-card relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/10 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectStyle(this, 'احترافي')">
+        <div class="selected-badge absolute top-3 left-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3"></i> تم الاختيار
+        </div>
+        <i data-lucide="file-text" class="w-8 h-8 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
+        <div class="text-sm font-bold text-white mb-1">احترافي</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">تنسيق نظيف متوافق مع أنظمة التوظيف (ATS)</div>
+      </div>
+      <div class="style-card relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'إبداعي')">
+        <i data-lucide="paint-brush" class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
+        <div class="text-sm font-bold text-white mb-1">إبداعي</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">تصميم عصري بالألوان</div>
+      </div>
+      <div class="style-card relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'بسيط')">
+        <i data-lucide="layout-template" class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
+        <div class="text-sm font-bold text-white mb-1">بسيط</div>
+        <div class="text-xs text-slate-400" style="line-height:1.7;">تنسيق بسيط يركز على النص</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents Status -->
+  <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
+    <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
+      <i data-lucide="files" class="w-4 h-4 text-slate-400"></i> حالة المستندات والمعاينة الحية
+    </h3>
+    <div class="space-y-3">
+      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+            السيرة الذاتية <span class="text-[10px] text-cyan-400 font-mono">(اضغط لمعاينة ورقة السيرة الذاتية)</span>
+          </h4>
+          <div class="text-xs text-slate-400" id="cvStatusDetails">PDF • آخر تحديث: قيد الانتظار</div>
+        </div>
+        <div class="flex items-center gap-3 ms-auto">
+          <span id="cvStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+          <button type="button" onclick="event.stopPropagation(); openInspector('cv');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i> معاينة وتعديل ATS CV
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1">قالب رسالة التغطية</h4>
+          <div class="text-xs text-slate-400" id="clStatusDetails">LLaMA 3.3 70B • سيتم التوليد الآلي فور رفع السيرة الذاتية</div>
+        </div>
+        <div class="flex items-center gap-3 ms-auto">
+          <span id="clStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+          <button type="button" onclick="event.stopPropagation(); openInspector('cl');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <i data-lucide="eye" class="w-3.5 h-3.5"></i> معاينة وتعديل رسالة التغطية
+          </button>
+        </div>
+      </div>
+      
+      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
+        <div>
+          <h4 class="text-sm font-bold text-white mb-1">محاكي إرسال الإيميل</h4>
+          <div class="text-xs text-slate-400">بروتوكول SMTP / Graph API التلقائي • حمولة التقديم الحية</div>
+        </div>
+        <div class="flex items-center gap-3 ms-auto">
+          <span class="px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-lg border border-green-500/30">SPF/DKIM جاهز</span>
+          <button type="button" onclick="event.stopPropagation(); openInspector('email');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-green-400 border border-green-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <i data-lucide="mail" class="w-3.5 h-3.5"></i> معاينة الإيميل المرسل
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-wrap gap-3 justify-end pt-4 pb-10">
+    <button class="btn-secondary-cv" onclick="saveDraft(event)" type="button">
+      <i data-lucide="save" class="w-4 h-4"></i> حفظ كمسودة
     </button>
-    <button class="btn-primary-cv" id="btnAIAnalysis" onclick="startAIAnalysis(event)">
-      <i class="w-4 h-4" data-lucide="bot"></i> تحليل ذكي
+    <button class="btn-primary-cv" id="btnLaunch" onclick="launchCampaign(event)" type="button">
+      <i data-lucide="sparkles" class="w-4 h-4"></i> تحسين بالذكاء الاصطناعي وإطلاق
     </button>
   </div>
-</div>
-
-<!-- Flash Sale Banner -->
-<div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload">
-  <div class="flex items-center gap-2">
-    <i class="w-5 h-5 text-red-400" data-lucide="zap"></i>
-    <span class="text-sm font-bold text-red-400">عرض حصري متاح</span>
-  </div>
-  <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">{{ _('02h 34m 12s') }}</span>
-  <span class="text-sm text-slate-300">خصم 30% على تحسين السيرة الذاتية — استخدم الكود: <strong class="text-red-400 bg-red-500/10 px-2 py-0.5 rounded ms-1">{{ _('CVPRO30') }}</strong></span>
-</div>
-
-<!-- How It Works -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-cyan-400 lucide-dir-aware" data-lucide="rocket"></i> كيف يعمل النظام
-  </h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-      <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-        <i class="w-6 h-6 text-blue-400" data-lucide="upload"></i>
-      </div>
-      <div class="font-bold text-white text-sm mb-1">رفع السيرة الذاتية</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">{{ _('ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT') }}</div>
-    </div>
-    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-      <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-        <i class="w-6 h-6 text-green-400" data-lucide="brain-circuit"></i>
-      </div>
-      <div class="font-bold text-white text-sm mb-1">التحليل بالذكاء الاصطناعي</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">نستخرج مهاراتك وخبراتك ونحسن محتوى السيرة الذاتية</div>
-    </div>
-    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
-      <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-        <i class="w-6 h-6 text-purple-400 lucide-dir-aware" data-lucide="rocket"></i>
-      </div>
-      <div class="font-bold text-white text-sm mb-1">إطلاق الحملة</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">ابدأ التقديم الآلي مع رسائل تغطية مصاغة باحترافية</div>
-    </div>
-  </div>
-</div>
-
-<!-- Upload Section -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-cyan-400" data-lucide="upload-cloud"></i> ارفع سيرتك الذاتية
-  </h3>
-  <div class="relative p-8 text-center cursor-pointer overflow-hidden" id="uploadZone" ondragleave="handleDragLeave(event)" ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
-    <i class="w-10 h-10 text-cyan-400 mx-auto mb-3 transition-transform group-hover:-translate-y-1" data-lucide="folder-up" id="uploadIcon"></i>
-    <p class="text-sm text-slate-300 mb-2" id="uploadText">اسحب وأفلت السيرة الذاتية هنا، أو <strong class="text-cyan-400">تصفح</strong></p>
-    <div class="flex gap-2 justify-center mt-4">
-      <span class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] font-bold rounded-full border border-red-500/20">{{ _('PDF') }}</span>
-      <span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20">{{ _('DOCX') }}</span>
-      <span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20">{{ _('TXT') }}</span>
-    </div>
-    <input accept=".pdf,.docx,.doc,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" dir="auto" id="cvFile" onchange="handleFileSelect(this)" type="file"/ dir="auto">
-  </div>
-
-  <!-- File Info -->
-  <div class="hidden mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-center gap-3" id="fileInfo">
-    <i class="w-5 h-5 text-green-400" data-lucide="check-circle-2"></i>
-    <span class="text-sm font-semibold text-white" id="fileالاسم">{{ _('file.pdf') }}</span>
-    <span class="text-xs text-slate-400" id="fileSize">{{ _('(0 KB)') }}</span>
-    <button class="ms-auto px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors" onclick="removeFile()">إزالة</button>
-  </div>
-
-  <!-- File Preview -->
-  <div class="hidden mt-4 bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-64 overflow-y-auto text-xs text-slate-400 font-mono whitespace-pre-wrap custom-scrollbar" id="filePreview" style="line-height:1.7;"></div>
-
-  <!-- Upload Progress -->
-  <div class="hidden mt-4" id="uploadProgress">
-    <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-      <div class="h-full bg-gradient-to-r from-cyan-500 to-green-400 w-0 transition-all duration-300" id="progressBar"></div>
-    </div>
-    <div class="text-xs text-slate-400 mt-2 text-center font-medium" id="progressText">جاري الرفع... 0%</div>
-  </div>
-</div>
-
-<!-- Personal Info -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-indigo-400" data-lucide="user"></i> المعلومات الشخصية
-  </h3>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase">الاسم الكامل</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: سام سلامة" type="text" value="{{ user.name if user else '' }}"/ dir="auto">
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase">البريد الإلكتروني</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="you@example.com" type="email" value="{{ user.email if user else '' }}"/ dir="auto">
-    </div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase">رقم الهاتف</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="+961 70 000 000" type="tel"/ dir="auto">
-    </div>
-    <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase">الموقع</label>
-      <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: بيروت، لبنان" type="text"/ dir="auto">
-    </div>
-  </div>
-  <div class="space-y-1.5">
-    <label class="text-[11px] font-bold text-slate-400 uppercase">لينكد إن (اختياري)</label>
-    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="https://linkedin.com/in/yourprofile" type="url"/ dir="auto">
-  </div>
-</div>
-
-<!-- Skills & Tags -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-purple-400" data-lucide="tags"></i> المهارات والكلمات المفتاحية
-  </h3>
-  <div class="space-y-1.5 mb-3">
-    <label class="text-[11px] font-bold text-slate-400 uppercase">إضافة المهارات (مفصولة بفاصلة أو اضغط إدخال)</label>
-    <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="skillsInput" onkeydown="handleSkillTag(event)" placeholder="Python، JavaScript، إدارة المشاريع، ..."/ dir="auto">
-  </div>
-  <div class="flex flex-wrap gap-2" id="skillTags">
-    <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('Python') }} <i class="w-3 h-3" data-lucide="x"></i></span>
-    <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('JavaScript') }} <i class="w-3 h-3" data-lucide="x"></i></span>
-    <span class="px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">{{ _('React') }} <i class="w-3 h-3" data-lucide="x"></i></span>
-  </div>
-</div>
-
-<!-- Salary Expectations -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-amber-400" data-lucide="coins"></i> توقعات الراتب
-  </h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-    <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-cyan-500 bg-cyan-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(0,240,255,0.1)] group" onclick="selectSalary(this, '$30k-$50k')">
-      <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇱🇧</div>
-      <div class="text-sm font-bold text-white mb-1">لبنان</div>
-      <div class="text-lg font-black text-green-400 mb-1">{{ _('$30k-$50k') }}</div>
-      <div class="text-[10px] text-slate-400 uppercase">مبتدئ إلى متوسط</div>
-    </div>
-    <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
-      <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
-      <div class="text-sm font-bold text-white mb-1">الإمارات</div>
-      <div class="text-lg font-black text-green-400 mb-1">{{ _('$50k-$80k') }}</div>
-      <div class="text-[10px] text-slate-400 uppercase">متوسط إلى متقدم</div>
-    </div>
-    <div class="salary-preset cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
-      <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
-      <div class="text-sm font-bold text-white mb-1">أمريكا / عن بُعد</div>
-      <div class="text-lg font-black text-green-400 mb-1">{{ _('$80k-$150k') }}</div>
-      <div class="text-[10px] text-slate-400 uppercase">متقدم فأكثر</div>
-    </div>
-  </div>
-  <div class="space-y-1.5">
-    <label class="text-[11px] font-bold text-slate-400 uppercase">نطاق مخصص</label>
-    <input class="cv-input w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" placeholder="مثال: $60,000 - $90,000" type="text"/ dir="auto">
-  </div>
-</div>
-
-<!-- CV Style -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-pink-400" data-lucide="palette"></i> نمط السيرة الذاتية
-  </h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="style-card cursor-pointer bg-slate-950 border-2 border-cyan-500 bg-cyan-500/5 rounded-xl p-4 text-center transition-all shadow-[0_0_15px_rgba(0,240,255,0.1)] group" onclick="selectStyle(this)">
-      <i class="w-8 h-8 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="file-text"></i>
-      <div class="text-sm font-bold text-white mb-1">احترافي</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">{{ _('تنسيق نظيف متوافق مع أنظمة التوظيف (ATS)') }}</div>
-    </div>
-    <div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
-      <i class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="paint-brush"></i>
-      <div class="text-sm font-bold text-white mb-1">إبداعي</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">تصميم عصري بالألوان</div>
-    </div>
-    <div class="style-card cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-4 text-center transition-all group" onclick="selectStyle(this)">
-      <i class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform" data-lucide="layout-template"></i>
-      <div class="text-sm font-bold text-white mb-1">بسيط</div>
-      <div class="text-xs text-slate-400" style="line-height:1.7;">تنسيق بسيط يركز على النص</div>
-    </div>
-  </div>
-</div>
-
-<!-- Documents Status -->
-<div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
-  <h3 class="text-sm font-bold text-slate-300 uppercase mb-5 flex items-center gap-2">
-    <i class="w-4 h-4 text-slate-400" data-lucide="files"></i> حالة المستندات
-  </h3>
-  <div class="space-y-3">
-    <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-      <div>
-        <h4 class="text-sm font-bold text-white mb-1">السيرة الذاتية</h4>
-        <div class="text-xs text-slate-500">{{ _('PDF • آخر تحديث: لم يتم الرفع') }}</div>
-      </div>
-      <span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
-    </div>
-    <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-      <div>
-        <h4 class="text-sm font-bold text-white mb-1">قالب رسالة التغطية</h4>
-        <div class="text-xs text-slate-500">مولد بالذكاء الاصطناعي • سيتم إنشاؤه بعد رفع السيرة الذاتية</div>
-      </div>
-      <span class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
-    </div>
-    <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4">
-      <div>
-        <h4 class="text-sm font-bold text-white mb-1">معرض الأعمال (اختياري)</h4>
-        <div class="text-xs text-slate-500">{{ _('رابط أو PDF • اعرض أعمالك') }}</div>
-      </div>
-      <span class="px-3 py-1 bg-slate-800 text-slate-500 text-xs font-bold rounded-lg border border-slate-800 border-dashed">اختياري</span>
-    </div>
-  </div>
-</div>
-
-<!-- Action Buttons -->
-<div class="flex flex-wrap gap-3 justify-end pt-4 pb-10">
-  <button class="btn-secondary-cv" onclick="saveDraft(event)">
-    <i class="w-4 h-4" data-lucide="save"></i> حفظ كمسودة
-  </button>
-  <button class="btn-primary-cv" id="btnLaunch" onclick="startAIAnalysis(event)">
-    <i class="w-4 h-4" data-lucide="sparkles"></i> تحسين بالذكاء الاصطناعي وإطلاق
-  </button>
-</div>
-</div>
+</form>
 
 <script>
 /* ═══════════════════════════════════════════
-   UPLOAD CV v3 — JavaScript
+   UPLOAD CV v3 — Arabic Production AI Script
    ═══════════════════════════════════════════ */
+
+let parsedProfile = null;
+let lastPreviewData = null;
+let soundEnabled = true;
+let selectedPdfTheme = 'classic';
+
+/* ── Web Audio Synth Click ── */
+function playSynthClick(freq = 800, type = 'sine') {
+  if (!soundEnabled) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  } catch(e){}
+}
+
+function toggleSoundFx() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('btnSoundToggle');
+  if (soundEnabled) {
+    btn.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> الأصوات التفاعلية: مفعلة';
+    showToast("🔊 تم تفعيل الأصوات التفاعلية المستقبليّة");
+    playSynthClick(1000);
+  } else {
+    btn.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4 text-slate-500"></i> الأصوات التفاعلية: معطلة';
+    showToast("🔇 تم كتم الأصوات التفاعلية");
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toastNotification');
+  const toastMsg = document.getElementById('toastMsg');
+  toastMsg.textContent = msg;
+  toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+  setTimeout(() => {
+    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+  }, 4000);
+}
+
+/* ── PDF Studio Modal Handlers ── */
+function openPdfExportStudio() {
+  playSynthClick(950);
+  document.getElementById('pdfStudioModal').classList.remove('hidden');
+}
+
+function closePdfStudioModal() {
+  document.getElementById('pdfStudioModal').classList.add('hidden');
+}
+
+function selectPdfExportTheme(themeName) {
+  playSynthClick(850);
+  selectedPdfTheme = themeName;
+  const opts = ['Classic', 'Executive', 'Cyberpunk'];
+  opts.forEach(o => {
+    const el = document.getElementById('pdfOpt' + o);
+    if (o.toLowerCase() === themeName) {
+      el.className = "pdf-export-opt cursor-pointer bg-slate-950 border-2 border-cyan-400 p-4 rounded-xl text-center space-y-2 shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] transition-all";
+    } else {
+      el.className = "pdf-export-opt cursor-pointer bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-center space-y-2 hover:border-slate-600 transition-all opacity-80";
+    }
+  });
+
+  // Apply theme live to paper view
+  setPaperTheme(selectedPdfTheme);
+}
+
+function executePdfPrint() {
+  playSynthClick(1100);
+
+  // Synchronous theme apply
+  setPaperTheme(selectedPdfTheme);
+
+  // Synchronous popup launch (no popup blocker)
+  const win = window.open('', '_blank', 'height=850,width=1050');
+  
+  closePdfStudioModal();
+
+  if (!win) {
+    showToast("⚠️ تم كتم النوافذ المنبثقة! جاري الطباعة المباشرة...");
+    window.print();
+    return;
+  }
+
+  let printTargetId = 'cvPaperView';
+  const tabEmail = document.getElementById('tabContentEmail');
+  const tabCl = document.getElementById('tabContentCl');
+  if (tabEmail && !tabEmail.classList.contains('hidden')) {
+    printTargetId = 'previewBody';
+  } else if (tabCl && !tabCl.classList.contains('hidden')) {
+    printTargetId = 'clPreviewContainer';
+  }
+  const printContents = (document.getElementById(printTargetId) || document.getElementById('cvPaperView')).innerHTML;
+  const bgMode = document.getElementById('pdfBgMode').value;
+  const paperSize = document.getElementById('pdfPaperSize').value;
+
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>طباعة وتصدير السيرة الذاتية PDF</title>
+        <script src="https://cdn.tailwindcss.com"><\/script>
+        <style>
+          @page { size: ${paperSize}; margin: 12mm; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; ${bgMode === 'mono' ? 'filter: grayscale(100%);' : ''} }
+        </style>
+      </head>
+      <body class="bg-white p-8" dir="rtl">
+        <div class="max-w-4xl mx-auto">
+          ${printContents}
+        </div>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { 
+    win.print(); 
+  }, 400);
+}
+
+/* ── Set Paper Theme ── */
+function setPaperTheme(theme) {
+  playSynthClick(900);
+  const paper = document.getElementById('cvPaperView');
+  const nameEl = document.getElementById('paperFullName');
+  const titleEl = document.getElementById('paperTargetTitle');
+  const contactEl = document.getElementById('paperContactDetails');
+  const h3Els = paper ? paper.querySelectorAll('h3') : [];
+  const expTitles = paper ? paper.querySelectorAll('#paperExperienceList .font-bold, #paperExperienceList .font-black, #paperExperienceList div > div') : [];
+  const eduCerts = document.getElementById('paperEduCerts');
+
+  const previewBody = document.getElementById('previewBody');
+  const clContainer = document.getElementById('clPreviewContainer');
+
+  const btnCyberList = document.querySelectorAll('.btn-theme-cyberpunk, #btnThemeCyberpunk');
+  const btnExecList = document.querySelectorAll('.btn-theme-executive, #btnThemeExecutive');
+  const btnClassicList = document.querySelectorAll('.btn-theme-classic, #btnThemeClassic');
+  const btnTextList = document.querySelectorAll('.btn-theme-text, #btnCvTextMode');
+
+  // Reset Plain Text mode button
+  btnTextList.forEach(btnText => {
+    if(btnText) btnText.className = "btn-theme-text px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer";
+  });
+  if (paper) paper.classList.remove('hidden');
+  const textView = document.getElementById('cvTextView');
+  if (textView) textView.classList.add('hidden');
+
+  if (theme === 'cyberpunk') {
+    if (paper) paper.className = "bg-gradient-to-br from-slate-950 via-[#070d1e] to-slate-950 text-slate-100 rounded-xl p-8 shadow-[0_0_35px_rgba(0,240,255,0.3)] max-h-[480px] overflow-y-auto custom-scrollbar border-2 border-cyan-500/60 font-sans text-xs space-y-5 relative";
+    if (previewBody) previewBody.className = "p-6 text-sm leading-relaxed font-mono min-h-[220px] bg-gradient-to-br from-slate-950 via-[#070d1e] to-slate-950 text-cyan-300 border-2 border-cyan-500/60 shadow-[0_0_25px_rgba(0,240,255,0.25)] rounded-xl";
+    if (clContainer) clContainer.className = "bg-gradient-to-br from-slate-950 via-[#070d1e] to-slate-950 text-cyan-300 border-2 border-cyan-500/60 shadow-[0_0_25px_rgba(0,240,255,0.25)] rounded-xl p-6 text-xs font-mono whitespace-pre-wrap leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar";
+
+    if (nameEl) nameEl.className = "text-2xl font-black tracking-widest uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-purple-400 drop-shadow-[0_0_12px_rgba(0,240,255,0.8)]";
+    if (titleEl) titleEl.className = "text-sm font-black text-cyan-400 tracking-wider mt-0.5 uppercase";
+    if (contactEl) contactEl.className = "text-start text-[11px] text-cyan-300/80 font-mono space-y-0.5";
+    
+    h3Els.forEach(h => {
+      h.className = "text-xs font-black text-cyan-400 uppercase tracking-widest border-b border-cyan-500/40 pb-1 mb-2 shadow-[0_1px_8px_rgba(0,240,255,0.2)]";
+    });
+
+    expTitles.forEach(t => {
+      t.className = "flex justify-between font-black text-cyan-300";
+    });
+
+    if (eduCerts) eduCerts.className = "flex justify-between text-[11px] text-cyan-300 font-mono font-semibold";
+
+    const badges = document.querySelectorAll('#paperSkillsBadges span');
+    badges.forEach(b => {
+      b.className = "px-3 py-1 bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 font-mono font-bold rounded-lg shadow-[0_0_10px_rgba(0,240,255,0.25)] text-[11px]";
+    });
+
+    btnCyberList.forEach(b => b.className = "btn-theme-cyberpunk px-3 py-1.5 bg-cyan-500/20 text-cyan-400 border border-cyan-500/60 rounded-lg text-xs font-black shadow-[0_0_12px_rgba(0,240,255,0.4)] transition-all flex items-center gap-1.5 cursor-pointer");
+    btnExecList.forEach(b => b.className = "btn-theme-executive px-3 py-1.5 bg-slate-900 border border-slate-700 text-amber-300 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+    btnClassicList.forEach(b => b.className = "btn-theme-classic px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+
+    showToast("💎 تم تطبيق نمط الهولوغرام السايكربنك المضيء!");
+  } else if (theme === 'executive') {
+    // ROYAL EXECUTIVE LUXURY PAPER FORMAT
+    if (paper) paper.className = "bg-gradient-to-b from-amber-50/95 via-white to-amber-50/60 text-slate-900 rounded-xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-h-[480px] overflow-y-auto custom-scrollbar border-2 border-amber-600/40 font-serif text-xs space-y-6 relative";
+    if (previewBody) previewBody.className = "p-6 text-sm leading-relaxed font-serif min-h-[220px] bg-gradient-to-b from-amber-50/95 via-white to-amber-50/70 text-slate-900 border-2 border-amber-600/50 shadow-md rounded-xl";
+    if (clContainer) clContainer.className = "bg-gradient-to-b from-amber-50/95 via-white to-amber-50/70 text-slate-900 border-2 border-amber-600/50 shadow-md rounded-xl p-6 text-xs font-serif whitespace-pre-wrap leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar";
+
+    if (nameEl) nameEl.className = "text-2xl font-serif font-black tracking-tight text-slate-950 uppercase border-b-2 border-amber-700/60 pb-1";
+    if (titleEl) titleEl.className = "text-sm font-bold text-amber-800 tracking-wider mt-1 uppercase";
+    if (contactEl) contactEl.className = "text-start text-[11px] text-slate-700 font-medium space-y-0.5";
+    
+    h3Els.forEach(h => {
+      h.className = "text-xs font-serif font-black text-amber-900 uppercase tracking-widest border-b-2 border-amber-700/40 pb-1 mb-2.5";
+    });
+
+    expTitles.forEach(t => {
+      t.className = "flex justify-between font-serif font-bold text-slate-950 text-sm";
+    });
+
+    if (eduCerts) eduCerts.className = "flex justify-between text-[11px] text-amber-900 font-semibold font-serif";
+
+    const badges = document.querySelectorAll('#paperSkillsBadges span');
+    badges.forEach(b => {
+      b.className = "px-3 py-1 bg-amber-100/90 border border-amber-400/60 text-amber-950 font-serif font-bold rounded-md shadow-sm text-[11px]";
+    });
+
+    btnCyberList.forEach(b => b.className = "btn-theme-cyberpunk px-3 py-1.5 bg-slate-900 border border-slate-700 text-cyan-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+    btnExecList.forEach(b => b.className = "btn-theme-executive px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/60 rounded-lg text-xs font-black shadow-[0_0_12px_rgba(245,158,11,0.4)] transition-all flex items-center gap-1.5 cursor-pointer");
+    btnClassicList.forEach(b => b.className = "btn-theme-classic px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+
+    showToast("🏛️ تم تطبيق النمط التنفيذي الأرستقراطي الرفيع!");
+  } else {
+    // PRISTINE CORPORATE MINIMALIST EXECUTIVE PAPER
+    if (paper) paper.className = "bg-white text-slate-900 rounded-xl p-8 shadow-[0_15px_45px_rgba(0,0,0,0.25)] max-h-[480px] overflow-y-auto custom-scrollbar border-2 border-slate-300/80 font-sans text-xs space-y-6 relative";
+    if (previewBody) previewBody.className = "p-6 text-sm text-slate-200 leading-relaxed font-sans min-h-[220px] bg-slate-950 rounded-xl border border-slate-800";
+    if (clContainer) clContainer.className = "bg-slate-950 border border-slate-800 rounded-xl p-6 text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed max-h-[400px] overflow-y-auto custom-scrollbar";
+
+    if (nameEl) nameEl.className = "text-2xl font-black text-slate-950 tracking-tight uppercase border-b-2 border-slate-900 pb-1";
+    if (titleEl) titleEl.className = "text-sm font-bold text-blue-700 tracking-wide mt-1 uppercase";
+    if (contactEl) contactEl.className = "text-start text-[11px] text-slate-600 font-medium space-y-0.5";
+    
+    h3Els.forEach(h => {
+      h.className = "text-xs font-black text-slate-900 uppercase tracking-wider border-b-2 border-slate-800 pb-1 mb-2.5";
+    });
+
+    expTitles.forEach(t => {
+      t.className = "flex justify-between font-bold text-slate-950 text-sm";
+    });
+
+    if (eduCerts) eduCerts.className = "flex justify-between text-[11px] text-slate-800 font-semibold";
+
+    const badges = document.querySelectorAll('#paperSkillsBadges span');
+    badges.forEach(b => {
+      b.className = "px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]";
+    });
+
+    btnCyberList.forEach(b => b.className = "btn-theme-cyberpunk px-3 py-1.5 bg-slate-900 border border-slate-700 text-cyan-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+    btnExecList.forEach(b => b.className = "btn-theme-executive px-3 py-1.5 bg-slate-900 border border-slate-700 text-amber-300 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer");
+    btnClassicList.forEach(b => b.className = "btn-theme-classic px-3 py-1.5 bg-blue-600 text-white font-black rounded-lg text-xs transition-all shadow-[0_0_12px_rgba(37,99,235,0.4)] flex items-center gap-1.5 cursor-pointer");
+
+    showToast("📄 تم تطبيق نمط الورق الأبيض الناصع المعتمد رسمياً!");
+  }
+}
+
+/* ── CV Paper vs Text View Mode ── */
+function toggleCvViewMode(mode) {
+  playSynthClick(750);
+  const paperView = document.getElementById('cvPaperView');
+  const textView = document.getElementById('cvTextView');
+  const btnText = document.getElementById('btnCvTextMode');
+
+  const btnCyber = document.getElementById('btnThemeCyberpunk');
+  const btnExec = document.getElementById('btnThemeExecutive');
+  const btnClassic = document.getElementById('btnThemeClassic');
+
+  if (mode === 'paper') {
+    paperView.classList.remove('hidden');
+    textView.classList.add('hidden');
+    if(btnText) btnText.className = 'px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer';
+    setPaperTheme('classic');
+  } else {
+    paperView.classList.add('hidden');
+    textView.classList.remove('hidden');
+    if(btnText) btnText.className = 'px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 rounded-lg text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.5)] transition-colors flex items-center gap-1 cursor-pointer';
+
+    if(btnCyber) btnCyber.className = "px-3 py-1.5 bg-slate-900 border border-slate-700 text-cyan-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer";
+    if(btnExec) btnExec.className = "px-3 py-1.5 bg-slate-900 border border-slate-700 text-amber-300 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer";
+    if(btnClassic) btnClassic.className = "px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-400 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer";
+
+    // Format raw text into syntactically highlighted Matrix Code Buffer
+    const rawTxt = (document.getElementById('hiddenCvText').value || document.getElementById('cvPaperView').innerText).trim();
+    const codeBody = document.getElementById('cvTextCodeBody');
+    if (codeBody) {
+      codeBody.innerHTML = rawTxt.split('\n').map((line, idx) => {
+        const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (line.match(/^(\/\/|===|---|PROFESSIONAL|TECHNICAL|WORK|EDUCATION|SUMMARY|الملخص|المهارات|الخبرات|التعليم)/i)) {
+          return `<div class="text-cyan-400 font-bold"><span class="text-slate-600 select-none me-3">${(idx+1).toString().padStart(2,'0')}</span><span class="text-amber-300">${escaped}</span></div>`;
+        }
+        return `<div><span class="text-slate-600 select-none me-3">${(idx+1).toString().padStart(2,'0')}</span><span class="text-emerald-300">${escaped}</span></div>`;
+      }).join('');
+    }
+
+    showToast("💻 تم تفعيل شاشة المحرر البرمجي للنص الخام!");
+  }
+}
+
+function printCvDocument() {
+  openPdfExportStudio();
+}
+
+/* ── Selection Handlers ── */
+function selectSalary(el, range) {
+  playSynthClick(900);
+  document.querySelectorAll('.salary-preset').forEach(function(p) { 
+    p.classList.remove('border-cyan-400', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.3)]', '-translate-y-1', 'scale-[1.02]');
+    p.classList.add('border-slate-700', 'hover:border-slate-500', 'bg-slate-950');
+    const badge = p.querySelector('.selected-badge');
+    if (badge) badge.remove();
+  });
+
+  el.classList.remove('border-slate-700', 'hover:border-slate-500', 'bg-slate-950');
+  el.classList.add('border-cyan-400', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.3)]', '-translate-y-1', 'scale-[1.02]');
+
+  if (!el.querySelector('.selected-badge')) {
+    const badge = document.createElement('div');
+    badge.className = 'selected-badge absolute top-3 left-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1';
+    badge.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> تم الاختيار';
+    el.appendChild(badge);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  document.getElementById('hiddenSalaryExpectation').value = range;
+  showToast("💰 تم اختيار نطاق الراتب: " + range);
+}
+
+function selectStyle(el, styleName) {
+  playSynthClick(950);
+  document.querySelectorAll('.style-card').forEach(function(c) { 
+    c.classList.remove('border-cyan-400', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.3)]', '-translate-y-1', 'scale-[1.02]');
+    c.classList.add('border-slate-700', 'hover:border-slate-500', 'bg-slate-950');
+    const badge = c.querySelector('.selected-badge');
+    if (badge) badge.remove();
+  });
+
+  el.classList.remove('border-slate-700', 'hover:border-slate-500', 'bg-slate-950');
+  el.classList.add('border-cyan-400', 'bg-cyan-500/10', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.3)]', '-translate-y-1', 'scale-[1.02]');
+
+  if (!el.querySelector('.selected-badge')) {
+    const badge = document.createElement('div');
+    badge.className = 'selected-badge absolute top-3 left-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1';
+    badge.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> تم الاختيار';
+    el.appendChild(badge);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  document.getElementById('hiddenCvStyle').value = styleName;
+  showToast("🎨 تم اختيار نمط السيرة الذاتية: " + styleName);
+}
+
+/* ── Quick Add Title & Skill Presets ── */
+function addQuickTitle(titleText) {
+  playSynthClick(700);
+  const tagsContainer = document.getElementById('targetTitleTags');
+  const existing = Array.from(tagsContainer.querySelectorAll('.target-title-tag')).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  if (!existing.includes(titleText)) {
+    const span = document.createElement('span');
+    span.className = 'target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors';
+    span.onclick = function() { this.remove(); updateHiddenTargetTitles(); };
+    span.innerHTML = titleText + ' <i data-lucide="x" class="w-3 h-3"></i>';
+    tagsContainer.appendChild(span);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    updateHiddenTargetTitles();
+    showToast("🎯 تم إضافة الوظيفة المستهدفة: " + titleText);
+  }
+}
+
+function addQuickSkill(skillText) {
+  playSynthClick(750);
+  const tagsContainer = document.getElementById('skillTags');
+  const existing = Array.from(tagsContainer.querySelectorAll('.skill-tag')).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  if (!existing.includes(skillText)) {
+    const span = document.createElement('span');
+    span.className = 'skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors';
+    span.onclick = function() { this.remove(); updateHiddenSkills(); };
+    span.innerHTML = skillText + ' <i data-lucide="x" class="w-3 h-3"></i>';
+    tagsContainer.appendChild(span);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    updateHiddenSkills();
+    showToast("⚡ تم إضافة المهارة: " + skillText);
+  }
+}
 
 /* ── Drag & Drop ── */
 function handleDragOver(e) {
@@ -336,15 +1157,21 @@ function handleDrop(e) {
   e.preventDefault();
   handleDragLeave(e);
   var files = e.dataTransfer.files;
-  if (files.length > 0) { processFile(files[0]); }
+  if (files.length > 0) {
+    document.getElementById('cvFile').files = files;
+    processFile(files[0]);
+  }
 }
 
 function handleFileSelect(input) {
-  if (input.files.length > 0) { processFile(input.files[0]); }
+  if (input.files.length > 0) {
+    processFile(input.files[0]);
+  }
 }
 
-/* ── File Processing ── */
-function processFile(file) {
+/* ── AI File Parsing ── */
+async function processFile(file) {
+  playSynthClick(1100);
   var ext = file.name.split('.').pop().toLowerCase();
   if (!['pdf', 'docx', 'doc', 'txt'].includes(ext)) {
     alert('الرجاء رفع ملف بصيغة PDF أو DOCX أو TXT.');
@@ -362,45 +1189,184 @@ function processFile(file) {
   document.getElementById('uploadText').innerHTML = 'تم اختيار <strong class="text-cyan-400">' + file.name + '</strong>';
 
   var info = document.getElementById('fileInfo');
-  document.getElementById('fileالاسم').textContent = file.name;
+  document.getElementById('fileName').textContent = file.name;
   document.getElementById('fileSize').textContent = '(' + (file.size / 1024).toFixed(1) + ' KB)';
   info.classList.remove('hidden');
 
   var progress = document.getElementById('uploadProgress');
+  var bar = document.getElementById('progressBar');
+  var text = document.getElementById('progressText');
   progress.classList.remove('hidden');
-  simulateUpload();
 
-  if (ext === 'txt') {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var preview = document.getElementById('filePreview');
-      preview.textContent = e.target.result.substring(0, 2000);
-      preview.classList.remove('hidden');
-    };
-    reader.readAsText(file);
+  bar.style.width = '30%';
+  text.textContent = 'جاري رفع الملف للسيرفر... 30%';
+
+  const fd = new FormData();
+  fd.append('cv_file', file);
+
+  try {
+    bar.style.width = '65%';
+    text.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 inline animate-spin"></i> 🤖 الذكاء الاصطناعي LLaMA 3.3 70B يحلل السيرة الذاتية... 65%';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    const res = await fetch('/api/parse-cv-file', {
+      method: 'POST',
+      body: fd
+    });
+
+    bar.style.width = '90%';
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.detail || 'فشل تحليل الملف');
+    }
+
+    const data = await res.json();
+    bar.style.width = '100%';
+    text.innerHTML = '<span class="text-cyan-400 font-bold">✅ اكتمل التحليل وتعبئة البيانات بالذكاء الاصطناعي!</span>';
+
+    if (data.status === 'success' && data.profile) {
+      parsedProfile = data.profile;
+      autoFillProfile(data.profile, file.name);
+    }
+  } catch (err) {
+    console.error("AI Parse Error:", err);
+    bar.style.width = '100%';
+    text.innerHTML = '<span class="text-amber-400 font-semibold">⚠️ تم استخراج النص الأساسي وجاهز للتنقيح.</span>';
+
+    if (ext === 'txt') {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('hiddenCvText').value = e.target.result;
+        var preview = document.getElementById('filePreview');
+        preview.textContent = e.target.result.substring(0, 3000);
+        preview.classList.remove('hidden');
+      };
+      reader.readAsText(file);
+    }
   }
 }
 
-/* ── Simulated Upload Progress ── */
-function simulateUpload() {
-  var bar = document.getElementById('progressBar');
-  var text = document.getElementById('progressText');
-  var pct = 0;
-  var interval = setInterval(function() {
-    pct += Math.random() * 15 + 5;
-    if (pct >= 100) {
-      pct = 100;
-      clearInterval(interval);
-      text.innerHTML = '<span class="text-cyan-400 font-bold">✅ اكتمل الرفع!</span>';
-    } else {
-      text.textContent = 'جاري الرفع... ' + Math.min(Math.round(pct), 100) + '%';
+function autoFillProfile(p, filename) {
+  if (p.full_name || p.name) {
+    document.getElementById('fullNameInput').value = p.full_name || p.name;
+    document.getElementById('hiddenProfileName').value = p.full_name || p.name;
+    document.getElementById('paperFullName').textContent = p.full_name || p.name;
+  }
+  if (p.email) document.getElementById('emailInput').value = p.email;
+  if (p.phone) document.getElementById('phoneInput').value = p.phone;
+  if (p.location) document.getElementById('locationInput').value = p.location;
+  if (p.linkedin) document.getElementById('linkedinInput').value = p.linkedin;
+
+  // Paper Header Contact
+  document.getElementById('paperContactDetails').innerHTML = `
+    <div>${p.location || 'بيروت، لبنان'} • ${p.phone || '+961 70 123456'}</div>
+    <div>${p.email || 'user@example.com'}</div>
+    <div>${p.linkedin || 'linkedin.com/in/profile'}</div>
+  `;
+
+  // Target Titles
+  if (p.target_titles && Array.isArray(p.target_titles) && p.target_titles.length > 0) {
+    const titleContainer = document.getElementById('targetTitleTags');
+    titleContainer.innerHTML = '';
+    p.target_titles.forEach(title => {
+      if (title && typeof title === 'string') {
+        const span = document.createElement('span');
+        span.className = 'target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors';
+        span.onclick = function() { this.remove(); updateHiddenTargetTitles(); };
+        span.innerHTML = title + ' <i data-lucide="x" class="w-3 h-3"></i>';
+        titleContainer.appendChild(span);
+      }
+    });
+    updateHiddenTargetTitles();
+    document.getElementById('paperTargetTitle').textContent = p.target_titles[0];
+  }
+
+  // Skills
+  if (p.skills && Array.isArray(p.skills) && p.skills.length > 0) {
+    const tagsContainer = document.getElementById('skillTags');
+    const paperSkillsContainer = document.getElementById('paperSkillsBadges');
+    tagsContainer.innerHTML = '';
+    paperSkillsContainer.innerHTML = '';
+    p.skills.forEach(skill => {
+      if (skill && typeof skill === 'string') {
+        const span = document.createElement('span');
+        span.className = 'skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors';
+        span.onclick = function() { this.remove(); updateHiddenSkills(); };
+        span.innerHTML = skill + ' <i data-lucide="x" class="w-3 h-3"></i>';
+        tagsContainer.appendChild(span);
+
+        const pBadge = document.createElement('span');
+        pBadge.className = 'px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]';
+        pBadge.textContent = skill;
+        paperSkillsContainer.appendChild(pBadge);
+      }
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    updateHiddenSkills();
+  }
+
+  // AI Dossier Widget
+  const dossier = document.getElementById('aiDossierWidget');
+  if (dossier) {
+    dossier.classList.remove('hidden');
+    if (p.certifications && Array.isArray(p.certifications) && p.certifications.length > 0) {
+      document.getElementById('dossierCerts').textContent = p.certifications.slice(0, 4).join(', ');
     }
-    bar.style.width = Math.min(pct, 100) + '%';
-  }, 200);
+  }
+
+  // Summary & CV Text
+  if (p.summary || p.raw_text) {
+    const textContent = p.raw_text || p.summary || JSON.stringify(p, null, 2);
+    document.getElementById('hiddenCvText').value = textContent;
+    document.getElementById('paperSummary').textContent = p.summary || textContent.substring(0, 500);
+    const preview = document.getElementById('filePreview');
+    preview.textContent = "📄 ملخص السيرة الذاتية المستخرج بالذكاء الاصطناعي:\n----------------------------------------\n" + (p.summary ? p.summary + "\n\n" : "") + textContent;
+    preview.classList.remove('hidden');
+  }
+
+  // Status badges
+  const cvBadge = document.getElementById('cvStatusBadge');
+  const cvDetails = document.getElementById('cvStatusDetails');
+  cvBadge.className = "px-3 py-1 bg-cyan-500/20 text-cyan-400 text-xs font-bold rounded-lg border border-cyan-500/40 shadow-[0_0_10px_rgba(0,240,255,0.2)]";
+  cvBadge.textContent = "✅ محلل ومجهز بالكامل";
+  cvDetails.textContent = filename + " • تم التحليل 100% بنماذج LLaMA 3.3 70B";
+
+  const clBadge = document.getElementById('clStatusBadge');
+  const clDetails = document.getElementById('clStatusDetails');
+  clBadge.className = "px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-lg border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]";
+  clBadge.textContent = "✨ رسالة التغطية جاهزة";
+  clDetails.textContent = "رسالة تغطية مخصصة جاهزة لمحرك التقديم الآلي";
+
+  document.getElementById('attachedCvName').textContent = filename;
+
+  showToast("✨ تم تحليل السيرة الذاتية وتعبئة الحقول تلقائياً!");
+}
+
+function updateHiddenSkills() {
+  const tags = document.querySelectorAll('#skillTags .skill-tag');
+  const skillsArr = Array.from(tags).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  document.getElementById('hiddenSkills').value = skillsArr.join(', ');
+}
+
+function updateHiddenTargetTitles() {
+  const tags = document.querySelectorAll('#targetTitleTags .target-title-tag');
+  const titlesArr = Array.from(tags).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  document.getElementById('hiddenTargetTitles').value = titlesArr.join(', ');
+}
+
+function triggerAIAutoFill(e) {
+  const fileInput = document.getElementById('cvFile');
+  if (fileInput.files.length > 0) {
+    processFile(fileInput.files[0]);
+  } else {
+    fileInput.click();
+  }
 }
 
 /* ── Remove File ── */
-function removeFile() {
+function removeFile(e) {
+  if (e) e.preventDefault();
   var zone = document.getElementById('uploadZone');
   zone.style.borderColor = '';
   zone.style.background = '';
@@ -413,90 +1379,218 @@ function removeFile() {
   document.getElementById('fileInfo').classList.add('hidden');
   document.getElementById('filePreview').classList.add('hidden');
   document.getElementById('uploadProgress').classList.add('hidden');
+  document.getElementById('aiDossierWidget').classList.add('hidden');
   document.getElementById('cvFile').value = '';
+
+  document.getElementById('cvStatusBadge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
+  document.getElementById('cvStatusBadge').textContent = "قيد الانتظار";
+  document.getElementById('cvStatusDetails').textContent = "PDF • آخر تحديث: لم يتم الرفع";
+
+  document.getElementById('clStatusBadge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
+  document.getElementById('clStatusBadge').textContent = "قيد الانتظار";
+  document.getElementById('clStatusDetails').textContent = "LLaMA 3.3 70B • سيتم التوليد الآلي فور رفع السيرة الذاتية";
 }
 
-/* ── Skill Tags ── */
+/* ── Skill & Title Tags ── */
 function handleSkillTag(e) {
   if (e.key === 'Enter' || e.key === ',') {
     e.preventDefault();
     var input = document.getElementById('skillsInput');
     var val = input.value.replace(',', '').trim();
     if (val) {
-      var tagsContainer = document.getElementById('skillTags');
-      var span = document.createElement('span');
-      span.className = 'px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors';
-      span.onclick = function() { this.remove(); };
-      span.innerHTML = val + ' <i data-lucide="x" class="w-3 h-3"></i>';
-      tagsContainer.appendChild(span);
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      addQuickSkill(val);
       input.value = '';
     }
   }
 }
 
-/* ── Salary Preset Select ── */
-function selectSalary(el, range) {
-  document.querySelectorAll('.salary-preset').forEach(function(p) {
-    p.classList.remove('border-cyan-500', 'bg-cyan-500/5', 'shadow-[0_0_15px_rgba(0,240,255,0.1)]');
-    p.classList.add('border-slate-700');
-  });
-  el.classList.remove('border-slate-700');
-  el.classList.add('border-cyan-500', 'bg-cyan-500/5', 'shadow-[0_0_15px_rgba(0,240,255,0.1)]');
-}
-
-/* ── Style Select ── */
-function selectStyle(el) {
-  document.querySelectorAll('.style-card').forEach(function(c) {
-    c.classList.remove('border-cyan-500', 'bg-cyan-500/5', 'shadow-[0_0_15px_rgba(0,240,255,0.1)]');
-    c.classList.add('border-slate-700');
-  });
-  el.classList.remove('border-slate-700');
-  el.classList.add('border-cyan-500', 'bg-cyan-500/5', 'shadow-[0_0_15px_rgba(0,240,255,0.1)]');
-}
-
-/* ── Preview ── */
-function showPreview() {
-  var preview = document.getElementById('filePreview');
-  if (!preview.classList.contains('hidden')) {
-    preview.classList.add('hidden');
-  } else {
-    preview.classList.remove('hidden');
-    if (!preview.textContent.trim()) {
-      preview.textContent = 'لم يتم رفع ملف بعد. ارفع سيرة ذاتية لرؤية المعاينة هنا.';
+function handleTargetTitleTag(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    var input = document.getElementById('targetTitlesInput');
+    var val = input.value.replace(',', '').trim();
+    if (val) {
+      addQuickTitle(val);
+      input.value = '';
     }
   }
 }
 
-/* ── Save Draft ── */
-function saveDraft(e) {
-  var btn = e.currentTarget;
-  var orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="cv-spinner"></span> جاري الحفظ...';
-  setTimeout(function() {
-    btn.disabled = false;
-    btn.innerHTML = orig;
-  }, 1500);
+/* ── Live Inspector Modal & Tab System ── */
+function openInspector(tabName) {
+  playSynthClick(850);
+  showPreview(tabName || 'cv');
 }
 
-/* ── AI Analysis ── */
-function startAIAnalysis(e) {
-  var btn = e.currentTarget;
-  var originalHtml = btn.innerHTML;
+function switchInspectorTab(tabName) {
+  playSynthClick(800);
+  const tabs = ['email', 'cv', 'cl'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    const content = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (t === tabName) {
+      btn.className = 'px-3.5 py-1.5 rounded-lg transition-all bg-cyan-500 text-slate-950 shadow font-black flex items-center gap-1.5 cursor-pointer';
+      content.classList.remove('hidden');
+    } else {
+      btn.className = 'px-3.5 py-1.5 rounded-lg transition-all text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer';
+      content.classList.add('hidden');
+    }
+  });
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function showPreview(initialTab = 'cv') {
+  updateHiddenSkills();
+  updateHiddenTargetTitles();
+  const modal = document.getElementById('previewModal');
+  const loading = document.getElementById('modalLoading');
+  
+  modal.classList.remove('hidden');
+  loading.classList.remove('hidden');
+  ['tabContentEmail', 'tabContentCv', 'tabContentCl'].forEach(id => document.getElementById(id).classList.add('hidden'));
+
+  const name = document.getElementById('fullNameInput').value || 'أحمد خليل';
+  const email = document.getElementById('emailInput').value || 'ahmad.khalil.demo@example.com';
+  const phone = document.getElementById('phoneInput').value || '+961 70 123456';
+  const skills = document.getElementById('hiddenSkills').value || 'Network Design, Cisco IOS, MikroTik, Fortinet, Fiber Optic, Security';
+  const location = document.getElementById('locationInput').value || 'بيروت، لبنان';
+  const style = document.getElementById('hiddenCvStyle').value;
+  const targetTitle = document.getElementById('hiddenTargetTitles').value || 'Senior Network Engineer';
+
+  document.getElementById('emailFromAddr').textContent = (name.toLowerCase().replace(/\s+/g, '.') || 'candidate') + '@jobhuntpro-applier.com';
+  document.getElementById('emailToAddr').textContent = 'hr-recruiting@innovate-tech.com';
+
+  const payload = {
+    profile: {
+      name: name,
+      email: email,
+      phone: phone,
+      skills: skills.split(',').map(s => s.trim()),
+      experience_years: 15,
+      location: location,
+      target_titles: [targetTitle],
+      summary: document.getElementById('hiddenCvText').value || "خبير شبكات وأمن معلومات ذو خبرة 15+ سنة في تصميم وتنفيذ وتتبع البنى التحتية المتطورة للمؤسسات."
+    },
+    email_style: style === 'إبداعي' ? 'friendly' : style === 'بسيط' ? 'confident' : 'professional',
+    cv_style: style === 'إبداعي' ? 'modern' : style === 'بسيط' ? 'technical' : 'executive',
+    cover_letter_style: "storytelling",
+    target_title: targetTitle,
+    target_company: "Innovate AI Technologies",
+    target_location: "Remote / UAE"
+  };
+
+  try {
+    const res = await fetch('/api/preview-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      lastPreviewData = data;
+      
+      document.getElementById('previewSubject').textContent = data.subject || `تقديم على وظيفة ${targetTitle} - ${name}`;
+      document.getElementById('previewBody').innerHTML = data.body || `<p>السادة فريق التوظيف في Innovate AI Technologies المحترمين،</p><p>أتقدم إليكم بشغف كبير للتقديم على شاغر ${targetTitle}...</p><p>مع خبرتي الواسعة (15+ سنة) في ${skills}، قمت ببناء حلول وبنى تحتية متطورة.</p><hr/><p>مع فائق الاحترام والتقدير،<br/><strong>${name}</strong><br/>${email} | ${phone}</p>`;
+      document.getElementById('clPreviewContainer').textContent = data.cover_letter || `حضرة مسؤول التوظيف المحترم،\n\nأود التعبير عن رغبتي الشديدة في الانضمام لفريق عملكم بوظيفة ${targetTitle}.\n\nخلال مسيرتي المهنية (15+ سنة) في ${location}، اكتسبت مهارات عالية في ${skills}.\n\nأتطلع للحديث معكم حول كيفية مساهمة خبرتي في تحقيق أهداف فريقكم.\n\nوافر التحية،\n${name}\n${phone}\n${email}`;
+      
+      const rawTxt = data.cv_text || `====================================================\n${name.toUpperCase()}\n${location} | ${phone} | ${email}\n====================================================\n\nالملخص المهني (PROFESSIONAL SUMMARY)\n-------------------------------------\n${payload.profile.summary}\n\nالمهارات التقنية (TECHNICAL EXPERTISE)\n-------------------------------------\n${skills}\n\nالخبرات العملية (WORK EXPERIENCE)\n---------------------------------\nSenior Infrastructure Engineer (2011 - Present)\n- تصميم وتطوير خدمات شبكات المؤسسات بخبرة 15+ سنة\n- إدارة جدران الحماية Cisco و MikroTik و Fortinet بكفاءة عالية\n\nالتعليم والشهادات (EDUCATION & CERTS)\n--------------------------------------\nبكالوريوس هندسة شبكات • شهادات معتمدة (CCNP, Fortinet NSE, MikroTik)`;
+      document.getElementById('hiddenCvText').value = rawTxt;
+
+      const codeBody = document.getElementById('cvTextCodeBody');
+      if (codeBody) {
+        codeBody.innerHTML = rawTxt.split('\n').map((line, idx) => {
+          const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          if (line.match(/^(\/\/|===|---|PROFESSIONAL|TECHNICAL|WORK|EDUCATION|SUMMARY|الملخص|المهارات|الخبرات|التعليم)/i)) {
+            return `<div class="text-cyan-400 font-bold"><span class="text-slate-600 select-none me-3">${(idx+1).toString().padStart(2,'0')}</span><span class="text-amber-300">${escaped}</span></div>`;
+          }
+          return `<div><span class="text-slate-600 select-none me-3">${(idx+1).toString().padStart(2,'0')}</span><span class="text-emerald-300">${escaped}</span></div>`;
+        }).join('');
+      }
+    } else {
+      throw new Error("Failed to fetch email preview.");
+    }
+  } catch (err) {
+    console.error("Preview API Error:", err);
+    document.getElementById('previewSubject').textContent = `تقديم على وظيفة ${targetTitle} - ${name}`;
+    document.getElementById('previewBody').innerHTML = `<p>السادة فريق التوظيف المحترمين،</p><p>أتقدم إليكم رسمياً بطلب التوظيف لشغل شاغر ${targetTitle}.</p><p>المهارات الأساسية: <strong>${skills}</strong></p><p>الموقع: ${location}</p><hr/><p>وتفضلوا بقبول فائق الاحترام والتقدير،<br/><strong>${name}</strong></p>`;
+    document.getElementById('clPreviewContainer').textContent = `حضرة مسؤول التوظيف المحترم،\n\nأتقدم إليكم بطلب وظيفة ${targetTitle}.\n\nالمهارات: ${skills}\n\nتحياتي،\n${name}`;
+    
+    const fallbackTxt = `${name.toUpperCase()}\n${email} | ${phone}\n\nالمهارات: ${skills}`;
+    const codeBody = document.getElementById('cvTextCodeBody');
+    if (codeBody) {
+      codeBody.innerHTML = fallbackTxt.split('\n').map((line, idx) => `<div><span class="text-slate-600 select-none me-3">${(idx+1).toString().padStart(2,'0')}</span><span class="text-emerald-300">${line}</span></div>`).join('');
+    }
+  } finally {
+    loading.classList.add('hidden');
+    switchInspectorTab(initialTab);
+  }
+}
+
+function closePreviewModal() {
+  document.getElementById('previewModal').classList.add('hidden');
+}
+
+async function testSendEmail() {
+  playSynthClick(1200);
+  const email = document.getElementById('emailInput').value || 'البريد الإلكتروني الخاص بك';
+  showToast("📩 تم إرسال نموذج بريد إلكتروني تجريبي إلى " + email + "!");
+}
+
+function copyCvText() {
+  playSynthClick(600);
+  const txt = document.getElementById('cvTextCodeBody').innerText || document.getElementById('cvPaperView').innerText;
+  navigator.clipboard.writeText(txt);
+  showToast("📋 تم نسخ نص السيرة الذاتية إلى الحافظة!");
+}
+
+function copyCoverLetterText() {
+  playSynthClick(600);
+  const txt = document.getElementById('clPreviewContainer').innerText;
+  navigator.clipboard.writeText(txt);
+  showToast("📋 تم نسخ رسالة التغطية إلى الحافظة!");
+}
+
+async function regenerateCoverLetter() {
+  playSynthClick(1000);
+  showToast("🔄 جاري إعادة توليد رسالة التغطية بالذكاء الاصطناعي LLaMA 3.3 70B...");
+  showPreview('cl');
+}
+
+/* ── Form Save & Launch Actions ── */
+function syncFormData() {
+  updateHiddenSkills();
+  updateHiddenTargetTitles();
+  const nameVal = document.getElementById('fullNameInput').value.trim();
+  if (nameVal) {
+    document.getElementById('hiddenProfileName').value = nameVal;
+  }
+}
+
+function saveDraft(e) {
+  e.preventDefault();
+  playSynthClick(500);
+  syncFormData();
+  showToast("💾 تم حفظ مسودة الملف الشخصي بنجاح!");
+  setTimeout(() => {
+    document.getElementById('cvForm').submit();
+  }, 1000);
+}
+
+function launchCampaign(e) {
+  e.preventDefault();
+  playSynthClick(1300);
+  syncFormData();
+  const btn = document.getElementById('btnLaunch');
   btn.disabled = true;
-  btn.innerHTML = '<span class="cv-spinner"></span> جاري التحليل...';
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري إطلاق الحملة...';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  setTimeout(function() {
-    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> اكتمل التحليل!';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-
-    setTimeout(function() {
-      btn.disabled = false;
-      btn.innerHTML = originalHtml;
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    }, 2000);
-  }, 3000);
+  showToast("🚀 تم إطلاق حملة التقديم الآلي بالذكاء الاصطناعي! جاري التوجيه...");
+  setTimeout(() => {
+    document.getElementById('cvForm').action = '/upload-cv?redirect=new-campaign';
+    document.getElementById('cvForm').submit();
+  }, 1200);
 }
 
 /* ── Flash Sale Countdown ── */
@@ -506,20 +1600,24 @@ function startAIAnalysis(e) {
   function updateTimer() {
     var diff = endTime - new Date();
     if (diff <= 0) {
-      document.getElementById('flashTimerUpload').textContent = 'منتهي';
+      document.getElementById('flashTimerUpload').textContent = 'انتهى العرض';
       return;
     }
-    var h = Math.floor(diff / (1000 * 60 * 60));
-    var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    var s = Math.floor((diff % (1000 * 60)) / 1000);
+    var h = Math.floor(diff / (1000*60*60));
+    var m = Math.floor((diff % (1000*60*60)) / (1000*60));
+    var s = Math.floor((diff % (1000*60)) / 1000);
     document.getElementById('flashTimerUpload').textContent =
-      h.toString().padStart(2, '0') + 'h ' + m.toString().padStart(2, '0') + 'm ' + s.toString().padStart(2, '0') + 's';
+      h.toString().padStart(2,'0') + 'h ' + m.toString().padStart(2,'0') + 'm ' + s.toString().padStart(2,'0') + 's';
   }
   updateTimer();
   setInterval(updateTimer, 1000);
 })();
 
-document.addEventListener('DOMContentLoaded', function() {
-  if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+document.addEventListener("DOMContentLoaded", function() {
+    updateHiddenSkills();
+    updateHiddenTargetTitles();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
 </script>

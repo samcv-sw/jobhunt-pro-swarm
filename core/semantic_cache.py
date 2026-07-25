@@ -18,7 +18,7 @@ from core.pg_sqlite_shim import connect, get_backend
 
 logger = logging.getLogger(__name__)
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").split(",")[0].strip() if os.getenv("GEMINI_API_KEY") else ""
 
 _client = None
 _sqlite_cache_data = None  # In-memory storage for SQLite fallback entries to avoid database reads

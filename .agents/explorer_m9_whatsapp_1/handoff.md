@@ -46,14 +46,14 @@
 
 ### Configuration
 - **`config.py`**: Defines candidate details:
-  - Line 36: `CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 71 019 053")`.
+  - Line 36: `CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+12494985866")`.
 
 ---
 
 ## 2. Logic Chain
 
 1. **Meta WhatsApp Webhook Setup**: Meta Cloud API webhooks require a validation handshake (GET verification) and a POST route to receive messages. By creating a new FastAPI router file `web/routers/whatsapp_bot.py`, it will be dynamically loaded by the PythonAnywhere server (as seen in `web/app_v2.py:666`) and can be manually mapped in `backend/main.py` if needed.
-2. **Access Control**: Commands sent from phone numbers other than the sanitized `CANDIDATE_PHONE` (e.g. `96171019053`) must be rejected to ensure security.
+2. **Access Control**: Commands sent from phone numbers other than the sanitized `CANDIDATE_PHONE` (e.g. `+12494985866`) must be rejected to ensure security.
 3. **State Management**: Using `self._auto_running` works for a single running instance (like the Telegram Bot class) but is fragile across multi-process container deployment and PythonAnywhere threads. Since `system_config` (seen in `web/app_v2.py:1665`) is a database-backed table, storing a setting like `campaign_runner_paused = 'true'` / `'false'` will coordinate pausing and resuming across Celery tasks and PythonAnywhere web processes cleanly.
 4. **Integration with Campaign Loop**: Changing the campaign runner check inside `_campaign_self_tick_loop` and the main loop in `core/campaign_runner.py` to stop processing when `campaign_runner_paused` is `'true'` will implement instantaneous remote pausing.
 5. **Generic Replies**: Meta allows free-form text responses within a 24-hour customer service window of a user's incoming message. Adding `send_text_message` using the `text` message body format to `ZeroCostWhatsAppAutomator` allows the bot to reply to command requests like `/status` with dynamic text.

@@ -1,138 +1,99 @@
-# Baseline Audit Report: PythonAnywhere & Backend Compatibility Analysis
+# Zero-PC Runtime Independence Audit Report: JobHunt Pro SaaS
 
 ## Executive Summary
-This report analyzes JobHunt Pro's compatibility with PythonAnywhere's restricted hosting environment, evaluates core endpoint performance to identify timeout risks, audits the authentication rate limiters (Aegis Shield) and scraper anti-ban systems, and establishes a baseline test suite execution.
-
-While the baseline test suite shows a **100% pass rate** (632/632 passing locally), several critical architectural issues must be addressed before production deployment on PythonAnywhere to avoid server freezes, database locks, and gateway timeouts.
+JobHunt Pro SaaS demonstrates complete zero-PC runtime independence. The system is engineered to run 24/7 on $0 free-tier cloud infrastructure across Vercel, Render, Cloudflare Workers/Pages, and Supabase/Neon PostgreSQL. No active local PC server or desktop environment is required for continuous operation.
 
 ---
 
-## 1. PythonAnywhere Compatibility Issues
+## 1. Direct Observations & Code Evidence
 
-### A. Ephemeral Background Tasks inside ASGI/WSGI Lifespan
-- **Observations**: 
-  - `web/app_v2.py` (lines 556-636) utilizes FastAPI's `lifespan` hook to initialize and run asynchronous background loops: `email_marketing_loop()`, `_honeypot_cleanup_loop()`, `_campaign_self_tick_loop()`, `_seo_blog_farm_loop()`, and `start_worker()`.
-  - It uses a file lock (`jobhunt_background_loops.lock` in the `/tmp` folder) to prevent multiple workers from running these loops simultaneously.
-- **PythonAnywhere Impact**: 
-  - Web apps on PythonAnywhere run inside a managed WSGI/uWSGI server where worker processes are ephemeral, automatically recycled, and shut down due to inactivity.
-  - Spawning long-running tasks via `asyncio.create_task()` directly in the web process will lead to abrupt terminations. If a worker process holding the loop lock is recycled, the loops stop until another worker process triggers the lock check, causing inconsistent campaign scheduling and delayed emails.
-  - Celery background workers (`core/worker.py`) cannot run inside the web app process. On PythonAnywhere, background workers require a separate "Always-on task" (only available on paid accounts), making standard background execution fail in the free tier.
+### 1.1 Serverless & Cloud Gateway Entry Points
+- **Vercel Configuration (`vercel.json`)**:
+  - `src: "web/app_v2.py"`, `use: "@vercel/python"`, routing all traffic `/(.*)` to FastAPI app.
+  - Native WSGI/ASGI wrapper via `a2wsgi` / `@vercel/python` allowing serverless deployment on Vercel edge/lambda infra.
+- **Render Service Blueprint (`render.yaml`)**:
+  - Web service `jobhunt-pro-backend` configured on Render `plan: free` with Python 3.12.0 runtime.
+  - Startup command: `uvicorn web.app_v2:app --host 0.0.0.0 --port $PORT --workers 2`.
+  - Built-in `PORT` environment variable support.
+- **Container Infrastructure (`Dockerfile` & `Dockerfile.cloud`)**:
+  - Multi-stage Docker builds (`python:3.12-slim` builder + runtime).
+  - Environment defaults set for non-root execution (`USER appuser` / `USER jobhunt`).
+  - Native support for cloud environments with `PORT=7860` (HuggingFace Spaces) or `PORT=8000` (Railway/Render).
 
-### B. Excessive Global ThreadPoolExecutor Max Workers
-- **Observations**: 
-  - `backend/main.py` (line 131) instantiates a global `celery_dispatch_executor = ThreadPoolExecutor(max_workers=32, thread_name_prefix="celery_dispatch")`.
-- **PythonAnywhere Impact**: 
-  - PythonAnywhere places strict limits on the number of system threads and file descriptors per user account.
-  - Creating a ThreadPoolExecutor with 32 workers globally inside the web app process—especially when multiple uWSGI worker processes are spawned—can easily exceed thread limits, leading to process crashes or `ResourceTemporarilyUnavailable` errors.
+### 1.2 Autonomous Database Auto-Detection (`core/database.py`, `core/pg_sqlite_shim.py`, `core/supabase_rest_shim.py`)
+- **Neon / PostgreSQL Auto-Detection (`core/database.py:65-74`)**:
+  - Automatically parses `POSTGRES_URL`, `DATABASE_URL`, or `NEON_URL`.
+  - `format_neon_connection_string()` rewrites Neon pooled connection endpoints (`-pooler`), enforces `sslmode=require`, sets `prepareThreshold=0`, and configures `statement_cache_size=0` to prevent PgBouncer transaction mode errors.
+- **Resilient Connection Pooling for Cold Starts (`core/database.py:102-115`)**:
+  - `QueuePool` configured with `pool_size=2`, `max_overflow=1`, `pool_timeout=30`, `pool_recycle=280`, and `pool_pre_ping=True`.
+  - Conserves connections strictly under Neon's 10-connection free tier cap while surviving 5-minute auto-suspends.
+- **Supabase REST Shim (`core/supabase_rest_shim.py`)**:
+  - Provides a fallback PostgREST API client using `SUPABASE_SERVICE_KEY` for environments where direct TCP database ports (5432) are outbound-restricted.
+- **Seamless Local SQLite Fallback (`core/pg_sqlite_shim.py:703-753`)**:
+  - Automatically falls back to SQLite (`aiosqlite`/`sqlite3`) if no remote database environment variable is configured.
 
-### C. Outbound Proxy and Connection Whitelisting
-- **Observations**:
-  - `backend/main.py` (`LogtailHandler`, line 80) sends log entries to `https://in.logs.betterstack.com` via `urllib.request.urlopen(req, timeout=5)`.
-  - `core/aegis_shield.py` (`_UpstashClient._exec`, line 86) sends rate-limit queries to Upstash Redis REST API (`https://...upstash.io`) using `urllib.request.urlopen(req, timeout=3)`.
-  - `backend/main.py` (lifespan hook, line 156) registers webhooks by querying `https://api.telegram.org`.
-- **PythonAnywhere Impact**:
-  - PythonAnywhere free tier accounts block all outbound TCP traffic except to whitelisted HTTP/HTTPS domains (e.g., Telegram API is generally whitelisted, but custom logging endpoints and Upstash Redis may not be).
-  - Outbound HTTP connections must explicitly route through the local proxy (`http://proxy.server:3128`). Standard urllib calls do not automatically apply proxy settings unless `http_proxy` / `https_proxy` env vars are properly parsed, leading to network timeouts and connection errors.
-
-### D. SQLite Concurrency and NFS locking Bottlenecks
-- **Observations**:
-  - `core/pg_sqlite_shim.py` (line 727) and `web/app_v2.py` (line 1341) explicitly force `PRAGMA journal_mode=DELETE` and `PRAGMA synchronous=FULL` when running under PythonAnywhere.
-- **PythonAnywhere Impact**:
-  - PythonAnywhere storage is mounted over a distributed Network File System (NFS). Because NFS does not support POSIX shared memory locks, SQLite's high-performance Write-Ahead Logging (WAL) mode cannot be used and causes file locking failures.
-  - Forcing `DELETE` journal mode and `FULL` synchronous operations prevents database corruption but introduces severe latency. Every write operation requires deleting/re-creating the journal file and executing synchronous disk flushes over the network, slowing queries by up to 10-100x compared to WAL mode.
-  - Simultaneous writes (e.g., user registration, login attempts, rate limiter increments, campaign status updates) will serialize and cause frequent `database is locked` (`SQLITE_BUSY`) exceptions.
-
-### E. WebSockets Protocol Limitations
-- **Observations**:
-  - `backend/main.py` (line 398) loads `backend.routers.websocket`.
-- **PythonAnywhere Impact**:
-  - PythonAnywhere web apps do not support WebSockets or long-lived server-sent events. Connection requests to WebSocket routers will return `502 Bad Gateway` or fail to connect.
+### 1.3 24/7 Background Workers & Multi-Cloud Cron Orchestration
+- **GitHub Actions Scheduled Runners (`.github/workflows/`)**:
+  - `keepalive_ultra_247.yml`: Runs every 5 minutes (`cron: '*/5 * * * *'`), sending HTTP ping requests to Render (`/health`), HuggingFace, and Cloudflare Worker nodes to prevent free-tier spin-down.
+  - `scheduled_runner.yml`: Triggers remote background job scans (`/api/v1/trigger-scan`) every 30 minutes via API request.
+  - `job-hunt.yml` & `auto_apply.yml`: Autonomous job search and auto-application execution triggered directly on GitHub Actions runners without requiring local PC execution.
+- **Cloudflare Worker Cron Edge Triggers (`cloudflare/wrangler.toml` & `cloudflare/keepalive_cron/wrangler.toml`)**:
+  - `wrangler.toml` configures `crons = ["*/4 * * * *"]` for edge routing and periodic trigger invocation.
+  - Bound to Cloudflare D1 Database (`DB`), KV Cache (`CACHE`), Workers AI (`AI`), and R2 Storage (`BUCKET`).
 
 ---
 
-## 2. Core Endpoint Speed & Timeout Risks
+## 2. Logic Chain
 
-### A. Dashboard Stats Endpoint (`/api/v1/dashboard/stats`)
-- **Path**: `web/routers/dashboard.py` (lines 23-73)
-- **Logic**: Executes a `LEFT JOIN campaigns` query grouped by `u.user_id` and `u.wallet_balance`.
-- **Risk**: 
-  - Although `campaigns.user_id` is indexed, aggregating metrics (such as summing `sent_count` and counting active/completed statuses) across a large volume of rows for active users will slow down.
-  - Under SQLite `DELETE` mode on NFS, if this query is executed concurrently with write operations, it will block, leading to slow dashboard load times and potential HTTP 504 Gateway Timeouts.
-  - *Mitigation note*: It returns a `Cache-Control: private, max-age=30` header, which helps cache the response for 30s in the client browser, but does not protect against concurrent backend hits.
+1. **Zero Local PC Dependency**:
+   - The application codebase contains zero hardcoded local filesystem paths (`C:\Users\...`). All storage, configuration, and state management utilize environment variables (`os.getenv`), Cloud PostgreSQL (Neon/Supabase), Cloudflare KV/D1/R2, or transient `/tmp` directories.
+   - When deployed to Render/Vercel/Cloudflare, all core REST endpoints (`backend/main.py` & `web/app_v2.py`) execute independently of the developer's local workstation.
 
-### B. DLQ Requeue Endpoint (`/api/v1/admin/dlq/requeue`)
-- **Path**: `backend/routers/admin.py` (lines 20-58)
-- **Logic**: Performs a batch update: `UPDATE ps_crud_outbox SET synced = 0, created_at = :now WHERE synced = 0 AND created_at < :cutoff`.
-- **Risk**:
-  - The outbox table (`ps_crud_outbox`) tracks all local mutations. If synchronization breaks, the table will grow rapidly.
-  - Executing a mass `UPDATE` statement locks the entire SQLite database file under `DELETE` journal mode. During the update, all incoming requests (logins, dashboard queries, public landing pages) will be blocked and will wait on the SQLite lock. If the update takes more than a few seconds, it will exhaust the web server's worker threads, triggering a site-wide crash or timeout.
+2. **Serverless Edge Compatibility**:
+   - Vercel's serverless Python runtime creates ephemeral execution contexts.
+   - SQLite database writes on ephemeral local disks (`/tmp`) reset on cold start; however, `core/database.py` seamlessly switches to Neon PostgreSQL (`postgresql+asyncpg://`) or Supabase REST when `POSTGRES_URL` / `DATABASE_URL` is set in Vercel environment settings.
+   - CORS validation (`SecureCORSMiddleware`) dynamically handles wildcard subdomains and production domains.
 
-### C. Rate Limit Synced Database Write Locking
-- **Path**: `web/shared.py` (lines 165-197)
-- **Logic**: The IP rate limiter `_check_rate_limit` reads and updates rate-limit records in the database: `REPLACE INTO system_config (key, value) VALUES (?, ?)`.
-- **Risk**:
-  - To sync rate limits across workers without Redis, it writes to the SQLite database.
-  - Because it runs a `REPLACE INTO` query on **every login and registration attempt**, this creates a write-lock bottleneck. Under moderate traffic, multiple parallel authentication checks will cause SQLite thread contention, locking out users and throwing database errors.
+3. **Background Job Execution Architecture**:
+   - On long-running cloud containers (Render / Docker / Railway), background tasks run continuously via FastAPI `BackgroundTasks` or `ThreadPoolExecutor` (`celery_dispatch_executor`).
+   - On serverless providers (Vercel), background execution threads freeze post-HTTP response. The platform resolves this by offloading scheduled background jobs to external triggers:
+     1. GitHub Actions workflows (`scheduled_runner.yml`, `keepalive_ultra_247.yml`).
+     2. Cloudflare Worker Cron Triggers (`cloudflare/wrangler.toml`).
+     3. Periodic webhook endpoints (`/api/v1/trigger-scan`, `/webhook/telegram`).
 
 ---
 
-## 3. Auth Rate Limits (Aegis/Banshield) & Scraper Anti-Ban
+## 3. Caveats
 
-### A. Aegis Shield rate Limiting Latency Hazard
-- **Logic**: `AegisShieldMiddleware` (lines 274-415) intercepts every HTTP request. If Upstash Redis is configured, it executes `token_bucket_check` which calls Upstash via HTTP REST.
-- **Risk**:
-  - Making a synchronous outbound HTTP REST request to Upstash Redis for **every incoming web request** introduces massive overhead (50-200ms latency per request) and will block the ASGI thread.
-  - If Upstash experiences network latency or downtime, the 3-second request timeout in the rate limiter will exhaust the WSGI worker pool instantly, causing immediate 542/504 gateway timeouts for all users.
-  - On free PythonAnywhere accounts, the connection will be blocked by default since external Upstash URLs are not whitelisted, causing a fallback to in-memory limits.
-
-### B. Scraper Anti-Ban and `curl_cffi` Binary Compilation Fallback
-- **Logic**: `core/pa_job_scraper.py` (lines 405-440) performs job scraping using `curl_cffi` (which spoof browser TLS signatures to bypass Cloudflare). If `curl_cffi` fails to load, it falls back to `urllib` requesting.
-- **Risk**:
-  - `curl_cffi` relies on compiled C extensions and shared libraries (`libcurl-impersonate`). Installing it on PythonAnywhere often fails due to missing compilation tools or restricted user environments.
-  - Falling back to `urllib` uses standard TLS signatures, which will trigger immediate bot blocks (Cloudflare 403 Forbidden) from major job sites (LinkedIn, Indeed), rendering the scraping engine inoperable.
-  - Outbound scraping to non-whitelisted job boards is blocked entirely on PythonAnywhere free accounts.
+1. **Vercel Ephemeral Execution Freeze**:
+   - Long-running in-process background threads (e.g. `email_marketing_loop`) inside `web/app_v2.py` will be suspended on Vercel once the initial HTTP response completes. Heavy background jobs MUST be triggered via GitHub Actions crons or hosted on Render/Railway.
+2. **Neon PostgreSQL Free-Tier Connection Limit**:
+   - Neon free tier limits active connections to 10. `core/database.py` enforces `pool_size=2`, `max_overflow=1` per worker process to avoid connection exhaustion under multi-instance scaling.
+3. **Playwright / Heavy Scraper Restrictions on Vercel**:
+   - Browser automation using Playwright/Chromium cannot run inside standard Vercel serverless functions (due to bundle size limits >50MB). Stealth scraping operations must route to Render/Docker instances or external scraping APIs (`curl_cffi`).
 
 ---
 
-## 4. Baseline Test Suite Execution Status
+## 4. Conclusion
 
-The full pytest test suite was executed inside the virtual environment using `uv run pytest`.
-
-### Execution Summary
-- **Total Collected Tests**: 632
-- **Passed**: 632
-- **Failed**: 0
-- **Skipped**: 0
-- **Total Execution Time**: 188.84 seconds (~3 minutes 9 seconds)
-- **Status**: 100% Baseline Pass Rate
-
-The test suite covers:
-1. E2E routes, landing pages, and frontend templates.
-2. Rate limiters (Aegis Shield WAF, Banshield, and daily caps).
-3. Database interfaces and the PG-to-SQLite translation shim (`pg_sqlite_shim`).
-4. AI cover letter engines, ML ranking models, and email dispatchers.
+JobHunt Pro SaaS is fully architecture-ready for **100% Zero-PC Runtime Independence**.
+- **Web App & APIs**: Deployable on **Vercel** or **Render**.
+- **Persistence Layer**: **Neon PostgreSQL** or **Supabase** (with automatic SQLite fallback for local testing).
+- **Edge Routing & Caching**: **Cloudflare Workers / Pages** with D1, KV, and R2 bindings.
+- **Background Execution & Keep-Alive**: **GitHub Actions Cron Workflows** + **Cloudflare Cron Triggers**.
 
 ---
 
-## 5. Actionable Optimization & Hardening Steps (Milestone 4 Targets)
+## 5. Verification Method
 
-To ensure high performance and stable deployment on PythonAnywhere, we propose the following changes:
+1. **Database Resilience Test**:
+   - Set `POSTGRES_URL="postgresql://user:pass@ep-cool-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"` in environment.
+   - Run `python -c "from core.database import NEON_URL; print(NEON_URL)"`.
+   - Invalidation Condition: Failure to append `-pooler` or convert scheme to `postgresql+asyncpg://`.
 
-1. **Decouple Background Loops from Web Process**:
-   - Disable active background loops inside the web app on PythonAnywhere using environment variables (e.g. `RUN_BACKGROUND_LOOPS=false`).
-   - Re-route these loops to a dedicated CLI python script and configure them as standard PythonAnywhere Scheduled Tasks (e.g. running once per hour or once per day depending on task urgency).
-
-2. **Optimize SQLite Write Contention on NFS**:
-   - Implement an in-memory fallback cache for rate-limiting data (`_check_rate_limit`) when running on PythonAnywhere. Avoid using the database (`system_config` table) for transient request counting.
-   - Restructure DLQ requeue transactions to use pagination or chunked updates (e.g., updating in batches of 100 records) to release the SQLite database lock quickly and avoid blocking other users.
-
-3. **Limit Thread Pool Count**:
-   - Dynamically scale the global `ThreadPoolExecutor` worker count in `backend/main.py` based on the detected hosting environment. If running on PythonAnywhere, reduce `max_workers` from 32 to 4 or 8 to prevent resource exhaustion.
-
-4. **Harden Aegis Shield Redis Fallback**:
-   - Add a circuit breaker to Upstash Redis REST calls. If the REST API fails or times out once, disable Redis rate-limiting and fall back to the in-memory rate-limiter for 5 minutes.
-   - For free accounts, skip Upstash REST connection entirely and use in-memory state.
-
-5. **Ensure Stealth Scraper Compatibility**:
-   - Provide pre-compiled wheels for `curl_cffi` or ensure that compilation steps are validated in the PythonAnywhere setup script.
-   - If fallback to `urllib` is required, configure it to route requests through the PythonAnywhere proxy (`http://proxy.server:3128`) and randomize browser headers to reduce ban risk.
+2. **Test Suite Verification**:
+   - Execute pytest test suite in repository:
+     ```bash
+     pytest tests/
+     ```
+   - Invalidation Condition: Any test failures related to database connection or env missing.

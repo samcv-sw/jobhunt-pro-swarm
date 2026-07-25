@@ -1,52 +1,46 @@
-# BRIEFING — 2026-07-12T12:38:20+03:00
+# BRIEFING — 2026-07-22T12:46:25Z
 
 ## Mission
-Independently review the work done for Milestone 1: Cloudflare Pages Deployment.
+Review `/health` and `/ping` endpoints in `backend/routers/health.py` and `web/app_v2.py`, and `.github/workflows/keepalive.yml`. Verify sub-5s response time, zero blocking DB locks under timeout, proper 24/7 cloud tick configuration, strict error handling.
 
 ## 🔒 My Identity
-- Archetype: teamwork_preview_reviewer
+- Archetype: reviewer & critic
 - Roles: reviewer, critic
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_reviewer_m1_2
-- Original parent: 5f8466d7-63b0-4f1b-bd45-05caf7bba64e
-- Milestone: Milestone 1: Cloudflare Pages Deployment
+- Original parent: 406220be-1f6c-42b2-a120-82564783a9e5
+- Milestone: health and keepalive review
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
 - Review-only — do NOT modify implementation code
+- Report findings accurately with evidence
+- Perform adversarial stress-testing
 
 ## Current Parent
-- Conversation ID: 5f8466d7-63b0-4f1b-bd45-05caf7bba64e
-- Updated: not yet
+- Conversation ID: 406220be-1f6c-42b2-a120-82564783a9e5
+- Updated: 2026-07-22T12:46:25Z
 
 ## Review Scope
-- **Files to review**: `frontend/next.config.ts`, `frontend/public/_worker.js`, `web/app_v2.py`
-- **Interface contracts**: Correct static HTML export, Cloudflare worker proxy, CORS allow origin regex
-- **Review criteria**: Correctness, completeness, no regressions, successful compilation
-
-## Review Checklist
-- **Items reviewed**:
-  - `frontend/next.config.ts` config options
-  - `frontend/public/_worker.js` proxy and websocket handling
-  - `web/app_v2.py` CORS middleware regex
-  - Frontend static build output compilation (`frontend/out/`)
-  - Full backend test suite (`pytest`)
-- **Verdict**: REQUEST_CHANGES
-- **Unverified claims**: None
-
-## Attack Surface
-- **Hypotheses tested**:
-  - Validated that `allow_origin_regex` in `web/app_v2.py` allows CORS bypass for domains like `https://attacker.pages.dev.com` due to lack of end-of-string or boundary anchoring.
-  - Validated that `fetch()` fails with `TypeError` when given `ws://` or `wss://` schemes in the Node.js/Cloudflare environment.
-  - Validated that Next.js static build succeeds after removing `.next/lock` file.
-- **Vulnerabilities found**:
-  - **CORS Bypass Vulnerability**: Missing anchoring in `web/app_v2.py` allowing malicious prefix matches.
-  - **WebSocket Proxy Protocol Crash**: Incorrect protocol conversion (`http` -> `ws`) in `_worker.js` causing runtime `TypeError` in Cloudflare's fetch execution.
-  - **Case-Sensitive Header Upgrade Match**: Comparing `Upgrade` value directly to `'websocket'` fails for `'WebSocket'` or other mixed-case clients.
-- **Untested angles**: None
+- **Files to review**: `backend/routers/health.py`, `web/app_v2.py`, `.github/workflows/keepalive.yml`
+- **Interface contracts**: `PROJECT.md`
+- **Review criteria**: sub-5s JSON response time, zero blocking DB locks under timeout, 24/7 cloud tick config, strict error handling
 
 ## Key Decisions Made
-- Discovered security and runtime flaws in the worker and app configurations during independent validation.
-- Decided to recommend REQUEST_CHANGES to the orchestrator to fix these crucial issues.
+- Executed empirical performance testing of backend & web health/ping handlers.
+- Conducted adversarial analysis of database lock blocking conditions and cold start failure scenarios.
+- Issued verdict: `REQUEST_CHANGES` due to unbounded DB lock wait in `web/app_v2.py`, missing `/ping` target in `keepalive.yml`, and module-level import crash when `JWT_SECRET_KEY` is absent.
 
 ## Artifact Index
-- `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_reviewer_m1_2\handoff.md` — Handoff report containing observations, logic, caveats, and conclusion
+- `.agents/teamwork_preview_reviewer_m1_2/ORIGINAL_REQUEST.md` — Original user request log
+- `.agents/teamwork_preview_reviewer_m1_2/BRIEFING.md` — Persistent briefing
+- `.agents/teamwork_preview_reviewer_m1_2/handoff.md` — Final review report
+
+## Review Checklist
+- **Items reviewed**: `backend/routers/health.py`, `web/app_v2.py`, `.github/workflows/keepalive.yml`
+- **Verdict**: REQUEST_CHANGES
+- **Unverified claims**: none
+
+## Attack Surface
+- **Hypotheses tested**: 60s SQLite DB lock blocking in `web/app_v2.py`, missing `JWT_SECRET_KEY` import crash, cold-start workflow failure.
+- **Vulnerabilities found**: Unbounded DB query timeout in `web/app_v2.py` `/health`, SQLite connection handle leak in `with get_db()`, missing retry & `/ping` endpoint in keep-alive cron.
+- **Untested angles**: Network latency of remote Turso database endpoints under high concurrency.

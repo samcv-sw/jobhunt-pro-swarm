@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ lang | default('ar') }}" dir="{{ dir | default('rtl') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=5.0">
@@ -39,7 +39,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#0a0a1a">
     <link rel="apple-touch-icon" href="/static/img/icon-192.png">
-    <!-- Critical CSS inline to guarantee dark background on all browsers -->
+    <link rel="stylesheet" href="/static/css/cyberpunk.css">
     <link rel="stylesheet" href="/static/css/premium-ui.css">
     <link rel="stylesheet" href="/static/css/interactive-system.css">
     <link rel="preload" href="/static/css/cyberpunk-rtl.css?v=20260629_v2" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -49,6 +49,51 @@
       html, body { background-color: #05050a !important; color: #fff; }
     </style>
     
+    <script>
+    window.applyTheme = function(theme) {
+      const root = document.documentElement;
+      const btns = document.querySelectorAll('.theme-btn');
+      btns.forEach(b => {
+        b.style.background = 'rgba(255,255,255,0.03)';
+        b.style.color = '#94a3b8';
+        b.style.borderColor = 'rgba(255,255,255,0.08)';
+      });
+
+      const activeBtn = document.getElementById('btn-theme-' + theme);
+      
+      if (theme === 'cyberpunk') {
+        root.style.setProperty('--cyan', '#00f0ff');
+        root.style.setProperty('--magenta', '#ff0055');
+        root.style.setProperty('--gold', '#ffb300');
+        root.style.setProperty('--bg', '#000000');
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(0,240,255,0.12)';
+          activeBtn.style.color = '#00f0ff';
+          activeBtn.style.borderColor = 'rgba(0,240,255,0.3)';
+        }
+      } else if (theme === 'apex') {
+        root.style.setProperty('--cyan', '#38bdf8');
+        root.style.setProperty('--magenta', '#818cf8');
+        root.style.setProperty('--gold', '#fbbf24');
+        root.style.setProperty('--bg', '#070c14');
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(56,189,248,0.15)';
+          activeBtn.style.color = '#38bdf8';
+          activeBtn.style.borderColor = 'rgba(56,189,248,0.35)';
+        }
+      } else if (theme === 'emerald') {
+        root.style.setProperty('--cyan', '#10b981');
+        root.style.setProperty('--magenta', '#3b82f6');
+        root.style.setProperty('--gold', '#f59e0b');
+        root.style.setProperty('--bg', '#050a08');
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(16,185,129,0.15)';
+          activeBtn.style.color = '#10b981';
+          activeBtn.style.borderColor = 'rgba(16,185,129,0.35)';
+        }
+      }
+    };
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
     <style>
         :root{
@@ -138,9 +183,9 @@
         .glass-input{inline-size:100%;padding-block:12px;padding-inline:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#e2e8f0;font-size:14px;font-family:'Cairo',sans-serif;transition:all .25s;resize:vertical}
         .glass-input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
         textarea.glass-input{min-block-size:130px}
-        .btn-submit{inline-size:100%;padding-block:14px;background:linear-gradient(135deg,#00f0ff,#0080ff);color:#000;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s ease;font-family:'Cairo',sans-serif}
+        .btn-submit{inline-size:100%;padding-block:14px;background:linear-gradient(135deg,#00f0ff,#0080ff);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s ease;font-family:'Cairo',sans-serif}
         .btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,240,255,0.4)}
-        .btn-primary{background:linear-gradient(135deg,#00f0ff,#0080ff);color:#000;transition:all .3s ease;padding-inline:1.5rem}
+        .btn-primary{background:linear-gradient(135deg,#00f0ff,#0080ff);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;transition:all .3s ease;padding-inline:1.5rem}
         .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,240,255,0.4)}
         .support-cards{display:flex;flex-direction:column;gap:14px}
         .support-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:22px;text-decoration:none;color:inherit;transition:all .25s;display:block}
@@ -181,34 +226,74 @@
     <div id="exitPopup" style="display:none; position:fixed; inset-block-start:0; inset-inline-start:0; inline-size:100%; block-size:100%; background:rgba(5,5,26,0.95); z-index:9999; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); align-items:center; justify-content:center;">
         <div style="background:#1e1e2e; padding:40px; border-radius:16px; border:1px solid rgba(139,92,246,0.3); max-inline-size:450px; text-align:center; position:relative; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
             <button id="exit-popup-close-btn" onclick="document.getElementById('exitPopup').style.display='none'" style="position:absolute; inset-block-start:15px; inset-inline-end:20px; background:transparent; border:none; color:#94a3b8; font-size:24px; cursor:pointer; transition:transform 0.2s, color 0.2s; outline:none;" onmouseover="this.style.transform='scale(1.1)'; this.style.color='#ffffff';" onmouseout="this.style.transform='scale(1)'; this.style.color='#94a3b8';" onfocus="this.style.outline='2px solid #8b5cf6'" onblur="this.style.outline='none'">×</button>
-            <h2 style="font-size:24px; margin-block-end:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">{{ _('انتظر! قبل أن ترحل...') }}</h2>
-            <p style="color:#94a3b8; margin-block-end:24px; font-size:15px;">{{ _('احصل على "دليل أسرار لينكد إن 2026" الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.') }}</p>
-            <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<p style=&quot;color:#4ade80;font-weight:bold;&quot;>🎉 {{ _("نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.") }}</p>';">
-                <input id="exit-popup-email-input" type="email" placeholder="{{ _('أدخل بريدك الإلكتروني') }}" dir="auto" required style="inline-size:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-block-end:12px; font-family:'Cairo','Tajawal','IBM Plex Arabic',sans-serif; font-size:15px; outline:none; transition:border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='rgba(139,92,246,0.6)'; this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';" dir="auto">
-                <button id="exit-popup-submit-btn" type="submit" style="inline-size:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:filter 0.2s, transform 0.1s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onfocus="this.style.outline='2px solid #8b5cf6'; this.style.outlineOffset='2px';" onblur="this.style.outline='none'">{{ _('أرسل لي الدليل 🚀') }}</button>
+            <h2 style="font-size:24px; margin-block-end:10px; background:-webkit-linear-gradient(45deg,#3b82f6,#8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">انتظر! قبل أن ترحل...</h2>
+            <p style="color:#94a3b8; margin-block-end:24px; font-size:15px;">احصل على "دليل أسرار لينكد إن 2026" الحصري الذي ساعد أكثر من 10,000 مهندس. مجاني 100%.</p>
+            <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<p style=&quot;color:#4ade80;font-weight:bold;&quot;>🎉 نجاح! تفقد بريدك الإلكتروني خلال 5 دقائق.</p>';">
+                <input id="exit-popup-email-input" type="email" placeholder="أدخل بريدك الإلكتروني" dir="auto" required style="inline-size:100%; padding:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:white; margin-block-end:12px; font-family:'Cairo','Tajawal','IBM Plex Arabic',sans-serif; font-size:15px; outline:none; transition:border-color 0.2s, box-shadow 0.2s;" onfocus="this.style.borderColor='rgba(139,92,246,0.6)'; this.style.boxShadow='0 0 0 3px rgba(139,92,246,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';" dir="auto">
+                <button id="exit-popup-submit-btn" type="submit" style="inline-size:100%; padding:14px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer; transition:filter 0.2s, transform 0.1s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'" onfocus="this.style.outline='2px solid #8b5cf6'; this.style.outlineOffset='2px';" onblur="this.style.outline='none'">أرسل لي الدليل 🚀</button>
             </form>
-            <p style="color:#64748b; font-size:14px; margin-block-start:16px;">{{ _('نحن نحترم خصوصيتك. لن نرسل لك رسائل مزعجة أبدًا.') }}</p>
+            <p style="color:#64748b; font-size:14px; margin-block-start:16px;">نحن نحترم خصوصيتك. لن نرسل لك رسائل مزعجة أبدًا.</p>
         </div>
     </div>
     <script>
-        // Trigger popup on exit intent (mouse leaving viewport top)
-        let popupTriggered = false;
-        document.addEventListener('mouseleave', function(e) {
-            if(e.clientY < 0 && !popupTriggered) {
-                document.getElementById('exitPopup').style.display = 'flex';
-                popupTriggered = true;
-            }
-        });
+(function(){
+  let exitShown = false;
+  let inactivityTimer = null;
+  const INACTIVITY_DELAY = 180000; // Exactly 3 minutes (180,000 ms) of complete inactivity
 
-        // Auto inject dir="auto" into all inputs as per Gulf Premium constraints
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input, textarea, select').forEach(el => {
-                if (!el.hasAttribute('dir')) {
-                    el.setAttribute('dir', 'auto');
-                }
-            });
-        });
-    </script>
+  function resetInactivityTimer() {
+    if (exitShown) return;
+    
+    // Clear existing timer whenever user moves/scrolls/types/clicks/touches
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    
+    // Start new 3-minute countdown of complete zero activity
+    inactivityTimer = setTimeout(function() {
+      if (!exitShown) {
+        triggerExitPopup();
+      }
+    }, INACTIVITY_DELAY);
+  }
+
+  // Listen to all user activity events. Any movement resets timer back to 0!
+  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'touchmove', 'click'].forEach(function(evtName) {
+    window.addEventListener(evtName, resetInactivityTimer, { passive: true });
+  });
+
+  // Initial call on page load
+  resetInactivityTimer();
+
+  window.triggerExitPopup = function(){
+    if (window.canShowExitPopup && !window.canShowExitPopup()) return;
+    if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token')) return;
+
+    const lastShown = localStorage.getItem('exit_popup_last_shown');
+    const now = Date.now();
+    if (lastShown && (now - parseInt(lastShown)) < 180000) return;
+
+    if (exitShown) return;
+    exitShown = true;
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    localStorage.setItem('exit_popup_last_shown', now.toString());
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      overlay.classList.add('show');
+    }
+  };
+
+  window.closeExitPopup = function(){
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.remove('show');
+    }
+  };
+})();
+</script>
 <script src="/static/js/global-animations.js" defer></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -262,5 +347,52 @@
         }, 15000); // Check every 15s
     </script>
     <script src="/static/js/interactive-state-machine.js" defer></script>
+
+<script>
+// Exit-Intent Rate Limiter & Authentication Check (Max 1 appearance every 3 minutes for guests)
+(function(){
+    function canShowPopup() {
+        if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token') || document.cookie.includes('auth')) {
+            return false;
+        }
+        const lastShown = localStorage.getItem('exit_popup_last_shown');
+        if (lastShown) {
+            const timeDiff = Date.now() - parseInt(lastShown, 10);
+            if (timeDiff < 180000) { // 3 minutes = 180,000 ms
+                return false;
+            }
+        }
+        return true;
+    }
+
+    window.canShowExitPopup = canShowPopup;
+    window.recordExitPopupShown = function() {
+        localStorage.setItem('exit_popup_last_shown', Date.now().toString());
+    };
+})();
+
+// Background Autopilot Sync across all SaaS pages
+(function(){
+    const AUTOPILOT_CYCLE_MS = 75000;
+    function checkAndRunBackgroundScan() {
+        if (document.getElementById('autopilot-countdown')) return; // Battle Station handles its own UI loop
+        const stored = localStorage.getItem('autopilot_next_scan_target');
+        if (!stored) return;
+        const target = parseInt(stored, 10);
+        const now = Date.now();
+        if (target && target <= now) {
+            // Target expired while on another page — dispatch cloud-tick scan
+            localStorage.setItem('autopilot_next_scan_target', (now + AUTOPILOT_CYCLE_MS).toString());
+            fetch('/api/v2/cloud-tick', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ company_limit: 3, max_campaigns: 3 })
+            }).catch(function(err){ console.debug('Global background scan trigger:', err); });
+        }
+    }
+    setInterval(checkAndRunBackgroundScan, 5000);
+})();
+</script>
+
 </body>
 </html>

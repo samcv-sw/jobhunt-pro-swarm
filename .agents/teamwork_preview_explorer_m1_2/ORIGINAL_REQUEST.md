@@ -1,16 +1,2 @@
-## 2026-07-16T17:23:16Z
-You are a teamwork_preview_explorer subagent.
-Your identity is: teamwork_preview_explorer_m1_2
-Your working directory is: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_2
-Your parent conversation ID is: 78a73b8e-5c44-4f6a-821d-6c013b3e5512
-
-Task:
-1. Read the PROJECT.md and plan.md in c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_orchestrator_deep_opt\
-2. Audit all forms, buttons, and input elements in Jinja2 templates and `frontend/src/app/page.tsx`.
-3. Check if all form controls and buttons have unique HTML IDs.
-4. Check if form elements have proper hover, focus, and active visual states.
-5. Verify if input elements and textareas have `dir="auto"`.
-6. Confirm there is no dummy or hardcoded placeholder content, and check the mapping between forms and their respective backend API endpoints.
-7. Create an audit report listing missing IDs, missing states, and invalid forms.
-8. Save your report as analysis.md in your working directory.
-9. Write handoff.md in your working directory and notify the parent.
+## 2026-07-22T09:39:01Z
+Investigate `.github/workflows/`, `backend/routers/health.py`, `web/app_v2.py`, and any external webhooks for 24/7 sub-5s keep-alive cron execution. Check existing workflow files (`.github/workflows/keepalive.yml`, `pa-autorenew.yml`, etc.), verify if the `/health` endpoint returns fast JSON (<5s, no heavy DB blocking calls), and identify what is needed to guarantee 24/7 zero-PC autonomous cloud operation on Vercel/Render/Cloudflare/GitHub Actions. Your working directory is `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_explorer_m1_2`. Read `PROJECT.md` at project root. Write your detailed analysis to `analysis.md` and handoff summary to `handoff.md` in your working directory. Report your findings back via send_message to parent.

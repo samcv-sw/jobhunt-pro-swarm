@@ -282,34 +282,25 @@
   color: #94a3b8;
 }
 .tailor-meta-item strong { color: #d4d4d8; }
+.tailor-scale {
+  inline-size: 100%;
+  max-inline-size: 1400px;
+  margin: 0 auto;
+  zoom: 1.05;
+}
+.tailor-scale h1 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-block-end: 4px;
+}
+.tailor-scale .subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-block-end: 20px;
+}
 </style>
 
-<style>
-        body {
-          font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', 'Outfit', sans-serif;
-          font-size: 14px;
-          line-height: 1.6;
-          color: #e2e8f0;
-          max-inline-size: 800px;
-          margin: 40px auto;
-          padding: 20px;
-          background: linear-gradient(135deg,#0a0a1a 0%,#0d0b1e 50%,#1a0a2e 100%);
-          background-attachment: fixed;
-        }
-        pre {
-          font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', 'Outfit', sans-serif;
-          white-space: pre-wrap;
-          font-size: 14px;
-          line-height: 1.6;
-          margin: 0;
-          color: #e2e8f0;
-        }
-        @media print {
-          body { margin: 0; padding: 20px; color: #1a1a1a; background: #ffffff; }
-          pre { color: #1a1a1a; }
-        }
-      </style>
-
+<div class="tailor-scale">
 <h1>🤖 AI Resume Tailoring</h1>
 <p class="subtitle">Paste your base resume and a job description — AI tailors your resume to match the job perfectly.</p>
 
@@ -317,14 +308,17 @@
   <!-- inset-inline-start: Base Resume -->
   <div class="tailor-panel">
     <h3>📄 Your Base Resume</h3>
-    <div class="file-drop" id="resume-drop" onclick="document.getElementById('tailor-resume').focus()">
+    <div class="file-drop" id="resume-drop" style="cursor:pointer; position:relative;" onclick="document.getElementById('cv-file-input').click()">
+      <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFileSelect(event)">
+      <span id="drop-text">📎 Drop your resume file here or click to select a file</span>
+    </div>
       📎 Drop your resume file here or click to paste text below
     </div>
     <textarea dir="auto" id="tailor-resume" placeholder="Paste your full resume / CV text here...
 
-SAM SALAMEH
-Senior Network Engineer | CCNA, Fortinet NSE, MikroTik MTCNA
-samsalameh.cv@gmail.com | +961 70 841 1009
+ALEX JOHNSON
+Senior Network Engineer | CCNA, Cloud Specialist
+alex.johnson.demo@example.com | +1 (555) 019-2831
 
 PROFESSIONAL SUMMARY
 15+ years as a Network Engineer specializing in enterprise network design..." dir="auto"></textarea>
@@ -604,14 +598,13 @@ function downloadAsPDF() {
   // Create a print-friendly version
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
-
     <pre>${escapeHtml(tailoredText)}</pre>
       <script>
         window.onload = function() {
           window.print();
           setTimeout(() => window.close(), 1000);
         };
-      </script>
+      <\/script>
   `);
   printWindow.document.close();
 }
@@ -650,3 +643,78 @@ dropZone.addEventListener('drop', e => {
 });
 </script>
 </div>
+</div>
+
+<script>
+// File Drag & Drop Handling
+document.addEventListener('DOMContentLoaded', () => {
+    const dropZone = document.getElementById('resume-drop');
+    if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                uploadAndExtractCV(files[0]);
+            }
+        }, false);
+    }
+});
+
+function handleFileSelect(event) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        uploadAndExtractCV(files[0]);
+    }
+}
+
+async function uploadAndExtractCV(file) {
+    const dropText = document.getElementById('drop-text');
+    dropText.innerHTML = `⏳ Reading and extracting resume text (${file.name})...`;
+
+    if (file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('tailor-resume').value = e.target.result;
+            dropText.innerHTML = `✅ Text extracted successfully: <strong>${file.name}</strong>`;
+        };
+        reader.readAsText(file);
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('cv_file', file);
+
+    try {
+        const res = await fetch('/api/parse-cv-file', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success && data.text) {
+            document.getElementById('tailor-resume').value = data.text;
+            dropText.innerHTML = `✅ Resume text extracted successfully: <strong>${file.name}</strong>`;
+        } else {
+            dropText.innerHTML = `⚠️ Could not extract text from (${file.name}), please paste text below.`;
+        }
+    } catch (err) {
+        console.error("Upload error:", err);
+        dropText.innerHTML = `⚠️ Error uploading file, please paste text below.`;
+    }
+}
+</script>

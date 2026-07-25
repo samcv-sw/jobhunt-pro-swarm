@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <title>تسجيل الدخول بواسطة Google — اختر حساباً</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap"/>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'Roboto', sans-serif;
+      background-color: #131314;
+      color: #e3e3e3;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .page-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 100px 20px 40px;
+    }
+    .account-picker-card {
+      background: #1e1e1e;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      width: 100%;
+      max-width: 520px;
+      padding: 40px;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+    }
+    .google-header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .google-logo-svg { width: 32px; height: 32px; }
+    .picker-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #f1f3f4;
+      margin-bottom: 8px;
+    }
+    .picker-subtitle {
+      font-size: 15px;
+      color: #9aa0a6;
+      margin-bottom: 28px;
+    }
+    .accounts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+    .account-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: background-color 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+    .account-item:hover {
+      background-color: #2d2e31;
+    }
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a73e8, #8ab4f8);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .avatar-circle.sam { background: #34a853; }
+    .avatar-circle.rita { background: #ea4335; }
+    .avatar-circle.luxury { background: #fbbc04; color: #202124; }
+    .avatar-circle.custom { background: #3c4043; }
+    .account-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      text-align: start;
+    }
+    .account-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e8eaed;
+    }
+    .account-email {
+      font-size: 14px;
+      color: #9aa0a6;
+      font-family: 'Roboto', sans-serif;
+    }
+    .divider {
+      height: 1px;
+      background-color: #3c4043;
+      margin: 16px 0;
+    }
+    .custom-input-box {
+      display: none;
+      background: #252629;
+      border: 1px solid #3c4043;
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 12px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+      text-align: start;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #bdc1c6;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      background: #1e1e1e;
+      border: 1px solid #5f6368;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+    }
+    .form-group input:focus { border-color: #8ab4f8; }
+    .btn-submit-custom {
+      width: 100%;
+      padding: 12px;
+      background: #8ab4f8;
+      color: #202124;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-submit-custom:hover { background: #aecbfa; }
+    .back-btn {
+      display: inline-block;
+      margin-top: 20px;
+      color: #8ab4f8;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  {% include "_public_nav.html" %}
+
+  <div class="page-wrap">
+    <div class="account-picker-card">
+      <div class="google-header-logo">
+        {% if provider == 'microsoft' %}
+        <svg class="google-logo-svg" viewBox="0 0 23 23" style="width:36px; height:36px;">
+          <path fill="#f35325" d="M1 1h10v10H1z"/>
+          <path fill="#81bc06" d="M12 1h10v10H12z"/>
+          <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+          <path fill="#ffba08" d="M12 12h10v10H1z"/>
+        </svg>
+        <span style="font-size:22px; font-weight:700; color:#ffffff;">Microsoft</span>
+        {% else %}
+        <svg class="google-logo-svg" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        {% endif %}
+      </div>
+
+      {% if error %}
+      <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; color: #fca5a5; font-size: 14px; text-align: start;">
+        ⚠️ {{ error }}
+      </div>
+      {% endif %}
+
+      <h1 class="picker-title">اختر حساباً / Choose an account</h1>
+      <p class="picker-subtitle">ل للمتابعة والتسجيل عبر {{ 'Microsoft' if provider == 'microsoft' else 'Google' }} في JobHunt Pro</p>
+
+      <div class="accounts-list">
+        <!-- Account Option 1: samatou683 -->
+        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
+          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
+          <input type="hidden" name="name" value="sam"/ dir="auto">
+          <input type="hidden" name="email" value="samatou683@gmail.com"/ dir="auto">
+          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
+            <div class="avatar-circle sam">S</div>
+            <div class="account-info">
+              <span class="account-name">sam</span>
+              <span class="account-email">samatou683@gmail.com</span>
+            </div>
+          </button>
+        </form>
+
+        <!-- Account Option 2: Rita Cordahi -->
+        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
+          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
+          <input type="hidden" name="name" value="Rita Cordahi"/ dir="auto">
+          <input type="hidden" name="email" value="rita.cordahi01@gmail.com"/ dir="auto">
+          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
+            <div class="avatar-circle rita">R</div>
+            <div class="account-info">
+              <span class="account-name">Rita Cordahi</span>
+              <span class="account-email">rita.cordahi01@gmail.com</span>
+            </div>
+          </button>
+        </form>
+
+        <!-- Account Option 3: Luxury Stores -->
+        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
+          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
+          <input type="hidden" name="name" value="Luxury Stores"/ dir="auto">
+          <input type="hidden" name="email" value="luxurystores888@gmail.com"/ dir="auto">
+          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
+            <div class="avatar-circle luxury">L</div>
+            <div class="account-info">
+              <span class="account-name">Luxury Stores</span>
+              <span class="account-email">luxurystores888@gmail.com</span>
+            </div>
+          </button>
+        </form>
+
+        <div class="divider"></div>
+
+        <!-- Option 4: Use another account -->
+        <div class="account-item" onclick="toggleCustomForm()">
+          <div class="avatar-circle custom">+</div>
+          <div class="account-info">
+            <span class="account-name">إستخدام حساب آخر / Use another account</span>
+            <span class="account-email">إدخال بريد إلكتروني جديد أو كلمة السر</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Email Form -->
+      <div id="customForm" class="custom-input-box">
+        <form action="/auth/oauth-submit" method="POST">
+          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
+          <div class="form-group">
+            <label for="custom_name">الاسم / Full Name</label>
+            <input type="text" id="custom_name" name="name" placeholder="مثال: Rita Cordahi" required/ dir="auto">
+          </div>
+          <div class="form-group">
+            <label for="custom_email">البريد الإلكتروني / Email</label>
+            <input type="email" id="custom_email" name="email" placeholder="{{ 'name@outlook.com' if provider == 'microsoft' else 'name@gmail.com' }}" required/ dir="auto">
+          </div>
+          <div class="form-group">
+            <label for="custom_password">كلمة السر (للحسابات الموجودة) / Account Password</label>
+            <input type="password" id="custom_password" name="password" placeholder="••••••••"/ dir="auto">
+          </div>
+          <button type="submit" class="btn-submit-custom">تسجيل الدخول الآمن 🚀</button>
+        </form>
+      </div>
+
+      <a href="/login" class="back-btn">← العودة إلى صفحة الدخول</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleCustomForm() {
+      const box = document.getElementById('customForm');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
+
+  {% include "_public_footer.html" %}
+</body>
+</html>customForm');
+      box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+  </script>
+
+  {% include "_public_footer.html" %}
+</body>
+</html>
+

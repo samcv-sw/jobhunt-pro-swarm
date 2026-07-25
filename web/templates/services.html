@@ -336,7 +336,7 @@
 <div class="scanline"></div>
 <!-- ===== Mobile Navbar ===== -->
 <nav class="navbar">
-<div class="nav-brand">{{ _('JOBHUNT PRO') }}</div>
+<div class="nav-brand">JOBHUNT PRO</div>
 <button class="hamburger" onclick="toggleNav()">☰</button>
 <div class="nav-menu" id="navMenu">
 <a href="/user-dashboard"> 📊 لوحة التحكم</a>
@@ -352,7 +352,7 @@
 </nav>
 <!-- ===== Sidebar ===== -->
 <div class="sidebar">
-<div class="logo">{{ _('JobHunt Pro') }}</div>
+<div class="logo">JobHunt Pro</div>
 <nav class="nav">
 <a href="/user-dashboard"> 📊 لوحة التحكم</a>
 <a href="/upload-cv"> 📝 رفع السيرة الذاتية</a>
@@ -367,7 +367,7 @@
 <a href="/pricing"> 💎 الأسعار</a>
 <a href="/contact"> 💬 اتصل بنا</a>
 <a href="/export" style="color: #f97316;">📥 تصدير</a>
-<a href="https://wa.me/96171019053?text=Hi%20Sam%21%20JobHunt%20Pro%20Support" style="color: #25D366;" target="_blank">💬 واتساب</a>
+<a href="https://wa.me/12494985866?text=Hi%20JobHuntPro%21%20JobHunt%20Pro%20Support" style="color: #25D366;" target="_blank">💬 واتساب</a>
 <a href="/logout" style="margin-block-start:auto;color:#f87171;"> 🚪 تسجيل خروج</a>
 </nav>
 </div>
@@ -407,7 +407,7 @@
  {% endif %}
 
  <!-- A La Carte store -->
-<h2 class="section-title">// ميزات وخدمات حسب الطلب</h2>
+<h2 class="section-title">ميزات وخدمات حسب الطلب</hh2 class="section-title">
 <p class="section-desc">افتح أدوات تحسين الذكاء الاصطناعي المتقدمة وميزات الخبراء لزيادة معدل الاستجابة. بأسعار تتراوح بين 2$ و 20$.</p>
 <div class="store-grid">
  {% for s in services %}
@@ -437,8 +437,8 @@
  {% endfor %}
  </div>
 <!-- Follow-Up Automation Highlight -->
-<h2 class="section-title" style="border-inline-start-color: var(--cyan);">// 📬 أتمتة المتابعة (جديد)</h2>
-<p class="section-desc">{{ _('رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة بواسطة Groq AI.') }}</p>
+<h2 class="section-title" style="border-inline-start-color: var(--cyan);">📬 أتمتة المتابعة (جديد)</hh2 class="section-title" style="border-inline-start-color: var(--cyan);">
+<p class="section-desc">رسائل بريد إلكتروني للمتابعة مدعومة بالذكاء الاصطناعي تتحقق تلقائياً مع أصحاب العمل الذين لم يردوا. 3 مستويات بناءً على الحجم. كل متابعة مخصصة بواسطة AI.</p>
 <div class="store-grid" style="margin-block-end: 20px;">
  {% for s in services %}
  {% if 'follow-up-automation' in s.package %}
@@ -469,7 +469,7 @@
  {% endfor %}
  </div>
 <!-- Bouquet Packages store -->
-<h2 class="section-title">// باقات مجمعة</h2>
+<h2 class="section-title">باقات مجمعة</hh2 class="section-title">
 <p class="section-desc">اجمع ميزات متعددة ووصول أكبر للمرشحين بأسعار مخفضة بالجملة.</p>
 <div class="store-grid">
  {% for b in bouquets %}
@@ -516,7 +516,7 @@
 <div class="dot yellow"></div>
 <div class="dot green"></div>
 </div>
-<div class="terminal-title">{{ _('وحدة_الترقيات_النشطة.sys') }}</div>
+<div class="terminal-title">وحدة_الترقيات_النشطة.sys</div>
 <div>اتصال آمن</div>
 </div>
 <div class="terminal-body">
@@ -527,7 +527,7 @@
 <span class="date">[{{ p.created_at[:16] }}]</span>
 <span style="color: #888;">فتح_النظام:</span>
 <span class="name">{{ p.package_name }}</span>
-<span style="color: var(--green); font-size: 14px; font-weight:700; margin-inline-start:8px;">{{ _('[ACTIVE]') }}</span>
+<span style="color: var(--green); font-size: 14px; font-weight:700; margin-inline-start:8px;">[ACTIVE]</span>
 </span>
 <span class="price">${{ "%.2f"|format(p.price_paid) }}</span>
 </div>

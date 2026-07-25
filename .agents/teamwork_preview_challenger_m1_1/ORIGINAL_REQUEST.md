@@ -1,9 +1,4 @@
-## 2026-07-12T09:33:42Z
-You are a teamwork_preview_challenger.
-Your working directory is: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_challenger_m1_1
-Your task is to empirically challenge and verify correctness of Milestone 1: Cloudflare Pages Deployment.
-Specifically, verify:
-1. Verify the frontend routes compile to static files and check that dynamic paths are handled.
-2. Verify the proxy logic in `frontend/public/_worker.js` by checking it correctly forwards API routes to the mock/real backend and handles custom headers and methods.
-3. Verify that the CORS headers are correctly allowed or blocked based on the regex in `web/app_v2.py`.
-4. Write a report in your working directory.
+## 2026-07-22T09:43:50Z
+<USER_REQUEST>
+Empirically stress test the database adapter fallback and query parameter translation ($1/$2 -> ?). Inspect `tests/test_milestone1_resilience.py` and run tests verifying PostgreSQL disconnection fallback to SQLite, invalid connection string handling, and parameter translation correctness. Working directory: `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_challenger_m1_1`. Read `PROJECT.md`. Write your test findings to `handoff.md` in your working directory and report back via send_message to parent.
+</USER_REQUEST>

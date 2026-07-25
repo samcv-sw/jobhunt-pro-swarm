@@ -139,7 +139,7 @@
 <div style="display:flex;align-items:center;gap:10px;">
 <span style="font-size:18px;">🔑</span>
 <div>
-<div style="font-size: 14px;text-transform:uppercase;color:#64748b;margin-block-end:2px;">{{ _('مفتاح API الخاص بك') }}</div>
+<div style="font-size: 14px;text-transform:uppercase;color:#64748b;margin-block-end:2px;">مفتاح API الخاص بك</div>
 <div style="display:flex;align-items:center;gap:8px;">
 <code id="apiKeyDisplay" style="font-size: 14px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family: 'Cairo', monospace;">••••••••••••••••••••••••</code>
 <button class="btn-wallet" id="toggleKeyBtn" onclick="toggleApiKey()" style="padding:2px 8px;font-size: 14px;min-block-size:24px;line-height:1;">👁️ عرض</button>
@@ -168,9 +168,9 @@ function toggleApiKey() {
 }
 </script>
 <!-- NOWPayments Top-Up -->
-<div class="topup-card">
+<div class="topup-card" id="topupCard">
 <h3>🪙 شراء رصيد بالعملة المشفرة</h3>
-<p class="sub">{{ _('مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة.') }}</p>
+<p class="sub">مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة.</p>
 <div class="preset-grid" id="presetGrid">
 <button class="preset-btn" data-amount="10">$10</button>
 <button class="preset-btn selected" data-amount="25">$25</button>
@@ -185,11 +185,11 @@ function toggleApiKey() {
 <div style="display:flex;flex-direction:column;gap:6px;">
 <label style="font-size: 14px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
 <div class="coin-select" id="coinSelect">
-<button class="coin-btn selected" data-coin="USDT">{{ _('USDT (TRC20)') }}</button>
-<button class="coin-btn" data-coin="BTC">{{ _('BTC') }}</button>
-<button class="coin-btn" data-coin="ETH">{{ _('ETH') }}</button>
-<button class="coin-btn" data-coin="LTC">{{ _('LTC') }}</button>
-<button class="coin-btn" data-coin="TRX">{{ _('TRX') }}</button>
+<button class="coin-btn selected" data-coin="USDT">USDT (TRC20)</button>
+<button class="coin-btn" data-coin="BTC">BTC</button>
+<button class="coin-btn" data-coin="ETH">ETH</button>
+<button class="coin-btn" data-coin="LTC">LTC</button>
+<button class="coin-btn" data-coin="TRX">TRX</button>
 <button class="coin-btn" data-coin="ANY">عملات أخرى</button>
 </div>
 </div>
@@ -202,7 +202,7 @@ function toggleApiKey() {
 <h2 id="invTitle">🪙 إرسال الدفعة</h2>
 <p class="sub" id="invSub">أرسل نفس المبلغ الموضح أدناه بالضبط</p>
 <div class="qr-placeholder">🏦</div>
-<div class="pay-amount" id="invAmount">{{ _('0.00 BTC') }}</div>
+<div class="pay-amount" id="invAmount">0.00 BTC</div>
 <div class="pay-addr" id="invAddr">جاري التحميل...</div>
 <p style="font-size: 14px;color:#64748b;margin-block-end:16px;">الطلب: <span id="invOrder">---</span></p>
 <div class="btn-row">
@@ -224,7 +224,7 @@ function toggleApiKey() {
         </div>
 <div class="crypto-name">{{ coin.upper() }}</div>
 <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#00f0ff;cursor:pointer;font-size: 14px;transition:all .2s;">📋 نسخ</button>
+<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;cursor:pointer;font-size: 14px;transition:all .2s;">📋 نسخ</button>
 </div>
     {% endif %}
     {% endfor %}
@@ -264,6 +264,22 @@ function toggleApiKey() {
     </tbody>
 </table>
 </div>
+<script dir="auto">
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code') || urlParams.get('redeem');
+    if (codeParam) {
+        const input = document.querySelector('.redeem-input');
+        if (input) {
+            input.value = codeParam.trim();
+            input.focus();
+            input.style.borderColor = '#00f0ff';
+            input.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+});
+</script>
 {% else %}
 <div class="empty-tx">
 <div class="empty-icon">💰</div>

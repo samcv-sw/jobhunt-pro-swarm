@@ -30,10 +30,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="/static/css/premium-ui.css" as="style">
 
-    <title>{{ title | default('جوبهانت برو — هايدرا') }}</title>
+    <title>{{ title | default('JobHunt Pro — Hydra' if (request and (request.query_params.get('lang') == 'en' or request.cookies.get('lang') == 'en')) else 'جوبهانت برو — هايدرا') }}</title>
     
     <!-- Meta tags -->
-    <meta name="description" content="{{ description | default('جوبهانت برو: نظام الذكاء الاصطناعي اللامركزي الأكثر تطوراً للتقديم على الوظائف في العالم.') }}">
+    <meta name="description" content="{{ description | default('JobHunt Pro: The world\'s most advanced AI-powered job search platform.' if (request and (request.query_params.get('lang') == 'en' or request.cookies.get('lang') == 'en')) else 'جوبهانت برو: نظام الذكاء الاصطناعي اللامركزي الأكثر تطوراً للتقديم على الوظائف في العالم.') }}">
     <meta name="theme-color" content="#0a0a0f">
     
     <!-- Fonts -->
@@ -42,6 +42,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Arabic:wght@400;500;600;700&family=Fira+Code:wght@400;600&display=swap" rel="preload" as="style" onload="this.rel='stylesheet'">
     <style>
         @layer legacy, premium;
+        @import url("/static/css/cyberpunk.css");
         @import url("/static/css/dashboard-v4.css?v=20260629_v2") layer(legacy);
         @import url("/static/css/premium-ui.css") layer(premium);
     </style>
@@ -120,7 +121,7 @@
     {% include "_public_nav.html" %}
 
     <!-- Main Content -->
-    <main class="{% block main_class %}pt-28 pb-16 min-h-screen{% endblock %}">
+    <main class="{% block main_class %}{% if not is_dashboard %}pt-28{% else %}pt-0{% endif %} pb-16 min-h-screen{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 

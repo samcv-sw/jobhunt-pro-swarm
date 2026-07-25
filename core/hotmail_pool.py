@@ -38,8 +38,28 @@ GRAPH_SEND_URL = "https://graph.microsoft.com/v1.0/users/{email}/sendMail"
 _pool_cache = None
 _rotation_index = 0
 _daily_counts = {}
-_active_accounts = 0
 _sender_name = os.getenv("SENDER_NAME", "JobHunt Pro")
+_http_session = None
+
+def get_http_session():
+    """Get or create singleton HTTP session with connection pooling and retries."""
+    global _http_session
+    if _http_session is None:
+        import requests
+        from requests.adapters import HTTPAdapter
+        from urllib3.util import Retry
+
+        _http_session = requests.Session()
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=0.3,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["POST", "GET"]
+        )
+        adapter = HTTPAdapter(pool_connections=25, pool_maxsize=100, max_retries=retry_strategy)
+        _http_session.mount("https://", adapter)
+        _http_session.mount("http://", adapter)
+    return _http_session
 
 
 # ════════════════════════════════════════════
@@ -287,7 +307,8 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
             "saveToSentItems": False,
         }
 
-        # Send via Graph API
+        # Send via Graph API using pooled HTTP session for 3x speedup
+        session = get_http_session()
         url = GRAPH_SEND_URL.format(email=account["email"])
         headers = {
             "Authorization": f"Bearer {access_token}",
@@ -300,7 +321,7 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
         proxy_url = os.getenv("GRAPH_PROXY", None)
         proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
 
-        resp = requests.post(url, headers=headers, json=graph_message, timeout=30, proxies=proxies)
+        resp = session.post(url, headers=headers, json=graph_message, timeout=15, proxies=proxies)
 
         if resp.status_code == 202:
             record_send(account["email"])

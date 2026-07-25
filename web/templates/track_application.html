@@ -6,7 +6,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="Track your job applications in real-time — monitor opens, clicks, and interview invitations with JobHunt Pro's intelligent tracking system." name="description"/>
-<title>{{ _('Track Applications — JobHunt Pro') }}</title>
+<title>Track Applications — JobHunt Pro</title>
 <link href="/static/css/cyberpunk.css" rel="stylesheet"/>
 <link as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <style>
@@ -72,7 +72,7 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
   transition:all .25s;border:none;font-family: 'Cairo', 'Inter',sans-serif;white-space:nowrap;
 }
 .btn-search{
-  background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+  background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;
   box-shadow:0 4px 20px rgba(0,240,255,0.2);
 }
 .btn-search:hover{box-shadow:0 6px 30px rgba(0,240,255,0.4);transform:translateY(-1px)}
@@ -176,7 +176,7 @@ body{font-family: 'Cairo', 'Inter',sans-serif;background:var(--bg);color:var(--t
       {% if app.salary_display %}
       <div class="app-salary {{ app.salary_tier or 'entry' }}">
         {{ app.salary_display }}
-        {% if app.has_bonus %}<br/><span class="bonus-tag bonus-yes">{{ _('+BONUS') }}</span>{% endif %}
+        {% if app.has_bonus %}<br/><span class="bonus-tag bonus-yes">+BONUS</span>{% endif %}
       </div>
       {% endif %}
       <span class="stage-badge stage-{{ app.app_status or 'applied' }}">{{ app.stage_label }}</span>

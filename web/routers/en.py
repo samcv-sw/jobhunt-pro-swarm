@@ -69,31 +69,42 @@ def en_login(request: Request, plan: str = ""):
 
 @router.post("/login")
 async def en_login_post(request: Request, email: str = Form(...), password: str = Form(...)):
-    import bcrypt
-
     from web.app_v2 import session_serializer
+    from web.routers.auth import _fetch_user_by_email, _verify_pw_async
     from web.shared import config, get_db, templates
+
     email = email.strip().lower()
     with get_db() as conn:
-        user = conn.execute(
-            "SELECT user_id, password_hash FROM users WHERE email = ?", (email,)
-        ).fetchone()
-        pass  # conn.close()
+        user = _fetch_user_by_email(conn, email)
         if not user:
             return templates.TemplateResponse(request, "en/login_v2.html", {
-                "error": "Invalid credentials",
+                "error": "Invalid email or password.",
                 "VERSION": config.VERSION,
             })
-        pw_hash = user["password_hash"] if hasattr(user, "__getitem__") else user[1]
-        if not bcrypt.checkpw(password.encode(), pw_hash.encode() if isinstance(pw_hash, str) else pw_hash):
+
+        pw_hash = user["password_hash"]
+        if pw_hash == "oauth_authenticated_user":
             return templates.TemplateResponse(request, "en/login_v2.html", {
-                "error": "Invalid credentials",
+                "error": "This account was created via Google/Microsoft. Please sign in with Google or Microsoft.",
                 "VERSION": config.VERSION,
             })
-        u_id = user["user_id"] if hasattr(user, "__getitem__") else user[0]
+
+        verified = False
+        try:
+            verified = await _verify_pw_async(password, pw_hash)
+        except Exception:
+            pass
+
+        if not verified:
+            return templates.TemplateResponse(request, "en/login_v2.html", {
+                "error": "Invalid email or password.",
+                "VERSION": config.VERSION,
+            })
+
+        u_id = user["user_id"]
         signed_uid = session_serializer.dumps(u_id)
-        response = RedirectResponse("/dashboard", status_code=303)
-        response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=True)
+        response = RedirectResponse("/user-dashboard", status_code=303)
+        response.set_cookie("user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=False, path="/")
         return response
 
 

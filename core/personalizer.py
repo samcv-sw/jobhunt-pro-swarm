@@ -25,7 +25,7 @@ class EmailPersonalizer:
         """Load candidate's data from environment."""
         return {
             "name": os.getenv("CANDIDATE_NAME", "Sam Salameh"),
-            "phone": os.getenv("CANDIDATE_PHONE", "+961 71 019 053"),
+            "phone": os.getenv("CANDIDATE_PHONE", "+12494985866"),
             "email": os.getenv("SENDER_EMAIL", "samsalameh.cv@gmail.com"),
             "linkedin": os.getenv(
                 "LINKEDIN_URL", "https://www.linkedin.com/in/sam-salameh"

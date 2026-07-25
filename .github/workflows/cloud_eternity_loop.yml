@@ -1,0 +1,49 @@
+name: 🌌 24/7 Cloud Eternity SaaS Loop
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Executes every 6 hours automatically on GitHub Cloud
+  workflow_dispatch:
+
+jobs:
+  cloud_eternity_execution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Python Runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Core Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn httpx pytest pydantic sqlalchemy sqlite-utils
+
+      - name: Run 24/7 Verification & Health Diagnostic
+        run: |
+          pytest tests/test_trillion_dollar_empire.py -q --tb=short
+
+      - name: Execute Autonomous Client SDR Growth Swarm Loop
+        env:
+          PA_API_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          python -c "
+          from core.viral_sdr_swarm import ViralSDRSwarm
+          swarm = ViralSDRSwarm()
+          report = swarm.execute_campaign_wave()
+          print('Autonomous Cloud Wave Completed:', report)
+          "
+
+      - name: Edge Database Sync & Vacuum Check
+        run: |
+          python -c "
+          from core.pg_sqlite_shim import get_db_connection
+          conn = get_db_connection()
+          conn.execute('VACUUM;')
+          conn.close()
+          print('Edge DB Optimized Successfully.')
+          "

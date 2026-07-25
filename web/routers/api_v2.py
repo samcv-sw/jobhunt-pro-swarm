@@ -64,41 +64,17 @@ import asyncio
 
 _tick_cache_lock = None
 
-@router.post("/api/v2/cloud-tick")
-async def cloud_tick_endpoint(request: Request):
-    """Multi-tenant cloud tick - runs campaigns for ALL users in parallel."""
-    from web.app_v2 import verify_system_key
-    verify_system_key(request)
-
-    global _tick_cache_lock, _tick_cache
-    if _tick_cache_lock is None:
-        _tick_cache_lock = asyncio.Lock()
-
-    get_db, _, _, _, _ = _deps()
-    company_limit = 10
-    force = False
+async def _execute_tick_in_bg(company_limit: int):
     try:
-        body = await request.json()
-        company_limit = body.get("company_limit", 10)
-        force = body.get("force", False)
-    except Exception:
-        pass
+        try:
+            from web.cloud_tick_router import reset_stuck_campaigns
+            await reset_stuck_campaigns()
+        except Exception as re_err:
+            logger.debug(f"[CloudTick BG] Reset stuck error: {re_err}")
 
-    async with _tick_cache_lock:
-        now = time.time()
-        if not force and _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
-            logger.info("[CloudTick] 📦 Returning cached result (dedup)")
-            return _tick_cache["last_result"]
-        if _tick_cache.get("pending"):
-            logger.info("[CloudTick] 🔄 Tick already in progress, returning pending")
-            return {"status": "pending", "message": "Tick already running", "cached": True}
-        _tick_cache["pending"] = True
-
-    try:
         from core.multi_tenant import MultiTenantRunner
         runner = MultiTenantRunner(company_limit=company_limit)
         result = await runner.tick()
-
         compact = {
             "status": result.get("status", "ok"),
             "tenants": result.get("tenant_count", 0),
@@ -108,50 +84,61 @@ async def cloud_tick_endpoint(request: Request):
             "elapsed": result.get("elapsed_sec", 0),
             "version": "v17.1-optimized",
         }
-
         async with _tick_cache_lock:
             _tick_cache["last_tick"] = time.time()
             _tick_cache["last_result"] = compact
             _tick_cache["pending"] = False
-
-        return compact
-    except ImportError:
-        logger.warning("MultiTenantRunner not available, falling back")
-        try:
-            from cloud_orchestrator import CloudOrchestrator
-            orch = CloudOrchestrator()
-            result = await orch.tick()
-            compact = {
-                "status": result.get("status", "error"),
-                "tenants": result.get("tenant_count", 0),
-                "campaigns": result.get("campaigns_processed", 0),
-                "sent": result.get("emails_sent", 0),
-                "errors": result.get("errors", 0),
-                "elapsed": result.get("elapsed_sec", 0),
-                "version": "v17.1-optimized",
-            }
-            async with _tick_cache_lock:
-                _tick_cache["last_tick"] = time.time()
-                _tick_cache["last_result"] = compact
-                _tick_cache["pending"] = False
-            return compact
-        except Exception as e:
-            async with _tick_cache_lock:
-                _tick_cache["pending"] = False
-            return {"status": "error", "error": str(e)}
     except Exception as e:
-        logger.error(f"cloud-tick: {e}")
+        logger.error(f"[CloudTick BG Error] {e}")
         async with _tick_cache_lock:
             _tick_cache["pending"] = False
-        return {"status": "error", "error": str(e)}
+
+
+@router.post("/api/v2/cloud-tick")
+async def cloud_tick_endpoint(request: Request):
+    """Multi-tenant cloud tick - dispatches campaigns asynchronously in background task."""
+    global _tick_cache_lock, _tick_cache
+    if _tick_cache_lock is None:
+        _tick_cache_lock = asyncio.Lock()
+
+    company_limit = 3
+    force = False
+    try:
+        body = await request.json()
+        company_limit = body.get("company_limit", 3)
+        force = body.get("force", False)
+    except Exception:
+        pass
+
+    async with _tick_cache_lock:
+        now = time.time()
+        if force:
+            _tick_cache["pending"] = False
+        else:
+            if _tick_cache.get("last_result") and (now - _tick_cache.get("last_tick", 0)) < 60:
+                logger.info("[CloudTick] 📦 Returning cached result (dedup)")
+                return _tick_cache["last_result"]
+            if _tick_cache.get("pending"):
+                logger.info("[CloudTick] 🔄 Tick already in progress, returning pending")
+                return {"status": "pending", "message": "Tick already running", "sent": 0, "cached": True}
+        _tick_cache["pending"] = True
+
+    asyncio.create_task(_execute_tick_in_bg(company_limit))
+    return {
+        "status": "processing",
+        "message": "Cloud tick dispatched in background",
+        "sent": 0,
+        "cached": False
+    }
 
 
 @router.get("/api/v2/cloud-tick/status")
 def cloud_tick_status():
+    from web.shared import config
     return {
         "status": "ok",
-        "pa_token": bool(config.PA_API_TOKEN),
-        "groq": bool(config.GROQ_API_KEY),
+        "pa_token": bool(getattr(config, "PA_API_TOKEN", "")),
+        "groq": bool(getattr(config, "GROQ_API_KEY", "")),
         "time": datetime.now().isoformat(),
         "version": "v17.1-optimized"
     }
@@ -159,8 +146,8 @@ def cloud_tick_status():
 
 @router.get("/api/v2/services")
 def api_v2_services():
-    from services.catalog import SERVICE_CATALOG
-    return {"success": True, "services": SERVICE_CATALOG}
+    from services.catalog import SERVICE_CATALOG, BOUQUET_CATALOG
+    return {"success": True, "services": SERVICE_CATALOG, "bouquets": BOUQUET_CATALOG}
 
 
 @router.get("/api/v2/services/grouped")

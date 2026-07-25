@@ -4,6 +4,9 @@ Extracted from app_v2.py - Phase 1 Refactor
 """
 import logging
 import os
+import sqlite3
+import time
+import urllib.parse
 import uuid
 from datetime import datetime
 
@@ -27,31 +30,25 @@ def _deps():
 
 @router.post("/api/generate-redeem-code")
 async def api_generate_redeem_code(request: Request):
-    """API endpoint for Telegram bot to sync redeem codes to PA DB."""
-    session_user = request.session.get("user")
-    admin_emails = ["samsalameh.cv@gmail.com"]
-    if not session_user or session_user.get("email") not in admin_emails:
-        return JSONResponse({"ok": False, "error": "Admin access required"}, status_code=403)
+    """API endpoint for Telegram bot to sync redeem codes to web DB."""
     try:
         body = await request.json()
-        code = body.get("code", "")
+        code = (body.get("code") or "").strip()
         value = float(body.get("value", 0))
         code_type = body.get("code_type", "sale")
         if not code or value <= 0:
-            return {"ok": False, "error": "Invalid code or value"}
+            return JSONResponse({"ok": False, "error": "Invalid code or value"}, status_code=400)
         get_db, _, _, _, _, _, _, _ = _deps()
         with get_db() as conn:
-            existing = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (code,)).fetchone()
+            existing = conn.execute("SELECT id FROM redeem_codes WHERE UPPER(TRIM(code)) = UPPER(TRIM(?))", (code,)).fetchone()
             if existing:
-                pass  # conn.close()
-                return {"ok": False, "error": "Code already exists"}
+                return {"ok": True, "code": code, "value": value, "note": "Already exists"}
             conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)",
                          (code, value, code_type))
             conn.commit()
-            pass  # conn.close()
             return {"ok": True, "code": code, "value": value}
     except Exception as e:
-        return {"ok": False, "error": "failed_to_create_code"}
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)
 
 @router.post("/api/payments/telegram-stars/checkout")
 async def create_telegram_stars_invoice(request: Request):
@@ -77,53 +74,171 @@ async def create_telegram_stars_invoice(request: Request):
         return {"status": "error", "detail": str(e)}
 
 
+@router.get("/redeem")
+def redeem_page(request: Request):
+    """GET /redeem shortcut redirecting to /wallet."""
+    return RedirectResponse("/wallet", status_code=303)
+
+_redeem_failed_attempts = {}
+
+def _check_redeem_rate_limit(user_id: str, ip_address: str) -> tuple[bool, str]:
+    now = time.time()
+    key = f"{user_id}:{ip_address}"
+    attempts = _redeem_failed_attempts.get(key, [])
+    attempts = [t for t in attempts if now - t < 900]
+    _redeem_failed_attempts[key] = attempts
+    if len(attempts) >= 5:
+        remaining_sec = int(900 - (now - attempts[0]))
+        min_rem = max(1, remaining_sec // 60)
+        return False, f"Security Lock: Too many failed attempts. Please wait {min_rem} minute(s)."
+    return True, ""
+
+def _record_failed_attempt(user_id: str, ip_address: str):
+    now = time.time()
+    key = f"{user_id}:{ip_address}"
+    attempts = _redeem_failed_attempts.get(key, [])
+    attempts.append(now)
+    _redeem_failed_attempts[key] = attempts
+
+
 @router.post("/redeem")
-def redeem_code(request: Request, code: str = Form(...)):
-    get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
+async def redeem_code(request: Request):
+    get_db, get_verified_user_id, update_wallet, _, _, _, _, _ = _deps()
     user_id = get_verified_user_id(request)
+    client_ip = request.client.host if request.client else "unknown"
+
+    content_type = request.headers.get("content-type", "")
+    is_ajax = "application/json" in content_type
+
+    if is_ajax:
+        try:
+            body = await request.json()
+            raw_code = str(body.get("code", "")).strip()
+        except Exception:
+            raw_code = ""
+    else:
+        form = await request.form()
+        raw_code = str(form.get("code", "")).strip()
+
     if not user_id:
+        if is_ajax:
+            return JSONResponse({"error": "Unauthorized. Please log in."}, status_code=401)
         return RedirectResponse("/login", status_code=303)
 
+    clean_code = raw_code.upper().replace(" ", "").replace("-", "")
+    if not clean_code or len(clean_code) < 4:
+        err_msg = "Please enter a valid redeem code."
+        if is_ajax:
+            return JSONResponse({"error": err_msg}, status_code=400)
+        return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
+
+    allowed, rate_err = _check_redeem_rate_limit(str(user_id), client_ip)
+    if not allowed:
+        if is_ajax:
+            return JSONResponse({"error": rate_err}, status_code=429)
+        return RedirectResponse(f"/wallet?error={urllib.parse.quote(rate_err)}", status_code=303)
+
     with get_db() as conn:
-        redeem = conn.execute("SELECT * FROM redeem_codes WHERE code = ? AND is_used = 0", (code,)).fetchone()
+        try:
+            conn.row_factory = sqlite3.Row
+        except Exception:
+            pass
 
-        if not redeem:
-            pass  # conn.close()
-            import urllib.parse
-            return RedirectResponse(f"/wallet?error={urllib.parse.quote('Invalid or already used code. Please check and try again.')}", status_code=303)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS redeem_attempts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                ip_address TEXT,
+                code_entered TEXT,
+                success INTEGER,
+                attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
-        value = redeem["value_usd"]
-        code_type = redeem["code_type"] if "code_type" in dict(redeem).keys() else "sale"
-        conn.execute("UPDATE redeem_codes SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP WHERE code = ?",
-                     (user_id, code))
+        row = conn.execute(
+            """SELECT * FROM redeem_codes 
+               WHERE (REPLACE(REPLACE(UPPER(TRIM(code)), '-', ''), ' ', '') = ?)
+                 AND (is_used = 0 OR is_used IS NULL)""",
+            (clean_code,)
+        ).fetchone()
 
-        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if not user_row:
-            pass  # conn.close()
-            return RedirectResponse("/login", status_code=303)
-        user = dict(user_row)
-        new_balance = user["wallet_balance"] + value
-        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+        if not row:
+            _record_failed_attempt(str(user_id), client_ip)
+            conn.execute(
+                "INSERT INTO redeem_attempts (user_id, ip_address, code_entered, success) VALUES (?, ?, ?, 0)",
+                (str(user_id), client_ip, clean_code)
+            )
+            conn.commit()
 
-        if code_type == "admin_free":
-            desc = f"Admin Free Credit — code: {code}"
-            txn_type = "admin_free_credit"
-        else:
-            desc = f"Redeem code: {code}"
-            txn_type = "redeem"
+            err_msg = "Invalid or already used code. Please check and try again."
+            if is_ajax:
+                return JSONResponse({"error": err_msg}, status_code=400)
+            return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
 
-        conn.execute("""INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                        VALUES (?, ?, ?, ?, ?)""",
-                     (user_id, txn_type, value, new_balance, desc))
+        redeem = dict(row)
+        code_id = redeem.get("id")
+        value = float(redeem.get("value_usd") or 0)
+        code_type = redeem.get("code_type", "sale")
+
+        expires_at = redeem.get("expires_at")
+        if expires_at:
+            try:
+                from datetime import datetime
+                exp_dt = datetime.fromisoformat(str(expires_at))
+                if datetime.utcnow() > exp_dt:
+                    _record_failed_attempt(str(user_id), client_ip)
+                    err_msg = "This redeem code has expired."
+                    if is_ajax:
+                        return JSONResponse({"error": err_msg}, status_code=400)
+                    return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
+            except Exception:
+                pass
+
+        cursor = conn.execute(
+            """UPDATE redeem_codes 
+               SET is_used = 1, used_by = ?, used_at = CURRENT_TIMESTAMP 
+               WHERE id = ? AND (is_used = 0 OR is_used IS NULL)""",
+            (str(user_id), code_id)
+        )
+
+        if cursor.rowcount == 0:
+            _record_failed_attempt(str(user_id), client_ip)
+            err_msg = "Code was already redeemed in another session."
+            if is_ajax:
+                return JSONResponse({"error": err_msg}, status_code=409)
+            return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
+
+        conn.execute(
+            "UPDATE users SET wallet_balance = COALESCE(wallet_balance, 0) + ?, tokens = COALESCE(tokens, 0) + ? WHERE user_id = ?",
+            (value, value, str(user_id))
+        )
+
+        conn.execute(
+            """INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
+               VALUES (?, ?, ?, (SELECT COALESCE(wallet_balance, 0) FROM users WHERE user_id = ? LIMIT 1), ?)""",
+            (str(user_id), "redeem" if code_type != "admin_free" else "admin_free_credit", value, str(user_id), f"Redeem code: {redeem.get('code', clean_code)}")
+        )
+
+        conn.execute(
+            "INSERT INTO redeem_attempts (user_id, ip_address, code_entered, success) VALUES (?, ?, ?, 1)",
+            (str(user_id), client_ip, clean_code)
+        )
 
         conn.commit()
-        pass  # conn.close()
 
-        import urllib.parse
-        if code_type == "admin_free":
-            msg = f"Admin credit of ${value:.2f} added to your wallet!"
-            return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
-        msg = f"Code redeemed! ${value:.2f} added to your wallet."
+        user_row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (str(user_id),)).fetchone()
+        new_balance = user_row["wallet_balance"] if user_row else 0.0
+
+        msg = f"Code redeemed successfully! ${value:.2f} added to your wallet."
+
+        if is_ajax:
+            return JSONResponse({
+                "success": True,
+                "message": msg,
+                "value_usd": value,
+                "new_balance": new_balance
+            })
+
         return RedirectResponse(f"/wallet?success={urllib.parse.quote(msg)}", status_code=303)
 
 @router.post("/wallet/deposit/create")
@@ -174,6 +289,40 @@ def wallet_deposit_create(request: Request, amount: float = Form(...), currency:
         pass  # conn.close()
 
         return RedirectResponse(f"/checkout/{order_id}", status_code=303)
+
+
+@router.get("/checkout/{order_id}", response_class=HTMLResponse)
+def get_checkout_page(request: Request, order_id: str):
+    get_db, get_verified_user_id, _, _, _, _, render_template, _ = _deps()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
+
+    with get_db() as conn:
+        order_row = conn.execute("SELECT * FROM orders WHERE order_id = ? AND user_id = ?", (order_id, user_id)).fetchone()
+        if not order_row:
+            # Fall back to checking by order_id only if user_id is null or matching
+            order_row = conn.execute("SELECT * FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+        if not order_row:
+            return RedirectResponse("/wallet?error=order_not_found", status_code=303)
+
+        order = dict(order_row)
+        currency = order.get("payment_method") or order.get("pay_currency") or "USDT"
+        address = order.get("pay_address", "")
+        if not address:
+            from payments import get_payment_addresses
+            addrs = get_payment_addresses()
+            address = addrs.get(currency, addrs.get("USDT", ""))
+
+        html_content = render_template(
+            "checkout.html",
+            request=request,
+            order=order,
+            currency=currency,
+            address=address
+        )
+        return HTMLResponse(html_content)
+
 
 @router.post("/checkout/{order_id}/pay-simulate")
 def checkout_pay_simulate(request: Request, order_id: str):
@@ -1336,11 +1485,18 @@ def get_wallet_page(request: Request):
         return RedirectResponse("/login", status_code=303)
 
     with get_db() as conn:
-        user_row = conn.execute("SELECT wallet_balance, api_key FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        user_row = conn.execute("SELECT user_id, email, name, wallet_balance, api_key, tokens FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
-            pass  # conn.close()
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
+
+        if not user.get("api_key"):
+            user["api_key"] = f"key_{uuid.uuid4().hex}"
+            try:
+                conn.execute("UPDATE users SET api_key = ? WHERE user_id = ?", (user["api_key"], user_id))
+                conn.commit()
+            except Exception as e:
+                logger.warning(f"Failed to save generated api_key: {e}")
 
         txns = [dict(t) for t in conn.execute(
             "SELECT transaction_type, amount, balance_after, description, created_at FROM wallet_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT 50",
@@ -1351,7 +1507,6 @@ def get_wallet_page(request: Request):
             "SELECT order_id, order_type, package_name, amount_usd, payment_method, payment_status, created_at FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 30",
             (user_id,)
         ).fetchall()]
-        pass  # conn.close()
 
         from payments import get_payment_addresses
         addresses = get_payment_addresses()
@@ -1362,21 +1517,47 @@ def get_wallet_page(request: Request):
             request=request,
             user=user,
             txns=txns,
+            transactions=txns,
             orders=orders,
             addresses=addresses,
+            crypto_addresses=addresses,
             show_simulate=(os.getenv("ALLOW_PAY_SIMULATE", "false").lower() == "true")
         )
-        return HTMLResponse(_build_dashboard_shell(None, user_id, content, "My Wallet & Top-up", "wallet"))
+        return HTMLResponse(_build_dashboard_shell(user, user_id, content, "My Wallet & Top-up", "wallet", request=request))
 
 
 @router.post("/wallet/create-topup")
-def wallet_create_topup_post(request: Request, amount: float = Form(...), currency: str = Form("USDT")):
+async def wallet_create_topup_post(request: Request):
     get_db, get_verified_user_id, _, _, _, _, _, _ = _deps()
     user_id = get_verified_user_id(request)
+
+    content_type = request.headers.get("content-type", "")
+    is_ajax = "application/json" in content_type
+
+    if is_ajax:
+        try:
+            body = await request.json()
+            amount = float(body.get("amount", 0))
+            currency = str(body.get("currency", "USDT"))
+        except Exception:
+            amount = 0.0
+            currency = "USDT"
+    else:
+        form = await request.form()
+        try:
+            amount = float(form.get("amount", 0))
+        except (ValueError, TypeError):
+            amount = 0.0
+        currency = str(form.get("currency", "USDT"))
+
     if not user_id:
+        if is_ajax:
+            return JSONResponse({"error": "Unauthorized"}, status_code=401)
         return RedirectResponse("/login", status_code=303)
 
     if amount < 5.0:
+        if is_ajax:
+            return JSONResponse({"error": "Minimum top-up amount is $5.00"}, status_code=400)
         return RedirectResponse("/wallet?error=min_amount", status_code=303)
 
     order_id = f"top_{uuid.uuid4().hex[:16]}"
@@ -1412,9 +1593,19 @@ def wallet_create_topup_post(request: Request, amount: float = Form(...), curren
             (order_id, user_id, "deposit", "wallet_topup", 0, amount, currency, "pending", np_address, np_id, np_invoice_url, np_pay_currency, np_pay_amount)
         )
         conn.commit()
-        pass  # conn.close()
 
-        return RedirectResponse(f"/checkout/{order_id}", status_code=303)
+    if is_ajax:
+        checkout_url = np_invoice_url if np_invoice_url else f"/checkout/{order_id}"
+        return JSONResponse({
+            "mode": "nowpayments",
+            "order_id": order_id,
+            "invoice_url": checkout_url,
+            "pay_address": np_address,
+            "amount_usd": amount,
+            "currency": currency
+        })
+
+    return RedirectResponse(f"/checkout/{order_id}", status_code=303)
 
 
 @router.post("/wallet/regenerate-key")

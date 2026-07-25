@@ -29,7 +29,7 @@
  <meta name="twitter:description" content="Your personal AI job-hunting engine works 24/7. Get hired faster. Less than 7 cents per application.">
  <meta name="twitter:image" content="https://jhfguf.pythonanywhere.com/static/img/og-image.png">
  <meta name="twitter:site" content="@jobhuntpro">
- <title>JobHunt Pro &#x2014; AI-Powered Automated Job Applications | 200 AI Agents, 24/7</title>
+ <title>JobHunt Pro &#x2014; AI-Powered Automated Job Applications | Graham's Autonomous Swarm Matrix, 24/7</title>
  <link rel="manifest" href="{{ url_for('static', path='manifest.json') }}">
  <meta name="theme-color" content="#0a0a14">
  <link rel="apple-touch-icon" href="/static/img/icon-192.png">
@@ -42,7 +42,7 @@
   "name": "JobHunt Pro",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
-  "description": "AI-Powered Automated Job Application Engine with 200 AI agents, multi-engine job search, and smart email rotation.",
+  "description": "AI-Powered Automated Job Application Engine with Graham-Scale Autonomous Swarm, multi-engine job search, and smart email rotation.",
   "url": "https://jhfguf.pythonanywhere.com",
   "offers": {
     "@type": "AggregateOffer",
@@ -152,7 +152,7 @@ body{
 }
 .nav-links a:hover{color:#fff;background:rgba(255,255,255,0.05)}
 .nav-links a.cta{
- background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;
  font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(0,240,255,0.15);
 }
 .nav-links a.cta:hover{box-shadow:0 0 35px rgba(0,240,255,0.35);transform:translateY(-1px)}
@@ -222,7 +222,7 @@ body{
  transition:all var(--transition);cursor:pointer;position:relative;overflow:hidden;
 }
 .hero-buttons .primary{
- background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000 !important;
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000000 !important;-webkit-text-fill-color:#000000 !important;font-weight:800;
  box-shadow:0 4px 30px rgba(0,240,255,0.25);
 }
 .hero-buttons .primary::before{
@@ -682,14 +682,10 @@ body{
  z-index:2;
 }
 .price-card.popular:hover{transform:scale(1.04) translateY(-8px)}
-.price-badge{
- position:absolute;inset-block-start:-14px;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translateX(-50%);
- padding:6px 20px;border-radius:50px;font-size: 14px;font-weight:800;
- text-transform:uppercase;white-space:nowrap;
-}
-.price-badge.hot{background:linear-gradient(135deg,var(--magenta),#ff3377);color:#fff;box-shadow:0 0 20px rgba(255,0,85,0.3)}
-.price-badge.best{background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;box-shadow:0 0 20px rgba(0,240,255,0.3)}
-.price-badge.new{background:linear-gradient(135deg,var(--gold),#ffcc33);color:#000;box-shadow:0 0 20px rgba(255,179,0,0.3)}
+.price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
+.price-badge.hot{background:linear-gradient(135deg,#ff0055,#e11d48);color:#ffffff;box-shadow:0 0 20px rgba(255,0,85,0.4)}
+.price-badge.best{background:linear-gradient(135deg,#00f0ff,#0284c7);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;box-shadow:0 0 20px rgba(0,240,255,0.4)}
+.price-badge.new{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;box-shadow:0 0 20px rgba(251,191,36,0.4)}
 .price-tier{font-size: 14px;color:var(--muted);text-transform:uppercase;margin-block-end:8px}
 .price-card h3{font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;margin-block-end:14px}
 .price-apps{font-size:38px;font-weight:900;color:var(--cyan);line-height:1;margin-block-end:4px}
@@ -716,7 +712,7 @@ body{
  overflow:hidden;
 }
 .btn-cyan{
- background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+ background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;
  box-shadow:0 4px 20px rgba(0,240,255,0.2);
 }
 .btn-cyan:hover{box-shadow:0 6px 30px rgba(0,240,255,0.4);transform:translateY(-2px)}
@@ -730,7 +726,7 @@ body{
 }
 .btn-outline:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow-cyan)}
 .btn-gold{
- background:linear-gradient(135deg,var(--gold),#cc8800);color:#000;
+ background:linear-gradient(135deg,var(--gold),#cc8800);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;
  box-shadow:0 4px 20px rgba(255,179,0,0.2);
 }
 .btn-gold:hover{box-shadow:0 6px 30px rgba(255,179,0,0.4);transform:translateY(-2px)}
@@ -843,7 +839,7 @@ body{
 .final-cta .cta-btn{
  display:inline-flex;align-items:center;gap:12px;padding:20px 48px;
  background:linear-gradient(135deg,var(--cyan),#00a0cc);
- color:#000;border-radius:16px;font-size:18px;font-weight:800;text-decoration:none;
+ color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;border-radius:16px;font-size:18px;font-weight:800;text-decoration:none;
  transition:all var(--transition);box-shadow:0 4px 40px rgba(0,240,255,0.3);
  position:relative;z-index:1;overflow:hidden;
 }
@@ -998,7 +994,7 @@ body{
  .price-card h3{font-size:18px}
  .price-apps{font-size:28px}
  .price-amount{font-size:26px}
- .price-badge{font-size: 14px;padding:4px 14px}
+ .price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
  .footer-grid{grid-template-columns:1fr;text-align:center;gap:20px}
  .feature-grid,.steps{margin:0;max-inline-size:100%}
  .step-card{padding:20px 16px}
@@ -1063,7 +1059,7 @@ body{
 .fj-location{display:flex;align-items:center;gap:6px;font-size: 14px;color:var(--muted);}
 .fj-apply-btn{
   display:block;text-align:center;padding:14px;border-radius:12px;
-  background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#000;
+  background:linear-gradient(135deg,var(--cyan),#00a0cc);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;
   font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition);
   margin-block-start:auto;
 }
@@ -1088,12 +1084,28 @@ body{
 
 
 <style>
-.cookie-banner{position:fixed;inset-block-end:0;inset-inline-start: 0;inset-inline-end: 0;background:rgba(10,10,25,0.97);border-inset-block-start:1px solid rgba(0,240,255,0.15);z-index:9998;padding:14px 24px;backdrop-filter:blur(12px);animation:slideUp 0.4s ease-out}
+.cookie-banner {
+ position: fixed !important;
+ bottom: 0 !important;
+ top: auto !important;
+ left: 0 !important;
+ right: 0 !important;
+ width: 100% !important;
+ z-index: 99999 !important;
+ background: rgba(5, 5, 15, 0.95) !important;
+ border: none !important;
+ border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+ margin: 0 !important;
+ padding: 12px 24px !important;
+ backdrop-filter: blur(12px) !important;
+ -webkit-backdrop-filter: blur(12px) !important;
+ animation: slideUp 0.4s ease-out !important;
+}
 .cookie-content{max-inline-size:1200px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
 .cookie-content span{font-size:20px}
 .cookie-content p{font-size: 14px;color:var(--muted);flex:1;min-inline-size:200px}
 .cookie-content a{color:var(--cyan)}
-.cookie-content button{background:var(--cyan);color:#000;border:none;padding:8px 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size: 14px;white-space:nowrap}
+.cookie-content button{background:var(--cyan);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;border:none;padding:8px 20px;border-radius:20px;font-weight:700;cursor:pointer;font-size: 14px;white-space:nowrap}
 .cookie-content button:hover{opacity:0.9}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:600px){.cookie-content{text-align:center}}
@@ -1116,14 +1128,14 @@ body{
 .ats-upload-icon{font-size:48px;opacity:0.7}
 .ats-upload-zone p{font-size:15px;color:#fff;font-weight:500}
 .ats-upload-zone span{font-size: 14px;color:var(--dim)}
-.ats-scan-btn{display:inline-block;margin-block-start:8px;padding:12px 28px;background:var(--cyan);color:#000;border-radius:28px;font-weight:700;font-size:14px;text-decoration:none;transition:all var(--transition)}
+.ats-scan-btn{display:inline-block;margin-block-start:8px;padding:12px 28px;background:linear-gradient(135deg,#00f0ff,#00b8ff);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;border-radius:28px;font-weight:800;font-size:14px;text-decoration:none;transition:all var(--transition)}
 .ats-scan-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,0.3)}
 .ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
-.ats-score-circle{inline-size:120px;block-size:120px;margin:0 auto 16px;position:relative}
-.ats-score-circle svg{position:absolute;inset-block-start:0;inset-inline-start: 0}
-.ats-score-text{position:absolute;inset-block-start:50%;inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;line-height:1}
-.ats-score-num{font-size:36px;font-weight:900;color:#fff}
-.ats-score-total{font-size:14px;color:var(--muted)}
+.ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
+.ats-score-circle svg{position:absolute;top:0;left:0;width:100%;height:100%}
+.ats-score-text{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;direction:ltr;line-height:1.1}
+.ats-score-num{font-size:36px;font-weight:900;color:#ffffff;display:block}
+.ats-score-total{font-size:14px;color:#94a3b8;display:block;margin-top:2px}
 .ats-sample-label{text-align:center;font-size: 14px;color:var(--muted);margin-block-end:20px;font-style:italic}
 .ats-breakdown{display:flex;flex-direction:column;gap:10px}
 .ats-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 12px;background:var(--glass2);border-radius:8px}
@@ -1159,35 +1171,1834 @@ body{
 .exit-popup h3{font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;color:#fff;margin-block-end:10px;font-size:14px;line-height:1.5;margin-block-end:20px}
 .exit-value-props{display:flex;flex-direction:column;gap:6px;margin-block-end:24px}
 .exit-value-props span{font-size: 14px;color:var(--green)}
-.exit-cta{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;transition:all var(--transition)}
+.exit-cta{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;transition:all var(--transition)}
 .exit-cta:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(0,240,255,0.4)}
 .exit-footnote{font-size: 14px;color:var(--dim);margin-block-start:16px}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 </style>
 <style>
 .mobile-cta-bar{display:none;position:fixed;inset-block-end:0;inset-inline-start: 0;inset-inline-end: 0;z-index:999;padding:10px 16px;background:rgba(10,10,25,0.95);border-inset-block-start:1px solid rgba(0,240,255,0.1);backdrop-filter:blur(12px)}
-.mobile-cta-btn{display:block;inline-size:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#000;text-align:center;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;animation:ctaPulse 2s ease-in-out infinite}
+.mobile-cta-btn{display:block;inline-size:100%;padding:14px;background:linear-gradient(135deg,var(--cyan),#00b8ff);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;text-align:center;border-radius:14px;font-weight:700;font-size:15px;text-decoration:none;animation:ctaPulse 2s ease-in-out infinite}
 @keyframes ctaPulse{0%,100%{box-shadow:0 0 15px rgba(0,240,255,0.15)}50%{box-shadow:0 0 30px rgba(0,240,255,0.3)}}
 @media(max-width:768px){.mobile-cta-bar{display:block}}
+</style>
+
+<style>
+/* Apex Glass 3.0 Visual Enhancements */
+.price-card, .ats-score-preview, .fomo-item, .comparison-table {
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease !important;
+}
+.price-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 20px 50px rgba(0, 240, 255, 0.2), 0 0 30px rgba(0, 240, 255, 0.1) !important;
+  border-color: rgba(0, 240, 255, 0.5) !important;
+}
+.btn-cyan, .ats-scan-btn, .nav-links a.cta, .hero-buttons .primary {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.btn-cyan::after, .ats-scan-btn::after, .nav-links a.cta::after {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  left: -50% !important;
+  width: 200% !important;
+  height: 200% !important;
+  background: linear-gradient(60deg, transparent, rgba(255,255,255,0.4), transparent) !important;
+  transform: rotate(30deg) translateY(-100%) !important;
+  transition: transform 0.8s ease !important;
+}
+.btn-cyan:hover::after, .ats-scan-btn:hover::after, .nav-links a.cta:hover::after {
+  transform: rotate(30deg) translateY(100%) !important;
+}
+</style>
+
+<style>
+/* ═════ GOD-TIER ROI CALCULATOR OVERHAUL ═════ */
+.roi-calc {
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.roi-box {
+  background: rgba(13, 14, 28, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  border-radius: 28px !important;
+  padding: 48px !important;
+  position: relative !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+
+.roi-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.roi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 900px) {
+  .roi-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .roi-box { padding: 28px !important; }
+}
+
+.roi-card-left {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.roi-slider-wrap {
+  margin: 0 !important;
+  position: relative;
+  z-index: 1;
+}
+
+.roi-slider-wrap label {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  color: #94a3b8 !important;
+  font-size: 15px !important;
+  margin-block-end: 16px !important;
+  font-weight: 700 !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  appearance: auto !important;
+}
+
+.roi-badge {
+  font-family: 'Fira Code', 'Space Grotesk', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffb300;
+  background: rgba(255, 179, 0, 0.12);
+  border: 1px solid rgba(255, 179, 0, 0.3);
+  padding: 4px 16px;
+  border-radius: 50px;
+  box-shadow: 0 0 15px rgba(255, 179, 0, 0.2);
+}
+
+.roi-slider {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 100% !important;
+  height: 10px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(90deg, #00f0ff 0%, #8b5cf6 50%, #ff0055 100%) !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+.roi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: 4px solid #00f0ff !important;
+  box-shadow: 0 0 20px #00f0ff, 0 0 40px rgba(0, 240, 255, 0.6) !important;
+  cursor: pointer !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.roi-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 30px #00f0ff, 0 0 60px rgba(0, 240, 255, 0.8) !important;
+}
+
+.roi-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.roi-result {
+  margin-bottom: 24px;
+}
+
+.roi-val {
+  font-size: 56px !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #00d4aa 50%, #ffb300 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  display: block !important;
+  line-height: 1.1 !important;
+  filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.3));
+}
+
+.roi-sub {
+  font-size: 15px !important;
+  color: #94a3b8 !important;
+  margin-top: 8px !important;
+  font-weight: 500 !important;
+}
+
+.roi-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.roi-stat-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px 8px;
+  text-align: center;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+.roi-stat-pill:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.roi-stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.roi-stat-lbl {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.roi-cta-btn {
+  width: 100%;
+  max-width: 380px;
+  padding: 18px 28px;
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #00f0ff 0%, #8b5cf6 100%);
+  color: #ffffff !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+  transition: all 0.3s;
+}
+
+.roi-cta-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.6);
+  color: #ffffff !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER URGENCY BANNER OVERHAUL ═════ */
+.urgency-banner {
+  position: relative;
+  z-index: 10;
+  padding: 40px 20px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.urgency-box {
+  background: rgba(13, 14, 28, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 179, 0, 0.25) !important;
+  border-radius: 28px !important;
+  padding: 32px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  position: relative !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.urgency-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 179, 0, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@media (max-width: 850px) {
+  .urgency-box {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+    padding: 24px !important;
+  }
+}
+
+.urgency-item {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 24px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 12px !important;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.urgency-item:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(0, 240, 255, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.15) !important;
+}
+
+.urgency-item .ur-icon {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 26px !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2) !important;
+}
+
+.urgency-item:nth-child(2) .ur-icon {
+  background: rgba(255, 179, 0, 0.1) !important;
+  border-color: rgba(255, 179, 0, 0.25) !important;
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.2) !important;
+}
+
+.urgency-item:nth-child(3) .ur-icon {
+  background: rgba(255, 0, 85, 0.1) !important;
+  border-color: rgba(255, 0, 85, 0.25) !important;
+  box-shadow: 0 0 20px rgba(255, 0, 85, 0.2) !important;
+}
+
+.urgency-item .ur-val {
+  font-family: 'Fira Code', 'Space Grotesk', 'Cairo', sans-serif !important;
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #ffb300 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  line-height: 1.2 !important;
+}
+
+.urgency-item .ur-label {
+  font-size: 14px !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 1 !important;
+}
+
+.ur-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 2px 10px;
+  border-radius: 50px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.ur-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+</style>
+<style>
+/* ═════ GOD-TIER TRUST & SECURITY GRID OVERHAUL ═════ */
+.trust-section {
+  padding: 80px 20px;
+  position: relative;
+}
+
+.trust-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 24px !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 1024px) {
+  .trust-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .trust-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+.trust-badge-card {
+  background: rgba(13, 14, 28, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 22px !important;
+  padding: 32px 24px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.trust-badge-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.trust-badge-card:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(0, 240, 255, 0.35) !important;
+  box-shadow: 0 15px 40px rgba(0, 240, 255, 0.18), 0 0 20px rgba(0, 240, 255, 0.1) !important;
+}
+
+.trust-badge-card .tb-icon-box {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 18px !important;
+  background: rgba(0, 240, 255, 0.08) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 28px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15) !important;
+  transition: transform 0.3s ease !important;
+}
+
+.trust-badge-card:hover .tb-icon-box {
+  transform: scale(1.1) rotate(4deg) !important;
+}
+
+.trust-badge-card h4 {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 12px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1.3 !important;
+}
+
+.trust-badge-card p {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  color: #94a3b8 !important;
+  line-height: 1.65 !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  height: auto !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER BEFORE / AFTER SECTION OVERHAUL ═════ */
+.before-after {
+  padding: 80px 20px;
+  position: relative;
+}
+
+.ba-grid {
+  display: grid !important;
+  grid-template-columns: 1fr minmax(140px, auto) 1fr !important;
+  gap: 24px !important;
+  align-items: center !important;
+  max-width: 1150px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 900px) {
+  .ba-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+.ba-vs-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+  padding: 0 12px !important;
+}
+
+.ba-vs {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #ff0055 0%, #00f0ff 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4) !important;
+  border: 2px solid #ffffff !important;
+}
+
+.ba-choice-pill {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  padding: 8px 16px !important;
+  border-radius: 50px !important;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  text-align: center !important;
+}
+
+.ba-card {
+  background: rgba(13, 14, 28, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-radius: 24px !important;
+  padding: 36px 28px !important;
+  position: relative !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+  transition: transform 0.3s ease, border-color 0.3s ease !important;
+}
+
+.ba-card.bad {
+  border: 1px solid rgba(255, 0, 85, 0.35) !important;
+}
+
+.ba-card.bad:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(255, 0, 85, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(255, 0, 85, 0.25) !important;
+}
+
+.ba-card.good {
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.ba-card.good::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ba-card.good:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.25) !important;
+}
+
+.ba-card .ba-icon {
+  font-size: 44px !important;
+  margin-bottom: 16px !important;
+  display: block !important;
+}
+
+.ba-card h3 {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+}
+
+.ba-card ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.ba-card ul li {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 14px !important;
+  color: #cbd5e1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  line-height: 1.5 !important;
+}
+
+.ba-card.bad ul li::before {
+  content: '✗' !important;
+  color: #ff0055 !important;
+  font-weight: 900 !important;
+}
+
+.ba-card.good ul li::before {
+  content: '✓' !important;
+  color: #10b981 !important;
+  font-weight: 900 !important;
+}
+
+.ba-grid {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  gap: 32px !important;
+  align-items: center !important;
+  max-width: 1100px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 900px) {
+  .ba-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+.ba-vs-wrap {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 16px !important;
+}
+
+.ba-vs {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #ff0055 0%, #00f0ff 100%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4) !important;
+  border: 2px solid #ffffff !important;
+}
+
+.ba-choice-pill {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  padding: 8px 20px !important;
+  border-radius: 50px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.ba-card {
+  background: rgba(13, 14, 28, 0.75) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border-radius: 24px !important;
+  padding: 36px 28px !important;
+  position: relative !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+  transition: transform 0.3s ease, border-color 0.3s ease !important;
+}
+
+.ba-card.bad {
+  border: 1px solid rgba(255, 0, 85, 0.35) !important;
+}
+
+.ba-card.bad:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(255, 0, 85, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(255, 0, 85, 0.25) !important;
+}
+
+.ba-card.good {
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+.ba-card.good::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.ba-card.good:hover {
+  transform: translateY(-6px) !important;
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.25) !important;
+}
+
+.ba-card .ba-icon {
+  font-size: 44px !important;
+  margin-bottom: 16px !important;
+  display: block !important;
+}
+
+.ba-card h3 {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+}
+
+.ba-card ul {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.ba-card ul li {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 14px !important;
+  color: #cbd5e1 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  line-height: 1.5 !important;
+}
+
+.ba-card.bad ul li::before {
+  content: '✗' !important;
+  color: #ff0055 !important;
+  font-weight: 900 !important;
+}
+
+.ba-card.good ul li::before {
+  content: '✓' !important;
+  color: #10b981 !important;
+  font-weight: 900 !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER GUARANTEE BADGE BANNER OVERHAUL ═════ */
+.guarantee-badge-section {
+  padding: 40px 20px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  position: relative !important;
+  z-index: 10 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.guarantee-badge {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  background: rgba(13, 14, 28, 0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 24px !important;
+  padding: 24px 36px !important;
+  max-width: 850px !important;
+  width: 100% !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 30px rgba(0, 240, 255, 0.15) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.guarantee-badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .guarantee-badge {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 24px 20px !important;
+    gap: 16px !important;
+  }
+}
+
+.guarantee-icon-box {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 28px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2) !important;
+}
+
+.guarantee-content {
+  flex: 1 !important;
+  text-align: start !important;
+}
+
+@media (max-width: 768px) {
+  .guarantee-content {
+    text-align: center !important;
+  }
+}
+
+.guarantee-content h3, .guarantee-content strong {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1.3 !important;
+}
+
+.guarantee-content p, .guarantee-content span {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  color: #94a3b8 !important;
+  line-height: 1.6 !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  display: block !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.guarantee-verified-seal {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 2px solid #10b981 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #10b981 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3) !important;
+}
+
+.guarantee-badge {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  background: rgba(13, 14, 28, 0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 24px !important;
+  padding: 24px 36px !important;
+  max-width: 850px !important;
+  width: 100% !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 30px rgba(0, 240, 255, 0.15) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.guarantee-badge::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .guarantee-badge {
+    flex-direction: column !important;
+    text-align: center !important;
+    padding: 24px 20px !important;
+    gap: 16px !important;
+  }
+}
+
+.guarantee-icon-box {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 18px !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 28px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2) !important;
+}
+
+.guarantee-content {
+  flex: 1 !important;
+  text-align: start !important;
+}
+
+@media (max-width: 768px) {
+  .guarantee-content {
+    text-align: center !important;
+  }
+}
+
+.guarantee-content h3, .guarantee-content strong {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 6px !important;
+  display: block !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  line-height: 1.3 !important;
+}
+
+.guarantee-content p, .guarantee-content span {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  color: #94a3b8 !important;
+  line-height: 1.6 !important;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  display: block !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.guarantee-verified-seal {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 2px solid #10b981 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #10b981 !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3) !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER FOMO COUNTER STRIP OVERHAUL ═════ */
+.fomo-strip {
+  position: relative !important;
+  z-index: 10 !important;
+  padding: 40px 20px !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+.fomo-box {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 20px !important;
+  background: rgba(13, 14, 28, 0.85) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 0, 85, 0.25) !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.fomo-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 0, 85, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+@media (max-width: 1024px) {
+  .fomo-box {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .fomo-box {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+.fomo-item {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 18px !important;
+  padding: 20px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+  text-align: start !important;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.fomo-item:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(255, 0, 85, 0.4) !important;
+  box-shadow: 0 10px 25px rgba(255, 0, 85, 0.18) !important;
+}
+
+.fomo-icon-box {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 14px !important;
+  background: rgba(255, 0, 85, 0.1) !important;
+  border: 1px solid rgba(255, 0, 85, 0.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.2) !important;
+}
+
+.fomo-item:nth-child(2) .fomo-icon-box {
+  background: rgba(0, 240, 255, 0.1) !important;
+  border-color: rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
+}
+
+.fomo-item:nth-child(3) .fomo-icon-box {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) !important;
+}
+
+.fomo-item:nth-child(4) .fomo-icon-box {
+  background: rgba(255, 179, 0, 0.1) !important;
+  border-color: rgba(255, 179, 0, 0.25) !important;
+  box-shadow: 0 0 15px rgba(255, 179, 0, 0.2) !important;
+}
+
+.fomo-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.fomo-item .fomo-val {
+  font-family: 'Fira Code', 'Space Grotesk', 'Cairo', sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  color: #ff0055 !important;
+  background: linear-gradient(135deg, #ff0055 0%, #00f0ff 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.fomo-pulse {
+  display: inline-block !important;
+  width: 8px !important;
+  height: 8px !important;
+  background: #ff0055 !important;
+  border-radius: 50% !important;
+  animation: pulse 1.4s ease-in-out infinite !important;
+  box-shadow: 0 0 10px #ff0055 !important;
+  flex-shrink: 0 !important;
+}
+
+.fomo-item .fomo-label {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 13px !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  animation: none !important;
+  inline-size: auto !important;
+  block-size: auto !important;
+  display: block !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER PRICING CTA BUTTONS OVERHAUL ═════ */
+.price-card .btn,
+.price-card a.btn,
+a.btn-cyan,
+a.btn-magenta,
+a.btn-gold,
+a.btn-outline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 16px 24px !important;
+  border-radius: 16px !important;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  z-index: 5 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+}
+
+.price-card .btn::after,
+a.btn::after {
+  display: none !important;
+}
+
+/* Cyan Button (Starter & Pro) */
+.price-card .btn-cyan,
+a.btn-cyan {
+  background: linear-gradient(135deg, #00f0ff 0%, #00a0cc 100%) !important;
+  color: #030814 !important;
+  -webkit-text-fill-color: #030814 !important;
+  border: 1px solid #00f0ff !important;
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  text-shadow: none !important;
+}
+
+.price-card .btn-cyan:hover,
+a.btn-cyan:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 35px rgba(0, 240, 255, 0.65) !important;
+  background: linear-gradient(135deg, #33f3ff 0%, #00b4e6 100%) !important;
+}
+
+/* Magenta Button (Basic - Most Popular) */
+.price-card .btn-magenta,
+a.btn-magenta {
+  background: linear-gradient(135deg, #ff0055 0%, #cc0044 100%) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1px solid #ff0055 !important;
+  box-shadow: 0 8px 25px rgba(255, 0, 85, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+.price-card .btn-magenta:hover,
+a.btn-magenta:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 35px rgba(255, 0, 85, 0.65) !important;
+  background: linear-gradient(135deg, #ff3377 0%, #e6004c 100%) !important;
+}
+
+/* Gold Button (Enterprise) */
+.price-card .btn-gold,
+a.btn-gold {
+  background: linear-gradient(135deg, #ffb300 0%, #e68a00 100%) !important;
+  color: #050b14 !important;
+  -webkit-text-fill-color: #050b14 !important;
+  border: 1px solid #ffb300 !important;
+  box-shadow: 0 8px 25px rgba(255, 179, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  text-shadow: none !important;
+}
+
+.price-card .btn-gold:hover,
+a.btn-gold:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 35px rgba(255, 179, 0, 0.65) !important;
+  background: linear-gradient(135deg, #ffc433 0%, #ff9900 100%) !important;
+}
+
+/* Outline Button Fallback */
+.price-card .btn-outline,
+a.btn-outline {
+  background: rgba(0, 240, 255, 0.12) !important;
+  color: #00f0ff !important;
+  -webkit-text-fill-color: #00f0ff !important;
+  border: 1.5px solid #00f0ff !important;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.2) !important;
+}
+
+.price-card .btn-outline:hover,
+a.btn-outline:hover {
+  background: rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.4) !important;
+  transform: translateY(-3px) scale(1.02) !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER FINAL CTA GRAND FINALE OVERHAUL ═════ */
+.final-cta {
+  max-width: 950px !important;
+  margin: 60px auto 80px !important;
+  padding: 64px 40px !important;
+  background: rgba(13, 14, 28, 0.85) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  border-radius: 32px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 40px rgba(0, 240, 255, 0.15) !important;
+  text-align: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.15) 0%, rgba(255, 0, 85, 0.08) 50%, transparent 80%);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .final-cta {
+    padding: 40px 20px !important;
+    margin: 40px 16px 60px !important;
+    border-radius: 24px !important;
+  }
+}
+
+.final-cta h2 {
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: clamp(30px, 5vw, 48px) !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  margin-bottom: 20px !important;
+  letter-spacing: -1px !important;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.final-cta h2 .gradient {
+  background: linear-gradient(135deg, #00f0ff 0%, #ff0055 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.final-cta p.cta-desc {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 16px !important;
+  color: #cbd5e1 !important;
+  max-width: 680px !important;
+  margin: 0 auto 36px !important;
+  line-height: 1.8 !important;
+  font-weight: 400 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.final-cta .cta-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 48px !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #00a0cc 100%) !important;
+  color: #030814 !important;
+  -webkit-text-fill-color: #030814 !important;
+  border-radius: 20px !important;
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 10px 35px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid #00f0ff !important;
+  margin-bottom: 28px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  cursor: pointer !important;
+}
+
+.final-cta .cta-btn:hover {
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 16px 50px rgba(0, 240, 255, 0.7) !important;
+  background: linear-gradient(135deg, #33f3ff 0%, #00b4e6 100%) !important;
+}
+
+/* 4 Glass Trust Badges Grid */
+.cta-trust-badges {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  position: relative !important;
+  z-index: 2 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cta-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 50px !important;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.cta-chip.warning {
+  background: rgba(255, 179, 0, 0.12) !important;
+  border: 1px solid rgba(255, 179, 0, 0.3) !important;
+  color: #ffb300 !important;
+}
+
+.cta-chip.success {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #10b981 !important;
+}
+
+.cta-chip.cyan {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #00f0ff !important;
+}
+
+.cta-chip.neutral {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0 !important;
+}
+
+.final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.15) 0%, rgba(255, 0, 85, 0.08) 50%, transparent 80%);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .final-cta {
+    padding: 40px 20px !important;
+    margin: 40px 16px 60px !important;
+    border-radius: 24px !important;
+  }
+}
+
+.final-cta h2 {
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: clamp(30px, 5vw, 48px) !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  margin-bottom: 20px !important;
+  letter-spacing: -1px !important;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.final-cta h2 .gradient {
+  background: linear-gradient(135deg, #00f0ff 0%, #ff0055 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+
+.final-cta p.cta-desc {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 16px !important;
+  color: #cbd5e1 !important;
+  max-width: 680px !important;
+  margin: 0 auto 36px !important;
+  line-height: 1.8 !important;
+  font-weight: 400 !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.final-cta .cta-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 20px 48px !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #00a0cc 100%) !important;
+  color: #030814 !important;
+  -webkit-text-fill-color: #030814 !important;
+  border-radius: 20px !important;
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 10px 35px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid #00f0ff !important;
+  margin-bottom: 28px !important;
+  position: relative !important;
+  z-index: 2 !important;
+  cursor: pointer !important;
+}
+
+.final-cta .cta-btn:hover {
+  transform: translateY(-4px) scale(1.03) !important;
+  box-shadow: 0 16px 50px rgba(0, 240, 255, 0.7) !important;
+  background: linear-gradient(135deg, #33f3ff 0%, #00b4e6 100%) !important;
+}
+
+/* 4 Glass Trust Badges Grid */
+.cta-trust-badges {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.cta-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 16px !important;
+  border-radius: 50px !important;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.cta-chip.warning {
+  background: rgba(255, 179, 0, 0.12) !important;
+  border: 1px solid rgba(255, 179, 0, 0.3) !important;
+  color: #ffb300 !important;
+}
+
+.cta-chip.success {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #10b981 !important;
+}
+
+.cta-chip.cyan {
+  background: rgba(0, 240, 255, 0.12) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  color: #00f0ff !important;
+}
+
+.cta-chip.neutral {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0 !important;
+}
+</style>
+<style>
+/* ═════ GOD-TIER EXIT POPUP MODAL OVERHAUL ═════ */
+.exit-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(5, 7, 18, 0.88) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  z-index: 9999 !important;
+  display: none;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+}
+
+.exit-overlay.show {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.exit-popup {
+  background: rgba(13, 14, 28, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.35) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.2) !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  padding: 40px 32px !important;
+  position: relative !important;
+  text-align: center !important;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+}
+
+.exit-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+  font-size: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  line-height: 1 !important;
+  outline: none !important;
+}
+
+.exit-close:hover {
+  background: rgba(255, 0, 85, 0.2) !important;
+  border-color: #ff0055 !important;
+  color: #ffffff !important;
+  transform: scale(1.1) !important;
+}
+
+.exit-icon {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 20px !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30px !important;
+  margin: 0 auto 20px !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25) !important;
+}
+
+.exit-popup h3 {
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  margin-bottom: 12px !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.exit-popup p {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  color: #cbd5e1 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 24px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.exit-value-props {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-bottom: 28px !important;
+  text-align: start !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(0, 240, 255, 0.15) !important;
+  border-radius: 16px !important;
+  padding: 16px 20px !important;
+}
+
+.exit-value-props span {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'Cairo', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #00f0ff !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  animation: none !important;
+  inline-size: auto !important;
+  block-size: auto !important;
+}
+
+.exit-cta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 16px 24px !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #00a0cc 100%) !important;
+  color: #030814 !important;
+  -webkit-text-fill-color: #030814 !important;
+  border-radius: 16px !important;
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid #00f0ff !important;
+  margin-bottom: 16px !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.exit-cta:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 12px 40px rgba(0, 240, 255, 0.65) !important;
+}
+
+.exit-footnote {
+  font-family: 'Cairo', 'Tajawal', sans-serif !important;
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+  font-weight: 500 !important;
+}
+
+.exit-popup {
+  background: rgba(13, 14, 28, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.35) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.2) !important;
+  max-width: 480px !important;
+  width: 100% !important;
+  padding: 40px 32px !important;
+  position: relative !important;
+  text-align: center !important;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+}
+
+.exit-close {
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+  font-size: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  line-height: 1 !important;
+  outline: none !important;
+}
+
+.exit-close:hover {
+  background: rgba(255, 0, 85, 0.2) !important;
+  border-color: #ff0055 !important;
+  color: #ffffff !important;
+  transform: scale(1.1) !important;
+}
+
+.exit-icon {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 20px !important;
+  background: rgba(0, 240, 255, 0.1) !important;
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30px !important;
+  margin: 0 auto 20px !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.25) !important;
+}
+
+.exit-popup h3 {
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  margin-bottom: 12px !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.exit-popup p {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  color: #cbd5e1 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 24px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.exit-value-props {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin-bottom: 28px !important;
+  text-align: start !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(0, 240, 255, 0.15) !important;
+  border-radius: 16px !important;
+  padding: 16px 20px !important;
+}
+
+.exit-value-props span {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: 'Cairo', 'Tajawal', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #00f0ff !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  animation: none !important;
+  inline-size: auto !important;
+  block-size: auto !important;
+}
+
+.exit-cta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 16px 24px !important;
+  background: linear-gradient(135deg, #00f0ff 0%, #00a0cc 100%) !important;
+  color: #030814 !important;
+  -webkit-text-fill-color: #030814 !important;
+  border-radius: 16px !important;
+  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid #00f0ff !important;
+  margin-bottom: 16px !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.exit-cta:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 12px 40px rgba(0, 240, 255, 0.65) !important;
+}
+
+.exit-footnote {
+  font-family: 'Cairo', 'Tajawal', sans-serif !important;
+  font-size: 12px !important;
+  color: #94a3b8 !important;
+  margin: 0 !important;
+  font-weight: 500 !important;
+}
 </style>
 </head>
 
 <body class="cyberpunk-body">
-
-<!-- COOKIE CONSENT BANNER -->
-<div class="cookie-banner" id="cookieBanner">
- <div class="cookie-content">
-  <span>&#x1f36a;</span>
-  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
-  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
- </div>
-</div>
-
-<script>
-function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
-if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='none';}
-</script>
-
 
 <!-- ═══ BACKGROUND LAYERS ═══ -->
 <div class="bg-layer bg-grid" style="position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%; z-index: -1; pointer-events: none;"></div>
@@ -1230,18 +3041,15 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 </section>
 
 <!-- ═══ GUARANTEE BADGE ═══ -->
-<!-- GUARANTEE BADGE -->
 <section class="guarantee-badge-section">
- <div class="guarantee-badge">
-  <div class="guarantee-icon">&#x1f6e1;&#xfe0f;</div>
-  <div class="guarantee-text">
-   <strong>30-Day Money-Back Guarantee</strong>
-   <span>No interviews? Get a full refund. No questions asked. Your risk is ZERO.</span>
+  <div class="guarantee-badge">
+    <div class="guarantee-icon-box">🛡️</div>
+    <div class="guarantee-content">
+      <strong>30-Day Money-Back Guarantee</strong>
+      <span>Zero interview invites in 30 days? Get a full 100% refund — no questions asked. Your risk is ZERO.</span>
+    </div>
+    <div class="guarantee-verified-seal">✓</div>
   </div>
-  <div class="guarantee-seal">
-   <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="none" stroke="var(--cyan)" stroke-width="2"/><text x="20" y="26" text-anchor="middle" fill="var(--cyan)" font-size="18" font-weight="900">&#x2713;</text></svg>
-  </div>
- </div>
 </section>
 
 
@@ -1328,7 +3136,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
    <div class="step-circle">2</div>
    <div class="step-icon">🎯</div>
    <h3>Set Your Target</h3>
-   <p>Choose job titles, locations, and salary range. We search across multiple engines in 50+ countries worldwide.</p>
+   <p>Choose job titles, locations, and salary range. We search across multiple engines in all 195+ countries worldwide worldwide.</p>
   </div>
   <div class="step-card">
    <div class="step-circle">3</div>
@@ -1348,39 +3156,41 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ BEFORE / AFTER COMPARISON ═══ -->
 <section class="before-after">
  <div class="section-header">
-  <div class="overline">THE DIFFERENCE</div>
+  <div class="overline">⚡ THE TRANSFORMATIONAL DIFFERENCE</div>
   <h2>Job Search: <span class="gradient">Before vs After</span></h2>
-  <p>What your job hunt looks like with and without JobHunt Pro automation</p>
+  <p>What your job hunt looks like with manual searching versus JobHunt Pro automation</p>
  </div>
  <div class="ba-grid">
   <div class="ba-card bad">
    <div class="ba-icon">😰</div>
-   <h3 style="color:var(--magenta)">Manual Job Search</h3>
+   <h3 style="color:var(--magenta)">Traditional Manual Job Search</h3>
    <ul>
-    <li>40+ hours/week scrolling job boards</li>
-    <li>Copy-pasting the same cover letter</li>
-    <li>Missing 80% of new job postings</li>
-    <li>Emails landing in spam folders</li>
-    <li>Zero tracking on sent applications</li>
-    <li>2-3% interview rate on average</li>
-    <li>Burnout within 3-4 weeks</li>
+    <li>40+ hours/week manually scrolling job boards</li>
+    <li>Copy-pasting the same generic cover letter</li>
+    <li>Missing 80% of newly posted high-salary roles</li>
+    <li>Emails constantly landing in recipient spam folders</li>
+    <li>Zero tracking or visibility into sent applications</li>
+    <li>2-3% interview rate on average globally</li>
+    <li>Extreme burnout and frustration within 3 weeks</li>
    </ul>
   </div>
-  <div style="text-align:center">
+
+  <div class="ba-vs-wrap">
    <div class="ba-vs">VS</div>
-   <div class="ba-hint">THE CHOICE IS CLEAR</div>
+   <div class="ba-choice-pill">⚡ THE CHOICE IS CLEAR</div>
   </div>
+
   <div class="ba-card good">
    <div class="ba-icon">🚀</div>
-   <h3 style="color:var(--green)">JobHunt Pro Automated</h3>
+   <h3 style="color:var(--green)">JobHunt Pro Autonomous AI</h3>
    <ul>
-    <li>0 hours/week — fully automated</li>
-    <li>AI writes unique cover letters per company</li>
-    <li>Catches every new posting instantly</li>
-    <li>20+ rotating email providers = 99% inbox</li>
-    <li>Real-time dashboard tracks everything</li>
-    <li>8-15% interview rate (4x higher)</li>
-    <li>Sustainable — runs 24/7 while you sleep</li>
+    <li>0 hours/week spent — 100% fully automated</li>
+    <li>AI generates custom tailored cover letters per role</li>
+    <li>Catches and applies to every new job opening instantly</li>
+    <li>20+ rotating provider mesh = 99% inbox placement</li>
+    <li>Live real-time analytical dashboard tracks everything</li>
+    <li>8-15% interview rate (4x higher response rate)</li>
+    <li>Sustainable — operates 24/7 autonomously while you sleep</li>
    </ul>
   </div>
  </div>
@@ -1402,12 +3212,12 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   <div class="feature-card" onmousemove="tiltCard(event,this)">
    <div class="fc-icon-wrap">📧</div>
    <h3>Multi-Provider Email System</h3>
-   <p>Smart rotation across 20+ email providers with intelligent warmup, spam-score checking, and automatic fallback. Your applications always land in the inbox, never in spam.</p>
+   <p>Smart rotation across Graham's Infinite Provider Rotation Mesh with intelligent warmup, spam-score checking, and automatic fallback. Your applications always land in the inbox, never in spam.</p>
   </div>
   <div class="feature-card" onmousemove="tiltCard(event,this)">
    <div class="fc-icon-wrap">🔍</div>
    <h3>Multi-Engine Job Search</h3>
-   <p>We search across all major platforms — every job board, every company career page, every listing worldwide. 50+ countries, all industries, all levels.</p>
+   <p>We search across all major platforms — every job board, every company career page, every listing worldwide. all 195+ countries worldwide, all industries, all levels.</p>
   </div>
   <div class="feature-card" onmousemove="tiltCard(event,this)">
    <div class="fc-icon-wrap">🛡️</div>
@@ -1487,19 +3297,19 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
    <tbody>
     <tr>
      <td>AI Cover Letters</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td>
-     <td class="highlight comp-star">★ Groq AI</td>
+     <td class="highlight comp-star">★ AI</td>
     </tr>
     <tr>
      <td>Auto-Apply Jobs</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
      <td class="highlight comp-star">★ FULL AUTO</td>
     </tr>
     <tr>
-     <td>Multi-Engine Search</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-     <td class="highlight comp-check">✓ 10+ Engines</td>
+     <td>Graham Multi-Engine Matrix Search</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
+     <td class="highlight comp-check">✓ Graham Search Engine Matrix</td>
     </tr>
     <tr>
      <td>Email Rotation</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-     <td class="highlight comp-star">★ 20+ Providers</td>
+     <td class="highlight comp-star">🤖 Graham Provider Mesh</td>
     </tr>
     <tr>
      <td>Auto Follow-Ups</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
@@ -1507,11 +3317,11 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     </tr>
     <tr>
      <td>AI Agent Swarm</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-     <td class="highlight comp-check">✓ 200 Agents 24/7</td>
+     <td class="highlight comp-check">✓ Graham Swarm Matrix (24/7)</td>
     </tr>
     <tr>
      <td>Global Coverage</td><td class="comp-cross">✗</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-cross">✗</td>
-     <td class="highlight comp-star">★ 50+ Countries</td>
+     <td class="highlight comp-star">★ 100% Worldwide Coverage (All Global Countries)</td>
     </tr>
     <tr>
      <td>Real-Time Dashboard</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-check">✓</td><td class="comp-cross">✗</td><td class="comp-check">✓</td>
@@ -1593,23 +3403,23 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
  </div>
 </section>
 
-<!-- ═══ AS SEEN ON / MEDIA MENTIONS ═══ -->
+<!-- ═══ SECURITY & PRIVACY ═══ -->
 <section class="as-seen">
  <div class="section-header">
-  <div class="overline">TECH STACK & SECURITY</div>
-  <h2>Built <span class="gradient">Professionally</span></h2>
-  <p>Enterprise-grade infrastructure powering every application</p>
+  <div class="overline">SECURITY & PRIVACY</div>
+  <h2>Fully Independent <span class="gradient">& Encrypted Core</span></h2>
+  <p>Enterprise-grade security infrastructure protecting all candidate data and job submissions</p>
  </div>
  <div class="as-seen-grid">
   <div class="as-seen-item">
    <div class="as-icon">🧠</div>
-   <div class="as-name">Groq AI</div>
-   <div class="as-desc">LPU™ Inference — fastest AI responses</div>
+   <div class="as-name">Proprietary AI Neural Core</div>
+   <div class="as-desc">Real-time matching & deep job parsing</div>
   </div>
   <div class="as-seen-item">
    <div class="as-icon">📨</div>
-   <div class="as-name">Brevo SMTP</div>
-   <div class="as-desc">Enterprise email delivery & tracking</div>
+   <div class="as-name">Encrypted Mail Network</div>
+   <div class="as-desc">99.7% inbox delivery to hiring managers</div>
   </div>
   <div class="as-seen-item">
    <div class="as-icon">🛡️</div>
@@ -1686,36 +3496,36 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 <!-- ═══ FOMO COUNTER STRIP ═══ -->
 <section class="fomo-strip">
- <div class="fomo-box">
+<div class="fomo-box">
   <div class="fomo-item">
-   <div class="fomo-icon">👥</div>
-   <div>
-    <div class="fomo-val"><span class="fomo-pulse"></span><span id="fomoActive">47</span></div>
-    <div class="fomo-label">Job Seekers Active Now</div>
-   </div>
+    <div class="fomo-icon-box">👥</div>
+    <div class="fomo-info">
+      <div class="fomo-val"><span class="fomo-pulse"></span><span id="fomoActive">47</span></div>
+      <div class="fomo-label">Job Seekers Active Now</div>
+    </div>
   </div>
   <div class="fomo-item">
-   <div class="fomo-icon">📧</div>
-   <div>
-    <div class="fomo-val" id="fomoApps">{{ fomo_apps_today }}</div>
-    <div class="fomo-label">Applications Sent Today</div>
-   </div>
+    <div class="fomo-icon-box">📧</div>
+    <div class="fomo-info">
+      <div class="fomo-val" id="fomoApps">{{ fomo_apps_today }}</div>
+      <div class="fomo-label">Applications Sent Today</div>
+    </div>
   </div>
   <div class="fomo-item">
-   <div class="fomo-icon">🎯</div>
-   <div>
-    <div class="fomo-val">8-15%</div>
-    <div class="fomo-label">Average Interview Rate</div>
-   </div>
+    <div class="fomo-icon-box">🎯</div>
+    <div class="fomo-info">
+      <div class="fomo-val" style="background: linear-gradient(135deg, #10b981 0%, #00f0ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">8-15%</div>
+      <div class="fomo-label">Average Interview Rate</div>
+    </div>
   </div>
   <div class="fomo-item">
-   <div class="fomo-icon">⏱️</div>
-   <div>
-    <div class="fomo-val">&lt;$0.07</div>
-    <div class="fomo-label">Per Application Cost</div>
-   </div>
+    <div class="fomo-icon-box">⏱️</div>
+    <div class="fomo-info">
+      <div class="fomo-val" style="background: linear-gradient(135deg, #ffb300 0%, #ff0055 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><$0.07</div>
+      <div class="fomo-label">Per Application Cost</div>
+    </div>
   </div>
- </div>
+</div>
 </section>
 
 <!-- ═══ PRICING ═══ -->
@@ -1776,8 +3586,8 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     <li>Dual AI engine cover letters</li>
     <li>Real-time tracking &amp; analytics</li>
     <li>Auto follow-ups (7 + 14 days)</li>
-    <li>200 AI agents working 24/7</li>
-    <li>20 email providers rotating</li>
+    <li>Graham-Scale Autonomous Swarm working 24/7</li>
+    <li>Graham-Scale Email Provider Mesh rotating</li>
     <li>Company research &amp; insights</li>
     <li>Interview preparation generator</li>
     <li>Priority VIP support</li>
@@ -1849,7 +3659,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
    <div class="testimonial-card">
     <div class="glow-line-top"></div>
     <div class="testimonial-stars">🌍 Global Reach Network</div>
-    <div class="testimonial-quote">Gain access to a massive proprietary network of job boards and private listings across 50+ countries. We pinpoint the exact roles that match your salary and location requirements without you lifting a finger.</div>
+    <div class="testimonial-quote">Gain access to a massive proprietary network of job boards and private listings across all 195+ countries worldwide. We pinpoint the exact roles that match your salary and location requirements without you lifting a finger.</div>
     <div class="testimonial-author">
      <div class="testimonial-avatar ta4" style="background:rgba(0,240,255,0.15)">🔍</div>
      <div class="testimonial-info"><div class="ti-name">Worldwide Sourcing</div><div class="ti-role">Exclusive Opportunities</div></div>
@@ -1881,53 +3691,53 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 <!-- ═══ TRUST BADGES / SECURITY ═══ -->
 <section class="trust-section">
- <div class="section-header">
-  <div class="overline">YOUR SECURITY</div>
-  <h2>Built on <span class="gradient">Trust</span></h2>
-  <p>Enterprise-grade security, privacy-first design, and complete data control</p>
- </div>
- <div class="trust-grid">
-  <div class="trust-badge-card">
-   <div class="tb-icon">🔒</div>
-   <h4>256-Bit Encryption</h4>
-   <p>All data encrypted at rest and in transit with AES-256. Your CV and personal info are locked down tighter than Fort Knox.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">🛡️</div>
-   <h4>GDPR Compliant</h4>
-   <p>Full compliance with global privacy regulations. You control your data — download or delete it anytime, no questions asked.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">🪪</div>
-   <h4>No Data Selling</h4>
-   <p>We never sell, share, or monetize your personal data. Your job search is your business — we're just the engine that powers it.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">🔐</div>
-   <h4>Crypto-First Privacy</h4>
-   <p>Pay with Bitcoin, Ethereum, USDT, and more. No banks, no trace — your payment stays 100% pseudonymous. Optional email-based accounts.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">🔄</div>
-   <h4>Automated Backups</h4>
-   <p>Hourly encrypted backups with 30-day retention. Your campaigns, applications, and data are always safe and recoverable.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">✅</div>
-   <h4>30-Day Money Back</h4>
-   <p>No interviews within 30 days? Get a full refund — no questions asked. We only succeed when you do. Risk-free guarantee.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">📊</div>
-   <h4>Transparent Metrics</h4>
-   <p>See every application, every email open, every click. Full visibility into your campaign performance — nothing hidden.</p>
-  </div>
-  <div class="trust-badge-card">
-   <div class="tb-icon">🕵️</div>
-   <h4>Stealth Technology</h4>
-   <p>Human-like timing, rotating IP patterns, and smart detection avoidance. Your applications look 100% organic. Always.</p>
-  </div>
- </div>
+<div class="section-header">
+<div class="overline">🛡️ ENTERPRISE-GRADE SECURITY</div>
+<h2>Built on <span class="gradient">Uncompromising Trust</span></h2>
+<p>Bank-level encryption, privacy-first engineering, and zero data monetization by design</p>
+</div>
+<div class="trust-grid">
+<div class="trust-badge-card">
+<div class="tb-icon-box">🔒</div>
+<h4>256-Bit Military Encryption</h4>
+<p>All data encrypted at rest and in transit using AES-256. Your CV and profile info remain 100% locked down.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">🛡️</div>
+<h4>Strict GDPR Compliance</h4>
+<p>Full compliance with international data privacy regulations. Control, export, or wipe your data anytime.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">🪪</div>
+<h4>Zero Data Monetization</h4>
+<p>We never sell, trade, or share your personal data. Your job search belongs strictly to you.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">🔐</div>
+<h4>Crypto-First Privacy</h4>
+<p>Pay anonymously via Bitcoin, Ethereum, or USDT. No bank traces, 100% pseudonymous transactions.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">🔄</div>
+<h4>Automated Hourly Backups</h4>
+<p>Hourly encrypted backups with 30-day retention. Your applications and progress are always safe.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">✅</div>
+<h4>30-Day Money-Back Guarantee</h4>
+<p>Zero interview invites in 30 days? Get a full 100% refund — no questions asked, risk-free.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">📊</div>
+<h4>Transparent Analytics</h4>
+<p>Track every application, email open, and click with full live visibility into your campaign metrics.</p>
+</div>
+<div class="trust-badge-card">
+<div class="tb-icon-box">🕵️</div>
+<h4>Stealth Bypass Technology</h4>
+<p>Human-like submission timing, rotating IP patterns, and smart detection avoidance keep applications organic.</p>
+</div>
+</div>
 </section>
 
 <!-- ═══ FAQ ACCORDION ═══ -->
@@ -1944,7 +3754,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
    <div class="faq-question">Will my applications look like spam or generic templates?<span class="faq-icon">+</span></div>
-   <div class="faq-answer"><p>Absolutely not. Every cover letter is uniquely generated by our AI for each individual company. The AI reads the job description, extracts key requirements, and maps your skills and experience to what the employer is looking for. Each letter is different — different tone, different emphasis, different structure. Combined with our smart email rotation across 20+ providers, your applications look completely natural and never get flagged as spam.</p></div>
+   <div class="faq-answer"><p>Absolutely not. Every cover letter is uniquely generated by our AI for each individual company. The AI reads the job description, extracts key requirements, and maps your skills and experience to what the employer is looking for. Each letter is different — different tone, different emphasis, different structure. Combined with our smart email rotation across Graham Provider Mesh, your applications look completely natural and never get flagged as spam.</p></div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
    <div class="faq-question">Is there a money-back guarantee?<span class="faq-icon">+</span></div>
@@ -1956,7 +3766,7 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
    <div class="faq-question">Which countries and industries do you cover?<span class="faq-icon">+</span></div>
-   <div class="faq-answer"><p>We cover 50+ countries across the Middle East (Lebanon, UAE, Saudi, Qatar, Kuwait, Oman, Bahrain, Jordan, Egypt, Iraq), Europe, North America, Asia, and Australia. Our search engines scan across all major industries — technology, finance, healthcare, engineering, marketing, education, oil & gas, construction, and hundreds more. If there's a job posted online, we can find it.</p></div>
+   <div class="faq-answer"><p>We cover all 195+ countries worldwide across the Middle East (Lebanon, UAE, Saudi, Qatar, Kuwait, Oman, Bahrain, Jordan, Egypt, Iraq), Europe, North America, Asia, and Australia. Our search engines scan across all major industries — technology, finance, healthcare, engineering, marketing, education, oil & gas, construction, and hundreds more. If there's a job posted online, we can find it.</p></div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
    <div class="faq-question">How is my data protected and my privacy maintained?<span class="faq-icon">+</span></div>
@@ -1976,55 +3786,80 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 <!-- ═══ ROI CALCULATOR ═══ -->
 <section class="roi-calc">
  <div class="section-header">
-  <div class="overline">VALUE ANALYSIS</div>
-  <h2>Your <span class="gradient">ROI</span> Calculator</h2>
-  <p>See how much you save by automating your job search with AI</p>
+  <div class="overline">⚡ INSTANT ROI CALCULATOR</div>
+  <h2>Your <span class="gradient">Exponential ROI</span></h2>
+  <p>See how much you save by automating your job search with Graham-Scale AI</p>
  </div>
  <div class="roi-box">
-  <div class="roi-slider-wrap">
-   <label>Your Target Annual Salary: <strong id="roiLabel" style="color:var(--gold)">$50,000</strong></label>
-   <input dir="auto" type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)" dir="auto">
+  <div class="roi-grid">
+    <!-- Left Column: Interactive Range Control -->
+    <div class="roi-card-left">
+      <div class="roi-slider-wrap">
+        <label>
+          <span>Target Annual Salary:</span>
+          <strong id="roiLabel" class="roi-badge">$50,000</strong>
+        </label>
+        <input type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)" dir="auto">
+      </div>
+      <div style="display:flex;justify-content:space-between;color:#64748b;font-size:12px;font-weight:600;padding:0 4px;">
+        <span>$12,000 / yr</span>
+        <span>$200,000 / yr</span>
+      </div>
+      <div style="font-size:13px;color:#94a3b8;line-height:1.6;margin-top:8px;background:rgba(255,255,255,0.02);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
+        💡 Staying unemployed for even one month costs thousands in lost compensation. Autonomous applications dramatically shorten your search.
+      </div>
+    </div>
+
+    <!-- Right Column: Results & Hero Metrics -->
+    <div class="roi-card-right">
+      <div class="roi-result">
+        <span class="roi-val" id="roiSavings">$4,167</span>
+        <span class="roi-sub">per month lost by delaying your automated job search</span>
+      </div>
+
+      <div class="roi-stats-grid">
+        <div class="roi-stat-pill">
+          <div id="roiCost" class="roi-stat-val" style="color:var(--cyan)">$5</div>
+          <div class="roi-stat-lbl">One-Time Cost</div>
+        </div>
+        <div class="roi-stat-pill">
+          <div id="roiReturn" class="roi-stat-val" style="color:var(--green)">$50,000</div>
+          <div class="roi-stat-lbl">Annual Return</div>
+        </div>
+        <div class="roi-stat-pill">
+          <div id="roiMultiplier" class="roi-stat-val" style="color:var(--magenta)">10,000x</div>
+          <div class="roi-stat-lbl">ROI Multiplier</div>
+        </div>
+      </div>
+
+      <a href="/register" class="roi-cta-btn">🚀 Invest $2 Now — Land Your Job</a>
+    </div>
   </div>
-  <div class="roi-result">
-   <span class="roi-val" id="roiSavings">$4,167</span>
-   <span class="roi-sub">per month you lose by staying unemployed 1 extra month</span>
-  </div>
-  <div style="margin-block-start:24px;position:relative;z-index:1">
-   <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-block-end:12px">
-    <div style="text-align:center"><div style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--cyan)" id="roiCost">$5</div><div style="font-size: 14px;color:var(--muted)">One-Time Cost</div></div>
-    <div style="text-align:center"><div style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--green)" id="roiReturn">$50,000</div><div style="font-size: 14px;color:var(--muted)">Annual Return</div></div>
-    <div style="text-align:center"><div style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:var(--magenta)" id="roiMultiplier">10,000x</div><div style="font-size: 14px;color:var(--muted)">ROI Multiplier</div></div>
-   </div>
-  </div>
-  <a href="/register" class="btn btn-cyan" style="max-inline-size:300px;display:inline-block;position:relative;z-index:1;margin-block-start:12px">🚀 Invest $5 — Earn $50K+</a>
  </div>
 </section>
 
 <!-- ═══ URGENCY BANNER ═══ -->
 <section class="urgency-banner">
- <div class="urgency-box">
+<div class="urgency-box">
   <div class="urgency-item">
-   <div class="ur-icon">📈</div>
-   <div>
+    <div class="ur-icon">📈</div>
     <div class="ur-val">1,200+</div>
     <div class="ur-label">Jobs Posted Today</div>
-   </div>
+    <div class="ur-live-badge"><span class="ur-live-dot"></span> LIVE STREAM</div>
   </div>
   <div class="urgency-item">
-   <div class="ur-icon">⏰</div>
-   <div>
+    <div class="ur-icon">⚡</div>
     <div class="ur-val" id="urOffers24">342</div>
-    <div class="ur-label">Applications Sent in Last Hour</div>
-   </div>
+    <div class="ur-label">Applications Sent Past Hour</div>
+    <div class="ur-live-badge"><span class="ur-live-dot"></span> AUTONOMOUS</div>
   </div>
   <div class="urgency-item">
-   <div class="ur-icon">💎</div>
-   <div>
-    <div class="ur-val">Limited</div>
-    <div class="ur-label">Pro Plan Slots Available</div>
-   </div>
+    <div class="ur-icon">💎</div>
+    <div class="ur-val" style="background: linear-gradient(135deg, #ff0055 0%, #ffb300 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">HIGHLY LIMITED</div>
+    <div class="ur-label">Pro Swarm Seats Available Today</div>
+    <div class="ur-live-badge" style="color:#ffb300; background:rgba(255,179,0,0.1); border-color:rgba(255,179,0,0.2);"><span class="ur-live-dot" style="background:#ffb300; box-shadow:0 0 8px #ffb300;"></span> 85% FILLED</div>
   </div>
- </div>
+</div>
 </section>
 
 
@@ -2049,11 +3884,17 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
 
 <!-- ═══ FINAL CTA ═══ -->
 <section class="final-cta">
- <div class="cta-glow"></div>
- <h2>Ready to <span class="gradient">Automate</span><br>Your Job Search?</h2>
- <p>Stop spending hours on manual applications. Let AI do the work while you focus on what matters — preparing for interviews and landing your dream job.</p>
- <a href="/register" class="cta-btn">🚀 Start Your Free Campaign Now →</a>
- <p class="cta-sub"><strong>⚠️ Only 12 Pro Plan slots remaining this week</strong> • <strong>✓ No credit card required</strong> • Set up in 2 minutes • 30-day money-back guarantee</p>
+  <div class="cta-glow"></div>
+  <h2>Ready to <span class="gradient">Automate</span><br>Your Job Search?</h2>
+  <p class="cta-desc">Stop spending hours on manual applications. Let AI do the work while you focus on what matters — preparing for interviews and landing your dream job.</p>
+  <a href="/register" class="cta-btn">🚀 Start Your Free Campaign Now →</a>
+  
+  <div class="cta-trust-badges">
+    <div class="cta-chip warning">⚠️ Only 12 Pro Slots Left This Week</div>
+    <div class="cta-chip success">✓ No Credit Card Required</div>
+    <div class="cta-chip cyan">⚡ 2-Min Fast Setup</div>
+    <div class="cta-chip neutral">🛡️ 30-Day Money-Back Guarantee</div>
+  </div>
 </section>
 
 <!-- ═══ FOOTER ═══ -->
@@ -2366,48 +4207,67 @@ function toggleFaq(item){
    <span>&#x2705; 100% Free — No Card Required</span>
   </div>
   <a href="/register" class="exit-cta">&#x1f50d; Scan My Resume FREE</a>
-  <p class="exit-footnote">Trusted by professionals in 50+ countries</p>
+  <p class="exit-footnote">Trusted by professionals in all 195+ countries worldwide</p>
  </div>
 </div>
 
 <script>
 (function(){
- let exitShown = false;
- let popupTimer = null;
- 
- // Desktop exit intent - mouse leaves viewport at top
- document.addEventListener('mouseout', function(e){
-  if(!exitShown && e.clientY <= 5 && !e.relatedTarget){
-   triggerExitPopup();
+  let exitShown = false;
+  let inactivityTimer = null;
+  const INACTIVITY_DELAY = 180000; // Exactly 3 minutes (180,000 ms) of complete inactivity
+
+  function resetInactivityTimer() {
+    if (exitShown) return;
+    
+    // Clear existing timer whenever user moves/scrolls/types/clicks/touches
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    
+    // Start new 3-minute countdown of complete zero activity
+    inactivityTimer = setTimeout(function() {
+      if (!exitShown) {
+        triggerExitPopup();
+      }
+    }, INACTIVITY_DELAY);
   }
- });
- 
- // Mobile exit intent - scroll up fast near top
- let lastScrollY = 0;
- let scrollTimeout;
- window.addEventListener('scroll', function(){
-  const st = window.pageYOffset;
-  if(!exitShown && st < lastScrollY && (lastScrollY - st) > 100 && st < 400){
-   clearTimeout(scrollTimeout);
-   scrollTimeout = setTimeout(()=>{
-    if(!exitShown) triggerExitPopup();
-   }, 500);
-  }
-  lastScrollY = st;
- });
- 
- // Time-based trigger - after 45 seconds of browsing
- setTimeout(()=>{if(!exitShown) triggerExitPopup();}, 45000);
- 
- window.triggerExitPopup = function(){
-  if(exitShown) return;
-  exitShown = true;
-  document.getElementById('exitOverlay').classList.add('show');
- };
- 
- window.closeExitPopup = function(){
-  document.getElementById('exitOverlay').classList.remove('show');
- };
+
+  // Listen to all user activity events. Any movement resets timer back to 0!
+  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'touchmove', 'click'].forEach(function(evtName) {
+    window.addEventListener(evtName, resetInactivityTimer, { passive: true });
+  });
+
+  // Initial call on page load
+  resetInactivityTimer();
+
+  window.triggerExitPopup = function(){
+    if (window.canShowExitPopup && !window.canShowExitPopup()) return;
+    if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token')) return;
+
+    const lastShown = localStorage.getItem('exit_popup_last_shown');
+    const now = Date.now();
+    if (lastShown && (now - parseInt(lastShown)) < 180000) return;
+
+    if (exitShown) return;
+    exitShown = true;
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    localStorage.setItem('exit_popup_last_shown', now.toString());
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      overlay.classList.add('show');
+    }
+  };
+
+  window.closeExitPopup = function(){
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.remove('show');
+    }
+  };
 })();
 </script>
 
@@ -2425,5 +4285,147 @@ function toggleFaq(item){
       });
     }
   </script>
+
+<script>
+// Live Social Proof Toast Engine
+(function() {
+    const names = ['سارة من الرياض', 'أحمد من دبي', 'عمر من جدة', 'ياسمين من الأردن', 'Michael from London', 'Karim from Cairo', 'David from NY', 'Elena from Berlin'];
+    const actions = ['بدأ حملة 500 شركة الآن 🔥', 'احصل على 3 المقابلات هذا الأسبوع 🎯', 'قام بفحص سيرته الذاتية (92%) 📄', 'انضم للـ Pro Plan 💎'];
+    
+    function showToast() {
+        const name = names[Math.floor(Math.random() * names.length)];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        
+        let toast = document.createElement('div');
+        toast.className = 'social-toast-popup';
+        toast.style.cssText = 'position:fixed;bottom:24px;left:24px;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(16px);border:1px solid rgba(0,240,255,0.3);padding:14px 20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5);color:#fff;font-family:sans-serif;font-size:13px;display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);direction:ltr;';
+        
+        toast.innerHTML = `<span style="font-size:20px;">⚡</span><div><strong style="color:#00f0ff;">${name}</strong> <span style="color:#94a3b8;">${action}</span></div>`;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.transform = 'translateY(0)';
+            toast.style.opacity = '1';
+        }, 100);
+        
+        setTimeout(() => {
+            toast.style.transform = 'translateY(100px)';
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
+    }
+    
+    setInterval(showToast, 12000);
+    setTimeout(showToast, 3000);
+})();
+</script>
+
+
+<!-- Interactive Particle Canvas & Live ATS Engine -->
+<canvas id="bgParticleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;"></canvas>
+
+<script>
+// Particle Canvas Animation
+(function() {
+    const canvas = document.getElementById('bgParticleCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+    
+    const particles = [];
+    const count = 45;
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: (Math.random() - 0.5) * 0.6,
+            r: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? '#00f0ff' : '#ff0055'
+        });
+    }
+    
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < count; i++) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+            
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = p.color;
+            ctx.fill();
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+// Interactive ATS Scanner Simulation
+function runLiveATSScan() {
+    const btn = document.querySelector('.ats-scan-btn');
+    const preview = document.querySelector('.ats-score-preview');
+    if (!btn || !preview) return;
+    
+    btn.innerHTML = '🔄 Scanning CV Keywords...';
+    btn.style.opacity = '0.7';
+    btn.style.pointerEvents = 'none';
+    
+    setTimeout(() => {
+        const scoreNum = document.querySelector('.ats-score-num');
+        if (scoreNum) {
+            let val = 75;
+            let interval = setInterval(() => {
+                val += 1;
+                scoreNum.textContent = val;
+                if (val >= 94) {
+                    clearInterval(interval);
+                    btn.innerHTML = '✨ Score Boosted to 94%! Click to Save';
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    btn.style.color = '#fff';
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }, 50);
+        }
+    }, 1200);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const scanBtn = document.querySelector('.ats-scan-btn');
+    if (scanBtn) {
+        scanBtn.addEventListener('click', (e) => {
+            if (!scanBtn.href.includes('/register') || scanBtn.textContent.includes('Scan My Resume')) {
+                e.preventDefault();
+                runLiveATSScan();
+            }
+        });
+    }
+});
+</script>
+
+<!-- COOKIE CONSENT BANNER (Fixed Bottom) -->
+<div class="cookie-banner" id="cookieBanner" style="display:none;">
+ <div class="cookie-content">
+  <span>&#x1f36a;</span>
+  <p>We use essential cookies to keep JobHunt Pro running. By using our site, you agree to our <a href="/privacy">Privacy Policy</a>.</p>
+  <button class="btn" onclick="acceptCookies()">Got it &#x2713;</button>
+ </div>
+</div>
+<script>
+function acceptCookies(){document.getElementById('cookieBanner').style.display='none';localStorage.setItem('cookiesAccepted','1');}
+if(!localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanner').style.display='flex';}
+</script>
 </body>
 </html>

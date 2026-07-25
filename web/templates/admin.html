@@ -105,7 +105,52 @@
 <h1 class="sr-only">لوحة الإدارة</h1>
 
  {% if request.query_params.get('success') %}
- <div class="alert success">✅ {{ request.query_params.get('success') }}</div>
+ <div class="alert success" style="display:flex; flex-direction:column; gap:10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:16px;">
+  <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px; color:#10b981;">
+    <span>✅</span> <span>{{ request.query_params.get('success') }}</span>
+  </div>
+  {% if 'codes:' in request.query_params.get('success') %}
+    <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:8px;">
+      <!-- JS dynamic chips will render here -->
+    </div>
+    <script dir="auto">
+      document.addEventListener('DOMContentLoaded', () => {
+        const rawSuccess = "{{ request.query_params.get('success') }}";
+        const parts = rawSuccess.split('codes:');
+        if (parts.length > 1) {
+          const codes = parts[1].split(',').map(c => c.trim()).filter(Boolean);
+          const container = document.getElementById('generatedCodesContainer');
+          if (container && codes.length > 0) {
+            container.innerHTML = codes.map(code => `
+              <div style="background:rgba(0,0,0,0.4); border:1px solid #10b981; border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:10px;">
+                <span class="mono" style="color:#34d399; font-weight:bold; letter-spacing:1px; font-size:15px;">${code}</span>
+                <button class="copy-btn" onclick="copyCodeText('${code}', this)" title="نسخ الكود" style="background:#059669; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; cursor:pointer;">📋 نسخ</button>
+                <button class="copy-btn" onclick="copyRedeemLink('${code}', this)" title="نسخ رابط الشحن المباشر" style="background:#0284c7; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px; cursor:pointer;">🔗 رابط الشحن</button>
+              </div>
+            `).join('');
+          }
+        }
+      });
+      function copyCodeText(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+          const orig = btn.innerText;
+          btn.innerText = '✨ تم النسخ!';
+          btn.style.background = '#22c55e';
+          setTimeout(() => { btn.innerText = orig; btn.style.background = '#059669'; }, 2000);
+        });
+      }
+      function copyRedeemLink(code, btn) {
+        const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
+        navigator.clipboard.writeText(link).then(() => {
+          const orig = btn.innerText;
+          btn.innerText = '✨ تم نسخ الرابط!';
+          btn.style.background = '#38bdf8';
+          setTimeout(() => { btn.innerText = orig; btn.style.background = '#0284c7'; }, 2000);
+        });
+      }
+    </script>
+  {% endif %}
+ </div>
  {% endif %}
  {% if request.query_params.get('error') %}
  <div class="alert error">❌ {{ request.query_params.get('error') }}</div>
@@ -155,20 +200,34 @@
 <button class="btn btn-green" type="submit">إضافة رصيد</button>
 </form>
 </div>
-<div class="action-card">
-<h3>🎟️ إنشاء أكواد شحن</h3>
-<p>تظهر الأكواد في الجدول أدناه — انقر للنسخ والمشاركة مع المستخدمين</p>
+<div class="action-card" style="box-shadow:0 0 20px rgba(167,139,250,0.15); border-color:#8b5cf6;">
+<h3>🎟️ مولّد الأكواد المتقدّم</h3>
+<p>قم بإنشاء أكواد بقيم سريعة مع روابط شحن مباشرة ومشاركة فورية</p>
+<div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+  <button type="button" onclick="setPresetValue(5)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$5</button>
+  <button type="button" onclick="setPresetValue(10)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$10</button>
+  <button type="button" onclick="setPresetValue(25)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$25</button>
+  <button type="button" onclick="setPresetValue(50)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$50</button>
+  <button type="button" onclick="setPresetValue(100)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$100</button>
+  <button type="button" onclick="setPresetValue(500)" style="background:rgba(139,92,246,0.2); border:1px solid #8b5cf6; color:#c4b5fd; padding:3px 10px; border-radius:12px; font-size:12px; cursor:pointer;">$500</button>
+</div>
 <form dir="auto" action="/admin/generate-code" method="POST">
 <div class="form-row">
-<input dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number"/ dir="auto">
+<input id="codeValueInput" dir="auto" min="0.01" name="value" placeholder="القيمة $" required="" step="0.01" type="number"/ dir="auto">
 <input dir="auto" max="50" min="1" name="count" placeholder="العدد" type="number" value="1"/ dir="auto">
-<select dir="auto"  name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
-<option value="sale"> بيع (يُحسب كإيرادات)</option>
+<select dir="auto" name="code_type" style="padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;">
+<option value="sale">💳 بيع (يُحسب كإيرادات)</option>
 <option value="admin_free">🆓 مجاني للإدارة (بدون إيرادات)</option>
 </select>
 </div>
-<button class="btn btn-purple" type="submit">إنشاء أكواد</button>
+<button class="btn btn-purple" style="width:100%; margin-top:8px;" type="submit">✨ إنشاء وتوليد الأكواد</button>
 </form>
+<script dir="auto">
+function setPresetValue(val) {
+  const inp = document.getElementById('codeValueInput');
+  if (inp) inp.value = val;
+}
+</script>
 </div>
 <div class="action-card" style="border-color:#10b981;">
 <h3>🆓 رصيد مجاني للإدارة</h3>
@@ -182,7 +241,7 @@
 <button class="btn btn-green" style="background:#059669;" type="submit">🆓 إنشاء كود مجاني للإدارة</button>
 </form>
 <p style="color:#94a3b8;font-size:14px;margin-block-start:8px;">
-<i>{{ _('استخدم في /wallet ← استرداد الكود. لن يظهر هذا الرصيد في تقارير الأرباح/المبيعات.') }}</i>
+<i>استخدم في /wallet ← استرداد الكود. لن يظهر هذا الرصيد في تقارير الأرباح/المبيعات.</i>
 </p>
 </div>
 <div class="action-card">
@@ -198,7 +257,7 @@
 </div>
 <div class="action-card">
 <h3> إرسال رسالة يدوية <span class="badge badge-green" style="font-size:14px;">0.10$/رسالة</span></h3>
-<p>{{ _('اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo') }}</p>
+<p>اكتب أي عنوان بريد إلكتروني، موضوع، ومحتوى — للإرسال يدويًا عبر Brevo</p>
 <form dir="auto" action="/admin/send-manual-email" method="POST">
 <div class="form-row">
 <input dir="auto" name="to_email" placeholder="recipient@email.com" required="" type="email"/ dir="auto">
@@ -280,7 +339,8 @@
 <td class="mono" style="color:#a78bfa;">
  {{ r.code }}
  {% if not r.is_used %}
- <button class="copy-btn" onclick="copyCode('{{ r.code }}', this)"> نسخ</button>
+ <button class="copy-btn" onclick="copyCodeText('{{ r.code }}', this)"> 📋 نسخ</button>
+ <button class="copy-btn" onclick="copyRedeemLink('{{ r.code }}', this)" style="background:rgba(2,132,199,0.2); color:#38bdf8;"> 🔗 الرابط</button>
  {% endif %}
  </td>
 <td class="green">${{ "%.2f"|format(r.value_usd or 0) }}</td>

@@ -1,12 +1,2 @@
-## 2026-07-12T09:33:41Z
-
-You are a teamwork_preview_reviewer.
-Your working directory is: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_reviewer_m1_1
-Your task is to independently review the work done for Milestone 1: Cloudflare Pages Deployment.
-Verify:
-1. Static HTML export is configured correctly in `frontend/next.config.ts`.
-2. Cloudflare Pages Function Proxy script at `frontend/public/_worker.js` is correct and handles routing and WebSocket handshakes properly.
-3. CORS allow origin regex is correct in `web/app_v2.py`.
-4. Run npm run build in frontend/ to make sure static assets compile and get generated under frontend/out/ successfully.
-5. Run the existing test suite (pytest) to verify no regressions.
-Write a review report in your working directory.
+## 2026-07-22T12:43:49Z
+Perform code review of the Milestone 1 changes in `config.py`, `core/database.py`, `core/pg_sqlite_shim.py`, `backend/database.py`, and `core/async_db.py`. Verify that `POSTGRES_URL` auto-detection works cleanly, `$1/$2` -> `?` parameter conversion functions without syntax errors on SQLite fallback, dynamic runtime fallback switches to SQLite on PostgreSQL failure, WAL mode is safe on NFS, and no regressions exist. Working directory: `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_reviewer_m1_1`. Read `PROJECT.md`. Write your review report to `handoff.md` in your working directory and report back via send_message to parent.

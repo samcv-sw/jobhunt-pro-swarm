@@ -10,12 +10,68 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 logger = logging.getLogger(__name__)
 
-# Fetch Neon URL from .env, ensure it uses asyncpg driver
-NEON_URL = os.getenv("DATABASE_URL", "")
-if NEON_URL.startswith("postgresql://"):
-    NEON_URL = NEON_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
-elif NEON_URL.startswith("postgres://"):
-    NEON_URL = NEON_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+
+def format_neon_connection_string(url: str) -> str:
+    """Format PostgreSQL/Neon connection string with pooler hostname and required query parameters."""
+    if not url or "sqlite" in url:
+        return url
+
+    scheme_mapping = {
+        "postgresql+asyncpg": "postgresql",
+        "postgres": "postgresql",
+    }
+
+    try:
+        parsed = urlparse(url)
+        scheme = parsed.scheme
+        base_scheme = scheme_mapping.get(scheme, scheme)
+        if base_scheme != "postgresql" and base_scheme != "postgres":
+            return url
+
+        hostname = parsed.hostname
+        new_host = hostname
+        if hostname and "neon.tech" in hostname and "-pooler" not in hostname:
+            parts = hostname.split(".", 1)
+            new_host = f"{parts[0]}-pooler.{parts[1]}" if len(parts) == 2 else f"{hostname}-pooler"
+
+        netloc_parts = []
+        if parsed.username:
+            user_pass = parsed.username
+            if parsed.password is not None:
+                user_pass += f":{parsed.password}"
+            netloc_parts.append(f"{user_pass}@")
+        netloc_parts.append(new_host or "")
+        netloc_parts.append(":5432")
+        new_netloc = "".join(netloc_parts)
+
+        query_params = dict(parse_qsl(parsed.query))
+        query_params["sslmode"] = "require"
+        query_params["prepareThreshold"] = "0"
+        new_query = urlencode(query_params)
+
+        return urlunparse((
+            scheme,
+            new_netloc,
+            parsed.path,
+            parsed.params,
+            new_query,
+            parsed.fragment
+        ))
+    except Exception as e:
+        logger.error(f"Error formatting Neon connection string: {e}")
+        return url
+
+# Fetch PostgreSQL URL from env, supporting POSTGRES_URL, DATABASE_URL, and NEON_URL
+_raw_url = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL") or os.getenv("NEON_URL") or ""
+if _raw_url and "sqlite" not in _raw_url:
+    NEON_URL = format_neon_connection_string(_raw_url)
+    if NEON_URL.startswith("postgresql://"):
+        NEON_URL = NEON_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+    elif NEON_URL.startswith("postgres://"):
+        NEON_URL = NEON_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+else:
+    NEON_URL = ""
 
 # Fallback to local SQLite if no remote PostgreSQL is configured
 IS_SQLITE = not NEON_URL or "sqlite" in NEON_URL
@@ -61,14 +117,24 @@ else:
 from sqlite3 import Connection as SQLite3Connection
 from sqlalchemy import event
 
-# Enable Foreign Keys and WAL mode for SQLite
+# Enable Foreign Keys and WAL mode for SQLite (with PythonAnywhere / NFS guard)
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     if "sqlite" in type(dbapi_connection).__name__.lower() or isinstance(dbapi_connection, SQLite3Connection):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA synchronous=NORMAL")
+        is_pa_or_nfs = bool(
+            os.environ.get("PYTHONANYWHERE_SITE")
+            or os.environ.get("PYTHONANYWHERE_DOMAIN")
+            or os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes")
+            or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
+        )
+        if is_pa_or_nfs:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
+        else:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.execute("PRAGMA cache_size=-2000")
         cursor.execute("PRAGMA temp_store=MEMORY")
         cursor.close()

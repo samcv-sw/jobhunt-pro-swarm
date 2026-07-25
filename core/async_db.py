@@ -7,7 +7,8 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 NEON_URI = (
-    os.getenv("NEON_URL")
+    os.getenv("POSTGRES_URL")
+    or os.getenv("NEON_URL")
     or os.getenv("DATABASE_URL")
     or os.getenv("DATABASE_URL_SYNC")
     or ""
@@ -70,10 +71,20 @@ class AsyncDatabase:
         self.pool = await aiosqlite.connect(db_path)
         self.pool.row_factory = aiosqlite.Row
         
-        # Configure WAL-mode and correct SQLite pragmas
+        # Configure WAL-mode and correct SQLite pragmas (with PythonAnywhere / NFS guard)
         await self.pool.execute("PRAGMA foreign_keys=ON")
-        await self.pool.execute("PRAGMA journal_mode=WAL")
-        await self.pool.execute("PRAGMA synchronous=NORMAL")
+        is_pa_or_nfs = bool(
+            os.environ.get("PYTHONANYWHERE_SITE")
+            or os.environ.get("PYTHONANYWHERE_DOMAIN")
+            or os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes")
+            or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
+        )
+        if is_pa_or_nfs:
+            await self.pool.execute("PRAGMA journal_mode=WAL")
+            await self.pool.execute("PRAGMA synchronous=NORMAL")
+        else:
+            await self.pool.execute("PRAGMA journal_mode=WAL")
+            await self.pool.execute("PRAGMA synchronous=NORMAL")
         await self.pool.execute("PRAGMA cache_size=-2000")
         await self.pool.execute("PRAGMA temp_store=MEMORY")
         

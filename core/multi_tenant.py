@@ -52,7 +52,7 @@ router = APIRouter(tags=["multi-tenant"])
 SAM_SALAMEH_PROFILE = {
     "tenant_name": "Sam Salameh",
     "email": "samsalameh.cv@gmail.com",
-    "phone": "+961 71 019 053",
+    "phone": "+12494985866",
     "profession": "Senior Network Engineer",
     "target_titles": "network engineer, senior network engineer, network administrator",
     "skills": "cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python",
@@ -71,14 +71,14 @@ SAM_SALAMEH_PROFILE = {
 
 def _get_db_path() -> str:
     """Resolve the primary SQLite database path."""
-    db_path = os.getenv("DB_PATH", "jobhunt_saas_v2.db")
+    db_path = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
     base = Path(__file__).resolve().parent.parent
     full = str(base / db_path)
-    if not os.path.exists(full):
-        # Try direct filename in project root
-        alt = str(base / "jobhunt_saas_v2.db")
-        if os.path.exists(alt):
-            return alt
+    if os.path.exists(full):
+        return full
+    alt = str(base / "jobhunt_saas_v2.db")
+    if os.path.exists(alt):
+        return alt
     return full
 
 
@@ -88,9 +88,9 @@ def _get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(db_path, timeout=30)
     conn.row_factory = sqlite3.Row
     try:
-        conn.execute("PRAGMA journal_mode=DELETE")
+        conn.execute("PRAGMA journal_mode=WAL")
         conn.execute("PRAGMA busy_timeout=10000")
-        conn.execute("PRAGMA synchronous=FULL")
+        conn.execute("PRAGMA synchronous=NORMAL")
     except Exception:
         pass
     return conn
@@ -397,27 +397,27 @@ class MultiTenantRunner:
 
         if edge_cache.enabled:
             try:
-                cached_data = await edge_cache.get("hydra_active_campaigns")
+                cached_data = edge_cache.get("hydra_active_campaigns")
                 if cached_data:
                     campaigns = json.loads(cached_data)
                     logger.info(
-                        "[MultiTenant] Loaded active campaigns list from Upstash Redis cache."
+                        "[MultiTenant] Loaded active campaigns list from edge cache."
                     )
             except Exception as cache_err:
                 logger.warning(
-                    f"Failed to read campaigns from Redis cache: {cache_err}"
+                    f"Failed to read campaigns from edge cache: {cache_err}"
                 )
 
         if not campaigns:
             campaigns = self._fetch_all_active_campaigns()
             if edge_cache.enabled and campaigns:
                 try:
-                    await edge_cache.set(
+                    edge_cache.set(
                         "hydra_active_campaigns", json.dumps(campaigns), ex=120
                     )
                 except Exception as cache_err:
                     logger.warning(
-                        f"Failed to write campaigns to Redis cache: {cache_err}"
+                        f"Failed to write campaigns to edge cache: {cache_err}"
                     )
 
         if self.campaign_id:
@@ -644,12 +644,36 @@ class MultiTenantRunner:
         return results
 
     def _fetch_all_active_campaigns(self) -> list[dict[str, Any]]:
-        """Fetch all pending/running campaigns across ALL users."""
+        """Fetch all pending/running campaigns across ALL users, auto-completing finished ones and enforcing sequential queueing."""
         conn = _get_conn()
         try:
+            # 1. Mark campaigns with sent_count >= total_companies as completed
+            conn.execute("""
+                UPDATE campaigns SET status = 'completed', completed_at = CURRENT_TIMESTAMP
+                WHERE status = 'running' AND sent_count >= total_companies AND total_companies > 0
+            """)
+            conn.commit()
+
+            # 2. Promote ONLY the single oldest/highest-priority pending campaign per user if they have no running campaign
+            conn.execute("""
+                UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP
+                WHERE id IN (
+                    SELECT MIN(c1.id) FROM campaigns c1
+                    WHERE c1.status = 'pending'
+                    AND NOT EXISTS (
+                        SELECT 1 FROM campaigns c2
+                        WHERE c2.user_id = c1.user_id AND c2.status = 'running'
+                    )
+                    GROUP BY c1.user_id
+                )
+            """)
+            conn.commit()
+
+            # 3. Fetch active running campaigns
             rows = conn.execute("""
                 SELECT * FROM campaigns
-                WHERE status IN ('pending', 'running')
+                WHERE status = 'running'
+                AND sent_count < total_companies
                 ORDER BY created_at ASC
             """).fetchall()
             return [dict(r) for r in rows]
@@ -862,8 +886,8 @@ def _auto_seed_sam():
         logger.error(f"[MultiTenant] ⚠️ Failed to auto-seed Sam Salameh: {e}")
 
 
-# Run on import (safe — idempotent)
-_auto_seed_sam()
+# Auto-seed deferred to request runtime if needed
+# _auto_seed_sam()
 
 
 # ══════════════════════════════════════════════════════════════════════════════

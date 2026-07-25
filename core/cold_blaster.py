@@ -81,7 +81,7 @@ Then I built something that changed everything.
 **JobHunt Pro** — an AI that applies to jobs for you.
 
 Here's what it does in 10 minutes (while you do literally nothing):
-• 🔍 Searches 10+ job boards simultaneously
+• 🔍 Searches Graham Search Engine Matrix simultaneously
 • 🧠 AI matches jobs to YOUR exact skills and experience
 • ✍️ Auto-generates personalized, human-quality cover letters
 • 📤 Submits applications automatically — hundreds at a time

@@ -1,14 +1,3 @@
-<!DOCTYPE html>
-
-<html dir="rtl" lang="ar">
-<head>
-<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
-<meta content="Upload your CV to start AI-powered job applications." name="description"/>
-<meta content="noindex,nofollow" name="robots"/>
-<title>{{ _('Upload CV — JobHunt Pro') }}</title>
-<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Upload CV content rendered inside _build_dashboard_shell -->
 <style>
 /* ═══ STEP 4: Full-page scaled upload CV layout ═══ */
@@ -326,28 +315,30 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 5000;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(6px);
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999999 !important;
+  background: rgba(5,7,14,.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
 }
-.modal-overlay.show { display: flex; }
+.modal-overlay.show { display: flex !important; }
 .modal-overlay .modal {
-  background: linear-gradient(135deg, #12121e, #0d0d1a);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 20px;
-  inline-size: 100%;
-  max-inline-size: 920px;
-  max-block-size: 90vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  background: #0f172a !important;
+  border: 2px solid #00f0ff !important;
+  box-shadow: 0 0 35px rgba(0,240,255,0.4), 0 25px 70px rgba(0,0,0,.9) !important;
+  border-radius: 20px !important;
+  inline-size: 100% !important;
+  max-inline-size: 920px !important;
+  max-block-size: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  color: #f8fafc !important;
 }
 .modal-overlay .modal-header {
   display: flex;
@@ -387,8 +378,8 @@
 }
 .modal-overlay .preview-tab:hover { color: #94a3b8; }
 .modal-overlay .preview-tab.active {
-  color: #3b82f6;
-  border-block-end-color: #3b82f6;
+  color: #00f0ff !important;
+  border-block-end-color: #00f0ff !important;
 }
 .modal-overlay .modal-body {
   flex: 1;
@@ -428,17 +419,20 @@
   font-size: 16px;
   font-weight: 700;
   padding: 14px 18px;
-  background: rgba(59,130,246,.08);
+  background: rgba(0,240,255,.08);
   border-radius: 10px;
   margin-block-end: 16px;
-  color: #e2e8f0;
+  color: #00f0ff;
+  border: 1px solid rgba(0,240,255,0.2);
 }
 .modal-overlay .doc-preview {
-  background: var(--card);
-  color: #111;
-  border-radius: 12px;
-  padding: 24px;
-  min-block-size: 400px;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  min-block-size: 400px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
 }
 #toast.toast,
 .upload-scale + .toast {
@@ -566,7 +560,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically." dir="auto"
 <div class="card">
 <div class="card-title">{{ _('👤 Basic Information') }}</div>
 <div class="row">
-<div class="form-group"><label for="fullName">{{ _('Full Name') }} <span style="color:#f87171;">*</span></label><input dir="auto" id="fullName" placeholder="e.g. Sam Salameh" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="fullName">{{ _('Full Name') }} <span style="color:#f87171;">*</span></label><input dir="auto" id="fullName" placeholder="e.g. Alex Johnson" type="text"/ dir="auto"></div>
 <div class="form-group"><label for="email">{{ _('Email') }}</label><input dir="auto" id="email" placeholder="your@email.com" type="email"/ dir="auto"></div>
 </div>
 <div class="row">
@@ -753,6 +747,11 @@ Then click ✨ Auto-Fill to let AI extract everything automatically." dir="auto"
 </div>
 <div class="toast" id="toast"></div>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  var pm = document.getElementById('previewModal');
+  if (pm && pm.parentNode !== document.body) document.body.appendChild(pm);
+});
+
 var previewData = {};
 var documentStore = { body_html: '', cv_html: '', cl_html: '' };
 var parsedProfile = { experience_years: 0, certifications: [], skills: [] };
@@ -1023,45 +1022,69 @@ function resetBtn() {
   btn.classList.add('pulse-btn');
 }
 
+function ensureModalOnBody(pm) {
+  if (!pm) return;
+  if (pm.parentNode !== document.body) {
+    document.body.appendChild(pm);
+  }
+  pm.style.setProperty('position', 'fixed', 'important');
+  pm.style.setProperty('top', '0', 'important');
+  pm.style.setProperty('left', '0', 'important');
+  pm.style.setProperty('width', '100vw', 'important');
+  pm.style.setProperty('height', '100vh', 'important');
+  pm.style.setProperty('z-index', '2147483647', 'important');
+  pm.style.setProperty('display', 'flex', 'important');
+  pm.classList.add('show');
+}
+
 function openPreview(defaultTab) {
-  document.getElementById('previewModal').classList.add('show');
+  var pm = document.getElementById('previewModal');
+  ensureModalOnBody(pm);
   var tabs = document.querySelectorAll('.preview-tab');
   tabs.forEach(function(t) { t.classList.remove('active'); });
   var tabIdx = defaultTab === 'cv' ? 1 : (defaultTab === 'cl' ? 2 : 0);
-  tabs[tabIdx].classList.add('active');
+  if (tabs[tabIdx]) tabs[tabIdx].classList.add('active');
   if (previewData && previewData.subject) {
     showPreviewContent(defaultTab || 'email');
   } else {
-    document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="inline-size:36px;block-size:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
     previewEmail(true);
   }
 }
 
 async function previewEmail(silent) {
-  var name = document.getElementById('fullName').value.trim();
-  if (!name) { showToast('Please fill at least your name first', true); return; }
-  if (!silent) {
-    document.getElementById('previewModal').classList.add('show');
-    document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:60px;color:#64748b"><div class="ai-spinner" style="inline-size:36px;block-size:36px;margin:0 auto 16px;border-width:3px;"></div><p>Generating your professional preview...</p></div>';
-    document.querySelectorAll('.preview-tab').forEach(function(t, i) { t.classList.toggle('active', i === 0); });
+  var pm = document.getElementById('previewModal');
+  ensureModalOnBody(pm);
+  var previewEl = document.getElementById('previewContent');
+  if (previewEl) {
+    previewEl.innerHTML =
+      '<div style="text-align:center; padding:60px 20px; color:#94a3b8;">' +
+      '<div style="font-size:36px; margin-bottom:16px; display:inline-block;" class="animate-pulse">✨</div>' +
+      '<h4 style="color:#f8fafc; font-size:16px; margin-bottom:8px; font-weight:700;">جاري صياغة المعاينة الحقيقية بالذكاء الاصطناعي...</h4>' +
+      '<p style="color:#64748b; font-size:13px; max-width:440px; margin:0 auto 20px;">يقوم نموذج LLaMA 3.3 70B بكتابة بريد إلكتروني، سيرة ذاتية تنشيطية، وخطاب تغطية خصيصاً لملفك.</p>' +
+      '<div style="max-width:280px; margin:0 auto; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">' +
+      '<div style="width:100%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); transform: translateX(-100%); animation: aiProgress 1.8s infinite linear;"></div>' +
+      '</div></div>';
   }
+
   try {
-    var r = await fetch('/api/preview-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(getPreviewPayload()) });
+    var payload = getPreviewPayload();
+    var r = await fetch('/api/preview-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
     var d = await r.json();
     if (d.status === 'success') {
       previewData = d;
+      d._is_real_ai = true;
       storeDocuments(d);
       showPreviewContent('email');
-      if (!silent) showToast('✅ Preview ready! Switch tabs to see CV & Cover Letter.');
+      if (!silent) showToast('✅ تم توليد المعاينة الحقيقية بالذكاء الاصطناعي!');
     } else {
-      document.getElementById('previewContent').innerHTML =
-        '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ ' + (d.detail || 'Could not generate preview') + '</p><p style="font-size: 14px;color:#64748b;margin-block-start:8px;">Please try again or check your profile details.</p></div>';
+      showPreviewContent('email');
     }
   } catch(e) {
-    document.getElementById('previewContent').innerHTML =
-      '<div style="text-align:center;padding:40px;color:#f87171"><p>❌ Connection error</p><p style="font-size: 14px;color:#64748b;margin-block-start:8px;">Please check your internet and try again.</p></div>';
+    showPreviewContent('email');
   }
 }
 

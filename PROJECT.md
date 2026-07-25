@@ -1,42 +1,52 @@
-# Project: JobHunt Pro Optimization
+# Project: JobHunt Pro SaaS - 24/7 Autonomous Empire
 
 ## Architecture
-JobHunt Pro consists of:
-1. **Frontend UI**:
-   - 70+ Jinja2 HTML templates rendered by FastAPI (`web/templates/` and `web/templates/en/`).
-   - A Next.js 16 Client-side application (`frontend/`).
-2. **Backend Services**:
-   - FastAPI server (`web/app_v2.py`) loading modular routers from `web/routers/`.
-   - Dual Database Layer (`core/database.py` and `backend/database.py`) with support for PostgreSQL (remote) and SQLite (local fallbacks, e.g. `jobhunt_saas_v2.db`).
-   - SQLite queries translation shim (`core/pg_sqlite_shim.py`).
-3. **Test Suite**:
-   - 608 Pytest test cases covering backend functionality, rate limiters, anti-ban features, payment processors, and E2E routes.
+JobHunt Pro SaaS is a 100% $0 cloud-native, 24/7 autonomous SaaS platform featuring:
+1. **Cloud Architecture & Resilience**:
+   - 24/7 continuous operation on $0 free-tier cloud infrastructure (Vercel, Render, Cloudflare, GitHub Actions Cron, Supabase/Neon).
+   - `core/pg_sqlite_shim.py` & `core/database.py` with automatic cloud PostgreSQL detection & seamless local SQLite fallback.
+   - Keep-alive cron workflows (`.github/workflows/keepalive.yml`) executing sub-5s ticks.
+2. **Dual-Channel B2B Lead Gen & Automated Outreach Swarm**:
+   - Autonomous lead scraper & enrichment module for corporate hiring managers (`backend/services/lead_scraper.py`, `backend/routers/leads.py`).
+   - Multi-step personalized cold email sequence generator & dispatch tracking (`backend/services/cold_email_generator.py`).
+   - Multi-channel social media viral growth post generator for LinkedIn, X (Twitter), and Reddit (`backend/services/social_swarm.py`).
+3. **Ray Dalio & Paul Graham Elite SaaS Standard**:
+   - Real-time lead conversion analytics dashboard in `web/templates/dashboard_analytics.html` & `web/routers/analytics.py`.
+   - High-converting onboarding flow with Gulf RTL/LTR dual support (Cairo/Tajawal typography, dynamic CSS logical properties).
 
 ## Code Layout
-- `web/templates/`: HTML Jinja2 templates (RTL/Arabic & LTR/English versions).
-- `frontend/`: Next.js frontend source code (TypeScript, Tailwind, React 19).
-- `web/routers/`: FastAPI router modules (e.g., `admin.py`, `dashboard.py`, `payments.py`, `public.py`).
-- `backend/main.py`: Main FastAPI application entry point.
-- `core/`: Core application modules, including database interfaces and pg/sqlite shim.
-- `tests/`: Integration, unit, and performance tests (pytest).
+- `backend/main.py`: Main FastAPI server entry point.
+- `web/app_v2.py`: Web interface FastAPI application.
+- `core/database.py` & `core/pg_sqlite_shim.py`: Database access layer with PostgreSQL/SQLite auto-detection.
+- `backend/routers/`: REST API routers (leads, outreach, social_swarm, analytics).
+- `web/routers/`: Jinja2 web routers.
+- `web/templates/`: Jinja2 templates with Gulf RTL/LTR support.
+- `backend/services/`: Core autonomous growth engine and scraping logic.
+- `.github/workflows/`: GitHub Actions 24/7 keep-alive and autonomous cloud cron ticks.
+- `tests/`: Pytest verification test suite.
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
-| M1 | E2E Testing Track Setup | Inventory 608 tests, map to Tiers 1-4, publish `TEST_READY.md`. | None | PLANNED |
-| M2 | Backend Router & DB Optimization | Optimize DLQ endpoint, Brevo/SendGrid webhooks, dashboard stats, query indices. | M1 | PLANNED |
-| M3 | HTML Templates RTL & UI Overhaul | Polish all 70+ HTML templates in `web/templates/` for RTL/Arabic layout. | M1 | PLANNED |
-| M4 | Next.js Frontend RTL Overhaul | Polish Next.js codebase, ensure clean production build. | M1 | PLANNED |
-| M5 | Final E2E Test & Adversarial Hardening | Run all 608 tests, pass 100%, run Challenger adversarial tests (Tier 5), Audit. | M2, M3, M4 | PLANNED |
+| M1 | 24/7 Cloud Architecture & Database Resilience | PostgreSQL/Neon auto-detection with SQLite fallback, sub-5s keep-alive cron ticks | None | IN_PROGRESS |
+| M2 | B2B Lead Gen & Cold Email Sequence Generator | Lead scraping/enrichment engine, multi-step personalized cold email sequence generator & dispatch tracking | M1 | PLANNED |
+| M3 | Multi-Channel Social Growth Swarm | Autonomous social media post generator & automated campaign runner for LinkedIn, X, Reddit | M1 | PLANNED |
+| M4 | Elite SaaS Analytics & RTL/LTR Onboarding | Real-time lead conversion dashboard, high-converting onboarding flow with Gulf typography & CSS logical properties | M2, M3 | PLANNED |
+| M5 | Final System Verification & Forensic Integrity Audit | Pass 100% of test suite, Challenger verification, Forensic Auditor verification | M1, M2, M3, M4 | PLANNED |
 
 ## Interface Contracts
-### DLQ Requeue Endpoint (`/api/v1/admin/dlq/requeue`)
-- Method: POST
-- Request Body: JSON with specific queue name and optional task IDs.
-- Response: Status of requeued tasks.
+### Database Shim Contract (`core/pg_sqlite_shim.py` & `core/database.py`)
+- Detects `DATABASE_URL` / `POSTGRES_URL` in environment. If present, connects to PostgreSQL; otherwise falls back to SQLite.
+- Auto-translates SQL placeholders `$1, $2` to `?` for SQLite compatibility.
 
-### Webhook Routers (Brevo & SendGrid)
-- Endpoints: Process payload signatures, validate events, enqueue to DLQ on failure, update status.
+### Lead Scraping & Enrichment (`GET/POST /api/v1/leads/`)
+- Returns enriched lead objects (name, company, title, email, LinkedIn URL, status).
 
-### Dashboard Stats API (`/api/v1/dashboard/stats`)
-- Optimization: Cache key queries, add SQL indices on frequently filtered fields (e.g., user_id, campaign_id, timestamp).
+### Cold Email Generator (`POST /api/v1/outreach/sequence`)
+- Takes lead info & target company details; returns multi-step email templates with personalized touchpoints.
+
+### Social Swarm Generator (`POST /api/v1/social/campaign`)
+- Generates tailored posts for LinkedIn, X (Twitter), and Reddit per cloud tick.
+
+### Analytics Endpoint (`GET /api/v1/analytics/conversion`)
+- Returns real-time lead conversion metrics, channel breakdown, and pipeline status.

@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="راقب حملات التوظيف المدعومة بالذكاء الاصطناعي في الوقت الفعلي." name="description"/>
 <meta content="noindex,nofollow" name="robots"/>
-<title>{{ _('لوحة التحكم — JobHunt Pro') }}</title>
+<title>لوحة التحكم — JobHunt Pro</title>
 <link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
 <!-- Dashboard content rendered inside _build_dashboard_shell -->
 <style>
@@ -336,7 +336,7 @@ body {
   <div class="smtp-banner">
 <div>
 <h3 style="margin: 0; margin-block-end: 5px; color:#fff;">تفعيل التوصيل المميز لصندوق الوارد بالذكاء الاصطناعي</h3>
-<p style="margin:0; color:var(--text-muted); font-size:14px;">{{ _('اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات الاستجابة من أصحاب العمل.') }}</p>
+<p style="margin:0; color:var(--text-muted); font-size:14px;">اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات الاستجابة من أصحاب العمل.</p>
 </div>
 <div style="display:flex; gap:12px;">
 <a class="btn btn-microsoft" href="/oauth/microsoft/login">ربط مايكروسوفت</a>
@@ -368,7 +368,7 @@ body {
 <span>الرموز الموفرة</span>
 <svg fill="none" height="24" stroke="var(--accent-secondary)" viewbox="0 0 24 24" width="24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </div>
-<div class="stat-value">{{ _('12.5k') }}</div>
+<div class="stat-value">12.5k</div>
 <div style="color:var(--text-muted); font-size:14px; margin-block-start:8px;">عبر أداة تقليص السيرة الذاتية المحلية</div>
 </div>
 <div class="glass-card stat-box">
@@ -438,13 +438,13 @@ body {
 </div>
 <div>
                 {% if email.status in ('brevo_failed', 'gmail_failed', 'failed') %}
-                  <span style="background:rgba(239, 68, 68, 0.2); color:var(--accent-danger); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('FAILED') }}</span>
+                  <span style="background:rgba(239, 68, 68, 0.2); color:var(--accent-danger); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">FAILED</span>
                 {% elif email.pipeline_stage == 'interview' %}
-                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('INTERVIEW') }}</span>
+                  <span style="background:rgba(16, 185, 129, 0.2); color:var(--accent-success); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">INTERVIEW</span>
                 {% elif email.opened_at %}
-                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('OPENED') }}</span>
+                  <span style="background:rgba(245, 158, 11, 0.2); color:var(--accent-warning); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">OPENED</span>
                 {% else %}
-                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">{{ _('DELIVERED') }}</span>
+                  <span style="background:rgba(99, 102, 241, 0.2); color:var(--accent-primary); padding:4px 8px; border-radius:12px; font-size:14px; font-weight:600;">DELIVERED</span>
                 {% endif %}
               </div>
 </li>

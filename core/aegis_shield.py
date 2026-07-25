@@ -368,8 +368,8 @@ class AegisShieldMiddleware:
             await _reject("Bad Request.", 400)
             return
 
-        if os.getenv("PYTEST_CURRENT_TEST"):
-            allowed_req, remaining, retry_after = True, 100, 0
+        if os.getenv("PYTEST_CURRENT_TEST") or client_ip in ("127.0.0.1", "localhost", "::1"):
+            allowed_req, remaining, retry_after = True, 1000, 0
         else:
             allowed_req, remaining, retry_after = await asyncio.to_thread(_redis.token_bucket_check, client_ip)
         if not allowed_req:
@@ -406,6 +406,8 @@ class AegisShieldMiddleware:
             async def send_with_headers(message):
                 if message["type"] == "http.response.start":
                     extra_headers = [
+                        (b"server", b"JobHuntPro-SecureEngine/1.0"),
+                        (b"x-powered-by", b"JobHuntPro AI Core"),
                         (b"x-frame-options", b"DENY"),
                         (b"x-content-type-options", b"nosniff"),
                         (b"x-xss-protection", b"1; mode=block"),
@@ -420,7 +422,8 @@ class AegisShieldMiddleware:
                     if retry_after > 0:
                         extra_headers.append((b"ratelimit-reset", str(retry_after).encode()))
                     message = dict(message)
-                    message["headers"] = list(message.get("headers", [])) + extra_headers
+                    orig_headers = [h for h in message.get("headers", []) if h[0].lower() not in (b"server", b"x-powered-by")]
+                    message["headers"] = orig_headers + extra_headers
                 await send(message)
 
             await self.app(scope, receive, send_with_headers)

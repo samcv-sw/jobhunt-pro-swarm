@@ -14,7 +14,50 @@
 .flash-banner{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(251,146,60,.08));border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:14px 20px;color:#fca5a5;font-size: 14px;margin-block-end:24px}
 
 /* Category Tabs */
-.cat-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-block-end:24px}
+/* ═══ Category Tabs Multi-Row Cyberpunk Apex Glassmorphism ═══ */
+.cat-tabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 10px 12px !important;
+  padding: 4px !important;
+  margin-block-end: 32px !important;
+  overflow: visible !important;
+}
+
+.cat-tab {
+  flex-shrink: 0 !important;
+  padding: 10px 20px !important;
+  border-radius: 30px !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  background: rgba(13, 14, 21, 0.85) !important;
+  color: #cbd5e1 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.cat-tab:hover {
+  border-color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.15) !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+.cat-tab.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(139, 92, 246, 0.3)) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5) !important;
+}
 .cat-tab{padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);color:#94a3b8;font-size: 14px;font-weight:500;cursor:pointer;transition:all .2s;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif}
 .cat-tab:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
 .cat-tab.active{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3);color:#60a5fa}
@@ -69,10 +112,10 @@
 .nr-icon{font-size:36px;margin-block-end:10px;opacity:.5}
 .nr-text{font-size: 14px;color:#64748b}
 
-/* Cart FAB */
-.cart-badge-btn{position:fixed !important;inset-block-end:24px !important;inset-inline-end:24px !important;inline-size:52px;block-size:52px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;color:#fff;font-size:22px;cursor:pointer;z-index:9999 !important;box-shadow:0 4px 20px rgba(59,130,246,.3);transition:all .25s;display:flex !important;align-items:center;justify-content:center}
-.cart-badge-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(59,130,246,.4)}
-.cart-count{position:absolute;inset-block-start:-6px;inset-inline-end: -6px;min-inline-size:20px;block-size:20px;border-radius:10px;background:#ef4444;color:#fff;font-size: 14px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px}
+/* Cart FAB - Top Header Position */
+.cart-badge-btn{position:fixed !important;inset-block-start:75px !important;inset-inline-end:24px !important;inline-size:48px;block-size:48px;border-radius:12px;background:rgba(13,17,29,.95);border-top:1.5px solid #00f0ff;border-bottom:1.5px solid #00f0ff;border-left:1px solid rgba(0,240,255,.3);border-right:1px solid rgba(0,240,255,.3);color:#fff;font-size:20px;cursor:pointer;z-index:9999 !important;box-shadow:0 4px 20px rgba(0,240,255,.25);transition:all .25s;display:flex !important;align-items:center;justify-content:center}
+.cart-badge-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(0,240,255,.45)}
+.cart-count{position:absolute;inset-block-start:-7px;inset-inline-end:-7px;min-inline-size:22px;block-size:22px;border-radius:50%;background:#ff0055;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #090d16;box-shadow:0 0 10px rgba(255,0,85,.8)}
 
 /* Cart Sidebar */
 .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -104,7 +147,7 @@
 
 /* Purchase Modal */
 .purchase-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;display:none;align-items:center;justify-content:center}
-.purchase-modal.open{display:flex}
+.purchase-modal.open{display:flex !important; z-index:99999 !important; opacity:1 !important; visibility:visible !important;}
 .modal-box{background:#0f0f18;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:32px;text-align:center;max-inline-size:380px;inline-size:90%}
 .check-icon{font-size:48px;margin-block-end:12px}
 .modal-box h2{font-size:18px;font-weight:700;color:#e2e8f0;margin: 0 0 8px}
@@ -119,7 +162,50 @@
 @media(max-width:768px){
   .svc-grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
   .bundles-grid{grid-template-columns:1fr;gap:10px}
-  .cat-tabs{gap:4px}
+  /* ═══ Category Tabs Multi-Row Cyberpunk Apex Glassmorphism ═══ */
+.cat-tabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 10px 12px !important;
+  padding: 4px !important;
+  margin-block-end: 32px !important;
+  overflow: visible !important;
+}
+
+.cat-tab {
+  flex-shrink: 0 !important;
+  padding: 10px 20px !important;
+  border-radius: 30px !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  background: rgba(13, 14, 21, 0.85) !important;
+  color: #cbd5e1 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.cat-tab:hover {
+  border-color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.15) !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+.cat-tab.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(139, 92, 246, 0.3)) !important;
+  border-color: #00f0ff !important;
+  color: #00f0ff !important;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.5) !important;
+}
   .cat-tab{padding:6px 12px;font-size: 14px}
   .cart-panel{inline-size:100vw}
 }
@@ -141,12 +227,17 @@
 
   <!-- Category Tabs -->
   <div class="cat-tabs" id="catTabs">
-    <button class="cat-tab active" data-cat="all">الكل</button>
-    <button class="cat-tab" data-cat="resume">📄 خدمات السيرة الذاتية</button>
-    <button class="cat-tab" data-cat="email">📧 خدمات الإيميل</button>
-    <button class="cat-tab" data-cat="career">🚀 خدمات المسار المهني</button>
-    <button class="cat-tab" data-cat="ai">🤖 الذكاء الاصطناعي واستراتيجية</button>
-    <button class="cat-tab" data-cat="bundles">🎁 باقات</button>
+    <button class="cat-tab active" data-cat="all">⚡ الكل (100)</button>
+    <button class="cat-tab" data-cat="resume">📄 سيرة ذاتية & ATS</button>
+    <button class="cat-tab" data-cat="linkedin">💼 لينكد إن وبراندينغ</button>
+    <button class="cat-tab" data-cat="email">📧 إيميلات وتواصل</button>
+    <button class="cat-tab" data-cat="interview">🎤 مقابلات وتدريب</button>
+    <button class="cat-tab" data-cat="salary">💰 رواتب ومفاوضات</button>
+    <button class="cat-tab" data-cat="gulf">🌐 الخليج والعالم</button>
+    <button class="cat-tab" data-cat="visa">✈️ تأشيرات وعمل عن بعد</button>
+    <button class="cat-tab" data-cat="ai">🤖 ذكاء اصطناعي وأتمتة</button>
+    <button class="cat-tab" data-cat="freelance">🚀 فريلانس وتنفيذي</button>
+    <button class="cat-tab" data-cat="bundles">🎁 باقات متكاملة</button>
   </div>
 
   <!-- ═══ Services Section ═══ -->
@@ -189,10 +280,10 @@
   <div class="bundles-grid" id="bdlGrid" style="display:none;"></div>
 </div>
 
-<!-- Cart FAB -->
-<button class="cart-badge-btn" id="cartFab" onclick="toggleCart()" aria-label="Cart">
+<!-- Cart FAB - Explicit Top Header Position -->
+<button class="cart-badge-btn" id="cartFab" onclick="toggleCart()" aria-label="Cart" style="position:fixed !important; top:14px !important; bottom:auto !important; left:20px !important; right:auto !important; width:46px !important; height:46px !important; border-radius:12px !important; background:#0d111d !important; border-top:1.5px solid #00f0ff !important; border-bottom:1.5px solid #00f0ff !important; border-left:1px solid rgba(0,240,255,0.3) !important; border-right:1px solid rgba(0,240,255,0.3) !important; color:#ffffff !important; font-size:20px !important; cursor:pointer !important; z-index:999999 !important; box-shadow:0 4px 20px rgba(0,240,255,0.3) !important; display:flex !important; align-items:center !important; justify-content:center !important;">
   🛒
-  <span class="cart-count" id="cartFabCount" style="display:none;">0</span>
+  <span class="cart-count" id="cartFabCount" style="display:none; position:absolute !important; top:-7px !important; right:-7px !important; min-width:22px !important; height:22px !important; border-radius:50% !important; background:#ff0055 !important; color:#ffffff !important; font-size:12px !important; font-weight:800 !important; border:2px solid #090d16 !important; box-shadow:0 0 10px rgba(255,0,85,0.8) !important;">0</span>
 </button>
 
 <!-- Cart Sidebar -->
@@ -220,13 +311,15 @@
   </div>
 </div>
 
+
+
 <!-- Purchase Modal -->
-<div class="purchase-modal" id="purchaseModal">
-  <div class="modal-box">
-    <div class="check-icon">✅</div>
-    <h2 id="modalTitle">تم الشراء!</h2>
-    <p id="modalMsg">تم إضافة طلباتك لحسابك.</p>
-    <button class="btn" onclick="closeModal()">فهمت</button>
+<div class="purchase-modal" id="purchaseModal" style="display:none; position:fixed; inset:0; background:rgba(5,7,18,0.92); z-index:999999; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); align-items:center; justify-content:center;">
+  <div class="modal-box" style="text-align: center; max-width: 440px; width: 90%; background: #131722; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 24px; padding: 36px 28px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);">
+    <div class="check-icon" id="modalIcon" style="font-size: 52px; margin-bottom: 16px;">✅</div>
+    <h2 id="modalTitle" style="font-family: 'Cairo', 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 12px;">تم الشراء!</h2>
+    <p id="modalMsg" style="font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 15px; color: #cbd5e1; line-height: 1.6; margin-bottom: 24px;">تم إضافة طلباتك لحسابك.</p>
+    <button class="btn" id="modalActionBtn" onclick="closeModal()" style="width: 100%; padding: 14px; border-radius: 12px; border: none; background: linear-gradient(135deg, #00f0ff, #00a0cc); color: #030814; font-family: 'Cairo', 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s;">فهمت 👍</button>
   </div>
 </div>
 
@@ -280,8 +373,10 @@ async function loadServices() {
     document.getElementById('bdlCount').textContent = bouquets.length;
   } catch (e) {
     console.error('Load error:', e);
-    services = [];
-    bouquets = [];
+    const container = document.getElementById('svcGrid');
+    if (container) {
+      container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;background:rgba(255,0,85,0.08);border:1px solid rgba(255,0,85,0.2);border-radius:16px;color:#ff3366;"><p style="font-weight:700;margin-bottom:12px;">حدث خطأ أثناء تحميل الخدمات. يرجى المحاولة مرة أخرى.</p><button onclick="location.reload()" class="btn btn-sm" style="background:#ff0055;color:#fff;">إعادة التحميل 🔄</button></div>';
+    }
   }
 
   // Hide skeletons, show content
@@ -298,7 +393,7 @@ function getSvcIcon(svc) {
 }
 
 function getSvcCategory(svc) {
-  return CATEGORIES[svc.id] || 'career';
+  return svc.category || CATEGORIES[svc.id] || 'resume';
 }
 
 function renderAll() {
@@ -326,14 +421,18 @@ function renderServices() {
   grid.innerHTML = filtered.map(s => {
     const icon = getSvcIcon(s);
     const inCart = cart[s.id] !== undefined;
-    const features = (s.features || []).slice(0, 3).join(' · ');
+    const nameStr = s.name_ar || s.name;
+    const descStr = s.description_ar || s.description;
+    const deliveryStr = s.delivery_ar || s.delivery || 'فوري';
+    const featList = s.features_ar || s.features || [];
+    const features = featList.slice(0, 3).join(' · ');
     return `
       <div class="svc-card${inCart ? ' in-cart' : ''}" data-id="${s.id}">
         <div class="svc-icon">${icon}</div>
-        <h3>${escHtml(s.name)}</h3>
-        <p class="svc-desc">${escHtml(s.description)}</p>
+        <h3>${escHtml(nameStr)}</h3>
+        <p class="svc-desc">${escHtml(descStr)}</p>
         <div class="svc-meta">
-          <span class="svc-delivery">⚡ ${escHtml(s.delivery || 'instant')}</span>
+          <span class="svc-delivery">⚡ ${escHtml(deliveryStr)}</span>
         </div>
         ${features ? `<div class="svc-features">${escHtml(features)}</div>` : ''}
         <div class="svc-price-row">
@@ -483,65 +582,80 @@ async function checkout() {
   if (items.length === 0) return;
 
   const total = items.reduce((s, [,i]) => s + i.price, 0);
-  if (!confirm(`بدك تشتري ${items.length} طلب(ات) بـ $${total}؟\nرح ينخصم من رصيد محفظتك.`)) return;
+  if (!confirm(`هل ترغب في شراء ${items.length} خدمة/خدمات بإجمالي $${total}؟\nسيتم خصم المبلغ من رصيد محفظتك.`)) return;
 
   const checkoutBtn = document.getElementById('checkoutBtn');
   checkoutBtn.disabled = true;
-  checkoutBtn.textContent = 'عم نعالج...';
+  checkoutBtn.textContent = 'جاري المعالجة...';
 
-  let purchased = 0;
-  let errors = 0;
-  const errMsgs = [];
+  // Perform bulk purchase
+  const selectedStr = items.map(([id, item]) => `${id}|${item.type}`).join(',');
+  const fd = new FormData();
+  fd.append('selected_items', selectedStr);
 
-  for (const [id, item] of items) {
-    try {
-      const fd = new FormData();
-      fd.append('package_id', id);
-      fd.append('service_type', item.type);
-      const resp = await fetch('/services/purchase', { method: 'POST', body: fd });
-      if (resp.redirected) {
-        // Redirect means it went through (to /services?success=...)
-        purchased++;
-      } else {
-        const text = await resp.text();
-        if (text.includes('insufficient') || text.includes('Insufficient')) {
-          errMsgs.push('رصيد المحفظة ما بيكفي');
-          errors++;
-          break; // Can't buy more
-        } else {
-          // Might have succeeded
-          purchased++;
-        }
-      }
-    } catch (e) {
-      errors++;
-      errMsgs.push(e.message);
+  try {
+    const resp = await fetch('/services/purchase-bulk', { method: 'POST', body: fd, redirect: 'follow' });
+    const finalUrl = resp.url;
+
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'تابع للدفع';
+
+    // 1. Not logged in redirect
+    if (finalUrl.includes('/login')) {
+      document.getElementById('modalIcon').textContent = '🔒';
+      document.getElementById('modalTitle').textContent = 'يلزم تسجيل الدخول';
+      document.getElementById('modalMsg').innerHTML = 'يرجى تسجيل الدخول إلى حسابك أولاً لتتمكن من الشراء واستخدام رصيد المحفظة.';
+      const actionBtn = document.getElementById('modalActionBtn');
+      actionBtn.textContent = 'تسجيل الدخول الآن ↗';
+      actionBtn.style.background = 'linear-gradient(135deg, #00f0ff, #00a0cc)';
+      actionBtn.onclick = function() { window.location.href = '/login'; };
+      const pm = document.getElementById('purchaseModal'); if (pm) { document.body.appendChild(pm); pm.style.display = 'flex'; pm.classList.add('open'); }
+      return;
     }
-  }
 
-  checkoutBtn.disabled = false;
-  checkoutBtn.textContent = 'تابع للدفع';
+    // 2. Insufficient funds redirect
+    if (finalUrl.includes('error=insufficient_funds')) {
+      document.getElementById('modalIcon').textContent = '⚠️';
+      document.getElementById('modalTitle').textContent = 'رصيد المحفظة غير كافٍ!';
+      document.getElementById('modalMsg').innerHTML = `رصيد محفظتك الحالي غير كافٍ لإتمام العملية بقيمة <strong style="color:#00f0ff;">$${total}</strong>.<br><br>يرجى شحن محفظتك بالرصيد لتفعيل الخدمات المحددة.`;
+      const actionBtn = document.getElementById('modalActionBtn');
+      actionBtn.textContent = '💳 شحن المحفظة الآن ↗';
+      actionBtn.style.background = 'linear-gradient(135deg, #ff0055, #ff5500)';
+      actionBtn.onclick = function() { window.location.href = '/pricing'; };
+      const pm = document.getElementById('purchaseModal'); if (pm) { document.body.appendChild(pm); pm.style.display = 'flex'; pm.classList.add('open'); }
+      return;
+    }
 
-  if (purchased > 0) {
-    // Clear cart
+    // 3. Other error
+    if (finalUrl.includes('error=')) {
+      showToast('⚠️ حدث خطأ أثناء عملية الشراء. حاول لاحقاً.', 'error');
+      return;
+    }
+
+    // 4. Success!
     cart = {};
     updateCartUI();
     renderAll();
     document.getElementById('cartOverlay').classList.remove('open');
 
-    document.getElementById('modalTitle').textContent = '✅ تم الشراء!';
-    document.getElementById('modalMsg').textContent =
-      `تم شراء ${purchased} عنصر/عناصر بنجاح. هي الآن نشطة في حسابك.`;
-    document.getElementById('purchaseModal').classList.add('open');
-  }
+    document.getElementById('modalIcon').textContent = '✅';
+    document.getElementById('modalTitle').textContent = 'تم الشراء بنجاح!';
+    document.getElementById('modalMsg').innerHTML = `تم شراء ${items.length} عنصر/عناصر بنجاح واقتطاع $${total} من محفظتك.<br>الخدمات نشطة الآن في حسابك.`;
+    const actionBtn = document.getElementById('modalActionBtn');
+    actionBtn.textContent = 'فهمت 👍';
+    actionBtn.style.background = 'linear-gradient(135deg, #00f0ff, #00a0cc)';
+    actionBtn.onclick = closeModal;
+    const pm = document.getElementById('purchaseModal'); if (pm) { document.body.appendChild(pm); pm.style.display = 'flex'; pm.classList.add('open'); }
 
-  if (errors > 0) {
-    showToast('⚠️ ' + (errMsgs[0] || 'فشل ببعض الطلبات'), 'error');
+  } catch (e) {
+    checkoutBtn.disabled = false;
+    checkoutBtn.textContent = 'تابع للدفع';
+    showToast('⚠️ خطأ بالشبكة. يرجى المحاولة مرة أخرى.', 'error');
   }
 }
 
 function closeModal() {
-  document.getElementById('purchaseModal').classList.remove('open');
+  const pm = document.getElementById('purchaseModal'); if (pm) { pm.style.display = 'none'; pm.classList.remove('open'); }
   location.reload();
 }
 

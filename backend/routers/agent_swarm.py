@@ -37,7 +37,8 @@ async def dispatch_swarm(
     return {
         "status": "success",
         "swarm_id": swarm_id,
-        "message": "Swarm successfully dispatched with 5 active agents (Hunter, Tailor, Submitter, Auditor, Negotiator).",
+        "swarm_engine": "Graham Swarm Matrix (G_64 Autopoietic Architecture)",
+        "message": "Graham Autonomous Swarm Matrix successfully dispatched with active agents.",
         "active_agents": ["Hunter", "Tailor", "Submitter", "Auditor", "Negotiator"],
         "target_roles": request.target_roles,
     }

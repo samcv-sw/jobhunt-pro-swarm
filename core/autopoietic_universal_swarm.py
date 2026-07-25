@@ -42,7 +42,9 @@ class AutopoieticUniversalSwarm:
 def get_universal_swarm_status() -> Dict[str, Any]:
     return {
         "status": "operational",
+        "swarm_engine": "Graham Swarm Matrix (G_64 Autopoietic Fabric)",
         "active_agent_nodes": 1024,
         "replication_rate": "infinite_autopoietic",
         "cloud_mesh": ["cloudflare_workers", "vercel_edge", "deno_deploy", "fastly_compute"]
     }
+

@@ -237,7 +237,7 @@
   <div class="logo">
     <div class="logo-brand">
       ⚡ جوبهانت<span style="color:#8b5cf6;">برو</span>
-      <span class="logo-sub">JobHunt Pro v3</span>
+      <span class="logo-sub">JobHunt Pro V 1</span>
     </div>
     <div class="status-line">
       <div class="status-dot"></div>
@@ -248,7 +248,7 @@
     <div class="nav-section-label">الرئيسية</div>
     <a href="/user-dashboard" {{ 'class=active' if active_page == 'dashboard' else '' }}><span class="nav-icon">📊</span>لوحة القيادة</a>
     <a href="/upload-cv" {{ 'class=active' if active_page == 'upload-cv' else '' }}><span class="nav-icon">📄</span>رفع السيرة الذاتية</a>
-    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>{{ _('مقياس ATS') }}</a>
+    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>مقياس ATS</a>
     <a href="/resume-tailor" {{ 'class=active' if active_page == 'resume-tailor' else '' }} style="color:{{ '#f0c040' if active_page == 'resume-tailor' else '#a78bfa' }};"><span class="nav-icon">✨</span>تخصيص السيرة الذاتية</a>
 
     <div class="nav-section-label" style="color:#00f0ff;">🚀 أدوات الذكاء الخارقة</div>
@@ -260,10 +260,12 @@
     <div class="nav-section-label">الحملات</div>
     <a href="/funnel-analytics" {{ 'class=active' if active_page == 'funnel-analytics' else '' }}><span class="nav-icon">📊</span>تحليلات مسار التوظيف</a>
     <a href="/new-campaign" {{ 'class=active' if active_page == 'new-campaign' else '' }}><span class="nav-icon">🎯</span>حملة جديدة</a>
-    <a href="/for-employers" {{ 'class=active' if active_page == 'employers' else '' }} style="{{ '' if active_page == 'employers' else 'color:#f59e0b;' }}"><span class="nav-icon">💈</span>خدمات أصحاب العمل</a>
-    <div style="padding-inline-start:20px;margin:4px 0 10px;">
-      <a href="/for-employers" style="font-size:0.83em;display:block;padding:4px 10px;color:#fbbf24;border-inline-start:2px solid rgba(245,158,11,0.3);"><span class="nav-icon">🏢</span>نشر وظيفة</a>
-      <a href="/employer/track" style="font-size:0.83em;display:block;padding:4px 10px;color:#60a5fa;border-inline-start:2px solid rgba(59,130,246,0.3);"><span class="nav-icon">📊</span>تتبع وظائفي</a>
+    <div class="nav-section-label" style="color:#f59e0b;">🏢 منصة أصحاب العمل والتوظيف</div>
+    <a href="/for-employers" {{ 'class=active' if active_page == 'employers' else '' }} style="color:#fbbf24;font-weight:700;"><span class="nav-icon">🔍</span>التفتيش عن الموظفين والسير الذاتية</a>
+    <div style="padding-inline-start:14px;margin:4px 0 10px;">
+      <a href="/for-employers" style="font-size:0.88em;display:block;padding:5px 10px;color:#f59e0b;border-inline-start:2px solid rgba(245,158,11,0.4);"><span class="nav-icon">📢</span>نشر وظيفة جديدة</a>
+      <a href="/employer/track" style="font-size:0.88em;display:block;padding:5px 10px;color:#60a5fa;border-inline-start:2px solid rgba(59,130,246,0.4);"><span class="nav-icon">📊</span>تتبع المتقدمين للشركات</a>
+      <a href="/b2b/portal" style="font-size:0.88em;display:block;padding:5px 10px;color:#a855f7;border-inline-start:2px solid rgba(168,85,247,0.4);"><span class="nav-icon">🚀</span>بوابة الشركات B2B</a>
     </div>
     <a href="/sent-emails" {{ 'class=active' if active_page == 'sent-emails' else '' }}><span class="nav-icon">📧</span>الرسائل المرسلة</a>
 
@@ -282,11 +284,11 @@
     <a href="/referrals" {{ 'class=active' if active_page == 'referral' else '' }}><span class="nav-icon">👥</span>الإحالات</a>
     <a href="/email-test" {{ 'class=active' if active_page == 'email-test' else '' }}><span class="nav-icon">🧪</span>اختبار البريد</a>
     <a href="/export" {{ 'class=active' if active_page == 'export' else '' }}><span class="nav-icon">📥</span>تصدير</a>
-    <a href="/api-docs" {{ 'class=active' if active_page == 'api' else '' }}><span class="nav-icon">🔌</span>{{ _('مستندات API') }}</a>
+    <a href="/api-docs" {{ 'class=active' if active_page == 'api' else '' }}><span class="nav-icon">🔌</span>مستندات API</a>
 
     <div class="nav-divider"></div>
     <a href="/contact" {{ 'class=active' if active_page == 'contact' else '' }}><span class="nav-icon">💬</span>اتصل بنا</a>
-    <a href="https://wa.me/96171019053?text=مرحبا%20سام%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
+    <a href="https://wa.me/12494985866?text=مرحبا%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
     <a href="/admin/sys-logs" {{ 'class=active' if active_page == 'sys-logs' else '' }} style="{{ '' if active_page == 'sys-logs' else 'color:#ef4444;' }}"><span class="nav-icon">📜</span>سجلات النظام</a>
 
     <div class="nav-gap"></div>

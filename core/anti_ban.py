@@ -40,10 +40,10 @@ _base_dir = pathlib.Path(__file__).resolve().parent.parent
 try:
     import config
 
-    _db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
+    _db_name = getattr(config, "DB_PATH", None) or "data/jobhunt_saas_v2.db"
     DB_PATH = str(_base_dir / _db_name)
 except Exception:
-    DB_PATH = str(_base_dir / "jobhunt_saas_v2.db")
+    DB_PATH = str(_base_dir / "data" / "jobhunt_saas_v2.db")
 
 
 class AntiBanProtection:
@@ -106,12 +106,12 @@ class AntiBanProtection:
         }
 
         # Rate limits
-        self.max_apps_per_company_per_day = 1
-        self.max_apps_per_company_per_week = 2
-        self.max_apps_per_company_total = 5
-        self.min_time_between_apps = 2  # 2 seconds minimum
-        self.max_apps_per_hour = 50  # Conservative
-        self.max_apps_per_day = 200  # Conservative
+        self.max_apps_per_company_per_day = 10
+        self.max_apps_per_company_per_week = 30
+        self.max_apps_per_company_total = 100
+        self.min_time_between_apps = 1  # 1 second minimum
+        self.max_apps_per_hour = 500  # High throughput
+        self.max_apps_per_day = 5000  # Multi-tenant capacity
 
         # Timing
         self.last_application_time = None

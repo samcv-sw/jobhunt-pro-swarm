@@ -49,6 +49,13 @@ class EmailWarmup:
 
     def get_daily_limit(self, provider: str) -> int:
         """Get max emails allowed today for this provider."""
+        if provider == "hotmail_pool":
+            try:
+                from core.hotmail_pool import get_stats
+                stats = get_stats()
+                return stats.get("max_daily_capacity", 49500)
+            except Exception:
+                return 49500
         day = self._get_day_number(provider)
         if day == 0:
             return WARMUP_SCHEDULE[1]  # Not started yet, use day 1 limit

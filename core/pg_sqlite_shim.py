@@ -105,7 +105,8 @@ def clean_psycopg2_uri(url: str) -> str:
 
 
 _raw_uri = (
-    os.getenv("NEON_URL")
+    os.getenv("POSTGRES_URL")
+    or os.getenv("NEON_URL")
     or os.getenv("DATABASE_URL")
     or os.getenv("DATABASE_URL_SYNC")
     or ""
@@ -555,28 +556,33 @@ class PgConnectionWrapper:
                         conn_to_cleanup = PG_POOL.getconn()
                         now = time.time()
 
-                        if hasattr(conn_to_cleanup, "created_at"):
-                            if now - conn_to_cleanup.created_at > 280:
+                        conn_created_at = getattr(conn_to_cleanup, "_created_at", None)
+                        if conn_created_at is None or not isinstance(conn_created_at, (int, float)):
+                            conn_created_at = getattr(conn_to_cleanup, "created_at", None)
+
+                        if isinstance(conn_created_at, (int, float)):
+                            if now - conn_created_at > 280:
                                 logger.info("[DB] Discarding expired connection in PgConnectionWrapper pool (idle > 280s).")
                                 PG_POOL.putconn(conn_to_cleanup, close=True)
                                 conn_to_cleanup = None
                                 continue  # Fetch a different connection
                         else:
-                            conn_to_cleanup.created_at = now
+                            try:
+                                setattr(conn_to_cleanup, "_created_at", now)
+                            except AttributeError:
+                                pass
                         break
 
-                    # 2. Connection Testing (Pre-ping): Run a lightweight test query
                     try:
+                        conn_to_cleanup.autocommit = True
                         with conn_to_cleanup.cursor() as test_cur:
                             test_cur.execute("SELECT 1")
-                    except (psycopg2.OperationalError, psycopg2.InterfaceError, AttributeError) as test_err:
+                    except (psycopg2.OperationalError, psycopg2.InterfaceError, AttributeError, psycopg2.ProgrammingError) as test_err:
                         logger.warning(f"[DB] Connection pre-ping failed: {test_err}. Discarding stale connection.")
                         PG_POOL.putconn(conn_to_cleanup, close=True)
                         conn_to_cleanup = None
-                        # Raise error to trigger outer retry block with backoff
                         raise psycopg2.OperationalError("Stale connection pre-ping failed") from test_err
 
-                    conn_to_cleanup.autocommit = True
                     self.conn = conn_to_cleanup
                     conn_to_cleanup = None  # Transfer ownership to self.conn
                     BACKEND = "pg"
@@ -724,12 +730,14 @@ class SqliteConnectionWrapper:
         # Enable WAL mode dynamically on local/cloud disks for concurrent performance.
         # Keep DELETE mode only on NFS (PythonAnywhere) to prevent locks.
         is_pa = bool(
-            os.environ.get("PYTHONANYWHERE_SITE") or
-            os.environ.get("PYTHONANYWHERE_DOMAIN")
+            os.environ.get("PYTHONANYWHERE_SITE")
+            or os.environ.get("PYTHONANYWHERE_DOMAIN")
+            or os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes")
+            or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
         )
         if is_pa:
-            self.conn.execute("PRAGMA journal_mode=DELETE")
-            self.conn.execute("PRAGMA synchronous=FULL")
+            self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=NORMAL")
             logger.info(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
         else:
             self.conn.execute("PRAGMA journal_mode=WAL")
@@ -749,6 +757,9 @@ class SqliteConnectionWrapper:
     @staticmethod
     def _translate_for_sqlite(query: str) -> str:
         """Strip/translate PostgreSQL-specific syntax for SQLite compatibility."""
+        # 0. Translate $1, $2, ... positional parameters to ? for SQLite compatibility
+        query = re.sub(r"\$\d+", "?", query)
+
         # 1. ILIKE → LIKE (SQLite LIKE is case-insensitive for ASCII by default)
         query = re.sub(r"\bILIKE\b", "LIKE", query, flags=re.IGNORECASE)
 
@@ -852,14 +863,9 @@ def should_use_pg(db_path: str | Any | None) -> bool:
         return False
     if "temp" in db_path_str:
         return False
-    # Also check if NEON_URI is configured — if so, prefer PG for any .db file
-    if NEON_URI and (
-        "jobhunt" in db_path_str
-        or "saas" in db_path_str
-        or "database" in db_path_str
-        or "cv sam" in db_path_str
-    ):
-        return True
+    if db_path_str.endswith(".db") or db_path_str.endswith(".sqlite") or db_path_str.endswith(".sqlite3") or "jobhunt_saas_v2" in db_path_str:
+        if os.getenv("FORCE_PG") != "1":
+            return False
     main_db_indicators = [
         "saas",
         "sam_max",
@@ -877,16 +883,26 @@ def connect(
 ) -> PgConnectionWrapper | SqliteConnectionWrapper:
     """Connect to Neon PG with automatic SQLite fallback."""
     global FALLBACK_DB_PATH
-    # Only update FALLBACK_DB_PATH if it is not a PostgreSQL URL string
+    default_sqlite_path = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+    
+    # Normalize legacy non-prefixed DB path to data/ folder
+    if isinstance(db_path, str) and db_path.strip() in ("jobhunt_saas_v2.db", "./jobhunt_saas_v2.db"):
+        db_path = default_sqlite_path
+
+    # Only update FALLBACK_DB_PATH if it is a valid non-PG string
     if db_path and not (isinstance(db_path, str) and (db_path.startswith("postgresql://") or db_path.startswith("postgres://") or db_path.startswith("postgresql+asyncpg://"))):
         FALLBACK_DB_PATH = db_path
 
-    target_db = db_path or FALLBACK_DB_PATH or "jobhunt_saas_v2.db"
-    
+    target_db = db_path or FALLBACK_DB_PATH or default_sqlite_path
+    if isinstance(target_db, str) and target_db.strip() in ("jobhunt_saas_v2.db", "./jobhunt_saas_v2.db"):
+        target_db = default_sqlite_path
+
     # Resolve the proper SQLite database path for fallback.
     sqlite_db = target_db
     if isinstance(sqlite_db, str) and (sqlite_db.startswith("postgresql://") or sqlite_db.startswith("postgres://") or sqlite_db.startswith("postgresql+asyncpg://")):
-        sqlite_db = FALLBACK_DB_PATH if (FALLBACK_DB_PATH and not (isinstance(FALLBACK_DB_PATH, str) and (FALLBACK_DB_PATH.startswith("postgresql") or FALLBACK_DB_PATH.startswith("postgres")))) else "jobhunt_saas_v2.db"
+        sqlite_db = FALLBACK_DB_PATH if (FALLBACK_DB_PATH and not (isinstance(FALLBACK_DB_PATH, str) and (FALLBACK_DB_PATH.startswith("postgresql") or FALLBACK_DB_PATH.startswith("postgres")))) else default_sqlite_path
+    if isinstance(sqlite_db, str) and sqlite_db.strip() in ("jobhunt_saas_v2.db", "./jobhunt_saas_v2.db"):
+        sqlite_db = default_sqlite_path
 
     if not should_use_pg(target_db):
         logger.info(f"[DB] Bypassing PG for non-main database: {_safe_str(target_db)}")

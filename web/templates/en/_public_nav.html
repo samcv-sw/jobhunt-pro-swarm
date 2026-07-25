@@ -1,59 +1,146 @@
-<!-- ═══ UNIFIED PUBLIC NAVIGATION ═══ -->
-<nav class="nav" id="nav" style="inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: none; position:fixed;inset-block-start:12px;transform: none;z-index:1000;inline-size:calc(100% - 48px);max-inline-size:1300px;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(5,5,15,0.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,0.08);border-radius:24px;transition:all 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
- <a href="/" class="nav-logo" style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00b8ff 40%,#00f0ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px;text-decoration:none;white-space:nowrap;flex-shrink:0;">JOBHUNT PRO <span class="badge" style="font-size: 14px;font-weight:700;background:rgba(0,240,255,0.12);color:#00f0ff;padding:3px 10px;border-radius:20px;border:1px solid rgba(0,240,255,0.2);-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">v{{ VERSION }}</span></a>
- <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()" style="display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;z-index:1001;flex-shrink:0;">
-  <span style="inline-size:24px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
-  <span style="inline-size:24px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
-  <span style="inline-size:24px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;"></span>
- </div>
- <div class="nav-links" id="navLinks" style="display:flex;gap:32px;align-items:center;">
-  <a href="/services" style="color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s;padding:8px 12px;border-radius:12px;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#00f0ff'" onmouseout="this.style.background='transparent';this.style.color='#e2e8f0'">Services</a>
-  <a href="/compare" style="color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:all 0.2s;padding:8px 12px;border-radius:12px;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#00f0ff'" onmouseout="this.style.background='transparent';this.style.color='#e2e8f0'">Compare</a>
-  <a href="/lang/ar" class="lang-switcher" style="display:flex;align-items:center;gap:6px;color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:700;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);transition:all 0.2s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
-    <span style="font-size:16px;">🌐</span> العربية
+<!-- ═══ ENGLISH PUBLIC NAVIGATION ═══ -->
+<nav class="nav" id="nav" style="box-sizing:border-box;height:54px;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;overflow:visible;">
+  <a class="nav-logo" href="/?lang=en" style="font-family:'Inter',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#7000ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
+    JobHunt Pro <span class="badge" style="font-size: 11px;font-weight:700;background:rgba(0,240,255,0.12);color:#00f0ff;padding:2px 8px;border-radius:20px;border:none;-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">V 1</span>
   </a>
-  <a href="/" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Home</a>
-  <a href="/pricing" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Pricing</a>
-  <a href="/blog" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Blog</a>
-  <a href="/faq" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">FAQ</a>
-  <a href="/trust" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Trust</a>
-  <a href="/contact" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Contact</a>
-  {% if is_logged_in %}
-   <a href="/dashboard" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Dashboard</a>
-   <a href="/logout" class="cta" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(239,68,68,0.15);text-decoration:none;font-size: 14px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Logout</a>
-  {% else %}
-   <a href="/login" style="color:#8a8a9e;text-decoration:none;font-size: 14px;font-weight:500;padding:8px 15px;border-radius:10px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Login</a>
-   <a href="/register" class="cta" style="background:linear-gradient(135deg,#6366f1,#a855f7);color:#ffffff;font-weight:700;padding:10px 22px;border-radius:12px;box-shadow:0 0 20px rgba(99,102,241,0.15);text-decoration:none;font-size: 14px;transition:all 0.3s;white-space:nowrap;flex-shrink:0;">Get Started Free</a>
-  {% endif %}
- </div>
+
+  <div aria-label="Menu" class="nav-hamburger" id="hamburger" onclick="toggleMenu()" style="display:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;z-index:1001;flex-shrink:0;">
+    <span style="inline-size:22px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;display:block;"></span>
+    <span style="inline-size:22px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;display:block;"></span>
+    <span style="inline-size:22px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;display:block;"></span>
+  </div>
+
+  <div class="nav-links" id="navLinks" style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
+    <a class="lang-switcher" id="lang-switcher-link" href="/lang/ar" style="display:flex;align-items:center;gap:4px;color:#e2e8f0;text-decoration:none;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:none;transition:all 0.2s;margin-inline-end:6px;white-space:nowrap;flex-shrink:0;">
+      <span style="font-size:14px;">🌐</span> العربية
+    </a>
+    <a href="/?lang=en" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Home</a>
+    <a href="/services?lang=en" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Services</a>
+    <a href="/pricing?lang=en" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Pricing</a>
+    <a href="/blog?lang=en" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Blog</a>
+    <a href="/faq?lang=en" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">FAQ</a>
+    <a href="/trust?lang=en" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Trust</a>
+    <a href="/contact?lang=en" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Contact</a>
+    {% if is_logged_in %}
+      <a href="/dashboard?lang=en" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Dashboard</a>
+      <a class="cta" href="/logout?lang=en" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size:13px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Log Out</a>
+    {% else %}
+      <a href="/login?lang=en" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size:13px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Login</a>
+      <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#00f0ff,#00a0cc);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size:13px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Start Free →</a>
+    {% endif %}
+  </div>
 </nav>
 
 <style>
-/* Handle hover states and mobile menu for inline nav */
-.nav-links a:not(.cta):hover { color: #fff !important; background: rgba(255,255,255,0.05) !important; }
-.nav-links a.cta:hover { box-shadow: 0 0 35px rgba(0,240,255,0.35) !important; transform: translateY(-1px); }
+.nav-links a:not(.cta):hover { color: #fff !important; background: rgba(255,255,255,0.06) !important; }
+#nav {
+    position: absolute;
+    inset-block-start: 16px;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    margin-inline: auto;
+    transform: none;
+    inline-size: calc(100% - 32px);
+    max-inline-size: 1240px;
+    z-index: 1000;
+    background: rgba(8, 12, 24, 0.88) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.3s ease;
+}
+#nav.scrolled {
+    background: rgba(5, 8, 18, 0.96) !important;
+    border-color: rgba(0, 240, 255, 0.25) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 240, 255, 0.12) !important;
+}
+.nav-links a.nav-active {
+  color: #00f0ff !important;
+  background: rgba(0, 240, 255, 0.15) !important;
+  border: 1px solid rgba(0, 240, 255, 0.35) !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25) !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+}
 
-@media (max-width: 992px) {
+@media (max-width: 1180px) {
     .nav-hamburger { display: flex !important; }
     .nav-links {
         position: fixed; inset-block-start: 0; inset-inline-end: -100%; inline-size: 300px; max-inline-size: 100vw; block-size: 100vh;
-        background: rgba(3,3,12,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border-inline-start: 1px solid rgba(255,255,255,0.05); flex-direction: column; justify-content: flex-start;
+        background: rgba(3,3,12,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-inline-start: 1px solid rgba(255,255,255,0.1); flex-direction: column; justify-content: flex-start;
         padding: 40px; transition: inset-inline-end 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         overflow-y: auto !important;
     }
     .nav-links.active { inset-inline-end: 0; }
-    .nav-links a { inline-size: 100%; text-align: center; padding: 15px; font-size: 16px !important; white-space: nowrap !important; }
-    .nav-hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-links a { inline-size: 100%; text-align: center; padding: 12px; font-size: 15px !important; white-space: nowrap !important; }
+    .nav-hamburger.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
     .nav-hamburger.active span:nth-child(2) { opacity: 0; }
-    .nav-hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-hamburger.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 }
 </style>
+
 <script>
-if(typeof toggleMenu !== 'function') {
-    function toggleMenu() {
-        document.getElementById('hamburger').classList.toggle('active');
-        document.getElementById('navLinks').classList.toggle('active');
+(function() {
+  function highlightActiveNav() {
+    try {
+      const path = (window.location.pathname || '').toLowerCase().replace(/\/+$/, '');
+      const hash = (window.location.hash || '').toLowerCase();
+      const links = document.querySelectorAll('.nav-links a');
+      
+      let matched = false;
+
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || link.classList.contains('lang-switcher') || link.classList.contains('cta')) return;
+        
+        link.classList.remove('nav-active');
+        
+        const cleanHref = href.split('?')[0].split('#')[0].toLowerCase().replace(/\/+$/, '');
+        const hrefHash = href.includes('#') ? '#' + href.split('#')[1].toLowerCase() : '';
+        
+        if (hash && hrefHash && hash === hrefHash) {
+          link.classList.add('nav-active');
+          matched = true;
+        } else if (!matched && cleanHref && cleanHref !== '/' && cleanHref !== '' && path.includes(cleanHref)) {
+          link.classList.add('nav-active');
+          matched = true;
+        }
+      });
+
+      if (!matched && (path === '' || path === '/')) {
+        const homeLink = document.getElementById('nav-home');
+        if (homeLink) homeLink.classList.add('nav-active');
+      }
+    } catch(e) {
+      console.error('[NAV] Active highlight error:', e);
     }
-}
+  }
+
+  document.addEventListener('click', function(e) {
+    const target = e.target.closest('.nav-links a');
+    if (target && !target.classList.contains('lang-switcher') && !target.classList.contains('cta')) {
+      document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('nav-active'));
+      target.classList.add('nav-active');
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', highlightActiveNav);
+  } else {
+    highlightActiveNav();
+  }
+  window.addEventListener('hashchange', highlightActiveNav);
+
+  if (typeof toggleMenu !== 'function') {
+    window.toggleMenu = function() {
+      const hb = document.getElementById('hamburger');
+      const nl = document.getElementById('navLinks');
+      if (hb) hb.classList.toggle('active');
+      if (nl) nl.classList.toggle('active');
+    };
+  }
+})();
 </script>

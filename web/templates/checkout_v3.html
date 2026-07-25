@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="أكمل عملية شراء JobHunt Pro بأمان." name="description"/>
 <meta content="noindex,follow" name="robots"/>
-<title>{{ _('إتمام الدفع — JobHunt Pro') }}</title>
+<title>إتمام الدفع — JobHunt Pro</title>
 <meta property="og:title" content="إتمام الدفع — JobHunt Pro"/>
 <meta property="og:description" content="أكمل عملية شراء JobHunt Pro بأمان. خطوات بسيطة لتفعيل حملتك الذكية للبحث عن وظيفة."/>
 <meta property="og:type" content="website"/>
@@ -480,7 +480,7 @@ body {
 <body>
 <div class="checkout-v3">
 <h1 class="sr-only" style="position:absolute;inline-size:1px;block-size:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">إتمام الدفع — JobHunt Pro</h1>
-<div class="checkout-logo">{{ _('JOBHUNT PRO') }}</div>
+<div class="checkout-logo">JOBHUNT PRO</div>
 <!-- Progress Steps -->
 <div class="progress-steps">
 <div class="progress-step {% if order.status in ('pending','pending_payment') %}active{% else %}completed{% endif %}">
@@ -537,19 +537,21 @@ body {
   {% if order.status in ('pending', 'pending_payment') %}
   <!-- Payment Section -->
 <!-- NOWPayments -->
-<div style="margin-block-end:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
-<div style="font-size:14px; color:var(--text-muted); margin-block-end:12px;">
-      ادفع فوراً عبر البطاقة الائتمانية أو العملات الرقمية
-    </div>
+<div style="margin-block-end:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.25); border-radius:var(--radius-lg); text-align:center;">
+<div style="font-size:16px; font-weight:700; color:#10b981; margin-block-end:8px;">
+  ⚡ الدفع المباشر والآمن بالعملات الرقمية (USDT / BTC / ETH / NOWPayments)
+</div>
+<div style="font-size:13px; color:var(--text-muted); margin-block-end:16px;">
+  متاح عالمياً وفي لبنان وبدون أي عمولات إضافية - تفعيل فوري للحساب
+</div>
 <button class="btn-nowpayments-v3" data-amount="{{ order.price }}" data-customer-email="{{ order.customer_email }}" data-order-id="{{ order.order_id }}" data-service-name="{{ order.service_name }}" onclick="payWithNOWPaymentsV3(this)">
-      {{ _('الدفع عبر NOWPayments') }}
-    </button>
+  🚀 الدفع السريع عبر NOWPayments (USDT / Crypto)
+</button>
 <div id="nowpaymentsStatusV3" style="font-size:14px; color:var(--text-dim); margin-block-start:8px; display:none;"></div>
 </div>
 <!-- Manual Crypto Payment -->
 <p class="instruction-text-v3">
-    أو أرسل المبلغ الدقيق بالعملات الرقمية إلى أحد العناوين أدناه.
-    سيتم إنشاء طلبك تلقائياً وإرساله إلى بريدك الإلكتروني خلال ثوانٍ من تأكيد الدفع.
+    أو أرسل الدفع المباشر بالعملات الرقمية (USDT TRC20 / BTC / ETH) إلى أحد العناوين التالية:
   </p>
 <div class="crypto-section-v3">
 <div class="crypto-tabs-v3" id="cryptoTabsV3">
@@ -578,11 +580,11 @@ body {
 <div class="verify-section-v3">
 <h3>هل أرسلت الدفعة بالفعل؟ تحقق هنا:</h3>
 <div style="font-size:14px; color:var(--text-dim); margin-block-end:12px; line-height:1.5;">
-      أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> {{ _('(الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.') }}
+      أدخل <strong style="color:var(--accent-primary);">رمز الدفع</strong> (الموضح أعلاه) وتجزئة المعاملة (TxHash) من محفظتك الرقمية.
     </div>
 <div class="verify-input-group-v3">
-<input autocomplete="off" dir="auto" id="paymentCodeV3" placeholder="{{ _('رمز الدفع (مثل A1B2C3D4)') }}" style="text-transform:uppercase; " type="text"/ dir="auto">
-<input autocomplete="off" dir="auto" id="txHashV3" placeholder="{{ _('تجزئة المعاملة / TX ID') }}" type="text"/ dir="auto">
+<input autocomplete="off" dir="auto" id="paymentCodeV3" placeholder="رمز الدفع (مثل A1B2C3D4)" style="text-transform:uppercase; " type="text"/ dir="auto">
+<input autocomplete="off" dir="auto" id="txHashV3" placeholder="تجزئة المعاملة / TX ID" type="text"/ dir="auto">
 <button class="btn-verify-v3" id="verifyBtnV3" onclick="verifyPaymentV3('{{ order.order_id }}')">تحقق</button>
 </div>
 <div class="verify-result-v3" id="verifyResultV3"></div>

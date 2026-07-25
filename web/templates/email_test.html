@@ -84,11 +84,11 @@
 <form dir="auto" action="/email-test" enctype="multipart/form-data" id="emailForm" method="POST">
 <!-- CV Upload -->
 <div class="et-card">
-<div class="et-card-title">{{ _('📄 رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً') }}</div>
+<div class="et-card-title">📄 رفع السيرة الذاتية (PDF) — تعبئة جميع الحقول تلقائياً</div>
 <div class="upload-zone" id="dropZone">
 <div class="uz-icon">📥</div>
 <strong>أسقط سيرتك الذاتية هنا أو انقر للتصفح</strong>
-<p>{{ _('ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول أدناه تلقائياً.') }}</p>
+<p>ملفات PDF فقط، بحد أقصى 5 ميجابايت. سيقوم النظام بالتحليل وتعبئة الحقول أدناه تلقائياً.</p>
 <input accept=".pdf" dir="auto" id="cvFileInput" type="file"/ dir="auto">
 </div>
 <div class="upload-status" id="uploadStatus">
@@ -102,15 +102,15 @@
 <div class="et-row">
 <div class="et-field">
 <label>إلى البريد الإلكتروني *</label>
-<input dir="auto" id="fldTo" name="to_email" placeholder="{{ _('hr@company.com') }}" required="" type="email" value="{{ ctx.to_email or '' }}"/ dir="auto">
+<input dir="auto" id="fldTo" name="to_email" placeholder="hr@company.com" required="" type="email" value="{{ ctx.to_email or '' }}"/ dir="auto">
 </div>
 <div class="et-field">
 <label>اسم الشركة</label>
-<input dir="auto" id="fldCompany" name="company_name" placeholder="{{ _('الشركة المستهدفة') }}" type="text" value="{{ ctx.company_name or '' }}"/ dir="auto">
+<input dir="auto" id="fldCompany" name="company_name" placeholder="الشركة المستهدفة" type="text" value="{{ ctx.company_name or '' }}"/ dir="auto">
 </div>
 <div class="et-field">
 <label>المسمى الوظيفي</label>
-<input dir="auto" id="fldJob" name="job_title" placeholder="{{ _('مهندس شبكات') }}" type="text" value="{{ ctx.job_title or '' }}"/ dir="auto">
+<input dir="auto" id="fldJob" name="job_title" placeholder="مهندس شبكات" type="text" value="{{ ctx.job_title or '' }}"/ dir="auto">
 </div>
 </div>
 </div>
@@ -120,11 +120,11 @@
 <span>📄 السيرة الذاتية</span>
 <div class="et-card-actions">
 <button class="btn btn-xs btn-ai" onclick="aiRegen('cv')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
-<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')" type="button">{{ _('📥 تنزيل PDF') }}</button>
+<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cv')" type="button">📥 تنزيل PDF</button>
 </div>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldCV" name="cv_text" placeholder="{{ _('سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF...') }}" dir="auto">{{ ctx.cv_text or '' }}</textarea>
+<textarea dir="auto" id="fldCV" name="cv_text" placeholder="سيظهر نص سيرتك الذاتية هنا بعد رفع ملف PDF..." dir="auto">{{ ctx.cv_text or '' }}</textarea>
 </div>
 </div>
 <!-- Cover Letter -->
@@ -133,11 +133,11 @@
 <span>✉️ رسالة التغطية</span>
 <div class="et-card-actions">
 <button class="btn btn-xs btn-ai" onclick="aiRegen('cover')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
-<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')" type="button">{{ _('📥 تنزيل PDF') }}</button>
+<button class="btn btn-xs btn-pdf" onclick="downloadPDF('cover')" type="button">📥 تنزيل PDF</button>
 </div>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldCover" name="cover_letter" placeholder="{{ _('سيتم إنشاء رسالة التغطية تلقائياً...') }}" dir="auto">{{ ctx.cover_letter or '' }}</textarea>
+<textarea dir="auto" id="fldCover" name="cover_letter" placeholder="سيتم إنشاء رسالة التغطية تلقائياً..." dir="auto">{{ ctx.cover_letter or '' }}</textarea>
 </div>
 </div>
 <!-- Email Body -->
@@ -147,7 +147,7 @@
 <button class="btn btn-xs btn-ai" onclick="aiRegen('email')" type="button">✨ إعادة كتابة بالذكاء الاصطناعي</button>
 </div>
 <div class="et-field">
-<textarea dir="auto" id="fldEmail" name="email_body" placeholder="{{ _('سيتم إنشاء محتوى البريد الإلكتروني تلقائياً...') }}" dir="auto">{{ ctx.email_body or '' }}</textarea>
+<textarea dir="auto" id="fldEmail" name="email_body" placeholder="سيتم إنشاء محتوى البريد الإلكتروني تلقائياً..." dir="auto">{{ ctx.email_body or '' }}</textarea>
 </div>
 </div>
 <!-- Submit -->

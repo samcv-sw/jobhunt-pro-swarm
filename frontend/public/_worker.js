@@ -10,12 +10,9 @@ export default {
       // Build backend target URL
       const targetUrl = new URL(path + url.search, BACKEND_URL);
 
-      // Support WebSocket handshakes by matching protocol
-      let targetUrlStr = targetUrl.toString();
-      const isWebSocket = request.headers.get('Upgrade') === 'websocket';
-      if (isWebSocket) {
-        targetUrlStr = targetUrlStr.replace(/^http/, 'ws');
-      }
+      // Support WebSocket handshakes (keep http/https scheme for fetch in Cloudflare Workers)
+      const targetUrlStr = targetUrl.toString();
+      const isWebSocket = request.headers.get('Upgrade')?.toLowerCase() === 'websocket';
 
       // Copy headers from request
       const headers = new Headers(request.headers);

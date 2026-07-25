@@ -167,14 +167,110 @@
         </div>
     </div>
     <script>
-        // Trigger popup on exit intent (mouse leaving viewport top)
-        let popupTriggered = false;
-        document.addEventListener('mouseleave', function(e) {
-            if(e.clientY < 0 && !popupTriggered) {
-                document.getElementById('exitPopup').style.display = 'flex';
-                popupTriggered = true;
+(function(){
+  let exitShown = false;
+  let inactivityTimer = null;
+  const INACTIVITY_DELAY = 180000; // Exactly 3 minutes (180,000 ms) of complete inactivity
+
+  function resetInactivityTimer() {
+    if (exitShown) return;
+    
+    // Clear existing timer whenever user moves/scrolls/types/clicks/touches
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    
+    // Start new 3-minute countdown of complete zero activity
+    inactivityTimer = setTimeout(function() {
+      if (!exitShown) {
+        triggerExitPopup();
+      }
+    }, INACTIVITY_DELAY);
+  }
+
+  // Listen to all user activity events. Any movement resets timer back to 0!
+  ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'touchmove', 'click'].forEach(function(evtName) {
+    window.addEventListener(evtName, resetInactivityTimer, { passive: true });
+  });
+
+  // Initial call on page load
+  resetInactivityTimer();
+
+  window.triggerExitPopup = function(){
+    if (window.canShowExitPopup && !window.canShowExitPopup()) return;
+    if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token')) return;
+
+    const lastShown = localStorage.getItem('exit_popup_last_shown');
+    const now = Date.now();
+    if (lastShown && (now - parseInt(lastShown)) < 180000) return;
+
+    if (exitShown) return;
+    exitShown = true;
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    localStorage.setItem('exit_popup_last_shown', now.toString());
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      overlay.classList.add('show');
+    }
+  };
+
+  window.closeExitPopup = function(){
+    if (window.recordExitPopupShown) window.recordExitPopupShown();
+    const overlay = document.getElementById('exitOverlay') || document.getElementById('exitPopup');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.classList.remove('show');
+    }
+  };
+})();
+</script>
+
+<script>
+// Exit-Intent Rate Limiter & Authentication Check (Max 1 appearance every 3 minutes for guests)
+(function(){
+    function canShowPopup() {
+        if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token') || document.cookie.includes('auth')) {
+            return false;
+        }
+        const lastShown = localStorage.getItem('exit_popup_last_shown');
+        if (lastShown) {
+            const timeDiff = Date.now() - parseInt(lastShown, 10);
+            if (timeDiff < 180000) { // 3 minutes = 180,000 ms
+                return false;
             }
-        });
-    </script>
+        }
+        return true;
+    }
+
+    window.canShowExitPopup = canShowPopup;
+    window.recordExitPopupShown = function() {
+        localStorage.setItem('exit_popup_last_shown', Date.now().toString());
+    };
+})();
+
+// Background Autopilot Sync across all SaaS pages
+(function(){
+    const AUTOPILOT_CYCLE_MS = 75000;
+    function checkAndRunBackgroundScan() {
+        if (document.getElementById('autopilot-countdown')) return; // Battle Station handles its own UI loop
+        const stored = localStorage.getItem('autopilot_next_scan_target');
+        if (!stored) return;
+        const target = parseInt(stored, 10);
+        const now = Date.now();
+        if (target && target <= now) {
+            // Target expired while on another page — dispatch cloud-tick scan
+            localStorage.setItem('autopilot_next_scan_target', (now + AUTOPILOT_CYCLE_MS).toString());
+            fetch('/api/v2/cloud-tick', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ company_limit: 3, max_campaigns: 3 })
+            }).catch(function(err){ console.debug('Global background scan trigger:', err); });
+        }
+    }
+    setInterval(checkAndRunBackgroundScan, 5000);
+})();
+</script>
+
 </body>
 </html>

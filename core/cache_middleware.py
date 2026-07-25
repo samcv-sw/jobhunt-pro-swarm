@@ -25,6 +25,8 @@ class ResponseCacheMiddleware(BaseHTTPMiddleware):
         "/api/auth": 0,
         "/api/admin": 0,
         "/api/webhook": 0,
+        "/api/profile": 0,
+        "/api/campaigns": 0,
         
         # Cache public endpoints longer
         "/api/jobs": 3600,  # 1 hour
@@ -33,7 +35,6 @@ class ResponseCacheMiddleware(BaseHTTPMiddleware):
         "/api/categories": 86400,
         
         # Cache less frequently accessed data
-        "/api/profile": 1800,  # 30 minutes
         "/api/applications": 300,  # 5 minutes
     }
     

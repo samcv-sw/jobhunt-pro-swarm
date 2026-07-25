@@ -134,11 +134,11 @@
 <input autocomplete="off" class="form-control" dir="auto" id="offerTitle" name="title" placeholder="e.g. Executive CV Makeover + 100 Companies" required="" type="text"/ dir="auto">
 </div>
 <div class="form-group">
-<label for="offerPrice">{{ _('السعر المخفض (USD)') }}</label>
+<label for="offerPrice">السعر المخفض (USD)</label>
 <input class="form-control" dir="auto" id="offerPrice" min="1" name="price" placeholder="e.g. 19.99" required="" step="0.01" type="number"/ dir="auto">
 </div>
 <div class="form-group">
-<label for="offerOriginalPrice">{{ _('السعر الأصلي (USD) — اختياري') }}</label>
+<label for="offerOriginalPrice">السعر الأصلي (USD) — اختياري</label>
 <input class="form-control" dir="auto" id="offerOriginalPrice" min="0" name="original_price" placeholder="e.g. 49.99" step="0.01" type="number"/ dir="auto">
 </div>
 <div class="form-group full-width">
@@ -159,16 +159,16 @@
 <select dir="auto"  class="form-control" id="offerDeliveryType" name="delivery_type" onchange="toggleFulfillmentFields(this, 'add')" required="">
 <option selected="" value="manual">معالجة يدوية من المشرف</option>
 <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
-<option value="instant_api">{{ _('تكامل API مع موزع (فوري)') }}</option>
+<option value="instant_api">تكامل API مع موزع (فوري)</option>
 </select>
 </div>
 <div class="form-group full-width api-fields-add" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
 <div class="form-group" style="grid-column: span 1;">
-<label for="offerApiUrl">{{ _('رابط API الموزع') }}</label>
+<label for="offerApiUrl">رابط API الموزع</label>
 <input class="form-control" dir="auto" id="offerApiUrl" name="reseller_api_url" placeholder="https://api.provider.com/v1/generate" type="url"/ dir="auto">
 </div>
 <div class="form-group" style="grid-column: span 1;">
-<label for="offerApiKey">{{ _('مفتاح / توكن API الموزع') }}</label>
+<label for="offerApiKey">مفتاح / توكن API الموزع</label>
 <input autocomplete="off" class="form-control" dir="auto" id="offerApiKey" name="reseller_api_key" placeholder="API Secret Key Token" type="text"/ dir="auto">
 </div>
 </div>
@@ -255,7 +255,7 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4" dir="auto"></textarea>
                     {% endif %}
                 {% elif offer.delivery_type == 'instant_api' %}
                     <div class="stock-badge in-stock" style="color: #a78bfa; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 92, 246, 0.08); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(139, 92, 246, 0.2); text-transform: uppercase; ">
-                        {{ _('⚡ تفعيل فوري عبر API') }}
+                        ⚡ تفعيل فوري عبر API
                     </div>
                 {% else %}
                     <div class="stock-badge manual" style="color: #94a3b8; font-size: 14px; font-weight: 800; margin-block-end: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.03); padding: 5px 12px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.08); text-transform: uppercase; ">
@@ -439,11 +439,11 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4" dir="auto"></textarea>
 <input autocomplete="off" class="form-control" dir="auto" id="editOfferTitle" name="title" placeholder="e.g. Executive CV Makeover + 100 Companies" required="" type="text"/ dir="auto">
 </div>
 <div class="form-group">
-<label for="editOfferPrice">{{ _('السعر المخفض (USD)') }}</label>
+<label for="editOfferPrice">السعر المخفض (USD)</label>
 <input class="form-control" dir="auto" id="editOfferPrice" min="1" name="price" placeholder="e.g. 19.99" required="" step="0.01" type="number"/ dir="auto">
 </div>
 <div class="form-group">
-<label for="editOfferOriginalPrice">{{ _('السعر الأصلي (USD) — اختياري') }}</label>
+<label for="editOfferOriginalPrice">السعر الأصلي (USD) — اختياري</label>
 <input class="form-control" dir="auto" id="editOfferOriginalPrice" min="0" name="original_price" placeholder="e.g. 49.99" step="0.01" type="number"/ dir="auto">
 </div>
 <div class="form-group full-width">
@@ -464,16 +464,16 @@ e.g. https://vpn.com/claim?code=abc" required="" rows="4" dir="auto"></textarea>
 <select dir="auto"  class="form-control" id="editOfferDeliveryType" name="delivery_type" onchange="toggleFulfillmentFields(this, 'edit')" required="">
 <option value="manual">معالجة يدوية من المشرف</option>
 <option value="instant_pool">تجمع مفاتيح محملة مسبقاً (فوري)</option>
-<option value="instant_api">{{ _('تكامل API مع موزع (فوري)') }}</option>
+<option value="instant_api">تكامل API مع موزع (فوري)</option>
 </select>
 </div>
 <div class="form-group full-width api-fields-edit" style="display: none; grid-column: 1 / -1; gap: 20px; grid-template-columns: 1fr 1fr;">
 <div class="form-group" style="grid-column: span 1;">
-<label for="editOfferApiUrl">{{ _('رابط API الموزع') }}</label>
+<label for="editOfferApiUrl">رابط API الموزع</label>
 <input class="form-control" dir="auto" id="editOfferApiUrl" name="reseller_api_url" placeholder="https://api.provider.com/v1/generate" type="url"/ dir="auto">
 </div>
 <div class="form-group" style="grid-column: span 1;">
-<label for="editOfferApiKey">{{ _('مفتاح / توكن API الموزع') }}</label>
+<label for="editOfferApiKey">مفتاح / توكن API الموزع</label>
 <input autocomplete="off" class="form-control" dir="auto" id="editOfferApiKey" name="reseller_api_key" placeholder="API Secret Key Token" type="text"/ dir="auto">
 </div>
 </div>

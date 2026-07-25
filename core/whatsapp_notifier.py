@@ -14,7 +14,7 @@ from config import CANDIDATE_PHONE, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 logger = logging.getLogger(__name__)
 
-CANDIDATE_PHONE_STR = "+96171019053"
+CANDIDATE_PHONE_STR = "++12494985866"
 
 
 def _get_phone() -> str:
@@ -127,5 +127,5 @@ def notify_application(company: str, position: str, status: str = "sent") -> boo
 
 if __name__ == "__main__":
     logger.debug(f"Contact URL: {get_whatsapp_contact_url()}")
-    logger.debug(f"Link: {generate_wa_me_link(message='Hi Sam!')}")
+    logger.debug(f"Link: {generate_wa_me_link(message='Hi JobHunt Pro Team!')}")
     notify_application_submitted("Test Corp", "Network Engineer")

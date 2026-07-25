@@ -223,7 +223,10 @@ class LanguageMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         lang = request.query_params.get("lang") or request.cookies.get("lang") or "ar"
+        if lang not in ("ar", "en"):
+            lang = "ar"
         request.state.lang = lang
-        request.state.dir = SUPPORTED_LANGUAGES.get(lang, {}).get("dir", "rtl" if lang == "ar" else "ltr")
+        request.state.locale = lang
+        request.state.dir = "rtl" if lang == "ar" else "ltr"
         response = await call_next(request)
         return response

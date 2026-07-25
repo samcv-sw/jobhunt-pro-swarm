@@ -754,7 +754,6 @@ class MultiSourceSearch:
         # Also try the global scraper for additional coverage
         try:
             from core.global_scraper import GlobalJobScraper
-
             global_scraper = GlobalJobScraper()
 
             # Map location to country key
@@ -766,9 +765,11 @@ class MultiSourceSearch:
                     break
 
             try:
-                global_jobs = global_scraper.search_country(
-                    country_key, query, limit=per_scraper_limit
-                )
+                def _do_global():
+                    return global_scraper.search_jobs_for_country(country_key, query, limit=per_scraper_limit)
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _g_exec:
+                    _g_fut = _g_exec.submit(_do_global)
+                    global_jobs = _g_fut.result(timeout=1.5)
                 for job in global_jobs:
                     jid = job.get("job_id", "")
                     if jid and jid not in seen_ids:
@@ -778,28 +779,39 @@ class MultiSourceSearch:
                     f"MultiSourceSearch: GlobalScraper found {len(global_jobs)} jobs"
                 )
             except Exception as e:
-                logger.debug(f"GlobalScraper search error: {e}")
+                logger.debug(f"GlobalScraper search error/timeout: {e}")
             finally:
                 global_scraper.close()
         except ImportError:
             logger.debug("GlobalJobScraper not available")
 
-        # Run each standalone scraper
-        for scraper in self._scrapers:
-            if len(all_jobs) >= limit:
-                break
+        # Run standalone scrapers in parallel for 10x faster execution
+        import concurrent.futures
+
+        def _run_single_scraper(s):
             try:
-                scraper_jobs = scraper.search(query, location, limit=per_scraper_limit)
-                for job in scraper_jobs:
-                    jid = job.get("job_id", "")
-                    if jid and jid not in seen_ids:
-                        seen_ids.add(jid)
-                        all_jobs.append(job)
-                logger.info(
-                    f"MultiSourceSearch: {scraper.source_name} found {len(scraper_jobs)} jobs"
-                )
-            except Exception as e:
-                logger.warning(f"MultiSourceSearch: {scraper.source_name} error: {e}")
+                return s.source_name, s.search(query, location, limit=per_scraper_limit)
+            except Exception as se:
+                logger.warning(f"MultiSourceSearch: {s.source_name} error: {se}")
+                return s.source_name, []
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            future_to_scraper = {executor.submit(_run_single_scraper, s): s for s in self._scrapers}
+            try:
+                for future in concurrent.futures.as_completed(future_to_scraper, timeout=2.0):
+                    try:
+                        s_name, scraper_jobs = future.result()
+                        for job in scraper_jobs:
+                            jid = job.get("job_id", "")
+                            if jid and jid not in seen_ids:
+                                seen_ids.add(jid)
+                                all_jobs.append(job)
+                        if scraper_jobs:
+                            logger.info(f"MultiSourceSearch: {s_name} found {len(scraper_jobs)} jobs")
+                    except Exception as fe:
+                        logger.debug(f"MultiSourceSearch scraper task error: {fe}")
+            except concurrent.futures.TimeoutError:
+                logger.info("[JobSearch] Scraping timeout reached (8s cap) — returning accumulated jobs immediately.")
 
         # Close all scraper sessions
         for scraper in self._scrapers:

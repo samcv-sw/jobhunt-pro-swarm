@@ -1,292 +1,264 @@
 <!DOCTYPE html>
-
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
-<meta content="سجّل دخولك إلى JobHunt Pro — منصة الذكاء الاصطناعي للتقديم التلقائي على الوظائف." name="description"/>
-<meta property="og:title" content="دخول — جوب هانت برو"/>
-<meta property="og:description" content="سجّل دخولك وتحكّم بحملاتك وتقديماتك الوظيفية الآن."/>
-<meta content="noindex,follow" name="robots"/>
-<title>{{ _('دخول — JobHunt Pro') }}</title>
-<link as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=IBM+Plex+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" onload="this.rel='stylesheet'" rel="preload"/>
-<!-- Login v2 — Enhanced glassmorphism, cyan accent, logical CSS properties -->
-<link href="/static/css/dashboard-v4-rtl.css?v=20260629_v2" rel="stylesheet"/>
-<link href="/static/css/auth-v2-rtl.css?v=20260629_v2" rel="stylesheet"/>
-<style>
-/* ═══════════════════════════════════════════
-   LOGIN v2 — Premium Glassmorphism Styles
-   ═══════════════════════════════════════════ */
-:root {
-  --cyan: #00f0ff;
-  --gold: #f0c040;
-  --teal: #00d4aa;
-  --purple: #8b5cf6;
-  --glass: rgba(255,255,255,0.05);
-  --glass-border: rgba(255,255,255,0.1);
-}
-body.auth-page {
-  background: #0a0a14 linear-gradient(135deg,#0a0a1a 0%,#1a0a2e 50%,#0d1a2e 100%) !important;
-  background-attachment: fixed !important;
-  min-block-size: 100vh;
-  font-family: 'Cairo','IBM Plex Arabic','Tajawal',sans-serif;
-}
-.auth-card {
-  animation: fadeSlideUp 0.5s ease-out;
-  background: rgba(10,10,25,0.8) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(0,240,255,0.15) !important;
-  border-radius: 20px !important;
-}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <title>تسجيل الدخول — JobHunt Pro</title>
 
-/* ── Input Focus / Validation States ── */
-.auth-card input:focus,
-.auth-card textarea:focus,
-.auth-card select:focus {
-  outline: none !important;
-  border-color: #00f0ff !important;
-  box-shadow: 0 0 0 3px rgba(0,240,255,0.15) !important;
-}
-.auth-card input.input-error,
-.auth-card textarea.input-error {
-  border-color: #ff4444 !important;
-  box-shadow: 0 0 0 3px rgba(255,68,68,0.15) !important;
-}
-.auth-card input.input-success,
-.auth-card textarea.input-success {
-  border-color: #00ff88 !important;
-  box-shadow: 0 0 0 3px rgba(0,255,136,0.15) !important;
-}
+  <link rel="icon" type="image/png" href="/static/favicon.png?v=3"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap"/>
 
-/* ── Submit Button ── */
-.btn-submit {
-  background: linear-gradient(135deg, var(--cyan), var(--teal)) !important;
-  color: #0a0a14 !important;
-  font-weight: 700 !important;
-  padding-inline: 24px;
-  font-family: 'Cairo','IBM Plex Arabic','Tajawal',sans-serif;
-}
-.btn-submit:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 25px rgba(0,240,255,0.4) !important;
-}
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #050814;
+      background-image:
+        radial-gradient(circle at 15% 30%, rgba(0, 240, 255, 0.08), transparent 40%),
+        radial-gradient(circle at 85% 70%, rgba(139, 92, 246, 0.07), transparent 40%);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .bg-grid {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .page-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 20px 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .auth-card {
+      background: rgba(13, 19, 38, 0.92);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #00f0ff, #8b5cf6, transparent);
+    }
+    .auth-header { text-align: center; margin-bottom: 28px; }
+    .auth-header h1 {
+      font-size: 26px; font-weight: 800; color: #ffffff; margin-bottom: 6px;
+    }
+    .auth-header p.sub { color: #94a3b8; font-size: 14px; }
 
-/* ── Loading Spinner ── */
-.spinner {
-  display: inline-block;
-  inline-size: 16px;
-  block-size: 16px;
-  border: 2px solid rgba(255,255,255,0.35);
-  border-block-start-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  vertical-align: middle;
-  margin-inline-end: 6px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    .oauth-row {
+      display: flex !important;
+      flex-direction: row !important;
+      gap: 12px !important;
+      margin-bottom: 20px !important;
+      width: 100% !important;
+    }
+    .btn-oauth {
+      flex: 1 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+      padding: 12px 16px !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 12px !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      text-decoration: none !important;
+      transition: all 0.25s ease !important;
+      white-space: nowrap !important;
+    }
+    .btn-oauth:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border-color: rgba(0, 240, 255, 0.4) !important;
+      transform: translateY(-1px) !important;
+    }
+    .btn-oauth img {
+      width: 20px !important;
+      height: 20px !important;
+      min-width: 20px !important;
+      min-height: 20px !important;
+      max-width: 20px !important;
+      max-height: 20px !important;
+      object-fit: contain !important;
+      flex-shrink: 0 !important;
+      display: block !important;
+    }
 
-/* ── Background particles (CSS only) ── */
-.bg-particles {
-  position: fixed; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%;
-  pointer-events: none; z-index: 0;
-  overflow: hidden;
-}
-.bg-particles .particle {
-  position: absolute;
-  inline-size: 4px; block-size: 4px;
-  background: var(--cyan);
-  border-radius: 50%;
-  opacity: 0.1;
-  animation: floatParticle 20s infinite linear;
-}
-.bg-particles .particle:nth-child(1) { inset-inline-start: 10%; inset-block-start: 20%; animation-delay: 0s; animation-duration: 18s; }
-.bg-particles .particle:nth-child(2) { inset-inline-start: 25%; inset-block-start: 60%; animation-delay: 2s; animation-duration: 22s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(3) { inset-inline-start: 45%; inset-block-start: 10%; animation-delay: 4s; animation-duration: 25s; }
-.bg-particles .particle:nth-child(4) { inset-inline-start: 65%; inset-block-start: 70%; animation-delay: 1s; animation-duration: 20s; inline-size: 5px; block-size: 5px; }
-.bg-particles .particle:nth-child(5) { inset-inline-start: 80%; inset-block-start: 30%; animation-delay: 3s; animation-duration: 23s; }
-.bg-particles .particle:nth-child(6) { inset-inline-start: 50%; inset-block-start: 80%; animation-delay: 5s; animation-duration: 19s; inline-size: 3px; block-size: 3px; }
-.bg-particles .particle:nth-child(7) { inset-inline-start: 15%; inset-block-start: 85%; animation-delay: 6s; animation-duration: 21s; }
-.bg-particles .particle:nth-child(8) { inset-inline-start: 90%; inset-block-start: 50%; animation-delay: 2.5s; animation-duration: 24s; }
-@keyframes floatParticle {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.1; }
-  90% { opacity: 0.1; }
-  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
-}
+    .oauth-divider {
+      text-align: center; margin: 20px 0; color: #94a3b8; position: relative; font-size: 13px; font-weight: 500;
+    }
+    .oauth-divider::before, .oauth-divider::after {
+      content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: rgba(255, 255, 255, 0.12);
+    }
+    .oauth-divider::before { right: 0; }
+    .oauth-divider::after { left: 0; }
 
-/* ── Success animation ── */
-@keyframes successPop {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
-.success-check {
-  display: none;
-  text-align: center; padding: 40px 20px;
-  animation: successPop 0.5s ease-out;
-}
-.success-check .check-icon {
-  inline-size: 64px; block-size: 64px; border-radius: 50%;
-  background: var(--accent-success); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin-inline: auto; margin-block-end: 16px;
-  box-shadow: 0 0 30px rgba(0,255,136,0.3);
-}
-.success-check h2 { font-size: 22px; margin-block-end: 8px; }
-.success-check p { color: var(--text-muted); font-size: 14px; }
-</style>
+    .form-group { margin-bottom: 20px; text-align: start; }
+    .form-group label {
+      display: block; font-size: 14px; font-weight: 600; color: #cbd5e1; margin-bottom: 8px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 14px;
+      font-family: 'Cairo', sans-serif;
+      transition: all 0.25s ease;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #00f0ff;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+    }
+
+    .remember-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-size: 13px;
+    }
+    .checkbox-label {
+      display: flex; align-items: center; gap: 8px; color: #cbd5e1; cursor: pointer; user-select: none;
+    }
+    .checkbox-label input { accent-color: #00f0ff; width: 16px; height: 16px; cursor: pointer; }
+
+    .forgot-link { color: #00f0ff; text-decoration: none; font-weight: 600; transition: color 0.2s; }
+    .forgot-link:hover { text-decoration: underline; color: #38bdf8; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #00f0ff 0%, #00b8ff 100%);
+      color: #050814;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px; font-weight: 800;
+      font-family: 'Cairo', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 240, 255, 0.35);
+      transition: all 0.25s ease;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 240, 255, 0.5);
+    }
+
+    .auth-footer {
+      text-align: center; margin-top: 24px; color: #94a3b8; font-size: 14px;
+    }
+    .auth-footer a { color: #00f0ff !important; text-decoration: none; font-weight: 700; }
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .trust-strip {
+      display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
+      margin-top: 24px; font-size: 13px; color: #cbd5e1; text-align: center; font-weight: 500;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="auth-page">
-<div class="bg-particles">
-<div class="particle"></div><div class="particle"></div><div class="particle"></div>
-<div class="particle"></div><div class="particle"></div><div class="particle"></div>
-<div class="particle"></div><div class="particle"></div>
-</div>
+<body>
+  <div class="bg-grid"></div>
 
-{% include '_public_nav.html' %}
+  {% include '_public_nav.html' %}
 
-<div class="auth-page-wrap" style="padding-block-start:140px;">
-<div class="auth-container">
-<div class="auth-card">
-<div class="auth-header">
-<h1>أهلاً وسهلاً بيك 👋</h1>
-<p class="sub">سجل دخولك لتتحكم بحملاتك</p>
-</div>
+  <div class="page-wrap" style="padding-block-start:105px !important;">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1>أهلاً بعودتك 👋</h1>
+          <p class="sub">سجّل دخولك لإدارة حملاتك الذكية</p>
+        </div>
 
-      {% if plan %}
-      <div class="plan-badge">
-<span class="plan-badge-icon">🚀</span>
-<div class="plan-badge-info">
-<strong>الخطة المختارة {{ plan }}</strong>
-<span>تابع بخطتك المختارة. يمكنك التغيير في أي وقت.</span>
-</div>
-</div>
-      {% endif %}
+        {% if error %}
+        <div class="error">⚠️ {{ error }}</div>
+        {% endif %}
 
-      {% if error %}
-      <div class="error">⚠️ {{ error }}</div>
-      {% endif %}
+        <div class="oauth-row">
+          <a href="/auth/google/login" class="btn-oauth">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" loading="lazy"/>
+            <span>Google</span>
+          </a>
+          <a href="/auth/microsoft/login" class="btn-oauth">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft" loading="lazy"/>
+            <span>Microsoft</span>
+          </a>
+        </div>
 
-      <!-- OAuth Row -->
-<div class="oauth-row">
-<a class="btn-oauth" href="/auth/google/login">
-<img alt="Google" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
-          {{ _('Google') }}
-        </a>
-<a class="btn-oauth" href="/auth/microsoft/login">
-<img alt="Microsoft" loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
-          {{ _('Microsoft') }}
-        </a>
-</div>
-<div class="oauth-divider">أو</div>
-<form dir="auto" action="/login" id="loginForm" method="POST" onsubmit="handleLogin(event)">
-<div class="form-group">
-<label for="email">البريد الإلكتروني</label>
-<input autocomplete="email" autofocus="" dir="auto" id="email" name="email" placeholder="you@example.com" required="" type="email"/ dir="auto">
-</div>
-<div class="form-group">
-<label for="password">كلمة المرور</label>
-<div class="pw-input-wrap">
-<input autocomplete="current-password" dir="auto" id="password" name="password" oninput="checkPwStrength(this.value)" placeholder="●●●●●●●●" required="" type="password"/ dir="auto">
-<button aria-label="Toggle password visibility" class="pw-toggle-btn" id="pwToggle" onclick="togglePwVisibility()" type="button">👁️</button>
-</div>
-<!-- Password Strength Meter -->
-<div class="pw-strength-meter">
-<div class="pw-strength-bar" id="pwStrengthBar"></div>
-</div>
-<div class="pw-strength-label" id="pwStrengthLabel"></div>
-</div>
-<div class="pw-row">
-<label style="display:flex;align-items:center;gap:6px;font-size: 14px;color:var(--text-muted);cursor:pointer;">
-<input dir="auto" name="remember" style="accent-color:#00f0ff;" type="checkbox"/ dir="auto"> تذكرني
-          </label>
-<a href="/forgot-password">نسيت كلمة المرور؟</a>
-</div>
-<button class="btn-submit" id="loginBtn" type="submit">
-<span class="btn-text">🔐 دخول للوحة التحكم</span>
-<span class="btn-spinner"></span>
-</button>
-</form>
-<div class="auth-footer">
-        جديد عنا؟ <a href="/register">أنشئ حساب مجاني ←</a>
-</div>
-</div>
-<div class="trust-strip">
-<span>🔒 تشفير 256-بت</span>
-<span>🛡️ ضمان استرداد 30 يوم</span>
-<span>🤖 200 وكيل ذكي</span>
-</div>
-</div>
-</div>
-<script>
-/* ═══════════════════════════════════════════
-   LOGIN v2 — JavaScript
-   ═══════════════════════════════════════════ */
+        <div class="oauth-divider">أو عبر البريد</div>
 
-/* ── Password Visibility Toggle ── */
-function togglePwVisibility() {
-  var pw = document.getElementById('password');
-  var toggle = document.getElementById('pwToggle');
-  if (pw.type === 'password') {
-    pw.type = 'text';
-    toggle.textContent = '🙈';
-  } else {
-    pw.type = 'password';
-    toggle.textContent = '👁️';
-  }
-}
+        <form action="/login" method="POST" dir="rtl">
+          <div class="form-group">
+            <label for="email">البريد الإلكتروني</label>
+            <input type="email" id="email" name="email" placeholder="name@example.com" required dir="auto"/ dir="auto">
+          </div>
 
-/* ── Password Strength Check ── */
-function checkPwStrength(val) {
-  var bar = document.getElementById('pwStrengthBar');
-  var label = document.getElementById('pwStrengthLabel');
-  if (!val) {
-    bar.className = 'pw-strength-bar';
-    label.textContent = '';
-    return;
-  }
-  var score = 0;
-  if (val.length >= 8) score++;
-  if (val.length >= 12) score++;
-  if (/[a-z]/.test(val) && /[A-Z]/.test(val)) score++;
-  if (/\d/.test(val)) score++;
-  if (/[^a-zA-Z0-9]/.test(val)) score++;
-  var levels = ['', 'weak', 'fair', 'good', 'strong'];
-  var labels = ['', 'ضعيف — جرب إضافة أرقام ورموز', 'مقبول — أضف أحرف كبيرة ورموز خاصة', 'جيد — اقتربت!', 'قوي — كلمة مرور ممتازة!'];
-  bar.className = 'pw-strength-bar ' + levels[score];
-  label.textContent = labels[score];
-  label.className = 'pw-strength-label ' + levels[score];
-}
+          <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input type="password" id="password" name="password" placeholder="●●●●●●●●" required dir="auto"/ dir="auto">
+          </div>
 
-/* ── Form Submit with Loading State ── */
-function handleLogin(e) {
-  e.preventDefault();
-  var btn = document.getElementById('loginBtn');
-  btn.classList.add('loading');
-  btn.querySelector('.btn-text').innerHTML = '<span class="spinner"></span> جاري...';
-  btn.disabled = true;
-  // Allow form to submit naturally after brief delay for UX
-  setTimeout(function() {
-    document.getElementById('loginForm').submit();
-  }, 300);
-}
+          <div class="remember-row">
+            <label class="checkbox-label">
+              <input type="checkbox" name="remember" checked/ dir="auto">
+              <span>تذكرني</span>
+            </label>
+            <a href="/forgot-password" class="forgot-link">نسيت كلمة المرور؟</a>
+          </div>
 
-/* ── Scroll Reveal ── */
-document.addEventListener('DOMContentLoaded', function() {
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
+          <button type="submit" class="btn-submit" id="loginBtn">دخول إلى غرفة القيادة 🔐</button>
+        </form>
+
+        <div class="auth-footer">
+          جديد على المنصة؟ <a href="/register">إنشاء حساب مجاني ←</a>
+        </div>
+      </div>
+
+      <div class="trust-strip">
+        <span>🔒 تشفير <span dir="ltr">256-bit</span> AES</span>
+        <span>🛡️ ضمان 30 يوم</span>
+        <span>🤖 🤖 سوارم غراهام المستقل (Graham Swarm Matrix)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector('form[action="/login"]')?.addEventListener('submit', function() {
+      var btn = document.getElementById('loginBtn');
+      if (btn) {
+        btn.textContent = '⏳ جاري التحقق...';
+        btn.style.opacity = '0.75';
       }
     });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
-    observer.observe(el);
-  });
-});
-</script>
-{% include '_public_footer.html' %}
+  </script>
 </body>
 </html>

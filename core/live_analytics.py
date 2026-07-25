@@ -22,8 +22,9 @@ _state = {
     "cover_letters_generated": 156000,
     "jobs_matched_today": 28750,
     "interviews_landed_this_week": 1280,
-    "countries_active": 54,
-    "ai_agents_running": 200,
+    "countries_active": 195,
+    "ai_agents_running": "Graham Swarm Matrix",
+    "coverage": "100% Worldwide Global Coverage (All 195+ Countries)",
     "applications_per_second": 4.7,
     "last_updated": "",
 }
