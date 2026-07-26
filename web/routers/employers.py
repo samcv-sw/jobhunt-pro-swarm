@@ -46,6 +46,22 @@ def employers_page(request: Request):
     content = render_template_fn("for_employers.html", request=request, active_page="b2b", user=None)
     return HTMLResponse(_public_shell_fn(content, "B2B Recruiter Portal — JobHunt Pro"))
 
+@router.get("/post-job", response_class=HTMLResponse)
+@router.get("/employers/post-job", response_class=HTMLResponse)
+def post_job_page(request: Request):
+    """Job posting page for employers and recruiters."""
+    get_db_fn, get_verified_user_id_fn, _, _, _, render_template_fn, _public_shell_fn, _build_dashboard_shell_fn, _ = _deps()
+    user_id = get_verified_user_id_fn(request)
+    if user_id:
+        conn = get_db_fn()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        conn.close()
+        user = dict(user_row) if user_row else {}
+        content = render_template_fn("for_employers.html", request=request, user=user, active_page="post-job")
+        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, "نشر وظيفة جديدة — أصحاب العمل", "post-job", request=request))
+    content = render_template_fn("for_employers.html", request=request, active_page="post-job", user=None)
+    return HTMLResponse(_public_shell_fn(content, "نشر وظيفة جديدة — JobHunt Pro"))
+
 @router.post("/api/employer/post-job")
 def api_employer_post_job(
     request: Request,
