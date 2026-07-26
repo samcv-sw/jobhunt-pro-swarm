@@ -20,7 +20,7 @@ IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHER
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "JobHunt Pro Team")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "samsalameh.cv@gmail.com")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
@@ -35,7 +35,7 @@ if not _secret_key:
     _secret_key = _secrets.token_urlsafe(64)
     logger.critical("SECRET_KEY NOT SET in .env! Using a random ephemeral key — sessions will be invalidated on every restart. Set SECRET_KEY in .env immediately.")
 SECRET_KEY = _secret_key
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+12494985866")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
 CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/sam-salameh"
 YEARS_EXPERIENCE = 15
@@ -176,7 +176,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 PA_API_TOKEN = os.getenv("PA_API_TOKEN", "")
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com")
+BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "sam.dev1@hotmail.com")
 JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
