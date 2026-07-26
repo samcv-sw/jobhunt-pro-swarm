@@ -453,16 +453,12 @@ function generateLocalAtsScore(resumeText, jobDescText, jobTitle) {
   const hasSkills = /skills|competencies|technologies|matrix|مهارات|المهارات|تقنيات/i.test(resumeText);
   const hasContact = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(resumeText) || /(\+?\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}/.test(resumeText);
 
-  let sectionScore = 100;
   let sectionCount = (hasSummary ? 1 : 0) + (hasExperience ? 1 : 0) + (hasEducation ? 1 : 0) + (hasSkills ? 1 : 0);
-  if (sectionCount === 3) sectionScore = 88;
-  else if (sectionCount === 2) sectionScore = 75;
-  else if (sectionCount === 1) sectionScore = 60;
+  let sectionScore = Math.round((sectionCount / 4) * 100);
+  let contactScore = hasContact ? 100 : 50;
+  let formatScore = Math.min(100, Math.max(65, Math.round((resumeText.length / 1000) * 100)));
 
-  let contactScore = hasContact ? 100 : 70;
-  let formatScore = (resumeText.length > 500) ? 95 : 85;
-
-  // Check if CV is 100% ATS Optimized (from Optimizer button)
+  // Check if CV is 100% ATS Optimized
   const is100Optimized = (resumeText.includes('100%') || resumeText.includes('EXECUTIVE SUMMARY') || resumeText.includes('TECHNICAL SKILLS MATRIX') || (hasSummary && hasExperience && hasEducation && hasSkills && textLower.includes(titleLower)));
 
   if (is100Optimized && resumeText.length > 800) {
@@ -472,6 +468,7 @@ function generateLocalAtsScore(resumeText, jobDescText, jobTitle) {
       format_readability_score: 100,
       contact_info_score: 100,
       section_completeness_score: 100,
+      experience_score: 100,
       missing_keywords: [],
       strengths: [
         '🌟 السيرة الذاتية محسنة ومطابقة 100% للوظيفة المستهدفة ولأنظمة الـ ATS العالمية!',
@@ -484,40 +481,44 @@ function generateLocalAtsScore(resumeText, jobDescText, jobTitle) {
     };
   }
 
-  // 2. Dynamic Keyword Match Score against Job Description
-  let extractedJobKw = [];
+  // 2. Extract Meaningful Keywords from Job Description
+  let jobKw = [];
   if (jobDescText && jobDescText.length > 20) {
     const words = jobDescText.match(/\b[a-zA-Z0-9+#.-]{3,}\b/g);
     if (words) {
-      const stopWords = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'are', 'was', 'were', 'have', 'has', 'had', 'been', 'will', 'would', 'should', 'could', 'about', 'across', 'help', 'recruit', 'seeking', 'company']);
-      extractedJobKw = [...new Set(words.map(w => w.toLowerCase()).filter(w => !stopWords.has(w) && w.length > 2))];
+      const stopWords = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'are', 'was', 'were', 'have', 'has', 'had', 'been', 'will', 'would', 'should', 'could', 'about', 'across', 'help', 'recruit', 'seeking', 'company', 'looking', 'description', 'role', 'team', 'work', 'job', 'skills', 'responsibilities']);
+      jobKw = [...new Set(words.map(w => w.toLowerCase()).filter(w => !stopWords.has(w) && w.length > 2))];
     }
   }
 
-  let matchedCount = 0;
-  let missingKeywords = [];
+  let matched = [];
+  let missing = [];
 
-  if (extractedJobKw.length > 0) {
-    extractedJobKw.forEach(kw => {
+  if (jobKw.length > 0) {
+    jobKw.forEach(kw => {
       if (textLower.includes(kw)) {
-        matchedCount++;
+        matched.push(kw);
       } else {
-        if (missingKeywords.length < 6 && kw.length > 3) {
-          missingKeywords.push(kw.charAt(0).toUpperCase() + kw.slice(1));
+        if (missing.length < 6 && kw.length > 3) {
+          missing.push(kw.charAt(0).toUpperCase() + kw.slice(1));
         }
       }
     });
   }
 
-  let keywordScore = 82;
-  if (extractedJobKw.length > 0) {
-    let matchRatio = matchedCount / extractedJobKw.length;
-    keywordScore = Math.min(100, Math.max(65, Math.round(matchRatio * 100) + 20));
-  } else {
-    keywordScore = (resumeText.length > 1000) ? 92 : 84;
+  // Real Dynamic Calculation: keyword ratio dominates overall score!
+  let matchRatio = jobKw.length > 0 ? (matched.length / jobKw.length) : 0.65;
+  let keywordScore = Math.min(100, Math.max(30, Math.round(matchRatio * 100)));
+
+  // Title match bonus
+  let titleBonus = 0;
+  if (titleLower && textLower.includes(titleLower.split(' ')[0])) {
+    titleBonus = 12;
   }
 
-  let overall = Math.min(100, Math.round((keywordScore * 0.40) + (formatScore * 0.20) + (contactScore * 0.20) + (sectionScore * 0.20)));
+  // Weight keyword match at 65% so different job descriptions give DRAMATICALLY different scores (e.g. 48%, 64%, 82%, 94%)!
+  let overall = Math.min(100, Math.max(35, Math.round((keywordScore * 0.65) + (sectionScore * 0.15) + (contactScore * 0.10) + (formatScore * 0.10) + titleBonus)));
+  let expScore = Math.min(100, Math.max(45, Math.round(keywordScore * 0.85 + 15)));
 
   return {
     overall_score: overall,
@@ -525,7 +526,8 @@ function generateLocalAtsScore(resumeText, jobDescText, jobTitle) {
     format_readability_score: formatScore,
     contact_info_score: contactScore,
     section_completeness_score: sectionScore,
-    missing_keywords: missingKeywords.length > 0 ? missingKeywords : ['Continuous Integration', 'Project KPIs', 'Vendor Relations'],
+    experience_score: expScore,
+    missing_keywords: missing.length > 0 ? missing : ['Strategic Planning', 'KPI Tracking', 'Resource Allocation'],
     strengths: [
       'هيكل السيرة الذاتية متوافق مع أنظمة الفحص الإلكتروني (ATS)',
       'تحديد واضح للمهارات التقنية والخبرات العملية',
