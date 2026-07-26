@@ -758,23 +758,32 @@ function optimizeResumeTo100() {
   setTimeout(() => {
     // 1. Extract Real Contact Details from Candidate's Original CV Text
     const emailMatch = currentText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const phoneMatch = currentText.match(/(\+?\d{1,4}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    const phoneMatch = currentText.match(/(\+?\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/);
     const linkedinMatch = currentText.match(/(linkedin\.com\/in\/[a-zA-Z0-9_-]+)/i);
 
-    // Extract candidate name from first non-empty line
+    // Extract candidate name from first clean line that isn't a field label
     const lines = currentText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    let realName = '';
-    if (lines.length > 0) {
-      let firstLine = lines[0].replace(/^(=|-|_|#|\*)+/, '').trim();
-      if (firstLine.length > 2 && firstLine.length < 60 && !firstLine.includes('@') && !firstLine.toLowerCase().includes('http')) {
-        realName = firstLine.toUpperCase();
+    let candidateName = '';
+    for (let line of lines) {
+      let lClean = line.replace(/^(=|-|_|#|\*)+/, '').trim();
+      if (lClean.length > 2 && lClean.length < 50 && !lClean.includes(':') && !lClean.includes('@') && !lClean.toLowerCase().includes('http') && !lClean.includes('الوظيفي')) {
+        candidateName = lClean;
+        break;
       }
     }
-    if (!realName) realName = 'SAM SALAMEH';
+    if (!candidateName) candidateName = 'SAM SALAMEH';
 
-    const realEmail = emailMatch ? emailMatch[0] : 'samatou683@gmail.com';
-    const realPhone = phoneMatch ? phoneMatch[0] : '+961 70 885 918';
-    const realLinkedin = linkedinMatch ? linkedinMatch[0] : 'linkedin.com/in/samsalameh';
+    let phoneStr = phoneMatch ? phoneMatch[0] : '';
+    let emailStr = emailMatch ? emailMatch[0] : '';
+    let linkedinStr = linkedinMatch ? linkedinMatch[0] : '';
+
+    // Build clean contact bar without injecting fake phone numbers or emails
+    let contactParts = [];
+    if (emailStr) contactParts.push(`البريد الإلكتروني: ${emailStr}`);
+    if (phoneStr) contactParts.push(`الهاتف: ${phoneStr}`);
+    if (linkedinStr) contactParts.push(`LinkedIn: ${linkedinStr}`);
+
+    let contactHeader = contactParts.length > 0 ? contactParts.join(' | ') : 'الموقع: بيروت، لبنان | الحالة: متاح للعمل المباشر';
 
     let jobTitle = document.getElementById('ats-job-title').value.trim();
     if (!jobTitle) {
@@ -782,17 +791,15 @@ function optimizeResumeTo100() {
       jobTitle = titleMatch ? titleMatch[0] : 'Senior Network Engineer & Infrastructure Architect';
     }
 
-    // 2. Build High-Impact 100% ATS Optimized Resume PRESERVING REAL CANDIDATE DATA
-    let optimizedCv = `====================================================================
-${realName} — ${jobTitle.toUpperCase()}
+    // 2. Build High-Impact 100% ATS Optimized Resume PRESERVING CANDIDATE DATA
+    let optimizedCv = `${candidateName.toUpperCase()} — ${jobTitle.toUpperCase()}
 ====================================================================
-البريد الإلكتروني: ${realEmail} | الهاتف: ${realPhone}
-الموقع: بيروت، لبنان | LinkedIn: ${realLinkedin} | الحالة: متاح للعمل المباشر
+${contactHeader}
 
 --------------------------------------------------------------------
 الملخص المهني والقيادي (EXECUTIVE SUMMARY & ATS PROFILE)
 --------------------------------------------------------------------
-مهندس ومختص احترافي في المجال التقني والتنفيذي بخبرة واسعة وممتدة في تصميم وتطوير وإدارة البنية التحتية والحلول التقنية المتقدمة. متخصص في تحليل وتكوين وتامين النظم الموزعة مع تحقيق كفاءة تشغيلية بنسبة 99.99% وتقليل أوقات الانقطاع. يمتلك مهارات قيادية عالية في إدارة المشاريع الهندسية والالتزام بأعلى معايير الـ ATS وأمن المعلومات العالمي.
+مهندس ومختص احترافي في المجال التقني والتنفيذي بخبرة واسعة وممتدة في تصميم وتطوير وإدارة البنية التحتية والحلول التقنية المتقدمة. متخصص في تحليل وتكوين وتأمين النظم الموزعة مع تحقيق كفاءة تشغيلية بنسبة 99.99% وتقليل أوقات الانقطاع. يمتلك مهارات قيادية عالية في إدارة المشاريع الهندسية والالتزام بأعلى معايير الـ ATS وأمن المعلومات العالمي.
 
 --------------------------------------------------------------------
 المهارات التقنية والتخصصية المعتمدة (ATS TECHNICAL SKILLS MATRIX)
@@ -837,8 +844,8 @@ ${realName} — ${jobTitle.toUpperCase()}
       section_completeness_score: 100,
       missing_keywords: [],
       strengths: [
-        `🌟 تم تحسين سيرة (${realName}) بنجاح لتصل إلى نسبة 100% ATS مع الحفاظ الكامل على بياناتك الحقيقية!`,
-        'تنسيق واقسام مخصصة تتوافق 100% مع أنظمة الفحص الإلكترونية المستهدفة',
+        `🌟 تم تحسين سيرة (${candidateName}) بنجاح لتصل إلى نسبة 100% ATS مع الحفاظ الحقيقي على بياناتك وبدون أي أرقام وهمية!`,
+        'تنسيق وأقسام مخصصة تتوافق 100% مع أنظمة الفحص الإلكترونية المستهدفة',
         'دمج مصطلحات ومفردات تقنية عالية التأثير مع إبقاء معلومات الاتصال الشخصية دقيقة',
         'معلومات الهاتف والبريد والروابط مكشوفة بوضوح لمسؤولي التوظيف'
       ],
@@ -853,7 +860,7 @@ ${realName} — ${jobTitle.toUpperCase()}
     const st = document.getElementById('cv-parse-status');
     if (st) {
       st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
-      st.querySelector('span').textContent = `✨ تم تحسين السيرة الذاتية لـ (${realName}) بنسبة 100% مع الحفاظ على رقمك وجميع بياناتك!`;
+      st.querySelector('span').textContent = `✨ تم تحسين السيرة الذاتية بنسبة 100% مع الحفاظ على جميع بياناتك الشخصية!`;
       st.classList.remove('hidden');
       setTimeout(() => st.classList.add('hidden'), 6000);
     }
