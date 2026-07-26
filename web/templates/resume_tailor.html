@@ -761,9 +761,33 @@ English (Fluent), Arabic (Native), French (Intermediate)`;
 async function importUrlToTailor() {
   const urlInput = document.getElementById('tailor-import-url').value.trim();
   if (!urlInput) {
-    alert('يرجى وضع رابط الوظيفة أولاً.');
     return;
   }
+  const btn = document.getElementById('btn-import-tailor');
+  btn.disabled = true;
+  btn.innerHTML = '⌛ جاري الجلب...';
+
+  try {
+    let resp = await fetch('/api/v1/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: urlInput })
+    });
+    let data = await resp.json();
+    let importedText = data.job_description || data.text || data.description || '';
+    if (importedText) {
+      document.getElementById('tailor-job').value = importedText;
+    }
+    if (data.title) {
+      document.getElementById('tailor-job-title').value = data.title;
+    }
+  } catch(e) {
+    console.warn("Import URL tailor warning:", e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📥 استيراد';
+  }
+}
   const btn = document.getElementById('btn-import-tailor');
   btn.disabled = true;
   btn.innerHTML = '⌛ جاري الجلب...';

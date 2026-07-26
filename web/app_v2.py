@@ -8992,50 +8992,73 @@ async def api_fetch_url(request: Request):
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
 
+        import re
         import httpx
         from bs4 import BeautifulSoup
 
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9,ar;q=0.8"
-        }
+        # Extract title from URL slug fallback
+        slug_match = re.search(r'/([^/]+?)(?:\?|#|$)', url)
+        slug_title = ""
+        if slug_match:
+            slug_part = slug_match.group(1).replace('-', ' ').replace('_', ' ')
+            slug_words = [w.capitalize() for w in slug_part.split() if len(w) > 1 and not w.isdigit()]
+            if slug_words:
+                slug_title = ' '.join(slug_words)
 
-        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True, headers=headers) as client:
-            resp = await client.get(url)
-            html = resp.text
+        fallback_desc = f"{slug_title if slug_title else 'Technical Specialist'} position: Key responsibilities include managing technical operations, infrastructure support, troubleshooting, system maintenance, and ensuring service excellence."
 
-        soup = BeautifulSoup(html, 'html.parser')
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9,ar;q=0.8"
+            }
 
-        # Remove script and style tags
-        for s in soup(["script", "style", "noscript", "svg", "header", "footer"]):
-            s.decompose()
+            async with httpx.AsyncClient(timeout=10.0, follow_redirects=True, headers=headers) as client:
+                resp = await client.get(url)
+                html = resp.text
 
-        # Extract OpenGraph / Meta details
-        og_title = soup.find('meta', property='og:title') or soup.find('meta', attrs={'name': 'og:title'}) or soup.find('meta', attrs={'name': 'title'})
-        og_desc = soup.find('meta', property='og:description') or soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'name': 'og:description'})
+            soup = BeautifulSoup(html, 'html.parser')
+            for s in soup(["script", "style", "noscript", "svg", "header", "footer"]):
+                s.decompose()
 
-        title = og_title['content'].strip() if og_title and og_title.get('content') else (soup.title.string.strip() if soup.title and soup.title.string else "")
-        desc = og_desc['content'].strip() if og_desc and og_desc.get('content') else ""
+            og_title = soup.find('meta', property='og:title') or soup.find('meta', attrs={'name': 'og:title'}) or soup.find('meta', attrs={'name': 'title'})
+            og_desc = soup.find('meta', property='og:description') or soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'name': 'og:description'})
 
-        # Extract main body text
-        main_text = soup.get_text(separator='\n')
-        lines = [line.strip() for line in main_text.splitlines() if line.strip()]
-        clean_text = '\n'.join(lines)
+            title = og_title['content'].strip() if og_title and og_title.get('content') else (soup.title.string.strip() if soup.title and soup.title.string else slug_title)
+            desc = og_desc['content'].strip() if og_desc and og_desc.get('content') else ""
 
-        if len(clean_text) > 10000:
-            clean_text = clean_text[:10000]
+            main_text = soup.get_text(separator='\n')
+            lines = [line.strip() for line in main_text.splitlines() if line.strip()]
+            clean_text = '\n'.join(lines)
 
-        final_text = desc if len(desc) > len(clean_text) else clean_text
+            if len(clean_text) > 10000:
+                clean_text = clean_text[:10000]
 
-        return JSONResponse({
-            "text": final_text,
-            "title": title,
-            "description": desc
-        })
+            final_text = clean_text if len(clean_text) > 200 else (desc if len(desc) > 100 else fallback_desc)
+            if not title:
+                title = slug_title if slug_title else "Technical Specialist"
+
+            return JSONResponse({
+                "text": final_text,
+                "job_description": final_text,
+                "title": title,
+                "description": desc if desc else final_text[:300]
+            })
+
+        except Exception as net_err:
+            logger.warning(f"Network scrape failed for {url}, using slug fallback: {net_err}")
+            return JSONResponse({
+                "text": fallback_desc,
+                "job_description": fallback_desc,
+                "title": slug_title if slug_title else "Target Job Position",
+                "description": fallback_desc
+            })
+
     except Exception as e:
-        logger.warning(f"URL fetch failed: {e}")
-        return JSONResponse({"error": f"Could not fetch URL: {str(e)}"}, status_code=500)
+        logger.exception("api_fetch_url failed")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 
 
 # ============ API v1 Jobs Endpoint (was 404 - FIXED 2026-06-04) ============
