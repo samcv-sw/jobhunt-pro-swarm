@@ -551,10 +551,14 @@ PMP certification is a plus.`;
 
     const st = document.getElementById('cv-parse-status');
     if (st) {
-      st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
-      st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي (IT Project Manager – ERP Implementation) بنجاح!';
+      st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3.5 flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]';
+      st.querySelector('span').textContent = '✓ تم استيراد الوصف الوظيفي (' + (extractedTitle || 'Project Manager – ERP Implementation') + ') بنجاح! اضغط زر "تقييم سيرتي الذاتية" في الأسفل لعرض التقرير.';
       st.classList.remove('hidden');
-      setTimeout(() => st.classList.add('hidden'), 5000);
+    }
+    const scoreBtn = document.getElementById('btn-score');
+    if (scoreBtn) {
+      scoreBtn.classList.add('ring-4', 'ring-cyan-500/50', 'animate-pulse');
+      setTimeout(() => scoreBtn.classList.remove('ring-4', 'ring-cyan-500/50', 'animate-pulse'), 4000);
     }
   } catch (e) {
     showError('تعذر جلب نص الرابط تلقائياً. تم إدراج نموذج الوصف الوظيفي المباشر بدلاً منه.');
