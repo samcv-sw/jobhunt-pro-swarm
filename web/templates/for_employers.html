@@ -845,31 +845,70 @@ function openDnaFitModal() {
           <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#38bdf8; width:98%; height:100%; border-radius:4px;"></div></div>
         </div>
         <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><strong style="color:#fbbf24;">91% (عالي جداً)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#f59e0b; width:91%; height:100%; border-radius:4px;"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>التواصل والعمل الجماعي:</span><strong style="color:#a78bfa;">96% (ممتاز)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#8b5cf6; width:96%; height:100%; border-radius:4px;"></div></div>
-        </div>
-      </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><stroconst ALL_WORLD_COUNTRIES = [
+  "Afghanistan (أفغانستان)", "Albania (ألبانيا)", "Algeria (الجزائر)", "Andorra (أندورا)", "Angola (أنغولا)", 
+  "Antigua and Barbuda", "Argentina (الأرجنتين)", "Armenia (أرمينيا)", "Australia (أستراليا)", "Austria (النمسا)", 
+  "Azerbaijan (أذربيجان)", "Bahamas (الباهاماس)", "Bahrain (البحرين)", "Bangladesh (بنغلاديش)", "Barbados (باربادوس)", 
+  "Belarus (بيلاروسيا)", "Belgium (بلجيكا)", "Belize (بليز)", "Benin (بنين)", "Bhutan (بوتان)", "Bolivia (بوليفيا)", 
+  "Bosnia and Herzegovina (البوسنة والهرسك)", "Botswana (بوتسوانا)", "Brazil (البرازيل)", "Brunei (بروناي)", 
+  "Bulgaria (بلغاريا)", "Burkina Faso (بوركينا فاسو)", "Burundi (بوروندي)", "Cabo Verde (الرأس الأخضر)", 
+  "Cambodia (كمبوديا)", "Cameroon (الكاميرون)", "Canada (كندا)", "Central African Republic", "Chad (تشاد)", 
+  "Chile (تشيلي)", "China (الصين)", "Colombia (كولومبيا)", "Comoros (جزر القمر)", "Congo (الكونغو)", 
+  "Costa Rica (كوستاريكا)", "Croatia (كرواتيا)", "Cuba (كوبا)", "Cyprus (قبرص)", "Czech Republic (التشيك)", 
+  "Denmark (الدنمارك)", "Djibouti (جيبوتي)", "Dominica (دومينيكا)", "Dominican Republic (جمهورية الدومينيكان)", 
+  "Ecuador (الإكوادور)", "Egypt (مصر)", "El Salvador (السلفادور)", "Equatorial Guinea", "Eritrea (إريتريا)", 
+  "Estonia (إستونيا)", "Eswatini (إسواتيني)", "Ethiopia (إثيوبيا)", "Fiji (فيجي)", "Finland (فنلندا)", 
+  "France (فرنسا)", "Gabon (الغابون)", "Gambia (غامبيا)", "Georgia (جورجيا)", "Germany (ألمانيا)", 
+  "Ghana (غانا)", "Greece (اليونان)", "Grenada (غرينادا)", "Guatemala (غواتيمالا)", "Guinea (غينيا)", 
+  "Guinea-Bissau", "Guyana (غيانا)", "Haiti (هايتي)", "Honduras (هندوراس)", "Hungary (المجر)", 
+  "Iceland (آيسلندا)", "India (الهند)", "Indonesia (إندونيسيا)", "Iran (إيران)", "Iraq (العراق)", 
+  "Ireland (أيرلندا)", "Italy (إيطاليا)", "Ivory Coast (ساحل العاج)", "Jamaica (جاميكا)", "Japan (اليابان)", 
+  "Jordan (الأردن)", "Kazakhstan (كازاخستان)", "Kenya (كينيا)", "Kiribati (كيريباتي)", "Kosovo (كوسوفو)", 
+  "Kuwait (الكويت)", "Kyrgyzstan (قيرغيزستان)", "Laos (لاوس)", "Latvia (لاتفيا)", "Lebanon (لبنان)", 
+  "Lesotho (ليسوتو)", "Liberia (ليبيريا)", "Libya (ليبيا)", "Liechtenstein (ليختنشتاين)", "Lithuania (ليتوانيا)", 
+  "Luxembourg (لوكسمبورغ)", "Madagascar (مدغشقر)", "Malawi (مالاوي)", "Malaysia (ماليزيا)", "Maldives (جزر المالديف)", 
+  "Mali (مالي)", "Malta (مالطا)", "Marshall Islands", "Mauritania (موريتانيا)", "Mauritius (موريشيوس)", 
+  "Mexico (المكسيك)", "Micronesia (ميكرونيزيا)", "Moldova (مولدوفا)", "Monaco (موناكو)", "Mongolia (منغوليا)", 
+  "Montenegro (الجبل الأسود)", "Morocco (المغرب)", "Mozambique (موزمبيق)", "Myanmar (ميانمار)", 
+  "Namibia (ناميبيا)", "Nauru (ناورو)", "Nepal (نيبال)", "Netherlands (هولندا)", "New Zealand (نيوزيلندا)", 
+  "Nicaragua (نيكاراغوا)", "Niger (النيجر)", "Nigeria (نيجيريا)", "North Macedonia (مقدونيا الشمالية)", 
+  "Norway (النرويج)", "Oman (عُمان)", "Pakistan (باكستان)", "Palau (بالاو)", "Palestine (فلسطين)", 
+  "Panama (بنما)", "Papua New Guinea", "Paraguay (باراغواي)", "Peru (بيرو)", "Philippines (الفلبين)", 
+  "Poland (بولندا)", "Portugal (البرتغال)", "Qatar (قطر)", "Romania (رومانيا)", "Russia (روسيا)", 
+  "Rwanda (رواندا)", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", 
+  "Samoa (ساموا)", "San Marino (سان مارينو)", "Sao Tome and Principe", "Saudi Arabia (السعودية - KSA)", 
+  "Senegal (السنغال)", "Serbia (صربيا)", "Seychelles (سيشل)", "Sierra Leone (سيراليون)", "Singapore (سنغافورة)", 
+  "Slovakia (سلوفاكيا)", "Slovenia (سلوفينيا)", "Solomon Islands", "Somalia (الصومال)", "South Africa (جنوب أفريقيا)", 
+  "South Korea (كوريا الجنوبية)", "South Sudan (جنوب السودان)", "Spain (إسبانيا)", "Sri Lanka (سريلانكا)", 
+  "Sudan (السودان)", "Suriname (سورينام)", "Sweden (السويد)", "Switzerland (سويسرا)", "Syria (سورية)", 
+  "Taiwan (تايوان)", "Tajikistan (طاجيكستان)", "Tanzania (تنزانيا)", "Thailand (تايلاند)", "Timor-Leste", 
+  "Togo (توغو)", "Tonga (تونغا)", "Trinidad and Tobago", "Tunisia (تونس)", "Turkey (تركيا)", 
+  "Turkmenistan (تركمانستان)", "Tuvalu (توفالو)", "Uganda (أوغندا)", "Ukraine (أوكرانيا)", 
+  "United Arab Emirates (الإمارات - UAE)", "United Kingdom (بريطانيا - UK)", "United States (أمريكا - USA)", 
+  "Uruguay (أوروغواي)", "Uzbekistan (أوزبكستان)", "Vanuatu (فانواتو)", "Vatican City (الفاتيكان)", 
+  "Venezuela (فنزويلا)", "Vietnam (فيتنام)", "Yemen (اليمن)", "Zambia (زامبيا)", "Zimbabwe (زيمبابوي)"
+];
 
-      <div style="margin-top:25px; padding:12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:12px; font-size:0.85em; color:#4ade80;">
-        💡 <strong>نتيجة التقييم:</strong> المرشح ينتمي لفئة "High-Impact Leader". موصى به لمناصب الإدارة والمشاريع التقنية!
+function openRelocationSimModal() {
+  closeAiToolModal();
+  const countryOpts = ALL_WORLD_COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('');
+  const modalHtml = `
+  <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
+      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
+      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية (195+ دولة)</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
+        <select id="r_country" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
+          ${countryOpts}
+        </select>
+        <input id="r_salary" type="number" value="4000" placeholder="الراتب بالدولار ($)" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
       </div>
-      <button onclick="closeAiToolModal()" style="margin-top:20px; width:100%; padding:12px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer;">إغلاق والعودة للنموذج</button>
+      <button onclick="runRelocationSim()" style="width:100%; padding:12px; background:linear-gradient(135deg,#38bdf8,#0284c7); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer;">🌍 حساب تكاليف الانتقال والفيزا وصافي الراتب</button>
+      <div id="simResult" style="margin-top:15px; padding:15px; background:#1e293b; border-radius:10px; font-size:0.85em; display:none;"></div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
-}
-
-function openContractGenModal() {
-  closeAiToolModal();
-  const modalHtml = `
-  <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #f59e0b; border-radius:20px; max-width:650px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(245,158,11,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#fbbf24; margin-top:0; font-size:1.3em;">📄 مولد عقود العمل وعروض الوظائف بنقرة واحدة</h3>
+}<h3 style="color:#fbbf24; margin-top:0; font-size:1.3em;">📄 مولد عقود العمل وعروض الوظائف بنقرة واحدة</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <input id="c_name" type="text" value="Sam Salameh" placeholder="اسم المرشح" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
         <input id="c_title" type="text" value="Senior Network Engineer" placeholder="المسمى الوظيفي" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">

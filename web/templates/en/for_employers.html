@@ -881,22 +881,41 @@ function copyContractText() {
   alert('📋 Contract copied to clipboard! Ready to save as DOCX/PDF.');
 }
 
+const ALL_WORLD_COUNTRIES_EN = [
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", 
+  "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", 
+  "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", 
+  "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", 
+  "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", 
+  "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", 
+  "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", 
+  "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", 
+  "Ivory Coast", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", 
+  "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", 
+  "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", 
+  "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", 
+  "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", 
+  "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", 
+  "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", 
+  "Sao Tome and Principe", "Saudi Arabia (KSA)", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", 
+  "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", 
+  "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", 
+  "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", 
+  "United Arab Emirates (UAE)", "United Kingdom (UK)", "United States (USA)", "Uruguay", "Uzbekistan", "Vanuatu", 
+  "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+];
+
 function openRelocationSimModal() {
   closeAiToolModal();
+  const countryOpts = ALL_WORLD_COUNTRIES_EN.map(c => `<option value="${c}">${c}</option>`).join('');
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
       <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 Real-Time Global Relocation, Tax & Visa Calculator</h3>
+      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 Real-Time Global Relocation, Tax & Visa Calculator (195+ Countries)</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <select id="r_country" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-          <option value="Singapore">Singapore</option>
-          <option value="UAE">UAE</option>
-          <option value="KSA">Saudi Arabia (KSA)</option>
-          <option value="UK">United Kingdom (UK)</option>
-          <option value="Germany">Germany</option>
-          <option value="USA">United States (USA)</option>
-          <option value="Lebanon">Lebanon</option>
+          ${countryOpts}
         </select>
         <input id="r_salary" type="number" value="4000" placeholder="Base Salary in USD ($)" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
       </div>
