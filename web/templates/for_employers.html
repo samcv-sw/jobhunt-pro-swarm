@@ -116,13 +116,18 @@
 
 /* ═══════════ PACKAGES ═══════════ */
 .pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-block-end:25px; }
-.pkg-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; text-align:center; cursor:pointer; transition:all .15s; }
-.pkg-card:hover, .pkg-card.selected { border-color:var(--gold); transform:translateY(-2px); }
+.pkg-card { background:var(--card); border:2px solid var(--border); border-radius:18px; padding:24px 18px; text-align:center; cursor:pointer; transition:all .2s; position:relative; user-select:none; }
+.pkg-card:hover { border-color:rgba(245,158,11,0.5); transform:translateY(-3px); box-shadow:0 8px 25px rgba(0,0,0,0.3); }
+.pkg-card.selected { border-color:#fbbf24!important; background:linear-gradient(135deg, rgba(245,158,11,0.18), rgba(217,119,6,0.1))!important; box-shadow:0 0 30px rgba(245,158,11,0.4)!important; transform:translateY(-3px); }
+.pkg-card .pkg-check { display:none; position:absolute; inset-block-start:12px; inset-inline-end:12px; background:#22c55e; color:#000; inline-size:24px; block-size:24px; border-radius:50%; font-weight:800; font-size:12px; line-height:24px; text-align:center; }
+.pkg-card.selected .pkg-check { display:block; }
 .pkg-card .pkg-icon { font-size:2em; margin-block-end:6px; }
-.pkg-card .pkg-count { font-size:2em; font-weight:800; color:var(--gold2); }
-.pkg-card .pkg-label { color:#94a3b8; font-size:.8em; }
-.pkg-card .pkg-price { font-weight:700; margin:8px 0; }
-.pkg-card .pkg-per { font-size:.7em; color:var(--green); }
+.pkg-card .pkg-count { font-size:2.2em; font-weight:800; color:var(--gold2); }
+.pkg-card .pkg-label { color:#e2e8f0; font-size:.85em; font-weight:600; }
+.pkg-card .pkg-price { font-size:1.3em; font-weight:800; color:#fff; margin:8px 0; }
+.pkg-card .pkg-per { font-size:.75em; color:var(--green); font-weight:700; display:block; margin-block-start:2px; }
+.pkg-card .pkg-btn { margin-block-start:12px; padding:8px 14px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; font-size:0.85em; font-weight:700; transition:all .15s; }
+.pkg-card.selected .pkg-btn { background:linear-gradient(135deg, #f59e0b, #d97706); border:none; color:#000; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4); }
 
 /* ═══════════ RESPONSIVE ═══════════ */
 @media (max-width:900px) {
@@ -319,22 +324,28 @@
 <h2 class="sec-title">📦 <span>باقات وظائف بالجملة</span> <span style="font-size:.7em;color:#94a3b8;">(أفضل قيمة!)</span></h2>
 <div class="pkg-grid" id="pkgGrid">
 <div class="pkg-card" data-count="3" data-price="2.50" onclick="selectBulkPkg(this, 3, 2.50)">
+<div class="pkg-check">✓</div>
 <div class="pkg-icon">📋📋📋</div>
 <div class="pkg-count">3</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$2.50 <span class="pkg-per">$0.83/منشور</span></div>
+<div class="pkg-btn">اختر الباقة (3)</div>
 </div>
 <div class="pkg-card selected" data-count="5" data-price="4" onclick="selectBulkPkg(this, 5, 4)">
+<div class="pkg-check">✓</div>
 <div class="pkg-icon">📋📋📋📋📋</div>
 <div class="pkg-count">5</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$4 <span class="pkg-per">$0.80/منشور 🔥</span></div>
+<div class="pkg-btn">✓ تم اختيار الباقة (5)</div>
 </div>
 <div class="pkg-card" data-count="10" data-price="7" onclick="selectBulkPkg(this, 10, 7)">
+<div class="pkg-check">✓</div>
 <div class="pkg-icon">📋×10</div>
 <div class="pkg-count">10</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$7 <span class="pkg-per">$0.70/منشور 💎</span></div>
+<div class="pkg-btn">اختر الباقة (10)</div>
 </div>
 </div>
 <!-- ═══════════ POST FORM ═══════════ -->
@@ -456,8 +467,12 @@ function selectTier(tier, price, el) {
   state.tierPrice = price;
   state.isBulk = false;
   document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.pkg-btn');
+    if (b) b.textContent = `اختر الباقة (${c.getAttribute('data-count')})`;
+  });
   recalc();
 }
 
@@ -488,8 +503,19 @@ function selectBulkPkg(el, count, price) {
   state.isBulk = true;
   state.bulkCount = count;
   state.bulkPrice = price;
-  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
+
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.pkg-btn');
+    if (b) b.textContent = `اختر الباقة (${c.getAttribute('data-count')})`;
+  });
+
+  if (el) {
+    el.classList.add('selected');
+    const selectedBtn = el.querySelector('.pkg-btn');
+    if (selectedBtn) selectedBtn.textContent = `✓ تم اختيار الباقة (${count})`;
+  }
+
   document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
   recalc();
 }
