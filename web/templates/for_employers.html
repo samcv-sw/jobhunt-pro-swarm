@@ -205,10 +205,10 @@
 <li>طلبات عبر البريد</li>
 <li>دعم أساسي</li>
 </ul>
-<button class="btn" style="background:linear-gradient(135deg,#64748b,#475569);">اختر الأساسي</button>
+<button type="button" class="btn" style="background:linear-gradient(135deg,#64748b,#475569);" onclick="event.stopPropagation(); selectTier('basic', 1, this.closest('.price-card'))">اختر الأساسي</button>
 </div>
 <!-- مميز (POPULAR) -->
-<div class="price-card popular selected" data-price="3" data-tier="featured" onclick="selectTier('featured', 3, this)">
+<div class="price-card popular" data-price="3" data-tier="featured" onclick="selectTier('featured', 3, this)">
 <div class="tier-icon">⭐</div>
 <div class="tier-name">مميز</div>
 <div class="tier-price">$3<small>/منشور</small></div>
@@ -220,7 +220,7 @@
 <li>مشاركة على وسائل التواصل</li>
 <li>دعم بأولوية</li>
 </ul>
-<button class="btn" style="background:linear-gradient(135deg,var(--purple),#7c3aed);">اختر المميز</button>
+<button type="button" class="btn" style="background:linear-gradient(135deg,var(--purple),#7c3aed);" onclick="event.stopPropagation(); selectTier('featured', 3, this.closest('.price-card'))">اختر المميز</button>
 </div>
 <!-- شركات -->
 <div class="price-card" data-price="5" data-tier="enterprise" onclick="selectTier('enterprise', 5, this)">
@@ -235,7 +235,7 @@
 <li>مؤرشف في وظائف جوجل</li>
 <li>دعم VIP 💎</li>
 </ul>
-<button class="btn" style="background:linear-gradient(135deg,var(--gold),#d97706);">اختر الشركات</button>
+<button type="button" class="btn" style="background:linear-gradient(135deg,var(--gold),#d97706);" onclick="event.stopPropagation(); selectTier('enterprise', 5, this.closest('.price-card'))">اختر الشركات</button>
 </div>
 <!-- Annual (NEW!) -->
 <div class="price-card" data-price="25" data-tier="annual" onclick="selectTier('annual', 25, this)">
@@ -251,26 +251,26 @@
 <li>وصول API 🔌</li>
 <li>مدير حساب مخصص</li>
 </ul>
-<button class="btn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">اختر السنوي</button>
+<button type="button" class="btn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);" onclick="event.stopPropagation(); selectTier('annual', 25, this.closest('.price-card'))">اختر السنوي</button>
 </div>
 </div>
 <!-- ═══════════ DURATION ═══════════ -->
 <div class="duration-section">
 <h3 style="text-align:center;margin-block-end:12px;">⏱️ مدة النشر <span style="font-size:.75em;color:#94a3b8;">(كل ما كانت أطول = خصم أكبر)</span></h3>
 <div class="duration-row" id="durationRow">
-<button class="duration-btn selected" data-days="30" data-discount="0" onclick="selectDuration(30, 0, this)">
+<button type="button" class="duration-btn selected" data-days="30" data-discount="0" onclick="selectDuration(30, 0, this)">
       30 يوم<br/><span class="dur-save">أساسي</span>
 </button>
-<button class="duration-btn" data-days="60" data-discount="10" onclick="selectDuration(60, 10, this)">
+<button type="button" class="duration-btn" data-days="60" data-discount="10" onclick="selectDuration(60, 10, this)">
       60 يوم<br/><span class="dur-save">وفر 10%</span>
 </button>
-<button class="duration-btn" data-days="90" data-discount="17" onclick="selectDuration(90, 17, this)">
+<button type="button" class="duration-btn" data-days="90" data-discount="17" onclick="selectDuration(90, 17, this)">
       90 يوم<br/><span class="dur-save">وفر 17%</span>
 </button>
-<button class="duration-btn" data-days="180" data-discount="25" onclick="selectDuration(180, 25, this)">
+<button type="button" class="duration-btn" data-days="180" data-discount="25" onclick="selectDuration(180, 25, this)">
       180 يوم<br/><span class="dur-save">وفر 25%</span>
 </button>
-<button class="duration-btn" data-days="365" data-discount="42" onclick="selectDuration(365, 42, this)">
+<button type="button" class="duration-btn" data-days="365" data-discount="42" onclick="selectDuration(365, 42, this)">
       365 يوم<br/><span class="dur-save">وفر 42% 🔥</span>
 </button>
 </div>
@@ -330,7 +330,7 @@
 <div class="pkg-count">3</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$2.50 <span class="pkg-per">$0.83/منشور</span></div>
-<div class="pkg-btn">اختر الباقة (3)</div>
+<button type="button" class="pkg-btn">اختر الباقة (3)</button>
 </div>
 <div class="pkg-card selected" data-count="5" data-price="4" onclick="selectBulkPkg(this, 5, 4)">
 <div class="pkg-check">✓</div>
@@ -338,7 +338,7 @@
 <div class="pkg-count">5</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$4 <span class="pkg-per">$0.80/منشور 🔥</span></div>
-<div class="pkg-btn">✓ تم اختيار الباقة (5)</div>
+<button type="button" class="pkg-btn">✓ تم اختيار الباقة (5)</button>
 </div>
 <div class="pkg-card" data-count="10" data-price="7" onclick="selectBulkPkg(this, 10, 7)">
 <div class="pkg-check">✓</div>
@@ -346,7 +346,7 @@
 <div class="pkg-count">10</div>
 <div class="pkg-label">منشورات وظائف</div>
 <div class="pkg-price">$7 <span class="pkg-per">$0.70/منشور 💎</span></div>
-<div class="pkg-btn">اختر الباقة (10)</div>
+<button type="button" class="pkg-btn">اختر الباقة (10)</button>
 </div>
 </div>
 <!-- ═══════════ POST FORM ═══════════ -->
@@ -467,8 +467,23 @@ function selectTier(tier, price, el) {
   state.tier = tier;
   state.tierPrice = price;
   state.isBulk = false;
-  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
-  if (el) el.classList.add('selected');
+
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.btn');
+    if (b) {
+      const nameEl = c.querySelector('.tier-name');
+      b.textContent = 'اختر ' + (nameEl ? nameEl.textContent : '');
+    }
+  });
+
+  const card = el ? (el.classList.contains('price-card') ? el : el.closest('.price-card')) : null;
+  if (card) {
+    card.classList.add('selected');
+    const b = card.querySelector('.btn');
+    if (b) b.textContent = '✓ الخطة المختارة';
+  }
+
   document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => {
     c.classList.remove('selected');
     const b = c.querySelector('.pkg-btn');
@@ -484,21 +499,23 @@ function selectDuration(days, discount, el) {
   document.querySelectorAll('#durationRow .duration-btn').forEach(b => {
     b.classList.remove('selected');
   });
-  if (el) {
-    el.classList.add('selected');
+  const btn = el ? (el.classList.contains('duration-btn') ? el : el.closest('.duration-btn')) : null;
+  if (btn) {
+    btn.classList.add('selected');
   }
   recalc();
 }
 
 // ── Add-ons ──
 function toggleAddon(el, name, price) {
+  const card = el ? (el.classList.contains('addon-card') ? el : el.closest('.addon-card')) : null;
   const idx = state.addons.findIndex(a => a.name === name);
   if (idx >= 0) {
     state.addons.splice(idx, 1);
-    el.classList.remove('selected');
+    if (card) card.classList.remove('selected');
   } else {
     state.addons.push({name, price});
-    el.classList.add('selected');
+    if (card) card.classList.add('selected');
   }
   recalc();
 }
@@ -515,13 +532,22 @@ function selectBulkPkg(el, count, price) {
     if (b) b.textContent = `اختر الباقة (${c.getAttribute('data-count')})`;
   });
 
-  if (el) {
-    el.classList.add('selected');
-    const selectedBtn = el.querySelector('.pkg-btn');
+  const card = el ? (el.classList.contains('pkg-card') ? el : el.closest('.pkg-card')) : null;
+  if (card) {
+    card.classList.add('selected');
+    const selectedBtn = card.querySelector('.pkg-btn');
     if (selectedBtn) selectedBtn.textContent = `✓ تم اختيار الباقة (${count})`;
   }
 
-  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.btn');
+    if (b) {
+      const nameEl = c.querySelector('.tier-name');
+      b.textContent = 'اختر ' + (nameEl ? nameEl.textContent : '');
+    }
+  });
+
   recalc();
 }
 
