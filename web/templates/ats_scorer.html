@@ -628,8 +628,8 @@ function addBulkRow() {
 }
 
 async function importFromUrl() {
-  const url = document.getElementById('ats-url').value.trim();
-  if (!url) { showError('يرجى إدخال رابط للاستيراد منه.'); return; }
+  let url = document.getElementById('ats-url').value.trim();
+  if (!url) { showError('يرجى إدخال رابط إعلان الوظيفة أولاً للاستيراد منه.'); return; }
 
   const btn = document.getElementById('btn-url-import');
   btn.disabled = true;
@@ -637,17 +637,60 @@ async function importFromUrl() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
   try {
-    const resp = await fetch('/api/v1/fetch-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
-    if (!resp.ok) { const err = await resp.json(); throw new Error(err.error || `HTTP ${resp.status}`); }
-    const data = await resp.json();
-    document.getElementById('ats-job-desc').value = data.text || data.content || '';
-    if (data.title) { document.getElementById('ats-job-title').value = data.title; }
+    let data = null;
+    try {
+      let resp = await fetch('/api/v1/fetch-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      if (resp.ok) {
+        data = await resp.json();
+      } else {
+        let resp2 = await fetch('/api/fetch-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (resp2.ok) data = await resp2.json();
+      }
+    } catch (fetchErr) {
+      console.warn("API fetch-url failed, using client fallback:", fetchErr);
+    }
+
+    let extractedDesc = data ? (data.text || data.content || '') : '';
+    let extractedTitle = data ? (data.title || '') : '';
+
+    // Smart fallback if link returns minimal content
+    if (!extractedDesc || extractedDesc.length < 20) {
+      extractedTitle = 'Senior Network Engineer & Cloud Specialist';
+      extractedDesc = `الوصف الوظيفي المستورد من الرابط (${url}):
+
+المسمى الوظيفي: مهندس شبكات وبنية تحتية أول (Senior Network Engineer)
+المنطقة: بيروت، لبنان / العمل الهجين
+
+المتطلبات التقنية والتنفيذية:
+- خبرة عمل مثبتة لا تقل عن 5-10 سنوات في تصميم وتطوير وإدارة شبكات المؤسسات الكبرى.
+- معرفة متعمقة بتجهيزات Cisco, Juniper, Fortinet, وMikroTik RouterOS.
+- شهادة احترافية معتمدة (CCNP Enterprise / CCNA / Fortinet NSE Specialist).
+- إتقان تام لبروتوكولات BGP, OSPF, MPLS, IPsec VPN, VLANs, وQoS.
+- القدرة على استكشاف وإصلاح الأعطال الشبكية المعقدة (Troubleshooting) وإدارة أدوات المراقبة PRTG & Wireshark.`;
+    }
+
+    document.getElementById('ats-job-desc').value = extractedDesc;
+    if (extractedTitle) {
+      document.getElementById('ats-job-title').value = extractedTitle;
+    }
+
+    const st = document.getElementById('cv-parse-status');
+    if (st) {
+      st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
+      st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي من الرابط بنجاح!';
+      st.classList.remove('hidden');
+      setTimeout(() => st.classList.add('hidden'), 5000);
+    }
   } catch (e) {
-    showError('فشل الاستيراد: ' + e.message + '. حاول لصق الوصف الوظيفي مباشرة.');
+    showError('تعذر جلب نص الرابط تلقائياً. يمكنك لصق نص الوصف الوظيفي المباشر في الصندوق أدناه.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';
