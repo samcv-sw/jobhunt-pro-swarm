@@ -460,12 +460,17 @@ async function tailorResume() {
       })
     });
 
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    let data;
+    try {
+      data = await resp.json();
+    } catch(err) {
+      throw new Error('الرجاء المحاولة مرة أخرى (' + resp.status + ')');
     }
 
-    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data.error || data.detail || `HTTP ${resp.status}`);
+    }
+
     displayResults(data);
   } catch (e) {
     showError('Tailoring failed: ' + e.message + '. Please try again.');
