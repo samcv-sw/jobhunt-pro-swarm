@@ -78,9 +78,18 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
   <!-- Resume Panel -->
   <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg" style="background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
-    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4 flex items-center gap-2">
-      <i class="w-4 h-4 text-cyan-400" data-lucide="file-text"></i> سيرتك الذاتية
-    </h3>
+    <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none;" onchange="handleCvFileSelect(this)">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-300 uppercase flex items-center gap-2">
+        <i class="w-4 h-4 text-cyan-400" data-lucide="file-text"></i> سيرتك الذاتية
+      </h3>
+      <button class="ats-btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5" onclick="document.getElementById('cv-file-input').click()">
+        <i class="w-4 h-4 text-cyan-400" data-lucide="upload-cloud"></i> استيراد ملف (PDF, DOCX)
+      </button>
+    </div>
+    <div id="cv-parse-status" class="hidden mb-3 text-xs font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2.5 flex items-center gap-2">
+      <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span>جاري قراءة واستخراج نص الملف...</span>
+    </div>
     <textarea class="ats-input w-full min-h-[300px] bg-slate-950/50 border border-slate-700 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar" dir="auto" id="ats-resume" placeholder="الصق نص سيرتك الذاتية الكاملة هنا...
 
 مثال:
@@ -581,3 +590,68 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 });
 </script>
+
+// CV File Import & Drag-Drop Handler
+async function handleCvFileSelect(input) {
+  const file = input.files ? input.files[0] : null;
+  if (!file) return;
+  await parseAndPopulateCvFile(file);
+}
+
+async function parseAndPopulateCvFile(file) {
+  const statusEl = document.getElementById('cv-parse-status');
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.querySelector('span').textContent = 'جاري قراءة واستخراج نص الملف (' + file.name + ')...';
+  }
+  
+  const formData = new FormData();
+  formData.append('cv_file', file);
+
+  try {
+    const resp = await fetch('/api/parse-cv-file', {
+      method: 'POST',
+      body: formData
+    });
+    const res = await resp.json();
+    if (res.success && res.text) {
+      document.getElementById('ats-resume').value = res.text;
+      if (statusEl) {
+        statusEl.className = 'mb-3 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5 flex items-center gap-2';
+        statusEl.querySelector('span').textContent = '✓ تم استخراج وقراءة الملف بنجاح (' + file.name + ')!';
+        setTimeout(() => statusEl.classList.add('hidden'), 4000);
+      }
+    } else {
+      throw new Error(res.error || 'تعذر قراءة نص الملف');
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.className = 'mb-3 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-2.5 flex items-center gap-2';
+      statusEl.querySelector('span').textContent = '✕ ' + err.message;
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const resumeArea = document.getElementById('ats-resume');
+  if (resumeArea) {
+    resumeArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '#00f0ff';
+      resumeArea.style.background = 'rgba(0, 240, 255, 0.05)';
+    });
+    resumeArea.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '';
+      resumeArea.style.background = '';
+    });
+    resumeArea.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '';
+      resumeArea.style.background = '';
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await parseAndPopulateCvFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+});
