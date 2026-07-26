@@ -497,37 +497,60 @@ function addBulkRow() {
 }
 
 async function importFromUrl() {
-  const url = document.getElementById('ats-url').value.trim();
-  if (!url) { showError('Please enter a URL to import from.'); return; }
+  let url = document.getElementById('ats-url').value.trim();
+  if (!url) { showError('يرجى إدخال رابط إعلان الوظيفة أولاً للاستيراد منه.'); return; }
 
   const btn = document.getElementById('btn-url-import');
   btn.disabled = true;
-  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Importing...';
-  if(typeof lucide !== 'undefined') lucide.createIcons();
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الاستيراد...';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 
   try {
-    const resp = await fetch('/api/v1/fetch-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || `HTTP ${resp.status}`);
+    let data = null;
+    try {
+      let resp = await fetch('/api/v1/fetch-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      if (resp.ok) {
+        data = await resp.json();
+      } else {
+        let resp2 = await fetch('/api/fetch-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (resp2.ok) data = await resp2.json();
+      }
+    } catch (fetchErr) {
+      console.warn("API fetch-url failed:", fetchErr);
     }
 
-    const data = await resp.json();
-    document.getElementById('ats-job-desc').value = data.text || data.content || '';
-    if (data.title) {
-      document.getElementById('ats-job-title').value = data.title;
+    let extractedDesc = data ? (data.text || data.description || data.content || '') : '';
+    let extractedTitle = data ? (data.title || '') : '';
+
+    if (extractedDesc && extractedDesc.length > 20) {
+      document.getElementById('ats-job-desc').value = extractedDesc;
+      if (extractedTitle && !extractedTitle.toLowerCase().includes('google search')) {
+        document.getElementById('ats-job-title').value = extractedTitle;
+      }
+      const st = document.getElementById('cv-parse-status');
+      if (st) {
+        st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
+        st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي من الرابط بنجاح!';
+        st.classList.remove('hidden');
+        setTimeout(() => st.classList.add('hidden'), 5000);
+      }
+    } else {
+      showError('روابط مشاركة البحث (مثل Google Search Share) لا تحتوي على النص المباشر. يرجى نسخ نص إعلان الوظيفة من الموقع واختيار للصق في الصندوق.');
     }
   } catch (e) {
-    showError('Import failed: ' + e.message + '. Try pasting the JD directly.');
+    showError('تعذر جلب نص الرابط تلقائياً. يمكنك نسخ نص الوصف الوظيفي المباشر ولصقه في الصندوق.');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> Import';
-    if(typeof lucide !== 'undefined') lucide.createIcons();
+    btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 }
 

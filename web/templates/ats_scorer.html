@@ -655,42 +655,29 @@ async function importFromUrl() {
         if (resp2.ok) data = await resp2.json();
       }
     } catch (fetchErr) {
-      console.warn("API fetch-url failed, using client fallback:", fetchErr);
+      console.warn("API fetch-url failed:", fetchErr);
     }
 
-    let extractedDesc = data ? (data.text || data.content || '') : '';
+    let extractedDesc = data ? (data.text || data.description || data.content || '') : '';
     let extractedTitle = data ? (data.title || '') : '';
 
-    // Smart fallback if link returns minimal content
-    if (!extractedDesc || extractedDesc.length < 20) {
-      extractedTitle = 'Senior Network Engineer & Cloud Specialist';
-      extractedDesc = `الوصف الوظيفي المستورد من الرابط (${url}):
-
-المسمى الوظيفي: مهندس شبكات وبنية تحتية أول (Senior Network Engineer)
-المنطقة: بيروت، لبنان / العمل الهجين
-
-المتطلبات التقنية والتنفيذية:
-- خبرة عمل مثبتة لا تقل عن 5-10 سنوات في تصميم وتطوير وإدارة شبكات المؤسسات الكبرى.
-- معرفة متعمقة بتجهيزات Cisco, Juniper, Fortinet, وMikroTik RouterOS.
-- شهادة احترافية معتمدة (CCNP Enterprise / CCNA / Fortinet NSE Specialist).
-- إتقان تام لبروتوكولات BGP, OSPF, MPLS, IPsec VPN, VLANs, وQoS.
-- القدرة على استكشاف وإصلاح الأعطال الشبكية المعقدة (Troubleshooting) وإدارة أدوات المراقبة PRTG & Wireshark.`;
-    }
-
-    document.getElementById('ats-job-desc').value = extractedDesc;
-    if (extractedTitle) {
-      document.getElementById('ats-job-title').value = extractedTitle;
-    }
-
-    const st = document.getElementById('cv-parse-status');
-    if (st) {
-      st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
-      st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي من الرابط بنجاح!';
-      st.classList.remove('hidden');
-      setTimeout(() => st.classList.add('hidden'), 5000);
+    if (extractedDesc && extractedDesc.length > 20) {
+      document.getElementById('ats-job-desc').value = extractedDesc;
+      if (extractedTitle && !extractedTitle.toLowerCase().includes('google search')) {
+        document.getElementById('ats-job-title').value = extractedTitle;
+      }
+      const st = document.getElementById('cv-parse-status');
+      if (st) {
+        st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center gap-2';
+        st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي من الرابط بنجاح!';
+        st.classList.remove('hidden');
+        setTimeout(() => st.classList.add('hidden'), 5000);
+      }
+    } else {
+      showError('روابط مشاركة البحث (مثل Google Search Share) لا تحتوي على النص المباشر. يرجى نسخ نص إعلان الوظيفة من الموقع واختيار للصق في الصندوق.');
     }
   } catch (e) {
-    showError('تعذر جلب نص الرابط تلقائياً. يمكنك لصق نص الوصف الوظيفي المباشر في الصندوق أدناه.');
+    showError('تعذر جلب نص الرابط تلقائياً. يمكنك نسخ نص الوصف الوظيفي المباشر ولصقه في الصندوق.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';

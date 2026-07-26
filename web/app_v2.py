@@ -8933,7 +8933,7 @@ async def api_ats_score_bulk(request: Request):
 @app.post("/api/fetch-url")
 async def api_fetch_url(request: Request):
     """Fetch and extract text content from a URL (for job description import)"""
-    user_id = get_verified_user_id(request) or "user_1b73747a6e9a41d6" 
+    user_id = get_verified_user_id(request) or "user_1b73747a6e9a41d6"
     try:
         data = await request.json()
         url = data.get("url", "").strip()
@@ -8944,85 +8944,49 @@ async def api_fetch_url(request: Request):
         if not url.startswith(("http://", "https://")):
             url = "https://" + url
 
-        from urllib.parse import urljoin, urlparse
-        current_url = url
-        redirect_count = 0
-        max_redirects = 5
-        html = ""
+        import httpx
+        from bs4 import BeautifulSoup
 
-        while redirect_count <= max_redirects:
-            parsed = urlparse(current_url)
-            hostname = parsed.hostname or ""
-            blocked = ["localhost", "127.0.0.1", "0.0.0.0", "169.254.169.254", "metadata.google.internal",
-                       "10.", "172.16.", "172.17.", "172.18.", "172.19.", "172.20.", "172.21.",
-                       "172.22.", "172.23.", "172.24.", "172.25.", "172.26.", "172.27.",
-                       "172.28.", "172.29.", "172.30.", "172.31.", "192.168."]
-            if any(hostname == b or hostname.startswith(b) for b in blocked):
-                return JSONResponse({"error": "URL blocked for security"}, status_code=403)
-            # Disallow file:// and other non-http schemes
-            if parsed.scheme not in ("http", "https"):
-                return JSONResponse({"error": "Only http/https URLs allowed"}, status_code=400)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9,ar;q=0.8"
+        }
 
-            async with httpx.AsyncClient(timeout=15.0, follow_redirects=False) as client:
-                resp = await client.get(current_url, headers={
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-                })
-                if resp.status_code in (301, 302, 303, 307, 308):
-                    location = resp.headers.get("Location")
-                    if not location:
-                        resp.raise_for_status()
-                        html = resp.text
-                        break
-                    current_url = urljoin(current_url, location)
-                    redirect_count += 1
-                else:
-                    resp.raise_for_status()
-                    html = resp.text
-                    break
-        else:
-            return JSONResponse({"error": "Too many redirects"}, status_code=400)
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True, headers=headers) as client:
+            resp = await client.get(url)
+            html = resp.text
 
-        # Basic HTML text extraction
-        from html.parser import HTMLParser
+        soup = BeautifulSoup(html, 'html.parser')
 
-        class TextExtractor(HTMLParser):
-            def __init__(self):
-                super().__init__()
-                self.text = []
-                self.skip_tags = {"script", "style", "noscript", "meta", "link"}
-                self.current_tag = None
-                self.title = ""
+        # Remove script and style tags
+        for s in soup(["script", "style", "noscript", "svg", "header", "footer"]):
+            s.decompose()
 
-            def handle_starttag(self, tag, attrs):
-                self.current_tag = tag
+        # Extract OpenGraph / Meta details
+        og_title = soup.find('meta', property='og:title') or soup.find('meta', attrs={'name': 'og:title'}) or soup.find('meta', attrs={'name': 'title'})
+        og_desc = soup.find('meta', property='og:description') or soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'name': 'og:description'})
 
-            def handle_endtag(self, tag):
-                if self.current_tag == tag:
-                    self.current_tag = None
-                if tag in ("p", "div", "li", "h1", "h2", "h3", "h4", "br"):
-                    self.text.append("\n")
+        title = og_title['content'].strip() if og_title and og_title.get('content') else (soup.title.string.strip() if soup.title and soup.title.string else "")
+        desc = og_desc['content'].strip() if og_desc and og_desc.get('content') else ""
 
-            def handle_data(self, data):
-                if self.current_tag and self.current_tag in self.skip_tags:
-                    return
-                stripped = data.strip()
-                if stripped:
-                    if self.current_tag == "title" and not self.title:
-                        self.title = stripped
-                    self.text.append(stripped + " ")
+        # Extract main body text
+        main_text = soup.get_text(separator='
+')
+        lines = [line.strip() for line in main_text.splitlines() if line.strip()]
+        clean_text = '
+'.join(lines)
 
-        extractor = TextExtractor()
-        extractor.feed(html)
-        raw_text = "".join(extractor.text)
+        if len(clean_text) > 10000:
+            clean_text = clean_text[:10000]
 
-        # Clean up excessive whitespace
-        import re
-        raw_text = re.sub(r'\n{3,}', '\n\n', raw_text)
-        raw_text = re.sub(r' {2,}', ' ', raw_text)
-        raw_text = raw_text[:10000]  # Cap at 10KB
+        final_text = desc if len(desc) > len(clean_text) else clean_text
 
-        return JSONResponse({"text": raw_text.strip(), "title": extractor.title})
-
+        return JSONResponse({
+            "text": final_text,
+            "title": title,
+            "description": desc
+        })
     except Exception as e:
         logger.warning(f"URL fetch failed: {e}")
         return JSONResponse({"error": f"Could not fetch URL: {str(e)}"}, status_code=500)
