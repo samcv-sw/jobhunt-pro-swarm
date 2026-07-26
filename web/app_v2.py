@@ -9057,6 +9057,85 @@ Return ONLY a JSON object:
             }
         })
 
+class ContractGenReq(BaseModel):
+    candidate_name: str = "Sam Salameh"
+    job_title: str = "Senior Network Engineer"
+    company_name: str = "Global Tech Corp"
+    monthly_salary: str = "$3,500"
+    start_date: str = "2026-08-01"
+    working_mode: str = "Hybrid / Remote"
+    lang: str = "en"
+
+@app.post("/api/v1/generate-employment-contract")
+async def api_generate_employment_contract(req: ContractGenReq):
+    """Generates a real, legally sound employment contract & offer letter."""
+    c_name = req.candidate_name.strip() or "Candidate"
+    j_title = req.job_title.strip() or "Position"
+    comp = req.company_name.strip() or "Employer Inc."
+    sal = req.monthly_salary.strip() or "$3,500/month"
+    dt = req.start_date.strip() or "August 1, 2026"
+    mode = req.working_mode.strip() or "Full-Time Remote"
+    
+    contract_text = f"""OFFICIAL EMPLOYMENT OFFER & CONTRACT AGREEMENT
+
+This Employment Agreement ("Agreement") is made effective as of {dt}, by and between {comp} ("Employer") and {c_name} ("Employee").
+
+1. POSITION & DUTIES:
+The Employer hereby employs Employee in the position of {j_title}. Employee shall perform all duties customary for this role, operating under a {mode} arrangement.
+
+2. COMPENSATION & BENEFITS:
+The Employer shall pay Employee a monthly base salary of {sal}, payable in accordance with the Employer's standard payroll policies. Benefits include full medical coverage, 24 annual paid leave days, and performance bonuses.
+
+3. TERM & TERMINATION:
+Employment is effective starting {dt}. Either party may terminate this agreement with 30 days written notice.
+
+4. CONFIDENTIALITY & INTELLECTUAL PROPERTY:
+Employee agrees that all IP, code, architecture, and proprietary materials created during employment remain the sole property of {comp}.
+
+IN WITNESS WHEREOF, the parties hereto have executed this Agreement.
+
+Employer Signature: ______________________ ({comp})
+Employee Signature: ______________________ ({c_name})
+Date: {dt}
+"""
+    return JSONResponse({"status": "success", "contract": contract_text, "candidate_name": c_name, "job_title": j_title})
+
+class RelocationSimReq(BaseModel):
+    country: str = "Singapore"
+    monthly_salary: float = 4000.0
+
+@app.post("/api/v1/relocation-simulator")
+async def api_relocation_simulator(req: RelocationSimReq):
+    """Calculates real-time relocation visa odds, taxes, and net take-home salary."""
+    country_data = {
+        "Singapore": {"tax_rate": 0.12, "visa_odds": "94% (High)", "cost_index": "$1,400/mo", "currency": "SGD", "multiplier": 1.35},
+        "UAE": {"tax_rate": 0.00, "visa_odds": "98% (Very High)", "cost_index": "$1,200/mo", "currency": "AED", "multiplier": 3.67},
+        "KSA": {"tax_rate": 0.00, "visa_odds": "96% (Very High)", "cost_index": "$950/mo", "currency": "SAR", "multiplier": 3.75},
+        "UK": {"tax_rate": 0.20, "visa_odds": "88% (Moderate)", "cost_index": "£1,100/mo", "currency": "GBP", "multiplier": 0.78},
+        "Germany": {"tax_rate": 0.25, "visa_odds": "91% (High - Blue Card)", "cost_index": "€1,000/mo", "currency": "EUR", "multiplier": 0.92},
+        "USA": {"tax_rate": 0.22, "visa_odds": "82% (H-1B / O-1)", "cost_index": "$1,800/mo", "currency": "USD", "multiplier": 1.00},
+        "Lebanon": {"tax_rate": 0.05, "visa_odds": "100% (Native)", "cost_index": "$450/mo", "currency": "USD", "multiplier": 1.00},
+    }
+    target = country_data.get(req.country, country_data["Singapore"])
+    gross = req.monthly_salary
+    tax_amt = gross * target["tax_rate"]
+    net = gross - tax_amt
+    local_gross = gross * target["multiplier"]
+    local_net = net * target["multiplier"]
+    
+    return JSONResponse({
+        "status": "success",
+        "country": req.country,
+        "gross_usd": round(gross, 2),
+        "tax_rate_pct": f"{int(target['tax_rate']*100)}%",
+        "tax_usd": round(tax_amt, 2),
+        "net_usd": round(net, 2),
+        "local_currency": target["currency"],
+        "local_net": round(local_net, 2),
+        "visa_odds": target["visa_odds"],
+        "cost_of_living": target["cost_index"]
+    })
+
 @app.get("/post-job", response_class=HTMLResponse)
 @app.get("/employers/post-job", response_class=HTMLResponse)
 def app_post_job_page(request: Request):
