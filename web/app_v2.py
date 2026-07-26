@@ -10560,3 +10560,56 @@ def api_stop_all_campaigns(request: Request):
         conn.commit()
         
     return JSONResponse({"success": True, "message": "تم إيقاف جميع الحملات مؤقتاً بنجاح."})
+
+
+@app.post("/api/export-ats-cv")
+async def api_export_ats_cv(request: Request):
+    """Export CV text as formatted PDF or TXT document for immediate download."""
+    try:
+        data = await request.json()
+        cv_text = data.get("cv_text", "").strip()
+        filename = data.get("filename", "SAM_SALAMEH_ATS_Optimized_Resume.pdf")
+        export_fmt = data.get("format", "pdf").lower()
+
+        if not cv_text:
+            return JSONResponse({"error": "No CV text provided for export"}, status_code=400)
+
+        if export_fmt == "txt":
+            return Response(content=cv_text.encode('utf-8'), media_type="text/plain", headers={"Content-Disposition": f'attachment; filename="{filename}.txt"'})
+
+        # Generate PDF using ReportLab
+        import io
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle('TitleStyle', parent=styles['Heading1'], fontSize=18, leading=22, textColor=colors.HexColor('#0f172a'), spaceAfter=8)
+        section_style = ParagraphStyle('SecStyle', parent=styles['Heading2'], fontSize=12, leading=16, textColor=colors.HexColor('#0284c7'), spaceBefore=10, spaceAfter=4)
+        body_style = ParagraphStyle('BodyStyle', parent=styles['Normal'], fontSize=9.5, leading=13.5, textColor=colors.HexColor('#334155'), spaceAfter=4)
+
+        story = []
+        lines = cv_text.split('\n')
+        for line in lines:
+            line_str = line.strip()
+            if not line_str:
+                story.append(Spacer(1, 4))
+                continue
+            if line_str.endswith(':') or line_str.isupper() and len(line_str) < 40:
+                story.append(Paragraph(f"<b>{line_str}</b>", section_style))
+            elif ':' in line_str and len(line_str.split(':')[0]) < 25:
+                parts = line_str.split(':', 1)
+                story.append(Paragraph(f"<b>{parts[0].strip()}:</b> {parts[1].strip()}", body_style))
+            else:
+                story.append(Paragraph(line_str, body_style))
+
+        doc.build(story)
+        buffer.seek(0)
+        return Response(content=buffer.getvalue(), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="{filename}"'})
+    except Exception as e:
+        logger.exception("api_export_ats_cv failed")
+        return JSONResponse({"error": str(e)}, status_code=500)
