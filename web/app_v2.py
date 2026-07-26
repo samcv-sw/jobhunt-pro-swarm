@@ -8874,6 +8874,8 @@ def resume_tailor_page(request: Request):
 
 
 @app.post("/api/v1/ats-score")
+@app.post("/api/ats-score")
+@app.post("/api/score-resume")
 async def api_ats_score(request: Request):
     """Score a resume against a job description"""
     try:

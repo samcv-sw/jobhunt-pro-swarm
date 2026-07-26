@@ -322,11 +322,18 @@ async function scoreResume() {
   setLoading(true);
 
   try {
-    const resp = await fetch('/api/v1/ats-score', {
+    let resp = await fetch('/api/v1/ats-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
     });
+    if (resp.status === 401 || !resp.ok) {
+      resp = await fetch('/api/ats-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
+      });
+    }
 
     if (!resp.ok) {
       const err = await resp.json();
