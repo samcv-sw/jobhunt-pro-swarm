@@ -615,8 +615,26 @@ async function parseAndPopulateCvFile(file) {
     });
     const res = await resp.json();
     if ((res.success || res.status === 'success') && (res.text || res.profile)) {
-      document.getElementById('ats-resume').value = res.text || (typeof res.profile === 'string' ? res.profile : JSON.stringify(res.profile, null, 2));
-      document.getElementById('ats-resume').value = res.text;
+      let extractedText = res.text || res.cv_text || res.content || '';
+      if (!extractedText && res.profile) {
+        if (typeof res.profile === 'string') {
+          extractedText = res.profile;
+        } else if (res.profile.cv_text || res.profile.text) {
+          extractedText = res.profile.cv_text || res.profile.text;
+        } else {
+          let parts = [];
+          if (res.profile.full_name) parts.push("الاسم: " + res.profile.full_name);
+          if (res.profile.current_title) parts.push("المسمى الوظيفي: " + res.profile.current_title);
+          if (res.profile.summary) parts.push("\nالملخص المهني:\n" + res.profile.summary);
+          if (res.profile.skills && res.profile.skills.length) parts.push("\nالمهارات:\n" + (Array.isArray(res.profile.skills) ? res.profile.skills.join(", ") : res.profile.skills));
+          extractedText = parts.join("\n") || JSON.stringify(res.profile, null, 2);
+        }
+      }
+      if (extractedText && extractedText !== 'undefined') {
+        document.getElementById('ats-resume').value = extractedText;
+      } else {
+        throw new Error('لم يتم العثور على نص في الملف المرفوع.');
+      }
       if (statusEl) {
         statusEl.className = 'mb-3 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5 flex items-center gap-2';
         statusEl.querySelector('span').textContent = '✓ تم استخراج وقراءة الملف بنجاح (' + file.name + ')!';

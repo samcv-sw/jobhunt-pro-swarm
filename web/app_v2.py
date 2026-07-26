@@ -6434,6 +6434,8 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
         "success": True,
         "status": "success",
         "text": cv_text,
+        "cv_text": cv_text,
+        "content": cv_text,
         "filename": cv_file.filename,
         "profile": profile_data
     }
