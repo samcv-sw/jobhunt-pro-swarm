@@ -108,9 +108,25 @@ linkedin.com/in/ahmad-khalil-demo
 
   <!-- Job Description Panel -->
   <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6 shadow-lg flex flex-col" style="background:rgba(10,10,25,0.8); border-color:rgba(0,240,255,0.15);">
-    <h3 class="text-sm font-bold text-slate-300 uppercase mb-4 flex items-center gap-2">
-      <i class="w-4 h-4 text-emerald-400" data-lucide="clipboard-list"></i> الوصف الوظيفي
-    </h3>
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-300 uppercase flex items-center gap-2">
+        <i class="w-4 h-4 text-emerald-400" data-lucide="clipboard-list"></i> الوصف الوظيفي
+        <span class="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">اختياري</span>
+      </h3>
+      <div class="relative group">
+        <button type="button" class="text-xs text-cyan-300 hover:text-white flex items-center gap-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1.5 rounded-lg border border-cyan-500/30 transition-all font-semibold shadow-[0_0_10px_rgba(0,240,255,0.1)]">
+          <i data-lucide="help-circle" class="w-3.5 h-3.5 text-cyan-400"></i> كيف تستفيد منه؟
+        </button>
+        <div class="absolute inset-inline-end-0 top-full mt-2 w-72 p-3.5 bg-slate-900/95 border border-cyan-500/40 rounded-xl shadow-2xl z-30 hidden group-hover:block transition-all text-xs text-slate-200 leading-relaxed text-right backdrop-blur-md" style="inset-inline-end: 0; right: 0;">
+          <p class="font-bold text-cyan-300 mb-1.5 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4 text-cyan-400"></i> ما فائدة هذا الصندوق؟</p>
+          <ul class="space-y-1.5 text-[11px] text-slate-300">
+            <li>• <b>مطابقة شركة معينة</b>: الصق متطلبات إعلان الوظيفة المستهدفة من LinkedIn أو مواقع الشركات.</li>
+            <li>• <b>كشف المهارات الناقصة</b>: يقارن الذكاء الاصطناعي سيرتك الذاتية ويخبرك بالمهارات التي تطلبها الشركة وناقصة لديك.</li>
+            <li>• <b>اختياري</b>: يمكنك تركه فارغاً للحصول على تقييم عام وسريع لسيرتك الذاتية بنسبة 100%!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <div class="flex flex-col md:flex-row gap-3 mb-4">
       <div class="relative flex-1">
         <i class="w-4 h-4 text-slate-500 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" data-lucide="link" style="inset-inline-start:14px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
@@ -130,6 +146,10 @@ linkedin.com/in/ahmad-khalil-demo
 - شهادة CCNP أو ما يعادلها
 - معرفة قوية بـ BGP وOSPF وMPLS
 - خبرة مع جدران حماية Fortinet..." style="line-height:1.7;" dir="auto"></textarea>
+    <div class="mt-3 flex items-start gap-2 text-xs text-slate-300 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 mb-4">
+      <i class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" data-lucide="lightbulb"></i>
+      <p style="line-height:1.6;"><b>💡 الفائدة:</b> الصق نص إعلان الوظيفة المستهدفة أو رابطها هنا لمقارنة مدى توافق سيرتك الذاتية مع شركة محددة، أو اتركه فارغاً للتحليل القياسي العام.</p>
+    </div>
     <div class="relative">
       <i class="w-4 h-4 text-slate-500 absolute top-1/2 -translate-y-1/2" data-lucide="briefcase" style="inset-inline-start:14px; position:absolute; inset-block-start:50%; transform:translateY(-50%);"></i>
       <input class="ats-input w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" style="padding-inline-start:36px; padding-inline-end:16px;" dir="auto" id="ats-job-title" placeholder="المسمى الوظيفي (اختياري، مثال: مهندس شبكات أول)" type="text"/ dir="auto">
