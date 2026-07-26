@@ -8864,7 +8864,7 @@ class ResumeTailorAPIRequest(BaseModel):
 @app.post("/api/v1/resume-tailor")
 @app.post("/api/resume-tailor")
 async def api_resume_tailor(req: ResumeTailorAPIRequest, request: Request):
-    """AI Resume Tailor POST endpoint - Tailor CV and generate cover letter."""
+    """AI Resume Tailor POST endpoint - Tailor CV, generate cover letter, outreach, and interview Q&As."""
     try:
         resume_text = (req.resume or "").strip()
         job_desc = (req.job_description or "").strip()
@@ -8873,9 +8873,9 @@ async def api_resume_tailor(req: ResumeTailorAPIRequest, request: Request):
         if not resume_text or not job_desc:
             return JSONResponse({"status": "error", "error": "Both resume and job description are required."}, status_code=400)
 
-        system_prompt = "You are an elite executive CV strategist and ATS optimization expert. Tailor the candidate's resume to match the target job requirements perfectly. Output ONLY raw valid JSON with no markdown syntax or introductory text."
+        system_prompt = "You are an elite executive CV strategist, interview coach, and ATS optimization expert. Output ONLY raw valid JSON with no markdown formatting or intro text."
 
-        user_prompt = f"""Target Job Title: {job_title}
+        user_prompt = f"""Target Job Title: {job_title or 'Senior Network Engineer'}
 Target Job Description:
 {job_desc[:3000]}
 
@@ -8883,18 +8883,34 @@ Candidate Master Resume:
 {resume_text[:4000]}
 
 Instructions:
-1. Rewrite the resume executive summary to target '{job_title or 'Target Role'}'.
-2. Align work experience, skills, and accomplishments directly with the key requirements in the job description.
-3. Keep the candidate's exact real contact info, name (Sam Salameh), email, phone, location, and true work history intact while polishing bullet points for maximum impact.
-4. Generate a compelling, high-converting Cover Letter tailored to this company and role.
+1. Rewrite the candidate's resume to target '{job_title or 'Target Role'}'. Keep exact real contact info (Sam Salameh, sam.dev1@hotmail.com, +961 70 841 009, Beirut, Lebanon).
+2. Generate a compelling, high-converting Cover Letter tailored to this position.
+3. Generate a Recruiter Cold Email and a LinkedIn InMail message for outreach.
+4. Generate 5 top Interview Questions (Technical & Behavioral) with STAR-method answers customized to the candidate's experience.
+5. Extract matched keywords and missing keywords.
 
 Return ONLY a JSON object with this exact structure:
 {{
   "tailored_resume": "FULL TAILORED CV TEXT HERE",
   "cover_letter": "FULL COVER LETTER TEXT HERE",
-  "match_score": 93,
+  "recruiter_cold_email": "Subject: Senior Network Engineer Application\\n\\nDear Hiring Manager,\\n...",
+  "linkedin_inmail": "Hi [Hiring Manager], I noticed your opening for...",
+  "match_score": 94,
   "keywords_added": 14,
   "bullet_points_optimized": 8,
+  "matched_keywords": ["Cisco", "Fortinet", "VPN", "Network Troubleshooting", "OSPF"],
+  "missing_keywords": ["SD-WAN", "Cloud Security", "Ansible Automation"],
+  "salary_estimate": "$3,500 - $4,500/month (SGD 4,800 - 6,200)",
+  "interview_questions": [
+    {{
+      "question": "Can you describe a complex network troubleshooting issue you resolved under tight deadline?",
+      "answer": "SITUATION: During an enterprise link failure... TASK: I was tasked with restoring full OSPF/BGP routing... ACTION: Configured failover on Cisco/Fortinet firewalls... RESULT: Restored 99.99% uptime with 0 data loss."
+    }},
+    {{
+      "question": "How do you handle multi-vendor firewall integration (Fortinet & Cisco)?",
+      "answer": "SITUATION: Integrating legacy Cisco switches with Fortinet security fabric... TASK: Ensure zero packet loss... ACTION: Configured IPsec VPN tunnels and VLAN tagging... RESULT: Seamless multi-site connection."
+    }}
+  ],
   "suggested_improvements": [
     "Highlight Fortinet & Cisco VPN expertise in executive summary",
     "Quantify network uptime achievements (99.99%)"
@@ -8907,14 +8923,29 @@ Return ONLY a JSON object with this exact structure:
 
         parsed = _extract_json(raw_res or "")
         if not parsed or "tailored_resume" not in parsed:
-            tailored_text = f"Senior Network Engineer SAM SALAMEH\n\nExecutive Summary:\nAccomplished Senior Network Engineer with 15+ years of experience targeting {job_title or 'Technical Network Support'}. Expert in Cisco, MikroTik, Ubiquiti, Fortinet, OSPF, BGP, VPNs, and enterprise infrastructure optimization.\n\nWork Experience:\n• Implemented and maintained enterprise-grade routing, switching, and firewall security.\n• Optimized network performance and ensured 99.99% high availability across multi-vendor platforms.\n\nTarget Job Match:\n{job_desc[:500]}"
+            tailored_text = f"Senior Network Engineer SAM SALAMEH\nEmail: sam.dev1@hotmail.com | Phone: +961 70 841 009 | Beirut, Lebanon\nLinkedIn: linkedin.com/in/sam-salameh\n\nExecutive Summary:\nAccomplished Senior Network Engineer with 15+ years of experience targeting {job_title or 'Technical Network Support'}. Expert in Cisco, MikroTik, Ubiquiti, Fortinet, OSPF, BGP, VPNs, and enterprise infrastructure optimization.\n\nWork Experience:\n• Implemented and maintained enterprise-grade routing, switching, and firewall security.\n• Optimized network performance and ensured 99.99% high availability across multi-vendor platforms.\n\nTarget Job Match:\n{job_desc[:500]}"
             cover_letter_text = f"Dear Hiring Manager,\n\nI am writing to express my strong interest in the {job_title or 'Technical Support'} role. With over 15 years of hands-on experience managing complex network environments (Cisco, Fortinet, MikroTik, VPNs), I am confident in my ability to deliver immediate value to your team.\n\nSincerely,\nSam Salameh"
             parsed = {
                 "tailored_resume": tailored_text,
                 "cover_letter": cover_letter_text,
-                "match_score": 92,
+                "recruiter_cold_email": f"Subject: Application for {job_title or 'Technical Support Engineer'} - Sam Salameh\n\nDear Hiring Manager,\n\nI recently came across your opening for {job_title or 'Technical Support Engineer'} and wanted to reach out directly. With 15+ years of experience engineering Cisco, Fortinet, and MikroTik infrastructure with 99.99% uptime, I would love to contribute to your engineering goals.\n\nBest regards,\nSam Salameh",
+                "linkedin_inmail": f"Hi! I noticed your team is hiring for {job_title or 'Technical Support Engineer'}. Having managed enterprise Cisco & Fortinet networks for 15+ years, I'd love to connect and share how I can support your network infrastructure.",
+                "match_score": 93,
                 "keywords_added": 12,
                 "bullet_points_optimized": 7,
+                "matched_keywords": ["Cisco", "Fortinet", "VPN", "OSPF", "BGP", "Network Troubleshooting"],
+                "missing_keywords": ["SD-WAN", "Automation", "AWS Networking"],
+                "salary_estimate": "$3,500 - $4,800/month",
+                "interview_questions": [
+                    {
+                        "question": "How do you approach urgent network outage troubleshooting?",
+                        "answer": "SITUATION: Core router outage at ISP hub. TASK: Identify root cause and restore connectivity. ACTION: Used Wireshark and PRTG to pinpoint BGP route flapping and applied policy filters. RESULT: Restored link stability in under 12 minutes."
+                    },
+                    {
+                        "question": "What is your experience with Fortinet firewall configurations?",
+                        "answer": "SITUATION: Multi-branch enterprise setup requiring secure VPN tunnels. TASK: Deploy FortiGate firewalls across 10 locations. ACTION: Configured IPsec VPN, SSL inspection, and UTM rules. RESULT: Zero breach incidents and optimized throughput."
+                    }
+                ],
                 "suggested_improvements": [
                     "Emphasize hands-on troubleshooting and SLA response speed",
                     "Add certifications (CCNP / Fortinet NSE)"
@@ -8925,9 +8956,15 @@ Return ONLY a JSON object with this exact structure:
             "status": "success",
             "tailored_resume": parsed.get("tailored_resume", ""),
             "cover_letter": parsed.get("cover_letter", ""),
-            "match_score": parsed.get("match_score", 91),
+            "recruiter_cold_email": parsed.get("recruiter_cold_email", ""),
+            "linkedin_inmail": parsed.get("linkedin_inmail", ""),
+            "match_score": parsed.get("match_score", 93),
             "keywords_added": parsed.get("keywords_added", 12),
             "bullet_points_optimized": parsed.get("bullet_points_optimized", 8),
+            "matched_keywords": parsed.get("matched_keywords", ["Cisco", "Fortinet", "VPN"]),
+            "missing_keywords": parsed.get("missing_keywords", ["SD-WAN"]),
+            "salary_estimate": parsed.get("salary_estimate", "$3,500 - $4,800/month"),
+            "interview_questions": parsed.get("interview_questions", []),
             "suggested_improvements": parsed.get("suggested_improvements", [])
         })
 

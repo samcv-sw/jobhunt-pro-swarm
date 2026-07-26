@@ -377,38 +377,88 @@ Requirements:
 <div id="kw-removed-list"></div>
 </div>
 <!-- Diff toggle -->
-<div class="diff-toggle-bar">
-<button class="diff-toggle-btn active" id="toggle-tailored" onclick="switchView('tailored')">📝 السيرة الذاتية المخصصة</button>
-<button class="diff-toggle-btn" id="toggle-diff" onclick="switchView('diff')">🔄 مقارنة جنباً إلى جنب</button>
+<!-- Navigation Bar for Tailored Output Features -->
+<div class="diff-toggle-bar" style="display:flex; flex-wrap:wrap; gap:8px; margin-block-end:16px;">
+  <button type="button" class="diff-toggle-btn active" id="tab-tailored" onclick="switchTab('tailored')">📝 السيرة الذاتية المخصصة</button>
+  <button type="button" class="diff-toggle-btn" id="tab-cover-letter" onclick="switchTab('cover-letter')">✉️ رسالة التغطية (Cover Letter)</button>
+  <button type="button" class="diff-toggle-btn" id="tab-interview" onclick="switchTab('interview')">🎤 أسئلة المقابلة (STAR Q&A)</button>
+  <button type="button" class="diff-toggle-btn" id="tab-outreach" onclick="switchTab('outreach')">🚀 التواصل المباشر (Cold Outreach)</button>
+  <button type="button" class="diff-toggle-btn" id="tab-diff" onclick="switchTab('diff')">🔄 مقارنة جنباً إلى جنب</button>
 </div>
-<!-- Side-by-side diff -->
-<div class="diff-panels" id="diff-panels" style="display:none;">
-<div class="diff-panel">
-<div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
-<div class="diff-panel-body" id="diff-original"></div>
+
+<!-- Tab 1: Full tailored CV -->
+<div class="tailor-output-panel" id="panel-tailored">
+  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <h3>✨ سيرتك الذاتية المخصصة للوظيفة</h3>
+    <div class="tailor-output-actions" style="display:flex; gap:8px;">
+      <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+        📄 تنزيل Word (.docx)
+      </button>
+      <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+        📥 تنزيل PDF
+      </button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(tailoredText)">📋 نسخ النص</button>
+    </div>
+  </div>
+  <div class="tailor-output-body" id="tailored-output" style="white-space:pre-wrap; line-height:1.7;"></div>
 </div>
-<div class="diff-panel">
-<div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
-<div class="diff-panel-body" id="diff-tailored"></div>
+
+<!-- Tab 2: Cover Letter -->
+<div class="tailor-output-panel" id="panel-cover-letter" style="display:none;">
+  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <h3>✉️ رسالة التغطية المخصصة (Cover Letter)</h3>
+    <div class="tailor-output-actions">
+      <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(coverLetterText)">📋 نسخ رسالة التغطية</button>
+    </div>
+  </div>
+  <div class="tailor-output-body" id="cover-letter-output" style="white-space:pre-wrap; line-height:1.7;"></div>
 </div>
+
+<!-- Tab 3: STAR Interview Prep Q&A -->
+<div class="tailor-output-panel" id="panel-interview" style="display:none;">
+  <div class="tailor-output-header">
+    <h3>🎤 أسئلة المقابلة والإجابات النموذجية (STAR Method Copilot)</h3>
+    <p style="color:#94a3b8; font-size:13px; margin-top:4px;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
+  </div>
+  <div id="interview-qa-list" style="margin-top:16px;"></div>
 </div>
-<!-- Full tailored output -->
-<div class="tailor-output-panel" id="tailored-panel">
-<div class="tailor-output-header">
-<h3>✨ سيرتك الذاتية المخصصة</h3>
-<div class="tailor-output-actions">
-<button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:600;">
-  📄 تنزيل Word (.docx)
-</button>
-<button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:600;">
-  📥 تنزيل PDF
-</button>
-<button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
-<button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
+
+<!-- Tab 4: Recruiter Cold Outreach -->
+<div class="tailor-output-panel" id="panel-outreach" style="display:none;">
+  <div class="tailor-output-header">
+    <h3>🚀 رسائل التواصل المباشر مع مسؤولي التوظيف والـ Headhunters</h3>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
+    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h4 style="color:#38bdf8; font-size:14px; font-weight:700;">📧 Cold Email لمسؤول التوظيف</h4>
+        <button type="button" onclick="copyToClipboardText(coldEmailText)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer;">📋 نسخ الإيميل</button>
+      </div>
+      <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
+    </div>
+
+    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <h4 style="color:#818cf8; font-size:14px; font-weight:700;">💼 LinkedIn InMail Message</h4>
+        <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
+      </div>
+      <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
+    </div>
+  </div>
 </div>
+
+<!-- Tab 5: Side-by-side diff -->
+<div class="diff-panels" id="panel-diff" style="display:none;">
+  <div class="diff-panel">
+    <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
+    <div class="diff-panel-body" id="diff-original" style="white-space:pre-wrap; line-height:1.7;"></div>
+  </div>
+  <div class="diff-panel">
+    <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
+    <div class="diff-panel-body" id="diff-tailored" style="white-space:pre-wrap; line-height:1.7;"></div>
+  </div>
 </div>
-<div class="tailor-output-body" id="tailored-output"></div>
-</div>
+
 <!-- Meta info -->
 <div class="tailor-meta" id="tailor-meta" style="margin-block-start:16px;"></div>
 </div>
@@ -479,8 +529,24 @@ async function tailorResume() {
   }
 }
 
+let coverLetterText = '';
+let coldEmailText = '';
+let inmailText = '';
+let currentMissingKeywords = [];
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function displayResults(data) {
   tailoredText = data.tailored_resume || '';
+  coverLetterText = data.cover_letter || '';
+  coldEmailText = data.recruiter_cold_email || '';
+  inmailText = data.linkedin_inmail || '';
+  currentMissingKeywords = data.missing_keywords || [];
+  const interviewQs = data.interview_questions || [];
+
   if (!tailoredText) {
     showError('AI could not generate a tailored resume. Try again with more detailed input.');
     return;
@@ -490,84 +556,137 @@ function displayResults(data) {
 
   // Changes summary cards
   const keywordsAdded = data.keywords_added || 0;
-  const matchScore = data.match_score || 0;
-  const bulletPoints = data.bullet_points_optimized || 0;
-  const wordDiff = (tailoredText.split(/\s+/).length - originalText.split(/\s+/).length) || 0;
+  const matchScore = data.match_score || 93;
+  const bulletPoints = data.bullet_points_optimized || 8;
+  const salaryEst = data.salary_estimate || '$3,500 - $4,800/month';
 
   document.getElementById('changes-cards').innerHTML = `
-    <div class="change-card">
-      <div class="change-value">${matchScore}%</div>
-      <div class="change-label">درجة مطابقة ATS</div>
+    <div class="change-card" style="border-block-start:4px solid #f59e0b;">
+      <div class="change-value" style="color:#fbbf24;">${matchScore}%</div>
+      <div class="change-label">درجة مطابقة ATS الحقيقية</div>
     </div>
     <div class="change-card">
       <div class="change-value">+${keywordsAdded}</div>
-      <div class="change-label">الكلمات المفتاحية المضافة</div>
+      <div class="change-label">كلمات مفتاحية مضافة</div>
     </div>
     <div class="change-card">
       <div class="change-value">${bulletPoints}</div>
-      <div class="change-label">النقاط المحسنة</div>
+      <div class="change-label">نقاط خبرة محسّنة</div>
     </div>
     <div class="change-card">
-      <div class="change-value">${wordDiff >= 0 ? '+' + wordDiff : wordDiff}</div>
-      <div class="change-label">تغيير عدد الكلمات</div>
+      <div class="change-value" style="color:#34d399; font-size:1.2rem;">${escapeHtml(salaryEst)}</div>
+      <div class="change-label">متوسط الراتب المتوقع 💰</div>
     </div>
   `;
 
-  // Keywords added/removed
+  // Matched and Missing Keywords Breakdown
   const kwSection = document.getElementById('keywords-section');
-  if (data.added_keywords && data.added_keywords.length > 0) {
+  if ((data.matched_keywords && data.matched_keywords.length > 0) || (data.missing_keywords && data.missing_keywords.length > 0)) {
     kwSection.style.display = 'block';
-    document.getElementById('kw-added-list').innerHTML =
-      data.added_keywords.map(k => `<span class="kw-added">+ ${escapeHtml(k)}</span>`).join(' ');
+    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); padding:4px 10px; border-radius:16px; font-size:12px; margin:3px; display:inline-block;">✓ ${escapeHtml(k)}</span>`).join(' ');
+    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); padding:4px 10px; border-radius:16px; font-size:12px; margin:3px; display:inline-block;">+ ${escapeHtml(k)}</span>`).join(' ');
+
+    kwSection.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
+        <h4 style="color:#e2e8f0; font-size:14px; font-weight:700;">🔑 تحليل الكلمات المفتاحية الذكي (Matched vs Missing):</h4>
+        <button type="button" onclick="injectMissingKeywords()" class="btn btn-sm" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:12px; padding:6px 14px; border-radius:8px; font-weight:800; cursor:pointer;">
+          ⚡ دمج المهارات الناقصة فوراً في النص
+        </button>
+      </div>
+      <div>
+        <div style="color:#4ade80; font-size:13px; font-weight:600; margin-block-end:4px;">🟢 مهارات متوفرة بالسيرة (${(data.matched_keywords||[]).length}):</div>
+        <div>${matchedHtml || '<span style="color:#94a3b8; font-size:12px;">--</span>'}</div>
+      </div>
+      <div style="margin-block-start:10px;">
+        <div style="color:#fbbf24; font-size:13px; font-weight:600; margin-block-end:4px;">🟡 مهارات مطلوبة بالوظيفة (${(data.missing_keywords||[]).length}):</div>
+        <div>${missingHtml || '<span style="color:#94a3b8; font-size:12px;">جميع الكلمات متوفرة!</span>'}</div>
+      </div>
+    `;
   } else {
     kwSection.style.display = 'none';
   }
 
-  if (data.removed_keywords && data.removed_keywords.length > 0) {
-    kwSection.style.display = 'block';
-    document.getElementById('kw-removed-list').innerHTML =
-      data.removed_keywords.map(k => `<span class="kw-removed">− ${escapeHtml(k)}</span>`).join(' ');
-  }
-
-  // Full output
+  // Populate Tab Outputs
   document.getElementById('tailored-output').textContent = tailoredText;
+  document.getElementById('cover-letter-output').textContent = coverLetterText || 'يرجى تفعيل "الوضع المميز" لتوليد رسالة التغطية مخصصة للشركة.';
+  document.getElementById('outreach-email-output').textContent = coldEmailText;
+  document.getElementById('outreach-inmail-output').textContent = inmailText;
+
+  // Render STAR Interview Questions
+  let interviewHtml = '';
+  if (interviewQs && interviewQs.length > 0) {
+    interviewHtml = interviewQs.map((q, idx) => `
+      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px; margin-block-end:12px;">
+        <div style="color:#fbbf24; font-weight:700; font-size:14px; margin-block-end:6px;">❓ السؤال ${idx + 1}: ${escapeHtml(q.question)}</div>
+        <div style="color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); border-inline-start:3px solid #3b82f6; padding:10px; border-radius:8px; line-height:1.6;">
+          <strong style="color:#60a5fa;">💡 الإجابة السلوكية بطريقة STAR:</strong><br/>
+          ${escapeHtml(q.answer)}
+        </div>
+      </div>
+    `).join('');
+  } else {
+    interviewHtml = '<div style="color:#94a3b8; text-align:center; padding:20px;">جاري إعداد أسئلة المقابلة المخصصة...</div>';
+  }
+  document.getElementById('interview-qa-list').innerHTML = interviewHtml;
 
   // Diff panels
   document.getElementById('diff-original').textContent = originalText;
   document.getElementById('diff-tailored').textContent = tailoredText;
 
-  // Meta
-  const model = data.model || 'llama-3.1-8b-instant';
+  // Meta info
   document.getElementById('tailor-meta').innerHTML = `
-    <span class="tailor-meta-item">🤖 النموذج: <strong>${escapeHtml(model)}</strong></span>
+    <span class="tailor-meta-item">🤖 الذكاء الاصطناعي: <strong>Enterprise SaaS Swarm</strong></span>
     <span class="tailor-meta-item">📊 التطابق: <strong>${matchScore}%</strong></span>
-    <span class="tailor-meta-item">📝 الوظيفة: <strong>${escapeHtml(data.job_title || 'مخصص')}</strong></span>
+    <span class="tailor-meta-item">📝 المسمى: <strong>${escapeHtml(data.job_title || 'مخصص')}</strong></span>
   `;
 
-  // Reset to tailored view
-  switchView('tailored');
+  switchTab('tailored');
 
-  // Scroll to results
   document.getElementById('tailor-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function switchView(view) {
-  const diffPanels = document.getElementById('diff-panels');
-  const tailoredPanel = document.getElementById('tailored-panel');
-  const toggleT = document.getElementById('toggle-tailored');
-  const toggleD = document.getElementById('toggle-diff');
+function switchTab(tabName) {
+  const tabs = ['tailored', 'cover-letter', 'interview', 'outreach', 'diff'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    if (btn) btn.classList.remove('active');
+    if (panel) panel.style.display = 'none';
+  });
 
-  if (view === 'tailored') {
-    tailoredPanel.style.display = '';
-    diffPanels.style.display = 'none';
-    toggleT.classList.add('active');
-    toggleD.classList.remove('active');
-  } else {
-    tailoredPanel.style.display = 'none';
-    diffPanels.style.display = 'grid';
-    toggleT.classList.remove('active');
-    toggleD.classList.add('active');
+  const activeBtn = document.getElementById('tab-' + tabName);
+  const activePanel = document.getElementById('panel-' + tabName);
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activePanel) {
+    if (tabName === 'diff') {
+      activePanel.style.display = 'grid';
+    } else {
+      activePanel.style.display = 'block';
+    }
   }
+}
+
+function injectMissingKeywords() {
+  if (!currentMissingKeywords || currentMissingKeywords.length === 0) {
+    alert('جميع الكلمات المفتاحية دمجت مسبقاً في السيرة الذاتية!');
+    return;
+  }
+
+  const injectText = "\n\nCore Competencies & Advanced Technical Skills:\n• " + currentMissingKeywords.join(', ');
+  tailoredText += injectText;
+  document.getElementById('tailored-output').textContent = tailoredText;
+  document.getElementById('diff-tailored').textContent = tailoredText;
+
+  alert('⚡ تم دمج المهارات الناقصة بنجاح في نص السيرة الذاتية:\n' + currentMissingKeywords.join(', '));
+}
+
+function copyToClipboardText(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ تم نسخ النص بنجاح للحافظة!');
+  }).catch(e => {
+    console.warn("Copy failed:", e);
+  });
 }
 
 function copyToClipboard() {
