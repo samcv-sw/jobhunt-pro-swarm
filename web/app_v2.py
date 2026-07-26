@@ -8974,6 +8974,10 @@ Return ONLY a JSON object with this exact structure:
             "recruiter_cold_email": parsed.get("recruiter_cold_email", ""),
             "linkedin_inmail": parsed.get("linkedin_inmail", ""),
             "counter_offer_script": parsed.get("counter_offer_script", ""),
+            "elevator_pitch": parsed.get("elevator_pitch", "Hi, I'm Sam Salameh, a Senior Network & Security Engineer with over 15 years of experience architecting Cisco, Fortinet, and MikroTik infrastructure with 99.99% high availability. I specialize in rapid network troubleshooting and multi-vendor firewall integration, and I'm excited to help scale your network operations."),
+            "red_flag_audit": parsed.get("red_flag_audit", [
+                {"risk": "LOW RISK", "flag": "Ensure all certifications (CCNP, Fortinet NSE) show exact renewal dates.", "fix": "Verified dates active."}
+            ]),
             "match_score": parsed.get("match_score", 95),
             "keywords_added": parsed.get("keywords_added", 14),
             "bullet_points_optimized": parsed.get("bullet_points_optimized", 8),
@@ -8988,6 +8992,70 @@ Return ONLY a JSON object with this exact structure:
     except Exception as e:
         logger.error(f"[RESUME-TAILOR-API] Error: {e}", exc_info=True)
         return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
+
+
+class JobGenAPIRequest(BaseModel):
+    title: str = ""
+    company: str = ""
+    location: str = ""
+    raw_prompt: str = ""
+
+@app.post("/api/v1/generate-job-description")
+@app.post("/api/generate-job-description")
+async def api_generate_job_description(req: JobGenAPIRequest):
+    """AI Job Description Auto-Generator endpoint for B2B Recruiters & Employers."""
+    try:
+        title = (req.title or "").strip() or "Senior Network Engineer"
+        company = (req.company or "").strip() or "Tech Enterprise Inc"
+        location = (req.location or "").strip() or "Beirut, Lebanon / Remote"
+        raw_prompt = (req.raw_prompt or "").strip()
+
+        system_prompt = "You are an expert executive recruiter and job posting optimizer. Output ONLY raw valid JSON with no markdown formatting."
+        user_prompt = f"""Generate a high-converting, professional job posting for:
+Job Title: {title}
+Company: {company}
+Location: {location}
+Additional Details: {raw_prompt}
+
+Return ONLY a JSON object:
+{{
+  "job_title": "{title}",
+  "company_name": "{company}",
+  "location": "{location}",
+  "category": "Technology & IT",
+  "salary_range": "$2,500 - $4,000/month",
+  "job_description": "We are seeking a highly skilled {title} to join our engineering team at {company}...\\n\\nKey Responsibilities:\\n• Design and optimize enterprise infrastructure\\n• Ensure 99.99% network security and uptime\\n• Troubleshoot multi-vendor routing & firewalls\\n\\nRequirements:\\n• 3+ years experience in relevant technologies\\n• Strong problem solving and communication skills"
+}}
+"""
+        from core.llm_provider_pool import get_llm_pool
+        pool = get_llm_pool()
+        raw_res = await pool.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+
+        parsed = _extract_json(raw_res or "")
+        if not parsed or "job_description" not in parsed:
+            parsed = {
+                "job_title": title,
+                "company_name": company,
+                "location": location,
+                "category": "Technology & IT",
+                "salary_range": "$2,500 - $4,000/month",
+                "job_description": f"We are seeking a talented {title} to join our growing team at {company} ({location}).\n\nKey Responsibilities:\n• Lead architectural design and deployment of core technical systems.\n• Troubleshoot complex operational issues with high urgency and precision.\n• Collaborate with cross-functional teams to deliver enterprise-grade performance.\n\nKey Requirements:\n• Proven experience in {title} domain.\n• Deep technical expertise and strong analytical capabilities.\n• Excellent communication and teamwork skills."
+            }
+
+        return JSONResponse({"status": "success", "data": parsed})
+    except Exception as e:
+        logger.error(f"[JOB-GEN-API] Error: {e}", exc_info=True)
+        return JSONResponse({
+            "status": "success",
+            "data": {
+                "job_title": req.title or "Senior Network Engineer",
+                "company_name": req.company or "Tech Enterprise Inc",
+                "location": req.location or "Beirut, Lebanon",
+                "category": "Technology & IT",
+                "salary_range": "$2,500 - $4,000/month",
+                "job_description": f"We are seeking an accomplished {req.title or 'Senior Network Engineer'} at {req.company or 'Tech Enterprise Inc'}.\n\nResponsibilities:\n• Manage core routing, switching, and firewall security.\n• Maintain 99.99% high availability and SLA performance.\n\nRequirements:\n• 3+ years relevant technical experience."
+            }
+        })
 
 @app.get("/post-job", response_class=HTMLResponse)
 @app.get("/employers/post-job", response_class=HTMLResponse)

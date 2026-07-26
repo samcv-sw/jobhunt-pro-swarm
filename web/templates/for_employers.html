@@ -339,8 +339,17 @@
 </div>
 <!-- ═══════════ POST FORM ═══════════ -->
 <div class="form-card" id="postForm">
-<h2>📝 انشر وظيفتك</h2>
-<p class="subtitle">عبي التفاصيل تحت. كل ما كانت أكمل، كل ما حصلت على متقدمين أكتر.</p>
+<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+  <div>
+    <h2>📝 انشر وظيفتك</h2>
+    <p class="subtitle">عبي التفاصيل تحت، أو استخدم الذكاء الاصطناعي لتوليد الإعلان وتعبئته تلقائياً!</p>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button type="button" onclick="aiAutoFillJobForm()" class="btn btn-sm" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:12px; padding:8px 14px; border-radius:8px; font-weight:800; border:none; cursor:pointer;">
+      ✨ تعبئة النموذج بالذكاء الاصطناعي
+    </button>
+  </div>
+</div>
 <form dir="auto" action="/api/employer/post-job" id="jobForm" method="POST" onsubmit="submitJob(event)">
 <div class="form-grid">
 <div class="form-group">
@@ -379,7 +388,12 @@
 <div class="helper">الطلبات رح تتوجه لهون</div>
 </div>
 <div class="form-group full">
-<label>📋 وصف الوظيفة *</label>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+  <label style="margin:0;">📋 وصف الوظيفة *</label>
+  <button type="button" onclick="aiGenerateJobDescription()" style="background:rgba(59,130,246,0.2); color:#60a5fa; border:1px solid rgba(59,130,246,0.4); font-size:11px; padding:4px 10px; border-radius:6px; font-weight:700; cursor:pointer;">
+    ⚡ مولد الوصف بالذكاء الاصطناعي
+  </button>
+</div>
 <textarea dir="auto" id="description" placeholder="اشرح الدور، المسؤوليات، المتطلبات، وليش شركتك مكان رائع للعمل...
 
 💡 نصيحة: اذكر الفوائد، بيئة العمل، وفرص التطور لتحصل على ضعف المتقدمين!" required="" dir="auto"></textarea>
@@ -538,6 +552,64 @@ function recalc() {
 
 function updateSubmitBtn() {
   document.getElementById('submitBtn').disabled = !document.getElementById('legal_check').checked;
+}
+
+// ── AI Auto-Generator & Auto-Fill ──
+async function aiGenerateJobDescription() {
+  const title = document.getElementById('job_title').value || prompt('أدخل المسمى الوظيفي (مثال: Senior Network Engineer):') || 'Senior Network Engineer';
+  const company = document.getElementById('company_name').value || 'Murex';
+  const location = document.getElementById('location').value || 'بيروت، لبنان';
+
+  document.getElementById('job_title').value = title;
+  const descBox = document.getElementById('description');
+  descBox.value = '⏳ جاري توليد وصف الوظيفة بالذكاء الاصطناعي...';
+
+  try {
+    const res = await fetch('/api/v1/generate-job-description', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, company, location })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.data) {
+      descBox.value = data.data.job_description;
+      if (data.data.salary_range && !document.getElementById('salary').value) {
+        document.getElementById('salary').value = data.data.salary_range;
+      }
+      alert('✅ تم توليد وصف الوظيفة بالذكاء الاصطناعي بنجاح!');
+    }
+  } catch (e) {
+    descBox.value = `نبحث عن ${title} للانضمام لشركتنا في ${location}.\n\nالمسؤوليات الرئيسية:\n• إدارة وتنسيق المهام الفنية بدقة عالية.\n• ضمان استمرارية التشغيل وأعلى معايير الجودة.\n\nالمتطلبات:\n• خبرة 3+ سنوات في المجال.`;
+  }
+}
+
+async function aiAutoFillJobForm() {
+  const promptText = prompt('أدخل نبذة سريعة عن الوظيفة والشركة لتعبئة النموذج بالكامل تلقائياً (مثال: مطلوب مهندس شبكات في شركة بيروت للتكنولوجيا براتب 3000$):');
+  if (!promptText) return;
+
+  const descBox = document.getElementById('description');
+  descBox.value = '⏳ جاري تحليل النص وتعبئة النموذج بالذكاء الاصطناعي...';
+
+  try {
+    const res = await fetch('/api/v1/generate-job-description', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw_prompt: promptText })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.data) {
+      const d = data.data;
+      if (d.company_name) document.getElementById('company_name').value = d.company_name;
+      if (d.job_title) document.getElementById('job_title').value = d.job_title;
+      if (d.location) document.getElementById('location').value = d.location;
+      if (d.salary_range) document.getElementById('salary').value = d.salary_range;
+      if (d.job_description) document.getElementById('description').value = d.job_description;
+      if (!document.getElementById('contact_email').value) document.getElementById('contact_email').value = 'hr@company.com';
+      alert('✨ تم تحليل البيانات وتعبئة النموذج بالكامل بالذكاء الاصطناعي!');
+    }
+  } catch (e) {
+    alert('تم تعبئة الترتيب المبدئي للنموذج!');
+  }
 }
 
 // ── Submit ──

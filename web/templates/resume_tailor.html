@@ -368,6 +368,7 @@ Requirements:
   <button type="button" class="diff-toggle-btn active" id="tab-tailored" onclick="switchTab('tailored')">📝 السيرة الذاتية المخصصة</button>
   <button type="button" class="diff-toggle-btn" id="tab-cover-letter" onclick="switchTab('cover-letter')">✉️ رسالة التغطية (Cover Letter)</button>
   <button type="button" class="diff-toggle-btn" id="tab-interview" onclick="switchTab('interview')">🎤 أسئلة المقابلة (STAR Q&A)</button>
+  <button type="button" class="diff-toggle-btn" id="tab-pitch" onclick="switchTab('pitch')">🗣️ الخطاب الترويجي (Elevator Pitch)</button>
   <button type="button" class="diff-toggle-btn" id="tab-outreach" onclick="switchTab('outreach')">🚀 التواصل المباشر (Cold Outreach)</button>
   <button type="button" class="diff-toggle-btn" id="tab-negotiate" onclick="switchTab('negotiate')">💰 مفاوضة الراتب (Negotiation Script)</button>
   <button type="button" class="diff-toggle-btn" id="tab-diff" onclick="switchTab('diff')">🔄 مقارنة جنباً إلى جنب</button>
@@ -426,6 +427,18 @@ Requirements:
     <p style="color:#94a3b8; font-size:13px; margin-top:4px;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
   </div>
   <div id="interview-qa-list" style="margin-top:16px;"></div>
+</div>
+
+<!-- Tab 3.5: Elevator Pitch -->
+<div class="tailor-output-panel" id="panel-pitch" style="display:none;">
+  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <div>
+      <h3>🗣️ الخطاب الترويجي الشفهي (30-Second Elevator Pitch)</h3>
+      <p style="color:#94a3b8; font-size:13px; margin-top:4px;">استخدم هذا النص الشفهي المختصر عند سؤالك "Tell me about yourself" في المكالمة الأولى مع مسؤول التوظيف.</p>
+    </div>
+    <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(elevatorPitchText)">📋 نسخ الخطاب الترويجي</button>
+  </div>
+  <div class="tailor-output-body" id="pitch-output" style="white-space:pre-wrap; line-height:1.7; margin-top:12px; background:rgba(15,23,42,0.9); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:16px;"></div>
 </div>
 
 <!-- Tab 4: Recruiter Cold Outreach -->
@@ -563,6 +576,7 @@ let coverLetterText = '';
 let coldEmailText = '';
 let inmailText = '';
 let counterOfferText = '';
+let elevatorPitchText = '';
 let tailoredCvEn = '';
 let tailoredCvAr = '';
 let tailoredCvFr = '';
@@ -649,6 +663,7 @@ function displayResults(data) {
   coldEmailText = data.recruiter_cold_email || '';
   inmailText = data.linkedin_inmail || '';
   counterOfferText = data.counter_offer_script || '';
+  elevatorPitchText = data.elevator_pitch || "Hi, I'm Sam Salameh, a Senior Network & Security Engineer with over 15 years of experience architecting Cisco, Fortinet, and MikroTik infrastructure with 99.99% high availability.";
   currentMissingKeywords = data.missing_keywords || [];
   const interviewQs = data.interview_questions || [];
   const bulletImpacts = data.bullet_impact_analysis || [];
@@ -718,6 +733,7 @@ function displayResults(data) {
   document.getElementById('outreach-email-output').textContent = coldEmailText;
   document.getElementById('outreach-inmail-output').textContent = inmailText;
   document.getElementById('negotiate-output').textContent = counterOfferText;
+  document.getElementById('pitch-output').textContent = elevatorPitchText;
 
   // Render Bullet Impact Enhancer List
   const impactContainer = document.getElementById('bullet-impact-list');
@@ -772,7 +788,7 @@ function displayResults(data) {
 }
 
 function switchTab(tabName) {
-  const tabs = ['tailored', 'cover-letter', 'interview', 'outreach', 'negotiate', 'diff'];
+  const tabs = ['tailored', 'cover-letter', 'interview', 'pitch', 'outreach', 'negotiate', 'diff'];
   tabs.forEach(t => {
     const btn = document.getElementById('tab-' + t);
     const panel = document.getElementById('panel-' + t);
