@@ -303,7 +303,12 @@
 <div class="tailor-container">
 <!-- inset-inline-start: Base Resume -->
 <div class="tailor-panel">
-<h3>📄 سيرتك الذاتية الأساسية</h3>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px;">
+  <h3 style="margin:0;">📄 سيرتك الذاتية الأساسية</h3>
+  <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:12px; padding:4px 10px; border-radius:8px; cursor:pointer;">
+    📥 تحميل بياناتي الحقيقية
+  </button>
+</div>
 <div class="file-drop" id="resume-drop" style="cursor:pointer; position:relative;" onclick="document.getElementById('cv-file-input').click()">
       <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFileSelect(event)">
       <span id="drop-text">📎 أسقط ملف سيرتك الذاتية هنا أو انقر لاختيار ملف من جهازك</span>
@@ -319,7 +324,13 @@ PROFESSIONAL SUMMARY
 </div>
 <!-- inset-inline-end: Job Description -->
 <div class="tailor-panel">
-<h3>🎯 الوصف الوظيفي المستهدف</h3>
+<h3 style="margin-block-end:10px;">🎯 الوصف الوظيفي المستهدف</h3>
+<div style="display:flex; gap:8px; margin-block-end:12px;">
+  <input type="text" id="tailor-import-url" placeholder="ضع رابط الوظيفة هنا (LinkedIn / Bayt / NaukriGulf...)" style="flex:1; padding:8px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#e2e8f0; font-size:13px;" dir="auto" />
+  <button type="button" onclick="importUrlToTailor()" id="btn-import-tailor" class="btn btn-sm" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; font-size:13px; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
+    📥 استيراد
+  </button>
+</div>
 <textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
 
 Network Engineer — Beirut, Lebanon
@@ -386,6 +397,12 @@ Requirements:
 <div class="tailor-output-header">
 <h3>✨ سيرتك الذاتية المخصصة</h3>
 <div class="tailor-output-actions">
+<button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:600;">
+  📄 تنزيل Word (.docx)
+</button>
+<button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:600;">
+  📥 تنزيل PDF
+</button>
 <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 نسخ</button>
 <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 تحميل بصيغة PDF</button>
 </div>
@@ -697,5 +714,83 @@ async function uploadAndExtractCV(file) {
         console.error("Upload error:", err);
         dropText.innerHTML = `⚠️ حدث خطأ في رفع الملف، يرجى التكرم بلصق النص أدناه.`;
     }
+}
+</script>
+
+<script>
+function loadRealCandidateData() {
+  const realCv = `سام سلامة — مهندس شبكات وحماية معلومات أول
+====================================================================
+البريد الإلكتروني: samatou683@gmail.com | الهاتف: +961 70 885 918 | بيروت، لبنان
+رابط لينكدإن: https://www.linkedin.com/in/sam-salameh
+
+الملخص المهني:
+مهندس شبكات وبنية تحتية أول بجهة عمل معتمدة بخبرة 15+ سنة في تصميم، تشغيل وتأمين الشبكات المعقدة للشركات ومزودي خدمة الإنترنت (ISPs). خبرة واسعة في حلول Cisco, MikroTik, Ubiquiti, Fortinet، وتطبيق البروتوكولات المتقدمة (OSPF, BGP, MPLS, IPsec VPN).
+
+الخبرات العملية:
+• استشاري ومهندس شبكات مستقل | بيروت، لبنان (2021 - الحالي)
+  - تصميم وتنفيذ شبكات المؤسسات لـ 20+ عميل مع حماية الجدران النارية والـ VPN.
+  - إدارة بروتوكولات التوجيه المتقدمة (BGP, OSPF) وتأمين الاتصال عالي الاعتمادية (99.99% Uptime).
+
+• مهندس تقني شبكات | شبكات الاحتراف، بيروت (2010 - 2021)
+  - تركيب وتكوين الموجهات والمحولات وأجهزة الفايروال (FortiGate, Cisco IOS, RouterOS).
+  - إدارة أنظمة المراقبة الفورية (Wireshark, PRTG, Nagios) وحل الأعطال التقنية المعقدة.
+
+المهارات الرئيسية:
+Cisco IOS, MikroTik RouterOS, Ubiquiti UniFi, Fortinet FortiGate, BGP, OSPF, MPLS, IPsec VPN, Wireshark, PRTG, Network Security, IT Infrastructure.`;
+
+  document.getElementById('tailor-resume').value = realCv;
+}
+
+async function importUrlToTailor() {
+  const urlInput = document.getElementById('tailor-import-url').value.trim();
+  if (!urlInput) {
+    alert('يرجى وضع رابط الوظيفة أولاً.');
+    return;
+  }
+  const btn = document.getElementById('btn-import-tailor');
+  btn.disabled = true;
+  btn.innerHTML = '⌛ جاري الجلب...';
+
+  try {
+    let resp = await fetch('/api/v1/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: urlInput })
+    });
+    let data = await resp.json();
+    if (data.job_description) {
+      document.getElementById('tailor-job').value = data.job_description;
+      if (data.title && !document.getElementById('tailor-job-title').value) {
+        document.getElementById('tailor-job-title').value = data.title;
+      }
+    } else {
+      alert('لم نتمكن من جلب تفاصيل الوظيفة تلقائياً، يمكنك نسخ النص ولصقه مباشرة.');
+    }
+  } catch(e) {
+    alert('حدث خطأ أثناء جلب الرابط، يرجى نسخ النص ولصقه بيدك.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📥 استيراد';
+  }
+}
+
+function downloadTailoredDocx() {
+  const text = document.getElementById('tailored-body').innerText || document.getElementById('tailored-body').textContent;
+  if (!text) return;
+  const blob = new Blob([text], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Tailored_Resume_Sam_Salameh.docx';
+  a.click();
+}
+
+function downloadTailoredPdf() {
+  const text = document.getElementById('tailored-body').innerText || document.getElementById('tailored-body').textContent;
+  if (!text) return;
+  const printWin = window.open('', '', 'width=800,height=900');
+  printWin.document.write(`<pre style="font-family:sans-serif; white-space:pre-wrap; padding:20px; line-height:1.6;">${text}</pre>`);
+  printWin.document.close();
+  printWin.print();
 }
 </script>
