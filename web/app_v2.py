@@ -9153,17 +9153,24 @@ async def api_relocation_simulator(req: RelocationSimReq):
 
 @app.get("/post-job", response_class=HTMLResponse)
 @app.get("/employers/post-job", response_class=HTMLResponse)
+@app.get("/en/post-job", response_class=HTMLResponse)
+@app.get("/en/for-employers", response_class=HTMLResponse)
 def app_post_job_page(request: Request):
-    """Job posting page for employers and recruiters."""
+    """Job posting page for employers and recruiters (Arabic & English)."""
     user_id = get_verified_user_id(request)
+    is_en = request.url.path.startswith("/en")
+    tpl = "en/for_employers.html" if is_en else "for_employers.html"
+    title = "Post a Job Opening — Employers" if is_en else "نشر وظيفة جديدة — أصحاب العمل"
+    page_key = "post-job"
+    
     if user_id:
         with get_db() as conn:
             user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
             user = dict(user_row) if user_row else {}
-            content = render_template("for_employers.html", request=request, user=user, active_page="post-job")
-            return HTMLResponse(_build_dashboard_shell(user, user_id, content, "نشر وظيفة جديدة — أصحاب العمل", "post-job", request=request))
-    content = render_template("for_employers.html", request=request, active_page="post-job", user=None)
-    return HTMLResponse(_public_shell(content, "نشر وظيفة جديدة — JobHunt Pro"))
+            content = render_template(tpl, request=request, user=user, active_page=page_key)
+            return HTMLResponse(_build_dashboard_shell(user, user_id, content, title, page_key, request=request))
+    content = render_template(tpl, request=request, active_page=page_key, user=None)
+    return HTMLResponse(_public_shell(content, title))
 
 
 @app.post("/api/v1/ats-score")
