@@ -8873,7 +8873,7 @@ def resume_tailor_page(request: Request):
 #     return HTMLResponse(_public_shell(content, "For Employers — JobHunt Pro"))
 
 
-@app.post("/api/v1/ats-score", dependencies=[Depends(verify_jwt)])
+@app.post("/api/v1/ats-score")
 async def api_ats_score(request: Request):
     """Score a resume against a job description"""
     try:
@@ -8901,7 +8901,7 @@ async def api_ats_score(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-@app.post("/api/v1/ats-score-bulk", dependencies=[Depends(verify_jwt)])
+@app.post("/api/v1/ats-score-bulk")
 async def api_ats_score_bulk(request: Request):
     """Score resume against multiple jobs at once (max 10)"""
     try:
