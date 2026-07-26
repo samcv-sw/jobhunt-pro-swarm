@@ -8864,7 +8864,7 @@ class ResumeTailorAPIRequest(BaseModel):
 @app.post("/api/v1/resume-tailor")
 @app.post("/api/resume-tailor")
 async def api_resume_tailor(req: ResumeTailorAPIRequest, request: Request):
-    """AI Resume Tailor POST endpoint - Tailor CV, generate cover letter, outreach, and interview Q&As."""
+    """AI Resume Tailor POST endpoint - Ultra-tier CV tailoring, multi-language localization, and negotiation scripts."""
     try:
         resume_text = (req.resume or "").strip()
         job_desc = (req.job_description or "").strip()
@@ -8873,7 +8873,7 @@ async def api_resume_tailor(req: ResumeTailorAPIRequest, request: Request):
         if not resume_text or not job_desc:
             return JSONResponse({"status": "error", "error": "Both resume and job description are required."}, status_code=400)
 
-        system_prompt = "You are an elite executive CV strategist, interview coach, and ATS optimization expert. Output ONLY raw valid JSON with no markdown formatting or intro text."
+        system_prompt = "You are an elite executive CV strategist, multi-lingual recruiter, and ATS optimization expert. Output ONLY raw valid JSON with no markdown formatting or intro text."
 
         user_prompt = f"""Target Job Title: {job_title or 'Senior Network Engineer'}
 Target Job Description:
@@ -8884,31 +8884,38 @@ Candidate Master Resume:
 
 Instructions:
 1. Rewrite the candidate's resume to target '{job_title or 'Target Role'}'. Keep exact real contact info (Sam Salameh, sam.dev1@hotmail.com, +961 70 841 009, Beirut, Lebanon).
-2. Generate a compelling, high-converting Cover Letter tailored to this position.
-3. Generate a Recruiter Cold Email and a LinkedIn InMail message for outreach.
-4. Generate 5 top Interview Questions (Technical & Behavioral) with STAR-method answers customized to the candidate's experience.
-5. Extract matched keywords and missing keywords.
+2. Generate Arabic (tailored_resume_ar) and French (tailored_resume_fr) localized versions of the tailored resume.
+3. Generate a Cover Letter, Recruiter Cold Email, and LinkedIn InMail message.
+4. Generate 5 STAR Interview Questions & Answers.
+5. Generate a Counter-Offer Negotiation Script to negotiate +15% to +30% higher compensation.
+6. Extract matched and missing technical keywords.
 
 Return ONLY a JSON object with this exact structure:
 {{
-  "tailored_resume": "FULL TAILORED CV TEXT HERE",
+  "tailored_resume": "FULL TAILORED CV TEXT IN ENGLISH HERE",
+  "tailored_resume_ar": "نص السيرة الذاتية المخصصة باللغة العربية هنا",
+  "tailored_resume_fr": "CV SUR MESURE EN FRANÇAIS ICI",
   "cover_letter": "FULL COVER LETTER TEXT HERE",
   "recruiter_cold_email": "Subject: Senior Network Engineer Application\\n\\nDear Hiring Manager,\\n...",
   "linkedin_inmail": "Hi [Hiring Manager], I noticed your opening for...",
-  "match_score": 94,
+  "counter_offer_script": "Subject: Job Offer - [Target Role] - Sam Salameh\\n\\nDear [Hiring Manager], Thank you immensely for extending this offer...",
+  "match_score": 95,
   "keywords_added": 14,
   "bullet_points_optimized": 8,
-  "matched_keywords": ["Cisco", "Fortinet", "VPN", "Network Troubleshooting", "OSPF"],
+  "matched_keywords": ["Cisco", "Fortinet", "VPN", "Network Troubleshooting", "OSPF", "BGP"],
   "missing_keywords": ["SD-WAN", "Cloud Security", "Ansible Automation"],
-  "salary_estimate": "$3,500 - $4,500/month (SGD 4,800 - 6,200)",
+  "salary_estimate": "$3,500 - $4,800/month (SGD 4,800 - 6,500)",
+  "bullet_impact_analysis": [
+    {{
+      "original": "Managed enterprise routers and switches.",
+      "enhanced": "Engineered & maintained multi-vendor Cisco/Fortinet routers and switches, securing 99.99% high availability across 20+ enterprise hubs.",
+      "impact": "STRONG 🔥 (+35% Recruiter Value)"
+    }}
+  ],
   "interview_questions": [
     {{
       "question": "Can you describe a complex network troubleshooting issue you resolved under tight deadline?",
       "answer": "SITUATION: During an enterprise link failure... TASK: I was tasked with restoring full OSPF/BGP routing... ACTION: Configured failover on Cisco/Fortinet firewalls... RESULT: Restored 99.99% uptime with 0 data loss."
-    }},
-    {{
-      "question": "How do you handle multi-vendor firewall integration (Fortinet & Cisco)?",
-      "answer": "SITUATION: Integrating legacy Cisco switches with Fortinet security fabric... TASK: Ensure zero packet loss... ACTION: Configured IPsec VPN tunnels and VLAN tagging... RESULT: Seamless multi-site connection."
     }}
   ],
   "suggested_improvements": [
@@ -8927,23 +8934,29 @@ Return ONLY a JSON object with this exact structure:
             cover_letter_text = f"Dear Hiring Manager,\n\nI am writing to express my strong interest in the {job_title or 'Technical Support'} role. With over 15 years of hands-on experience managing complex network environments (Cisco, Fortinet, MikroTik, VPNs), I am confident in my ability to deliver immediate value to your team.\n\nSincerely,\nSam Salameh"
             parsed = {
                 "tailored_resume": tailored_text,
+                "tailored_resume_ar": f"سام سلامة — مهندس شبكات وحماية معلومات أول\nالبريد: sam.dev1@hotmail.com | الهاتف: +961 70 841 009 | بيروت، لبنان\n\nالملخص المهني:\nمهندس شبكات وبنية تحتية أول بخبرة 15+ سنة في تصميم وتشغيل الشبكات المعقدة (Cisco, Fortinet, MikroTik, Ubiquiti). متخصص في بروتوكولات OSPF, BGP, VPN وضمان استمرارية التشغيل بنسبة 99.99%.",
+                "tailored_resume_fr": f"SAM SALAMEH — Ingénieur Réseau Senior\nEmail: sam.dev1@hotmail.com | Tel: +961 70 841 009 | Beyrouth, Liban\n\nRésumé Exécutif:\nIngénieur Réseau d'entreprise avec 15+ ans d'expérience dans la conception, le déploiement et la sécurisation des infrastructures Cisco, Fortinet, MikroTik et Ubiquiti.",
                 "cover_letter": cover_letter_text,
                 "recruiter_cold_email": f"Subject: Application for {job_title or 'Technical Support Engineer'} - Sam Salameh\n\nDear Hiring Manager,\n\nI recently came across your opening for {job_title or 'Technical Support Engineer'} and wanted to reach out directly. With 15+ years of experience engineering Cisco, Fortinet, and MikroTik infrastructure with 99.99% uptime, I would love to contribute to your engineering goals.\n\nBest regards,\nSam Salameh",
                 "linkedin_inmail": f"Hi! I noticed your team is hiring for {job_title or 'Technical Support Engineer'}. Having managed enterprise Cisco & Fortinet networks for 15+ years, I'd love to connect and share how I can support your network infrastructure.",
-                "match_score": 93,
-                "keywords_added": 12,
-                "bullet_points_optimized": 7,
+                "counter_offer_script": f"Subject: Job Offer Discussion - {job_title or 'Technical Support Engineer'} - Sam Salameh\n\nDear Hiring Team,\n\nThank you very much for extending the offer for the {job_title or 'Technical Support Engineer'} position! I am genuinely thrilled about the opportunity to join your team.\n\nBased on my 15+ years of senior network engineering experience and track record of delivering 99.99% high availability across Cisco & Fortinet platforms, I would like to explore adjusting the base compensation to closer to $4,500/month to reflect the specialized value I will bring.\n\nBest regards,\nSam Salameh",
+                "match_score": 95,
+                "keywords_added": 14,
+                "bullet_points_optimized": 8,
                 "matched_keywords": ["Cisco", "Fortinet", "VPN", "OSPF", "BGP", "Network Troubleshooting"],
                 "missing_keywords": ["SD-WAN", "Automation", "AWS Networking"],
                 "salary_estimate": "$3,500 - $4,800/month",
+                "bullet_impact_analysis": [
+                    {
+                        "original": "Installed and configured routers and firewalls.",
+                        "enhanced": "Deployed and secured enterprise Cisco & Fortinet firewalls across 20+ sites, reducing vulnerability risk by 40% and achieving 99.99% network uptime.",
+                        "impact": "STRONG 🔥 (+40% Recruiter Value)"
+                    }
+                ],
                 "interview_questions": [
                     {
                         "question": "How do you approach urgent network outage troubleshooting?",
                         "answer": "SITUATION: Core router outage at ISP hub. TASK: Identify root cause and restore connectivity. ACTION: Used Wireshark and PRTG to pinpoint BGP route flapping and applied policy filters. RESULT: Restored link stability in under 12 minutes."
-                    },
-                    {
-                        "question": "What is your experience with Fortinet firewall configurations?",
-                        "answer": "SITUATION: Multi-branch enterprise setup requiring secure VPN tunnels. TASK: Deploy FortiGate firewalls across 10 locations. ACTION: Configured IPsec VPN, SSL inspection, and UTM rules. RESULT: Zero breach incidents and optimized throughput."
                     }
                 ],
                 "suggested_improvements": [
@@ -8955,15 +8968,19 @@ Return ONLY a JSON object with this exact structure:
         return JSONResponse({
             "status": "success",
             "tailored_resume": parsed.get("tailored_resume", ""),
+            "tailored_resume_ar": parsed.get("tailored_resume_ar", ""),
+            "tailored_resume_fr": parsed.get("tailored_resume_fr", ""),
             "cover_letter": parsed.get("cover_letter", ""),
             "recruiter_cold_email": parsed.get("recruiter_cold_email", ""),
             "linkedin_inmail": parsed.get("linkedin_inmail", ""),
-            "match_score": parsed.get("match_score", 93),
-            "keywords_added": parsed.get("keywords_added", 12),
+            "counter_offer_script": parsed.get("counter_offer_script", ""),
+            "match_score": parsed.get("match_score", 95),
+            "keywords_added": parsed.get("keywords_added", 14),
             "bullet_points_optimized": parsed.get("bullet_points_optimized", 8),
             "matched_keywords": parsed.get("matched_keywords", ["Cisco", "Fortinet", "VPN"]),
             "missing_keywords": parsed.get("missing_keywords", ["SD-WAN"]),
             "salary_estimate": parsed.get("salary_estimate", "$3,500 - $4,800/month"),
+            "bullet_impact_analysis": parsed.get("bullet_impact_analysis", []),
             "interview_questions": parsed.get("interview_questions", []),
             "suggested_improvements": parsed.get("suggested_improvements", [])
         })
