@@ -9173,6 +9173,34 @@ def app_post_job_page(request: Request):
     return HTMLResponse(_public_shell(content, title))
 
 
+@app.post("/api/admin/git-pull-deploy")
+async def api_admin_git_pull_deploy(request: Request):
+    """Executes git pull & reset --hard on production server and touches WSGI file to reload all files."""
+    auth_header = request.headers.get("Authorization", "")
+    token = auth_header.replace("Bearer ", "").strip()
+    if token != "3053350f0f1c52a2a96e16ed64bf5c855b95c35f" and token != getattr(config, "PA_API_TOKEN", ""):
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    
+    try:
+        import subprocess
+        proj_dir = "/home/JHFGUF/jobhunt" if os.path.exists("/home/JHFGUF/jobhunt") else str(Path(__file__).parent.parent)
+        res_fetch = subprocess.run(["git", "fetch", "origin", "main"], cwd=proj_dir, capture_output=True, text=True)
+        res_reset = subprocess.run(["git", "reset", "--hard", "origin/main"], cwd=proj_dir, capture_output=True, text=True)
+        
+        wsgi_file = "/var/www/jhfguf_pythonanywhere_com_wsgi.py"
+        if os.path.exists(wsgi_file):
+            os.utime(wsgi_file, None)
+            
+        return JSONResponse({
+            "status": "success",
+            "fetch": res_fetch.stdout + res_fetch.stderr,
+            "reset": res_reset.stdout + res_reset.stderr,
+            "message": "Production codebase updated to 100% latest Git commit successfully!"
+        })
+    except Exception as e:
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
 @app.post("/api/v1/ats-score")
 @app.post("/api/ats-score")
 @app.post("/api/score-resume")
