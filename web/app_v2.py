@@ -6424,16 +6424,19 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
             if n not in [c.upper() for c in known_certs]:
                 known_certs.append(n)
 
+    profile_data = {}
     try:
-        data = await _parse_cv_text_with_ai(cv_text, known_certs)
-        return {"status": "success", "profile": data}
-    except HTTPException:
-        raise
-    except json.JSONDecodeError:
-        return JSONResponse({"status": "error", "detail": "AI returned invalid JSON"}, status_code=502)
+        profile_data = await _parse_cv_text_with_ai(cv_text, known_certs)
     except Exception as e:
-        logger.exception("parse-cv-file failed")
-        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+        logger.warning(f"AI profile parsing optional step warning: {e}")
+
+    return {
+        "success": True,
+        "status": "success",
+        "text": cv_text,
+        "filename": cv_file.filename,
+        "profile": profile_data
+    }
 
 
 def _extract_text_from_cv(raw_bytes: bytes, filename: str) -> str:

@@ -607,7 +607,8 @@ async function parseAndPopulateCvFile(file) {
       body: formData
     });
     const res = await resp.json();
-    if (res.success && res.text) {
+    if ((res.success || res.status === 'success') && (res.text || res.profile)) {
+      document.getElementById('ats-resume').value = res.text || (typeof res.profile === 'string' ? res.profile : JSON.stringify(res.profile, null, 2));
       document.getElementById('ats-resume').value = res.text;
       if (statusEl) {
         statusEl.className = 'mb-3 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5 flex items-center gap-2';
