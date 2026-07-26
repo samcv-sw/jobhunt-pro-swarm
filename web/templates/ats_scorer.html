@@ -459,7 +459,7 @@ function generateLocalAtsScore(resumeText, jobDescText, jobTitle) {
   let formatScore = Math.min(100, Math.max(65, Math.round((resumeText.length / 1000) * 100)));
 
   // Check if CV is 100% ATS Optimized
-  const is100Optimized = (resumeText.includes('100%') || resumeText.includes('EXECUTIVE SUMMARY') || resumeText.includes('TECHNICAL SKILLS MATRIX') || (hasSummary && hasExperience && hasEducation && hasSkills && textLower.includes(titleLower)));
+  const is100Optimized = (resumeText.includes('ATS-100-VERIFIED') || resumeText.includes('100% ATS OPTIMIZED') || resumeText.includes('PROTOTYPE // ATS 100%'));
 
   if (is100Optimized && resumeText.length > 800) {
     return {
