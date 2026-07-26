@@ -58,11 +58,12 @@
 
 /* ═══════════ DURATION SELECTOR ═══════════ */
 .duration-section { margin-block-end:25px; }
-.duration-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.duration-btn { padding:12px 24px; border-radius:30px; border:1px solid var(--border); background:var(--card); color:#e2e8f0; cursor:pointer; font-size:.9em; transition:all .15s; text-align:center; }
-.duration-btn:hover { border-color:rgba(139,92,246,.4); }
-.duration-btn.selected { border-color:var(--gold); background:rgba(245,158,11,.1); color:var(--gold2); font-weight:700; }
-.duration-btn .dur-save { display:block; font-size:.7em; color:var(--green); margin-block-start:2px; }
+.duration-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.duration-btn { padding:14px 26px; border-radius:14px; border:2px solid rgba(56,189,248,0.3); background:rgba(15,23,42,0.8); color:#38bdf8; cursor:pointer; font-size:.95em; font-weight:700; transition:all .2s; text-align:center; position:relative; user-select:none; }
+.duration-btn:hover { border-color:#38bdf8; color:#fff; transform:translateY(-2px); box-shadow:0 6px 20px rgba(56,189,248,0.25); }
+.duration-btn.selected { border-color:#fbbf24!important; background:linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,119,6,0.15))!important; color:#fbbf24!important; font-weight:800!important; box-shadow:0 0 30px rgba(245,158,11,0.45)!important; transform:translateY(-3px) scale(1.05); }
+.duration-btn.selected .dur-save { color:#4ade80!important; font-weight:800; }
+.duration-btn .dur-save { display:block; font-size:.75em; color:#22c55e; margin-block-start:4px; }
 
 /* ═══════════ ADD-ONS ═══════════ */
 .addons-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-block-end:25px; }
@@ -480,8 +481,12 @@ function selectTier(tier, price, el) {
 function selectDuration(days, discount, el) {
   state.duration = days;
   state.durationDiscount = discount;
-  document.querySelectorAll('#durationRow .duration-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
+  document.querySelectorAll('#durationRow .duration-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  if (el) {
+    el.classList.add('selected');
+  }
   recalc();
 }
 
