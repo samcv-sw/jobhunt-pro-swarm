@@ -761,6 +761,7 @@ English (Fluent), Arabic (Native), French (Intermediate)`;
 async function importUrlToTailor() {
   const urlInput = document.getElementById('tailor-import-url').value.trim();
   if (!urlInput) {
+    alert('يرجى وضع رابط الوظيفة أولاً.');
     return;
   }
   const btn = document.getElementById('btn-import-tailor');
@@ -783,32 +784,6 @@ async function importUrlToTailor() {
     }
   } catch(e) {
     console.warn("Import URL tailor warning:", e);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '📥 استيراد';
-  }
-}
-  const btn = document.getElementById('btn-import-tailor');
-  btn.disabled = true;
-  btn.innerHTML = '⌛ جاري الجلب...';
-
-  try {
-    let resp = await fetch('/api/v1/fetch-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: urlInput })
-    });
-    let data = await resp.json();
-    if (data.job_description) {
-      document.getElementById('tailor-job').value = data.job_description;
-      if (data.title && !document.getElementById('tailor-job-title').value) {
-        document.getElementById('tailor-job-title').value = data.title;
-      }
-    } else {
-      alert('لم نتمكن من جلب تفاصيل الوظيفة تلقائياً، يمكنك نسخ النص ولصقه مباشرة.');
-    }
-  } catch(e) {
-    alert('حدث خطأ أثناء جلب الرابط، يرجى نسخ النص ولصقه بيدك.');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '📥 استيراد';

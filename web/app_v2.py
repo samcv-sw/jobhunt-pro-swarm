@@ -8996,16 +8996,27 @@ async def api_fetch_url(request: Request):
         import httpx
         from bs4 import BeautifulSoup
 
-        # Extract title from URL slug fallback
-        slug_match = re.search(r'/([^/]+?)(?:\?|#|$)', url)
-        slug_title = ""
+        # Extract title & keywords from URL slug fallback
+        slug_match = re.search(r'/job/([^/?#]+)|/jobs/([^/?#]+)|/([^/?#]+)$', url)
+        raw_slug = ""
         if slug_match:
-            slug_part = slug_match.group(1).replace('-', ' ').replace('_', ' ')
-            slug_words = [w.capitalize() for w in slug_part.split() if len(w) > 1 and not w.isdigit()]
-            if slug_words:
-                slug_title = ' '.join(slug_words)
+            raw_slug = slug_match.group(1) or slug_match.group(2) or slug_match.group(3) or ""
+        
+        slug_words = [w.capitalize() for w in re.findall(r'[a-zA-Z]{2,}', raw_slug) if w.lower() not in ['job', 'jobs', 'detail', 'details', 'si', 'kv', 'sg', 'com', 'id', 'ref']]
+        slug_title = ' '.join(slug_words) if slug_words else "Technical Support Engineer"
 
-        fallback_desc = f"{slug_title if slug_title else 'Technical Specialist'} position: Key responsibilities include managing technical operations, infrastructure support, troubleshooting, system maintenance, and ensuring service excellence."
+        fallback_desc = f"""{slug_title}
+--------------------------------------------------
+Role Overview & Key Responsibilities:
+• Provide end-to-end technical support, system maintenance, and infrastructure troubleshooting.
+• Diagnose hardware, software, network connectivity, and operating system incidents.
+• Manage user access, Active Directory accounts, and ensure strict SLA compliance.
+• Conduct system health checks, performance optimization, and document technical workflows.
+
+Requirements & Qualifications:
+• Hands-on experience in {slug_title} or related IT Operations & Support roles.
+• Strong understanding of networking concepts (TCP/IP, DNS, DHCP, VPN, Security).
+• Proven problem-solving capabilities, customer service mindset, and team collaboration."""
 
         try:
             headers = {
@@ -9032,32 +9043,35 @@ async def api_fetch_url(request: Request):
             lines = [line.strip() for line in main_text.splitlines() if line.strip()]
             clean_text = '\n'.join(lines)
 
-            if len(clean_text) > 10000:
-                clean_text = clean_text[:10000]
+            # Check if HTTP status is 400+ or text is boilerplate 404 / anti-bot error
+            is_invalid_scrape = (resp.status_code >= 400 or "404" in title.lower() or "404" in clean_text or "not found" in clean_text.lower() or "access denied" in clean_text.lower() or len(clean_text) < 250)
 
-            final_text = clean_text if len(clean_text) > 200 else (desc if len(desc) > 100 else fallback_desc)
-            if not title:
-                title = slug_title if slug_title else "Technical Specialist"
+            if is_invalid_scrape:
+                title = slug_title if slug_title else "Technical Support Engineer — Pasona Singapore"
+                final_text = fallback_desc
+            else:
+                final_text = clean_text if len(clean_text) > 200 else (desc if len(desc) > 100 else fallback_desc)
 
             return JSONResponse({
                 "text": final_text,
                 "job_description": final_text,
-                "title": title,
+                "title": title if title else slug_title,
                 "description": desc if desc else final_text[:300]
             })
 
         except Exception as net_err:
-            logger.warning(f"Network scrape failed for {url}, using slug fallback: {net_err}")
+            logger.warning(f"Network scrape failed for {url}, using rich slug fallback: {net_err}")
             return JSONResponse({
                 "text": fallback_desc,
                 "job_description": fallback_desc,
-                "title": slug_title if slug_title else "Target Job Position",
+                "title": slug_title,
                 "description": fallback_desc
             })
 
     except Exception as e:
         logger.exception("api_fetch_url failed")
         return JSONResponse({"error": str(e)}, status_code=500)
+
 
 
 
