@@ -815,8 +815,8 @@ function toggleSupremeCard(card, key) {
     card.style.opacity = '0.55';
     card.style.boxShadow = 'none';
     if (check) check.style.display = 'none';
-    if (status) status.textContent = 'انقر للتفعيل لهذه الوظيفة';
-    if (btn) btn.textContent = 'اختر وتفعيل هذه الميزة';
+    if (status) status.textContent = '❌ غير مفعلة للوظيفة';
+    if (btn) btn.textContent = 'تفعيل الميزة مجاناً';
   } else {
     card.classList.add('selected');
     card.style.opacity = '1';
@@ -826,26 +826,8 @@ function toggleSupremeCard(card, key) {
     if (btn) btn.textContent = '✓ مفعلة للوظيفة';
   }
 }
-function openDnaFitModal() {
-  closeAiToolModal();
-  const modalHtml = `
-  <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #8b5cf6; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(139,92,246,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#a78bfa; margin-top:0; font-size:1.3em;">🧬 محلل البصمة السلوكية والتوافق الثقافي للمرشحين</h3>
-      <p style="font-size:0.85em; color:#cbd5e1; margin-block-end:20px;">حسّب البصمة السلوكية والتوافق النفسي لـ أي مسمى وظيفي مع ثقافة شركتك:</p>
 
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>القيادة والمبادرة:</span><strong style="color:#4ade80;">94% (ممتاز)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#22c55e; width:94%; height:100%; border-radius:4px;"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>مرونة حل المشكلات:</span><strong style="color:#38bdf8;">98% (استثنائي)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#38bdf8; width:98%; height:100%; border-radius:4px;"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><stroconst ALL_WORLD_COUNTRIES = [
+const ALL_WORLD_COUNTRIES = [
   "Afghanistan (أفغانستان)", "Åland Islands (جزر أولاند)", "Albania (ألبانيا)", "Algeria (الجزائر)", "American Samoa (ساموا الأمريكية)", 
   "Andorra (أندورا)", "Angola (أنغولا)", "Anguilla (أنغويلا)", "Antarctica (القارة القطبية الجنوبية)", "Antigua and Barbuda (أنتيغوا وبربودا)", 
   "Argentina (الأرجنتين)", "Armenia (أرمينيا)", "Aruba (أروبا)", "Australia (أستراليا)", "Austria (النمسا)", 
@@ -899,26 +881,50 @@ function openDnaFitModal() {
   "Venezuela (فنزويلا)", "Vietnam (فيتنام)", "Yemen (اليمن)", "Zambia (زامبيا)", "Zimbabwe (زيمبابوي)"
 ];
 
-function openRelocationSimModal() {
+function openDnaFitModal() {
   closeAiToolModal();
-  const countryOpts = ALL_WORLD_COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('');
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
+    <div style="background:#0f172a; border:2px solid #8b5cf6; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(139,92,246,0.4);">
       <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية (195+ دولة)</h3>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
-        <select id="r_country" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-          ${countryOpts}
-        </select>
-        <input id="r_salary" type="number" value="4000" placeholder="الراتب بالدولار ($)" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
+      <h3 style="color:#a78bfa; margin-top:0; font-size:1.3em;">🧬 محلل البصمة السلوكية والتوافق الثقافي للمرشحين</h3>
+      <p style="font-size:0.85em; color:#cbd5e1; margin-block-end:20px;">حسّب البصمة السلوكية والتوافق النفسي لـ أي مسمى وظيفي مع ثقافة شركتك:</p>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>القيادة والمبادرة:</span><strong style="color:#4ade80;">94% (ممتاز)</strong></div>
+          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#22c55e; width:94%; height:100%; border-radius:4px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>مرونة حل المشكلات:</span><strong style="color:#38bdf8;">98% (استثنائي)</strong></div>
+          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#38bdf8; width:98%; height:100%; border-radius:4px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><strong style="color:#fbbf24;">91% (عالي جداً)</strong></div>
+          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#f59e0b; width:91%; height:100%; border-radius:4px;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>التواصل والعمل الجماعي:</span><strong style="color:#a78bfa;">96% (ممتاز)</strong></div>
+          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#8b5cf6; width:96%; height:100%; border-radius:4px;"></div></div>
+        </div>
       </div>
-      <button onclick="runRelocationSim()" style="width:100%; padding:12px; background:linear-gradient(135deg,#38bdf8,#0284c7); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer;">🌍 حساب تكاليف الانتقال والفيزا وصافي الراتب</button>
-      <div id="simResult" style="margin-top:15px; padding:15px; background:#1e293b; border-radius:10px; font-size:0.85em; display:none;"></div>
+
+      <div style="margin-top:25px; padding:12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:12px; font-size:0.85em; color:#4ade80;">
+        💡 <strong>نتيجة التقييم:</strong> المرشح ينتمي لفئة "High-Impact Leader". موصى به لمناصب الإدارة والمشاريع التقنية!
+      </div>
+      <button onclick="closeAiToolModal()" style="margin-top:20px; width:100%; padding:12px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer;">إغلاق والعودة للنموذج</button>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
-}<h3 style="color:#fbbf24; margin-top:0; font-size:1.3em;">📄 مولد عقود العمل وعروض الوظائف بنقرة واحدة</h3>
+}
+
+function openContractGenModal() {
+  closeAiToolModal();
+  const modalHtml = `
+  <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#0f172a; border:2px solid #f59e0b; border-radius:20px; max-width:650px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(245,158,11,0.4);">
+      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
+      <h3 style="color:#fbbf24; margin-top:0; font-size:1.3em;">📄 مولد عقود العمل وعروض الوظائف بنقرة واحدة</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <input id="c_name" type="text" value="Sam Salameh" placeholder="اسم المرشح" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
         <input id="c_title" type="text" value="Senior Network Engineer" placeholder="المسمى الوظيفي" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
@@ -968,20 +974,15 @@ function copyContractText() {
 
 function openRelocationSimModal() {
   closeAiToolModal();
+  const countryOpts = ALL_WORLD_COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('');
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
       <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية</h3>
+      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية (250+ دولة وإقليم)</h3>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <select id="r_country" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-          <option value="Singapore">Singapore (سنغافورة)</option>
-          <option value="UAE">UAE (الإمارات)</option>
-          <option value="KSA">KSA (السعودية)</option>
-          <option value="UK">UK (بريطانيا)</option>
-          <option value="Germany">Germany (ألمانيا)</option>
-          <option value="USA">USA (أمريكا)</option>
-          <option value="Lebanon">Lebanon (لبنان)</option>
+          ${countryOpts}
         </select>
         <input id="r_salary" type="number" value="4000" placeholder="الراتب بالدولار ($)" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
       </div>
@@ -1066,4 +1067,5 @@ function closeAiToolModal() {
 // Init
 recalc();
 </script>
-
+</body>
+</html>
