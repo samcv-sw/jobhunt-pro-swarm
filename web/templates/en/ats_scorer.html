@@ -304,14 +304,19 @@ async function scoreResume() {
   const jobDesc = document.getElementById('ats-job-desc').value.trim();
   const jobTitle = document.getElementById('ats-job-title').value.trim();
 
-  if (!resume || !jobDesc) {
-    showError('Please paste both your resume and the job description.');
+  if (!resume) {
+    showError('Please upload or paste your resume text first.');
     return;
   }
 
-  if (resume.length < 100 || jobDesc.length < 100) {
-    showError('Both resume and job description should be at least 100 characters for a meaningful score.');
+  if (resume.length < 30) {
+    showError('Please provide a more detailed resume for an accurate score.');
     return;
+  }
+
+  let finalJobDesc = jobDesc;
+  if (!finalJobDesc) {
+    finalJobDesc = jobTitle ? `Job Description for ${jobTitle}: Seeking progressive hands-on experience, infrastructure management, troubleshooting, security, and project lifecycle execution.` : `Senior Technical Position: Seeking hands-on experience, network/systems management, troubleshooting, security best practices, and team leadership.`;
   }
 
   setLoading(true);
@@ -320,7 +325,7 @@ async function scoreResume() {
     const resp = await fetch('/api/v1/ats-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resume, job_description: jobDesc, job_title: jobTitle })
+      body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
     });
 
     if (!resp.ok) {

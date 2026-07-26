@@ -8882,11 +8882,14 @@ async def api_ats_score(request: Request):
         job_desc = data.get("job_description", "")
         job_title = data.get("job_title", "")
 
-        if not resume or not job_desc:
-            return JSONResponse({"error": "Both resume and job description required"}, status_code=400)
+        if not resume:
+            return JSONResponse({"error": "Resume text is required"}, status_code=400)
 
-        if len(resume) < 50 or len(job_desc) < 50:
-            return JSONResponse({"error": "Resume and job description must each be at least 50 characters"}, status_code=400)
+        if not job_desc:
+            job_desc = job_title if job_title else "Senior Technical and Engineering position requiring progressive hands-on experience, infrastructure management, troubleshooting, security, and project lifecycle execution."
+
+        if len(resume) < 30:
+            return JSONResponse({"error": "Resume text is too short. Please provide a detailed resume."}, status_code=400)
 
         from core.ats_scorer import score_resume
         result = await score_resume(resume, job_desc, job_title)

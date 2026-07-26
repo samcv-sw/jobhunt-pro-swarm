@@ -355,13 +355,17 @@ async function scoreResume() {
   const jobDesc = document.getElementById('ats-job-desc').value.trim();
   const jobTitle = document.getElementById('ats-job-title').value.trim();
 
-  if (!resume || !jobDesc) {
-    showError('يرجى لصق كل من سيرتك الذاتية والوصف الوظيفي.');
+  if (!resume) {
+    showError('يرجى تحميل أو لصق نص السيرة الذاتية أولاً.');
     return;
   }
-  if (resume.length < 100 || jobDesc.length < 100) {
-    showError('يجب أن يكون كل من السيرة الذاتية والوصف الوظيفي 100 حرف على الأقل للحصول على نتيجة دقيقة.');
+  if (resume.length < 30) {
+    showError('يرجى كتابة أو استيراد سيرة ذاتية أكثر تفصيلاً للحصول على تقييم دقيق.');
     return;
+  }
+  let finalJobDesc = jobDesc;
+  if (!finalJobDesc) {
+    finalJobDesc = jobTitle ? `الوصف الوظيفي لـ ${jobTitle}: مطلوب خبرة تقنية متقدمة، إدارة وتكوين البنية التحتية، حل المشكلات، والالتزام بمعايير الجودة.` : `الوصف الوظيفي المتخصص: مطلوب خبرة عملية، مهارات البنية التحتية، حماية البيانات، وإدارة المشاريع برفاءة عالية.`;
   }
 
   setLoading(true);
@@ -369,7 +373,7 @@ async function scoreResume() {
     const resp = await fetch('/api/v1/ats-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ resume, job_description: jobDesc, job_title: jobTitle })
+      body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
     });
     if (!resp.ok) {
       const err = await resp.json();
