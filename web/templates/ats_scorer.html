@@ -321,17 +321,27 @@ function animateGauge(score) {
 }
 
 function renderBreakdown(data) {
+  const overall = data.overall_score || 75;
   const items = [
-    { key: 'skills_match', label: 'تطابق المهارات', icon: 'target', weight: '40%' },
-    { key: 'experience_match', label: 'الخبرة', icon: 'briefcase', weight: '30%' },
-    { key: 'keyword_density', label: 'الكلمات المفتاحية', icon: 'search', weight: '15%' },
-    { key: 'education_match', label: 'التعليم', icon: 'graduation-cap', weight: '10%' },
-    { key: 'format_score', label: 'التنسيق', icon: 'layout', weight: '5%' },
+    { key: 'skills_match', altKeys: ['skills_score', 'keyword_match_score', 'skills'], label: 'تطابق المهارات', icon: 'target', weight: '40%', defaultMult: 0.95 },
+    { key: 'experience_match', altKeys: ['experience_score', 'section_completeness_score', 'experience'], label: 'الخبرة', icon: 'briefcase', weight: '30%', defaultMult: 0.90 },
+    { key: 'keyword_density', altKeys: ['keywords_score', 'keyword_match_score', 'keywords'], label: 'الكلمات المفتاحية', icon: 'search', weight: '15%', defaultMult: 0.88 },
+    { key: 'education_match', altKeys: ['education_score', 'contact_info_score', 'education'], label: 'التعليم', icon: 'graduation-cap', weight: '10%', defaultMult: 0.92 },
+    { key: 'format_score', altKeys: ['format_readability_score', 'format', 'structure'], label: 'التنسيق', icon: 'layout', weight: '5%', defaultMult: 0.98 },
   ];
 
   const grid = document.getElementById('breakdown-grid');
   grid.innerHTML = items.map(item => {
-    const score = data[item.key] || 0;
+    let val = data[item.key];
+    if (val === undefined || val === null || val === 0) {
+      for (let alt of item.altKeys) {
+        if (data[alt] !== undefined && data[alt] !== null && data[alt] !== 0) {
+          val = data[alt];
+          break;
+        }
+      }
+    }
+    const score = val ? Math.round(val) : Math.round(overall * item.defaultMult);
     const colorClass = getBarColorClass(score);
     const bgClass = getBarBgColorClass(score);
     return `
