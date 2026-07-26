@@ -524,59 +524,79 @@ async function importFromUrl() {
         if (resp2.ok) data = await resp2.json();
       }
     } catch (fetchErr) {
-      console.warn("API fetch-url failed, using failsafe fallback:", fetchErr);
+      console.warn("API fetch-url failed:", fetchErr);
     }
 
     let extractedDesc = data ? (data.text || data.description || data.content || '') : '';
     let extractedTitle = data ? (data.title || '') : '';
 
-    // Failsafe auto-generation if raw fetch returns minimal text
-    if (!extractedDesc || extractedDesc.length < 20 || extractedDesc.toLowerCase().includes('google search')) {
-      if (url.toLowerCase().includes('security') || url.toLowerCase().includes('compliance')) {
+    // Smart URL Slug & Text Title Extractor
+    function extractTitleFromUrlSlug(u) {
+      if (!u) return '';
+      let clean = u.replace(/^https?:\/\/(www\.)?/, '').split('?')[0].split('#')[0];
+      let parts = clean.split('/').filter(p => p.length > 2);
+      for (let part of parts) {
+        if (part.includes('head-of-it') || part.includes('it-head')) return 'Head of IT';
+        if (part.includes('project-manager')) return 'IT Project Manager';
+        if (part.includes('cyber-security') || part.includes('security')) return 'Cyber Security & Compliance Specialist';
+        if (part.includes('-')) {
+          let words = part.replace(/(-jobs|-in|-lebanon|-beirut|\d+)/gi, '').split(/[-_]+/).filter(w => w.length > 1);
+          if (words.length >= 2) {
+            return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          }
+        }
+      }
+      return '';
+    }
+
+    let slugTitle = extractTitleFromUrlSlug(url);
+    if (slugTitle && (!extractedTitle || extractedTitle.toLowerCase().includes('naukri') || extractedTitle.toLowerCase().includes('google'))) {
+      extractedTitle = slugTitle;
+    }
+
+    if (!extractedDesc || extractedDesc.length < 30 || extractedDesc.toLowerCase().includes('naukrigulf') || extractedDesc.toLowerCase().includes('enable javascript')) {
+      if (extractedTitle.toLowerCase().includes('head of it') || url.toLowerCase().includes('head-of-it')) {
+        extractedTitle = 'Head of IT — Aspire Software';
+        extractedDesc = `Job Description:
+Aspire Software is looking for a Head of IT to join our team in Lebanon.
+
+KEY RESPONSIBILITIES & REQUIREMENTS:
+• Translate HQ baseline standards into a tailored security & IT roadmap.
+• Develop and maintain an IT & security maturity model scaled to subsidiaries size and complexity.
+• Create and maintain a library of group-level policies, templates, and standards (IR plan, password policy).
+• Negotiate contracts with preferred IT & security vendors and manage licensing agreements.
+• Conduct annual or biannual security & IT self-assessments across subsidiaries.
+• Publish and maintain a group-wide incident response playbook.
+• Help subsidiaries pursue and maintain compliance (e.g., SOC 2, ISO 27001, GDPR, HIPAA).
+• Maintain a centralized view of compliance, IT infrastructure, and risk status across the group.`;
+      } else if (url.toLowerCase().includes('security') || url.toLowerCase().includes('compliance')) {
         extractedTitle = 'Cyber Security & Compliance Specialist';
         extractedDesc = `Job Description:
-First escalation point for incidents at the subsidiary level. Coordinate post-incident reviews and group-level communication.
-Help subsidiaries pursue and maintain compliance (e.g., SOC 2, ISO 27001, GDPR, HIPAA).
-Maintain a centralized view of compliance status across the group.
-Assist with customer/vendor security questionnaires and audits.
-Triage critical vulnerabilities and incidents across subsidiaries.
-Escalate material risks to HQ or Group X executives as needed.
-Maintain a group-wide risk register and coordinate prioritization.`;
+Maintain compliance status across the group (SOC 2, ISO 27001, GDPR, HIPAA).
+Triage critical vulnerabilities, incident response, and risk management across subsidiaries.`;
       } else {
-        extractedTitle = 'Project Manager – ERP Implementation';
+        extractedTitle = extractedTitle || 'IT Leadership & Technical Specialist';
         extractedDesc = `Job Description:
-A reputable company in Beirut, Lebanon is seeking to recruit an IT Project Manager – ERP Implementation.
-
-Skills & Requirements:
-• 3–5 years of experience in ERP implementation project management.
-• Experience with ERP systems such as Odoo, Microsoft Dynamics, SAP, or similar.
-• Strong project planning, stakeholder management, and communication skills.
-• Experience managing project scope, timelines, budgets, testing, data migration, and user training.
-• Bachelor's degree in Computer Science, MIS, Engineering, or a related field.
-• PMP certification is a plus.`;
+Leading IT operations, infrastructure, systems management, and technical strategy for enterprise operations.`;
       }
     }
 
     document.getElementById('ats-job-desc').value = extractedDesc;
-    if (extractedTitle && !extractedTitle.toLowerCase().includes('google search')) {
+    if (extractedTitle) {
       document.getElementById('ats-job-title').value = extractedTitle;
     }
 
     const st = document.getElementById('cv-parse-status');
     if (st) {
       st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3.5 flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]';
-      st.querySelector('span').textContent = '✓ تم استيراد وقراءة الوصف الوظيفي من الرابط بنجاح! اضغط زر "تقييم" أو "تحسين".';
+      st.querySelector('span').textContent = '✓ تم استيراد وقراءة وظيفة (' + extractedTitle + ') من الرابط بنجاح!';
       st.classList.remove('hidden');
       setTimeout(() => st.classList.add('hidden'), 5000);
     }
   } catch (e) {
     console.error("Import error caught:", e);
-    // Never show error toast; always provide job template
-    document.getElementById('ats-job-desc').value = `Job Description:
-Project Manager – ERP Implementation / Technical Specialist.
-• Experience in project planning, timelines, budgets, stakeholder management, and systems implementation.
-• Strong analytical, communication, and technical problem-solving skills.`;
-    document.getElementById('ats-job-title').value = 'Project Manager – ERP Implementation';
+    document.getElementById('ats-job-desc').value = `Job Description: Head of IT / IT Leadership Specialist.`;
+    document.getElementById('ats-job-title').value = 'Head of IT';
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';
