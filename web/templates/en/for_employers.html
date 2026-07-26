@@ -80,11 +80,12 @@
 
 /* ═══════════ DURATION SELECTOR ═══════════ */
 .duration-section { margin-block-end:25px; }
-.duration-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.duration-btn { padding:12px 24px; border-radius:30px; border:1px solid var(--border); background:var(--card); color:#e2e8f0; cursor:pointer; font-size:.9em; transition:all .15s; text-align:center; }
-.duration-btn:hover { border-color:rgba(139,92,246,.4); }
-.duration-btn.selected { border-color:var(--gold); background:rgba(245,158,11,.1); color:var(--gold2); font-weight:700; }
-.duration-btn .dur-save { display:block; font-size:.7em; color:var(--green); margin-block-start:2px; }
+.duration-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.duration-btn { padding:14px 26px; border-radius:14px; border:2px solid rgba(56,189,248,0.3); background:rgba(15,23,42,0.8); color:#38bdf8; cursor:pointer; font-size:.95em; font-weight:700; transition:all .2s; text-align:center; position:relative; user-select:none; }
+.duration-btn:hover { border-color:#38bdf8; color:#fff; transform:translateY(-2px); box-shadow:0 6px 20px rgba(56,189,248,0.25); }
+.duration-btn.selected { border-color:#fbbf24!important; background:linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,119,6,0.15))!important; color:#fbbf24!important; font-weight:800!important; box-shadow:0 0 30px rgba(245,158,11,0.45)!important; transform:translateY(-3px) scale(1.05); }
+.duration-btn.selected .dur-save { color:#4ade80!important; font-weight:800; }
+.duration-btn .dur-save { display:block; font-size:.75em; color:#22c55e; margin-block-start:4px; }
 
 /* ═══════════ ADD-ONS ═══════════ */
 .addons-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-block-end:25px; }
@@ -138,13 +139,18 @@
 
 /* ═══════════ PACKAGES ═══════════ */
 .pkg-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-block-end:25px; }
-.pkg-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; text-align:center; cursor:pointer; transition:all .15s; }
-.pkg-card:hover, .pkg-card.selected { border-color:var(--gold); transform:translateY(-2px); }
+.pkg-card { background:var(--card); border:2px solid var(--border); border-radius:18px; padding:24px 18px; text-align:center; cursor:pointer; transition:all .2s; position:relative; user-select:none; }
+.pkg-card:hover { border-color:rgba(245,158,11,0.5); transform:translateY(-3px); box-shadow:0 8px 25px rgba(0,0,0,0.3); }
+.pkg-card.selected { border-color:#fbbf24!important; background:linear-gradient(135deg, rgba(245,158,11,0.18), rgba(217,119,6,0.1))!important; box-shadow:0 0 30px rgba(245,158,11,0.4)!important; transform:translateY(-3px); }
+.pkg-card .pkg-check { display:none; position:absolute; top:12px; right:12px; background:#22c55e; color:#000; width:24px; height:24px; border-radius:50%; font-weight:800; font-size:12px; line-height:24px; text-align:center; }
+.pkg-card.selected .pkg-check { display:block; }
 .pkg-card .pkg-icon { font-size:2em; margin-block-end:6px; }
-.pkg-card .pkg-count { font-size:2em; font-weight:800; color:var(--gold2); }
-.pkg-card .pkg-label { color:#94a3b8; font-size:.8em; }
-.pkg-card .pkg-price { font-weight:700; margin:8px 0; }
-.pkg-card .pkg-per { font-size:.7em; color:var(--green); }
+.pkg-card .pkg-count { font-size:2.2em; font-weight:800; color:var(--gold2); }
+.pkg-card .pkg-label { color:#e2e8f0; font-size:.85em; font-weight:600; }
+.pkg-card .pkg-price { font-size:1.3em; font-weight:800; color:#fff; margin:8px 0; }
+.pkg-card .pkg-per { font-size:.75em; color:var(--green); font-weight:700; display:block; margin-block-start:2px; }
+.pkg-card .pkg-btn { margin-block-start:12px; padding:8px 14px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; font-size:0.85em; font-weight:700; transition:all .15s; width:100%; cursor:pointer; }
+.pkg-card.selected .pkg-btn { background:linear-gradient(135deg, #f59e0b, #d97706); border:none; color:#000; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4); }
 
 /* ═══════════ RESPONSIVE ═══════════ */
 @media (max-width:900px) {
@@ -226,11 +232,11 @@
       <li>Email applications</li>
       <li>Basic support</li>
     </ul>
-    <button class="btn" style="background:linear-gradient(135deg,#64748b,#475569);">Select Basic</button>
+    <button type="button" class="btn" style="background:linear-gradient(135deg,#64748b,#475569);" onclick="event.stopPropagation(); selectTier('basic', 1, this.closest('.price-card'))">Select Basic</button>
   </div>
 
   <!-- Featured (POPULAR) -->
-  <div class="price-card popular selected" onclick="selectTier('featured', 3, this)" data-tier="featured" data-price="3">
+  <div class="price-card popular" onclick="selectTier('featured', 3, this)" data-tier="featured" data-price="3">
     <div class="tier-icon">⭐</div>
     <div class="tier-name">Featured</div>
     <div class="tier-price">$3<small>/post</small></div>
@@ -242,7 +248,7 @@
       <li>Social media share</li>
       <li>Priority support</li>
     </ul>
-    <button class="btn" style="background:linear-gradient(135deg,var(--purple),#7c3aed);">Select Featured</button>
+    <button type="button" class="btn" style="background:linear-gradient(135deg,var(--purple),#7c3aed);" onclick="event.stopPropagation(); selectTier('featured', 3, this.closest('.price-card'))">Select Featured</button>
   </div>
 
   <!-- Enterprise -->
@@ -258,7 +264,7 @@
       <li>Google Jobs indexed</li>
       <li>VIP support 💎</li>
     </ul>
-    <button class="btn" style="background:linear-gradient(135deg,var(--gold),#d97706);">Select Enterprise</button>
+    <button type="button" class="btn" style="background:linear-gradient(135deg,var(--gold),#d97706);" onclick="event.stopPropagation(); selectTier('enterprise', 5, this.closest('.price-card'))">Select Enterprise</button>
   </div>
 
   <!-- Annual (NEW!) -->
@@ -275,7 +281,7 @@
       <li>API access 🔌</li>
       <li>Dedicated account manager</li>
     </ul>
-    <button class="btn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">Select Annual</button>
+    <button type="button" class="btn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);" onclick="event.stopPropagation(); selectTier('annual', 25, this.closest('.price-card'))">Select Annual</button>
   </div>
 </div>
 
@@ -283,19 +289,19 @@
 <div class="duration-section">
   <h3 style="text-align:center;margin-block-end:12px;">⏱️ Post Duration <span style="font-size:.75em;color:#94a3b8;">(longer = bigger discount)</span></h3>
   <div class="duration-row" id="durationRow">
-    <button class="duration-btn selected" onclick="selectDuration(30, 0, this)" data-days="30" data-discount="0">
+    <button type="button" class="duration-btn selected" onclick="selectDuration(30, 0, this)" data-days="30" data-discount="0">
       30 Days<br><span class="dur-save">Standard</span>
     </button>
-    <button class="duration-btn" onclick="selectDuration(60, 10, this)" data-days="60" data-discount="10">
+    <button type="button" class="duration-btn" onclick="selectDuration(60, 10, this)" data-days="60" data-discount="10">
       60 Days<br><span class="dur-save">Save 10%</span>
     </button>
-    <button class="duration-btn" onclick="selectDuration(90, 17, this)" data-days="90" data-discount="17">
+    <button type="button" class="duration-btn" onclick="selectDuration(90, 17, this)" data-days="90" data-discount="17">
       90 Days<br><span class="dur-save">Save 17%</span>
     </button>
-    <button class="duration-btn" onclick="selectDuration(180, 25, this)" data-days="180" data-discount="25">
+    <button type="button" class="duration-btn" onclick="selectDuration(180, 25, this)" data-days="180" data-discount="25">
       180 Days<br><span class="dur-save">Save 25%</span>
     </button>
-    <button class="duration-btn" onclick="selectDuration(365, 42, this)" data-days="365" data-discount="42">
+    <button type="button" class="duration-btn" onclick="selectDuration(365, 42, this)" data-days="365" data-discount="42">
       365 Days<br><span class="dur-save">Save 42% 🔥</span>
     </button>
   </div>
@@ -352,22 +358,28 @@
 <h2 class="sec-title">📦 <span>Bulk Job Packages</span> <span style="font-size:.7em;color:#94a3b8;">(best value!)</span></h2>
 <div class="pkg-grid" id="pkgGrid">
   <div class="pkg-card" onclick="selectBulkPkg(this, 3, 2.50)" data-count="3" data-price="2.50">
+    <div class="pkg-check">✓</div>
     <div class="pkg-icon">📋📋📋</div>
     <div class="pkg-count">3</div>
     <div class="pkg-label">Job Posts</div>
     <div class="pkg-price">$2.50 <span class="pkg-per">$0.83/post</span></div>
+    <button type="button" class="pkg-btn">Select Package (3)</button>
   </div>
   <div class="pkg-card selected" onclick="selectBulkPkg(this, 5, 4)" data-count="5" data-price="4">
+    <div class="pkg-check">✓</div>
     <div class="pkg-icon">📋📋📋📋📋</div>
     <div class="pkg-count">5</div>
     <div class="pkg-label">Job Posts</div>
     <div class="pkg-price">$4 <span class="pkg-per">$0.80/post 🔥</span></div>
+    <button type="button" class="pkg-btn">✓ Selected Package (5)</button>
   </div>
   <div class="pkg-card" onclick="selectBulkPkg(this, 10, 7)" data-count="10" data-price="7">
+    <div class="pkg-check">✓</div>
     <div class="pkg-icon">📋×10</div>
     <div class="pkg-count">10</div>
     <div class="pkg-label">Job Posts</div>
     <div class="pkg-price">$7 <span class="pkg-per">$0.70/post 💎</span></div>
+    <button type="button" class="pkg-btn">Select Package (10)</button>
   </div>
 </div>
 
@@ -478,9 +490,28 @@ function selectTier(tier, price, el) {
   state.tier = tier;
   state.tierPrice = price;
   state.isBulk = false;
-  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
+
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.btn');
+    if (b) {
+      const nameEl = c.querySelector('.tier-name');
+      b.textContent = 'Select ' + (nameEl ? nameEl.textContent : '');
+    }
+  });
+
+  const card = el ? (el.classList.contains('price-card') ? el : el.closest('.price-card')) : null;
+  if (card) {
+    card.classList.add('selected');
+    const b = card.querySelector('.btn');
+    if (b) b.textContent = '✓ Selected Plan';
+  }
+
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.pkg-btn');
+    if (b) b.textContent = `Select Package (${c.getAttribute('data-count')})`;
+  });
   recalc();
 }
 
@@ -488,20 +519,26 @@ function selectTier(tier, price, el) {
 function selectDuration(days, discount, el) {
   state.duration = days;
   state.durationDiscount = discount;
-  document.querySelectorAll('#durationRow .duration-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
+  document.querySelectorAll('#durationRow .duration-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  const btn = el ? (el.classList.contains('duration-btn') ? el : el.closest('.duration-btn')) : null;
+  if (btn) {
+    btn.classList.add('selected');
+  }
   recalc();
 }
 
 // ── Add-ons ──
 function toggleAddon(el, name, price) {
+  const card = el ? (el.classList.contains('addon-card') ? el : el.closest('.addon-card')) : null;
   const idx = state.addons.findIndex(a => a.name === name);
   if (idx >= 0) {
     state.addons.splice(idx, 1);
-    el.classList.remove('selected');
+    if (card) card.classList.remove('selected');
   } else {
     state.addons.push({name, price});
-    el.classList.add('selected');
+    if (card) card.classList.add('selected');
   }
   recalc();
 }
@@ -511,9 +548,29 @@ function selectBulkPkg(el, count, price) {
   state.isBulk = true;
   state.bulkCount = count;
   state.bulkPrice = price;
-  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  document.querySelectorAll('#pricingGrid .price-card').forEach(c => c.classList.remove('selected'));
+
+  document.querySelectorAll('#pkgGrid .pkg-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.pkg-btn');
+    if (b) b.textContent = `Select Package (${c.getAttribute('data-count')})`;
+  });
+
+  const card = el ? (el.classList.contains('pkg-card') ? el : el.closest('.pkg-card')) : null;
+  if (card) {
+    card.classList.add('selected');
+    const selectedBtn = card.querySelector('.pkg-btn');
+    if (selectedBtn) selectedBtn.textContent = `✓ Selected Package (${count})`;
+  }
+
+  document.querySelectorAll('#pricingGrid .price-card').forEach(c => {
+    c.classList.remove('selected');
+    const b = c.querySelector('.btn');
+    if (b) {
+      const nameEl = c.querySelector('.tier-name');
+      b.textContent = 'Select ' + (nameEl ? nameEl.textContent : '');
+    }
+  });
+
   recalc();
 }
 
