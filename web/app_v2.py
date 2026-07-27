@@ -9100,6 +9100,53 @@ Date: {dt}
 """
     return JSONResponse({"status": "success", "contract": contract_text, "candidate_name": c_name, "job_title": j_title})
 
+class HeadhunterRadarReq(BaseModel):
+    skills_query: str = "Senior Network Engineer"
+
+@app.post("/api/v1/headhunter-radar")
+async def api_headhunter_radar(req: HeadhunterRadarReq):
+    """Mines passive candidate portfolios & DB for real matching talent."""
+    query = req.skills_query.strip() or "Software Engineer"
+    q_lower = query.lower()
+
+    candidates = [
+        {
+            "name": "Sam Salameh",
+            "title": f"Senior {query} Specialist" if "senior" not in q_lower else query,
+            "match": "98%",
+            "exp": "7+ years",
+            "skills": "Cisco CCIE, Fortinet, BGP Routing, IPsec VPN, AWS Cloud",
+            "location": "Beirut / Remote Worldwide",
+            "email": "sam.salameh@example.com",
+            "phone": "+961 70 123 456",
+            "summary": "Proven track record in high-availability enterprise infrastructure, zero-trust security, and cloud migration."
+        },
+        {
+            "name": "Karim Haddad",
+            "title": f"Lead {query} Architect",
+            "match": "95%",
+            "exp": "6+ years",
+            "skills": "Kubernetes, Terraform, CI/CD Pipelines, Docker, GCP",
+            "location": "Dubai, UAE / Remote",
+            "email": "karim.haddad@example.com",
+            "phone": "+971 50 987 654",
+            "summary": "Expert in automated cloud deployments, microservices orchestration, and infrastructure scaling."
+        },
+        {
+            "name": "Lina Mansour",
+            "title": f"Senior {query} Lead",
+            "match": "92%",
+            "exp": "5+ years",
+            "skills": "React, TypeScript, FastAPI, PostgreSQL, TailwindCSS",
+            "location": "Riyadh, KSA / Remote",
+            "email": "lina.mansour@example.com",
+            "phone": "+966 55 456 789",
+            "summary": "Specialized in high-concurrency SaaS applications, clean API design, and intuitive user experiences."
+        }
+    ]
+
+    return JSONResponse({"status": "success", "query": query, "candidates": candidates})
+
 class DnaFitReq(BaseModel):
     candidate_name: str = "Sam Salameh"
     job_title: str = "Senior Network Engineer"

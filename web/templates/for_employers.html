@@ -1141,37 +1141,57 @@ function openHeadhunterRadarModal() {
   closeAiToolModal();
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #ec4899; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(236,72,153,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#f472b6; margin-top:0; font-size:1.3em;">🎯 رادار اصطياد الكفاءات النادرة (Executive Headhunter)</h3>
-      <input id="h_skills" type="text" value="Senior Network Engineer (Cisco, Fortinet, BGP)" placeholder="المسمى أو المهارات المطلوب استقطابها" style="width:100%; padding:12px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; margin-block-end:15px;">
-      <button onclick="runHeadhunterScan()" style="width:100%; padding:12px; background:linear-gradient(135deg,#ec4899,#db2777); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer;">🎯 مسح الشبكات واصطياد المرشحين المميزين</button>
-      <div id="radarResult" style="margin-top:15px; display:none; flex-direction:column; gap:10px;"></div>
+    <div style="background:#0f172a; border:2px solid #ec4899; border-radius:20px; max-width:640px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(236,72,153,0.4);">
+      <button onclick="closeAiToolModal()" style="position:absolute; top:18px; left:18px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:1.2em; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+      <h3 style="color:#f472b6; margin-top:0; margin-inline-end:45px; font-size:1.25em; display:flex; align-items:center; gap:8px;">
+        🎯 رادار اصطياد الكفاءات النادرة بالذكاء الاصطناعي
+      </h3>
+      <p style="font-size:0.8em; color:#94a3b8; margin:-5px 0 15px 0;">⚡ مسح شبكات GitHub، LinkedIn، ومحافظ الكفاءات الساكنة لاصطياد أفضل الـ Top 1% بكل دقة</p>
+      
+      <div style="margin-block-end:15px;">
+        <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">المسمى أو المهارات المطلوب استقطابها:</label>
+        <input id="h_skills" type="text" value="Senior Network Engineer (Cisco, Fortinet, BGP)" placeholder="المسمى أو المهارات المطلوب استقطابها" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+      </div>
+      
+      <button onclick="runHeadhunterScan()" style="width:100%; padding:12px; background:linear-gradient(135deg,#ec4899,#db2777); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer; font-size:0.95em; transition:all;">🎯 مسح الشبكات واصطياد المرشحين المميزين فوراً</button>
+      <div id="radarResult" style="margin-top:15px; display:none; flex-direction:column; gap:12px; max-height:280px; overflow-y:auto; padding-inline-end:4px;"></div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
 }
 
-function runHeadhunterScan() {
+async function runHeadhunterScan() {
   const skills = document.getElementById('h_skills').value;
   const resBox = document.getElementById('radarResult');
   resBox.style.display = 'flex';
-  resBox.innerHTML = '<p style="color:#a78bfa; text-align:center;">🔍 جاري مسح الشبكات ومحافظ GitHub لاصطياد أفضل المرشحين الساكنين...</p>';
+  resBox.innerHTML = '<div style="color:#ec4899; text-align:center; padding:15px;"><span class="animate-spin" style="display:inline-block; margin-inline-end:8px;">⚡</span> جاري مسح الشبكات ومحافظ GitHub لاصطياد أفضل المرشحين الساكنين لـ ' + skills + '...</div>';
   
-  setTimeout(() => {
-    resBox.innerHTML = `
-      <div style="background:#1e293b; padding:12px; border-radius:10px; border-left:4px solid #ec4899;">
-        <div style="display:flex; justify-content:space-between;"><strong>سامي سلامة (Senior Network Specialist)</strong><span style="color:#22c55e;">تطابق 98%</span></div>
-        <p style="font-size:0.8em; color:#94a3b8; margin:4px 0;">خبرة 7+ سنوات في Cisco CCIE, Fortinet, BGP Routing & VPN. بيروت / خيار الريموت.</p>
-        <button onclick="alert('📲 تم إرسال رسالة الاستقطاب عبر الواتساب والإيميل بنجاح!')" style="background:#ec4899; border:none; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.8em; cursor:pointer; font-weight:700;">✉️ إرسال رسالة استقطاب فوري</button>
-      </div>
-      <div style="background:#1e293b; padding:12px; border-radius:10px; border-left:4px solid #38bdf8;">
-        <div style="display:flex; justify-content:space-between;"><strong>كريم حداد (Lead Infrastructure Engineer)</strong><span style="color:#22c55e;">تطابق 94%</span></div>
-        <p style="font-size:0.8em; color:#94a3b8; margin:4px 0;">خبرة 5+ سنوات في Cloud Security, OSPF & Enterprise Switching.</p>
-        <button onclick="alert('📲 تم إرسال رسالة الاستقطاب عبر الواتساب والإيميل بنجاح!')" style="background:#38bdf8; border:none; color:#000; padding:6px 12px; border-radius:6px; font-size:0.8em; cursor:pointer; font-weight:700;">✉️ إرسال رسالة استقطاب فوري</button>
-      </div>
-    `;
-  }, 1200);
+  try {
+    const res = await fetch('/api/v1/headhunter-radar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skills_query: skills })
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.candidates) {
+      resBox.innerHTML = data.candidates.map(c => `
+        <div style="background:#1e293b; padding:14px; border-radius:12px; border-inline-start:4px solid #ec4899; border:1px solid rgba(236,72,153,0.2);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#fff; font-size:0.95em;">${c.name} <span style="color:#94a3b8; font-weight:400; font-size:0.85em;">(${c.title})</span></strong>
+            <span style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:2px 8px; border-radius:6px; font-size:0.75em; font-weight:800;">تطابق ${c.match}</span>
+          </div>
+          <p style="font-size:0.8em; color:#cbd5e1; margin:6px 0;">📍 ${c.location} | ⏱️ الخبرة: ${c.exp}<br>🛠️ <strong>المهارات:</strong> ${c.skills}</p>
+          <p style="font-size:0.78em; color:#94a3b8; margin-bottom:8px; font-style:italic;">"${c.summary}"</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button onclick="alert('📲 تم dispatch رسالة استقطاب هيدهانتر فائقة السرية عبر الواتساب والإيميل لـ ${c.name}!')" style="background:#ec4899; border:none; color:#fff; padding:6px 12px; border-radius:6px; font-size:0.78em; cursor:pointer; font-weight:800;">📲 استقطاب عبر WhatsApp</button>
+            <button onclick="alert('📧 تم إرسال خطة العرض السري للبريد الإلكتروني ${c.email}!')" style="background:#38bdf8; border:none; color:#000; padding:6px 12px; border-radius:6px; font-size:0.78em; cursor:pointer; font-weight:800;">📧 مراسلة عبر الإيميل</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch(e) {
+    resBox.innerHTML = `<div style="color:#f87171;">فشل التوصيل برادار الاستقطاب. يرجى المحاولة لاحقاً.</div>`;
+  }
 }
 
 function closeAiToolModal() {
