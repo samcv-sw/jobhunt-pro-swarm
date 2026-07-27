@@ -926,17 +926,39 @@ function openContractGenModal() {
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
     <div style="background:#0f172a; border:2px solid #f59e0b; border-radius:20px; max-width:650px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(245,158,11,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#fbbf24; margin-top:0; font-size:1.3em;">📄 1-Click Offer Letter & Legal Contract Generator</h3>
+      <button onclick="closeAiToolModal()" style="position:absolute; top:18px; right:18px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:1.2em; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+      <h3 style="color:#fbbf24; margin-top:0; margin-inline-end:45px; font-size:1.25em; display:flex; align-items:center; gap:8px;">
+        📄 1-Click Offer Letter & Legal Contract Generator
+      </h3>
+      <p style="font-size:0.8em; color:#94a3b8; margin:-5px 0 15px 0;">⚡ Powered by AI Legal Engine for instant, binding employment agreements and offer letters</p>
+      
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
-        <input id="c_name" type="text" value="Sam Salameh" placeholder="Candidate Name" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-        <input id="c_title" type="text" value="Senior Network Engineer" placeholder="Job Title" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-        <input id="c_salary" type="text" value="$3,500/month" placeholder="Monthly Salary" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-        <input id="c_date" type="text" value="August 1, 2026" placeholder="Start Date" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">Candidate Name:</label>
+          <input id="c_name" type="text" value="Sam Salameh" placeholder="Candidate Name" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">Job Title:</label>
+          <input id="c_title" type="text" value="Senior Network Engineer" placeholder="Job Title" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">Monthly Salary & Perks:</label>
+          <input id="c_salary" type="text" value="$3,500/month" placeholder="Monthly Salary" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">Start Date:</label>
+          <input id="c_date" type="text" value="August 1, 2026" placeholder="Start Date" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        </div>
       </div>
-      <button onclick="generateRealContract()" style="width:100%; padding:12px; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer;">📄 Draft Legal Contract Live</button>
-      <textarea id="contractOut" style="width:100%; height:160px; margin-top:15px; background:#1e293b; border:1px solid #334155; border-radius:10px; color:#e2e8f0; font-size:0.8em; padding:10px; display:none;"></textarea>
-      <button id="copyContractBtn" onclick="copyContractText()" style="width:100%; margin-top:10px; padding:10px; background:#22c55e; border:none; border-radius:8px; color:#000; font-weight:800; display:none; cursor:pointer;">📋 Copy Contract to Clipboard</button>
+      
+      <button onclick="generateRealContract()" style="width:100%; padding:12px; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer; font-size:0.95em; transition:all;">📄 Draft Legal Contract Live</button>
+      
+      <textarea id="contractOut" style="width:100%; height:180px; margin-top:15px; background:#1e293b; border:1px solid rgba(245,158,11,0.3); border-radius:10px; color:#e2e8f0; font-size:0.82em; padding:12px; display:none; font-family:monospace; line-height:1.5;"></textarea>
+      
+      <div id="contractActions" style="display:none; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+        <button onclick="copyContractText()" style="padding:10px; background:#22c55e; border:none; border-radius:8px; color:#000; font-weight:800; cursor:pointer; font-size:0.85em;">📋 Copy Contract Text</button>
+        <button onclick="downloadContractDocx()" style="padding:10px; background:linear-gradient(135deg,#38bdf8,#0284c7); border:none; border-radius:8px; color:#000; font-weight:800; cursor:pointer; font-size:0.85em;">💾 Download Contract (DOC/TXT)</button>
+      </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -949,6 +971,7 @@ async function generateRealContract() {
   const c_date = document.getElementById('c_date').value;
   
   const out = document.getElementById('contractOut');
+  const actions = document.getElementById('contractActions');
   out.style.display = 'block';
   out.value = '⏳ Drafting legal employment contract terms...';
   
@@ -961,12 +984,23 @@ async function generateRealContract() {
     const data = await res.json();
     if (data.status === 'success') {
       out.value = data.contract;
-      document.getElementById('copyContractBtn').style.display = 'block';
+      actions.style.display = 'grid';
     }
   } catch(e) {
     out.value = `OFFICIAL EMPLOYMENT CONTRACT AGREEMENT\n\nEmployer: Global Tech Corp\nEmployee: ${c_name}\nPosition: ${c_title}\nSalary: ${c_salary}\nStart Date: ${c_date}\n\n1. DUTIES: Execute all assigned duties with enterprise quality.\n2. COMPENSATION: Salary paid monthly with medical & 24 annual days off.\n\nSignatures:\nEmployer: ______________________\nEmployee: ______________________`;
-    document.getElementById('copyContractBtn').style.display = 'block';
+    actions.style.display = 'grid';
   }
+}
+
+function downloadContractDocx() {
+  const text = document.getElementById('contractOut').value;
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Employment_Contract_${document.getElementById('c_name').value.replace(/\s+/g, '_')}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 function copyContractText() {
