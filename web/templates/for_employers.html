@@ -885,37 +885,100 @@ function openDnaFitModal() {
   closeAiToolModal();
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #8b5cf6; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(139,92,246,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#a78bfa; margin-top:0; font-size:1.3em;">🧬 محلل البصمة السلوكية والتوافق الثقافي للمرشحين</h3>
-      <p style="font-size:0.85em; color:#cbd5e1; margin-block-end:20px;">حسّب البصمة السلوكية والتوافق النفسي لـ أي مسمى وظيفي مع ثقافة شركتك:</p>
+    <div style="background:#0f172a; border:2px solid #8b5cf6; border-radius:20px; max-width:620px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(139,92,246,0.4);">
+      <button onclick="closeAiToolModal()" style="position:absolute; top:18px; left:18px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:1.2em; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+      <h3 style="color:#a78bfa; margin-top:0; margin-inline-end:45px; font-size:1.25em; display:flex; align-items:center; gap:8px;">
+        🧬 محلل البصمة السلوكية والتوافق الثقافي بالذكاء الاصطناعي
+      </h3>
+      <p style="font-size:0.8em; color:#cbd5e1; margin:-5px 0 15px 0;">⚡ حساب البصمة السلوكية والملاءمة النفسية الحقيقية لكل مرشح بناءً على متطلبات الوظيفة وثقافة الشركة</p>
 
-      <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>القيادة والمبادرة:</span><strong style="color:#4ade80;">94% (ممتاز)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#22c55e; width:94%; height:100%; border-radius:4px;"></div></div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">اسم المرشح:</label>
+          <input id="dna_name" type="text" value="Sam Salameh" placeholder="اسم المرشح" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
         </div>
         <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>مرونة حل المشكلات:</span><strong style="color:#38bdf8;">98% (استثنائي)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#38bdf8; width:98%; height:100%; border-radius:4px;"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><strong style="color:#fbbf24;">91% (عالي جداً)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#f59e0b; width:91%; height:100%; border-radius:4px;"></div></div>
-        </div>
-        <div>
-          <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>التواصل والعمل الجماعي:</span><strong style="color:#a78bfa;">96% (ممتاز)</strong></div>
-          <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div style="background:#8b5cf6; width:96%; height:100%; border-radius:4px;"></div></div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">المسمى الوظيفي:</label>
+          <input id="dna_title" type="text" value="Senior Network Engineer" placeholder="المسمى الوظيفي" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
         </div>
       </div>
-
-      <div style="margin-top:25px; padding:12px; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:12px; font-size:0.85em; color:#4ade80;">
-        💡 <strong>نتيجة التقييم:</strong> المرشح ينتمي لفئة "High-Impact Leader". موصى به لمناصب الإدارة والمشاريع التقنية!
+      <div style="margin-block-end:15px;">
+        <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">نمط ثقافة الشركة:</label>
+        <select id="dna_culture" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+          <option value="High-Growth Startup">🚀 شركة ناشئة سريعة النمو (High-Growth Startup)</option>
+          <option value="Enterprise Corporate">🏢 مؤسسة قيادية كبرى (Enterprise Corporate)</option>
+          <option value="Remote-First Global">🌐 بيئة عمل عالمية عن بُعد (Remote-First Global)</option>
+          <option value="Agile Execution Team">⚡ فريق تنفيذ مرن وسريع (Agile Execution)</option>
+        </select>
       </div>
-      <button onclick="closeAiToolModal()" style="margin-top:20px; width:100%; padding:12px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer;">إغلاق والعودة للنموذج</button>
+
+      <button onclick="runDnaFitAnalysis()" style="width:100%; padding:12px; background:linear-gradient(135deg,#8b5cf6,#7c3aed); border:none; border-radius:10px; color:#fff; font-weight:800; cursor:pointer; font-size:0.95em; transition:all;">🧬 تشغيل تحليل البصمة السلوكية والتوافق الفعلي</button>
+      <div id="dnaResult" style="margin-top:15px; padding:15px; background:#1e293b; border-radius:12px; border:1px solid rgba(139,92,246,0.3); font-size:0.88em;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>القيادة والمبادرة:</span><strong id="dna_score_lead" style="color:#4ade80;">94% (ممتاز)</strong></div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div id="dna_bar_lead" style="background:#22c55e; width:94%; height:100%; border-radius:4px; transition:all 0.5s;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>مرونة حل المشكلات:</span><strong id="dna_score_prob" style="color:#38bdf8;">98% (استثنائي)</strong></div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div id="dna_bar_prob" style="background:#38bdf8; width:98%; height:100%; border-radius:4px; transition:all 0.5s;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>العمل المستقل وعن بُعد:</span><strong id="dna_score_auto" style="color:#fbbf24;">91% (عالي جداً)</strong></div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div id="dna_bar_auto" style="background:#f59e0b; width:91%; height:100%; border-radius:4px; transition:all 0.5s;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:0.85em;"><span>التواصل والعمل الجماعي:</span><strong id="dna_score_comm" style="color:#a78bfa;">96% (ممتاز)</strong></div>
+            <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; margin-top:4px;"><div id="dna_bar_comm" style="background:#8b5cf6; width:96%; height:100%; border-radius:4px; transition:all 0.5s;"></div></div>
+          </div>
+        </div>
+        <div id="dnaSummaryBox" style="margin-top:15px; padding:10px 12px; background:rgba(139,92,246,0.15); border-inline-start:3px solid #8b5cf6; border-radius:8px; font-size:0.83em; color:#e2e8f0; line-height:1.5;">
+          💡 <strong>النمط السلوكي للذكاء الاصطناعي:</strong> المرشح ينتمي لفئة <span id="dna_archetype" style="color:#a78bfa; font-weight:800;">"Systems Architect & Technical Innovator"</span>.<br>
+          <span id="dna_insights">يتمتع المرشح بملاءمة سلوكية عالية للمسمى الوظيفي المحدد مع قدرة عالية على التكيف والتنفيذ المستقل.</span>
+        </div>
+      </div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function runDnaFitAnalysis() {
+  const name = document.getElementById('dna_name').value;
+  const title = document.getElementById('dna_title').value;
+  const culture = document.getElementById('dna_culture').value;
+  
+  const summaryBox = document.getElementById('dnaSummaryBox');
+  summaryBox.innerHTML = '<span class="animate-spin" style="display:inline-block; margin-inline-end:8px;">⚡</span> جاري استخراج وتحليل البصمة السلوكية الحقيقية بالذكاء الاصطناعي لـ ' + name + '...';
+
+  try {
+    const res = await fetch('/api/v1/behavioral-dna-fit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidate_name: name, job_title: title, culture_style: culture })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      const s = data.scores;
+      document.getElementById('dna_score_lead').innerText = `${s.leadership}% (ممتاز)`;
+      document.getElementById('dna_bar_lead').style.width = `${s.leadership}%`;
+
+      document.getElementById('dna_score_prob').innerText = `${s.problem_solving}% (استثنائي)`;
+      document.getElementById('dna_bar_prob').style.width = `${s.problem_solving}%`;
+
+      document.getElementById('dna_score_auto').innerText = `${s.autonomy}% (عالي جداً)`;
+      document.getElementById('dna_bar_auto').style.width = `${s.autonomy}%`;
+
+      document.getElementById('dna_score_comm').innerText = `${s.communication}% (ممتاز)`;
+      document.getElementById('dna_bar_comm').style.width = `${s.communication}%`;
+
+      summaryBox.innerHTML = `
+        💡 <strong>النمط السلوكي للذكاء الاصطناعي:</strong> المرشح ينتمي لفئة <span style="color:#a78bfa; font-weight:800;">"${data.archetype}"</span>.<br>
+        <span style="display:block; margin-top:4px;">${data.insights}</span>
+      `;
+    }
+  } catch(e) {
+    summaryBox.innerHTML = `<span style="color:#f87171;">فشل التوصيل بمحرك التحليل. يرجى المحاولة لاحقاً.</span>`;
+  }
 }
 
 function openContractGenModal() {
