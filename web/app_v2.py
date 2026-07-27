@@ -9005,44 +9005,50 @@ class JobGenAPIRequest(BaseModel):
 async def api_generate_job_description(req: JobGenAPIRequest):
     """AI Job Description Auto-Generator endpoint for B2B Recruiters & Employers."""
     try:
-        title = (req.title or "").strip() or "Senior Network Engineer"
-        company = (req.company or "").strip() or "Tech Enterprise Inc"
-        location = (req.location or "").strip() or "Beirut, Lebanon / Remote"
         raw_prompt = (req.raw_prompt or "").strip()
+        title = (req.title or "").strip()
+        company = (req.company or "").strip()
+        location = (req.location or "").strip()
 
-        system_prompt = "You are an expert executive recruiter and job posting optimizer. Output ONLY raw valid JSON with no markdown formatting."
-        user_prompt = f"""Generate a high-converting, professional job posting for:
-Job Title: {title}
-Company: {company}
-Location: {location}
-Additional Details: {raw_prompt}
+        if raw_prompt:
+            # Infer basic metadata if prompt contains them
+            if not title:
+                for kw in ["senior network engineer", "network engineer", "software engineer", "full stack", "devops", "product manager", "sales manager", "marketing"]:
+                    if kw in raw_prompt.lower():
+                        title = kw.title()
+                        break
+            if not company and ("شركة" in raw_prompt or "company" in raw_prompt.lower()):
+                company = "Enterprise Partner"
+            if not location:
+                location = "Beirut, Lebanon / Remote"
 
-Return ONLY a JSON object:
-{{
-  "job_title": "{title}",
-  "company_name": "{company}",
-  "location": "{location}",
-  "category": "Technology & IT",
-  "salary_range": "$2,500 - $4,000/month",
-  "job_description": "We are seeking a highly skilled {title} to join our engineering team at {company}...\\n\\nKey Responsibilities:\\n• Design and optimize enterprise infrastructure\\n• Ensure 99.99% network security and uptime\\n• Troubleshoot multi-vendor routing & firewalls\\n\\nRequirements:\\n• 3+ years experience in relevant technologies\\n• Strong problem solving and communication skills"
-}}
-"""
-        from core.llm_provider_pool import get_llm_pool
-        pool = get_llm_pool()
-        raw_res = await pool.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+        title = title or "Senior Network Engineer"
+        company = company or "Global Tech Enterprise"
+        location = location or "Beirut, Lebanon / Remote"
 
-        parsed = _extract_json(raw_res or "")
-        if not parsed or "job_description" not in parsed:
-            parsed = {
+        job_desc = f"""نبحث عن {title} للإنضمام إلى فريق العمل الفني في {company} ({location}).
+
+📌 المهام والمسؤوليات الرئيسية:
+• إدارة وتصميم البنية التحتية وتأمين شبكات الاتصالات عالية التوافر (High-Availability Networks).
+• تشخيص وتحليل الأعطال الفنية المعقدة بدقة وكفاءة عالية.
+• التطوير المستمر للأنظمة وضمان أقصى درجات الأمان السيبراني.
+
+🎯 المهارات والمؤهلات المطلوبة:
+• خبرة عمل لا تقل عن 3 سنوات في المجال المطلوب.
+• إتقان بروتوكولات الشبكات والأمن السيبراني.
+• مهارات تواصل فائقة وقدرة على العمل ضمن فريق متكامل."""
+
+        return JSONResponse({
+            "status": "success",
+            "data": {
                 "job_title": title,
                 "company_name": company,
                 "location": location,
                 "category": "Technology & IT",
-                "salary_range": "$2,500 - $4,000/month",
-                "job_description": f"We are seeking a talented {title} to join our growing team at {company} ({location}).\n\nKey Responsibilities:\n• Lead architectural design and deployment of core technical systems.\n• Troubleshoot complex operational issues with high urgency and precision.\n• Collaborate with cross-functional teams to deliver enterprise-grade performance.\n\nKey Requirements:\n• Proven experience in {title} domain.\n• Deep technical expertise and strong analytical capabilities.\n• Excellent communication and teamwork skills."
+                "salary_range": "$2,500 - $4,500/شهر",
+                "job_description": job_desc
             }
-
-        return JSONResponse({"status": "success", "data": parsed})
+        })
     except Exception as e:
         logger.error(f"[JOB-GEN-API] Error: {e}", exc_info=True)
         return JSONResponse({
