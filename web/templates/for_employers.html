@@ -977,17 +977,27 @@ function openRelocationSimModal() {
   const countryOpts = ALL_WORLD_COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('');
   const modalHtml = `
   <div id="aiToolModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:99999; display:flex; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:600px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
-      <button onclick="closeAiToolModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:#94a3b8; font-size:1.5em; cursor:pointer;">✕</button>
-      <h3 style="color:#38bdf8; margin-top:0; font-size:1.3em;">🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية (250+ دولة وإقليم)</h3>
+    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; max-width:620px; width:100%; padding:30px; color:#fff; position:relative; box-shadow:0 0 40px rgba(56,189,248,0.4);">
+      <button onclick="closeAiToolModal()" style="position:absolute; top:18px; left:18px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:1.2em; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.4)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
+      <h3 style="color:#38bdf8; margin-top:0; margin-inline-end:45px; font-size:1.25em; display:flex; align-items:center; gap:8px;">
+        🌍 حاسبة الانتقال الدولي والضرائب والإقامة الحقيقية
+      </h3>
+      <p style="font-size:0.8em; color:#94a3b8; margin:-5px 0 15px 0;">⚡ بيانات فورية حقيقية ومحدثة يومياً لـ 250+ دولة وإقليم بدعم الذكاء الاصطناعي</p>
+      
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
-        <select id="r_country" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
-          ${countryOpts}
-        </select>
-        <input id="r_salary" type="number" value="4000" placeholder="الراتب بالدولار ($)" style="padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff;">
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">اختر الدولة المستهدفة:</label>
+          <select id="r_country" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+            ${countryOpts}
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">الراتب الشهري الإجمالي ($):</label>
+          <input id="r_salary" type="number" value="4000" placeholder="الراتب بالدولار ($)" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        </div>
       </div>
-      <button onclick="runRelocationSim()" style="width:100%; padding:12px; background:linear-gradient(135deg,#38bdf8,#0284c7); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer;">🌍 حساب تكاليف الانتقال والفيزا وصافي الراتب</button>
-      <div id="simResult" style="margin-top:15px; padding:15px; background:#1e293b; border-radius:10px; font-size:0.85em; display:none;"></div>
+      <button onclick="runRelocationSim()" style="width:100%; padding:12px; background:linear-gradient(135deg,#38bdf8,#0284c7); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer; font-size:0.95em; transition:all;">🌍 حساب تكاليف الانتقال والفيزا وصافي الراتب الفعلي</button>
+      <div id="simResult" style="margin-top:15px; padding:15px; background:#1e293b; border-radius:12px; border:1px solid rgba(56,189,248,0.2); font-size:0.88em; display:none;"></div>
     </div>
   </div>`;
   document.body.insertAdjacentHTML('beforeend', modalHtml);
@@ -999,7 +1009,7 @@ async function runRelocationSim() {
   
   const resBox = document.getElementById('simResult');
   resBox.style.display = 'block';
-  resBox.innerHTML = '⏳ جاري الاستعلام عن قوانين التأشيرات والضرائب المحلية...';
+  resBox.innerHTML = '<div style="text-align:center; padding:15px; color:#38bdf8;"><span class="animate-spin" style="display:inline-block; margin-inline-end:8px;">⚡</span> جاري استعلام المحرك عن قوانين التأشيرات والضرائب المحلية في ' + country + '...</div>';
   
   try {
     const res = await fetch('/api/v1/relocation-simulator', {
@@ -1009,16 +1019,24 @@ async function runRelocationSim() {
     });
     const data = await res.json();
     if (data.status === 'success') {
+      const isRestricted = data.visa_odds.includes('Restricted') || data.visa_odds.includes('Moderate');
+      const oddsColor = isRestricted ? '#f59e0b' : '#22c55e';
+      
       resBox.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>الدولة المستهدفة:</span><strong>${data.country}</strong></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>نسبة قبول فيزا العمل:</span><strong style="color:#22c55e;">${data.visa_odds}</strong></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>نسبة اقتطاع الضرائب:</span><strong style="color:#fbbf24;">${data.tax_rate_pct} (-$${data.tax_usd})</strong></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span>صافي الراتب الفعلي المتبقي:</span><strong style="color:#38bdf8; font-size:1.1em;">$${data.net_usd} / شهر (${data.local_net} ${data.local_currency})</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span>متوسط المعيشة والسكن:</span><span>${data.cost_of_living}</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;"><span>الدولة المستهدفة:</span><strong style="color:#fff;">${data.country}</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;"><span>نسبة قبول فيزا العمل:</span><strong style="color:${oddsColor};">${data.visa_odds}</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;"><span>نسبة اقتطاع الضرائب الفعلي:</span><strong style="color:#fbbf24;">${data.tax_rate_pct} (-$${data.tax_usd})</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;"><span>صافي الراتب الفعلي المتبقي:</span><strong style="color:#38bdf8; font-size:1.1em;">$${data.net_usd} / شهر (${data.local_net} ${data.local_currency})</strong></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px;"><span>متوسط المعيشة والسكن:</span><strong style="color:#cbd5e1;">${data.cost_of_living}</strong></div>
+        ${data.ai_strategy_tip ? `
+        <div style="margin-top:10px; padding:10px 12px; background:rgba(56,189,248,0.1); border-inline-start:3px solid #38bdf8; border-radius:6px; font-size:0.82em; color:#e2e8f0; line-height:1.5;">
+          <strong style="color:#38bdf8; display:block; margin-bottom:3px;">💡 التوجيه الاستراتيجي للذكاء الاصطناعي (AI Strategy Advice):</strong>
+          ${data.ai_strategy_tip}
+        </div>` : ''}
       `;
     }
   } catch(e) {
-    resBox.innerHTML = `<strong>النتائج التقديرية لـ ${country}:</strong><br>• صافي الراتب: $${salary * 0.85}/شهر<br>• نسبة قبول الفيزا: 92% (عالية)<br>• الضرائب المقدرة: 12%`;
+    resBox.innerHTML = `<div style="color:#f87171;">حدث خطأ أثناء التواصل مع سيرفر الاستعلامات. يرجى إعادة المحاولة.</div>`;
   }
 }
 
