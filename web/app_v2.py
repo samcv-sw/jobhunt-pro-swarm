@@ -777,8 +777,8 @@ async def lifespan(app_instance):
         os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes") or
         os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
     )
-    run_loops = os.getenv("RUN_BACKGROUND_LOOPS", "false" if is_pa else "true").lower() in ("true", "1", "yes")
-    disable_loops = os.getenv("DISABLE_BACKGROUND_LOOPS", "true" if is_pa else "false").lower() in ("true", "1", "yes")
+    run_loops = os.getenv("RUN_BACKGROUND_LOOPS", "true").lower() in ("true", "1", "yes")
+    disable_loops = os.getenv("DISABLE_BACKGROUND_LOOPS", "false").lower() in ("true", "1", "yes")
 
     acquired_lock = False
     lock_fd = None

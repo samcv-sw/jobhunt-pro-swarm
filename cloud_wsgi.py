@@ -96,6 +96,46 @@ class LazyASGIApp:
                         self.wsgi_app = ASGIMiddleware(app)
                         
                     logger.info("[WSGI] ASGIMiddleware initialized successfully in worker.")
+
+                    # Start continuous background job applier thread on PythonAnywhere
+                    def _start_cloud_background_applier():
+                        import time
+                        logger.info("[PA WORKER] 🚀 Continuous Background Applier Daemon Started.")
+                        while True:
+                            try:
+                                from web.app_v2 import get_db
+                                from core.job_queue import dequeue_task, complete_task
+                                from core.campaign_runner import run_campaign
+                                import asyncio
+
+                                task = dequeue_task()
+                                if task:
+                                    t_type = task.get("task_type")
+                                    payload = task.get("payload", {})
+                                    if t_type == "run_campaign":
+                                        camp_id = payload.get("campaign_id")
+                                        if camp_id:
+                                            loop = asyncio.new_event_loop()
+                                            asyncio.set_event_loop(loop)
+                                            loop.run_until_complete(run_campaign(camp_id, get_db, None, company_limit=15))
+                                            loop.close()
+                                    complete_task(task["id"], {"status": "success"})
+                                else:
+                                    with get_db() as conn:
+                                        active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running') ORDER BY created_at DESC LIMIT 3").fetchall()
+                                        for (c_id,) in active_camps:
+                                            loop = asyncio.new_event_loop()
+                                            asyncio.set_event_loop(loop)
+                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=10))
+                                            loop.close()
+                            except Exception as e:
+                                logger.error(f"[PA WORKER] Applier daemon exception: {e}")
+
+                            time.sleep(10)
+
+                    applier_thread = threading.Thread(target=_start_cloud_background_applier, daemon=True, name="PA_Background_Applier")
+                    applier_thread.start()
+
         return self.wsgi_app(environ, start_response)
 
 application = LazyASGIApp()
