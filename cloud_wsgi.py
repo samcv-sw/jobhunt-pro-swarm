@@ -45,22 +45,23 @@ PROJECT = '/home/JHFGUF/jobhunt'
 if PROJECT not in sys.path:
     sys.path.insert(0, PROJECT)
 
-# Run automatic git pull on reload/startup (Commented out to prevent slow startup error in normal operations)
-# try:
-#     import subprocess
-#     import os
-#     lock_file = "/home/JHFGUF/jobhunt/.git/index.lock"
-#     if os.path.exists(lock_file):
-#         os.remove(lock_file)
-#     subprocess.run(["git", "fetch", "--all"], cwd=PROJECT, capture_output=True, timeout=60)
-#     res = subprocess.run(["git", "reset", "--hard", "origin/main"], cwd=PROJECT, capture_output=True, text=True, timeout=60)
-#     with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
-#         f.write(f"Return code: {res.returncode}\n")
-#         f.write(f"Stdout:\n{res.stdout}\n")
-#         f.write(f"Stderr:\n{res.stderr}\n")
-# except Exception as e:
-#     with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
-#         f.write(f"Exception: {str(e)}\n")
+# Run automatic git pull on reload/startup to sync latest code from main
+try:
+    import subprocess
+    import os
+    lock_file = "/home/JHFGUF/jobhunt/.git/index.lock"
+    if os.path.exists(lock_file):
+        try: os.remove(lock_file)
+        except Exception: pass
+    subprocess.run(["git", "fetch", "origin", "main"], cwd=PROJECT, capture_output=True, timeout=30)
+    res = subprocess.run(["git", "reset", "--hard", "origin/main"], cwd=PROJECT, capture_output=True, text=True, timeout=30)
+    with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
+        f.write(f"Return code: {res.returncode}\n")
+        f.write(f"Stdout:\n{res.stdout}\n")
+        f.write(f"Stderr:\n{res.stderr}\n")
+except Exception as e:
+    with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
+        f.write(f"Exception: {str(e)}\n")
 
 # ─── PURE PYTHON LAZY WSGI APP LOADER ─────────────────────────────────────────
 # This ensures ASGIMiddleware background event loop threads are created inside the
