@@ -2307,13 +2307,13 @@ def auto_seed_cloud_db(conn):
             if existing:
                 u_id = dict(existing).get("user_id") or user_id
                 conn.execute(
-                    "UPDATE users SET is_admin = 1, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ? OR LOWER(email) = ?",
+                    "UPDATE users SET user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ? OR LOWER(email) = ?",
                     (u_id, email.lower()),
                 )
             else:
                 conn.execute(
-                    "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, is_admin, wallet_balance, tokens, api_key, created_at, is_active) "
-                    "VALUES (?, ?, 'oauth_authenticated_user', ?, '+961 70 841 009', 'admin', 1, 10000.0, 999999, ?, ?, 1)",
+                    "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, wallet_balance, tokens, api_key, created_at, is_active) "
+                    "VALUES (?, ?, 'oauth_authenticated_user', ?, '+961 70 841 009', 'admin', 10000.0, 999999, ?, ?, 1)",
                     (user_id, email.lower(), name, f"key_{user_id}", now_str),
                 )
                 u_id = user_id

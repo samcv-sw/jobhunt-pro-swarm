@@ -180,7 +180,7 @@ async def register(
             user_id = existing["user_id"]
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET is_admin = 1, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
+                    "UPDATE users SET user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
                     (user_id,),
                 )
                 conn.commit()
@@ -189,7 +189,7 @@ async def register(
             user_id = _create_new_user(conn, email, hashed_pw, name, phone, company_name, u_type)
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET is_admin = 1, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
+                    "UPDATE users SET user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
                     (user_id,),
                 )
                 conn.commit()
@@ -239,7 +239,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
                 hashed_pw = await _hash_pw_async(password)
                 user_id = _create_new_user(conn, email, hashed_pw, "Admin User", "+96170841009", "", "admin")
                 conn.execute(
-                    "UPDATE users SET is_admin = 1, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
+                    "UPDATE users SET user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
                     (user_id,),
                 )
                 conn.commit()
@@ -268,7 +268,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             new_hash = await _hash_pw_async(password)
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET password_hash = ?, is_admin = 1, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
+                    "UPDATE users SET password_hash = ?, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
                     (new_hash, user["user_id"]),
                 )
             else:
@@ -614,7 +614,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             user_id = user["user_id"]
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, is_admin = 1, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?",
+                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?",
                     (access_token, refresh_token, expires_at, email),
                 )
             else:
@@ -628,7 +628,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             user_id = _create_new_user(conn, email, "oauth_authenticated_user", name, "", "", u_type)
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, is_admin = 1, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
+                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
                     (access_token, refresh_token, expires_at, user_id),
                 )
             else:
