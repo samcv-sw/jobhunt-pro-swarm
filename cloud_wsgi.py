@@ -45,24 +45,7 @@ PROJECT = '/home/JHFGUF/jobhunt'
 if PROJECT not in sys.path:
     sys.path.insert(0, PROJECT)
 
-# Run git pull asynchronously in a background thread so WSGI startup is instant (0ms delay)
-def _background_git_sync():
-    try:
-        import subprocess
-        import os
-        lock_file = "/home/JHFGUF/jobhunt/.git/index.lock"
-        if os.path.exists(lock_file):
-            try: os.remove(lock_file)
-            except Exception: pass
-        subprocess.run(["git", "fetch", "origin", "main"], cwd=PROJECT, capture_output=True, timeout=30)
-        res = subprocess.run(["git", "reset", "--hard", "origin/main"], cwd=PROJECT, capture_output=True, text=True, timeout=30)
-        with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
-            f.write(f"Return code: {res.returncode}\nStdout:\n{res.stdout}\nStderr:\n{res.stderr}\n")
-    except Exception as e:
-        with open("/home/JHFGUF/jobhunt/web/git_pull_log.txt", "w", encoding="utf-8") as f:
-            f.write(f"Exception: {str(e)}\n")
-
-threading.Thread(target=_background_git_sync, daemon=True, name="PA_Git_Sync").start()
+# ─── PURE PYTHON WSGI ENGINE ─────────────────────────────────────────
 
 # ─── PURE PYTHON LAZY WSGI APP LOADER ─────────────────────────────────────────
 # This ensures ASGIMiddleware background event loop threads are created inside the
@@ -124,16 +107,16 @@ class LazyASGIApp:
                                     complete_task(task["id"], {"status": "success"})
                                 else:
                                     with get_db() as conn:
-                                        active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running') ORDER BY created_at DESC LIMIT 3").fetchall()
+                                        active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running') ORDER BY created_at DESC LIMIT 1").fetchall()
                                         for (c_id,) in active_camps:
                                             loop = asyncio.new_event_loop()
                                             asyncio.set_event_loop(loop)
-                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=10))
+                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=3))
                                             loop.close()
                             except Exception as e:
                                 logger.error(f"[PA WORKER] Applier daemon exception: {e}")
 
-                            time.sleep(10)
+                            time.sleep(30)
 
                     applier_thread = threading.Thread(target=_start_cloud_background_applier, daemon=True, name="PA_Background_Applier")
                     applier_thread.start()
