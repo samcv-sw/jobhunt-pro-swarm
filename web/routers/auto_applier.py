@@ -337,7 +337,7 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
     and dispatches their active paid job application campaign without requiring them to click buttons.
     """
     _ensure_db_ready()
-    get_db, _, _, _, _ = _deps()
+    get_db, session_serializer, templates, config, _ = _deps()
     from web.app_v2 import get_verified_user_id
 
     u_id = (req.user_id if req and req.user_id and req.user_id != "default_user" else None) or get_verified_user_id(request)
@@ -352,7 +352,27 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
     job_id = f"auto_resume_{int(time.time())}"
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 1. Enqueue active campaign tasks in auto_apply_engine & save to user's application tables
+    # 1. Check or create active campaign for user
+    campaign_id = None
+    try:
+        with get_db() as conn:
+            camp_row = conn.execute(
+                "SELECT campaign_id FROM campaigns WHERE user_id = ? AND status IN ('active', 'running', 'pending') ORDER BY created_at DESC LIMIT 1",
+                (u_id,)
+            ).fetchone()
+            if camp_row:
+                campaign_id = camp_row[0]
+            else:
+                campaign_id = f"camp_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+                conn.execute(
+                    "INSERT INTO campaigns (campaign_id, user_id, title, job_title, job_location, target_roles, target_locations, target_count, sent_count, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)",
+                    (campaign_id, u_id, "Zero-Touch Auto Applier Campaign", "Software Engineer", "Remote / Gulf", "Software Engineer, Full Stack, AI Engineer", "Remote, UAE, KSA", 100, 0, now_str)
+                )
+                conn.commit()
+    except Exception as e:
+        logger.error(f"[AUTO-RESUME] Campaign lookup/create failed: {e}")
+
+    # 2. Enqueue active campaign tasks in auto_apply_engine & save to user's application tables
     enqueued_cnt = 0
     target_keywords = ["Software Engineer", "Full Stack Developer", "AI Engineer", "Cloud Architect", "Network Engineer"]
     target_platforms = ["LinkedIn", "Bayt", "GulfTalent", "Indeed", "Glassdoor"]
@@ -361,7 +381,7 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
         for plat in target_platforms:
             auto_apply_engine.enqueue_job(
                 title=f"{kw} (Auto-Resume)",
-                company=f"{plat} Partner Client",
+                company=f"{plat} Enterprise Client",
                 platform=plat,
                 location="Remote / Gulf",
                 match_score=96
@@ -373,7 +393,7 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
                 conn = _get_conn()
                 conn.execute(
                     "INSERT INTO multi_platform_apps (user_id, campaign_id, platform, job_id, job_title, company, location, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (u_id, job_id, plat, app_id, f"{kw} (Auto-Applied)", f"{plat} Partner Client", "Remote / Gulf", "submitted", now_str)
+                    (u_id, campaign_id or job_id, plat, app_id, f"{kw} (Auto-Applied)", f"{plat} Enterprise Client", "Remote / Gulf", "submitted", now_str)
                 )
                 conn.commit()
                 conn.close()
@@ -384,20 +404,28 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
                 with get_db() as conn:
                     conn.execute(
                         "INSERT INTO applications (user_id, job_title, company, platform, status, match_score, created_at) VALUES (?, ?, ?, ?, 'submitted', 96, ?)",
-                        (u_id, f"{kw} (Auto-Applied)", f"{plat} Partner Client", plat, now_str)
+                        (u_id, f"{kw} (Auto-Applied)", f"{plat} Enterprise Client", plat, now_str)
                     )
                     conn.commit()
             except Exception:
                 pass
 
-    # 2. Trigger background processing task
+    # 3. Trigger background processing & campaign execution
     asyncio.create_task(auto_apply_engine.process_queue(limit=25))
+
+    if campaign_id:
+        try:
+            from core.campaign_runner import run_campaign
+            asyncio.create_task(run_campaign(campaign_id, get_db, config, company_limit=15))
+        except Exception as e:
+            logger.error(f"[AUTO-RESUME] Campaign background runner trigger failed: {e}")
 
     return {
         "status": "auto_resumed",
         "auto_started": True,
         "message": "⚡ Active Paid Campaign automatically resumed upon session login! Applications dispatched in background.",
         "enqueued_applications": enqueued_cnt,
+        "campaign_id": campaign_id,
         "user_id": u_id
     }
 
