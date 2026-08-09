@@ -4,7 +4,7 @@ Handles multi-tenant B2B organization workspaces, RBAC role management, candidat
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Body
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import List, Optional
 import datetime
 import uuid
@@ -22,12 +22,12 @@ class OrganizationInfo(BaseModel):
 class TeamMember(BaseModel):
     user_id: str
     name: str
-    email: EmailStr
+    email: str
     role: str # Owner, Admin, Recruiter, Member
     status: str # Active, Pending
 
 class InviteMemberRequest(BaseModel):
-    email: EmailStr
+    email: str
     role: str = "Recruiter"
     department: str = "Talent Acquisition"
 

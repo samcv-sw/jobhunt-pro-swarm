@@ -4,7 +4,7 @@ Handles AI-driven lead generation, recruiter targeting, cold email sequence crea
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import List, Optional
 import datetime
 import uuid

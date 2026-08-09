@@ -4,7 +4,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, Field, validator
 from datetime import datetime
 
 
@@ -28,7 +28,7 @@ class UserProfileValidation(BaseModel):
     """User profile update validation."""
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     phone: Optional[str] = Field(None, pattern=r"^\+?1?\d{9,15}$")
     bio: Optional[str] = Field(None, max_length=1000)
     avatar_url: Optional[str] = None
