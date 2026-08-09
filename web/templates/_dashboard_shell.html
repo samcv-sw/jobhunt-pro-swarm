@@ -48,7 +48,7 @@
       <a href="/interview-copilot" class="sb-link {{ 'sb-active' if active_page == 'interview-copilot' else '' }}" style="color:#c4b5fd;font-weight:700;"><i data-lucide="mic" class="sb-icon"></i><span>مساعد المقابلات (AI Copilot)</span></a>
       <a href="/salary-negotiator" class="sb-link {{ 'sb-active' if active_page == 'salary-negotiator' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="dollar-sign" class="sb-icon"></i><span>حاسبة الراتب والتفاوض</span></a>
 
-      {% if is_admin or (user and (user.is_admin or user.email == 'samatou683@gmail.com')) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
       <div class="sb-section-label" style="color:#ec4899;font-weight:800;display:flex;align-items:center;justify-content:space-between;">
         <span>🔥 عروض واشتراكات الذكاء والمواقع</span>
         <span style="font-size: 14px;background:rgba(236,72,153,0.2);color:#f472b6;padding:2px 6px;border-radius:4px;border:1px solid rgba(236,72,153,0.4);">عروض</span>
@@ -84,7 +84,7 @@
       <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
 
       <div class="sb-section-label">النظام</div>
-      {% if is_admin or (user and (user.is_admin or user.email == 'samatou683@gmail.com')) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
       <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
       {% endif %}
       <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>

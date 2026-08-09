@@ -1105,8 +1105,9 @@ async def health_v2():
 
 @app.get("/lang/{locale}")
 async def set_language(locale: str, request: Request):
-    if locale not in ["en", "ar"]:
-        locale = "en"
+    clean_locale = locale.split('-')[0].lower()
+    if not clean_locale.isalpha() or len(clean_locale) > 10:
+        locale = "ar"
 
     # Redirect back to where they came from
     referer = request.headers.get("referer", "/")

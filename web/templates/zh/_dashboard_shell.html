@@ -1,0 +1,455 @@
+{% extends "_base_tailwind.html" %}
+
+{% block content %}
+<div class="flex min-h-screen bg-slate-950 text-slate-300 font-sans">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 flex-shrink-0 bg-slate-900 border-e border-white/10 flex flex-col sticky top-0 h-screen z-40">
+        <div class="p-6 border-b border-white/10">
+            <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">指挥中心</h2>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
+                <span class="text-xs text-cyan-400 font-mono">SYSTEM ONLINE</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <!-- MAIN SECTION -->
+            <div class="px-3 pt-2 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Main</div>
+            <a href="/user-dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'dashboard' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                <span class="text-sm">控制台</span>
+            </a>
+            <a href="/upload-cv" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'upload-cv' or active_page == 'profiles' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span class="text-sm">上传简历与个人资料</span>
+            </a>
+            <a href="/ats-scorer" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'ats-scorer' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="target" class="w-4 h-4"></i>
+                <span class="text-sm">ATS Scorer</span>
+            </a>
+            <a href="/resume-tailor" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'resume-tailor' else 'text-indigo-400 hover:text-indigo-300 hover:bg-white/5' }}">
+                <i data-lucide="wand-2" class="w-4 h-4"></i>
+                <span class="text-sm">Tailor Resume</span>
+            </a>
+            <a href="/en/zero-unemployment" id="btnZeroUnemploymentAiEn" onclick="return (window.openZeroModalFast ? window.openZeroModalFast(event) : true);" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-cyan-400 hover:text-white hover:bg-white/5 cursor-pointer font-extrabold">
+                <i data-lucide="lightbulb" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-sm font-black text-cyan-400">0% Unemployment AI</span>
+            </a>
+
+            <!-- AI POWER TOOLS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-cyan-400 uppercase tracking-wider">AI Power Tools & Copilots</div>
+            <a href="/interview-copilot" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-purple-500/10 text-purple-300 font-bold' if active_page == 'interview-copilot' else 'text-purple-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="mic" class="w-4 h-4 text-purple-400"></i>
+                <span class="text-sm font-bold">AI Interview Copilot</span>
+            </a>
+            <a href="/salary-negotiator" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-amber-500/10 text-amber-300 font-bold' if active_page == 'salary-negotiator' else 'text-amber-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="dollar-sign" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-sm font-bold">智能薪资谈判助手</span>
+            </a>
+
+            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            <!-- SERVICES & OFFERS SECTION (ADMIN ONLY) -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-extrabold text-pink-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Services & Offers</span>
+                <span class="text-[9px] bg-pink-500/20 text-pink-300 font-extrabold px-1.5 py-0.5 rounded border border-pink-500/30">OFFERS</span>
+            </div>
+            <a href="/external-offers?cat=ai" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-pink-500/10 text-pink-300 font-bold' if active_page == 'external-offers-ai' else 'text-pink-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i>
+                <span class="text-sm font-bold">AI Subscription Deals & Partner Offers</span>
+            </a>
+            <a href="/external-offers?cat=otp" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-cyan-500/10 text-cyan-300 font-bold' if active_page == 'external-offers-otp' else 'text-cyan-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="key-round" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-sm font-bold">Instant OTP & Email Verification Hub</span>
+            </a>
+            <a href="/external-offers?cat=vcc" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-purple-500/10 text-purple-300 font-bold' if active_page == 'external-offers-vcc' else 'text-purple-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="credit-card" class="w-4 h-4 text-purple-400"></i>
+                <span class="text-sm font-bold">Virtual Credit Cards (VCC)</span>
+            </a>
+            <a href="/external-offers?cat=software" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-emerald-500/10 text-emerald-300 font-bold' if active_page == 'external-offers-software' else 'text-emerald-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="key" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-sm font-bold">Software & Antivirus License Keys</span>
+            </a>
+            <a href="/external-offers?cat=gaming" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-red-500/10 text-red-300 font-bold' if active_page == 'external-offers-gaming' else 'text-red-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="gamepad-2" class="w-4 h-4 text-red-400"></i>
+                <span class="text-sm font-bold">Gaming Gift Cards & Game Pass</span>
+            </a>
+            <a href="/external-offers?cat=domains" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-amber-500/10 text-amber-300 font-bold' if active_page == 'external-offers-domains' else 'text-amber-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="globe" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-sm font-bold">Custom Domains & Cloud SSL</span>
+            </a>
+            <a href="/external-offers?cat=growth" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-pink-500/10 text-pink-300 font-bold' if active_page == 'external-offers-growth' else 'text-pink-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="trending-up" class="w-4 h-4 text-pink-400"></i>
+                <span class="text-sm font-bold">Social Media Boost & Verification</span>
+            </a>
+            <a href="/external-offers?cat=proxies" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-blue-500/10 text-blue-300 font-bold' if active_page == 'external-offers-proxies' else 'text-blue-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="shield" class="w-4 h-4 text-blue-400"></i>
+                <span class="text-sm font-bold">Proxies & CAPTCHA Solvers</span>
+            </a>
+            <a href="/external-offers?cat=promos" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-emerald-500/10 text-emerald-300 font-bold' if active_page == 'external-offers-promos' else 'text-emerald-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="gift" class="w-4 h-4 text-emerald-400"></i>
+                <span>Partner Promos</span>
+            </a>
+            <a href="/external-offers?cat=streaming" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-rose-500/10 text-rose-300 font-bold' if active_page == 'external-offers-streaming' else 'text-rose-300/90 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="tv" class="w-4 h-4 text-rose-400"></i>
+                <span>Streaming VIP</span>
+            </a>
+            {% endif %}
+
+            <!-- CAMPAIGNS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">投递活动</div>
+            <a href="/new-campaign" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'new-campaign' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="rocket" class="w-4 h-4 lucide-dir-aware"></i>
+                <span class="text-sm">New Campaign</span>
+            </a>
+            <a href="/sent-emails" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'sent-emails' or active_page == 'sent' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="send" class="w-4 h-4 lucide-dir-aware"></i>
+                <span class="text-sm">Dispatches</span>
+            </a>
+            <a href="/funnel-analytics" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'funnel-analytics' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                <span class="text-sm">Hiring Analytics</span>
+            </a>
+
+            <!-- RECRUITERS & EMPLOYERS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-amber-400 uppercase tracking-wider">企业雇主 & Talent Search</div>
+            <a href="/for-employers" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-amber-500/10 text-amber-400 font-bold' if active_page == 'employers' or active_page == 'b2b' else 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10' }}">
+                <i data-lucide="search" class="w-4 h-4 text-amber-400"></i>
+                <span class="text-sm font-bold">Search Candidate Talent (CVs)</span>
+            </a>
+            <a href="/en/post-job" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-amber-500/10 text-amber-300 font-bold' if active_page == 'post-job' else 'text-amber-300/90 hover:text-white hover:bg-white/5' }} ps-6">
+                <i data-lucide="briefcase" class="w-4 h-4"></i>
+                <span class="text-sm">Post a Job Opening</span>
+            </a>
+            <a href="/employer/track" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'employer_track' else 'text-slate-400 hover:text-white hover:bg-white/5' }} ps-6">
+                <i data-lucide="users" class="w-4 h-4"></i>
+                <span class="text-sm">Track Applicants (ATS)</span>
+            </a>
+
+            <!-- TOOLS SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">Tools & Arsenal</div>
+            <a href="/battle-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'battle-station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="swords" class="w-4 h-4"></i>
+                <span class="text-sm">Battle Station</span>
+            </a>
+            <a href="/services" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'services' or active_page == 'arsenal' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="star" class="w-4 h-4"></i>
+                <span class="text-sm">Premium Services</span>
+            </a>
+            <a href="/wallet" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'wallet' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                <span class="text-sm">Crypto Wallet</span>
+            </a>
+            <a href="/my-purchases" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'my-purchases' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="package" class="w-4 h-4"></i>
+                <span class="text-sm">My Subscriptions</span>
+            </a>
+            <a href="/stats" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'stats' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="pie-chart" class="w-4 h-4"></i>
+                <span class="text-sm">Statistics</span>
+            </a>
+            <a href="/growth-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'growth_station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="megaphone" class="w-4 h-4"></i>
+                <span class="text-sm">Growth Station & Leads</span>
+            </a>
+
+            <!-- SYSTEM SECTION -->
+            <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">System</div>
+            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-red-400 hover:bg-red-500/10">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                <span class="text-sm font-semibold">Admin Panel</span>
+            </a>
+            {% endif %}
+            <a href="/contact" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="message-square" class="w-4 h-4"></i>
+                <span class="text-sm">Tech Support</span>
+            </a>
+            <a href="/settings" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'settings' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                <span class="text-sm">设置</span>
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-white/10 bg-slate-950/50">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold">
+                    {{ user.name[0] if user.name else 'U' }}
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-white truncate max-w-[120px]">{{ user.name }}</p>
+                    <p class="text-xs text-slate-400 font-mono">${{ "%.2f"|format(user.wallet_balance or 0) }}</p>
+                </div>
+            </div>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors border border-red-500/20 text-sm font-bold">
+                <i data-lucide="log-out" class="w-4 h-4 lucide-dir-aware"></i>
+                Disconnect
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0 p-4 md:p-6 min-h-screen relative overflow-x-hidden">
+        <!-- Dashboard Header / Welcome -->
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-display font-bold text-white mb-1">{{ title }}</h1>
+                <p class="text-slate-400 text-sm">War Room 状态: <span class="text-cyan-400 font-mono">OPTIMAL</span></p>
+            </div>
+            
+            <!-- Quick Stats/操作 -->
+            <div class="flex items-center gap-3">
+                <div class="px-4 py-2 bg-slate-900 border border-white/10 rounded-lg flex items-center gap-2">
+                    <i data-lucide="coins" class="w-4 h-4 text-gold-400"></i>
+                    <span class="text-sm font-mono text-white">${{ "%.2f"|format(user.wallet_balance or 0) }}</span>
+                    <a href="/wallet" class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs transition-colors">Add Funds</a>
+                </div>
+                <a href="/new-campaign" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-sm font-bold transition-all">
+                    <i data-lucide="rocket" class="w-4 h-4 lucide-dir-aware"></i>
+                    Launch Campaign
+                </a>
+            </div>
+        </header>
+
+        <!-- Dynamic Content injected here -->
+        <div style="max-width:1400px; margin:0 auto; padding:16px 20px;">
+          {% block dashboard_content %}{% endblock %}
+          {{ content_html | safe if content_html else '' }}
+        </div>
+        
+        <!-- Footer -->
+        <footer style="padding:24px 28px; border-block-start:1px solid rgba(0, 240, 255, 0.15); background: rgba(10, 10, 26, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); margin-block-start: 32px; border-radius: 14px;">
+          <div style="display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; font-size:13.5px; font-weight:600; color:#cbd5e1;">
+            <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 14px; background:rgba(0, 240, 255, 0.1); border:1px solid rgba(0, 240, 255, 0.3); border-radius:20px; color:#00f0ff; font-weight:700; font-size:12.5px;">
+              🛡️ Hydra Shield Active
+            </span>
+            <span>JobHunt Pro Hydra System <strong style="color:#ffffff;">v{{ VERSION }}</strong> &copy; {{ current_year or 2026 }}</span>
+            <span style="color:rgba(255,255,255,0.2);">|</span>
+            <span style="color:#4ade80; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+              🔒 End-to-End Encrypted
+            </span>
+          </div>
+        </footer>
+    </main>
+</div>
+
+<style>
+@media(max-width:767px) {
+  main { margin-inline-start:0 !important; padding:16px !important; }
+}
+</style>
+
+<!-- ═══════════ ZERO UNEMPLOYMENT GLOBAL AI CAREER & INCOME GENERATOR MODAL (ENGLISH) ═══════════ -->
+<div id="zeroUnemploymentModal" style="display:none;" class="fixed inset-0 bg-slate-950/90 backdrop-blur-2xl z-[999999] flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-slate-900 border-2 border-amber-500/70 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-[0_0_60px_rgba(245,158,11,0.35),_0_0_120px_rgba(0,240,255,0.15)] relative text-white animate-in fade-in zoom-in-95 duration-200" style="background:linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98), rgba(15,23,42,0.98));">
+    
+    <!-- Close Button -->
+    <button type="button" onclick="closeZeroUnemploymentModal()" class="absolute top-5 end-5 text-slate-400 hover:text-white text-xl font-bold bg-slate-800/90 hover:bg-amber-500 hover:text-slate-950 w-9 h-9 rounded-full flex items-center justify-center border border-slate-700 cursor-pointer transition-all shadow-md">✕</button>
+
+    <!-- Header Banner -->
+    <div class="flex items-center gap-4 mb-5 border-b border-slate-800 pb-4">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,158,11,0.5)] shrink-0">
+        🌐
+      </div>
+      <div>
+        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs font-black uppercase tracking-wider shadow-sm">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] animate-pulse"></div>
+            <span>COMMAND CENTER — SYSTEM ONLINE</span>
+          </div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider shadow-sm">
+            <span>⚡ ZERO UNEMPLOYMENT GLOBAL AI MISSION</span>
+          </div>
+        </div>
+        <h2 class="text-lg md:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400">
+          0% Unemployment AI Career & Income Generator — COMMAND CENTER
+        </h2>
+        <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+          Even if you have zero prior experience or no idea where to start... enter your target monthly/daily income or select your scenario, and AI will generate real job opportunities and an instant CV blueprint!
+        </p>
+      </div>
+    </div>
+
+    <!-- Inputs & Control Box -->
+    <div class="bg-slate-900/90 border-2 border-slate-800 rounded-2xl p-5 mb-5 space-y-5 shadow-inner">
+      <!-- Target Income Row -->
+      <div>
+        <label class="text-sm font-black text-amber-300 uppercase tracking-wider block mb-2.5 flex items-center gap-2">
+          <span>💰 1. Enter Your Target Income / Money to Earn:</span>
+        </label>
+        <div class="flex gap-2.5 flex-wrap items-center">
+          <input type="text" id="zeroTargetIncome" placeholder="e.g. $400/month or $30/day..." value="$500/month" class="flex-1 min-w-[220px] bg-slate-950 border-2 border-amber-500/60 rounded-xl px-4 py-3 text-base font-black text-amber-300 placeholder-slate-500 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/40 transition-all shadow-sm" dir="auto">
+          <div class="flex gap-2 flex-wrap">
+            <button type="button" onclick="setZeroIncome('$300/month')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$300/mo (Student)</button>
+            <button type="button" onclick="setZeroIncome('$800/month')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$800/mo (Part-time)</button>
+            <button type="button" onclick="setZeroIncome('$1,500/month')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$1,500/mo (Full-time)</button>
+            <button type="button" onclick="setZeroIncome('$50/day')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$50/day (Micro-gigs)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Situation Selector Cards Grid -->
+      <div>
+        <label class="text-sm font-black text-cyan-300 uppercase tracking-wider block mb-2.5 flex items-center gap-2">
+          <span>🎓 2. Select Your Current Situation / Background:</span>
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-sm">
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="student" checked class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🎓 Student (School/College)</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="homemaker" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🏡 Homemaker / Stay-at-Home</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="no_experience" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🌟 Zero Prior Experience</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="urgent" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">⚡ Urgent Financial Need</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="special_needs" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">♿ People of Determination</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="senior" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">👴 50+ Senior / Retiree</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="low_income" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🤝 Low-Income Support</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="social_skills" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">💬 Good Communication Skills</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" onclick="generateZeroUnemploymentIdeas()" class="w-full py-4.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-base uppercase tracking-wider rounded-xl transition-all shadow-[0_0_35px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]">
+        <span>✨ GENERATE AI OPPORTUNITIES & INSTANT CV BLUEPRINTS</span>
+      </button>
+    </div>
+
+    <!-- Output Showcase Grid -->
+    <div id="zeroIdeasOutputGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto custom-scrollbar p-1">
+      <!-- AI generated blueprints will render here -->
+    </div>
+  </div>
+</div>
+
+<script>
+window.openZeroUnemploymentModal = function() {
+  const modal = document.getElementById('zeroUnemploymentModal');
+  if (modal) {
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.classList.remove('hidden');
+    window.generateZeroUnemploymentIdeas && window.generateZeroUnemploymentIdeas();
+  }
+};
+
+window.closeZeroUnemploymentModal = function() {
+  const modal = document.getElementById('zeroUnemploymentModal');
+  if (modal) modal.style.setProperty('display', 'none', 'important');
+};
+
+window.setZeroIncome = function(val) {
+  const inp = document.getElementById('zeroTargetIncome');
+  if (inp) inp.value = val;
+};
+
+function generateZeroUnemploymentIdeas() {
+  const incomeVal = document.getElementById('zeroTargetIncome')?.value || '$500/month';
+  const grid = document.getElementById('zeroIdeasOutputGrid');
+  if (!grid) return;
+
+  grid.innerHTML = '<div class="col-span-2 text-center py-8 text-amber-400 font-bold animate-pulse">✨ AI analyzing high-yield opportunities matching your target income & background...</div>';
+
+  setTimeout(() => {
+    let database = [
+      {
+        title: "🎧 Remote WhatsApp & Social Support Agent",
+        incomePlan: `To earn ${incomeVal}: Manage customer inquiries for 2 online stores 3 hours daily from your smartphone.`,
+        cvStrategy: "Highlight active listening, fast messaging response, social apps familiarity, and politeness.",
+        skills: "Customer Support, Social Media, WhatsApp, Typing Speed, Data Entry",
+        presetKey: "support"
+      },
+      {
+        title: "📲 Social Media Content Assistant (Instagram/TikTok)",
+        incomePlan: `To earn ${incomeVal}: Create & schedule 2 daily posts for 3 local business accounts.`,
+        cvStrategy: "Highlight Canva, CapCut, scheduled publishing, community engagement, and creativity.",
+        skills: "Canva, CapCut, Social Media Management, Content Creation, Digital Marketing",
+        presetKey: "marketer"
+      },
+      {
+        title: "📋 Remote Data Entry & Administrative Assistant",
+        incomePlan: `To earn ${incomeVal}: Input 50 data records daily for remote real estate or accounting firms.`,
+        cvStrategy: "Highlight Excel, Word, data accuracy, punctuality, and organization skills.",
+        skills: "Excel, Word, Data Entry, Virtual Assistant, Detail Oriented",
+        presetKey: "accountant"
+      },
+      {
+        title: "⚡ Audio Transcription & Micro-Task Specialist",
+        incomePlan: `To earn ${incomeVal}: Complete 2 short transcription or text formatting micro-gigs daily.`,
+        cvStrategy: "Highlight active listening, rapid typing, multilingual proficiency, and reliability.",
+        skills: "Audio Transcription, Micro-Gigs, Freelance, Fast Execution, Proofreading",
+        presetKey: "gig"
+      },
+      {
+        title: "📚 Online Tutoring & Homework Assistant",
+        incomePlan: `To earn ${incomeVal}: Conduct 4 weekly remote tutoring sessions or homework support for school students.`,
+        cvStrategy: "Highlight patience, clear communication, Zoom/Google Meet proficiency, and subject clarity.",
+        skills: "Online Tutoring, Homework Help, Zoom, Teaching Assistant, Languages",
+        presetKey: "tutor"
+      },
+      {
+        title: "📞 Remote Tele-Appointment Setter & Sales Assistant",
+        incomePlan: `To earn ${incomeVal} + bonuses: Place 10 inquiry follow-up calls daily for real estate or healthcare firms.`,
+        cvStrategy: "Highlight clear phone presence, persuasion, appointment coordination, and active follow-up.",
+        skills: "Inside Sales, Appointment Setting, Phone Communication, Persuasion, CRM",
+        presetKey: "sales"
+      }
+    ];
+
+    grid.innerHTML = database.map(item => `
+      <div class="bg-slate-950/95 border-2 border-slate-800/80 hover:border-amber-500/60 p-5 rounded-2xl space-y-3 transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] hover:-translate-y-0.5">
+        <div class="font-black text-amber-300 text-sm md:text-base flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+          <span class="leading-snug">${item.title}</span>
+          <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 shadow-sm">Instant Role ⚡</span>
+        </div>
+        <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-200 leading-relaxed">
+          <strong class="text-emerald-400 font-extrabold block mb-0.5">💰 Income Strategy & Execution:</strong> ${item.incomePlan}
+        </div>
+        <div class="p-3 bg-cyan-950/40 border border-cyan-500/30 rounded-xl text-xs text-cyan-200 leading-relaxed">
+          <strong class="text-cyan-400 font-extrabold block mb-0.5">📝 0-Experience CV Blueprint:</strong> ${item.cvStrategy}
+        </div>
+        <button type="button" onclick="applyZeroIdeaToCv('${item.title}', '${item.skills}', '${item.presetKey}')" class="w-full py-3 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]">
+          <span>🚀 Apply Blueprint & Auto-Fill CV Form</span>
+        </button>
+      </div>
+    `).join('');
+  }, 350);
+}
+
+function applyZeroIdeaToCv(title, skills, presetKey) {
+  closeZeroUnemploymentModal();
+  
+  const targetTitleInput = document.getElementById('job_title') || document.getElementById('import_job_url');
+  const skillsInput = document.getElementById('skillsInput');
+  
+  if (window.location.pathname.includes('/upload-cv')) {
+    const hiddenTitle = document.getElementById('hiddenTargetTitles');
+    if (hiddenTitle) hiddenTitle.value = title;
+    if (skillsInput) skillsInput.value = skills;
+    
+    const form = document.getElementById('cvForm') || document.getElementById('jobForm');
+    if (form) form.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    window.location.href = '/upload-cv?title=' + encodeURIComponent(title) + '&skills=' + encodeURIComponent(skills);
+  }
+}
+</script>
+{% endblock %}

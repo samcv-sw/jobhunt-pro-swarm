@@ -35,6 +35,7 @@ DEFAULT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Bienvenue sur la plateforme JobHunt Pro",
         "de": "Willkommen bei JobHunt Pro",
         "es": "Bienvenido a JobHunt Pro",
+        "zh": "欢迎使用 JobHunt Pro 主权平台",
     },
     "welcome_message": {
         "ar": "مرحبا بكم في JobHunt برو",
@@ -42,7 +43,7 @@ DEFAULT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Bienvenue sur JobHunt Pro",
         "es": "Bienvenido a JobHunt Pro",
         "de": "Willkommen bei JobHunt Pro",
-        "zh": "欢迎来到JobHunt Pro",
+        "zh": "欢迎来到 JobHunt Pro",
         "ja": "JobHunt Proへようこそ",
         "ru": "Добро пожаловать в JobHunt Pro",
         "pt": "Bem-vindo ao JobHunt Pro",
@@ -56,6 +57,7 @@ DEFAULT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Tableau de bord principal et analyses en temps réel",
         "de": "Haupt-Dashboard & Echtzeit-Analysen",
         "es": "Panel principal y analíticas en tiempo real",
+        "zh": "主控制台与实时分析",
     },
     "start_interview": {
         "ar": "بدء التمرن على المقابلة بالذكاء الاصطناعي",
@@ -63,6 +65,7 @@ DEFAULT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Démarrer l'entretien simulé par IA",
         "de": "AI-Mock-Interview starten",
         "es": "Iniciar entrevista simulada por IA",
+        "zh": "开始 AI 模拟面试",
     },
     "hidden_jobs": {
         "ar": "الوظائف الحصرية والأنظمة المباشرة",
@@ -70,6 +73,97 @@ DEFAULT_TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Moteur d'emplois masqués ATS",
         "de": "Versteckte ATS-Jobs-Engine",
         "es": "Motor de empleos ocultos ATS",
+        "zh": "隐藏 ATS 与未公开职位引擎",
+    },
+    "job_listing": {
+        "ar": "إعلان وظيفة",
+        "en": "Job Listing",
+        "zh": "职位列表",
+    },
+    "apply_button": {
+        "ar": "تقديم الآن",
+        "en": "Apply Now",
+        "zh": "立即申请",
+    },
+    "filter_jobs": {
+        "ar": "تصفية الوظائف",
+        "en": "Filter Jobs",
+        "zh": "筛选职位",
+    },
+    "no_jobs_found": {
+        "ar": "لم يتم العثور على وظائف",
+        "en": "No jobs found",
+        "zh": "未找到职位",
+    },
+    "login": {
+        "ar": "تسجيل الدخول",
+        "en": "Login",
+        "zh": "登录",
+    },
+    "signup": {
+        "ar": "إنشاء حساب",
+        "en": "Sign Up",
+        "zh": "注册",
+    },
+    "reset_password": {
+        "ar": "إعادة تعيين كلمة المرور",
+        "en": "Reset Password",
+        "zh": "重置密码",
+    },
+    "terms_of_service": {
+        "ar": "شروط الخدمة",
+        "en": "Terms of Service",
+        "zh": "服务条款",
+    },
+    "privacy_policy": {
+        "ar": "سياسة الخصوصية",
+        "en": "Privacy Policy",
+        "zh": "隐私政策",
+    },
+    "contact_us": {
+        "ar": "اتصل بنا",
+        "en": "Contact Us",
+        "zh": "联系我们",
+    },
+    "home": {
+        "ar": "الرئيسية",
+        "en": "Home",
+        "zh": "首页",
+    },
+    "services": {
+        "ar": "الخدمات",
+        "en": "Services",
+        "zh": "服务",
+    },
+    "pricing": {
+        "ar": "الأسعار",
+        "en": "Pricing",
+        "zh": "价格",
+    },
+    "blog": {
+        "ar": "المدونة",
+        "en": "Blog",
+        "zh": "博客",
+    },
+    "faq": {
+        "ar": "الأسئلة الشائعة",
+        "en": "FAQ",
+        "zh": "常见问题",
+    },
+    "trust": {
+        "ar": "الثقة",
+        "en": "Trust",
+        "zh": "信任",
+    },
+    "dashboard": {
+        "ar": "غرفة القيادة",
+        "en": "Dashboard",
+        "zh": "控制台",
+    },
+    "logout": {
+        "ar": "تسجيل خروج",
+        "en": "Log Out",
+        "zh": "退出登录",
     },
 }
 
@@ -223,10 +317,12 @@ class LanguageMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         lang = request.query_params.get("lang") or request.cookies.get("lang") or "ar"
-        if lang not in ("ar", "en"):
+        clean_lang = lang.split('-')[0].lower()
+        if not clean_lang.isalpha() or len(clean_lang) > 10:
             lang = "ar"
+            clean_lang = "ar"
         request.state.lang = lang
         request.state.locale = lang
-        request.state.dir = "rtl" if lang == "ar" else "ltr"
+        request.state.dir = "rtl" if clean_lang in ("ar", "fa", "ur", "he") else "ltr"
         response = await call_next(request)
         return response

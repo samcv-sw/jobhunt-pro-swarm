@@ -1,0 +1,757 @@
+<meta property="og:title" content="Executive Admin Portal | JobHunt Pro Enterprise"/>
+<meta name="description" content="Executive Admin Dashboard for user management, wallets, campaigns, and codes."/>
+<title>Executive Admin Portal | JobHunt Pro Enterprise</title>
+
+<style>
+  .admin-dashboard-wrap {
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
+    color: #f8fafc;
+    padding-bottom: 40px;
+  }
+
+  /* Header Section */
+  .admin-header {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 24px 30px;
+    margin-bottom: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .admin-title-group h1 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .admin-title-group p {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #34d399;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+  }
+
+  /* Alerts */
+  .alert-box {
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .alert-success {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34d399;
+  }
+
+  .alert-error {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  /* KPI Grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .kpi-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .kpi-card:hover {
+    border-color: #334155;
+    transform: translateY(-2px);
+  }
+
+  .kpi-val {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .kpi-lbl {
+    font-size: 14px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    
+  }
+
+  /* Action Cards Grid */
+  .admin-section {
+    margin-bottom: 36px;
+  }
+
+  .section-title-text {
+    font-size: 17px;
+    font-weight: 800;
+    color: #f1f5f9;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .action-real-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .action-real-card:hover {
+    border-color: #334155;
+  }
+
+  .action-real-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .action-real-card p {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .input-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .admin-input, .admin-select, .admin-textarea {
+    width: 100%;
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #ffffff;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .admin-input:focus, .admin-select:focus, .admin-textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background: #020617;
+  }
+
+  .preset-pill-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .preset-pill {
+    background: #1e1b4b;
+    border: 1px solid #312e81;
+    color: #a5b4fc;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .preset-pill:hover {
+    background: #312e81;
+    color: #ffffff;
+  }
+
+  .btn-real {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .btn-real:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+
+  .btn-indigo { background: #4f46e5; }
+  .btn-emerald { background: #059669; }
+  .btn-purple { background: #7c3aed; }
+  .btn-rose { background: #e11d48; }
+
+  /* Modern Clean Tables */
+  .table-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .admin-table th {
+    background: #1e293b;
+    padding: 14px 18px;
+    color: #94a3b8;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    
+    border-bottom: 1px solid #334155;
+  }
+
+  .admin-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #1e293b;
+    color: #cbd5e1;
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .admin-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+    color: #ffffff;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .pill-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+  .pill-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
+  .pill-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+  .pill-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+  .pill-slate { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+  .code-chip {
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'SFMono-Regular', Consolas, monospace;
+    font-weight: 700;
+    color: #c4b5fd;
+    background: #1e1b4b;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #312e81;
+  }
+
+  .btn-sm-action {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-sm-copy { background: #6366f1 !important; color: #ffffff !important; }
+  .btn-sm-copy:hover { background: #4f46e5 !important; transform: translateY(-1px); }
+
+  .btn-sm-link { background: #0284c7 !important; color: #ffffff !important; }
+  .btn-sm-link:hover { background: #0369a1 !important; transform: translateY(-1px); }
+</style>
+
+<div class="admin-dashboard-wrap">
+  
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="admin-title-group">
+      <h1>🛡️ Executive Admin Dashboard</h1>
+      <p>Real-time system telemetry, user management, financial ledgers, and promo codes</p>
+    </div>
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      <span>Engine Live</span>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  {% if request.query_params.get('success') %}
+  <div class="alert-box alert-success">
+    <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">✅ Action Executed Successfully:</div>
+    <div>{{ request.query_params.get('success') }}</div>
+    
+    {% if 'codes:' in request.query_params.get('success') %}
+      <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;"></div>
+      <script dir="auto">
+        document.addEventListener('DOMContentLoaded', () => {
+          const rawSuccess = "{{ request.query_params.get('success') }}";
+          const parts = rawSuccess.split('codes:');
+          if (parts.length > 1) {
+            const codes = parts[1].split(',').map(c => c.trim()).filter(Boolean);
+            const container = document.getElementById('generatedCodesContainer');
+            if (container && codes.length > 0) {
+              container.innerHTML = codes.map(code => `
+                <div style="background:#020617; border:1px solid #1e293b; border-radius:10px; padding:8px 14px; display:flex; align-items:center; gap:10px;">
+                  <span class="code-chip" style="color:#34d399; font-size:14px; background:#0f172a; border:1px solid #334155;">${code}</span>
+                  <button class="btn-sm-action btn-sm-copy" style="background:#6366f1; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyCodeText('${code}', this)">📋 Copy Code</button>
+                  <button class="btn-sm-action btn-sm-link" style="background:#0284c7; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyRedeemLink('${code}', this)">🔗 Direct Link</button>
+                </div>
+              `).join('');
+            }
+          }
+        });
+        function copyCodeText(text, btn) {
+          navigator.clipboard.writeText(text).then(() => {
+            const orig = btn.innerText;
+            btn.innerText = '✨ Copied!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#ffffff';
+            setTimeout(() => { btn.innerText = orig; btn.style.background = '#312e81'; btn.style.color = '#c4b5fd'; }, 2000);
+          });
+        }
+        function copyRedeemLink(code, btn) {
+          const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
+          navigator.clipboard.writeText(link).then(() => {
+            const orig = btn.innerText;
+            btn.innerText = '✨ Link Copied!';
+            btn.style.background = '#0284c7';
+            btn.style.color = '#ffffff';
+            setTimeout(() => { btn.innerText = orig; btn.style.background = '#075985'; btn.style.color = '#38bdf8'; }, 2000);
+          });
+        }
+      </script>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('error') %}
+  <div class="alert-box alert-error">
+    ❌ {{ request.query_params.get('error') }}
+  </div>
+  {% endif %}
+
+  <!-- KPI Overview Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#818cf8;">{{ stats.total_users }}</div>
+      <div class="kpi-lbl">👥 Total Users</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#34d399;">{{ stats.total_campaigns }}</div>
+      <div class="kpi-lbl">🚀 Active 投递活动</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#c084fc;">{{ stats.total_emails }}</div>
+      <div class="kpi-lbl">📧 Emails Staged</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#22d3ee;">{{ stats.emails_sent }}</div>
+      <div class="kpi-lbl">⚡ 已发邮件</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#fbbf24;">${{ stats.total_revenue }}</div>
+      <div class="kpi-lbl">💰 Total Revenue</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#fb7185;">${{ stats.total_wallets }}</div>
+      <div class="kpi-lbl">💳 Wallet Balances</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div>
+      <div class="kpi-lbl">🪙 Crypto Txns</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-val" style="color:#34d399;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div>
+      <div class="kpi-lbl">📊 Crypto Volume</div>
+    </div>
+  </div>
+
+  <!-- Admin 操作 Section -->
+  <div class="admin-section">
+    <div class="section-title-text">🛠️ Instant Executive 操作</div>
+
+    <div class="actions-grid">
+      
+      <!-- Card 1: Add Credits -->
+      <div class="action-real-card">
+        <div>
+          <h3>💳 Add User Credits</h3>
+          <p>Instantly credit any user wallet balance</p>
+        </div>
+        <form dir="auto" action="/admin/add-credits" method="POST" class="input-form-group">
+          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
+          <div style="display:flex; gap:10px;">
+            <input dir="auto" class="admin-input" min="0.01" name="amount" placeholder="Amount $" required step="0.01" type="number" dir="auto">
+            <input dir="auto" class="admin-input" name="note" type="text" value="Admin Bonus" dir="auto">
+          </div>
+          <button class="btn-real btn-emerald" type="submit">Add Credits Now</button>
+        </form>
+      </div>
+
+      <!-- Card 2: Code Generator -->
+      <div class="action-real-card">
+        <div>
+          <h3>🎟️ Code Generator</h3>
+          <p>Generate preset promo codes with direct share links</p>
+          <div class="preset-pill-group">
+            <button type="button" class="preset-pill" onclick="setPresetValue(5)">$5</button>
+            <button type="button" class="preset-pill" onclick="setPresetValue(10)">$10</button>
+            <button type="button" class="preset-pill" onclick="setPresetValue(25)">$25</button>
+            <button type="button" class="preset-pill" onclick="setPresetValue(50)">$50</button>
+            <button type="button" class="preset-pill" onclick="setPresetValue(100)">$100</button>
+            <button type="button" class="preset-pill" onclick="setPresetValue(500)">$500</button>
+          </div>
+        </div>
+        <form dir="auto" action="/admin/generate-code" method="POST" class="input-form-group">
+          <div style="display:flex; gap:10px;">
+            <input id="codeValueInput" dir="auto" class="admin-input" min="0.01" name="value" placeholder="Value $" required step="0.01" type="number" dir="auto">
+            <input dir="auto" class="admin-input" max="50" min="1" name="count" placeholder="Count" type="number" value="1" dir="auto">
+          </div>
+          <select dir="auto" class="admin-select" name="code_type">
+            <option value="sale">💳 Paid Sale (Revenue)</option>
+            <option value="admin_free">🆓 Admin Free (No Revenue)</option>
+          </select>
+          <button class="btn-real btn-purple" type="submit">Generate Codes</button>
+        </form>
+        <script dir="auto">
+          function setPresetValue(val) {
+            const inp = document.getElementById('codeValueInput');
+            if (inp) inp.value = val;
+          }
+        </script>
+      </div>
+
+      <!-- Card 3: Free Campaign -->
+      <div class="action-real-card">
+        <div>
+          <h3>🚀 Grant Free Campaign</h3>
+          <p>Create a full outreach campaign without charging user balance</p>
+        </div>
+        <form dir="auto" action="/admin/free-campaign" method="POST" class="input-form-group">
+          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
+          <input dir="auto" class="admin-input" min="5" name="company_count" type="number" value="100" dir="auto">
+          <button class="btn-real btn-indigo" type="submit">Grant Campaign</button>
+        </form>
+      </div>
+
+      <!-- Card 4: Send Manual Email -->
+      <div class="action-real-card">
+        <div>
+          <h3>✉️ Direct Manual Dispatch</h3>
+          <p>Send a targeted server email to any custom recipient</p>
+        </div>
+        <form dir="auto" action="/admin/send-manual-email" method="POST" class="input-form-group">
+          <input dir="auto" class="admin-input" name="to_email" placeholder="recipient@email.com" required type="email" dir="auto">
+          <input dir="auto" class="admin-input" name="subject" placeholder="Email Subject..." required type="text" dir="auto">
+          <textarea dir="auto" class="admin-textarea" name="body" placeholder="Message content (HTML or Plain)..." required style="height: 70px;" dir="auto"></textarea>
+          <button class="btn-real btn-emerald" type="submit">Dispatch Email Now</button>
+        </form>
+      </div>
+
+      <!-- Card 5: Flash Sale Manager -->
+      <div class="action-real-card">
+        <div>
+          <h3>⚡ Flash Sale Manager</h3>
+          <p>Launch time-limited discount timers to boost user purchases</p>
+        </div>
+        <form dir="auto" action="/admin/create-flash-sale" method="POST" class="input-form-group">
+          <input dir="auto" class="admin-input" name="title" placeholder="Sale Title..." required type="text" value="Special Flash Sale" dir="auto">
+          <div style="display:flex; gap:10px;">
+            <input dir="auto" class="admin-input" max="99" min="1" name="discount_percent" placeholder="Discount %" required type="number" value="25" dir="auto">
+            <input dir="auto" class="admin-input" max="168" min="1" name="duration_hours" placeholder="Hours" required type="number" value="24" dir="auto">
+          </div>
+          <button class="btn-real btn-rose" type="submit">Launch Flash Sale</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Helper Functions for Bulk Selection -->
+  <script dir="auto">
+    function toggleSelectAll(className, masterCheckbox, btnId, countId) {
+      const checkboxes = document.querySelectorAll('.' + className);
+      checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+      updateSelectCount(className, btnId, countId, masterCheckbox.id);
+    }
+
+    function updateSelectCount(className, btnId, countId, masterId) {
+      const checked = document.querySelectorAll('.' + className + ':checked');
+      const all = document.querySelectorAll('.' + className);
+      const btn = document.getElementById(btnId);
+      const countSpan = document.getElementById(countId);
+      const master = document.getElementById(masterId);
+      
+      if (countSpan) countSpan.innerText = checked.length;
+      if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+      if (master && all.length > 0) master.checked = (checked.length === all.length);
+    }
+
+    function submitBulkDelete(formId, promptMsg) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const checked = form.querySelectorAll('input[type="checkbox"]:checked');
+      if (checked.length === 0) {
+        alert('Please select at least one item to delete.');
+        return;
+      }
+      if (confirm(promptMsg || `Are you sure you want to delete ${checked.length} selected item(s)? This action cannot be undone.`)) {
+        form.submit();
+      }
+    }
+  </script>
+
+  <!-- Redeem Codes Table -->
+  <div class="admin-section">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
+      <div class="section-title-text" style="margin-block-end:0;">🎟️ Promo & Redeem Codes ({{ redeem_codes|length }})</div>
+      <div>
+        <button id="btnDeleteSelectedCodes" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('codesForm', 'Are you sure you want to delete the selected redeem codes?')">🗑️ Delete Selected (<span id="countSelectedCodes">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <form id="codesForm" action="/admin/delete-codes" method="POST">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" dir="auto"></th>
+              <th>Code</th>
+              <th>Value</th>
+              <th>Type</th>
+              <th>状态</th>
+              <th>Used By</th>
+              <th>Created At</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in redeem_codes %}
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')" dir="auto"></td>
+              <td>
+                <span class="code-chip">{{ r.code }}</span>
+                {% if not r.is_used %}
+                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)">📋 Copy</button>
+                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)">🔗 Link</button>
+                {% endif %}
+              </td>
+              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+              <td>
+                {% if r.code_type == 'admin_free' %}
+                  <span class="status-pill pill-emerald">🆓 Admin Free</span>
+                {% else %}
+                  <span class="status-pill pill-indigo">💳 Paid</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if r.is_used %}
+                  <span class="status-pill pill-slate">Used</span>
+                {% else %}
+                  <span class="status-pill pill-emerald">Available</span>
+                {% endif %}
+              </td>
+              <td style="color:#94a3b8;">{{ r.used_by or '—' }}</td>
+              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
+              <td>
+                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete code {{ r.code }}?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-code'; const i=document.createElement('input'); i.name='code'; i.value='{{ r.code }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+            {% if not redeem_codes %}
+            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">No redeem codes generated yet.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="admin-section">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
+      <div class="section-title-text" style="margin-block-end:0;">👥 Registered Users ({{ users|length }})</div>
+      <div>
+        <button id="btnDeleteSelectedUsers" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('usersForm', 'Are you sure you want to delete the selected users?')">🗑️ Delete Selected (<span id="countSelectedUsers">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <form id="usersForm" action="/admin/delete-users" method="POST">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" dir="auto"></th>
+              <th>Email</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Balance</th>
+              <th>Total Spent</th>
+              <th>状态</th>
+              <th>Joined</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td style="text-align:center;">
+                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
+                  <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')" dir="auto">
+                {% else %}
+                  🔒
+                {% endif %}
+              </td>
+              <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:600; text-decoration:none;">{{ u.email }}</a></td>
+              <td style="font-weight:600; color:#f1f5f9;">{{ u.name or '—' }}</td>
+              <td><span class="status-pill pill-indigo">{{ u.user_type or 'JOBSEEKER' }}</span></td>
+              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+              <td style="color:#94a3b8;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
+              <td>
+                {% if u.is_active %}
+                  <span class="status-pill pill-emerald">🟢 Active</span>
+                {% else %}
+                  <span class="status-pill pill-rose">🔴 Disabled</span>
+                {% endif %}
+              </td>
+              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (u.created_at or '')[:10] }}</td>
+              <td style="display:flex; gap:6px; align-items:center;">
+                <button type="button" class="btn-sm-action {% if u.is_active %}btn-rose{% else %}btn-emerald{% endif %}" style="padding:5px 10px; border-radius:6px; border:none; cursor:pointer;" onclick="const f=document.createElement('form'); f.method='POST'; f.action='/admin/toggle-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit();">
+                  {% if u.is_active %}Disable{% else %}Enable{% endif %}
+                </button>
+                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
+                  <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete user {{ u.email }} permanently?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent 投递活动 Table -->
+  <div class="admin-section">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
+      <div class="section-title-text" style="margin-block-end:0;">🚀 Recent 投递活动 ({{ campaigns|length }})</div>
+      <div>
+        <button id="btnDeleteSelected投递活动" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('campaignsForm', 'Are you sure you want to delete the selected campaigns?')">🗑️ Delete Selected (<span id="countSelected投递活动">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <form id="campaignsForm" action="/admin/delete-campaigns" method="POST">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAll投递活动Checkbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelected投递活动', 'countSelected投递活动')" dir="auto"></th>
+              <th>Campaign ID</th>
+              <th>User</th>
+              <th>状态</th>
+              <th>Target Companies</th>
+              <th>Sent</th>
+              <th>Created At</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in campaigns %}
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelected投递活动', 'countSelected投递活动', 'selectAll投递活动Checkbox')" dir="auto"></td>
+              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#c4b5fd;">{{ c.campaign_id[:20] }}...</td>
+              <td>{{ c.email or c.user_id[:12] }}</td>
+              <td>
+                <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
+                  {{ c.status }}
+                </span>
+              </td>
+              <td style="font-weight:700;">{{ c.total_companies }}</td>
+              <td style="color:#34d399; font-weight:700;">{{ c.sent_count }}</td>
+              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (c.created_at or '')[:16] }}</td>
+              <td>
+                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete this campaign permanently?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-campaign'; const i=document.createElement('input'); i.name='campaign_id'; i.value='{{ c.campaign_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
+              </td>
+            </tr>
+            {% endfor %}
+            {% if not campaigns %}
+            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">No campaigns found.</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </form>
+    </div>
+  </div>
+
+</div>

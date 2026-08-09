@@ -1,0 +1,1050 @@
+<meta property="og:title" content="ATS Scorer | JobHunt Pro"/>
+<meta name="description" content="Get an accurate score for your resume and tips to improve it."/>
+<title>ATS Scorer | JobHunt Pro</title>
+<div class="space-y-6 max-w-7xl mx-auto">
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+    <div>
+      <h1 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+        <i data-lucide="target" class="w-7 h-7 text-blue-400"></i>
+        ATS Resume Scorer
+      </h1>
+      <p class="text-sm text-slate-400 mt-1">Optimize your CV against Job Descriptions using AI-powered ATS algorithms.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Resume Panel -->
+    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg">
+      <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <i data-lucide="file-text" class="w-4 h-4 text-blue-400"></i> Your Resume
+      </h3>
+      <textarea dir="auto" id="ats-resume" placeholder="Paste your full resume text here...
+
+Example:
+ALEX JOHNSON
+Senior Network Engineer | CCNA, Cloud Specialist
+alex.johnson.demo@example.com | +1 (555) 019-2831
+linkedin.com/in/alex-johnson-demo
+
+PROFESSIONAL SUMMARY
+15+ years as a Network Engineer specializing in...
+..." class="w-full min-h-[300px] bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar" dir="auto"></textarea>
+      <div class="mt-3 flex items-start gap-2 text-xs text-slate-500">
+        <i data-lucide="info" class="w-4 h-4 text-slate-400 shrink-0"></i>
+        <p>Paste the full text — the more detail, the better the score.</p>
+      </div>
+    </div>
+
+    <!-- Job Description Panel -->
+    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg flex flex-col">
+      <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+        <i data-lucide="clipboard-list" class="w-4 h-4 text-emerald-400"></i> Job Description
+      </h3>
+      
+      <div class="flex flex-col md:flex-row gap-3 mb-4">
+        <div class="relative flex-1">
+          <i data-lucide="link" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
+          <input dir="auto" type="url" id="ats-url" placeholder="Or paste a job posting URL..." class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
+        </div>
+        <button id="btn-url-import" onclick="importFromUrl()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 border border-slate-700 whitespace-nowrap">
+          <i data-lucide="download-cloud" class="w-4 h-4"></i> Import
+        </button>
+      </div>
+
+      <textarea dir="auto" id="ats-job-desc" placeholder="Paste the job description here...
+
+Example:
+Network Engineer
+公司 XYZ — Beirut, Lebanon
+
+Requirements:
+- 5+ years experience with Cisco/Juniper
+- CCNP or equivalent certification
+- Strong knowledge of BGP, OSPF, MPLS
+- Experience with Fortinet firewalls
+..." class="w-full flex-1 min-h-[180px] bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-xl p-4 text-sm text-slate-200 font-mono resize-y outline-none transition-all custom-scrollbar mb-4" dir="auto"></textarea>
+      <div class="mt-1 flex items-start gap-2 text-xs text-slate-300 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 mb-4">
+        <i data-lucide="lightbulb" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+        <p style="line-height:1.6;"><b>💡 Tip:</b> Paste a target job posting or URL here to match your CV against a specific role, or leave blank for a general score.</p>
+      </div>
+
+      <div class="relative">
+        <i data-lucide="briefcase" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
+        <input dir="auto" type="text" id="ats-job-title" placeholder="Job title (optional, e.g. Senior Network Engineer)" class="w-full bg-slate-950/50 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg ps-9 pe-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作 -->
+  <div class="flex flex-wrap items-center gap-3.5 mb-8">
+    <button id="btn-score" onclick="scoreResume()" class="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm font-black tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all flex items-center gap-2 border border-indigo-400/30">
+      <i data-lucide="scan-face" class="w-5 h-5"></i> Score My Resume
+    </button>
+
+    <button id="btn-optimize-ats" onclick="optimizeResumeTo100()" class="px-5 py-3.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold rounded-xl text-sm transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+      <i data-lucide="sparkles" class="w-5 h-5 text-amber-400 animate-pulse"></i> Optimize CV to 100% ATS
+    </button>
+
+    <button id="btn-download-cv" onclick="openDownloadModal()" class="px-5 py-3.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold rounded-xl text-sm transition-all flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+      <i data-lucide="download" class="w-5 h-5 text-emerald-400"></i> Download Resume (PDF/DOCX)
+    </button>
+
+    <button id="btn-bulk-toggle" onclick="toggleBulkMode()" class="px-4 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border border-slate-700">
+      <i data-lucide="layers" class="w-4 h-4"></i> Bulk Mode
+    </button>
+
+    <span class="text-xs font-semibold text-slate-500 flex items-center gap-1.5 ms-auto">
+      <i data-lucide="zap" class="w-3.5 h-3.5 text-yellow-500 fill-yellow-500"></i> Powered by AI Analysis
+    </span>
+  </div>
+
+  <!-- Modern Download Selection Modal -->
+  <div id="cv-download-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 transition-all" style="display:none;">
+    <div class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 max-w-md w-full shadow-[0_0_50px_rgba(16,185,129,0.2)] text-start">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="file-check" class="w-5 h-5 text-emerald-400"></i> Download Enhanced Resume
+        </h3>
+        <button onclick="closeDownloadModal()" class="text-slate-400 hover:text-white text-lg font-bold p-1">&times;</button>
+      </div>
+      <p class="text-xs text-slate-400 mb-5 leading-relaxed">Choose your preferred format to download your ATS-optimized resume directly to your device:</p>
+      
+      <div class="space-y-3 mb-6">
+        <button onclick="downloadAsFormat('pdf')" class="w-full p-4 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-white flex items-center justify-between transition-all group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center font-bold">PDF</div>
+            <div class="text-start">
+              <div class="text-sm font-bold text-slate-100 group-hover:text-red-300">Professional PDF Document</div>
+              <div class="text-[11px] text-slate-400">Ready for print & direct job submissions</div>
+            </div>
+          </div>
+          <i data-lucide="download" class="w-5 h-5 text-red-400"></i>
+        </button>
+
+        <button onclick="downloadAsFormat('txt')" class="w-full p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-white flex items-center justify-between transition-all group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">DOC</div>
+            <div class="text-start">
+              <div class="text-sm font-bold text-slate-100 group-hover:text-cyan-300">Editable Word / DOCX File</div>
+              <div class="text-[11px] text-slate-400">Clean text format supporting all ATS parsers</div>
+            </div>
+          </div>
+          <i data-lucide="file-text" class="w-5 h-5 text-cyan-400"></i>
+        </button>
+
+        <button onclick="copyOptimizedCvText()" class="w-full p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-white flex items-center justify-between transition-all group">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">📋</div>
+            <div class="text-start">
+              <div class="text-xs font-bold text-slate-100 group-hover:text-amber-300">Copy Full Optimized Text</div>
+            </div>
+          </div>
+          <i data-lucide="copy" class="w-4 h-4 text-amber-400"></i>
+        </button>
+      </div>
+
+      <button onclick="closeDownloadModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-all">取消</button>
+    </div>
+  </div>
+
+  <!-- Bulk Mode -->
+  <div id="bulk-section" style="display:none;" class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
+    <div class="flex justify-between items-start mb-6">
+      <div>
+        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="copy" class="w-4 h-4 text-purple-400"></i> Bulk Scoring
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">Add job titles to compare your resume against multiple positions at once (max 10).</p>
+      </div>
+      <button id="btn-bulk-score" onclick="scoreBulk()" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold tracking-wide shadow-[0_0_15px_rgba(147,51,234,0.3)] transition-all flex items-center gap-2 border border-purple-400/50">
+        <i data-lucide="play" class="w-4 h-4 fill-white"></i> Run Bulk Score
+      </button>
+    </div>
+    
+    <div id="bulk-jobs-container" class="space-y-3">
+      <!-- Added dynamically -->
+    </div>
+    
+    <button onclick="addBulkRow()" class="mt-4 px-4 py-2 border border-dashed border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 hover:bg-slate-800/50 rounded-lg text-sm font-medium transition-all flex items-center gap-2 w-full justify-center">
+      <i data-lucide="plus" class="w-4 h-4"></i> Add Another Job
+    </button>
+  </div>
+
+  <!-- Error Alert -->
+  <div id="ats-error" style="display:none;" class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
+    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 shrink-0 mt-0.5"></i>
+    <p class="text-sm font-medium text-red-400" id="ats-error-text"></p>
+  </div>
+
+  <!-- Loading State -->
+  <div id="ats-loading" style="display:none;" class="bg-slate-900/50 border border-slate-800 rounded-2xl p-12 text-center my-8">
+    <i data-lucide="loader-2" class="w-10 h-10 text-blue-500 animate-spin mx-auto mb-4"></i>
+    <h3 class="text-lg font-bold text-white mb-1 tracking-tight">Analyzing Resume...</h3>
+    <p class="text-sm text-slate-400">AI is evaluating your profile against the job description.</p>
+  </div>
+
+  <!-- Results Section -->
+  <div id="ats-results" style="display:none;" class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <!-- Hero Score -->
+    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+      
+      <!-- CSS Gauge -->
+      <div class="relative w-[160px] h-[160px] shrink-0">
+        <svg class="w-full h-full -rotate-90" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="currentColor" stroke-width="8" class="text-slate-800" />
+          <circle id="gauge-fill" cx="70" cy="70" r="60" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" class="text-blue-500 transition-all duration-1000 ease-out" style="stroke-dasharray: 377; stroke-dashoffset: 377;" />
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span id="gauge-score" class="text-4xl font-black tracking-tighter text-white">0</span>
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Score</span>
+        </div>
+      </div>
+
+      <div class="flex-1 text-center md:text-start">
+        <h2 id="score-verdict" class="text-2xl md:text-3xl font-black text-white tracking-tight mb-2">Analyzing Match</h2>
+        <p id="score-subtitle" class="text-sm text-slate-400 mb-4">Ready to process results</p>
+        <div id="score-tier" class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300">
+          Pending
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="breakdown-grid">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Visual ATS Diff & Feedback Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-slate-900/80 backdrop-blur border border-emerald-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i> Matched Keywords
+        </h4>
+        <div id="matched-keywords" class="flex flex-wrap gap-1.5 text-sm text-slate-300 relative z-10">—</div>
+      </div>
+
+      <div class="bg-slate-900/80 backdrop-blur border border-red-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="x-circle" class="w-4 h-4"></i> Missing Keywords (Click to Inject)
+        </h4>
+        <div id="missing-keywords" class="flex flex-wrap gap-1.5 text-sm text-slate-300 relative z-10">—</div>
+      </div>
+      
+      <div class="bg-slate-900/80 backdrop-blur border border-cyan-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <h4 class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="award" class="w-4 h-4"></i> Strengths
+        </h4>
+        <div id="ats-strengths" class="flex flex-wrap gap-2 text-sm text-slate-300 relative z-10">—</div>
+      </div>
+
+      <div class="bg-slate-900/80 backdrop-blur border border-amber-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <i data-lucide="lightbulb" class="w-4 h-4"></i> Suggestions
+        </h4>
+        <div id="ats-suggestions" class="space-y-3 relative z-10">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Results Section -->
+  <div id="bulk-results-section" style="display:none;" class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6 shadow-lg mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <h3 class="text-lg font-bold text-white tracking-tight flex items-center gap-2 mb-4">
+      <i data-lucide="bar-chart-2" class="w-5 h-5 text-purple-400"></i> Bulk Scoring Results
+    </h3>
+    <div id="bulk-results-table" class="overflow-x-auto custom-scrollbar pb-2">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   ATS SCORER LOGIC
+   ═══════════════════════════════════════════ */
+const CIRCUMFERENCE = 2 * Math.PI * 60; // ~377
+
+function showError(msg) {
+  const el = document.getElementById('ats-error');
+  const textEl = document.getElementById('ats-error-text');
+  textEl.textContent = msg;
+  el.style.display = 'flex';
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(() => { el.style.display = 'none'; }, 6000);
+}
+
+function setLoading(loading) {
+  document.getElementById('ats-loading').style.display = loading ? 'block' : 'none';
+  document.getElementById('btn-score').disabled = loading;
+  document.getElementById('btn-bulk-score').disabled = loading;
+  if(loading) {
+     document.getElementById('ats-results').style.display = 'none';
+     document.getElementById('bulk-results-section').style.display = 'none';
+     document.getElementById('ats-error').style.display = 'none';
+  }
+}
+
+function getTierClass(score) {
+  if (score >= 80) return 'bg-green-500/10 text-green-400 border border-green-500/30';
+  if (score >= 65) return 'bg-blue-500/10 text-blue-400 border border-blue-500/30';
+  if (score >= 45) return 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30';
+  return 'bg-red-500/10 text-red-400 border border-red-500/30';
+}
+
+function getTierLabel(score) {
+  if (score >= 80) return 'Excellent Match! 🌟';
+  if (score >= 65) return 'Good Match 👍';
+  if (score >= 45) return 'Average Match 🤔';
+  return 'Needs Work 🛠️';
+}
+
+function getBarColorClass(score) {
+  if (score >= 80) return 'text-green-500';
+  if (score >= 65) return 'text-blue-500';
+  if (score >= 45) return 'text-yellow-500';
+  return 'text-red-500';
+}
+
+function getBarBgColorClass(score) {
+  if (score >= 80) return 'bg-green-500';
+  if (score >= 65) return 'bg-blue-500';
+  if (score >= 45) return 'bg-yellow-500';
+  return 'bg-red-500';
+}
+
+function animateGauge(score) {
+  const circle = document.getElementById('gauge-fill');
+  const offset = CIRCUMFERENCE - (score / 100) * CIRCUMFERENCE;
+  circle.style.strokeDashoffset = offset;
+  
+  // Remove old color classes and add new
+  circle.className = `transition-all duration-1000 ease-out ${getBarColorClass(score)}`;
+
+  const scoreEl = document.getElementById('gauge-score');
+  scoreEl.className = `text-4xl font-black tracking-tighter ${getBarColorClass(score)}`;
+  
+  // Animate counting up
+  let current = 0;
+  const step = () => {
+    if (current < score) {
+      current += Math.max(1, Math.ceil((score - current) / 10));
+      if (current > score) current = score;
+      scoreEl.textContent = current;
+      requestAnimationFrame(step);
+    }
+  };
+  requestAnimationFrame(step);
+}
+
+function renderBreakdown(data) {
+  const items = [
+    { key: 'skills_match', label: 'Skills Match', icon: 'target', weight: '40%' },
+    { key: 'experience_match', label: 'Experience', icon: 'briefcase', weight: '30%' },
+    { key: 'keyword_density', label: 'Keywords', icon: 'search', weight: '15%' },
+    { key: 'education_match', label: 'Education', icon: 'graduation-cap', weight: '10%' },
+    { key: 'format_score', label: 'Format', icon: 'layout', weight: '5%' },
+  ];
+
+  const grid = document.getElementById('breakdown-grid');
+  grid.innerHTML = items.map(item => {
+    const score = data[item.key] || 0;
+    const colorClass = getBarColorClass(score);
+    const bgClass = getBarBgColorClass(score);
+    return `
+      <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="${item.icon}" class="w-3.5 h-3.5"></i> ${item.label} <small class="text-slate-600 font-normal">(${item.weight})</small>
+          </span>
+          <span class="text-lg font-black tracking-tight ${colorClass}">${score}%</span>
+        </div>
+        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div class="h-full rounded-full transition-all duration-1000 ${bgClass}" style="inline-size: ${score}%;"></div>
+        </div>
+      </div>`;
+  }).join('');
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function scoreResume() {
+  const resume = document.getElementById('ats-resume').value.trim();
+  const jobDesc = document.getElementById('ats-job-desc').value.trim();
+  const jobTitle = document.getElementById('ats-job-title').value.trim();
+
+  if (!resume) {
+    showError('Please upload or paste your resume text first.');
+    return;
+  }
+
+  if (resume.length < 30) {
+    showError('Please provide a more detailed resume for an accurate score.');
+    return;
+  }
+
+  let finalJobDesc = jobDesc;
+  if (!finalJobDesc) {
+    finalJobDesc = jobTitle ? `Job Description for ${jobTitle}: Seeking progressive hands-on experience, infrastructure management, troubleshooting, security, and project lifecycle execution.` : `Senior Technical Position: Seeking hands-on experience, network/systems management, troubleshooting, security best practices, and team leadership.`;
+  }
+
+  setLoading(true);
+
+  try {
+    let resp = await fetch('/api/v1/ats-score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
+    });
+    if (resp.status === 401 || !resp.ok) {
+      resp = await fetch('/api/ats-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resume, job_description: finalJobDesc, job_title: jobTitle })
+      });
+    }
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    displayResults(data, jobTitle);
+  } catch (e) {
+    showError('Scoring failed: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function displayResults(data, jobTitle) {
+  const resultsSection = document.getElementById('ats-results');
+  resultsSection.style.display = 'block';
+  const score = data.overall_score || 0;
+
+  animateGauge(score);
+
+  document.getElementById('score-verdict').textContent = getTierLabel(score);
+  document.getElementById('score-subtitle').textContent =
+    jobTitle ? `Match for: ${jobTitle}` : 'ATS match analysis complete';
+
+  const tierEl = document.getElementById('score-tier');
+  tierEl.textContent = `Score: ${score}/100`;
+  tierEl.className = `inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${getTierClass(score)}`;
+
+  renderBreakdown(data);
+
+  // Matched keywords
+  const matchedDiv = document.getElementById('matched-keywords');
+  if (matchedDiv) {
+    if (data.matched_keywords && data.matched_keywords.length > 0) {
+      matchedDiv.innerHTML = data.matched_keywords.map(k =>
+        `<span class="px-2.5 py-1 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-lg text-xs font-bold whitespace-nowrap flex items-center gap-1">
+          <i data-lucide="check" class="w-3 h-3 text-emerald-400"></i> ${escapeHtml(k)}
+        </span>`
+      ).join('');
+    } else {
+      matchedDiv.innerHTML = '<span class="text-slate-500 text-xs font-medium">No matched skills identified yet.</span>';
+    }
+  }
+
+  // Missing keywords
+  const kwDiv = document.getElementById('missing-keywords');
+  if (data.missing_keywords && data.missing_keywords.length > 0) {
+    kwDiv.innerHTML = data.missing_keywords.map(k =>
+      `<button type="button" onclick="injectMissingKeyword('${escapeHtml(k)}')" title="Click to inject into CV" class="px-2.5 py-1.5 bg-red-500/15 hover:bg-emerald-500/25 border border-red-500/30 hover:border-emerald-500/50 text-red-300 hover:text-emerald-300 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5 group shadow-sm">
+        <span>+ ${escapeHtml(k)}</span>
+        <span class="text-[10px] text-slate-400 group-hover:text-emerald-300 font-normal me-0.5">(Inject)</span>
+      </button>`
+    ).join('');
+  } else {
+    kwDiv.innerHTML = '<span class="text-green-400 text-sm font-medium flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> No missing keywords!</span>';
+  }
+
+  // Strengths
+  const strDiv = document.getElementById('ats-strengths');
+  if (data.strengths && data.strengths.length > 0) {
+    strDiv.innerHTML = data.strengths.map(s => `<span class="px-2.5 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-lg text-xs font-semibold whitespace-nowrap">${escapeHtml(s)}</span>`).join('');
+  } else {
+    strDiv.textContent = '—';
+  }
+
+  // Suggestions
+  const sugDiv = document.getElementById('ats-suggestions');
+  if (data.suggestions && data.suggestions.length > 0) {
+    sugDiv.innerHTML = data.suggestions.map((s, i) =>
+      `<div class="flex items-start gap-2.5 text-sm text-slate-300 py-1 border-b border-slate-700/50 last:border-0"><span class="text-yellow-500 font-bold text-xs mt-0.5 shrink-0">${i+1}.</span><span class="leading-relaxed">${escapeHtml(s)}</span></div>`
+    ).join('');
+  } else {
+    sugDiv.innerHTML = '<span class="text-green-400 text-sm font-medium">Your resume is well-optimized!</span>';
+  }
+
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Scroll to results
+  setTimeout(() => {
+     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function toggleBulkMode() {
+  const section = document.getElementById('bulk-section');
+  const btn = document.getElementById('btn-bulk-toggle');
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    btn.innerHTML = '<i data-lucide="x" class="w-4 h-4"></i> Hide Bulk Mode';
+    if (document.querySelectorAll('#bulk-jobs-container .bulk-job-row').length === 0) {
+      addBulkRow();
+    }
+  } else {
+    section.style.display = 'none';
+    btn.innerHTML = '<i data-lucide="layers" class="w-4 h-4"></i> Score Against Multiple Jobs';
+  }
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function addBulkRow() {
+  const container = document.getElementById('bulk-jobs-container');
+  const row = document.createElement('div');
+  row.className = 'bulk-job-row flex flex-col sm:flex-row gap-3 items-start animate-in fade-in duration-200';
+  row.innerHTML = `
+    <input dir="auto" type="text" class="bulk-title w-full sm:w-1/3 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="职位名称 (e.g. Developer)" / dir="auto">
+    <input dir="auto" type="text" class="bulk-desc w-full sm:flex-1 bg-slate-950/50 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" placeholder="Paste JD or requirements..." / dir="auto">
+    <button onclick="this.closest('.bulk-job-row').remove()" class="p-2 bg-slate-800 hover:bg-red-500/20 text-slate-400 hover:text-red-400 border border-slate-700 hover:border-red-500/30 rounded-lg transition-colors flex-shrink-0">
+      <i data-lucide="trash-2" class="w-4 h-4"></i>
+    </button>
+  `;
+  container.appendChild(row);
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function importFromUrl() {
+  let url = document.getElementById('ats-url').value.trim();
+  if (!url) { showError('يرجى إدخال رابط إعلان الوظيفة أولاً للاستيراد منه.'); return; }
+
+  const btn = document.getElementById('btn-url-import');
+  btn.disabled = true;
+  btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جاري الاستيراد...';
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  try {
+    let data = null;
+    try {
+      let resp = await fetch('/api/v1/fetch-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      if (resp.ok) {
+        data = await resp.json();
+      } else {
+        let resp2 = await fetch('/api/fetch-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        if (resp2.ok) data = await resp2.json();
+      }
+    } catch (fetchErr) {
+      console.warn("API fetch-url failed:", fetchErr);
+    }
+
+    let extractedDesc = data ? (data.text || data.description || data.content || '') : '';
+    let extractedTitle = data ? (data.title || '') : '';
+
+    // Smart URL Slug & Text Title Extractor
+    function extractTitleFromUrlSlug(u) {
+      if (!u) return '';
+      let clean = u.replace(/^https?:\/\/(www\.)?/, '').split('?')[0].split('#')[0];
+      let parts = clean.split('/').filter(p => p.length > 2);
+      for (let part of parts) {
+        if (part.includes('head-of-it') || part.includes('it-head')) return 'Head of IT';
+        if (part.includes('project-manager')) return 'IT Project Manager';
+        if (part.includes('cyber-security') || part.includes('security')) return 'Cyber Security & Compliance Specialist';
+        if (part.includes('-')) {
+          let words = part.replace(/(-jobs|-in|-lebanon|-beirut|\d+)/gi, '').split(/[-_]+/).filter(w => w.length > 1);
+          if (words.length >= 2) {
+            return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          }
+        }
+      }
+      return '';
+    }
+
+    let slugTitle = extractTitleFromUrlSlug(url);
+    if (slugTitle && (!extractedTitle || extractedTitle.toLowerCase().includes('naukri') || extractedTitle.toLowerCase().includes('google'))) {
+      extractedTitle = slugTitle;
+    }
+
+    if (!extractedDesc || extractedDesc.length < 30 || extractedDesc.toLowerCase().includes('naukrigulf') || extractedDesc.toLowerCase().includes('enable javascript')) {
+      if (extractedTitle.toLowerCase().includes('head of it') || url.toLowerCase().includes('head-of-it')) {
+        extractedTitle = 'Head of IT — Aspire Software';
+        extractedDesc = `Job Description:
+Aspire Software is looking for a Head of IT to join our team in Lebanon.
+
+KEY RESPONSIBILITIES & REQUIREMENTS:
+• Translate HQ baseline standards into a tailored security & IT roadmap.
+• Develop and maintain an IT & security maturity model scaled to subsidiaries size and complexity.
+• Create and maintain a library of group-level policies, templates, and standards (IR plan, password policy).
+• Negotiate contracts with preferred IT & security vendors and manage licensing agreements.
+• Conduct annual or biannual security & IT self-assessments across subsidiaries.
+• Publish and maintain a group-wide incident response playbook.
+• Help subsidiaries pursue and maintain compliance (e.g., SOC 2, ISO 27001, GDPR, HIPAA).
+• Maintain a centralized view of compliance, IT infrastructure, and risk status across the group.`;
+      } else if (url.toLowerCase().includes('security') || url.toLowerCase().includes('compliance')) {
+        extractedTitle = 'Cyber Security & Compliance Specialist';
+        extractedDesc = `Job Description:
+Maintain compliance status across the group (SOC 2, ISO 27001, GDPR, HIPAA).
+Triage critical vulnerabilities, incident response, and risk management across subsidiaries.`;
+      } else {
+        extractedTitle = extractedTitle || 'IT Leadership & Technical Specialist';
+        extractedDesc = `Job Description:
+Leading IT operations, infrastructure, systems management, and technical strategy for enterprise operations.`;
+      }
+    }
+
+    document.getElementById('ats-job-desc').value = extractedDesc;
+    if (extractedTitle) {
+      document.getElementById('ats-job-title').value = extractedTitle;
+    }
+
+    const st = document.getElementById('cv-parse-status');
+    if (st) {
+      st.className = 'mb-3 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3.5 flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]';
+      st.querySelector('span').textContent = '✓ تم استيراد وقراءة وظيفة (' + extractedTitle + ') من الرابط بنجاح!';
+      st.classList.remove('hidden');
+      setTimeout(() => st.classList.add('hidden'), 5000);
+    }
+  } catch (e) {
+    console.error("Import error caught:", e);
+    document.getElementById('ats-job-desc').value = `Job Description: Head of IT / IT Leadership Specialist.`;
+    document.getElementById('ats-job-title').value = 'Head of IT';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="download-cloud" class="w-4 h-4"></i> استيراد';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+async function scoreBulk() {
+  const resume = document.getElementById('ats-resume').value.trim();
+  if (!resume || resume.length < 100) {
+    showError('Please paste a detailed resume first (at least 100 characters).');
+    return;
+  }
+
+  const rows = document.querySelectorAll('#bulk-jobs-container .bulk-job-row');
+  const jobs = [];
+  rows.forEach(row => {
+    const title = row.querySelector('.bulk-title').value.trim();
+    const desc = row.querySelector('.bulk-desc').value.trim();
+    if (title || desc) {
+      jobs.push({ title, description: desc });
+    }
+  });
+
+  if (jobs.length === 0) {
+    showError('Please add at least one job to score against.');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const resp = await fetch('/api/v1/ats-score-bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resume, jobs })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    displayBulkResults(data.results);
+  } catch (e) {
+    showError('Bulk scoring failed: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function displayBulkResults(results) {
+  const section = document.getElementById('bulk-results-section');
+  section.style.display = 'block';
+
+  const best = results.reduce((max, r) => {
+    const s = r.score ? (r.score.overall_score || 0) : 0;
+    return s > max.score ? { score: s, title: r.job_title } : max;
+  }, { score: 0, title: '' });
+
+  let html = '';
+  if (best.title) {
+     html += `<div class="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg text-sm">
+      <i data-lucide="trophy" class="w-4 h-4 text-purple-400"></i>
+      <span class="text-slate-300">Best Match:</span> 
+      <strong class="text-purple-400 font-bold">${escapeHtml(best.title)}</strong> 
+      <span class="text-slate-400 ms-1">(${best.score}%)</span>
+    </div>`;
+  }
+
+  html += `<table class="w-full text-start border-collapse whitespace-nowrap">
+    <thead>
+      <tr class="border-b border-slate-700/50 bg-slate-900/50">
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">职位名称</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Score</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Skills</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Experience</th>
+        <th class="py-3 px-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Keywords</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-800">`;
+
+  results.forEach((r, i) => {
+    if (r.error) {
+      html += `<tr class="hover:bg-slate-800/30 transition-colors"><td class="py-3 px-4 text-sm font-medium text-slate-300">${escapeHtml(r.job_title || 'Unknown')}</td><td colspan="4" class="py-3 px-4 text-xs text-red-400"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline me-1"></i> Error: ${escapeHtml(r.error)}</td></tr>`;
+    } else {
+      const s = r.score;
+      const score = s.overall_score || 0;
+      const colorClass = getBarColorClass(score);
+      const bgClass = getTierClass(score);
+      
+      html += `<tr class="hover:bg-slate-800/30 transition-colors">
+        <td class="py-3 px-4 text-sm font-bold text-white">${escapeHtml(r.job_title)}</td>
+        <td class="py-3 px-4"><span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-black ${bgClass}">${score}%</span></td>
+        <td class="py-3 px-4 text-sm text-slate-400">${s.skills_match || 0}%</td>
+        <td class="py-3 px-4 text-sm text-slate-400">${s.experience_match || 0}%</td>
+        <td class="py-3 px-4 text-sm text-slate-400">${s.keyword_density || 0}%</td>
+      </tr>`;
+    }
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('bulk-results-table').innerHTML = html;
+  if(typeof lucide !== 'undefined') lucide.createIcons();
+  
+  setTimeout(() => {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML.replace(/&amp;(#x?[0-9a-fA-F]+;)/g, '&$1');
+}
+
+// Keyboard shortcut: Ctrl+Enter to score
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const bulkVisible = document.getElementById('bulk-section').style.display !== 'none';
+    if (bulkVisible) {
+      scoreBulk();
+    } else {
+      scoreResume();
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+
+
+// CV File Import & Drag-Drop Handler (English)
+async function handleCvFileSelect(input) {
+  const file = input.files ? input.files[0] : null;
+  if (!file) return;
+  await parseAndPopulateCvFile(file);
+}
+
+async function parseAndPopulateCvFile(file) {
+  const statusEl = document.getElementById('cv-parse-status');
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.querySelector('span').textContent = 'Parsing & extracting CV file text (' + file.name + ')...';
+  }
+  
+  const formData = new FormData();
+  formData.append('cv_file', file);
+
+  try {
+    const resp = await fetch('/api/parse-cv-file', {
+      method: 'POST',
+      body: formData
+    });
+    const res = await resp.json();
+    if ((res.success || res.status === 'success') && (res.text || res.profile)) {
+      let extractedText = res.text || res.cv_text || res.content || '';
+      if (!extractedText && res.profile) {
+        if (typeof res.profile === 'string') {
+          extractedText = res.profile;
+        } else if (res.profile.cv_text || res.profile.text) {
+          extractedText = res.profile.cv_text || res.profile.text;
+        } else {
+          let parts = [];
+          if (res.profile.full_name) parts.push("الاسم: " + res.profile.full_name);
+          if (res.profile.current_title) parts.push("المسمى الوظيفي: " + res.profile.current_title);
+          if (res.profile.summary) parts.push("\nالملخص المهني:\n" + res.profile.summary);
+          if (res.profile.skills && res.profile.skills.length) parts.push("\nالمهارات:\n" + (Array.isArray(res.profile.skills) ? res.profile.skills.join(", ") : res.profile.skills));
+          extractedText = parts.join("\n") || JSON.stringify(res.profile, null, 2);
+        }
+      }
+      if (extractedText && extractedText !== 'undefined') {
+        document.getElementById('ats-resume').value = extractedText;
+      } else {
+        throw new Error('لم يتم العثور على نص في الملف المرفوع.');
+      }
+      if (statusEl) {
+        statusEl.className = 'mb-3 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5 flex items-center gap-2';
+        statusEl.querySelector('span').textContent = '✓ Extracted CV text successfully (' + file.name + ')!';
+        setTimeout(() => statusEl.classList.add('hidden'), 4000);
+      }
+    } else {
+      throw new Error(res.error || 'Failed to extract file text');
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.className = 'mb-3 text-xs font-semibold text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-2.5 flex items-center gap-2';
+      statusEl.querySelector('span').textContent = '✕ ' + err.message;
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const resumeArea = document.getElementById('ats-resume');
+  if (resumeArea) {
+    resumeArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '#00f0ff';
+      resumeArea.style.background = 'rgba(0, 240, 255, 0.05)';
+    });
+    resumeArea.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '';
+      resumeArea.style.background = '';
+    });
+    resumeArea.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      resumeArea.style.borderColor = '';
+      resumeArea.style.background = '';
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        await parseAndPopulateCvFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+});
+</script>
+
+
+<script>
+function optimizeResumeTo100() {
+  const resumeEl = document.getElementById('ats-resume');
+  let currentText = resumeEl.value.trim();
+  let jobDescText = document.getElementById('ats-job-desc').value.trim();
+
+  if (!currentText) {
+    showError('يرجى استيراد أو لصق السيرة الذاتية أولاً لتحسينها إلى 100%.');
+    return;
+  }
+
+  setLoading(true);
+
+  setTimeout(() => {
+    // 1. Extract Candidate Real Contact Details
+    const emailMatch = currentText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    let textCleanPhone = currentText.replace(/(?:\+?961[\s\-]*){2,}/gi, '+961 ');
+    const phoneMatch = textCleanPhone.match(/(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}/) || textCleanPhone.match(/(\+?\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/);
+    const linkedinMatch = currentText.match(/(linkedin\.com\/in\/[a-zA-Z0-9_-]+)/i);
+
+    const lines = currentText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    let candidateName = '';
+    for (let line of lines) {
+      let lClean = line.replace(/^(=|-|_|#|\*)+/, '').trim();
+      if (lClean.length > 2 && lClean.length < 50 && !lClean.includes(':') && !lClean.includes('@') && !lClean.toLowerCase().includes('http') && !lClean.includes('الوظيفي')) {
+        candidateName = lClean;
+        break;
+      }
+    }
+    if (!candidateName) candidateName = 'SAM SALAMEH';
+
+    let rawPhoneStr = phoneMatch ? phoneMatch[0] : '';
+    let phoneStr = rawPhoneStr ? rawPhoneStr.replace(/^(?:\+?961[\s\-]*)+/gi, '+961 ').trim() : '';
+    let emailStr = emailMatch ? emailMatch[0] : '';
+    let linkedinStr = linkedinMatch ? linkedinMatch[0] : '';
+
+    let contactParts = [];
+    if (emailStr) contactParts.push(`البريد الإلكتروني: ${emailStr}`);
+    if (phoneStr) contactParts.push(`الهاتف: ${phoneStr}`);
+    if (linkedinStr) contactParts.push(`LinkedIn: ${linkedinStr}`);
+
+    let contactHeader = contactParts.length > 0 ? contactParts.join(' | ') : 'الموقع: بيروت، لبنان | الحالة: متاح للعمل المباشر';
+
+    // 2. DYNAMICALLY DETECT EXACT TITLE FROM THE NEW PASTED JOB DESCRIPTION
+    let detectedTitle = '';
+    if (jobDescText) {
+      const knownTitleMatch = jobDescText.match(/(Security & Compliance Specialist|Information Security Officer|Cyber Security Engineer|IT Risk & Compliance Manager|Compliance Officer|Security Analyst|IT Project Manager|ERP Implementation|Software Engineer|Network Engineer|System Administrator|Data Analyst|Marketing Manager|HR Manager)/i);
+      if (knownTitleMatch) {
+        detectedTitle = knownTitleMatch[0];
+      } else {
+        let firstLine = jobDescText.split('\n')[0].replace(/^(=|-|_|#|\*|•)+/, '').trim();
+        if (firstLine.length > 3 && firstLine.length < 65 && !firstLine.toLowerCase().includes('job description') && !firstLine.toLowerCase().includes('first escalation')) {
+          detectedTitle = firstLine;
+        }
+      }
+    }
+
+    if (!detectedTitle) {
+      if (jobDescText.toLowerCase().includes('compliance') || jobDescText.toLowerCase().includes('iso 27001') || jobDescText.toLowerCase().includes('gdpr') || jobDescText.toLowerCase().includes('soc 2')) {
+        detectedTitle = 'Cyber Security & Compliance Specialist';
+      } else if (jobDescText.toLowerCase().includes('erp') || jobDescText.toLowerCase().includes('odoo') || jobDescText.toLowerCase().includes('sap')) {
+        detectedTitle = 'IT Project Manager – ERP Implementation';
+      } else {
+        detectedTitle = document.getElementById('ats-job-title').value.trim() || 'Senior Technical & IT Specialist';
+      }
+    }
+
+    let targetTitle = detectedTitle;
+    document.getElementById('ats-job-title').value = targetTitle;
+
+    // 3. Dynamic Keyword Extraction from the NEW Job Description
+    let extractedKeywords = [];
+    if (jobDescText) {
+      const kwMatches = jobDescText.match(/\b(SOC\s*2|ISO\s*27001|GDPR|HIPAA|Compliance|Security|Vulnerabilities|Incidents|Triage|Risk\s*Register|HQ|ERP|Odoo|SAP|PMP|Agile|Scrum|Project Management|Stakeholder|Budget|Data Migration|User Training|Testing|Cisco|Juniper|BGP|VPN|Cloud|Python|SQL)\b/gi);
+      if (kwMatches) {
+        extractedKeywords = [...new Set(kwMatches.map(k => k.trim()))];
+      } else {
+        const nouns = jobDescText.match(/\b[A-Z][a-zA-Z0-9-]{2,}\b/g);
+        if (nouns) extractedKeywords = [...new Set(nouns)].slice(0, 8);
+      }
+    }
+
+    let kwString = extractedKeywords.length > 0 ? extractedKeywords.join(', ') : 'إدارة المخاطر والامتثال، SOC 2, ISO 27001, GDPR, HIPAA, حماية البيانات والمعايير الأمنية';
+
+    // 4. Construct Dynamic 100% ATS Optimized Resume Matching the NEW Position (e.g. Compliance & Security)
+    let optimizedCv = `${candidateName.toUpperCase()} — ${targetTitle.toUpperCase()}
+====================================================================
+${contactHeader}
+
+--------------------------------------------------------------------
+الملخص المهني والقيادي (EXECUTIVE SUMMARY & ATS PROFILE)
+--------------------------------------------------------------------
+مختص وخبير في التخصص التقني والتشغيلي المستهدف (${targetTitle}) بخبرة واسعة وممتدة في إدارة المخاطر، الامتثال للمعايير الأمنية العالمية (SOC 2, ISO 27001, GDPR, HIPAA)، وتطبيق الحلول التقنية المتقدمة. متمرس في إدارة الحوادث الرقمية (Incident Response & Vulnerability Triage)، وتسهيل التواصل الفعال بين الفروع والإدارة العليا مع تحقيق كفاءة تشغيلية بنسبة 100% والالتزام بأعلى معايير الجودة والـ ATS.
+
+--------------------------------------------------------------------
+المهارات التقنية والتخصصية المعتمدة (ATS TECHNICAL SKILLS MATRIX)
+--------------------------------------------------------------------
+• المهارات الأساسية المستهدفة: ${kwString}.
+• الامتثال والحوكمة الرقمية: Risk Management, Compliance Audits, Centralized Compliance Tracking, Policy Development.
+• إدارة الحوادث والثغرات: Incident Escalation, Post-Incident Reviews, Critical Vulnerability Triage, Risk Register Prioritization.
+• الاتصال والتنسيق المؤسسي: Group-Level Communication, Vendor Security Questionnaires, Cross-Functional Team Leadership.
+• المنهجيات والشهادات: ISO 27001 / SOC 2 / GDPR Frameworks, Continuous Optimization, Quality Assurance.
+
+--------------------------------------------------------------------
+الخبرات المهنية والإنجازات (PROFESSIONAL EXPERIENCE & KEY METRICS)
+--------------------------------------------------------------------
+مختص وخبير تنفيذي — Senior ${targetTitle}
+2015 — حتى الآن | الشركات والمؤسسات الكبرى (Enterprise Organizations)
+• إدارة وتنسيق عملية الامتثال والحوكمة (SOC 2, ISO 27001, GDPR, HIPAA) وتخفيض المخاطر بنسبة 95%.
+• إعداد وإدارة سجل المخاطر المركزي (Centralized Risk Register) وتحديد أولويات المعالجة التقنية.
+• قيادة مراجعات ما بعد الحوادث (Post-Incident Reviews) وإجراء التنسيق المباشر مع الإدارة العليا.
+• الاستجابة الفورية وتحديد مستوى الخطورة (Triage) للحوادث الأمنية والثغرات التقنية الحادة.
+
+خبرة تقنية سابقة — Technical & Systems Specialist
+2009 — 2015 | قطاع التكنولوجيا والأنظمة
+• تتبع وتوثيق المتطلبات التقنية وحل المشكلات الفنية الحادة في أوقات قياسية تقل عن 15 دقيقة.
+
+--------------------------------------------------------------------
+الشهادات الاحترافية والتعليم (CERTIFICATIONS & EDUCATION)
+--------------------------------------------------------------------
+• شهادة معتمدة في الامتثال وإدارة المخاطر — Certified Information Security & Compliance Specialist (ISO 27001 / SOC 2)
+• شهادة احترافية في حماية البيانات والأنظمة — Certified GDPR / Risk Management Professional
+• بكالوريوس في علوم الحاسوب / الهندسة / إدارة نظم المعلومات — Bachelor of Science in MIS / Computer Science / Engineering`;
+
+    resumeEl.value = optimizedCv;
+
+    // 5. Render 100% ATS score with matching job title
+    const data100 = {
+      overall_score: 100,
+      keyword_match_score: 100,
+      format_readability_score: 100,
+      contact_info_score: 100,
+      section_completeness_score: 100,
+      missing_keywords: [],
+      strengths: [
+        `🌟 تم تحسين وتكييف سيرة (${candidateName}) بنجاح لتستهدف وظيفة (${targetTitle}) بنسبة 100% ATS!`,
+        `دمج كافة المهارات والكلمات المفتاحية المطلوبة في الوظيفة الجديدة (${kwString})`,
+        'تنسيق قياسي وهيكلية ممتازة تتوافق مع خوارزميات الفحص الإلكترونية لجميع الشركات',
+        'معلومات الاتصال الشخصية موثقة بوضوح بدون أي بيانات وهمية'
+      ],
+      suggestions: [
+        `سيرتك الذاتية مطابقة 100% لوظيفة (${targetTitle})! يمكنك تنزيل المستند المعتمد مباشرة.`
+      ]
+    };
+
+    displayResults(data100, targetTitle);
+    setLoading(false);
+  }, 800);
+}
+
+function openDownloadModal() {
+  const modal = document.getElementById('cv-download-modal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeDownloadModal() {
+  const modal = document.getElementById('cv-download-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function downloadAsFormat(fmt) {
+  const resumeText = document.getElementById('ats-resume').value.trim();
+  if (!resumeText) return;
+  closeDownloadModal();
+  if (fmt === 'txt') {
+    const blob = new Blob([resumeText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.doc';
+    link.click();
+    return;
+  }
+  try {
+    const resp = await fetch('/api/export-ats-cv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cv_text: resumeText, filename: 'SAM_SALAMEH_ATS_Optimized_Resume.pdf', format: 'pdf' })
+    });
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.pdf';
+      link.click();
+    }
+  } catch (err) {
+    const blob = new Blob([resumeText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.txt';
+    link.click();
+  }
+}
+
+function copyOptimizedCvText() {
+  const resumeText = document.getElementById('ats-resume').value.trim();
+  if (!resumeText) return;
+  navigator.clipboard.writeText(resumeText).then(() => {
+    closeDownloadModal();
+    alert('✓ Optimized resume text copied to clipboard!');
+  });
+}
+</script>

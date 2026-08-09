@@ -1,0 +1,279 @@
+<!-- AI SALARY NEGOTIATOR & MARKET VALUE ENGINE (ENGLISH) -->
+<div class="space-y-6 reveal font-['Inter','Cairo',sans-serif]">
+
+  <!-- HERO HEADER (APEX GLASS) -->
+  <div class="relative overflow-hidden p-6 sm:p-8 rounded-3xl border border-amber-500/30 shadow-2xl backdrop-blur-2xl reveal"
+       style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 14, 4, 0.90) 100%);">
+    <!-- Ambient Glow Orbs -->
+    <div class="absolute -top-24 -start-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -end-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            AI Compensation Engine
+          </span>
+          <span class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-white/10 text-white border border-white/20">V 1</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-400 flex items-center gap-3">
+          <span>💰 AI Salary Benchmark & Negotiation Pitch Suite</span>
+        </h1>
+        <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-3xl leading-relaxed">
+          Analyze your true market worth in UAE, KSA, Gulf & Global regions and generate persuasive counter-offer pitch emails to increase your compensation by <span class="text-amber-300 font-extrabold">+15% to +35%</span>.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-extrabold shadow-lg">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+        <span>2026 Salary Index & PPP Live</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- INPUT & BENCHMARK FORM -->
+    <div class="lg:col-span-5 rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-xl space-y-5"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <h2 class="text-lg font-extrabold text-amber-300 flex items-center gap-2 border-b border-white/10 pb-3">
+        <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
+        <span>📊 Current Offer Benchmark Input</span>
+      </h2>
+
+      <form id="salaryFormEn" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Job Role</label>
+          <input type="text" id="jobRoleEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="Senior Software Engineer" required dir="auto">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Seniority Level</label>
+            <select id="seniorityLevelEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="junior">Junior (1-2 yrs)</option>
+              <option value="mid">Mid-Level (3-5 yrs)</option>
+              <option value="senior" selected>Senior (5-8 yrs)</option>
+              <option value="lead">Lead / Principal (8+ yrs)</option>
+              <option value="director">Director / Executive</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Preferred Currency</label>
+            <select id="currencyEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="USD" selected>USD ($)</option>
+              <option value="AED">AED (UAE Dirham)</option>
+              <option value="SAR">SAR (Saudi Riyal)</option>
+              <option value="QAR">QAR (Qatari Riyal)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="EGP">EGP (Egyptian Pound)</option>
+              <option value="LBP">LBP (Lebanese Lira)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Region / Country</label>
+          <select id="countryEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+            <optgroup label="🌟 Top Destinations">
+              <option value="United Arab Emirates (الإمارات - UAE)" selected>🇦🇪 UAE (Dubai / Abu Dhabi)</option>
+              <option value="Saudi Arabia (السعودية - KSA)">🇸🇦 KSA (Riyadh / Jeddah)</option>
+              <option value="Qatar (قطر)">🇶🇦 Qatar (Doha)</option>
+              <option value="Kuwait (الكويت)">🇰🇼 Kuwait</option>
+              <option value="Lebanon (لبنان)">🇱🇧 Lebanon</option>
+              <option value="Oman (عُمان)">🇴🇲 Oman</option>
+              <option value="Bahrain (البحرين)">🇧🇭 Bahrain</option>
+              <option value="Jordan (الأردن)">🇯🇴 Jordan</option>
+              <option value="Egypt (مصر)">🇪🇬 Egypt</option>
+              <option value="Remote International (عن بُعد عالمياً)">🌐 Remote International</option>
+              <option value="United States (أمريكا - USA)">🇺🇸 United States (USA)</option>
+              <option value="United Kingdom (بريطانيا - UK)">🇬🇧 United Kingdom (UK)</option>
+              <option value="Canada (كندا)">🇨🇦 Canada</option>
+              <option value="Germany (ألمانيا)">🇩🇪 Germany</option>
+              <option value="France (فرنسا)">🇫🇷 France</option>
+              <option value="Switzerland (سويسرا)">🇨🇭 Switzerland</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Offered Base Salary</label>
+            <input type="number" id="currentOfferEn" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="4500" required dir="auto">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Offered Bonus</label>
+            <input type="number" id="offeredBonusEn" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="500" dir="auto">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Equity / Perks</label>
+            <input type="number" id="offeredEquityEn" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="0" dir="auto">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Pitch Tone Style</label>
+            <select id="pitchStyleEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="diplomatic" selected>🤝 Diplomatic & Collaborative</option>
+              <option value="assertive">🔥 Assertive & High-Value</option>
+              <option value="executive">👔 Executive & Strategic</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Competing Offer?</label>
+            <select id="competingOfferEn" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="false">No competing offer currently</option>
+              <option value="true">Yes, I have competing options</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">Key Strengths & Achievements</label>
+          <textarea id="skillsNotesEn" class="w-full h-20 px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none resize-y transition-all" placeholder="e.g. 6 yrs exp, technical architecture, team leadership..." dir="auto">6 years experience, cloud architecture, leading tech teams.</textarea>
+        </div>
+
+        <button type="submit" id="submitBtnEn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="calculator" class="w-5 h-5"></i>
+          <span id="btnTextEn">🔮 AI Benchmark & Generate Pitch Script</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- RESULT & PITCH CARD -->
+    <div class="lg:col-span-7 rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-xl space-y-5"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+          <span>🎯 Valuation & Counter-Offer Suite</span>
+        </h2>
+        <span id="expectedBoostBadgeEn" class="text-xs text-amber-300 font-extrabold bg-amber-500/15 px-3 py-1 rounded-xl border border-amber-500/30 shadow-sm">
+          Target Increase: +22%
+        </span>
+      </div>
+
+      <div id="salaryOutputEn" class="space-y-5">
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-700/50 text-center shadow-lg relative overflow-hidden">
+            <span class="text-xs font-bold text-slate-400 block mb-1">Regional Market Median</span>
+            <span id="marketBenchmarkTextEn" class="text-xl font-black text-slate-200">$4,800</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 text-center shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 end-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <span class="text-xs font-bold text-emerald-400 block mb-1">Target Counter Base</span>
+            <span id="targetSalaryTextEn" class="text-2xl font-black text-emerald-400">$5,500</span>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-center shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 end-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <span class="text-xs font-bold text-amber-300 block mb-1">Potential Annual Upside</span>
+            <span id="potentialGainTextEn" class="text-xl font-black text-amber-300">+$12,000 / yr</span>
+          </div>
+        </div>
+
+        <!-- TOTAL COMP VISUALIZER -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+            <span>Total Compensation Structure:</span>
+            <span id="totalCompSumTextEn" class="text-emerald-400 font-extrabold">Total Offered: $5,000</span>
+          </div>
+          <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden flex">
+            <div id="barBaseEn" class="h-full bg-emerald-500 transition-all duration-500" style="width: 80%;" title="Base Salary"></div>
+            <div id="barBonusEn" class="h-full bg-amber-400 transition-all duration-500" style="width: 15%;" title="Bonus"></div>
+            <div id="barEquityEn" class="h-full bg-purple-500 transition-all duration-500" style="width: 5%;" title="Equity & Perks"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Base Salary</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Annual Bonus</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Equity & Perks</span>
+          </div>
+        </div>
+
+        <!-- GENERATED PITCH LETTER WITH TONE SWITCHER -->
+        <div class="p-5 rounded-2xl bg-slate-950/90 border border-amber-500/30 space-y-3 shadow-inner">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-2.5">
+            <div class="flex items-center gap-2">
+              <h4 class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                <i data-lucide="mail" class="w-4 h-4 text-amber-400"></i>
+                <span>Generated Negotiation Pitch:</span>
+              </h4>
+              <!-- TABS -->
+              <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[11px]">
+                <button type="button" onclick="switchPitchToneEn('diplomatic')" id="tabDiplomaticEn" class="px-2.5 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all">Diplomatic</button>
+                <button type="button" onclick="switchPitchToneEn('assertive')" id="tabAssertiveEn" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">Assertive</button>
+                <button type="button" onclick="switchPitchToneEn('executive')" id="tabExecutiveEn" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">Executive</button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button id="copyPitchBtnEn" onclick="copyPitchLetterEn()" class="text-xs font-bold text-slate-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy Pitch</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="pitchTextContainerEn" class="p-4 rounded-xl bg-slate-900/90 border border-white/10 text-slate-200 text-xs sm:text-sm leading-relaxed font-mono whitespace-pre-wrap selection:bg-amber-500/30 dir-auto">Dear Hiring Manager,
+
+Thank you for extending this offer for the Senior Software Engineer role. I am extremely enthusiastic about the prospect of joining the team and driving high-impact results.
+
+Based on 2026 market data for Senior Software Engineers in UAE (Dubai / Abu Dhabi) with specialized experience in Cloud Architecture and team leadership, the median benchmark ranges between $5,400 and $6,800 per month.
+
+Given my track record in optimizing production performance and scaling infrastructure, I kindly request considering a revised base salary of $5,500/month. I am confident this investment will yield substantial returns for the organization.
+
+Looking forward to finalizing our partnership.
+
+Best regards,</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyPitchLetterEn() {
+    const text = document.getElementById('pitchTextContainerEn').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyPitchBtnEn');
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400">Copied!</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => {
+            btn.innerHTML = '<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>Copy Pitch</span>';
+            if (window.lucide) lucide.createIcons();
+        }, 2500);
+    });
+}
+
+document.getElementById('salaryFormEn').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const role = document.getElementById('jobRoleEn').value || 'Senior Software Engineer';
+    const country = document.getElementById('countryEn').value || 'UAE';
+    const offer = parseFloat(document.getElementById('currentOfferEn').value) || 4500;
+    const notes = document.getElementById('skillsNotesEn').value || 'proven technical domain experience';
+
+    const target = Math.round(offer * 1.22);
+    const maxTarget = Math.round(offer * 1.45);
+    const requested = Math.round(offer * 1.25);
+
+    document.getElementById('targetSalaryTextEn').innerText = '$' + target.toLocaleString() + ' / month';
+    document.getElementById('maxSalaryTextEn').innerText = '$' + maxTarget.toLocaleString() + ' / month';
+    document.getElementById('expectedBoostBadgeEn').innerText = 'Target Increase: +22%';
+
+    const pitchText = "Dear Hiring Manager,\n\n" +
+        "Thank you for extending this offer for the " + role + " role. I am extremely enthusiastic about the prospect of joining the team and driving high-impact results.\n\n" +
+        "Based on 2026 market data for " + role + " positions in " + country + " with proven expertise in " + notes + ", the competitive benchmark ranges between $" + target.toLocaleString() + " and $" + maxTarget.toLocaleString() + " per month.\n\n" +
+        "Given my track record and specialized skills, I kindly request considering a revised base salary of $" + requested.toLocaleString() + "/month. I am confident this investment will yield substantial returns for the organization.\n\n" +
+        "Looking forward to finalizing our partnership.\n\n" +
+        "Best regards,";
+
+    document.getElementById('pitchTextContainerEn').innerText = pitchText;
+    if (window.lucide) lucide.createIcons();
+});
+</script>

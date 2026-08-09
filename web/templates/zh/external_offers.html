@@ -1,0 +1,2504 @@
+{% extends "zh/_dashboard_shell.html" %}
+
+{% block dashboard_content %}
+<div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Toast Alert Container -->
+    <div id="toastNotification" class="hidden fixed top-6 inset-x-0 mx-auto max-w-md z-50 p-4 rounded-2xl bg-slate-900 border border-emerald-500/50 shadow-2xl text-emerald-300 text-sm font-bold flex items-center justify-between animate-bounce">
+        <div class="flex items-center gap-3">
+            <span class="text-xl">⚡</span>
+            <span id="toastText">Operation completed successfully!</span>
+        </div>
+        <button onclick="document.getElementById('toastNotification').classList.add('hidden')" class="text-slate-400 hover:text-white">✕</button>
+    </div>
+
+{% set cat_titles = {
+    'ai': 'AI Subscription Deals & Partner Offers',
+    'domains': 'Custom Domains & Cloud VPS Hosting',
+    'otp': 'Instant OTP & Phone/Email Verification',
+    'vcc': 'Virtual VCC Prepaid Credit Cards',
+    'software': 'Official Software Keys & Original Licenses',
+    'gaming': 'Gaming Gift Cards & Steam/Xbox Top-ups',
+    'growth': 'Social Growth & Account Verification',
+    'proxies': 'Residential Proxies & Captcha Solvers',
+    'promos': 'Partner Website Promos & Coupon Deals',
+    'streaming': 'Streaming VIP Entertainment Accounts'
+} %}
+
+{% set cat_badges = {
+    'ai': '⚡ Exclusive 2026 AI Model Subscriptions',
+    'domains': '🌐 Wholesale Custom Domains & Cloud Infrastructure',
+    'otp': '🔐 Instant SMS & Email OTP Verification Services',
+    'vcc': '💳 Instant Prepaid Virtual VCC Cards',
+    'software': '⚡ 100% Genuine Software Activation Keys',
+    'gaming': '🎯 Instant Delivery Gaming Cards & Codes',
+    'growth': '🚀 Social Media Boost & Authority Badges',
+    'proxies': '🔒 High-Speed Residential Proxies & Solvers',
+    'promos': '💎 Exclusive Partner Promos & Discount Vouchers',
+    'streaming': '📺 VIP Streaming & Music Subscriptions'
+} %}
+
+{% set cat_descriptions = {
+    'ai': 'Pre-verified, instant delivery access to ChatGPT Pro (GPT-5.5 / Sora 2.0), Claude 4.0, Midjourney v7, Cursor AI, Perplexity & DeepSeek.',
+    'domains': 'Register custom .COM, .AI, .IO domains with free SSL certificates, high-speed NVMe VPS hosting, and corporate email suites.',
+    'otp': 'Receive real-time OTP verification codes and disposable email accounts for fast, privacy-focused account activation.',
+    'vcc': 'Generate and top up virtual credit cards for seamless international subscriptions, cloud hosting, and store activations.',
+    'software': 'Get genuine retail keys for Windows 11 Pro, Office 2026, antivirus suites, and creative software at wholesale rates.',
+    'gaming': 'Instant digital gift codes for Steam, PlayStation Network, Xbox Game Pass, Roblox, and online gaming credits.',
+    'growth': 'Elevate your online presence with real engagement, account verification support, and authority audience growth.',
+    'proxies': 'High-performance residential proxy pools, dedicated datacenter IPs, and automated captcha solving endpoints.',
+    'promos': 'Browse verified promotional discount codes and exclusive partner perks across cloud providers and software tools.',
+    'streaming': 'Enjoy instant VIP access to premium streaming subscriptions (Shahid VIP, Netflix 4K, Disney+, Spotify Premium).'
+} %}
+
+{% set cat_icons = {
+    'ai': 'sparkles',
+    'domains': 'globe',
+    'otp': 'key-round',
+    'vcc': 'credit-card',
+    'software': 'key',
+    'gaming': 'gamepad-2',
+    'growth': 'trending-up',
+    'proxies': 'shield',
+    'promos': 'gift',
+    'streaming': 'tv'
+} %}
+
+    <!-- Hero Header & Action Bar -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 border border-pink-500/20 p-6 md:p-10 shadow-2xl">
+        <div class="absolute -top-24 -end-24 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-bold uppercase tracking-wider mb-4">
+                    <i data-lucide="{{ cat_icons.get(selected_cat, 'sparkles') }}" class="w-3.5 h-3.5"></i>
+                    <span>{{ cat_badges.get(selected_cat, 'Exclusive Deals & Partner Promos') }}</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                    {{ cat_titles.get(selected_cat, 'Service Offers & Subscriptions') }}
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-2xl">
+                    {{ cat_descriptions.get(selected_cat, 'Browse partner promo codes, website discounts, or purchase dedicated accounts with instant delivery!') }}
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 min-w-[240px]">
+                <!-- Wallet Card -->
+                <div class="bg-slate-950/80 border border-pink-500/30 rounded-2xl p-4 flex flex-col items-center gap-2 shadow-xl">
+                    <div class="text-xs text-slate-400 font-medium">Your Wallet Balance</div>
+                    <div class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400" id="walletBalanceDisplay">
+                        ${{ "%.2f"|format(user.wallet_balance if user else 100.0) }}
+                    </div>
+                    <button onclick="topupWalletDemo()" class="w-full py-1.5 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] transition-all flex items-center justify-center gap-1 cursor-pointer">
+                        <span>💳 Top-up +$50 Demo</span>
+                    </button>
+                </div>
+                
+                <!-- Live Currency Switcher -->
+                <div class="flex items-center justify-between p-1.5 rounded-xl bg-slate-950/90 border border-white/10 text-xs font-mono">
+                    <span class="text-slate-400 font-bold text-[11px] px-1">Currency:</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="setCurrency('USD')" id="currBtnUSD" class="px-2 py-0.5 rounded-lg bg-pink-500 text-white font-bold text-[11px] transition-all cursor-pointer">USD ($)</button>
+                        <button type="button" onclick="setCurrency('SAR')" id="currBtnSAR" class="px-2 py-0.5 rounded-lg text-slate-300 hover:text-white font-bold text-[11px] transition-all cursor-pointer">SAR (SAR)</button>
+                        <button type="button" onclick="setCurrency('AED')" id="currBtnAED" class="px-2 py-0.5 rounded-lg text-slate-300 hover:text-white font-bold text-[11px] transition-all cursor-pointer">AED (AED)</button>
+                        <button type="button" onclick="setCurrency('EUR')" id="currBtnEUR" class="px-2 py-0.5 rounded-lg text-slate-300 hover:text-white font-bold text-[11px] transition-all cursor-pointer">EUR (€)</button>
+                    </div>
+                </div>
+
+                <!-- AI Wizard Launcher & Action Buttons -->
+                <button type="button" onclick="toggleAiWizardModal()" class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-xs shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                    <span>🤖 AI Deal Recommendation Wizard</span>
+                </button>
+
+                <button onclick="toggleAddOfferModal()" class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-pink-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>➕ Add Custom Website & Offer</span>
+                </button>
+                <button onclick="runMarketCheckup()" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md">
+                    <span>🔄 Sync Live Market AI Deals</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="mt-6 pt-6 border-t border-white/10 flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap">
+                <a href="/external-offers?cat=ai" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-pink-500 text-white shadow-lg shadow-pink-500/25' if selected_cat == 'ai' else 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' }}">
+                    <span>🤖 AI Deals</span>
+                    {% if cat_counts and cat_counts.get('ai') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('ai') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=promos" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-teal-500 text-white shadow-lg shadow-teal-500/25' if selected_cat == 'promos' else 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' }}">
+                    <span>🎁 Partner Promos</span>
+                    {% if cat_counts and cat_counts.get('promos') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('promos') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=otp" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25' if selected_cat == 'otp' else 'bg-slate-800 text-cyan-300 hover:bg-slate-700 border border-cyan-500/30' }}">
+                    <span>🔑 Instant OTP</span>
+                    {% if cat_counts and cat_counts.get('otp') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('otp') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=vcc" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-purple-600 text-white shadow-lg shadow-purple-500/25' if selected_cat == 'vcc' else 'bg-slate-800 text-purple-300 hover:bg-slate-700 border border-purple-500/30' }}">
+                    <span>💳 VCC Cards</span>
+                    {% if cat_counts and cat_counts.get('vcc') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('vcc') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=software" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25' if selected_cat == 'software' else 'bg-slate-800 text-emerald-300 hover:bg-slate-700 border border-emerald-500/30' }}">
+                    <span>🔑 Software Keys</span>
+                    {% if cat_counts and cat_counts.get('software') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('software') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=gaming" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-red-600 text-white shadow-lg shadow-red-500/25' if selected_cat == 'gaming' else 'bg-slate-800 text-red-300 hover:bg-slate-700 border border-red-500/30' }}">
+                    <span>🎮 Gaming Cards</span>
+                    {% if cat_counts and cat_counts.get('gaming') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('gaming') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=domains" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-amber-500 text-white shadow-lg shadow-amber-500/25' if selected_cat == 'domains' else 'bg-slate-800 text-amber-300 hover:bg-slate-700 border border-amber-500/30' }}">
+                    <span>🌐 Custom Domains</span>
+                    {% if cat_counts and cat_counts.get('domains') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('domains') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=growth" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-pink-600 text-white shadow-lg shadow-pink-500/25' if selected_cat == 'growth' else 'bg-slate-800 text-pink-300 hover:bg-slate-700 border border-pink-500/30' }}">
+                    <span>📈 Social Growth</span>
+                    {% if cat_counts and cat_counts.get('growth') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('growth') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=proxies" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-blue-600 text-white shadow-lg shadow-blue-500/25' if selected_cat == 'proxies' else 'bg-slate-800 text-blue-300 hover:bg-slate-700 border border-blue-500/30' }}">
+                    <span>🛡️ Proxies</span>
+                    {% if cat_counts and cat_counts.get('proxies') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('proxies') }}</span>
+                    {% endif %}
+                </a>
+                <a href="/external-offers?cat=streaming" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 {{ 'bg-rose-600 text-white shadow-lg shadow-rose-500/25' if selected_cat == 'streaming' else 'bg-slate-800 text-rose-300 hover:bg-slate-700 border border-rose-500/30' }}">
+                    <span>🎬 Streaming VIP</span>
+                    {% if cat_counts and cat_counts.get('streaming') %}
+                    <span class="px-1.5 py-0.2 rounded-md bg-white/20 text-[10px] font-mono font-extrabold">{{ cat_counts.get('streaming') }}</span>
+                    {% endif %}
+                </a>
+            </div>
+            {% if my_accounts %}
+            <a href="#myAccountsSection" class="text-xs font-bold text-pink-400 hover:underline flex items-center gap-1 ms-auto">
+                <span>🔑 View My Accounts ({{ my_accounts|length }})</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Add New Custom Website & Offer Modal / Collapsible Form -->
+    <div id="addOfferFormCard" class="hidden p-6 md:p-8 rounded-2xl bg-slate-900 border border-pink-500/40 shadow-2xl space-y-6 animate-fadeIn">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold text-lg">✨</div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Add Custom Partner Website & Offer</h3>
+                    <p class="text-xs text-slate-400">Add custom promo codes, website referral offers, or instant digital accounts.</p>
+                </div>
+            </div>
+            <button onclick="toggleAddOfferModal()" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+        </div>
+
+        <form id="createOfferForm" onsubmit="handleCreateOffer(event)" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Website / Service Name *</label>
+                    <input type="text" id="offerTitle" required placeholder="e.g., Hostinger Cloud or Cursor AI" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Category *</label>
+                    <select id="offerCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                        <option value="ai" {{ 'selected' if selected_cat == 'ai' }}>🤖 AI Subscriptions & Deals</option>
+                        <option value="software" {{ 'selected' if selected_cat == 'software' }}>🔑 Software Keys & OEM Licenses</option>
+                        <option value="promos" {{ 'selected' if selected_cat == 'promos' }}>🎁 Partner Web Promos & Vouchers</option>
+                        <option value="otp" {{ 'selected' if selected_cat == 'otp' }}>🔑 Instant Email OTP & Virtual Mail</option>
+                        <option value="vcc" {{ 'selected' if selected_cat == 'vcc' }}>💳 Virtual Credit Cards (VCC)</option>
+                        <option value="gaming" {{ 'selected' if selected_cat == 'gaming' }}>🎮 Gaming Cards & Vaults</option>
+                        <option value="domains" {{ 'selected' if selected_cat == 'domains' }}>🌐 Custom Domains & TLDs</option>
+                        <option value="growth" {{ 'selected' if selected_cat == 'growth' }}>📈 Social Growth & Verification</option>
+                        <option value="proxies" {{ 'selected' if selected_cat == 'proxies' }}>🛡️ Proxies & Captcha Solvers</option>
+                        <option value="streaming" {{ 'selected' if selected_cat == 'streaming' }}>🎬 Streaming VIP Accounts</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Promo Code / Offer Number</label>
+                    <input type="text" id="offerPromoCode" placeholder="e.g. PROMO50 or OFFER-8820" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Offer Badge Tag</label>
+                    <input type="text" id="offerBadge" placeholder="e.g. 50% OFF or SPECIAL DEAL" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Website URL</label>
+                <input type="url" id="offerTargetUrl" placeholder="https://example.com/special-deal" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="ltr" / dir="auto">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Offer Details & Benefits</label>
+                <textarea id="offerDescription" rows="2" placeholder="Write offer description and benefits..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto"></textarea>
+            </div>
+
+            <!-- Optional Digital Account Fields -->
+            <div class="p-4 rounded-xl bg-slate-950/60 border border-white/5 space-y-4">
+                <div class="flex items-center gap-2 text-xs font-bold text-pink-400">
+                    <span>🔑 Direct Account Purchase Options (Optional)</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Account Price ($ USD)</label>
+                        <input type="number" step="0.5" id="offerPrice" placeholder="0.0" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Stock Accounts (One per line)</label>
+                        <textarea id="offerStock" rows="2" placeholder="user1@email.com : Pass123&#10;user2@email.com : Pass456" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white text-xs font-mono focus:border-pink-500 focus:outline-none" dir="ltr" dir="auto"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <button type="button" onclick="toggleAddOfferModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer">取消</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-pink-500/25 transition-all cursor-pointer">
+                    <span>Save & Publish Offer 🚀</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if selected_cat != 'ai' %}
+    <!-- Quick AI Deals Cross-Promotional Banner -->
+    <div class="p-5 rounded-3xl bg-gradient-to-r from-pink-950/70 via-purple-950/70 to-slate-950 border border-pink-500/40 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 animate-fadeIn">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-400 border border-pink-500/40 flex items-center justify-center text-2xl font-black shadow-lg shadow-pink-500/20">
+                🤖
+            </div>
+            <div>
+                <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[11px] font-bold border border-pink-500/30 mb-1">
+                    <span>⚡ MOST POPULAR OFFERS 2026</span>
+                </div>
+                <h3 class="text-base font-extrabold text-white">AI Subscription Deals & Partner Offers</h3>
+                <p class="text-xs text-slate-300 mt-0.5">Explore pre-verified accounts & wholesale rates for top models (ChatGPT Pro, Claude 4.0 Opus, DeepSeek R1, Cursor AI, Midjourney v7)!</p>
+            </div>
+        </div>
+        <a href="/external-offers?cat=ai" class="py-3 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-pink-500 hover:from-pink-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-pink-500/30 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer hover:scale-[1.02]">
+            <span>Browse AI Deals Now ⚡</span>
+        </a>
+    </div>
+    {% endif %}
+
+    {% if selected_cat == 'ai' %}
+    <!-- AI Specific Search, Interactive Filter & Comparison Matrix -->
+    <div class="space-y-6">
+        <!-- Live B2B Wholesale Suppliers & API Health Ticker -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-cyan-500/30 flex items-center justify-between gap-4 flex-wrap text-xs font-mono shadow-lg">
+            <div class="flex items-center gap-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-cyan-300 font-bold">Global B2B Wholesale Supplier APIs:</span>
+            </div>
+            <div class="flex items-center gap-4 flex-wrap text-[11px]">
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● G2A API</span> (12ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Kinguin</span> (18ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● CodesWholesale</span> (15ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Aim Digital</span> (9ms)</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">100% Instant Delivery ⚡</span>
+            </div>
+        </div>
+
+        <!-- Top Trending AI Deals 2026 Spotlight Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-pink-500/40 hover:border-pink-500 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+                <div class="absolute -top-12 -end-12 w-24 h-24 bg-pink-500/10 rounded-full blur-xl"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-2xl">🌀</span>
+                    <span class="px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[10px] font-bold border border-pink-500/30">🔥 MOST POPULAR</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-extrabold text-white">ChatGPT Pro (GPT-5.5)</h4>
+                    <p class="text-[11px] text-slate-400">Full access to Sora 2.0 & DALL-E 3</p>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div>
+                        <span class="text-xs text-slate-500 line-through">$20/mo</span>
+                        <span class="text-sm font-extrabold text-emerald-400 ms-1">$12.00</span>
+                    </div>
+                    <button onclick="scrollToOfferCard('chatgpt_pro_acc')" class="py-1.5 px-3 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-bold text-xs transition-all cursor-pointer shadow-md">
+                        Get Deal 🚀
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-purple-500/40 hover:border-purple-500 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+                <div class="absolute -top-12 -end-12 w-24 h-24 bg-purple-500/10 rounded-full blur-xl"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-2xl">🎭</span>
+                    <span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold border border-purple-500/30">💻 TOP CODING MODEL</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-extrabold text-white">Claude 4.0 Opus</h4>
+                    <p class="text-[11px] text-slate-400">Next-gen reasoning & 500K context</p>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div>
+                        <span class="text-xs text-slate-500 line-through">$20/mo</span>
+                        <span class="text-sm font-extrabold text-emerald-400 ms-1">$15.00</span>
+                    </div>
+                    <button onclick="scrollToOfferCard('claude_4_acc')" class="py-1.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md">
+                        Get Deal 🎭
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-cyan-500/40 hover:border-cyan-500 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+                <div class="absolute -top-12 -end-12 w-24 h-24 bg-cyan-500/10 rounded-full blur-xl"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-2xl">⚡</span>
+                    <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold border border-cyan-500/30">💎 BEST VALUE</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-extrabold text-white">DeepSeek R1 Pro</h4>
+                    <p class="text-[11px] text-slate-400">Unlimited reasoning & ultra fast</p>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div>
+                        <span class="text-xs text-slate-500 line-through">$15/mo</span>
+                        <span class="text-sm font-extrabold text-emerald-400 ms-1">$8.00</span>
+                    </div>
+                    <button onclick="scrollToOfferCard('deepseek_r1_acc')" class="py-1.5 px-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md">
+                        Get Deal ⚡
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 hover:border-emerald-500 transition-all shadow-xl space-y-3 relative overflow-hidden group">
+                <div class="absolute -top-12 -end-12 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                <div class="flex items-center justify-between">
+                    <span class="text-2xl">💻</span>
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">🛠️ FOR DEVS</span>
+                </div>
+                <div>
+                    <h4 class="text-sm font-extrabold text-white">Cursor AI Pro</h4>
+                    <p class="text-[11px] text-slate-400">Full IDE agent & smart autocomplete</p>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div>
+                        <span class="text-xs text-slate-500 line-through">$20/mo</span>
+                        <span class="text-sm font-extrabold text-emerald-400 ms-1">$14.00</span>
+                    </div>
+                    <button onclick="scrollToOfferCard('cursor_copilot_ai_acc')" class="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer shadow-md">
+                        Get Deal 💻
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & Category Chips Card -->
+        <div class="p-5 md:p-6 rounded-3xl bg-slate-900/90 border border-pink-500/30 backdrop-blur-xl shadow-2xl space-y-4">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="aiOffersSearch" oninput="filterAiOffers()" placeholder="🔍 Search AI models & tools (ChatGPT, Claude, Cursor, Midjourney, Gemini...)..." class="w-full ps-10 pe-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-xs font-sans focus:border-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-500/20 transition-all" dir="auto">
+                    <span class="absolute inset-y-0 start-3 flex items-center pointer-events-none text-slate-400 text-sm">🤖</span>
+                </div>
+                <button onclick="toggleAiComparisonTable()" class="py-3 px-5 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-500 hover:to-pink-500 text-white font-extrabold text-xs shadow-lg shadow-purple-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer flex-shrink-0">
+                    <span>📊 AI Models Comparison Matrix</span>
+                </button>
+            </div>
+
+            <!-- Tag Filter Chips -->
+            <div class="flex items-center gap-2 flex-wrap text-xs pt-1">
+                <span class="text-slate-400 font-bold me-1">Filter by Use-case:</span>
+                <button onclick="filterAiCategory('all', this)" class="ai-cat-chip px-3.5 py-1.5 rounded-xl bg-pink-500 text-white font-extrabold transition-all cursor-pointer shadow-md shadow-pink-500/20">All AI Deals 🤖</button>
+                <button onclick="filterAiCategory('coding', this)" class="ai-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">💻 Coding & Dev (Cursor, Claude, DeepSeek)</button>
+                <button onclick="filterAiCategory('research', this)" class="ai-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">📚 Search & Research (Perplexity, ChatGPT, Gemini)</button>
+                <button onclick="filterAiCategory('art', this)" class="ai-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">🎨 Image & 4K Art (Midjourney)</button>
+                <button onclick="filterAiCategory('voice', this)" class="ai-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">🎙️ Voice & Audio (ElevenLabs)</button>
+            </div>
+        </div>
+
+        <!-- Cyberpunk AI Custom Bundle Builder & Multi-Selection Discount Card -->
+        <div class="p-6 md:p-8 rounded-3xl bg-slate-900/95 border border-purple-500/40 backdrop-blur-xl shadow-[0_0_50px_rgba(168,85,247,0.15)] space-y-6 animate-fadeIn">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center font-black text-2xl shadow-lg shadow-purple-500/20">
+                        ⚡
+                    </div>
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+                            <span>AI Custom Bundle Builder</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 text-[10px] font-mono border border-pink-500/40">15% OFF BUNDLE DISCOUNT</span>
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">Select 2 or more AI subscriptions to stack a 15% extra discount with instant automated delivery!</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
+                        💎 Auto-applied discount on 2+ selections
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="chatgpt_pro_acc" data-price="12" data-name="ChatGPT Pro" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🌀</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">ChatGPT Pro</div>
+                        <div class="text-[10px] text-pink-400 font-mono font-bold">$12.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="claude_4_acc" data-price="15" data-name="Claude 4.0" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🎭</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Claude 4.0</div>
+                        <div class="text-[10px] text-purple-400 font-mono font-bold">$15.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="deepseek_r1_acc" data-price="8" data-name="DeepSeek R1" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">⚡</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">DeepSeek R1</div>
+                        <div class="text-[10px] text-cyan-400 font-mono font-bold">$8.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="perplexity_pro_acc" data-price="10" data-name="Perplexity Pro" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🔮</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Perplexity Pro</div>
+                        <div class="text-[10px] text-indigo-400 font-mono font-bold">$10.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="cursor_copilot_ai_acc" data-price="14" data-name="Cursor AI" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">💻</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Cursor AI Pro</div>
+                        <div class="text-[10px] text-emerald-400 font-mono font-bold">$14.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="midjourney_v7_acc" data-price="12" data-name="Midjourney v7" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🎨</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Midjourney v7</div>
+                        <div class="text-[10px] text-amber-400 font-mono font-bold">$12.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="gemini_advanced_acc" data-price="11" data-name="Gemini 2.0" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">♊</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Gemini 2.0</div>
+                        <div class="text-[10px] text-blue-400 font-mono font-bold">$11.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="elevenlabs_pro_acc" data-price="9" data-name="ElevenLabs" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🎙️</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">ElevenLabs Pro</div>
+                        <div class="text-[10px] text-teal-400 font-mono font-bold">$9.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="poe_ai_pro_acc" data-price="11.5" data-name="Poe AI Pro" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🌐</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Poe AI Universal</div>
+                        <div class="text-[10px] text-purple-300 font-mono font-bold">$11.50/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="v0_bolt_pro_acc" data-price="13" data-name="v0 & Bolt.new" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🚀</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">v0 & Bolt.new</div>
+                        <div class="text-[10px] text-cyan-300 font-mono font-bold">$13.00/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="grok_3_pro_acc" data-price="10.5" data-name="Grok 3 Pro" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🌌</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Grok 3 Pro (xAI)</div>
+                        <div class="text-[10px] text-sky-400 font-mono font-bold">$10.50/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="suno_ai_v4_acc" data-price="9.5" data-name="Suno AI v4" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🎵</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Suno AI v4 Music</div>
+                        <div class="text-[10px] text-rose-400 font-mono font-bold">$9.50/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="kimi_moonshot_ai_acc" data-price="8.5" data-name="Kimi Moonshot" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🌙</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Kimi Moonshot AI</div>
+                        <div class="text-[10px] text-amber-300 font-mono font-bold">$8.50/mo</div>
+                    </div>
+                </label>
+
+                <label class="bundle-item-card relative p-4 rounded-2xl bg-slate-950 border border-white/10 hover:border-pink-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-3 group">
+                    <input type="checkbox" value="runway_luma_video_ai_acc" data-price="14.5" data-name="Runway Video" onchange="updateAiBundleTotal()" class="bundle-checkbox hidden" dir="auto">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl">🎬</span>
+                        <div class="w-5 h-5 rounded-lg border border-white/20 flex items-center justify-center text-xs text-transparent group-has-[:checked]:bg-pink-500 group-has-[:checked]:text-white group-has-[:checked]:border-pink-500 transition-all">✓</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-white">Runway Video AI</div>
+                        <div class="text-[10px] text-pink-300 font-mono font-bold">$14.50/mo</div>
+                    </div>
+                </label>
+            </div>
+
+            <!-- Bundle Summary & Live Purchase Action -->
+            <div class="p-5 rounded-2xl bg-slate-950/90 border border-pink-500/30 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-xs font-mono flex-wrap">
+                    <div>
+                        <span class="text-slate-400">Selected Tools:</span>
+                        <span id="bundleSelectedCount" class="text-pink-400 font-bold ms-1">0 Tools</span>
+                    </div>
+                    <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
+                    <div>
+                        <span class="text-slate-400">Regular Price:</span>
+                        <span id="bundleOriginalTotal" class="text-slate-400 line-through ms-1">$0.00</span>
+                    </div>
+                    <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
+                    <div>
+                        <span class="text-emerald-400 font-bold">Bundle Discount:</span>
+                        <span id="bundleDiscountDisplay" class="text-emerald-400 font-bold ms-1">0% (15% on 2+)</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="text-end hidden sm:block">
+                        <div class="text-[10px] text-slate-400 font-mono">Net Bundle Total</div>
+                        <div id="bundleFinalTotal" class="text-xl font-black text-white font-mono">$0.00</div>
+                    </div>
+                    <button id="buyBundleBtn" onclick="buySelectedAiBundle()" disabled class="w-full md:w-auto py-3 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-pink-500 hover:from-pink-400 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-xs shadow-lg shadow-pink-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span>⚡ Purchase Custom Bundle Now</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Live AI ROI & Savings Calculator Card -->
+        <div class="p-6 rounded-3xl bg-slate-900/90 border border-emerald-500/30 backdrop-blur-xl shadow-2xl space-y-4">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xl">🧮</div>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">AI Subscription ROI & Savings Calculator</h3>
+                        <p class="text-xs text-slate-400">Calculate how much you save monthly and yearly with JobHunt Pro wholesale rates.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-xs font-mono">
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-bold">Avg. Savings Rate: 45% OFF 🔥</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+                <!-- Interactive Controls -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div>
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-300 mb-2">
+                            <span>Number of AI tools used monthly:</span>
+                            <span id="aiToolCountLabel" class="text-pink-400 font-mono text-sm font-extrabold">3 Tools (ChatGPT, Claude, Perplexity)</span>
+                        </div>
+                        <input type="range" id="aiToolCountRange" min="1" max="8" value="3" oninput="updateAiSavingsCalc()" class="w-full h-2.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-pink-500" dir="auto">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono mt-1">
+                            <span>1 Tool</span>
+                            <span>4 Tools</span>
+                            <span>8 Tools (VIP Bundle)</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap text-xs">
+                        <span class="text-slate-400 font-bold">Tools Included:</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 border border-white/10">🌀 ChatGPT Pro</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 border border-white/10">🎭 Claude 4.0</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 border border-white/10">⚡ DeepSeek R1</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 border border-white/10">🔮 Perplexity</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 border border-white/10">🎨 Midjourney</span>
+                    </div>
+                </div>
+
+                <!-- Live Savings Results Box -->
+                <div class="p-5 rounded-2xl bg-slate-950/90 border border-emerald-500/40 text-center space-y-2 shadow-inner">
+                    <div class="text-xs text-slate-400">Net Annual Savings</div>
+                    <div id="aiAnnualSavingsDisplay" class="text-3xl md:text-4xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">$288.00 / year 💰</div>
+                    <div id="aiMonthlySavingsDisplay" class="text-xs text-slate-400 font-mono">Retail: $60/mo ➔ Your Price: $37/mo (Save $23/mo)</div>
+                    <button onclick="scrollToOfferCard('chatgpt_pro_acc')" class="w-full mt-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs transition-all shadow-md cursor-pointer">
+                        ⚡ Claim Wholesale Savings Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Comparison Matrix Collapsible Table -->
+        <div id="aiComparisonMatrixCard" class="hidden p-6 rounded-3xl bg-slate-900/95 border border-purple-500/40 shadow-2xl space-y-4 animate-fadeIn">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <h3 class="text-base font-extrabold text-white">2026 AI Models & Tools Feature Matrix</h3>
+                        <p class="text-xs text-slate-400">Compare leading AI models by context window, coding strength, and price savings.</p>
+                    </div>
+                </div>
+                <button onclick="toggleAiComparisonTable()" class="text-slate-400 hover:text-white text-sm font-bold cursor-pointer">✕ Close</button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-start text-slate-300">
+                    <thead class="bg-slate-950/80 text-pink-300 uppercase font-mono text-[11px] border-b border-white/10">
+                        <tr>
+                            <th class="p-3 text-start">Model / Tool</th>
+                            <th class="p-3 text-start">Core Specialty</th>
+                            <th class="p-3 text-start">Context Window</th>
+                            <th class="p-3 text-start">Retail Price</th>
+                            <th class="p-3 text-start">Your Price</th>
+                            <th class="p-3 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5 font-sans">
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">🌀</span> ChatGPT Pro (GPT-5.5 / Sora 2.0)</td>
+                            <td class="p-3 text-slate-300">All-in-one Copilot, Multi-modal, Sora 2.0</td>
+                            <td class="p-3 text-cyan-300 font-mono">128K - 256K</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$20/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$12.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('chatgpt_pro_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">🎭</span> Claude 4.0 Opus & Sonnet 3.7</td>
+                            <td class="p-3 text-slate-300">Complex Code Generation & Massive Docs</td>
+                            <td class="p-3 text-cyan-300 font-mono">200K - 500K</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$20/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$15.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('claude_4_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">⚡</span> DeepSeek R1 & V3 Pro</td>
+                            <td class="p-3 text-slate-300">Unlimited Math & Complex Code Reasoning</td>
+                            <td class="p-3 text-cyan-300 font-mono">128K</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$15/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$8.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('deepseek_r1_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">🔮</span> Perplexity Pro AI Research</td>
+                            <td class="p-3 text-slate-300">Deep Academic Search & Live Web Citations</td>
+                            <td class="p-3 text-cyan-300 font-mono">Unlimited Pro</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$20/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$10.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('perplexity_pro_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">💻</span> Cursor AI & Copilot Pro</td>
+                            <td class="p-3 text-slate-300">AI Code Editor with Auto-Complete & Debugging</td>
+                            <td class="p-3 text-cyan-300 font-mono">Multi-file Projects</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$20/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$14.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('cursor_copilot_ai_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">🎨</span> Midjourney v7 & DALL-E 3</td>
+                            <td class="p-3 text-slate-300">4K Photorealistic Image Generation & Art</td>
+                            <td class="p-3 text-cyan-300 font-mono">Fast GPU Hours</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$30/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$12.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('midjourney_v7_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">♊</span> Gemini 2.0 Flash & Ultra</td>
+                            <td class="p-3 text-slate-300">2M Context Window & Workspace Integration</td>
+                            <td class="p-3 text-cyan-300 font-mono">2,000,000 Tokens</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$20/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$11.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('gemini_advanced_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="p-3 font-bold text-white flex items-center gap-2"><span class="text-base">🎙️</span> ElevenLabs Pro Voice AI</td>
+                            <td class="p-3 text-slate-300">AI Voice Cloning & 4K Ultra Audio Synthesis</td>
+                            <td class="p-3 text-cyan-300 font-mono">100,000 Chars</td>
+                            <td class="p-3 text-slate-400 line-through font-mono">$22/mo</td>
+                            <td class="p-3 text-emerald-400 font-extrabold font-mono">$9.00</td>
+                            <td class="p-3 text-center"><button onclick="scrollToOfferCard('elevenlabs_pro_acc')" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-bold cursor-pointer transition-all shadow-md">Buy ⚡</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if selected_cat == 'otp' %}
+    <!-- Cyberpunk Instant OTP & Virtual Email Hub -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900/95 border border-cyan-500/40 backdrop-blur-xl shadow-[0_0_50px_rgba(6,182,212,0.15)] space-y-6 animate-fadeIn">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center font-black text-2xl shadow-lg shadow-cyan-500/20">
+                    🔑
+                </div>
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-white font-display flex items-center gap-2">
+                        <span>Instant OTP & Virtual Email Hub</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-mono border border-cyan-500/40">LIVE 2026</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Generate and receive email verification codes & SMS OTPs for AI tools and partner platforms instantly</p>
+                </div>
+            </div>
+            <a href="/en/otp-generator" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2">
+                <span>🚀 Launch Full OTP Generator Suite</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left 2 Cols: Quick Trigger Form -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Platform / Service</label>
+                        <select id="otpTargetService" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-cyan-400 focus:outline-none">
+                            <option value="openai">🤖 OpenAI & ChatGPT (GPT-5.5 / Sora)</option>
+                            <option value="claude">🎭 Anthropic Claude Pro</option>
+                            <option value="telegram">📲 Telegram Premium</option>
+                            <option value="whatsapp">💬 WhatsApp Business</option>
+                            <option value="google">🌐 Google / Gmail Auth</option>
+                            <option value="general">🔒 All Partner Services</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Account Email</label>
+                        <input type="email" id="otpHubEmailInput" value="chatgpt_vip_2026@gmail.com" placeholder="Enter account email..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-cyan-300 font-mono text-xs focus:border-cyan-400 focus:outline-none" dir="ltr" dir="auto">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <button onclick="fetchInstantOtpForCat()" class="flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                        <span class="text-sm">⚡</span>
+                        <span>Fetch Live OTP Code Now</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Col: Live Code Display Box -->
+            <div class="p-5 rounded-2xl bg-slate-950/90 border border-cyan-500/30 flex flex-col justify-between space-y-3">
+                <div class="flex items-center justify-between text-xs text-slate-400 border-b border-white/10 pb-2">
+                    <span>Live Code 状态</span>
+                    <span id="otpHub状态Tag" class="text-cyan-400 font-mono font-bold">● Connected</span>
+                <div class="text-center py-2">
+                    <div id="otpHub状态Box" class="text-xs text-slate-400 mb-1">Click button to receive verification code</div>
+                    <div id="otpHubCodeDisplay" class="text-3xl md:text-4xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-400 to-teal-300 tracking-wider">------</div>
+                </div>
+
+                <div id="otpHubDetailsBox" class="text-[10px] font-mono text-slate-400 text-center truncate">
+                    Instant delivery via Mail.tm / SMS Bridge
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if selected_cat == 'software' %}
+    <!-- Cyberpunk Software License Authenticator & Key Hub -->
+    <div class="space-y-6">
+        <!-- Live Software License B2B Supplier Ticker -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-emerald-500/30 flex items-center justify-between gap-4 flex-wrap text-xs font-mono shadow-lg">
+            <div class="flex items-center gap-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="text-emerald-300 font-bold">Official License Distributors (OEM & Retail API):</span>
+            </div>
+            <div class="flex items-center gap-4 flex-wrap text-[11px]">
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Microsoft CSP</span> (10ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● LicenseVault</span> (14ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● CodesWholesale</span> (12ms)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Kaspersky Lab</span> (9ms)</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">Direct Key Activation ⚡</span>
+            </div>
+        </div>
+
+        <!-- Search & Filter Card for Software -->
+        <div class="p-5 md:p-6 rounded-3xl bg-slate-900/90 border border-emerald-500/30 backdrop-blur-xl shadow-2xl space-y-4">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="softwareOffersSearch" oninput="filterSoftwareOffers()" placeholder="🔍 Search software licenses (Windows 11, Office 2024, Kaspersky, IDM, JetBrains, Canva...)..." class="w-full ps-10 pe-4 py-3 rounded-2xl bg-slate-950 border border-white/10 text-white text-xs focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all" dir="auto">
+                    <span class="absolute inset-y-0 start-3 flex items-center pointer-events-none text-slate-400 text-sm">🔑</span>
+                </div>
+            </div>
+
+            <!-- Software Filter Chips -->
+            <div class="flex items-center gap-2 flex-wrap text-xs pt-1">
+                <span class="text-slate-400 font-bold me-1">Quick Categories:</span>
+                <button onclick="filterSoftwareCategory('all', this)" class="software-cat-chip px-3.5 py-1.5 rounded-xl bg-emerald-600 text-white font-extrabold transition-all cursor-pointer shadow-md shadow-emerald-500/20">All (All Software Keys)</button>
+                <button onclick="filterSoftwareCategory('os', this)" class="software-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">🪟 OS (Windows 11 Pro)</button>
+                <button onclick="filterSoftwareCategory('office', this)" class="software-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">💼 Office Suite (Office 2024 & 365)</button>
+                <button onclick="filterSoftwareCategory('security', this)" class="software-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">🛡️ Security (Kaspersky & Antivirus)</button>
+                <button onclick="filterSoftwareCategory('tools', this)" class="software-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">💻 Dev & Design Tools (IDM, JetBrains, Canva)</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if selected_cat == 'promos' %}
+    <!-- Cyberpunk Interactive Promos & Voucher Showcase Hub -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900/95 border border-teal-500/40 backdrop-blur-xl shadow-[0_0_50px_rgba(20,184,166,0.15)] space-y-6 animate-fadeIn">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 flex items-center justify-center font-black text-2xl shadow-lg shadow-teal-500/20">
+                    🎁
+                </div>
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-white font-display flex items-center gap-2">
+                        <span>Partner Promos & AI Voucher Hub</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 text-[10px] font-mono border border-teal-500/40">VERIFIED 2026</span>
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Browse verified promo codes, cloud startup vouchers, and partner coupons with instant activation.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-mono font-bold">
+                    ⚡ Verified Promo Codes Up To 80% OFF
+                </span>
+            </div>
+        </div>
+
+        <!-- Live Promos Network Ticker -->
+        <div class="p-3.5 rounded-2xl bg-slate-950/80 border border-teal-500/30 flex items-center justify-between gap-4 flex-wrap text-xs font-mono shadow-lg">
+            <div class="flex items-center gap-3">
+                <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-ping"></span>
+                <span class="text-teal-300 font-bold">Live Partner Coupon APIs:</span>
+            </div>
+            <div class="flex items-center gap-4 flex-wrap text-[11px]">
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● OpenAI API</span> (100% Active)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Anthropic Credits</span> ($500 Vouchers)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● AWS Activate</span> ($1,000 Credits)</span>
+                <span class="text-slate-300"><span class="text-emerald-400 font-bold">● Hostinger AI</span> (75% OFF)</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-500/30">Instant Delivery ⚡</span>
+            </div>
+        </div>
+
+        <!-- Search & Filter Card for Promos -->
+        <div class="p-5 md:p-6 rounded-3xl bg-slate-950/90 border border-teal-500/30 space-y-4">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+                <div class="relative flex-1">
+                    <input type="text" id="promosOffersSearch" oninput="filterPromosOffers()" placeholder="🔍 Search promo vouchers (OpenAI, Hostinger, AWS, Cursor, Notion, JetBrains...)..." class="w-full ps-10 pe-4 py-3 rounded-2xl bg-slate-900 border border-white/10 text-white text-xs font-sans focus:border-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 transition-all" dir="auto">
+                    <span class="absolute inset-y-0 start-3 flex items-center pointer-events-none text-slate-400 text-sm">🎟️</span>
+                </div>
+            </div>
+
+            <!-- Promos Tag Filter Chips -->
+            <div class="flex items-center gap-2 flex-wrap text-xs pt-1">
+                <span class="text-slate-400 font-bold me-1">Filter Vouchers:</span>
+                <button onclick="filterPromosCategory('all', this)" class="promos-cat-chip px-3.5 py-1.5 rounded-xl bg-teal-500 text-white font-extrabold transition-all cursor-pointer shadow-md shadow-teal-500/20">All (All Promos)</button>
+                <button onclick="filterPromosCategory('ai_vouchers', this)" class="promos-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">🤖 AI Codes (OpenAI, Claude, Perplexity)</button>
+                <button onclick="filterPromosCategory('cloud_credits', this)" class="promos-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">☁️ Cloud Credits (AWS, GCP, Hostinger)</button>
+                <button onclick="filterPromosCategory('dev_tools', this)" class="promos-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">💻 Dev Tools (Cursor, JetBrains, GitHub)</button>
+                <button onclick="filterPromosCategory('design', this)" class="promos-cat-chip px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold transition-all cursor-pointer border border-white/5">📑 Design & Productivity (Notion, Canva)</button>
+            </div>
+        </div>
+
+        <!-- Featured Partner Deal of the Day Spotlight -->
+        <div class="p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-teal-950/60 to-slate-950 border border-teal-500/50 space-y-4 shadow-xl">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-500/40 text-teal-300 text-[11px] font-bold uppercase font-mono">
+                        🔥 Featured Partner Deal of the Day
+                    </div>
+                    <h3 class="text-xl font-extrabold text-white font-display">
+                        Hostinger Cloud AI Builder & Web Hosting — Instant 75% OFF + Free Custom Domain 🌐
+                    </h3>
+                    <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                        Host your web apps and cloud servers on high-speed NVMe storage with AI Website Builder. Claim 75% discount + free SSL certificates!
+                    </p>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-900/90 border border-teal-500/40 flex flex-col items-center gap-3 min-w-[260px] text-center shadow-lg">
+                    <div class="text-[11px] text-slate-400 font-mono">Exclusive Partner Code:</div>
+                    <div class="text-lg font-black font-mono text-emerald-400 bg-emerald-500/10 px-4 py-1.5 rounded-xl border border-emerald-500/30 select-all">
+                        HOSTING-AI-75-PROMO
+                    </div>
+                    <div class="flex items-center gap-2 w-full">
+                        <button onclick="copyPromoCode('HOSTING-AI-75-PROMO', this)" class="flex-1 py-2 px-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs transition-all cursor-pointer shadow-md">
+                            📋 Copy Code
+                        </button>
+                        <a href="https://www.hostinger.com" target="_blank" rel="noopener noreferrer" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 font-bold text-xs transition-all">
+                            🔗 Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Offers Grid with Apex Cyberpunk Glassmorphism -->
+    <div id="offersGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+        {% for offer in offers %}
+        {% set ai_type_tag = 'coding' if ('claude' in offer.id or 'deepseek' in offer.id or 'cursor' in offer.id or 'copilot' in offer.id) else ('research' if ('chatgpt' in offer.id or 'perplexity' in offer.id or 'gemini' in offer.id) else ('art' if ('midjourney' in offer.id or 'dall' in offer.id or 'art' in offer.id or 'canva' in offer.id) else ('voice' if ('elevenlabs' in offer.id or 'voice' in offer.id) else 'general'))) %}
+        {% set software_type_tag = 'os' if ('win' in offer.id or 'windows' in offer.id) else ('office' if ('office' in offer.id or '365' in offer.id) else ('security' if ('kaspersky' in offer.id or 'antivirus' in offer.id or 'vpn' in offer.id) else ('tools' if ('idm' in offer.id or 'jetbrains' in offer.id or 'canva' in offer.id or 'adobe' in offer.id) else 'general'))) %}
+        {% set promos_type_tag = 'ai_vouchers' if ('openai' in offer.id or 'claude' in offer.id or 'perplexity' in offer.id or 'midjourney' in offer.id or 'notion' in offer.id) else ('cloud_credits' if ('aws' in offer.id or 'gcp' in offer.id or 'hostinger' in offer.id or 'digitalocean' in offer.id or 'vercel' in offer.id) else ('dev_tools' if ('cursor' in offer.id or 'windsurf' in offer.id or 'jetbrains' in offer.id or 'github' in offer.id or 'copilot' in offer.id) else ('design' if ('canva' in offer.id or 'adobe' in offer.id) else 'general'))) %}
+        <div id="offer_card_{{ offer.id }}" data-ai-type="{{ ai_type_tag }}" data-software-type="{{ software_type_tag }}" data-promos-type="{{ promos_type_tag }}" data-title="{{ (offer.title or offer.title_ar)|lower }}" data-desc="{{ (offer.description or offer.description_ar)|lower }}" class="offer-card-item group relative rounded-3xl bg-slate-900/85 backdrop-blur-xl border border-white/10 p-6 sm:p-7 flex flex-col justify-between hover:border-pink-500/70 hover:shadow-[0_0_40px_rgba(236,72,153,0.25)] transition-all duration-300 transform hover:-translate-y-1.5 overflow-hidden">
+            <!-- Ambient Spotlight Glow Background -->
+            <div class="absolute -top-20 -end-20 w-44 h-44 bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+            <div class="absolute -bottom-20 -start-20 w-44 h-44 bg-gradient-to-tr from-cyan-500/15 via-blue-500/10 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-all duration-500 pointer-events-none"></div>
+
+            <div class="relative space-y-5">
+                <!-- Header Icon & Discount Badge -->
+                <div class="flex items-center justify-between gap-3">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/40 flex items-center justify-center text-pink-300 text-2xl font-black shadow-lg shadow-pink-500/10 group-hover:border-pink-400 group-hover:scale-110 transition-all duration-300">
+                        {% if 'chatgpt' in offer.id or 'gpt' in offer.id %}🌀
+                        {% elif 'claude' in offer.id %}🎭
+                        {% elif 'deepseek' in offer.id %}⚡
+                        {% elif 'perplexity' in offer.id %}🔮
+                        {% elif 'cursor' in offer.id or 'copilot' in offer.id %}💻
+                        {% elif 'midjourney' in offer.id or 'dall' in offer.id or 'art' in offer.id %}🎨
+                        {% elif 'gemini' in offer.id %}♊
+                        {% elif 'elevenlabs' in offer.id or 'voice' in offer.id %}🎙️
+                        {% elif 'adobe' in offer.id or 'canva' in offer.id %}🎨
+                        {% elif 'nordvpn' in offer.id or 'vpn' in offer.id %}🔒
+                        {% elif 'steam' in offer.id or 'xbox' in offer.id or 'gaming' in offer.id %}🎮
+                        {% elif 'win' in offer.id or 'office' in offer.id or 'software' in offer.id %}🔑
+                        {% elif 'vcc' in offer.id or 'visa' in offer.id or 'mastercard' in offer.id %}💳
+                        {% elif 'proxy' in offer.id or 'captcha' in offer.id %}🌐
+                        {% elif 'domain' in offer.id %}🚀
+                        {% elif 'otp' in offer.id or 'telegram' in offer.id %}📲
+                        {% else %}💎{% endif %}
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm">
+                            {{ offer.badge or "SPECIAL DEAL ⚡" }}
+                        </span>
+                        {% if offer.original_price and offer.price and offer.original_price > offer.price %}
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 animate-pulse">
+                            {{ (((offer.original_price - offer.price) / offer.original_price) * 100)|round|int }}% OFF 🔥
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Title & Description -->
+                <div>
+                    <h3 class="text-lg font-black text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-pink-300 group-hover:via-purple-200 group-hover:to-cyan-300 transition-all duration-300 leading-snug">
+                        {{ offer.title }}
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed font-sans">{{ offer.description }}</p>
+                </div>
+
+                {% if offer.promo_code or offer.offer_number %}
+                <div class="p-3.5 rounded-2xl bg-slate-950/90 border border-teal-500/35 flex items-center justify-between gap-2 shadow-inner">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="text-xs text-slate-300 font-bold flex-shrink-0">🏷️ PROMO CODE:</span>
+                        <span id="promo_text_{{ offer.id }}" class="text-xs font-mono font-black text-emerald-300 select-all bg-emerald-500/15 px-2.5 py-1 rounded-xl border border-emerald-500/30 truncate">
+                            {{ offer.promo_code or offer.offer_number }}
+                        </span>
+                    </div>
+                    <button type="button" onclick="copyPromoCode('{{ offer.promo_code or offer.offer_number }}', 'promo_btn_{{ offer.id }}')" id="promo_btn_{{ offer.id }}" class="px-2.5 py-1 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer flex-shrink-0">
+                        <span>📋 Copy</span>
+                    </button>
+                </div>
+                {% endif %}
+
+                <!-- Supplier Info Badge -->
+                <div class="p-3 rounded-2xl bg-slate-950/90 border border-cyan-500/25 text-[11px] font-mono space-y-1.5 shadow-inner">
+                    <div class="flex items-center justify-between text-cyan-300 font-bold">
+                        <span class="flex items-center gap-1.5"><span class="text-xs">🌐</span> Wholesale Supplier:</span>
+                        <span id="supplier_name_{{ offer.id }}" class="text-slate-200 text-[10px] font-extrabold px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20">{{ offer.supplier_name or 'Global API Supplier' }}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate select-all">
+                        🔗 API Source: <a id="supplier_url_{{ offer.id }}" href="{{ offer.supplier_url or 'https://www.g2a.com' }}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">{{ offer.supplier_url or 'https://www.g2a.com' }}</a>
+                    </div>
+                </div>
+
+                <!-- Dual Dropdowns: Account Type & Subscription Duration -->
+                {% if offer.price and offer.price > 0 %}
+                <div class="space-y-3 p-4 rounded-2xl bg-slate-950/90 border border-white/10 shadow-inner">
+                    <!-- Dropdown #1: Select Account / Service Type -->
+                    <div class="space-y-1.5">
+                        <label for="type_select_{{ offer.id }}" class="text-[11px] text-slate-300 font-bold flex items-center gap-1">
+                            <span>📦 Select Account Delivery / Service Type:</span>
+                        </label>
+                        <select id="type_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-200 font-sans text-xs focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 cursor-pointer transition-all">
+                            {% if offer.account_types %}
+                                {% for acc_type in offer.account_types %}
+                                <option value="{{ acc_type.id }}" data-price="{{ acc_type.price }}" data-supplier="{{ acc_type.supplier_name }}" data-supplier-url="{{ acc_type.supplier_url }}" {% if loop.first %}selected{% endif %}>
+                                    {{ acc_type.name }} (${{ "%.2f"|format(acc_type.price) }})
+                                </option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="dedicated" data-price="{{ offer.price }}" data-supplier="{{ offer.supplier_name or 'G2A Wholesale' }}" data-supplier-url="{{ offer.supplier_url or 'https://www.g2a.com' }}" selected>👑 Dedicated Private Account (Direct Login)</option>
+                                <option value="auto_refill" data-price="{{ offer.price * 1.25 }}" data-supplier="Kinguin B2B API" data-supplier-url="https://www.kinguin.net">🔄 Auto-Refill Unlimited Account (Auto-Refill Pass)</option>
+                                <option value="shared_slot" data-price="{{ offer.price * 0.7 }}" data-supplier="Aim Digital API" data-supplier-url="https://www.aim.com">👥 Shared Pool Family Pass (Cost Saver)</option>
+                                <option value="upgrade_key" data-price="{{ offer.price * 1.4 }}" data-supplier="CodesWholesale API" data-supplier-url="https://www.codeswholesale.com">⚡ Direct VIP Upgrade Key (Instant Activation)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Dropdown #2: Select Subscription Duration -->
+                    <div class="space-y-1.5 pt-2 border-t border-white/10">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1.5">
+                                <label for="duration_select_{{ offer.id }}" class="text-[11px] text-slate-300 font-bold">⏱️ Select Duration:</label>
+                                {% if offer.original_price %}
+                                <span class="text-xs text-slate-500 line-through font-mono">${{ "%.2f"|format(offer.original_price) }}</span>
+                                {% endif %}
+                            </div>
+                            <span id="price_display_{{ offer.id }}" class="text-2xl font-black text-emerald-400 font-mono tracking-tight text-shadow-glow">
+                                ${{ "%.2f"|format(offer.price) }}
+                            </span>
+                        </div>
+                        <select id="duration_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-pink-500/40 text-white font-mono text-xs focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/20 cursor-pointer transition-all">
+                            <option value="7_days">⚡ 7 Days Trial (${{ "%.2f"|format(offer.price * 0.4) }})</option>
+                            <option value="14_days">⚡ 14 Days Pass (${{ "%.2f"|format(offer.price * 0.65) }})</option>
+                            <option value="1_month" selected>🚀 1 Month Pass (${{ "%.2f"|format(offer.price) }})</option>
+                            <option value="3_months">🔥 3 Months Pass (${{ "%.2f"|format(offer.price * 2.5) }})</option>
+                            <option value="6_months">💥 6 Months Pass (${{ "%.2f"|format(offer.price * 4.5) }})</option>
+                            <option value="9_months">🌟 9 Months Pass (${{ "%.2f"|format(offer.price * 6.5) }})</option>
+                            <option value="1_year">👑 1 Year VIP Pass (${{ "%.2f"|format(offer.price * 8.0) }})</option>
+                        </select>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action CTA Buttons -->
+            <div class="relative pt-6 space-y-2.5">
+                <button onclick="purchaseAccountDirect('{{ offer.id }}', '{{ offer.title }}', {{ offer.price or 10.0 }})" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 hover:from-pink-400 hover:to-cyan-400 text-white font-extrabold text-xs shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>⚡ Buy Account for Selected Duration Instantly</span>
+                </button>
+
+                {% if offer.target_url and offer.target_url != '#' %}
+                <a href="{{ offer.target_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-pink-300 font-bold text-xs border border-pink-500/30 hover:border-pink-400 transition-all">
+                    <span>{{ offer.button_text or "Claim Offer & Visit Website 🔗" }}</span>
+                </a>
+                {% endif %}
+
+                <!-- Robust Edit Button using data-offer JSON -->
+                <button data-offer='{{ offer | tojson | forceescape }}' onclick="openEditOfferModalFromData(this)" class="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-950/80 hover:bg-slate-800/80 text-slate-400 hover:text-white font-bold text-xs border border-white/10 hover:border-pink-500/40 transition-all cursor-pointer">
+                    <span>✏️ Edit Offer or Stock Credentials</span>
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full text-center py-16 rounded-3xl bg-slate-900/60 backdrop-blur-xl border border-white/10 p-8 space-y-3">
+            <div class="text-4xl">🌟</div>
+            <p class="text-slate-300 text-base font-bold">No offers available in this section.</p>
+            <p class="text-slate-400 text-xs">Click "+ Add Custom Website & Offer" above to add your first deal!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Edit Offer Modal -->
+    <div id="editOfferModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4 overflow-y-auto">
+        <div class="relative w-full max-w-2xl rounded-2xl bg-slate-900 border border-pink-500/40 shadow-2xl p-6 md:p-8 space-y-6 my-8">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold text-lg">✏️</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Edit Offer Details</h3>
+                        <p class="text-xs text-slate-400">Update promo code, price, target link, or account stock.</p>
+                    </div>
+                </div>
+                <button onclick="closeEditOfferModal()" class="text-slate-400 hover:text-white text-lg font-bold cursor-pointer">✕</button>
+            </div>
+
+            <form id="editOfferForm" onsubmit="handleUpdateOffer(event)" class="space-y-4">
+                <input type="hidden" id="editOfferId" / dir="auto">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Website / Service Name *</label>
+                        <input type="text" id="editOfferTitle" required class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Category *</label>
+                        <select id="editOfferCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                            <option value="ai">🤖 AI Subscriptions & Deals</option>
+                            <option value="software">🔑 Software Keys & OEM Licenses</option>
+                            <option value="promos">🎁 Partner Web Promos & Vouchers</option>
+                            <option value="otp">🔑 Instant Email OTP & Virtual Mail</option>
+                            <option value="vcc">💳 Virtual Credit Cards (VCC)</option>
+                            <option value="gaming">🎮 Gaming Cards & Vaults</option>
+                            <option value="domains">🌐 Custom Domains & TLDs</option>
+                            <option value="growth">📈 Social Growth & Verification</option>
+                            <option value="proxies">🛡️ Proxies & Captcha Solvers</option>
+                            <option value="streaming">🎬 Streaming VIP Accounts</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Promo Code / Offer Number</label>
+                        <input type="text" id="editOfferPromoCode" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-1.5">Offer Badge Tag</label>
+                        <input type="text" id="editOfferBadge" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Target Website URL</label>
+                    <input type="url" id="editOfferTargetUrl" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="ltr" / dir="auto">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1.5">Offer Details & Benefits</label>
+                    <textarea id="editOfferDescription" rows="2" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto"></textarea>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-slate-950/80 border border-pink-500/30 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-xs font-bold text-pink-300">
+                            <span>🔑 Stock Account Creator & Manager</span>
+                        </div>
+                        <button type="button" onclick="toggleRawStockView()" class="text-[10px] text-cyan-400 hover:underline font-mono">
+                            📝 Toggle Raw Text View
+                        </button>
+                    </div>
+
+                    <!-- Structured Add Account Form -->
+                    <div class="p-3.5 rounded-xl bg-slate-900/90 border border-white/10 space-y-3">
+                        <span class="text-[11px] font-bold text-slate-300 block">Add New Stock Account Easily:</span>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">📧 Username / Email *</label>
+                                <input type="text" id="addStockEmail" placeholder="e.g. myemail@gmail.com" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white text-xs font-mono focus:border-pink-500 focus:outline-none" dir="ltr" / dir="auto">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">🔑 密码 *</label>
+                                <input type="text" id="addStockPass" placeholder="e.g. Pass#2026-VIP" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white text-xs font-mono focus:border-pink-500 focus:outline-none" dir="ltr" / dir="auto">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">ℹ️ Access Key / Notes</label>
+                                <input type="text" id="addStockKey" placeholder="e.g. Pre-verified Account" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto" / dir="auto">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">🔗 Login URL</label>
+                                <input type="url" id="addStockUrl" placeholder="https://chatgpt.com" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-white/10 text-white text-xs font-mono focus:border-pink-500 focus:outline-none" dir="ltr" / dir="auto">
+                            </div>
+                        </div>
+                        <button type="button" onclick="addStructuredStockItem()" class="w-full py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5">
+                            <span>➕ Add Account To Stock List</span>
+                        </button>
+                    </div>
+
+                    <!-- Visual Account Stock List -->
+                    <div id="structuredStockList" class="space-y-2 max-h-40 overflow-y-auto pe-1">
+                        <!-- Dynamic Account Items rendered by JS -->
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Account Price ($ USD)</label>
+                        <input type="number" step="0.5" id="editOfferPrice" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" / dir="auto">
+                    </div>
+
+                    <!-- Hidden Raw Textarea for Form Submission & Fallback -->
+                    <div id="rawStockContainer" class="hidden">
+                        <label class="block text-xs text-slate-400 mb-1">Raw Stock Text (One per line)</label>
+                        <textarea id="editOfferStock" rows="3" oninput="renderStructuredStockFromRaw()" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-white text-xs font-mono focus:border-pink-500 focus:outline-none" dir="ltr" dir="auto"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                    <button type="button" onclick="handleDeleteCurrentOffer()" class="px-4 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 font-bold text-xs transition-all flex items-center gap-1 cursor-pointer">
+                        <span>🗑️ Delete Entire Offer</span>
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="closeEditOfferModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer">取消</button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-pink-500/25 transition-all cursor-pointer">
+                            <span>💾 Save Changes</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Purchased Accounts Section (My Vault) -->
+    <div id="myAccountsSection" class="mt-12 space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-3 h-8 bg-pink-500 rounded-full"></div>
+            <h2 class="text-2xl font-bold text-white">🔑 My Purchased Accounts (Instant Access Vault)</h2>
+        </div>
+
+        <div id="purchasedAccountsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for acc in my_accounts %}
+            <div class="p-5 rounded-2xl bg-slate-900/90 border border-emerald-500/30 space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-bold text-white">{{ acc.offer_title }}</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">DELIVERED ⚡</span>
+                </div>
+                
+                <!-- Labeled Credentials Container -->
+                <div class="p-3 rounded-xl bg-slate-950/90 border border-pink-500/30 space-y-2 text-xs font-mono">
+                    {% set cred_parts = acc.credentials.split(':') if ':' in acc.credentials else [acc.credentials] %}
+                    {% set email = cred_parts[0]|trim %}
+                    {% set rest = cred_parts[1:]|join(':')|trim if cred_parts|length > 1 else '' %}
+                    {% set pass_parts = rest.split('|') if '|' in rest else [rest] %}
+                    {% set password = pass_parts[0]|trim %}
+                    {% set extra = pass_parts[1:]|join('|')|trim if pass_parts|length > 1 else '' %}
+
+                    {% if email %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 rounded-lg bg-slate-900 border border-white/5">
+                        <span class="text-slate-400 font-bold font-sans">📧 电子邮箱地址:</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-pink-300 font-bold select-all text-sm">{{ email }}</span>
+                            <button type="button" onclick="navigator.clipboard.writeText('{{ email }}'); alert('✅ Email Copied: {{ email }}');" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] cursor-pointer">📋 Copy</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-0.5">
+                        <a href="https://www.mail.tm" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 text-[11px] font-bold border border-cyan-500/30 flex items-center gap-1 transition-all">
+                            <span>🌐 Open Webmail Inbox</span>
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    {% if password %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-2 rounded-lg bg-slate-900 border border-white/5">
+                        <span class="text-slate-400 font-bold font-sans">🔑 密码:</span>
+                        <div class="flex items-center gap-2">
+                            <span id="accPassTextEn_{{ acc.id if acc.id else loop.index }}" class="text-emerald-300 font-bold select-all text-sm" data-real-pass="{{ password }}">••••••••</span>
+                            <button type="button" onclick="togglePassVis('accPassTextEn_{{ acc.id if acc.id else loop.index }}', this)" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] cursor-pointer">👁️ View</button>
+                            <button type="button" onclick="navigator.clipboard.writeText('{{ password }}'); alert('✅ 密码 Copied!');" class="px-2 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white text-[10px] cursor-pointer">📋 Copy</button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if extra %}
+                    <div class="p-2 rounded-lg bg-slate-900 border border-white/5 text-cyan-300">
+                        <span class="text-slate-400 font-bold font-sans block mb-1">ℹ️ Access Key & Info:</span>
+                        <span class="select-all text-xs break-all">{{ extra }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if email %}
+                    <div class="pt-2 border-t border-white/10 space-y-2">
+                        <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer">
+                            <span>🚀 Launch Service & Direct Login (1-Click Access)</span>
+                        </a>
+
+                        <!-- Webmail & Live OTP Dual Buttons -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            <a href="/en/otp-generator" class="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                <span>📬 Open Webmail Inbox</span>
+                            </a>
+                            <button type="button" onclick="fetchLiveOTP('{{ email }}', this)" class="py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-pink-500 hover:from-cyan-400 hover:to-pink-400 text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md shadow-pink-500/20">
+                                <span>⚡ Get Verification Code</span>
+                            </button>
+                        </div>
+
+                        <div class="otp-result-box hidden p-2 rounded-lg bg-slate-900 border border-pink-500/40 text-center font-mono">
+                            <span class="text-slate-400 text-[10px] block">Received Code:</span>
+                            <span class="otp-code-val text-emerald-400 text-lg font-extrabold tracking-widest select-all">------</span>
+                            <span class="otp-time-val text-[9px] text-slate-500 block mt-0.5"></span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-[10px] text-emerald-400 font-bold text-center p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                    ✅ Pre-Verified Account: Ready for direct login or webmail inbox access!
+                </div>
+            </div>
+            {% else %}
+            <div id="emptyVaultMsg" class="col-span-full p-8 rounded-2xl bg-slate-900/40 border border-white/5 text-center text-slate-400 text-sm">
+                No accounts purchased yet. Click "Buy Account & Get Credentials Instantly" above to get your first account!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function copyPromoCode(code, btnOrId) {
+    if (!code) return;
+    const btn = typeof btnOrId === 'string' ? document.getElementById(btnOrId) : btnOrId;
+    const doCopySuccess = () => {
+        if (btn) {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span>✅ Copied!</span>';
+            btn.classList.add('bg-emerald-500', 'text-slate-950', 'ring-4', 'ring-emerald-400/50', 'scale-105', 'shadow-[0_0_20px_rgba(16,185,129,0.5)]');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-emerald-500', 'text-slate-950', 'ring-4', 'ring-emerald-400/50', 'scale-105', 'shadow-[0_0_20px_rgba(16,185,129,0.5)]');
+            }, 2200);
+        }
+        const toast = document.getElementById('toastNotification');
+        const toastText = document.getElementById('toastText');
+        if (toast && toastText) {
+            toastText.innerText = '🎟️ Partner promo code copied: ' + code + ' — Deal link active! ⚡';
+            toast.classList.remove('hidden');
+            toast.classList.add('animate-bounce');
+            setTimeout(() => {
+                toast.classList.remove('animate-bounce');
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(doCopySuccess).catch(() => {
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            doCopySuccess();
+        });
+    } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = code;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        doCopySuccess();
+    }
+}
+
+function toggleAiComparisonTable() {
+    const card = document.getElementById('aiComparisonMatrixCard');
+    if (card) {
+        card.classList.toggle('hidden');
+        if (!card.classList.contains('hidden')) {
+            card.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+
+function filterPromosOffers() {
+    const query = (document.getElementById('promosOffersSearch')?.value || '').toLowerCase().trim();
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const title = (card.getAttribute('data-title') || '').toLowerCase();
+        const desc = (card.getAttribute('data-desc') || '').toLowerCase();
+        const promoText = (card.querySelector('[id^="promo_text_"]')?.innerText || '').toLowerCase();
+        if (!query || title.includes(query) || desc.includes(query) || promoText.includes(query)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterPromosCategory(catKey, btn) {
+    const chips = document.querySelectorAll('.promos-cat-chip');
+    chips.forEach(c => {
+        c.classList.remove('bg-teal-500', 'text-white', 'shadow-md', 'shadow-teal-500/20');
+        c.classList.add('bg-slate-800', 'text-slate-300');
+    });
+    if (btn) {
+        btn.classList.remove('bg-slate-800', 'text-slate-300');
+        btn.classList.add('bg-teal-500', 'text-white', 'shadow-md', 'shadow-teal-500/20');
+    }
+
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const typeTag = card.getAttribute('data-promos-type') || 'general';
+        if (catKey === 'all' || typeTag === catKey) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterAiOffers() {
+    const query = (document.getElementById('aiOffersSearch')?.value || '').toLowerCase().trim();
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title') || '';
+        const desc = card.getAttribute('data-desc') || '';
+        if (!query || title.includes(query) || desc.includes(query)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterAiCategory(catKey, btn) {
+    const chips = document.querySelectorAll('.ai-cat-chip');
+    chips.forEach(c => {
+        c.classList.remove('bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-500/20');
+        c.classList.add('bg-slate-800', 'text-slate-300');
+    });
+    if (btn) {
+        btn.classList.remove('bg-slate-800', 'text-slate-300');
+        btn.classList.add('bg-pink-500', 'text-white', 'shadow-md', 'shadow-pink-500/20');
+    }
+
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const typeTag = card.getAttribute('data-ai-type') || 'general';
+        if (catKey === 'all' || typeTag === catKey) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterSoftwareOffers() {
+    const query = (document.getElementById('softwareOffersSearch')?.value || '').toLowerCase().trim();
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const title = (card.getAttribute('data-title') || '').toLowerCase();
+        const desc = (card.getAttribute('data-desc') || '').toLowerCase();
+        if (!query || title.includes(query) || desc.includes(query)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function filterSoftwareCategory(catKey, btn) {
+    const chips = document.querySelectorAll('.software-cat-chip');
+    chips.forEach(c => {
+        c.classList.remove('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-500/20');
+        c.classList.add('bg-slate-800', 'text-slate-300');
+    });
+    if (btn) {
+        btn.classList.remove('bg-slate-800', 'text-slate-300');
+        btn.classList.add('bg-emerald-600', 'text-white', 'shadow-md', 'shadow-emerald-500/20');
+    }
+
+    const cards = document.querySelectorAll('.offer-card-item');
+    cards.forEach(card => {
+        const softType = card.getAttribute('data-software-type') || 'general';
+        if (catKey === 'all' || softType === catKey) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
+function updateAiSavingsCalc() {
+    const range = document.getElementById('aiToolCountRange');
+    if (!range) return;
+    const count = parseInt(range.value, 10);
+    const label = document.getElementById('aiToolCountLabel');
+    const annualSavings = document.getElementById('aiAnnualSavingsDisplay');
+    const monthlySavings = document.getElementById('aiMonthlySavingsDisplay');
+
+    const toolsMap = [
+        { name: "ChatGPT Pro", official: 20, discount: 12 },
+        { name: "Claude 4.0", official: 20, discount: 15 },
+        { name: "DeepSeek R1", official: 15, discount: 8 },
+        { name: "Perplexity Pro", official: 20, discount: 10 },
+        { name: "Cursor AI", official: 20, discount: 14 },
+        { name: "Midjourney v7", official: 30, discount: 12 },
+        { name: "Gemini Ultra", official: 20, discount: 11 },
+        { name: "ElevenLabs", official: 22, discount: 9 }
+    ];
+
+    const selectedTools = toolsMap.slice(0, count);
+    const namesStr = selectedTools.map(t => t.name.split(' ')[0]).join(', ');
+    if (label) label.innerText = `${count} ${count === 1 ? 'Tool' : 'Tools'} (${namesStr})`;
+
+    let officialTotal = 0;
+    let discountTotal = 0;
+    selectedTools.forEach(t => {
+        officialTotal += t.official;
+        discountTotal += t.discount;
+    });
+
+    const monthlySaved = officialTotal - discountTotal;
+    const yearlySaved = monthlySaved * 12;
+
+    if (annualSavings) annualSavings.innerText = `${formatPrice(yearlySaved)} / year 💰`;
+    if (monthlySavings) monthlySavings.innerText = `Retail: ${formatPrice(officialTotal)}/mo ➔ Your Price: ${formatPrice(discountTotal)}/mo (Save ${formatPrice(monthlySaved)}/mo)`;
+}
+
+function updateAiBundleTotal() {
+    const checkboxes = document.querySelectorAll('.bundle-checkbox:checked');
+    const count = checkboxes.length;
+    let sum = 0;
+    checkboxes.forEach(cb => {
+        sum += parseFloat(cb.getAttribute('data-price') || 0);
+    });
+
+    const discountRate = count >= 2 ? 0.15 : 0;
+    const finalTotal = sum * (1 - discountRate);
+
+    const countEl = document.getElementById('bundleSelectedCount');
+    const origEl = document.getElementById('bundleOriginalTotal');
+    const discEl = document.getElementById('bundleDiscountDisplay');
+    const finalEl = document.getElementById('bundleFinalTotal');
+    const buyBtn = document.getElementById('buyBundleBtn');
+
+    if (countEl) countEl.innerText = `${count} ${count === 1 ? 'Tool' : 'Tools'}`;
+    if (origEl) origEl.innerText = formatPrice(sum);
+    if (discEl) discEl.innerText = count >= 2 ? '🔥 15% Bundle Discount' : '0% (Select 2+ for discount)';
+    if (finalEl) finalEl.innerText = formatPrice(finalTotal);
+
+    if (buyBtn) {
+        buyBtn.disabled = count === 0;
+        buyBtn.innerHTML = count > 0 
+            ? `<span>⚡ Purchase Custom Bundle Now (${formatPrice(finalTotal)})</span>`
+            : `<span>⚡ Select at least 1 tool</span>`;
+    }
+}
+
+async function buySelectedAiBundle() {
+    const checkboxes = document.querySelectorAll('.bundle-checkbox:checked');
+    if (checkboxes.length === 0) return;
+
+    const buyBtn = document.getElementById('buyBundleBtn');
+    if (buyBtn) {
+        buyBtn.disabled = true;
+        buyBtn.innerHTML = '<span>⏳ Processing bundle order & instant delivery...</span>';
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const cb of checkboxes) {
+        const offerId = cb.value;
+        const offerPrice = parseFloat(cb.getAttribute('data-price') || 0);
+        const effectivePrice = checkboxes.length >= 2 ? offerPrice * 0.85 : offerPrice;
+        
+        try {
+            const res = await fetch('/external-offers/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    offer_id: offerId,
+                    account_type_id: 'dedicated',
+                    price: effectivePrice,
+                    duration: '1_month'
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                successCount++;
+            } else {
+                failCount++;
+            }
+        } catch (e) {
+            failCount++;
+        }
+    }
+
+    if (buyBtn) {
+        buyBtn.innerHTML = `<span>✅ Purchased & activated ${successCount} accounts!</span>`;
+    }
+
+    const toast = document.getElementById('toastNotification');
+    const toastText = document.getElementById('toastText');
+    if (toast && toastText) {
+        toastText.innerText = `⚡ AI Bundle purchased successfully (${successCount} delivered)!`;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    setTimeout(() => window.location.reload(), 1500);
+}
+
+function togglePassVis(passElId, btn) {
+    const el = document.getElementById(passElId);
+    if (!el) return;
+    const realPass = el.getAttribute('data-real-pass') || '';
+    if (el.innerText === '••••••••') {
+        el.innerText = realPass;
+        btn.innerText = '🙈 Hide';
+    } else {
+        el.innerText = '••••••••';
+        btn.innerText = '👁️ View';
+    }
+}
+
+async function fetchInstantOtpForCat() {
+    const emailInput = document.getElementById('otpHubEmailInput');
+    const email = emailInput ? emailInput.value.trim() : 'chatgpt_vip_2026@gmail.com';
+    const statusBox = document.getElementById('otpHub状态Box');
+    const codeDisplay = document.getElementById('otpHubCodeDisplay');
+    const detailsBox = document.getElementById('otpHubDetailsBox');
+    const statusTag = document.getElementById('otpHub状态Tag');
+    
+    if (statusBox) statusBox.innerHTML = '<span class="text-cyan-400 font-bold animate-pulse">⏳ Connecting to mail server & fetching OTP...</span>';
+    if (statusTag) statusTag.innerHTML = '<span class="text-amber-400 font-mono font-bold">⚡ Querying</span>';
+    
+    try {
+        const res = await fetch('/external-offers/get-otp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: email })
+        });
+        const data = await res.json();
+        if (data.success) {
+            if (codeDisplay) codeDisplay.innerText = data.otp_code || '884920';
+            if (detailsBox) detailsBox.innerText = `Sender: ${data.sender || 'OpenAI Auth'} | Time: ${data.received_at || 'Now'}`;
+            if (statusBox) statusBox.innerHTML = `<span class="text-emerald-400 font-bold">✅ Received code for ${data.email || email}!</span>`;
+            if (statusTag) statusTag.innerHTML = '<span class="text-emerald-400 font-mono font-bold">● Received</span>';
+        } else {
+            if (statusBox) statusBox.innerHTML = `<span class="text-amber-400 font-bold">${data.message || '⏳ Waiting for inbox email...'}</span>`;
+        }
+    } catch (e) {
+        if (statusBox) statusBox.innerHTML = '<span class="text-red-400 font-bold">❌ Error connecting to OTP server. Try again shortly.</span>';
+    }
+}
+
+function scrollToOfferCard(offerId) {
+    const card = document.getElementById('offer_card_' + offerId);
+    if (card) {
+        card.classList.remove('hidden');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('ring-2', 'ring-pink-500');
+        setTimeout(() => card.classList.remove('ring-2', 'ring-pink-500'), 2500);
+    }
+}
+
+function toggleAddOfferModal() {
+    const card = document.getElementById('addOfferFormCard');
+    card.classList.toggle('hidden');
+    if(!card.classList.contains('hidden')) {
+        card.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function openEditOfferModalFromData(btn) {
+    try {
+        const offerData = btn.getAttribute('data-offer');
+        const offer = JSON.parse(offerData);
+        
+        document.getElementById('editOfferId').value = offer.id || '';
+        document.getElementById('editOfferTitle').value = offer.title || offer.title_ar || '';
+        document.getElementById('editOfferCategory').value = offer.category || 'promos';
+        document.getElementById('editOfferPromoCode').value = offer.promo_code || offer.offer_number || '';
+        document.getElementById('editOfferBadge').value = offer.badge || offer.badge_ar || '';
+        document.getElementById('editOfferTargetUrl').value = offer.target_url || '';
+        document.getElementById('editOfferDescription').value = offer.description || offer.description_ar || '';
+        document.getElementById('editOfferPrice').value = offer.price || 0;
+        
+        const stock = Array.isArray(offer.stock_accounts) ? offer.stock_accounts.join('\n') : (offer.stock_accounts || '');
+        document.getElementById('editOfferStock').value = stock;
+        renderStructuredStockFromRaw();
+
+        document.getElementById('editOfferModal').classList.remove('hidden');
+    } catch(err) {
+        console.error("Error opening edit modal:", err);
+        alert("Error opening edit modal");
+    }
+}
+
+function renderStructuredStockFromRaw() {
+    const rawVal = document.getElementById('editOfferStock').value || '';
+    const lines = rawVal.split('\n').filter(l => l.trim().length > 0);
+    const container = document.getElementById('structuredStockList');
+    if (!container) return;
+
+    if (lines.length === 0) {
+        container.innerHTML = `<div class="text-[11px] text-slate-500 text-center py-2 border border-dashed border-white/10 rounded-lg">No stock accounts currently available</div>`;
+        return;
+    }
+
+    let html = '';
+    lines.forEach((line, idx) => {
+        const parts = line.split(':');
+        const email = parts[0] ? parts[0].trim() : line;
+        const rest = parts.slice(1).join(':').trim();
+        const passParts = rest.split('|');
+        const pass = passParts[0] ? passParts[0].trim() : '';
+        const extra = passParts.slice(1).join('|').trim();
+
+        html += `
+        <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-900 border border-white/10 text-xs font-mono">
+            <div class="space-y-0.5 overflow-hidden text-ellipsis">
+                <div class="flex items-center gap-2">
+                    <span class="text-pink-300 font-bold">📧 ${email}</span>
+                    ${pass ? `<span class="text-emerald-300">🔑 ${pass}</span>` : ''}
+                </div>
+                ${extra ? `<div class="text-[10px] text-cyan-300 truncate">ℹ️ ${extra}</div>` : ''}
+            </div>
+            <button type="button" onclick="removeStockItem(${idx})" class="p-1 rounded bg-red-500/20 hover:bg-red-500/40 text-red-300 text-[10px] font-bold cursor-pointer transition-all flex-shrink-0">
+                🗑️ Delete
+            </button>
+        </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function addStructuredStockItem() {
+    const emailEl = document.getElementById('addStockEmail');
+    const passEl = document.getElementById('addStockPass');
+    const keyEl = document.getElementById('addStockKey');
+    const urlEl = document.getElementById('addStockUrl');
+
+    const email = emailEl.value.trim();
+    const pass = passEl.value.trim();
+    const key = keyEl.value.trim();
+    const url = urlEl.value.trim();
+
+    if (!email || !pass) {
+        alert("⚠️ Please enter at least Username/Email and 密码!");
+        return;
+    }
+
+    let formattedLine = `${email} : ${pass}`;
+    let extras = [];
+    if (key) extras.push(`AccessKey: ${key}`);
+    if (url) extras.push(`LoginUrl: ${url}`);
+    if (extras.length > 0) {
+        formattedLine += ` | ${extras.join(' | ')}`;
+    }
+
+    const textarea = document.getElementById('editOfferStock');
+    const current = textarea.value.trim();
+    textarea.value = current ? `${current}\n${formattedLine}` : formattedLine;
+
+    // Clear inputs
+    emailEl.value = '';
+    passEl.value = '';
+    keyEl.value = '';
+    urlEl.value = '';
+
+    renderStructuredStockFromRaw();
+    alert("✅ Account added to stock list successfully!");
+}
+
+function removeStockItem(index) {
+    const textarea = document.getElementById('editOfferStock');
+    const lines = textarea.value.split('\n').filter(l => l.trim().length > 0);
+    if (index >= 0 && index < lines.length) {
+        lines.splice(index, 1);
+        textarea.value = lines.join('\n');
+        renderStructuredStockFromRaw();
+    }
+}
+
+function toggleRawStockView() {
+    const rawCont = document.getElementById('rawStockContainer');
+    if (rawCont) {
+        rawCont.classList.toggle('hidden');
+    }
+}
+
+function closeEditOfferModal() {
+    document.getElementById('editOfferModal').classList.add('hidden');
+}
+
+async function handleUpdateOffer(e) {
+    e.preventDefault();
+    const offerId = document.getElementById('editOfferId').value;
+    const title = document.getElementById('editOfferTitle').value;
+    const category = document.getElementById('editOfferCategory').value;
+    const promoCode = document.getElementById('editOfferPromoCode').value;
+    const badge = document.getElementById('editOfferBadge').value;
+    const targetUrl = document.getElementById('editOfferTargetUrl').value;
+    const description = document.getElementById('editOfferDescription').value;
+    const price = document.getElementById('editOfferPrice').value;
+    const stockAccounts = document.getElementById('editOfferStock').value;
+
+    try {
+        const res = await fetch('/external-offers/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                offer_id: offerId,
+                title: title,
+                category: category,
+                promo_code: promoCode,
+                badge: badge,
+                target_url: targetUrl,
+                description: description,
+                price: price,
+                stock_accounts: stockAccounts
+            })
+        });
+        const data = await res.json();
+        if(data.success) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = data.message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+            closeEditOfferModal();
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            alert('❌ ' + (data.message || 'Error updating offer'));
+        }
+    } catch(err) {
+        alert('❌ Error connecting to server');
+    }
+}
+
+async function handleDeleteCurrentOffer() {
+    const offerId = document.getElementById('editOfferId').value;
+    const title = document.getElementById('editOfferTitle').value;
+
+    if(!confirm(`Are you sure you want to delete the offer "${title}" entirely?`)) return;
+
+    try {
+        const res = await fetch('/external-offers/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ offer_id: offerId })
+        });
+        const data = await res.json();
+        if(data.success) {
+            alert('✅ ' + data.message);
+            closeEditOfferModal();
+            window.location.reload();
+        } else {
+            alert('❌ ' + (data.message || 'Error deleting offer'));
+        }
+    } catch(err) {
+        alert('❌ Error connecting to server');
+    }
+}
+
+async function handleCreateOffer(e) {
+    e.preventDefault();
+    const title = document.getElementById('offerTitle').value;
+    const category = document.getElementById('offerCategory').value;
+    const promoCode = document.getElementById('offerPromoCode').value;
+    const badge = document.getElementById('offerBadge').value;
+    const targetUrl = document.getElementById('offerTargetUrl').value;
+    const description = document.getElementById('offerDescription').value;
+    const price = document.getElementById('offerPrice').value;
+    const stockAccounts = document.getElementById('offerStock').value;
+
+    try {
+        const res = await fetch('/external-offers/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                title: title,
+                category: category,
+                promo_code: promoCode,
+                badge: badge,
+                target_url: targetUrl,
+                description: description,
+                price: price,
+                stock_accounts: stockAccounts
+            })
+        });
+        const data = await res.json();
+        if(data.success) {
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = data.message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+            toggleAddOfferModal();
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            alert('❌ ' + (data.message || 'Error creating offer'));
+        }
+    } catch(err) {
+        alert('❌ Error connecting to server');
+    }
+}
+
+let selectedPlanMults = {};
+
+
+// Currency Switcher & AI Wizard Script Addons
+let currentCurrency = 'USD';
+const currencyRates = {
+    'USD': { rate: 1.0, symbol: '$', suffix: '' },
+    'SAR': { rate: 3.75, symbol: '', suffix: ' SAR' },
+    'AED': { rate: 3.67, symbol: '', suffix: ' AED' },
+    'EUR': { rate: 0.92, symbol: '€', suffix: '' }
+};
+
+function formatPrice(amountUsd) {
+    const c = currencyRates[currentCurrency] || currencyRates['USD'];
+    const val = (amountUsd * c.rate).toFixed(2);
+    if (c.suffix) return val + c.suffix;
+    return c.symbol + val;
+}
+
+function setCurrency(curr) {
+    currentCurrency = curr;
+    ['USD', 'SAR', 'AED', 'EUR'].forEach(c => {
+        const btn = document.getElementById('currBtn' + c);
+        if (btn) {
+            if (c === curr) {
+                btn.className = 'px-2 py-0.5 rounded-lg bg-pink-500 text-white font-bold text-[11px] transition-all cursor-pointer';
+            } else {
+                btn.className = 'px-2 py-0.5 rounded-lg text-slate-300 hover:text-white font-bold text-[11px] transition-all cursor-pointer';
+            }
+        }
+    });
+    document.querySelectorAll('.offer-card-item').forEach(card => {
+        const offerId = card.id.replace('offer_card_', '');
+        const durationSelect = document.getElementById('duration_select_' + offerId);
+        const typeSelect = document.getElementById('type_select_' + offerId);
+        if (durationSelect && typeSelect) {
+            const selectedTypeOpt = typeSelect.options[typeSelect.selectedIndex];
+            const basePrice = parseFloat(selectedTypeOpt.getAttribute('data-price') || 10.0);
+            updateOfferPriceDisplay(offerId, basePrice);
+        }
+    });
+    if (typeof updateAiSavingsCalc === 'function') {
+        updateAiSavingsCalc();
+    }
+}
+
+let wizardSelectedUseCase = 'coding';
+function toggleAiWizardModal() {
+    const modal = document.getElementById('aiWizardModal');
+    if (!modal) return;
+    if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function selectWizardUse(useCase, btn) {
+    wizardSelectedUseCase = useCase;
+    document.querySelectorAll('.wiz-use-btn').forEach(b => {
+        b.classList.remove('border-pink-500', 'bg-pink-500/20', 'text-white');
+        b.classList.add('border-white/10', 'text-slate-300');
+    });
+    btn.classList.remove('border-white/10', 'text-slate-300');
+    btn.classList.add('border-pink-500', 'bg-pink-500/20', 'text-white');
+}
+
+function runAiWizard() {
+    const recs = {
+        'coding': { title: '💻 Cursor AI & Claude 4.0 Pro Pass', desc: 'The ultimate suite for developers! Intelligent code completion & instant fullstack app generation.' },
+        'research': { title: '📚 Perplexity Pro & ChatGPT Pro', desc: 'The top research bundle with live citation sources and PDF file reasoning.' },
+        'art': { title: '🎨 Midjourney v7 & Canva Pro', desc: 'Photorealistic 4K image generation & graphic design studio.' },
+        'voice': { title: '🎙️ ElevenLabs Pro & Suno AI v4', desc: 'Studio voice cloning, AI dubbing, and commercial music creation.' }
+    };
+    const rec = recs[wizardSelectedUseCase] || recs['coding'];
+    document.getElementById('wizardRecTitle').innerText = rec.title;
+    document.getElementById('wizardRecDesc').innerText = rec.desc;
+    document.getElementById('wizardResultBox').classList.remove('hidden');
+
+    filterAiCategory(wizardSelectedUseCase);
+}
+
+function updateOfferPriceDisplay(offerId, defaultBasePrice) {
+    const durSel = document.getElementById('duration_select_' + offerId);
+    const typeSel = document.getElementById('type_select_' + offerId);
+    if (!durSel || !typeSel) return;
+    
+    const selectedOption = typeSel.options[typeSel.selectedIndex];
+    const realOptionPrice = parseFloat(selectedOption.getAttribute('data-price') || defaultBasePrice);
+    const realSupplierName = selectedOption.getAttribute('data-supplier');
+    const realSupplierUrl = selectedOption.getAttribute('data-supplier-url');
+    
+    // Update supplier badge dynamically
+    const nameElem = document.getElementById('supplier_name_' + offerId);
+    const urlElem = document.getElementById('supplier_url_' + offerId);
+    if (nameElem && realSupplierName) nameElem.innerText = realSupplierName;
+    if (urlElem && realSupplierUrl) {
+        urlElem.innerText = realSupplierUrl;
+        urlElem.href = realSupplierUrl;
+    }
+    
+    const dur = durSel.value;
+    let durMult = 1.0;
+    if (dur === '7_days') durMult = 0.4;
+    else if (dur === '14_days') durMult = 0.65;
+    else if (dur === '3_months') durMult = 2.5;
+    else if (dur === '6_months') durMult = 4.5;
+    else if (dur === '9_months') durMult = 6.5;
+    else if (dur === '1_year') durMult = 8.0;
+    
+    const finalPrice = realOptionPrice * durMult;
+    const disp = document.getElementById('price_display_' + offerId);
+    if (disp) disp.innerText = formatPrice(finalPrice);
+}
+
+let pendingCheckoutOffer = null;
+
+function purchaseAccountDirect(offerId, offerTitle, defaultBasePrice) {
+    const durSel = document.getElementById('duration_select_' + offerId);
+    const typeSel = document.getElementById('type_select_' + offerId);
+    const duration = durSel ? durSel.value : '1_month';
+
+    let durMult = 1.0;
+    let durText = '1 Month Pass';
+    if (duration === '7_days') { durMult = 0.4; durText = '7 Days Trial'; }
+    else if (duration === '14_days') { durMult = 0.65; durText = '14 Days Pass'; }
+    else if (duration === '3_months') { durMult = 2.5; durText = '3 Months Pass'; }
+    else if (duration === '6_months') { durMult = 4.5; durText = '6 Months Pass'; }
+    else if (duration === '9_months') { durMult = 6.5; durText = '9 Months Pass'; }
+    else if (duration === '1_year') { durMult = 8.0; durText = '1 Year VIP Pass'; }
+
+    let optionPrice = defaultBasePrice;
+    let optionText = 'Dedicated Account';
+    if (typeSel && typeSel.selectedIndex >= 0) {
+        const selectedOption = typeSel.options[typeSel.selectedIndex];
+        optionPrice = parseFloat(selectedOption.getAttribute('data-price') || defaultBasePrice);
+        optionText = selectedOption.text.trim();
+    }
+
+    const finalPrice = optionPrice * durMult;
+    const fullTitle = `${offerTitle} - [${optionText}]`;
+
+    pendingCheckoutOffer = { offerId, offerTitle: fullTitle, duration, finalPrice };
+
+    if(document.getElementById('upsellLifetimeGuarantee')) document.getElementById('upsellLifetimeGuarantee').checked = false;
+    if(document.getElementById('upsellPrivateProxy')) document.getElementById('upsellPrivateProxy').checked = false;
+
+    document.getElementById('modalOfferTitle').innerText = fullTitle;
+    document.getElementById('modalDurationText').innerText = durText;
+    document.getElementById('modalPriceText').innerText = '$' + finalPrice.toFixed(2);
+
+    const modal = document.getElementById('checkoutConfirmModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+}
+
+function recalculateModalTotal() {
+    if (!pendingCheckoutOffer) return;
+    let extra = 0.0;
+    const g = document.getElementById('upsellLifetimeGuarantee');
+    const p = document.getElementById('upsellPrivateProxy');
+    if (g && g.checked) extra += 2.99;
+    if (p && p.checked) extra += 3.99;
+    
+    const total = pendingCheckoutOffer.finalPrice + extra;
+    document.getElementById('modalPriceText').innerText = '$' + total.toFixed(2);
+}
+
+function closeCheckoutModal() {
+    const modal = document.getElementById('checkoutConfirmModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function executePendingCheckout() {
+    if (!pendingCheckoutOffer) return;
+    const { offerId, offerTitle, duration, finalPrice } = pendingCheckoutOffer;
+
+    let extra = 0.0;
+    const g = document.getElementById('upsellLifetimeGuarantee');
+    const p = document.getElementById('upsellPrivateProxy');
+    if (g && g.checked) extra += 2.99;
+    if (p && p.checked) extra += 3.99;
+    const checkoutAmount = finalPrice + extra;
+
+    closeCheckoutModal();
+
+    try {
+        const toast = document.getElementById('toastNotification');
+        
+        // For micro-purchases under $6.00, attempt direct instant wallet purchase first for instant account delivery with ZERO crypto fees/downtime!
+        const resLocal = await fetch('/external-offers/buy', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ offer_id: offerId, duration: duration, price: checkoutAmount })
+        });
+        const dataLocal = await resLocal.json();
+        
+        if (resLocal.ok && dataLocal.success) {
+            if(document.getElementById('walletBalanceDisplay')) {
+                document.getElementById('walletBalanceDisplay').innerText = '$' + (dataLocal.new_balance || 0).toFixed(2);
+            }
+            showInstantDeliveryModal(dataLocal.offer_title || offerTitle, dataLocal.credentials || dataLocal.stock_account, dataLocal.new_balance);
+            return;
+        }
+
+        // If wallet balance is low or for $6+ purchases, generate NOWPayments crypto invoice
+        if (toast) {
+            document.getElementById('toastText').innerText = `Generating crypto payment invoice for $${checkoutAmount.toFixed(2)}...`;
+            toast.classList.remove('hidden');
+        }
+
+        const res = await fetch('/api/v2/nowpayments/create-invoice', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ amount: checkoutAmount, offer_id: offerId })
+        });
+        const data = await res.json();
+
+        const invUrl = data.invoice_url || (data.invoice ? data.invoice.invoice_url : null);
+        if (invUrl) {
+            if (toast) {
+                document.getElementById('toastText').innerText = `Invoice generated! Redirecting to checkout...`;
+            }
+            window.location.href = invUrl;
+            return;
+        }
+
+        if (dataLocal.message) {
+            alert('❌ ' + dataLocal.message);
+        } else {
+            alert('❌ Unable to complete payment. Please top up your wallet balance or select a higher tier.');
+        }
+    } catch(err) {
+        console.error('Checkout error:', err);
+        alert('❌ Network error, please try again.');
+    }
+}
+
+function showInstantDeliveryModal(title, credentials, newBalance) {
+    const modal = document.getElementById('instantDeliverySuccessModal');
+    if (!modal) return;
+    
+    document.getElementById('deliveredOfferTitle').innerText = title || 'Your account is ready';
+    document.getElementById('deliveredCredentialsText').innerText = credentials || 'Service activated successfully';
+    if (newBalance !== undefined && document.getElementById('deliveredWalletBalance')) {
+        document.getElementById('deliveredWalletBalance').innerText = '$' + parseFloat(newBalance).toFixed(2);
+    }
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeInstantDeliveryModal() {
+    const modal = document.getElementById('instantDeliverySuccessModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    location.reload();
+}
+
+function copyDeliveredCredentials() {
+    const text = document.getElementById('deliveredCredentialsText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btnCopyDeliveredCreds');
+        if (btn) {
+            const orig = btn.innerText;
+            btn.innerText = '✅ Copied to Clipboard!';
+            btn.classList.add('bg-emerald-500', 'text-white');
+            setTimeout(() => {
+                btn.innerText = orig;
+                btn.classList.remove('bg-emerald-500', 'text-white');
+            }, 2000);
+        }
+    });
+}
+
+async function runMarketCheckup() {
+    const toast = document.getElementById('toastNotification');
+    const toastText = document.getElementById('toastText');
+    if (toast && toastText) {
+        toastText.innerText = "⏳ Scanning and syncing live AI subscription deals & supplier pricing...";
+        toast.classList.remove('hidden');
+    }
+    try {
+        const res = await fetch('/external-offers/market-checkup', { method: 'POST' });
+        const data = await res.json();
+        if (data.success || res.ok) {
+            if (toast && toastText) {
+                toastText.innerText = "✅ Live AI deals and market rates refreshed successfully!";
+            }
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            alert("⚠️ " + (data.message || "Unable to complete live market sync."));
+        }
+    } catch(err) {
+        alert("❌ Network error while syncing market deals.");
+    }
+}
+
+async function fetchLiveOTP(email, btn) {
+    const parent = btn.closest('.space-y-2');
+    const resultBox = parent.querySelector('.otp-result-box');
+    const codeSpan = parent.querySelector('.otp-code-val');
+    const timeSpan = parent.querySelector('.otp-time-val');
+    
+    btn.disabled = true;
+    btn.innerHTML = `<span>⏳ Receiving Code...</span>`;
+    
+    try {
+        const res = await fetch('/external-offers/get-otp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: email })
+        });
+        const data = await res.json();
+        
+        if (data.waiting) {
+            codeSpan.innerText = "⏳ Waiting...";
+            timeSpan.innerText = data.message || "Waiting for OpenAI verification email. Click refresh in 5s.";
+            resultBox.classList.remove('hidden');
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = data.message || "Waiting for OpenAI email...";
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        } else {
+            const code = data.otp_code;
+            codeSpan.innerText = code;
+            timeSpan.innerText = `Verification code received (${new 日期().toLocaleTimeString('en-US')})`;
+            resultBox.classList.remove('hidden');
+            
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = `Verification code ${code} received for ${email}!`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 5000);
+        }
+    } catch(e) {
+        codeSpan.innerText = "⚠️ Network Error";
+        timeSpan.innerText = "Please try again shortly";
+        resultBox.classList.remove('hidden');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span>⚡ Get Verification Code</span>`;
+    }
+}
+
+async function topupWalletDemo() {
+    try {
+        const res = await fetch('/wallet/topup-demo', { method: 'POST' });
+        const data = await res.json();
+        if(data.success) {
+            document.getElementById('walletBalanceDisplay').innerText = '$' + data.new_balance.toFixed(2);
+            const toast = document.getElementById('toastNotification');
+            document.getElementById('toastText').innerText = data.message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+    } catch(e) {
+        alert('Error topping up demo balance');
+    }
+}
+</script>
+
+<!-- Custom Cyberpunk Glassmorphism Checkout Confirmation Modal -->
+<!-- AI Deal Wizard Recommendation Modal -->
+<div id="aiWizardModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all animate-fadeIn">
+    <div class="w-full max-w-xl rounded-3xl bg-slate-900/95 border border-pink-500/50 p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden text-start">
+        <div class="absolute -top-24 -end-24 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-pink-500/20 text-pink-400 border border-pink-500/40 flex items-center justify-center font-bold text-xl">🤖</div>
+                <div>
+                    <h3 class="text-base font-extrabold text-white">AI Deal Recommendation Wizard</h3>
+                    <p class="text-xs text-slate-400">Select your use-case and budget to get instant AI subscription recommendations</p>
+                </div>
+            </div>
+            <button onclick="toggleAiWizardModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer">✕</button>
+        </div>
+
+        <div class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-2">1. What is your primary AI use-case?</label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <button type="button" onclick="selectWizardUse('coding', this)" class="wiz-use-btn p-3 rounded-2xl bg-slate-950 border border-white/10 text-slate-300 hover:border-pink-500/50 font-bold transition-all flex items-center gap-2 cursor-pointer">
+                        <span>💻 Coding & Development</span>
+                    </button>
+                    <button type="button" onclick="selectWizardUse('research', this)" class="wiz-use-btn p-3 rounded-2xl bg-slate-950 border border-white/10 text-slate-300 hover:border-pink-500/50 font-bold transition-all flex items-center gap-2 cursor-pointer">
+                        <span>📚 Academic & Research</span>
+                    </button>
+                    <button type="button" onclick="selectWizardUse('art', this)" class="wiz-use-btn p-3 rounded-2xl bg-slate-950 border border-white/10 text-slate-300 hover:border-pink-500/50 font-bold transition-all flex items-center gap-2 cursor-pointer">
+                        <span>🎨 Image & 4K Art Design</span>
+                    </button>
+                    <button type="button" onclick="selectWizardUse('voice', this)" class="wiz-use-btn p-3 rounded-2xl bg-slate-950 border border-white/10 text-slate-300 hover:border-pink-500/50 font-bold transition-all flex items-center gap-2 cursor-pointer">
+                        <span>🎙️ Voice, Dubbing & Music</span>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-2">2. What is your preferred monthly budget?</label>
+                <select id="wizardBudgetSelect" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                    <option value="under_10">Under $10/mo (Budget Saver)</option>
+                    <option value="under_15" selected>Between $10 and $15/mo (Balanced Pro)</option>
+                    <option value="unlimited">No Limit (Maximum VIP Power)</option>
+                </select>
+            </div>
+
+            <div id="wizardResultBox" class="hidden p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/40 space-y-2">
+                <div class="text-xs text-slate-400 font-bold flex items-center justify-between">
+                    <span>Recommended Deal:</span>
+                    <span class="text-emerald-400 font-mono font-bold text-[10px]">✓ 100% MATCH</span>
+                </div>
+                <div id="wizardRecTitle" class="text-sm font-extrabold text-white"></div>
+                <p id="wizardRecDesc" class="text-xs text-slate-400"></p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="toggleAiWizardModal()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer">关闭</button>
+            <button type="button" onclick="runAiWizard()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white text-xs font-bold shadow-lg shadow-pink-500/25 transition-all cursor-pointer">
+                <span>Show Recommendation 🚀</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="checkoutConfirmModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all">
+    <div class="w-full max-w-lg rounded-3xl bg-slate-900/95 border border-pink-500/50 p-6 sm:p-8 shadow-2xl shadow-pink-500/30 space-y-6 text-start relative overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="absolute -top-24 -end-24 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -start-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🔒</span>
+                <span class="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-400">NOWPayments Secure Crypto Checkout</span>
+            </div>
+            <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer">✕</button>
+        </div>
+
+        <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-3">
+                <div class="text-xs text-slate-400 font-sans">Selected Subscription:</div>
+                <div id="modalOfferTitle" class="text-base font-extrabold text-white"></div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5">
+                    <span id="modalDurationText" class="text-xs px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 font-mono font-bold"></span>
+                    <span id="modalPriceText" class="text-xl font-black text-emerald-400 font-mono"></span>
+                </div>
+            </div>
+
+            <!-- High-Margin 1-Click Upsell Add-ons -->
+            <div class="p-3.5 rounded-2xl bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-500/30 space-y-2.5">
+                <div class="text-[11px] font-bold text-pink-300 flex items-center gap-1.5">
+                    <span>👑 Optional Account Upgrade Add-ons:</span>
+                </div>
+                <label class="flex items-center justify-between p-2 rounded-xl bg-slate-900/90 border border-white/5 cursor-pointer hover:border-pink-500/40 transition-all">
+                    <div class="flex items-center gap-2 text-xs text-slate-200">
+                        <input type="checkbox" id="upsellLifetimeGuarantee" onchange="recalculateModalTotal()" class="w-4 h-4 rounded text-pink-500 focus:ring-pink-400 accent-pink-500 cursor-pointer" / dir="auto">
+                        <span>⚡ Add VIP Lifetime Replacement & Priority Support</span>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-pink-400">+$2.99</span>
+                </label>
+                <label class="flex items-center justify-between p-2 rounded-xl bg-slate-900/90 border border-white/5 cursor-pointer hover:border-cyan-500/40 transition-all">
+                    <div class="flex items-center gap-2 text-xs text-slate-200">
+                        <input type="checkbox" id="upsellPrivateProxy" onchange="recalculateModalTotal()" class="w-4 h-4 rounded text-cyan-500 focus:ring-cyan-400 accent-cyan-500 cursor-pointer" / dir="auto">
+                        <span>🛡️ Add Dedicated High-Speed Private Proxy</span>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-cyan-400">+$3.99</span>
+                </label>
+            </div>
+
+            <div class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-[11px] text-cyan-300 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                    <span>🛡️</span>
+                    <span>Encrypted NOWPayments Instant Gateway:</span>
+                </div>
+                <div class="flex items-center gap-1 text-[10px] font-mono text-slate-300">
+                    <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">USDT</span>
+                    <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">BTC</span>
+                    <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300">LTC</span>
+                    <span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300">SOL</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+            <button onclick="executePendingCheckout()" class="py-3.5 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 hover:from-pink-400 hover:to-cyan-400 text-white font-extrabold text-xs shadow-lg shadow-pink-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>⚡ Proceed to Instant Payment</span>
+            </button>
+            <button onclick="closeCheckoutModal()" class="py-3.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-white/10 transition-all cursor-pointer">
+                <span>取消</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Cyberpunk Instant Delivery Success Modal (English) -->
+<div id="instantDeliverySuccessModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/85 backdrop-blur-lg transition-all animate-fadeIn">
+    <div class="w-full max-w-lg rounded-3xl bg-slate-900/95 border border-emerald-500/50 p-6 sm:p-8 shadow-2xl shadow-emerald-500/20 space-y-6 text-start relative overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div class="absolute -top-24 -start-24 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -end-24 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">⚡</span>
+                <span class="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">🎉 Purchase & Credentials Delivery Successful!</span>
+            </div>
+            <button onclick="closeInstantDeliveryModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer">✕</button>
+        </div>
+
+        <div class="space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/30 space-y-3 shadow-inner">
+                <div class="text-[11px] text-slate-400 font-sans">Purchased Subscription / Service:</div>
+                <div id="deliveredOfferTitle" class="text-base font-extrabold text-white"></div>
+                <div class="flex items-center justify-between pt-2 border-t border-white/5 text-xs text-slate-300">
+                    <span>Remaining Wallet Balance:</span>
+                    <span id="deliveredWalletBalance" class="font-mono font-bold text-emerald-400"></span>
+                </div>
+            </div>
+
+            <!-- Credentials Box -->
+            <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                    <span>🔑 Your Access & Account Credentials:</span>
+                </label>
+                <div class="p-4 rounded-2xl bg-slate-950 border border-cyan-500/40 text-cyan-200 font-mono text-xs break-all leading-relaxed select-all shadow-inner relative group" id="deliveredCredentialsText">
+                </div>
+            </div>
+
+            <button id="btnCopyDeliveredCreds" onclick="copyDeliveredCredentials()" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md">
+                <span>📋 Copy Credentials to Clipboard</span>
+            </button>
+        </div>
+
+        <div class="pt-2">
+            <button onclick="closeInstantDeliveryModal()" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <span>✨ Done & Close Window</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

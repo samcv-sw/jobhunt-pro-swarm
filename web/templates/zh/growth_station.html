@@ -1,0 +1,236 @@
+<div class="max-w-6xl mx-auto space-y-8 p-4 md:p-6">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-cyan-950/60 to-slate-900 border border-cyan-500/30 p-6 md:p-10 shadow-2xl">
+        <div class="absolute -top-24 -end-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-4">
+                    <span>📢 Autonomous Lead Harvester & B2B Growth Engine</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                    Growth Station & Candidate Swarm Leads
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-2xl">
+                    Discover hiring leads, recruiter contacts, and candidate opportunities automatically across LinkedIn, GitHub, Reddit, and B2B sources.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/new-campaign" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 cursor-pointer">
+                    <span>🚀 Launch Email Outreach Blast</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple Guide Banner: What is this page & How to benefit -->
+    <div class="p-6 rounded-3xl bg-gradient-to-br from-cyan-950/40 via-slate-900 to-slate-950 border border-cyan-500/30 shadow-xl space-y-4">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">💡</span>
+            <h2 class="text-lg font-extrabold text-cyan-300">What is this page & how does it help you? (Simple Explanation)</h2>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed">
+            Think of this page as your <strong class="text-cyan-400">"Personal AI Job Scout"</strong> that handles the hard work of searching for recruiters and hiring managers!
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="font-bold text-white text-sm flex items-center gap-2"><span>🔍 1. Automatic Scraper</span></div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    Instead of spending hours searching manually, the AI automatically extracts real recruiter emails matching your desired job title and location.
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="font-bold text-white text-sm flex items-center gap-2"><span>✉️ 2. 1-Click Outreach</span></div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    With a single click, send your tailored CV and cover message directly to decision-maker inboxes.
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="font-bold text-white text-sm flex items-center gap-2"><span>🎯 3. More Interviews</span></div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    Connect with dozens of active hiring employers in minutes to maximize your interview callbacks effortlessly.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-cyan-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Total Harvested Leads</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400" id="totalLeadsCount">{{ leads_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-2xl text-cyan-400">
+                📊
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-amber-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Pending Leads</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400" id="pendingLeadsCount">{{ pending_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl text-amber-400">
+                ⏳
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-emerald-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Contacted & Dispatched</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400" id="sentLeadsCount">{{ sent_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl text-emerald-400">
+                ✅
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Swarm Harvester Control Form -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-cyan-500/30 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🤖</span>
+                <div>
+                    <h3 class="text-lg font-extrabold text-white">AI Autonomous Harvester Agent</h3>
+                    <p class="text-xs text-slate-400">Select a lead agent to scrape active hiring decision makers.</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="scrapeForm" onsubmit="handleStartScrape(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Scraper Agent</label>
+                <select id="agentSelect" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                    <option value="linkedin_dork">🌐 LinkedIn Job Dorks & HR Search</option>
+                    <option value="github">💻 GitHub Engineering & Candidate Seekers</option>
+                    <option value="reddit">🎯 Reddit Hiring Sniper & Subreddits</option>
+                    <option value="b2b_maps">🏢 B2B 公司 Directory & Maps</option>
+                    <option value="google_jobs">🔎 Google Jobs & Career Portals</option>
+                    <option value="indeed_radar">💼 Indeed Hiring Managers Radar</option>
+                    <option value="glassdoor_hr">🏛️ Glassdoor Corporate & HR Directory</option>
+                    <option value="crunchbase">🚀 Crunchbase Funded Startups & Founders</option>
+                    <option value="wellfound">🦄 Wellfound (AngelList) Recruiters</option>
+                    <option value="techcrunch_vc">📰 TechCrunch Funded Companies & HR</option>
+                    <option value="ycombinator">⚡ Y-Combinator Portfolio Companies</option>
+                    <option value="remoteok">🌍 RemoteOK Global Remote Recruiters</option>
+                    <option value="weworkremotely">🏝️ WeWorkRemotely Hiring Directors</option>
+                    <option value="wuzzuf_gulf">🐪 Bayt & Wuzzuf MENA / Gulf HR</option>
+                    <option value="monster_jobs">👾 Monster & CareerBuilder HR Leads</option>
+                    <option value="twitter_x_hiring">🐦 X (Twitter) Hiring Tweets & Tech Leads</option>
+                    <option value="upwork_clients">🛠️ Upwork & Freelance Client Directors</option>
+                    <option value="clutch_co">🤝 Clutch.co Verified Executive Directors</option>
+                    <option value="producthunt">🏆 ProductHunt Launched Startup Founders</option>
+                    <option value="zoominfo_dork">📞 Apollo & ZoomInfo Executive Contacts</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Keyword / Role</label>
+                <input type="text" id="scrapeKeyword" required placeholder="e.g. Software Engineer or HR Manager" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">工作地点 / Region</label>
+                <input type="text" id="scrape工作地点" placeholder="e.g. Dubai, UAE or Remote" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" id="btnStartScrape" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>⚡ Launch Lead Scraper</span>
+                </button>
+            </div>
+        </form>
+
+        <div id="scrape状态Alert" class="hidden p-3 rounded-xl bg-cyan-950/60 border border-cyan-500/30 text-xs text-cyan-200 font-bold"></div>
+    </div>
+
+    <!-- Harvested Leads Data Table -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-white/10 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <h3 class="text-base font-extrabold text-white">Harvested Leads Directory</h3>
+            <button onclick="loadLeadsTable()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">
+                🔄 Refresh Leads
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-start text-xs text-slate-300">
+                <thead class="text-[11px] font-extrabold uppercase bg-slate-950/60 text-slate-400 border-b border-white/10">
+                    <tr>
+                        <th class="p-3">公司 / Candidate</th>
+                        <th class="p-3">Contact Email</th>
+                        <th class="p-3">Source Agent</th>
+                        <th class="p-3">工作地点</th>
+                        <th class="p-3">状态</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsTableBody" class="divide-y divide-white/5">
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-500 font-medium">Loading leads data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadLeadsTable() {
+  const tbody = document.getElementById('leadsTableBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/api/growth/leads?page=1&limit=50');
+    const data = await res.json();
+    if (data.leads && data.leads.length > 0) {
+      document.getElementById('totalLeadsCount').innerText = data.total || data.leads.length;
+      tbody.innerHTML = data.leads.map(lead => `
+        <tr class="hover:bg-white/5 transition-colors">
+          <td class="p-3 font-bold text-white">${lead.name || lead.job_title || 'Lead Contact'}</td>
+          <td class="p-3 font-mono text-cyan-300">${lead.email || 'N/A'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20">${lead.source || 'web'}</span></td>
+          <td class="p-3">${lead.location || 'Global'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded ${lead.status === 'sent' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">${lead.status || 'pending'}</span></td>
+        </tr>
+      `).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">No leads harvested yet. Launch the scraper agent above!</td></tr>';
+    }
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-400">Failed to load leads data.</td></tr>';
+  }
+}
+
+async function handleStartScrape(e) {
+  e.preventDefault();
+  const alert = document.getElementById('scrape状态Alert');
+  const btn = document.getElementById('btnStartScrape');
+  const agent = document.getElementById('agentSelect').value;
+  const keyword = document.getElementById('scrapeKeyword').value;
+  const location = document.getElementById('scrape工作地点').value;
+
+  btn.disabled = true;
+  btn.innerText = '⏳ Scraping Leads...';
+  alert.classList.remove('hidden');
+  alert.innerText = '🤖 AI Harvester agent active. Scraping leads in background...';
+
+  try {
+    const res = await fetch('/api/growth/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent, keyword, location, max_leads: 25 })
+    });
+    const data = await res.json();
+    alert.innerText = '✅ ' + (data.message || 'Scrape task launched successfully! Check the table below for live leads.');
+    loadLeadsTable();
+    setTimeout(() => { loadLeadsTable(); }, 1500);
+    setTimeout(() => { loadLeadsTable(); }, 3500);
+  } catch (err) {
+    alert.innerText = '❌ Error launching scraper: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerText = '⚡ Launch Lead Scraper';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadLeadsTable);
+</script>

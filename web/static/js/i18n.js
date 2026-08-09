@@ -4,7 +4,17 @@
  */
 
 const JobHuntI18n = {
-  currentLocale: localStorage.getItem('jh_locale') || 'ar',
+  currentLocale: (() => {
+    const localLang = localStorage.getItem('jh_locale');
+    if (localLang && localLang.length <= 10) return localLang.toLowerCase();
+    const cookieMatch = document.cookie.match(/(?:^|;\s*)lang=([^;]+)/);
+    if (cookieMatch && cookieMatch[1].length <= 10) return cookieMatch[1].toLowerCase();
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    if (urlLang && urlLang.length <= 10) return urlLang.toLowerCase();
+    const docLang = document.documentElement.getAttribute('lang');
+    if (docLang && docLang.length <= 10) return docLang.toLowerCase();
+    return 'ar';
+  })(),
   
   translations: {
     ar: {
@@ -36,6 +46,16 @@ const JobHuntI18n = {
       ats_score: 'Score de Match ATS',
       status_active: 'Actif et opérationnel',
       apply_now: 'Postuler Maintenant'
+    },
+    zh: {
+      dir: 'ltr',
+      font: "'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+      dashboard: '控制台',
+      auto_applier: '自动投递系统',
+      mock_interview: 'AI 语音模拟面试',
+      ats_score: 'ATS 匹配度得分',
+      status_active: '运行中',
+      apply_now: '立即申请'
     }
   },
 
@@ -44,14 +64,25 @@ const JobHuntI18n = {
   },
 
   setLocale(lang) {
-    if (!this.translations[lang]) lang = 'ar';
+    if (!lang || typeof lang !== 'string') lang = 'ar';
+    const cleanCode = lang.split('-')[0].toLowerCase();
+
     this.currentLocale = lang;
     localStorage.setItem('jh_locale', lang);
 
-    const config = this.translations[lang];
-    document.documentElement.lang = lang;
-    document.documentElement.dir = config.dir;
-    document.body.style.fontFamily = config.font;
+    const rtlLangs = ['ar', 'fa', 'ur', 'he', 'ps', 'sd', 'yi'];
+    const isRtl = rtlLangs.includes(cleanCode);
+
+    const config = this.translations[cleanCode] || {
+      dir: isRtl ? 'rtl' : 'ltr',
+      font: isRtl ? "'Cairo', 'Tajawal', sans-serif" : "'Inter', system-ui, sans-serif"
+    };
+
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', config.dir);
+    if (document.body) {
+      document.body.style.fontFamily = config.font;
+    }
 
     // Dispatch global event for listeners
     window.dispatchEvent(new CustomEvent('localeChange', { detail: { lang, config } }));
@@ -63,4 +94,8 @@ const JobHuntI18n = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => JobHuntI18n.init());
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => JobHuntI18n.init());
+} else {
+  JobHuntI18n.init();
+}

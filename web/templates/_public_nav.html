@@ -19,10 +19,13 @@
 </div>
 
 <div class="nav-links" id="navLinks" style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
+  <div class="lang-switcher-group" style="display:flex;align-items:center;gap:4px;background:rgba(255,255,255,0.06);padding:3px 8px;border-radius:10px;margin-inline-start:6px;flex-shrink:0;border:1px solid rgba(255,255,255,0.1);">
+    <span style="font-size:13px;padding:0 2px;">🌐</span>
+    <a class="lang-switcher" href="/lang/ar" onclick="if(window.switchGlobalLang){switchGlobalLang('ar', event);}" style="color:{{ '#f0c040' if lang == 'ar' else '#94a3b8' }};text-decoration:none;font-size:12px;font-weight:700;padding:2px 6px;border-radius:6px;transition:all 0.2s;">العربية</a>
+    <a class="lang-switcher" href="/lang/en" onclick="if(window.switchGlobalLang){switchGlobalLang('en', event);}" style="color:{{ '#f0c040' if lang == 'en' else '#94a3b8' }};text-decoration:none;font-size:12px;font-weight:700;padding:2px 6px;border-radius:6px;transition:all 0.2s;">EN</a>
+  </div>
+
 {% if lang == 'en' %}
-  <a class="lang-switcher" id="lang-switcher-link" href="/lang/ar" style="display:flex;align-items:center;gap:4px;color:#e2e8f0;text-decoration:none;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:none;transition:all 0.2s;margin-inline-start:6px;white-space:nowrap;flex-shrink:0;">
-    <span style="font-size:14px;">🌐</span> العربية
-  </a>
   <a href="/?lang=en" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Home</a>
   <a href="/services?lang=en" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Services</a>
   <a href="/pricing?lang=en" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Pricing</a>
@@ -38,10 +41,23 @@
     <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Start Free →</a>
   {% endif %}
 
+{% elif lang == 'zh' %}
+  <a href="/?lang=zh" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">首页</a>
+  <a href="/services?lang=zh" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">服务</a>
+  <a href="/pricing?lang=zh" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">价格</a>
+  <a href="/blog?lang=zh" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">博客</a>
+  <a href="/faq?lang=zh" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">常见问题</a>
+  <a href="/trust?lang=zh" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">信任</a>
+  <a href="/contact?lang=zh" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">联系我们</a>
+  {% if is_logged_in %}
+    <a href="/dashboard?lang=zh" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">控制台</a>
+    <a class="cta" href="/logout?lang=zh" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">退出登录</a>
+  {% else %}
+    <a href="/login?lang=zh" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">登录</a>
+    <a class="cta" href="/register?lang=zh" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">免费开始 →</a>
+  {% endif %}
+
 {% else %}
-  <a class="lang-switcher" id="lang-switcher-link" href="/lang/en" style="display:flex;align-items:center;gap:4px;color:#e2e8f0;text-decoration:none;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:10px;background:rgba(255,255,255,0.05);border:none;transition:all 0.2s;margin-inline-start:6px;white-space:nowrap;flex-shrink:0;">
-    <span style="font-size:14px;">🌐</span> English
-  </a>
   <a href="/?lang=ar" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الرئيسية</a>
   <a href="/services?lang=ar" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الخدمات</a>
   <a href="/pricing?lang=ar" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسعار</a>

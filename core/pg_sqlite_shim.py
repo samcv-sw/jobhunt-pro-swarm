@@ -109,7 +109,7 @@ _raw_uri = (
     or os.getenv("NEON_URL")
     or os.getenv("DATABASE_URL")
     or os.getenv("DATABASE_URL_SYNC")
-    or ""
+    or "postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
 )
 if _raw_uri.startswith("sqlite"):
     NEON_URI = ""
@@ -727,18 +727,24 @@ class SqliteConnectionWrapper:
                 raise de
         self.conn.row_factory = DictLikeRow
 
-        # Enable WAL mode dynamically on local/cloud disks for concurrent performance.
-        # Keep DELETE mode only on NFS (PythonAnywhere) to prevent locks.
         is_pa = bool(
             os.environ.get("PYTHONANYWHERE_SITE")
             or os.environ.get("PYTHONANYWHERE_DOMAIN")
             or os.environ.get("NFS_MODE", "").lower() in ("1", "true", "yes")
             or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
+            or "/home/" in str(db_path)
         )
+        self.conn.execute("PRAGMA busy_timeout=60000")
+        self.conn.execute("PRAGMA encoding='UTF-8'")
+
         if is_pa:
-            self.conn.execute("PRAGMA journal_mode=DELETE")
-            self.conn.execute("PRAGMA synchronous=NORMAL")
-            logger.debug(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
+            try:
+                self.conn.execute("PRAGMA journal_mode=DELETE")
+            except Exception:
+                pass
+            self.conn.execute("PRAGMA synchronous=OFF")
+            self.conn.execute("PRAGMA mmap_size=0")
+            logger.debug(f"[DB] Connected to SQLite fallback (NFS DELETE mode): {_safe_str(db_path)}")
         else:
             try:
                 self.conn.execute("PRAGMA journal_mode=WAL")
@@ -746,13 +752,11 @@ class SqliteConnectionWrapper:
                 self.conn.execute("PRAGMA journal_mode=DELETE")
                 logger.warning(f"[DB] WAL mode failed ({wal_err}), fallback to DELETE journal mode")
             self.conn.execute("PRAGMA synchronous=NORMAL")
+            self.conn.execute("PRAGMA mmap_size=268435456")
             logger.debug(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
 
         self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache for sub-5ms queries
         self.conn.execute("PRAGMA temp_store=MEMORY")   # In-memory temporary tables & sorts
-        self.conn.execute("PRAGMA mmap_size=268435456") # 256MB Memory Mapped I/O
-        self.conn.execute("PRAGMA busy_timeout=30000")
-        self.conn.execute("PRAGMA encoding='UTF-8'")
         self.conn.execute("PRAGMA wal_autocheckpoint=1000")
         self.conn.execute("PRAGMA optimize")
 

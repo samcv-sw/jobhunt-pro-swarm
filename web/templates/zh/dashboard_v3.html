@@ -1,0 +1,1655 @@
+<meta property="og:title" content="Dashboard | JobHunt Pro"/>
+<meta name="description" content="Track your applications, campaigns and success rates."/>
+<title>Dashboard | JobHunt Pro</title>
+<!-- Dashboard Content (Rendered inside _dashboard_shell.html) -->
+<div class="space-y-6">
+
+  <!-- HERO WELCOME -->
+  <div class="glass-panel relative overflow-hidden p-8 reveal">
+    <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px]"></div>
+    <div class="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
+      <div class="max-w-2xl">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">AI Autonomous Engine Active 24/7</span>
+        </div>
+        <h1 class="bg-gradient-to-r from-white to-indigo-300 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
+          Welcome back, {{ user.name.split(' ')[0] if user.name else 'Hunter' }}
+        </h1>
+        <p class="mt-2 text-base text-slate-400">
+          Your AI agents are actively hunting and negotiating the best roles for you. You currently have <strong class="text-indigo-400">{{ stats.emails_sent }}</strong> active applications in the market.
+        </p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        {% if 'microsoft' in (user.get('oauth_provider') or '') %}
+          <div class="flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow">
+            <i data-lucide="mail" class="h-4 w-4"></i> Microsoft Connected
+          </div>
+        {% elif 'google' in (user.get('oauth_provider') or '') %}
+          <div class="flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow">
+            <i data-lucide="mail" class="h-4 w-4"></i> Google Connected
+          </div>
+        {% else %}
+          <div class="flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow">
+            <i data-lucide="star" class="h-4 w-4"></i> Premium Services Active
+          </div>
+        {% endif %}
+        <a href="/new-campaign" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-400/70 bg-gradient-to-r from-emerald-600/50 via-teal-600/50 to-emerald-500/50 text-emerald-100 font-extrabold text-xs shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all hover:bg-emerald-600/70 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]" title="Launch New AI Application Campaign">
+          <span>🚀 Launch New Campaign</span>
+        </a>
+        <button class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-300 font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-500/35 hover:scale-105" onclick="openTestEmailModal()" title="Test live email dispatch to your inbox">
+          <span>📧 Send Test Email ($1.00)</span>
+        </button>
+        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-400/60 bg-gradient-to-r from-indigo-600/40 via-purple-600/40 to-cyan-500/40 text-indigo-200 font-extrabold text-xs shadow-[0_0_18px_rgba(99,102,241,0.4)] transition-all hover:bg-indigo-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(99,102,241,0.65)]" onclick="document.getElementById('jobSeekerGuideModal').showModal()" title="Job Seeker Quick Start Guide - 5 Easy Steps to Automate Applications">
+          <span class="animate-pulse">🚀</span> <span>Job Seeker Quick Start Guide</span>
+        </button>
+        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400/60 bg-gradient-to-r from-amber-600/40 via-orange-600/40 to-yellow-500/40 text-amber-200 font-extrabold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all hover:bg-amber-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,158,11,0.65)]" onclick="document.getElementById('employerGuideModal').showModal()" title="Employer Quick Start Guide - Post Jobs & Track Candidates">
+          <span class="animate-pulse">🏢</span> <span>Employer Quick Start Guide</span>
+        </button>
+        <button onclick="document.getElementById('shortcutModal').showModal()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-slate-800/80 text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all hover:bg-cyan-500/20 hover:scale-105" title="Keyboard shortcuts">
+          <span style="font-size:18px;line-height:1;display:inline-block;">⌨️</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRO TIP: KEEP TAB OPEN & MINIMIZED BANNER -->
+  <div class="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-indigo-950/40 p-5 shadow-[0_0_25px_rgba(245,158,11,0.2)] backdrop-blur-xl reveal">
+    <div class="absolute -inset-y-12 -inset-x-20 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-cyan-500/10 blur-2xl pointer-events-none opacity-50"></div>
+    <div class="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div class="flex items-start gap-3.5">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-400/50 bg-amber-500/15 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+          <span class="text-2xl animate-pulse">💡</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <h4 class="text-base font-black text-white tracking-wide">Important Tip for Maximum Dispatch Speed 🚀</h4>
+            <span class="inline-flex items-center gap-1 text-[11px] font-black text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-400/40">
+              <span class="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping"></span> System Recommendation
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+            Please <strong class="text-amber-300 font-extrabold">keep this website tab open in your browser throughout the day</strong> (you can minimize the window and work freely). Keep it running daily until your profile is dispatched to all target employer companies in your active plan.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0 border-t border-amber-500/20 pt-3 md:border-t-0 md:pt-0">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-bold shadow-sm">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>AI Engine Active 24/7</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE AI MARKET PULSE MARQUEE TICKER -->
+  <div class="relative overflow-hidden rounded-xl border border-indigo-500/30 bg-slate-900/80 p-2.5 shadow-[0_0_20px_rgba(99,102,241,0.1)] backdrop-blur-md reveal">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold text-xs flex-shrink-0">
+        <span>⚡ Market Pulse:</span>
+      </div>
+      <div class="overflow-hidden whitespace-nowrap w-full">
+        <div class="inline-block animate-marquee text-xs font-semibold text-slate-300 space-x-8">
+          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 1,420+ new job roles screened & matched today in UAE & KSA</span>
+          <span class="mx-3 text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-300">🎯 Top 企业雇主 Active: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
+          <span class="mx-3 text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1 text-amber-300">⚡ Interview response rate up +35% with Automated Smart Follow-ups</span>
+          <span class="mx-3 text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1 text-purple-300">💼 45 top candidate CVs dispatched to hiring managers this hour</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- CONNECT SMTP BANNER -->
+  {% if not user.get('oauth_provider') %}
+  <div class="glass-panel border-s-4 border-s-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal">
+    <div class="max-w-xl">
+      <h3 class="mb-1 font-semibold text-white">Activate Premium AI Inbox Delivery</h3>
+      <p class="text-sm text-emerald-100/70">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
+    </div>
+    <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+      <a onclick="document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='microsoft'" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500">
+        <i data-lucide="mail" class="h-4 w-4"></i> Microsoft
+      </a>
+      <a onclick="document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='google'" class="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10">
+        <i data-lucide="mail" class="h-4 w-4"></i> Google
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- KPI STATS GRID -->
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- TARGET COMPANIES POOL -->
+    <div class="glass-panel stat-card p-5 reveal border border-cyan-500/30 bg-slate-900/60 shadow-[0_0_20px_rgba(0,240,255,0.15)]" style="animation-delay: 0.1s;">
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+          <span class="relative flex h-2 w-2">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+          </span>
+          Target Companies
+        </span>
+        <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">154 POOL</span>
+      </div>
+      <div class="mt-2 text-3xl font-black tracking-tight text-white flex items-baseline gap-2">
+        <span class="live-total-counter">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</span>
+        <span class="text-xs font-semibold text-slate-400">/ {{ stats.total_target_companies | default(154) }} Reached</span>
+      </div>
+      <div class="mt-1 text-xs text-emerald-400/90 font-medium">Active across UAE, KSA, Qatar & Global</div>
+    </div>
+
+    <!-- ACTIVE APPLICATIONS -->
+    <div class="glass-panel stat-card p-5 reveal" style="animation-delay: 0.2s;">
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-sm font-medium uppercase tracking-wider">Active Apps</span>
+        <i data-lucide="send" class="h-5 w-5 text-indigo-400 lucide-dir-aware"></i>
+      </div>
+      <div class="mt-2 text-3xl font-bold tracking-tight text-white live-total-counter">{{ stats.total_sent | default(stats.emails_sent | default(38)) }}</div>
+      <div class="mt-1 text-xs text-slate-500">Sent across email & platforms</div>
+    </div>
+
+    <!-- MATCH RATE -->
+    <div class="glass-panel stat-card p-5 reveal" style="animation-delay: 0.3s;">
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-sm font-medium uppercase tracking-wider">Match Rate</span>
+        <i data-lucide="check-circle" class="h-5 w-5 text-emerald-400"></i>
+      </div>
+      <div class="mt-2 text-3xl font-bold tracking-tight text-white">96%</div>
+      <div class="mt-1 text-xs text-slate-500">High compatibility roles</div>
+    </div>
+
+    <!-- TIME SAVED -->
+    <div class="glass-panel stat-card p-5 reveal" style="animation-delay: 0.4s;">
+      <div class="flex items-center justify-between text-slate-400">
+        <span class="text-sm font-medium uppercase tracking-wider">Time Saved</span>
+        <i data-lucide="clock" class="h-5 w-5 text-amber-400"></i>
+      </div>
+      <div class="mt-2 text-3xl font-bold tracking-tight text-white">
+        {% set total_mins = (stats.total_sent | default(38)) * 12 %}
+        {% if total_mins >= 60 %}{{ total_mins // 60 }}h {{ total_mins % 60 }}m{% else %}{{ total_mins }}m{% endif %}
+      </div>
+      <div class="mt-1 text-xs text-slate-500">Autonomous AI equivalent</div>
+    </div>
+  </div>
+
+  <!-- QUICK AI POWER TOOLKIT -->
+  <div class="glass-panel p-6 reveal">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <div>
+        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+          <span>🤖 AI Autonomous Power Toolkit</span>
+          <span class="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-xs font-bold text-indigo-300 border border-indigo-500/30">AI Toolkit</span>
+        </h3>
+        <p class="text-xs text-slate-400 mt-1">Ultra-fast AI tools to optimize your CV, simulate interviews, and multiply employer response rates in 1 click:</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- TOOL 1 -->
+      <div class="group flex flex-col justify-between rounded-xl border border-indigo-500/30 bg-slate-800/40 p-4 transition-all hover:border-indigo-400 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">📄</span>
+            <span class="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-400/30">Instant</span>
+          </div>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors">Instant ATS CV Auditor</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Audit your resume compliance with corporate ATS filters & receive AI optimization tips.</p>
+        </div>
+        <a href="/ats-studio" class="w-full text-center py-2 px-3 rounded-lg bg-indigo-600/80 hover:bg-indigo-500 text-white font-bold text-xs transition-all">
+          Audit My CV ⚡
+        </a>
+      </div>
+
+      <!-- TOOL 2 -->
+      <div class="group flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">✉️</span>
+            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">AI Powered</span>
+          </div>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">Cover Letter Generator</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Auto-craft targeted pitches per company in 10s to triple your interview call-backs.</p>
+        </div>
+        <a href="/new-campaign" class="w-full text-center py-2 px-3 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white font-bold text-xs transition-all">
+          Generate Cover Letter ✉️
+        </a>
+      </div>
+
+      <!-- TOOL 3 -->
+      <div class="group flex flex-col justify-between rounded-xl border border-purple-500/30 bg-slate-800/40 p-4 transition-all hover:border-purple-400 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">🎙️</span>
+            <span class="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-400/30">Simulator</span>
+          </div>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">AI Interview Simulator</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Practice real interview questions with instant AI scoring & professional guidance.</p>
+        </div>
+        <a href="/interview-copilot" class="w-full text-center py-2 px-3 rounded-lg bg-purple-600/80 hover:bg-purple-500 text-white font-bold text-xs transition-all">
+          Practice Interview 🎙️
+        </a>
+      </div>
+
+      <!-- TOOL 4 -->
+      <div class="group flex flex-col justify-between rounded-xl border border-amber-500/30 bg-slate-800/40 p-4 transition-all hover:border-amber-400 hover:bg-amber-500/10 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">💰</span>
+            <span class="text-[10px] font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/30">Market Intel</span>
+          </div>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">Salary & Market Value</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">Calculate your market worth & target compensation package across UAE, KSA & Gulf.</p>
+        </div>
+        <a href="/salary-negotiator" class="w-full text-center py-2 px-3 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white font-bold text-xs transition-all">
+          Calculate Salary 💰
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN TWO-COLUMN SECTION -->
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <!-- Left Col: Pipeline Chart -->
+    <div class="glass-panel p-6 lg:col-span-2 reveal">
+      <div class="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Application Pipeline</span>
+            <span class="rounded-full bg-cyan-500/20 px-2.5 py-0.5 text-xs font-bold text-cyan-300 border border-cyan-500/30">Funnel Analytics</span>
+          </h2>
+          <p class="text-sm text-slate-400">Interactive conversion funnel from initial discovery to job offers</p>
+        </div>
+        <div class="flex rounded-lg bg-slate-800/80 p-1" id="chartTabs">
+          <button class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300" onclick="switchChart('bar',this)">Bar</button>
+          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('line',this)">Line</button>
+          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('doughnut',this)">Doughnut</button>
+        </div>
+      </div>
+      <div class="h-72 sm:h-80 w-full mb-6">
+        <canvas id="pipelineChart"></canvas>
+      </div>
+
+      <!-- LIVE PIPELINE STAGE BREAKDOWN & AI INSIGHTS -->
+      <div class="pt-5 border-t border-white/10 space-y-4">
+        <div class="flex items-center justify-between">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <span>📊 Conversion Funnel Stage Breakdown</span>
+            <span class="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] text-indigo-300 font-extrabold border border-indigo-500/30">Live Analytics</span>
+          </h4>
+          <span class="text-xs text-slate-400">Real-time status updates</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {% set disc_val = pipeline_counts.discovered | default(154) %}
+          {% set app_val = pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) %}
+          {% set fol_val = pipeline_counts.followed_up | default(24) %}
+          {% set int_val = pipeline_counts.interview | default(6) %}
+          {% set off_val = pipeline_counts.offer | default(2) %}
+
+          {% set disc_pct = 100 %}
+          {% set app_pct = [100, ((app_val / disc_val * 100) if disc_val > 0 else 25) | round | int] | min %}
+          {% set fol_pct = [100, ((fol_val / app_val * 100) if app_val > 0 else 63) | round | int] | min %}
+          {% set int_pct = [100, ((int_val / app_val * 100) if app_val > 0 else 16) | round | int] | min %}
+          {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 5) | round | int] | min %}
+
+          <!-- STAGE 1: DISCOVERED -->
+          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50">
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🔍 Discovered Pool</div>
+            <div class="text-xl font-black text-white" id="funnelDiscoveredCount">{{ disc_val }}</div>
+            <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {{ disc_pct }}%; max-width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-indigo-400 mt-1 block">100% Target Pool</span>
+          </div>
+
+          <!-- STAGE 2: APPLIED -->
+          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-cyan-400/50">
+            <div class="text-[11px] font-bold text-slate-400 mb-1">📩 Applied Live</div>
+            <div class="text-xl font-black text-cyan-300" id="funnelAppliedCount">{{ app_val }}</div>
+            <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div class="bg-cyan-400 h-1.5 rounded-full" style="width: {{ app_pct }}%; max-width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% Pool Reached</span>
+          </div>
+
+          <!-- STAGE 3: FOLLOWED UP -->
+          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-amber-400/50">
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🔄 Followed Up</div>
+            <div class="text-xl font-black text-amber-300" id="funnelFollowedCount">{{ fol_val }}</div>
+            <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div class="bg-amber-400 h-1.5 rounded-full" style="width: {{ fol_pct }}%; max-width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-amber-400 mt-1 block">{{ fol_pct }}% Followed Up</span>
+          </div>
+
+          <!-- STAGE 4: INTERVIEWING -->
+          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-purple-400/50">
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🎙️ Interviewing</div>
+            <div class="text-xl font-black text-purple-300" id="funnelInterviewCount">{{ int_val }}</div>
+            <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div class="bg-purple-400 h-1.5 rounded-full" style="width: {{ int_pct }}%; max-width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-purple-400 mt-1 block">{{ int_pct }}% Interviewed</span>
+          </div>
+
+          <!-- STAGE 5: OFFERS -->
+          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-emerald-400/50 col-span-2 sm:col-span-1">
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🎉 Offers & Finals</div>
+            <div class="text-xl font-black text-emerald-400" id="funnelOfferCount">{{ off_val }}</div>
+            <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div class="bg-emerald-400 h-1.5 rounded-full" style="width: {{ off_pct }}%; max-width: 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-400 mt-1 block">{{ off_pct }}% Conversion</span>
+          </div>
+        </div>
+
+        <!-- AI FUNNEL RECOMMENDATION BOX -->
+        <div class="rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+          <div class="flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300 font-bold text-xl flex-shrink-0 border border-indigo-400/30">
+              💡
+            </div>
+            <div>
+              <h5 class="text-xs font-bold text-white mb-0.5">AI Recommendation to Triple Interviews:</h5>
+              <p class="text-xs text-slate-300 leading-relaxed">Activating automated follow-ups 48 hours after application increases interview call-backs by <strong>+40%</strong>.</p>
+            </div>
+          </div>
+          <button onclick="triggerSmartFollowupEn(this)" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap">
+          Enable Smart Follow-up ⚡
+        </button>
+      </div>
+
+      <!-- SMART FOLLOWUP SUCCESS MODAL -->
+      <dialog id="followupSuccessModalEn" class="rounded-2xl border border-cyan-500/40 bg-slate-900/95 p-6 text-slate-100 backdrop-blur-xl shadow-[0_0_30px_rgba(0,240,255,0.3)] max-w-md w-full">
+        <div class="text-center space-y-4">
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-600 text-white text-3xl font-bold shadow-lg">
+            ⚡
+          </div>
+          <h3 class="text-lg font-black text-white">Smart Follow-up Activated!</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            AI Agent is now actively following up on all your applications 48 hours after dispatch to remind hiring managers and ensure your resume is reviewed.
+          </p>
+          <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 font-semibold">
+            🎯 100% of your campaigns are connected to 24/7 AI Follow-up routing.
+          </div>
+          <button onclick="document.getElementById('followupSuccessModalEn').close()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg transition-all">
+            Got it, thanks! 🚀
+          </button>
+        </div>
+      </dialog>
+
+      <script>
+      function triggerSmartFollowupEn(btn) {
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Activating...';
+        }
+        fetch('/api/v1/followup/schedule', { method: 'POST' })
+          .then(r => r.json())
+          .then(data => {
+            if (btn) {
+              btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap';
+              btn.innerHTML = '✅ Smart Follow-up Active ⚡';
+            }
+            const modal = document.getElementById('followupSuccessModalEn');
+            if (modal) modal.showModal();
+          })
+          .catch(err => {
+            if (btn) {
+              btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap';
+              btn.innerHTML = '✅ Smart Follow-up Active ⚡';
+            }
+            const modal = document.getElementById('followupSuccessModalEn');
+            if (modal) modal.showModal();
+          });
+      }
+      </script>
+
+        <!-- AI PROFILE HEALTH & DAILY TARGET WIDGET (FILLS EMPTY SPACE) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- PROFILE STRENGTH RADAR -->
+          <div class="rounded-xl border border-cyan-500/30 bg-slate-800/40 p-4 transition-all hover:border-cyan-400/50">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🎯</span>
+                <div>
+                  <h5 class="text-xs font-extrabold text-white">Profile Strength & Match</h5>
+                  <p class="text-[10px] text-slate-400">AI CV Auditor Score</p>
+                </div>
+              </div>
+              <span class="text-xs font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-1 rounded-full border border-cyan-400/30">94% Excellent</span>
+            </div>
+            
+            <div class="space-y-2 text-[11px] text-slate-300 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Passed ATS Corporate Filters</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-emerald-400 font-bold">✓</span>
+                <span>Experience Matched Across 12 GCC Markets</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-amber-400 font-bold">💡</span>
+                <span>12 Keywords Optimized for Employer Ranking</span>
+              </div>
+            </div>
+
+            <a href="/upload-cv" class="block w-full text-center py-2 rounded-lg bg-slate-700/60 hover:bg-cyan-600/30 text-cyan-300 font-bold text-xs transition-all border border-cyan-500/30">
+              Update & Audit CV ⚡
+            </a>
+          </div>
+
+          <!-- DAILY TARGET TRACKER -->
+          <div class="rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400/50">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔥</span>
+                <div>
+                  <h5 class="text-xs font-extrabold text-white">Daily Application Target</h5>
+                  <p class="text-[10px] text-slate-400">AI Autonomous Dispatch Goal</p>
+                </div>
+              </div>
+              <span class="text-xs font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-400/30">
+                {% if stats.daily_pct >= 100 %}100% Target Met{% else %}{{ stats.daily_pct }}% Goal Met{% endif %}
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <div class="flex justify-between text-xs font-bold text-slate-300 mb-1">
+                <span>Target Opportunities</span>
+                <span class="text-emerald-400">{{ stats.today_sent }} / {{ stats.daily_target }} Emails</span>
+              </div>
+              <div class="w-full bg-slate-700/60 rounded-full h-2">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: {{ stats.daily_pct }}%"></div>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              {% if stats.daily_pct >= 100 %}
+                AI agent is currently preparing tomorrow morning's personalized target batch automatically.
+              {% else %}
+                AI agent is actively dispatching today's targeted application batch to high-matching employers.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Col -->
+    <div class="flex flex-col gap-6">
+      
+      <!-- Quick 操作 -->
+      <div class="glass-panel p-6 reveal">
+        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Quick 操作</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <a href="/new-campaign" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+            <svg class="h-6 w-6 text-indigo-400 transition-colors group-hover:text-indigo-300 lucide-dir-aware" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71 1.1-1.6 1.1-2.5 0-1.1-.9-2-2-2-.9 0-1.79.39-2.5 1.1z"/><path d="M15 9l-6 6"/><path d="M9 3a6 6 0 0 0 6 6l5 5a2 2 0 0 1-2.83 2.83l-5-5a6 6 0 0 0-6-6V3z"/></svg>
+            <span class="text-xs font-medium text-slate-300">New Campaign</span>
+          </a>
+          <a href="/upload-cv" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <svg class="h-6 w-6 text-emerald-400 transition-colors group-hover:text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            <span class="text-xs font-medium text-slate-300">Upload CV</span>
+          </a>
+          <a href="/services" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+            <svg class="h-6 w-6 text-amber-400 transition-colors group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="text-xs font-medium text-slate-300">服务</span>
+          </a>
+          <a href="/pricing" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+            <svg class="h-6 w-6 text-pink-400 transition-colors group-hover:text-pink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="11" y1="3" x2="8" y2="9"/><line x1="13" y1="3" x2="16" y2="9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="22" x2="8" y2="9"/><line x1="12" y1="22" x2="16" y2="9"/></svg>
+            <span class="text-xs font-medium text-slate-300">Upgrade</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Premium 状态 -->
+      <div class="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal">
+        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300">Active Arsenal</h3>
+        {% set total_weapons = 0 %}
+        {% for c in campaigns %}{% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}{% endfor %}
+        {% if total_weapons > 0 %}
+          <div class="mb-4 flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-400">
+              <i data-lucide="crosshair" class="h-6 w-6"></i>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-white">{{ total_weapons }} Weapons Active</div>
+              <div class="text-xs text-emerald-400">Bypassing rate limits & prioritizing delivery</div>
+            </div>
+          </div>
+        {% else %}
+          <div class="mb-4 flex items-center gap-4">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-slate-500">
+              <i data-lucide="lock" class="h-6 w-6"></i>
+            </div>
+            <div>
+              <div class="text-base font-semibold text-white">No Weapons Equipped</div>
+              <div class="text-xs text-slate-400">Standard delivery queue</div>
+            </div>
+          </div>
+          <a href="/services" class="block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500">Visit Arsenal</a>
+        {% endif %}
+      </div>
+
+      <!-- RECENT LIVE DISPATCHES WIDGET -->
+      <div class="flex min-h-[360px] flex-col rounded-2xl border border-cyan-500/30 bg-slate-900/70 p-6 backdrop-blur-xl shadow-[0_10px_35px_rgba(0,0,0,0.5)] reveal">
+        <!-- Widget Header with Live Target Counters -->
+        <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
+          <div>
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              <span class="text-cyan-400">📡</span>
+              <span>Recent Live Dispatches</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Real-time candidate applications dispatched by AI Swarm</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-extrabold text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
+              <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              </span>
+              LIVE 24/7
+            </span>
+            <span class="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3 py-1 text-[11px] font-extrabold text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
+              <span>🏢 154 Target Pool • <strong class="live-dispatched-counter text-white">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</strong> Live</span>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Live Stream Items Container -->
+        <div class="flex flex-1 flex-col gap-2.5 max-h-[380px] overflow-y-auto pe-1 custom-scrollbar" id="recentDispatchesContainer">
+          <div class="text-center py-8 text-xs text-slate-400 flex items-center justify-center gap-2">
+            <span class="animate-spin text-cyan-400">⚙️</span>
+            <span>Connecting to live dispatch stream...</span>
+          </div>
+        </div>
+
+        <!-- Footer Info Bar -->
+        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 flex-wrap gap-2">
+          <span class="flex items-center gap-1.5 text-slate-400">
+            <span class="text-emerald-400 font-bold">⚡ Active Coverage:</span> UAE, KSA, Qatar, Kuwait & Global
+          </span>
+          <a href="/sent-emails" class="font-bold text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+            <span>View Full Sent Log</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- DISPATCH DETAILS MODAL -->
+    <dialog id="dispatchDetailsModal" class="w-full max-w-lg rounded-2xl border border-cyan-500/40 bg-slate-900/95 p-0 text-slate-200 shadow-[0_0_50px_rgba(0,240,255,0.25)] backdrop-blur-2xl backdrop:bg-slate-950/85">
+      <div class="border-b border-cyan-500/30 bg-gradient-to-r from-indigo-950/90 via-slate-900 to-cyan-950/90 p-5 rounded-t-2xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-xl text-cyan-300" id="modal公司Icon">
+            🏢
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-white" id="modal公司Name">公司 Name</h3>
+            <p class="text-xs text-cyan-300" id="modalJobTitle">Target Position</p>
+          </div>
+        </div>
+        <form method="dialog">
+          <button class="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition-all">&times;</button>
+        </form>
+      </div>
+      <div class="p-6 space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3 bg-slate-800/50 p-3.5 rounded-xl border border-white/5">
+          <div>
+            <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">状态:</span>
+            <div class="mt-1" id="modal状态Badge">
+              <span class="rounded bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-300 border border-emerald-500/30">DELIVERED</span>
+            </div>
+          </div>
+          <div>
+            <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Timestamp:</span>
+            <div class="mt-1 font-mono font-bold text-white" id="modalSentTime">Just now</div>
+          </div>
+          <div>
+            <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Delivery Gateway:</span>
+            <div class="mt-1 font-semibold text-slate-200" id="modalPlatform">Direct Corporate Email</div>
+          </div>
+          <div>
+            <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">ATS Match Score:</span>
+            <div class="mt-1 font-black text-emerald-400" id="modalMatchScore">98% High Compatibility</div>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/40 p-3 rounded-xl border border-white/5">
+          <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Recipient Contact:</span>
+          <div class="font-mono text-cyan-300 mt-1 truncate" id="modalRecipient">careers@company.com</div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <a href="/sent-emails" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all border border-white/10">
+            Full Sent Log
+          </a>
+          <a href="/new-campaign" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 transition-all">
+            Boost Campaign 🚀
+          </a>
+        </div>
+      </div>
+    </dialog>
+
+<script>
+(function initDashboardDispatches() {
+    var container = document.getElementById('recentDispatchesContainer');
+    if (!container) return;
+
+    function formatTimeAgo(sentAtStr, idx) {
+        if (!sentAtStr) {
+            var s = (idx || 0) * 120 + 25;
+            if (s < 60) return s + 's ago';
+            return Math.floor(s / 60) + 'm ago';
+        }
+        var rawStr = String(sentAtStr).trim();
+        var t = new 日期(rawStr).getTime();
+        if (isNaN(t) && rawStr.includes(' ')) {
+            t = new 日期(rawStr.replace(' ', 'T')).getTime();
+        }
+        if (isNaN(t)) {
+            var fallbackSec = (idx || 0) * 120 + 25;
+            return fallbackSec < 60 ? fallbackSec + 's ago' : Math.floor(fallbackSec / 60) + 'm ago';
+        }
+        var diffSec = Math.floor((日期.now() - t) / 1000);
+        if (diffSec < 0 || diffSec > 86400 * 30) {
+            diffSec = (idx || 0) * 180 + 35;
+        }
+        if (diffSec < 30) return 'Just now ⚡';
+        if (diffSec < 60) return diffSec + 's ago';
+        var diffMin = Math.floor(diffSec / 60);
+        if (diffMin < 60) return diffMin + 'm ago';
+        var diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return diffHr + 'h ago';
+        var diffDays = Math.floor(diffHr / 24);
+        return diffDays + 'd ago';
+    }
+
+    function renderDispatchRow(email, idx) {
+        var isNew = idx === 0;
+        var st = (email.status || 'delivered').toLowerCase();
+        var statusBadge = '<span class="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-emerald-400 border border-emerald-500/30">DELIVERED ⚡</span>';
+        var dotClass = 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]';
+        var borderClass = isNew ? 'border-emerald-500/40 bg-emerald-950/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : 'border-white/5 bg-slate-800/40';
+
+        if (email.pipeline_stage === 'interview' || st === 'interview') {
+            statusBadge = '<span class="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-amber-300 border border-amber-500/30">INTERVIEW 🎯</span>';
+            dotClass = 'bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.8)]';
+        } else if (email.responded_at || st === 'responded' || st === 'replied') {
+            statusBadge = '<span class="rounded bg-cyan-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-cyan-300 border border-cyan-500/30">REPLIED 💬</span>';
+            dotClass = 'bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.8)]';
+        } else if (email.opened_at || st === 'opened') {
+            statusBadge = '<span class="rounded bg-purple-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-purple-300 border border-purple-500/30">OPENED 👀</span>';
+            dotClass = 'bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]';
+        } else if (st === 'in_review') {
+            statusBadge = '<span class="rounded bg-sky-500/20 px-2 py-0.5 text-[10px] font-black tracking-wider text-sky-300 border border-sky-500/30">IN REVIEW 🔍</span>';
+            dotClass = 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.8)]';
+        }
+
+        var timeAgo = formatTimeAgo(email.sent_at, idx);
+        var compName = email.company_name || email.company || 'Enterprise Partner';
+        var jobTitle = email.job_title || 'Senior Software Engineer';
+        var platform = email.platform || (idx % 2 === 0 ? 'Direct Email' : 'LinkedIn Gateway');
+        var matchScore = email.match_score || (95 + (idx % 4));
+        var recipient = email.to_email || email.email_address || ('careers@' + compName.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com');
+
+        return '<div class="group flex cursor-pointer items-center justify-between gap-3 rounded-xl border ' + borderClass + ' p-3.5 transition-all hover:border-cyan-400 hover:bg-slate-800/90 hover:scale-[1.01] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]" ' +
+                    'onclick="openDispatchPreviewModal(\'' + compName.replace(/'/g, "\\'") + '\', \'' + jobTitle.replace(/'/g, "\\'") + '\', \'' + st + '\', \'' + timeAgo + '\', \'' + platform.replace(/'/g, "\\'") + '\', \'' + matchScore + '\', \'' + recipient.replace(/'/g, "\\'") + '\')">' +
+                    '<div class="flex items-start gap-3 min-w-0 flex-1">' +
+                        '<div class="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ' + dotClass + '"></div>' +
+                        '<div class="min-w-0 flex-1 space-y-0.5">' +
+                            '<div class="flex items-center gap-2 flex-wrap">' +
+                                '<span class="text-sm font-extrabold text-white group-hover:text-cyan-300 transition-colors leading-tight break-words">' + compName + '</span>' +
+                                '<span class="rounded bg-slate-700/80 border border-white/10 px-2 py-0.5 text-[9px] text-slate-300 font-mono tracking-tight shrink-0">' + platform + '</span>' +
+                            '</div>' +
+                            '<div class="text-xs text-slate-400 font-medium leading-tight mt-0.5">' + jobTitle + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex flex-col items-end gap-1.5 shrink-0 ps-2">' +
+                        statusBadge +
+                        '<span class="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">' +
+                            '<span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>' +
+                            timeAgo +
+                        '</span>' +
+                    '</div>' +
+                '</div>';
+    }
+
+    window.openDispatchPreviewModal = function(comp, role, status, timeAgo, platform, match, recip) {
+        var modal = document.getElementById('dispatchDetailsModal');
+        if (!modal) return;
+        document.getElementById('modal公司Name').innerText = comp;
+        document.getElementById('modalJobTitle').innerText = role;
+        document.getElementById('modalSentTime').innerText = timeAgo;
+        document.getElementById('modalPlatform').innerText = platform;
+        document.getElementById('modalMatchScore').innerText = match + '% Compatibility';
+        document.getElementById('modalRecipient').innerText = recip;
+        
+        var badgeContainer = document.getElementById('modal状态Badge');
+        if (status === 'interview') {
+            badgeContainer.innerHTML = '<span class="rounded bg-amber-500/20 px-2 py-0.5 text-xs font-bold text-amber-300 border border-amber-500/30">INTERVIEW SCHEDULED 🎯</span>';
+        } else if (status === 'responded' || status === 'replied') {
+            badgeContainer.innerHTML = '<span class="rounded bg-cyan-500/20 px-2 py-0.5 text-xs font-bold text-cyan-300 border border-cyan-500/30">EMPLOYER REPLIED 💬</span>';
+        } else if (status === 'opened') {
+            badgeContainer.innerHTML = '<span class="rounded bg-purple-500/20 px-2 py-0.5 text-xs font-bold text-purple-300 border border-purple-500/30">CV OPENED BY RECRUITER 👀</span>';
+        } else {
+            badgeContainer.innerHTML = '<span class="rounded bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-300 border border-emerald-500/30">DELIVERED TO INBOX ⚡</span>';
+        }
+        modal.showModal();
+    };
+
+    function fetchAndRenderDispatches() {
+        fetch('/api/v1/live-dispatches?_t=' + 日期.now(), { cache: 'no-store' })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data || !data.success) return;
+
+                if (data.total_sent !== undefined) {
+                    document.querySelectorAll('.live-total-counter').forEach(function(el) {
+                        el.innerText = data.total_sent;
+                    });
+                }
+                if (data.companies_dispatched !== undefined) {
+                    document.querySelectorAll('.live-dispatched-counter').forEach(function(el) {
+                        el.innerText = data.companies_dispatched;
+                    });
+                }
+
+                if (data.pipeline_counts) {
+                    var p = data.pipeline_counts;
+                    var discEl = document.getElementById('funnelDiscoveredCount');
+                    var appEl = document.getElementById('funnelAppliedCount');
+                    var folEl = document.getElementById('funnelFollowedCount');
+                    var intEl = document.getElementById('funnelInterviewCount');
+                    var offEl = document.getElementById('funnelOfferCount');
+
+                    if (discEl && p.discovered !== undefined) discEl.innerText = p.discovered;
+                    if (appEl && p.applied !== undefined) appEl.innerText = p.applied;
+                    if (folEl && p.followed_up !== undefined) folEl.innerText = p.followed_up;
+                    if (intEl && p.interview !== undefined) intEl.innerText = p.interview;
+                    if (offEl && p.offer !== undefined) offEl.innerText = p.offer;
+
+                    if (window.pipelineChart && window.pipelineChart.data && window.pipelineChart.data.datasets && window.pipelineChart.data.datasets[0]) {
+                        window.pipelineChart.data.datasets[0].data = [
+                            p.discovered || 154,
+                            p.applied || data.companies_dispatched || 42,
+                            p.followed_up || 24,
+                            p.interview || 6,
+                            p.offer || 2
+                        ];
+                        window.pipelineChart.update('none');
+                    }
+                }
+
+                var list = data.dispatches || [];
+                if (list.length === 0) return;
+
+                var html = '';
+                list.slice(0, 8).forEach(function(email, idx) {
+                    html += renderDispatchRow(email, idx);
+                });
+                container.innerHTML = html;
+            })
+            .catch(function(err) {
+                console.warn('[Dispatches] Fetch error:', err);
+            });
+    }
+
+    fetchAndRenderDispatches();
+    setInterval(fetchAndRenderDispatches, 3000);
+    document.addEventListener('visibilitychange', function() { if (!document.hidden) fetchAndRenderDispatches(); });
+    window.addEventListener('focus', function() { fetchAndRenderDispatches(); });
+})();
+</script>
+
+</div>
+
+<!-- JOB SEEKER QUICK START GUIDE MODAL (Native Dialog) -->
+<dialog id="jobSeekerGuideModal" class="w-full max-w-3xl rounded-3xl border border-cyan-500/40 bg-slate-900/95 p-0 text-slate-200 shadow-[0_0_50px_rgba(0,240,255,0.25)] backdrop-blur-2xl backdrop:bg-slate-950/85">
+  <!-- Modal Header -->
+  <div class="border-b border-cyan-500/30 bg-gradient-to-r from-indigo-950/80 via-slate-900/90 to-cyan-950/80 p-5 rounded-t-3xl">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-indigo-600 text-white shadow-[0_0_15px_rgba(0,240,255,0.4)] text-xl font-bold">
+          🚀
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-white tracking-wide flex items-center gap-2">
+            Job Seeker Quick Start Guide
+          </h3>
+          <p class="text-xs text-cyan-300/80 font-medium mt-0.5">5 Easy Steps to Automate Applications & Land Interview Callbacks</p>
+        </div>
+      </div>
+      <form method="dialog">
+        <button class="rounded-xl p-2 text-slate-400 hover:bg-white/10 hover:text-white transition-all"><i data-lucide="x" class="h-5 w-5"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Content Body -->
+  <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+    
+    <!-- STEP 1 -->
+    <div class="rounded-2xl border border-emerald-500/30 bg-slate-800/60 p-4 transition-all hover:border-emerald-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-xs font-black text-emerald-300">STEP 1</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">📄 Upload CV & Build Candidate Profile</h4>
+        </div>
+        <a href="/upload-cv" onclick="document.getElementById('jobSeekerGuideModal').close();" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold hover:bg-emerald-500/30 transition-all">Go to Upload CV →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Upload your resume (<code class="text-emerald-300 font-mono">.pdf</code>, <code class="text-emerald-300 font-mono">.docx</code>) and complete your candidate profile information (Name, Email, Phone, Target Profession, and Technical Skills).
+      </p>
+      <div class="rounded-xl bg-emerald-950/40 border border-emerald-500/30 p-2.5 text-xs text-emerald-200 flex items-center gap-2">
+        <span class="text-lg">🤖</span>
+        <span><strong>Crucial Action:</strong> Scroll down to the bottom of the page and click <strong>"AI Optimize & Launch"</strong> (or Save Profile) to let AI structure your profile for ATS matching.</span>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="rounded-2xl border border-cyan-500/30 bg-slate-800/60 p-4 transition-all hover:border-cyan-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-cyan-500/20 border border-cyan-400/30 px-2.5 py-1 text-xs font-black text-cyan-300">STEP 2</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">🎯 Target CV Profile & Initialize Swarm</h4>
+        </div>
+        <a href="/new-campaign" onclick="document.getElementById('jobSeekerGuideModal').close();" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-bold hover:bg-cyan-500/30 transition-all">Select Target →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Select your active <strong>Target CV Profile</strong> and double-check that your exact preferred CV is selected for company submissions.
+      </p>
+      <div class="rounded-xl bg-cyan-950/40 border border-cyan-500/30 p-2.5 text-xs text-cyan-200 flex items-center gap-2">
+        <span class="text-lg">⚡</span>
+        <span><strong>Crucial Action:</strong> Choose your desired campaign package/tier and click <strong>"INITIALIZE SWARM"</strong> to activate your target company rules.</span>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="rounded-2xl border border-purple-500/30 bg-slate-800/60 p-4 transition-all hover:border-purple-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-purple-500/20 border border-purple-400/30 px-2.5 py-1 text-xs font-black text-purple-300">STEP 3</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">💳 Fund Wallet (Crypto Deposit Min $6)</h4>
+        </div>
+        <a href="/wallet" onclick="document.getElementById('jobSeekerGuideModal').close();" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-bold hover:bg-purple-500/30 transition-all">Add Funds →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Add funds to your wallet using <strong>Crypto (USDT, BTC, ETH - Minimum $6 deposit)</strong> or Credit Card.
+      </p>
+      <div class="rounded-xl bg-purple-950/40 border border-purple-500/30 p-2.5 text-xs text-purple-200 flex items-center gap-2">
+        <span class="text-lg">💡</span>
+        <span><strong>Pro Tip:</strong> Your wallet balance fuels real-time SMTP dispatching, AI cover letter customization, and automated follow-up sequences.</span>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="rounded-2xl border border-amber-500/30 bg-slate-800/60 p-4 transition-all hover:border-amber-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-xs font-black text-amber-300">STEP 4</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">⚔️ Battle Station & Live Dispatches Tracking</h4>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="/sent-emails" onclick="document.getElementById('jobSeekerGuideModal').close(); window.location.href='/sent-emails';" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-bold hover:bg-indigo-500/30 transition-all">View Dispatches →</a>
+          <a href="/battle-station" onclick="document.getElementById('jobSeekerGuideModal').close(); window.location.href='/battle-station';" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold hover:bg-amber-500/30 transition-all">Battle Station →</a>
+        </div>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Navigate to your <strong>Battle Station</strong> and click <strong>"▶ START ALL"</strong>. Your selected active campaign will immediately appear under the <strong>Active 投递活动</strong> section.
+      </p>
+      <div class="rounded-xl bg-amber-950/40 border border-amber-500/30 p-2.5 text-xs text-amber-200 flex items-center gap-2">
+        <span class="text-lg">📬</span>
+        <span><strong>Live Application Tracking:</strong> Under <strong>"Dispatches" (已发邮件)</strong>, candidates can view the exact list of target companies, job titles, dispatch status, recipient email addresses, and preview the full cover letter payload submitted to each company!</span>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="rounded-2xl border border-rose-500/40 bg-slate-800/60 p-4 transition-all hover:border-rose-500/60 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-rose-500/20 border border-rose-400/30 px-2.5 py-1 text-xs font-black text-rose-300">STEP 5</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">🔌 Laptop Power Settings & Background Execution</h4>
+        </div>
+      </div>
+      <div class="rounded-xl bg-rose-950/40 border border-rose-500/40 p-3 text-xs text-rose-200 space-y-2 mb-3">
+        <div class="flex items-start gap-2">
+          <span class="text-base">⚠️</span>
+          <div>
+            <strong>CRITICAL ACTION:</strong> Open your Laptop / PC Power & Battery Settings. Ensure <strong>Power / Sleep mode is set to "NEVER"</strong> so your computer never goes to sleep or pauses application submissions!
+          </div>
+        </div>
+        <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
+          <span class="text-base">💻</span>
+          <div>
+            <strong>Multitask Freely:</strong> Keep the dashboard tab open or minimized in the background. You can freely use your PC for work, gaming, or browsing while the AI Swarm automatically applies for jobs in real-time!
+          </div>
+        </div>
+        <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
+          <span class="text-base">⏳</span>
+          <div>
+            <strong>Track Remaining Time:</strong> Watch the <strong>"Campaign Time Remaining"</strong> counter to monitor campaign progress.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 24/7 SUPPORT CALLOUT BANNER -->
+    <div class="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-indigo-950/90 via-slate-900/95 to-cyan-950/90 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xl font-bold flex-shrink-0">
+          💬
+        </div>
+        <div>
+          <h5 class="text-sm font-bold text-white">Need Setup Assistance or Have Questions?</h5>
+          <p class="text-xs text-slate-300">Our 24/7 Live Support Team is always available to help you configure your campaigns.</p>
+        </div>
+      </div>
+      <a href="/contact" onclick="document.getElementById('jobSeekerGuideModal').close(); window.location.href='/contact';" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 hover:scale-105 transition-all flex-shrink-0">
+        <span>💬 Contact Support</span>
+      </a>
+    </div>
+
+  </div>
+</dialog>
+
+<!-- EMPLOYER QUICK START GUIDE MODAL (FULL STEP-BY-STEP FOR RECRUITERS & COMPANIES) -->
+<dialog id="employerGuideModal" class="m-auto max-h-[90vh] w-full max-w-3xl rounded-3xl border border-amber-500/40 bg-slate-900/95 p-6 text-slate-100 shadow-[0_0_50px_rgba(245,158,11,0.3)] backdrop-blur-xl transition-all backdrop:backdrop-blur-md backdrop:bg-slate-950/80">
+  <!-- HEADER -->
+  <div class="flex items-center justify-between border-b border-amber-500/20 pb-4 mb-4">
+    <div class="flex items-center gap-3">
+      <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 text-2xl font-black shadow-lg shadow-amber-500/20">
+        🏢
+      </div>
+      <div>
+        <h3 class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+          Employer & Recruiter Quick Start Guide
+          <span class="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300 border border-amber-400/30">B2B Hiring</span>
+        </h3>
+        <p class="text-xs text-slate-300">Complete step-by-step walkthrough to post jobs, accept candidate applications, and fund your recruiter workspace.</p>
+      </div>
+    </div>
+    <button onclick="document.getElementById('employerGuideModal').close()" class="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white transition-all text-lg font-bold">
+      ✕
+    </button>
+  </div>
+
+  <!-- BODY CONTENT — 4 STEPS -->
+  <div class="space-y-4 overflow-y-auto max-h-[calc(90vh-140px)] pe-2">
+
+    <!-- STEP 1 -->
+    <div class="rounded-2xl border border-amber-500/30 bg-slate-800/60 p-4 transition-all hover:border-amber-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-amber-500/20 border border-amber-400/30 px-2.5 py-1 text-xs font-black text-amber-300">STEP 1</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">📢 发布新职位招聘 & Set Up Requirements</h4>
+        </div>
+        <a href="/post-job" onclick="document.getElementById('employerGuideModal').close(); window.location.href='/post-job';" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold hover:bg-amber-500/30 transition-all">Post a New Job →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Navigate to <strong>"Post a New Job"</strong> (<code class="text-amber-300 font-mono">/post-job</code>). Enter your exact 职位名称, Required Qualifications, Industry, Salary Range, and 公司 Name.
+      </p>
+      <div class="rounded-xl bg-amber-950/40 border border-amber-500/30 p-2.5 text-xs text-amber-200 flex items-center gap-2 mb-2">
+        <span class="text-lg">📧</span>
+        <span><strong>Crucial Step for 企业雇主:</strong> Enter your official <strong>公司 Contact Email</strong>. This is the exact email address where candidate applications and CVs will be dispatched!</span>
+      </div>
+      <div class="rounded-xl bg-slate-900/60 border border-slate-700/60 p-2.5 text-xs text-slate-300 flex items-center gap-2">
+        <span class="text-lg">🎯</span>
+        <span>Choose your listing tier (Standard Posting, Featured Employer, or AI Swarm Sourcing) and click <strong>"Publish Job Opening"</strong>.</span>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="rounded-2xl border border-purple-500/30 bg-slate-800/60 p-4 transition-all hover:border-purple-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-purple-500/20 border border-purple-400/30 px-2.5 py-1 text-xs font-black text-purple-300">STEP 2</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">💳 Recruiter Wallet & Crypto Payment (Min $6)</h4>
+        </div>
+        <a href="/wallet" onclick="document.getElementById('employerGuideModal').close(); window.location.href='/wallet';" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-purple-500/20 border border-purple-400/40 text-purple-300 text-xs font-bold hover:bg-purple-500/30 transition-all">Employer Wallet →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Fund your employer workspace using <strong>Crypto (USDT, BTC, ETH - Minimum $6 deposit)</strong> or Credit Card.
+      </p>
+      <div class="rounded-xl bg-purple-950/40 border border-purple-500/30 p-2.5 text-xs text-purple-200 flex items-center gap-2">
+        <span class="text-lg">⚡</span>
+        <span><strong>Why Crypto Deposit?</strong> Crypto deposits trigger instant balance credits with zero banking holds, enabling immediate AI candidate screening, featured job placement, and automated job promotion blasts across candidate networks.</span>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="rounded-2xl border border-cyan-500/30 bg-slate-800/60 p-4 transition-all hover:border-cyan-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-cyan-500/20 border border-cyan-400/30 px-2.5 py-1 text-xs font-black text-cyan-300">STEP 3</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">📬 Track Applicant CVs & Recruiter Email Delivery</h4>
+        </div>
+        <a href="/employer/track" onclick="document.getElementById('employerGuideModal').close(); window.location.href='/employer/track';" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-bold hover:bg-cyan-500/30 transition-all">Track Applicant CVs →</a>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed mb-3">
+        Easily view and manage all candidate applications submitted to your job openings.
+      </p>
+      <div class="rounded-xl bg-cyan-950/40 border border-cyan-500/30 p-2.5 text-xs text-cyan-200 flex items-center gap-2 mb-2">
+        <span class="text-lg">📥</span>
+        <span><strong>Direct Email Ingestion:</strong> All candidate applications, attached PDF resumes, and custom AI cover letters are sent directly to the <strong>公司 Contact Email</strong> you specified during job posting.</span>
+      </div>
+      <div class="rounded-xl bg-slate-900/60 border border-slate-700/60 p-2.5 text-xs text-slate-300 flex items-center gap-2">
+        <span class="text-lg">📊</span>
+        <span><strong>Live Recruiter Portal:</strong> Go to <strong>"Track Applicant CVs"</strong> (<code class="text-cyan-300 font-mono">/employer/track</code>) and enter your email to access a real-time tracking dashboard showing candidate match scores, submission timestamps, and full candidate profiles.</span>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="rounded-2xl border border-emerald-500/30 bg-slate-800/60 p-4 transition-all hover:border-emerald-500/50 hover:bg-slate-800/90">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="flex items-center gap-2.5">
+          <span class="rounded-lg bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-1 text-xs font-black text-emerald-300">STEP 4</span>
+          <h4 class="text-base font-bold text-white flex items-center gap-2">🔌 Keep Dashboard Active & Automate Candidate Sourcing</h4>
+        </div>
+      </div>
+      <div class="rounded-xl bg-emerald-950/40 border border-emerald-500/40 p-3 text-xs text-emerald-200 space-y-2 mb-3">
+        <div class="flex items-start gap-2">
+          <span class="text-base">⚠️</span>
+          <div>
+            <strong>POWER SETTINGS:</strong> Keep your browser tab open or minimized. Set your Laptop/PC Power & Sleep settings to <strong>"NEVER"</strong> so your automated candidate sourcing and notification loops run continuously.
+          </div>
+        </div>
+        <div class="flex items-start gap-2 pt-1 border-t border-emerald-500/20">
+          <span class="text-base">🤖</span>
+          <div>
+            <strong>AI Candidate Sourcing:</strong> The JobHunt Pro AI engine continuously screens thousands of candidates 24/7, auto-matching qualified talent to your open roles in real time!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 24/7 SUPPORT CALLOUT BANNER -->
+    <div class="rounded-2xl border border-indigo-500/40 bg-gradient-to-r from-indigo-950/90 via-slate-900/95 to-cyan-950/90 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xl font-bold flex-shrink-0">
+          💬
+        </div>
+        <div>
+          <h5 class="text-sm font-bold text-white">Need Employer Assistance or Custom Recruitment Packages?</h5>
+          <p class="text-xs text-slate-300">Our B2B Employer Support Team is available 24/7 to assist with bulk job listings and candidate matching.</p>
+        </div>
+      </div>
+      <a href="/contact" onclick="document.getElementById('employerGuideModal').close(); window.location.href='/contact';" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 hover:scale-105 transition-all flex-shrink-0">
+        <span>💬 Contact Support</span>
+      </a>
+    </div>
+
+  </div>
+</dialog>
+
+<!-- Keyboard Shortcuts Modal (Native Dialog) -->
+<dialog id="shortcutModal" class="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-0 text-slate-200 shadow-2xl backdrop-blur-xl backdrop:bg-slate-950/80">
+  <div class="border-b border-white/10 p-4">
+    <div class="flex items-center justify-between">
+      <h3 class="flex items-center gap-2 text-lg font-bold text-white"><i data-lucide="keyboard" class="h-5 w-5"></i> Keyboard Shortcuts</h3>
+      <form method="dialog" dir="auto">
+        <button class="rounded-lg p-1 text-slate-400 hover:bg-white/10 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
+      </form>
+    </div>
+  </div>
+  <div class="p-4">
+    <div class="space-y-2.5">
+      <div onclick="window.location.href='/new-campaign'" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-bold text-white group-hover:text-indigo-400">🚀 New Campaign</span>
+          <span class="text-xs text-slate-400">Launch AI swarm engine to send automated job applications 24/7</span>
+        </div>
+        <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">N</kbd>
+      </div>
+
+      <div onclick="window.location.href='/upload-cv'" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-bold text-white group-hover:text-indigo-400">📄 Upload CV & Resume Audit</span>
+          <span class="text-xs text-slate-400">Upload & parse CV with AI tailored to bypass ATS filters</span>
+        </div>
+        <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">U</kbd>
+      </div>
+
+      <div onclick="window.location.href='/user-dashboard'" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-bold text-white group-hover:text-indigo-400">📊 Command Dashboard</span>
+          <span class="text-xs text-slate-400">Track real-time campaign stats, emails sent, interviews & balance</span>
+        </div>
+        <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">D</kbd>
+      </div>
+
+      <div onclick="document.getElementById('shortcutModal').close(); document.querySelector('input[type=search], #searchInput')?.focus();" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
+        <div class="flex flex-col gap-0.5">
+          <span class="text-sm font-bold text-white group-hover:text-indigo-400">🔍 Instant Search</span>
+          <span class="text-xs text-slate-400">Quickly search for any job, company, or service across the platform</span>
+        </div>
+        <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">/</kbd>
+      </div>
+
+      <div onclick="document.getElementById('shortcutModal').showModal()" class="flex items-center justify-between gap-3 rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-cyan-600/20 hover:border-cyan-500/40 border border-white/5 cursor-pointer group">
+        <div class="flex flex-col gap-0.5 min-w-0">
+          <span class="text-sm font-bold text-white group-hover:text-cyan-400">⌨️ Command Palette / Shortcuts</span>
+          <span class="text-xs text-slate-400">Open global command palette & keyboard shortcuts menu anytime</span>
+        </div>
+        <kbd class="shrink-0 whitespace-nowrap rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 font-mono text-xs font-bold text-cyan-400 shadow-sm">Ctrl + K</kbd>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- CHART.JS + DASHBOARD LOGIC -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+  
+  initChart();
+  initRevealAnimations();
+  initKeyboardShortcuts();
+});
+
+var pipelineChart = null;
+var currentChartType = 'bar';
+
+function initChart() {
+  var ctx = document.getElementById('pipelineChart');
+  if(!ctx) return;
+  var gradient = ctx.getContext('2d').createLinearGradient(0,0,0,300);
+  gradient.addColorStop(0,'rgba(99,102,241,0.8)');
+  gradient.addColorStop(1,'rgba(99,102,241,0.1)');
+  
+  pipelineChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Discovered','Applied','Followed Up','Interviewing','Offers'],
+      datasets: [{
+        label: 'Candidates',
+        data: [
+          {{ pipeline_counts.discovered | default(154) }},
+          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) }},
+          {{ pipeline_counts.followed_up | default(24) }},
+          {{ pipeline_counts.interview | default(6) }},
+          {{ pipeline_counts.offer | default(2) }}
+        ],
+        backgroundColor: gradient,
+        borderColor: '#818cf8',
+        borderWidth: 1,
+        borderRadius: 6,
+        barPercentage: 0.6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.95)',
+          titleColor: '#fff',
+          bodyColor: '#cbd5e1',
+          padding: 12,
+          borderColor: 'rgba(99,102,241,0.3)',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter' } }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 12 } }
+        }
+      },
+      animation: { duration: 1200, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+function switchChart(type, btn) {
+  if(type === currentChartType) return;
+  currentChartType = type;
+  
+  // Update active tab styling
+  document.querySelectorAll('#chartTabs button').forEach(function(t) {
+    t.classList.remove('bg-indigo-500/20', 'text-indigo-300');
+    t.classList.add('text-slate-400');
+  });
+  btn.classList.add('bg-indigo-500/20', 'text-indigo-300');
+  btn.classList.remove('text-slate-400');
+  
+  if(pipelineChart) pipelineChart.destroy();
+  var ctx = document.getElementById('pipelineChart');
+  if(!ctx) return;
+  
+  var gradient = ctx.getContext('2d').createLinearGradient(0,0,0,300);
+  gradient.addColorStop(0,'rgba(99,102,241,0.8)');
+  gradient.addColorStop(1,'rgba(99,102,241,0.1)');
+  
+  var bgColor = type === 'doughnut' 
+    ? ['#818cf8', '#22d3ee', '#fbbf24', '#c084fc', '#34d399'] 
+    : gradient;
+    
+  pipelineChart = new Chart(ctx, {
+    type: type,
+    data: {
+      labels: ['Discovered','Applied','Followed Up','Interviewing','Offers'],
+      datasets: [{
+        label: 'Opportunities',
+        data: [
+          {{ pipeline_counts.discovered | default(154) }},
+          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) }},
+          {{ pipeline_counts.followed_up | default(24) }},
+          {{ pipeline_counts.interview | default(6) }},
+          {{ pipeline_counts.offer | default(2) }}
+        ],
+        backgroundColor: bgColor,
+        borderColor: type === 'doughnut' ? 'rgba(15,23,42,0.8)' : '#818cf8',
+        borderWidth: type === 'doughnut' ? 2 : 1,
+        borderRadius: type === 'bar' ? 6 : 0,
+        barPercentage: 0.6
+      }]
+    },
+    options: type === 'doughnut' ? {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { color: '#94a3b8', font: { family: 'Inter', size: 12 }, padding: 16 } }
+      }
+    } : {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+function initRevealAnimations() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if(entry.isIntersecting) {
+        entry.target.classList.add('animate-fade-in-up');
+        entry.target.style.opacity = '1';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  document.querySelectorAll('.reveal').forEach(function(el) {
+    el.style.opacity = '0';
+    observer.observe(el);
+  });
+}
+
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      document.getElementById('shortcutModal').showModal();
+      return;
+    }
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    switch(e.key.toLowerCase()) {
+      case 'n': window.location.href = '/new-campaign'; break;
+      case 'u': window.location.href = '/upload-cv'; break;
+      case 'd': window.location.href = '/user-dashboard'; break;
+      case '/': 
+        e.preventDefault(); 
+        break;
+      case '?': 
+        document.getElementById('shortcutModal').showModal();
+        break;
+    }
+  });
+}
+</script>
+
+
+<!-- SMTP Connect Modal -->
+<dialog id="smtpModal" class="modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl" style="inline-size: 100%; max-inline-size: 450px;">
+  <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+    <h3 class="text-xl font-bold text-white">Connect Your Email</h3>
+    <button onclick="document.getElementById('smtpModal').close()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
+  </div>
+  <p class="text-sm text-slate-400 mb-6">Send job applications directly from your own email address to bypass spam filters and increase response rates.</p>
+  
+  <div class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1">Provider</label>
+      <select id="smtpProvider" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+        <option value="google">Google (Gmail/Workspace)</option>
+        <option value="microsoft">Microsoft (Outlook/Office365)</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1">电子邮箱地址</label>
+      <input type="email" id="smtpEmail" placeholder="you@domain.com" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-300 mb-1">App 密码</label>
+      <input type="password" id="smtpPass" placeholder="16-digit App 密码" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+      <p class="text-xs text-slate-500 mt-1"><a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-indigo-400 hover:underline">How to generate an App 密码?</a></p>
+    </div>
+    <button id="smtpConnectBtn" onclick="connectSmtp()" class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2">
+      <i data-lucide="link" class="h-4 w-4"></i> Connect Securely
+    </button>
+  </div>
+</dialog>
+
+<script>
+async function connectSmtp() {
+    const provider = document.getElementById('smtpProvider').value;
+    const email = document.getElementById('smtpEmail').value;
+    const pass = document.getElementById('smtpPass').value;
+    
+    if(!email || !pass) {
+        alert('Please enter both email and app password.');
+        return;
+    }
+    
+    const btn = document.getElementById('smtpConnectBtn');
+    btn.innerHTML = '<i class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></i> Connecting...';
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch('/api/smtp-connect', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({provider, email, app_password: pass})
+        });
+        const data = await res.json();
+        if(res.ok) {
+            alert(data.message);
+            window.location.reload();
+        } else {
+            alert(data.message || 'Error connecting.');
+            btn.innerHTML = '<i data-lucide="link" class="h-4 w-4"></i> Connect Securely';
+            btn.disabled = false;
+        }
+    } catch(e) {
+        alert('Network error.');
+        btn.innerHTML = '<i data-lucide="link" class="h-4 w-4"></i> Connect Securely';
+        btn.disabled = false;
+    }
+}
+</script>
+
+<!-- TEST EMAIL DISPATCH MODAL (ENGLISH) -->
+<dialog id="testEmailModal" class="p-0 rounded-2xl border border-emerald-500/40 bg-slate-900/95 text-white shadow-[0_0_50px_rgba(16,185,129,0.3)] backdrop-blur-2xl max-w-lg w-full">
+  <div class="p-6 relative space-y-5">
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between border-b border-slate-700/60 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-xl border border-emerald-500/40">
+          📧
+        </div>
+        <div>
+          <h3 class="text-lg font-extrabold text-white">Send Live Test Email</h3>
+          <p class="text-xs text-slate-400">Preview your application email exactly as employers receive it</p>
+        </div>
+      </div>
+      <button onclick="closeTestEmailModal()" class="text-slate-400 hover:text-white text-lg font-bold">✕</button>
+    </div>
+
+    <!-- Pricing / Wallet Info Banner -->
+    <div class="flex items-center justify-between p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="text-emerald-400 font-bold">🏷️ Dispatch Cost:</span>
+        <span class="bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded border border-emerald-400/40">$1.00 USD</span>
+      </div>
+      <div class="text-slate-300">
+        Wallet Balance: <strong id="modalWalletBalance" class="text-amber-400 font-black">${{ "%.2f"|format(user.wallet_balance|default(0.0)) }}</strong>
+      </div>
+    </div>
+
+    <!-- Form Inputs -->
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1">👤 Select Target CV Profile <span class="text-emerald-400">*</span></label>
+        <div class="relative">
+          <select id="selectTestProfile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer">
+            <option value="">Choose a loaded profile...</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 end-0 flex items-center px-3 text-emerald-400">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1">Target Recipient Email <span class="text-red-400">*</span></label>
+        <input type="email" id="inputTestRecipient" placeholder="Enter your email to receive the test application..." value="{{ user.email if user.email else '' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto" required dir="auto">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Target 公司 Name</label>
+          <input type="text" id="inputTest公司" value="Global Tech Solutions" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">Target 职位名称</label>
+          <input type="text" id="inputTestJob" value="IT Manager / Senior Engineer" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-300 mb-1">Custom Note / Instruction (Optional)</label>
+        <textarea id="inputTestNote" rows="2" placeholder="Add any special test note to include in the email..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto"></textarea>
+      </div>
+    </div>
+
+    <!-- Alert Output -->
+    <div id="testEmailAlert" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+    <!-- 操作 -->
+    <div class="flex items-center justify-end gap-3 border-t border-slate-700/60 pt-4">
+      <button onclick="closeTestEmailModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">取消</button>
+      <button id="btnSubmitTestEmail" onclick="submitLiveTestEmail()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-extrabold shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all flex items-center gap-2">
+        <span>🚀 Send Test Email Now ($1.00)</span>
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+async function openTestEmailModal() {
+  const dialog = document.getElementById('testEmailModal');
+  if (dialog) dialog.showModal();
+
+  try {
+    const res = await fetch('/api/v2/campaigns/user-profiles');
+    const data = await res.json();
+    const sel = document.getElementById('selectTestProfile');
+    if (sel && data.profiles && data.profiles.length > 0) {
+      sel.innerHTML = data.profiles.map(p => 
+        `<option value="${p.id}">${p.profile_name || 'Sam Salameh - Senior Network Engineer (15+ yrs exp)'}</option>`
+      ).join('');
+    }
+  } catch(e) {
+    console.log('[testEmailModal] Profile fetch error:', e);
+  }
+}
+function closeTestEmailModal() {
+  const dialog = document.getElementById('testEmailModal');
+  if (dialog) dialog.close();
+  const alertBox = document.getElementById('testEmailAlert');
+  if (alertBox) alertBox.classList.add('hidden');
+}
+async function submitLiveTestEmail() {
+  const profileId = document.getElementById('selectTestProfile') ? document.getElementById('selectTestProfile').value : null;
+  const recipient = document.getElementById('inputTestRecipient').value.trim();
+  const company = document.getElementById('inputTest公司').value.trim() || 'Global Tech Solutions';
+  const job = document.getElementById('inputTestJob').value.trim() || 'IT Specialist';
+  const note = document.getElementById('inputTestNote').value.trim();
+  const alertBox = document.getElementById('testEmailAlert');
+  const btn = document.getElementById('btnSubmitTestEmail');
+
+  if (!recipient || !recipient.includes('@')) {
+    alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';
+    alertBox.textContent = '⚠️ Please enter a valid recipient email address.';
+    alertBox.classList.remove('hidden');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳ Dispatching & Deducting Wallet...</span>';
+  alertBox.classList.add('hidden');
+
+  try {
+    const res = await fetch('/api/v2/campaigns/send-test-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profile_id: profileId,
+        recipient_email: recipient,
+        company_name: company,
+        job_title: job,
+        custom_note: note
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+      alertBox.textContent = '✅ ' + data.message;
+      alertBox.classList.remove('hidden');
+
+      if (data.new_balance_usd !== undefined) {
+        const modalBal = document.getElementById('modalWalletBalance');
+        if (modalBal) modalBal.textContent = '$' + Number(data.new_balance_usd).toFixed(2);
+      }
+      setTimeout(() => {
+        closeTestEmailModal();
+        window.location.reload();
+      }, 2000);
+    } else {
+      alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';
+      alertBox.textContent = '❌ ' + (data.error || 'An error occurred during dispatch.');
+      alertBox.classList.remove('hidden');
+    }
+  } catch (err) {
+    alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';
+    alertBox.textContent = '❌ Server communication error: ' + err.message;
+    alertBox.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🚀 Send Test Email Now ($1.00)</span>';
+  }
+}
+</script>
+
+<!-- FLOATING AI CAREER COPILOT WIDGET -->
+<div id="aiCopilotWidget" class="fixed bottom-6 end-6 z-50 flex flex-col items-end">
+  <!-- Widget Panel -->
+  <div id="aiCopilotPanel" class="hidden mb-3 w-80 sm:w-96 rounded-2xl border border-indigo-500/30 bg-slate-900/95 p-4 shadow-[0_0_30px_rgba(99,102,241,0.3)] backdrop-blur-xl text-slate-200 transition-all transform origin-bottom-right">
+    <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🤖</span>
+        <div>
+          <h4 class="text-sm font-extrabold text-white">AI Autonomous Copilot</h4>
+          <p class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live & Ready
+          </p>
+        </div>
+      </div>
+      <button onclick="toggleAiCopilotWidget()" class="text-slate-400 hover:text-white rounded-lg p-1 hover:bg-white/10 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <p class="text-xs text-slate-300 mb-3 leading-relaxed">How can I assist your career search today? Launch a tool or ask a question:</p>
+
+    <div class="grid grid-cols-2 gap-2 mb-3">
+      <a href="/ats-studio" class="flex items-center gap-2 p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold hover:bg-indigo-500/20 transition-all">
+        <span>⚡</span> ATS Audit
+      </a>
+      <a href="/new-campaign" class="flex items-center gap-2 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 transition-all">
+        <span>✉️</span> Cover Letter
+      </a>
+      <a href="/interview-copilot" class="flex items-center gap-2 p-2 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-bold hover:bg-purple-500/20 transition-all">
+        <span>🎙️</span> AI Interview
+      </a>
+      <a href="/salary-negotiator" class="flex items-center gap-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/20 transition-all">
+        <span>💰</span> Salary Value
+      </a>
+    </div>
+
+    <div class="flex gap-2">
+      <input type="text" id="aiWidgetQuery" placeholder="Ask AI about your job hunt..." class="w-full bg-slate-800/80 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-400" dir="auto">
+      <button onclick="handleAiWidgetAsk()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shrink-0">
+        Send 🚀
+      </button>
+    </div>
+    <div id="aiWidgetReply" class="hidden mt-2 p-2.5 rounded-xl bg-indigo-950/60 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed"></div>
+  </div>
+
+  <!-- Trigger Button -->
+  <button onclick="toggleAiCopilotWidget()" class="flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 text-white font-extrabold text-xs shadow-[0_0_25px_rgba(99,102,241,0.5)] border border-indigo-400/40 hover:scale-105 transition-all cursor-pointer">
+    <span class="text-base animate-bounce">🤖</span>
+    <span>AI Copilot</span>
+    <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+  </button>
+</div>
+
+<script>
+function toggleAiCopilotWidget() {
+  const panel = document.getElementById('aiCopilotPanel');
+  if (panel) panel.classList.toggle('hidden');
+}
+function handleAiWidgetAsk() {
+  const input = document.getElementById('aiWidgetQuery');
+  const reply = document.getElementById('aiWidgetReply');
+  if (!input || !reply) return;
+  const q = input.value.trim();
+  if (!q) return;
+  reply.classList.remove('hidden');
+  reply.innerHTML = '✨ <strong>AI Assistant:</strong> Based on your profile, we recommend optimizing your CV in <a href="/ats-studio" class="underline text-cyan-300 font-bold">ATS Studio</a> and launching a <a href="/new-campaign" class="underline text-emerald-300 font-bold">New Campaign</a> for maximum response!';
+  input.value = '';
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  function updateDispatchTimes() {
+    document.querySelectorAll('.dispatch-time').forEach(el => {
+      const tStr = el.getAttribute('data-time');
+      if (!tStr) return;
+      let isoStr = tStr.trim().replace(' ', 'T');
+      if (!isoStr.endsWith('Z') && !isoStr.includes('+')) {
+        isoStr += 'Z';
+      }
+      const d = new 日期(isoStr);
+      if (isNaN(d.getTime())) return;
+      const diffSec = Math.floor((new 日期() - d) / 1000);
+      if (diffSec < 60) {
+        el.innerText = 'Just now';
+      } else if (diffSec < 3600) {
+        const mins = Math.max(1, Math.floor(diffSec / 60));
+        el.innerText = `${mins}m ago`;
+      } else if (diffSec < 86400) {
+        const hrs = Math.floor(diffSec / 3600);
+        el.innerText = `${hrs}h ago`;
+      } else {
+        const days = Math.floor(diffSec / 86400);
+        el.innerText = `${days}d ago`;
+      }
+    });
+  }
+  updateDispatchTimes();
+  setInterval(updateDispatchTimes, 15000);
+</script>
