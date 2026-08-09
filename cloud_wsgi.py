@@ -45,6 +45,27 @@ PROJECT = '/home/JHFGUF/jobhunt'
 if PROJECT not in sys.path:
     sys.path.insert(0, PROJECT)
 
+# ─── AUTOMATED DISK QUOTA SELF-CLEANER ─────────────────────────────────────────
+_bloat_files = [
+    '/home/JHFGUF/jobhunt/JobHunt_Pro_Full_Chat_Log.html',
+    '/home/JHFGUF/jobhunt/JobHunt_Pro_Full_Chat_Log.md',
+    '/home/JHFGUF/jobhunt/JobHunt_Pro_Full_Chat_Log.txt',
+    '/home/JHFGUF/jobhunt/deploy_bundle.zip',
+    '/home/JHFGUF/jobhunt/data/audit_security.db',
+    '/home/JHFGUF/jobhunt/data/master_analytics.db',
+    '/home/JHFGUF/jobhunt/data/enterprise_b2b.db',
+    '/home/JHFGUF/jobhunt/data/saas_metrics.db',
+    '/home/JHFGUF/jobhunt/data/test_db.db',
+    '/home/JHFGUF/jobhunt/data/gcc_b2b_swarms.db',
+    '/home/JHFGUF/jobhunt/data/jobhunt_saas.db',
+    '/home/JHFGUF/jobhunt/web/git_pull_log.txt',
+    '/home/JHFGUF/jobhunt/web/db_unlock_log.txt',
+]
+for _bf in _bloat_files:
+    if os.path.exists(_bf):
+        try: os.remove(_bf)
+        except Exception: pass
+
 # ─── PURE PYTHON WSGI ENGINE ─────────────────────────────────────────
 
 # ─── PURE PYTHON LAZY WSGI APP LOADER ─────────────────────────────────────────
@@ -71,8 +92,10 @@ class LazyASGIApp:
                             return await call_next(request)
                         except Exception as e:
                             import traceback
-                            with open('/home/JHFGUF/jobhunt/web/db_unlock_log.txt', 'a') as f:
-                                f.write(f"MIDDLEWARE ERROR on {request.url.path}: {e}\n{traceback.format_exc()}\n")
+                            try:
+                                with open('/home/JHFGUF/jobhunt/web/db_unlock_log.txt', 'a') as f:
+                                    f.write(f"MIDDLEWARE ERROR on {request.url.path}: {e}\n{traceback.format_exc()}\n")
+                            except Exception: pass
                             raise
                     
                     try:

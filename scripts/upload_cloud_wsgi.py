@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import requests
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -18,9 +19,22 @@ url = f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/files/path{cloud_p
 with open(local_cloud_wsgi, "rb") as f:
     content = f.read()
 
-r = requests.post(url, headers=HEADERS, files={"content": content}, timeout=15)
-print(f"[OK] Direct upload of cloud_wsgi.py to PythonAnywhere status: {r.status_code}")
+uploaded = False
+for attempt in range(5):
+    try:
+        r = requests.post(url, headers=HEADERS, files={"content": content}, timeout=15)
+        print(f"[Attempt {attempt+1}] Direct upload of cloud_wsgi.py status: {r.status_code}")
+        if r.status_code in (200, 201):
+            uploaded = True
+            break
+        elif r.status_code == 429:
+            print("[429 Rate Limit] Sleeping 5s before retry...")
+            time.sleep(5)
+    except Exception as e:
+        print(f"Exception: {e}")
+        time.sleep(3)
 
-# Touch WSGI to reload
-r_reload = requests.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/webapps/{USERNAME.lower()}.pythonanywhere.com/reload/", headers=HEADERS)
-print(f"[OK] Webapp reload status: {r_reload.status_code}")
+if uploaded:
+    time.sleep(3)
+    r_reload = requests.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/webapps/{USERNAME.lower()}.pythonanywhere.com/reload/", headers=HEADERS)
+    print(f"[OK] Webapp reload status: {r_reload.status_code}")
