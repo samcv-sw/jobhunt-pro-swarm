@@ -740,9 +740,13 @@ class SqliteConnectionWrapper:
             self.conn.execute("PRAGMA synchronous=NORMAL")
             logger.debug(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
         else:
-            self.conn.execute("PRAGMA journal_mode=WAL")
+            try:
+                self.conn.execute("PRAGMA journal_mode=WAL")
+            except Exception as wal_err:
+                self.conn.execute("PRAGMA journal_mode=DELETE")
+                logger.warning(f"[DB] WAL mode failed ({wal_err}), fallback to DELETE journal mode")
             self.conn.execute("PRAGMA synchronous=NORMAL")
-            logger.debug(f"[DB] Connected to SQLite fallback (WAL journal mode): {_safe_str(db_path)}")
+            logger.debug(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
 
         self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache for sub-5ms queries
         self.conn.execute("PRAGMA temp_store=MEMORY")   # In-memory temporary tables & sorts
