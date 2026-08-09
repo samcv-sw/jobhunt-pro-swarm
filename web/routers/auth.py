@@ -29,11 +29,10 @@ def _deps():
         _check_rate_limit,
         config,
         get_db,
-        is_admin_email,
         session_serializer,
         templates,
     )
-    return get_db, session_serializer, templates, config, _check_rate_limit, is_admin_email
+    return get_db, session_serializer, templates, config, _check_rate_limit
 
 
 def _hash_pw(pw: str) -> str:
@@ -562,7 +561,8 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
     """Google OAuth callback. Exchanges authorization code for access token, fetches profile, and registers/logs-in user."""
     import time
 
-    get_db, session_serializer, _, config, _, is_admin_email = _deps()
+    from web.shared import is_admin_email
+    get_db, session_serializer, _, config, _ = _deps()
     email = ""
     name = ""
     access_token = "mock_access_token_123"
