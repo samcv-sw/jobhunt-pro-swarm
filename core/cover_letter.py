@@ -148,7 +148,7 @@ LinkedIn: {linkedin}"""
 
 {title} — {name}
 
-A senior {profession} with {experience_years}+ years of cross-functional expertise spanning enterprise networking, security, cloud, and automation across 10+ countries, I am compelled by the opportunity at {company}.
+As an experienced {profession} with {experience_years}+ years of cross-functional expertise spanning enterprise networking, security, cloud, and automation across 10+ countries, I am compelled by the opportunity at {company}.
 
 TRACK RECORD OF IMPACT:
 ▸ Designed and deployed SD-WAN solution across 50+ sites — reduced WAN costs by 45%, improved application performance by 60%
@@ -311,13 +311,18 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
                 company, title, description, c_info, language, user_details=ud
             )
 
-        template = random.choice(cls.ALL_TEMPLATES)
+        template = cls.TEMPLATE_CONCISE
         icebreaker = cls._get_icebreaker(company, title, c_info)
 
-        skills_val = ud.get("skills") or getattr(config, "CANDIDATE_SKILLS", None) or ", ".join(getattr(config, "SKILLS", [])[:10]) or "Networking, Cloud, Security, Automation"
+        raw_s = ud.get("skills") or getattr(config, "CANDIDATE_SKILLS", None) or getattr(config, "SKILLS", [])[:10]
+        if isinstance(raw_s, list):
+            skills_val = ", ".join([str(x) for x in raw_s])
+        else:
+            skills_val = str(raw_s or "Networking, Cloud, Security, Automation")
         name_val = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Job Applicant")
         email_val = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "")
-        phone_val = ud.get("phone") or getattr(config, "CANDIDATE_PHONE", "")
+        from core.validators import clean_phone_number
+        phone_val = clean_phone_number(ud.get("phone") or getattr(config, "CANDIDATE_PHONE", ""))
         address_val = ud.get("address") or getattr(config, "CANDIDATE_ADDRESS", "")
         linkedin_val = ud.get("linkedin") or getattr(config, "CANDIDATE_LINKEDIN", "")
         profession_val = ud.get("profession") or getattr(config, "PROFESSION", "Software Engineer")
@@ -361,7 +366,25 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
             user_details=user_details,
         )
 
-        return cls._text_to_html(text, company, language)
+        return cls._text_to_html(text, company, language, user_details=user_details)
+
+    @classmethod
+    def generate(
+        cls,
+        user_details: dict = None,
+        target_company: str = "Company",
+        job_title: str = "Candidate",
+        job_description: str = "",
+        email_style: str = "professional",
+        cover_letter_style: str = "storytelling"
+    ) -> str:
+        """Generate HTML cover letter for candidate."""
+        return cls.write_html(company=target_company or "Company", title=job_title or "Position", description=job_description or "", user_details=user_details)
+
+    @classmethod
+    def _format_cover_letter(cls, raw_text: str, user_details: dict = None, company: str = "Company", title: str = "Position") -> str:
+        """Format raw text as HTML cover letter."""
+        return cls._text_to_html(raw_text or "", company=company or "Company", language="en", user_details=user_details)
 
     # ── PA Fast Cover Letter ─────────────────────────────────────────────────
     # PA template: max 200 words, no AI, no icebreaker — instant generation
@@ -385,11 +408,12 @@ Best regards,
         Returns HTML string directly.
         """
         import config
+        from core.validators import clean_phone_number
 
         ud = user_details or {}
         name = ud.get("name") or config.CANDIDATE_NAME
         email = ud.get("email") or config.CANDIDATE_EMAIL
-        phone = ud.get("phone") or config.CANDIDATE_PHONE
+        phone = clean_phone_number(ud.get("phone") or config.CANDIDATE_PHONE)
         profession = ud.get("profession") or "Professional"
         skills = ud.get("skills") or "Strong analytical and technical skills"
         experience_years = ud.get("experience_years") or 5
@@ -404,7 +428,7 @@ Best regards,
             skills=skills,
             experience_years=experience_years,
         )
-        return cls._text_to_html(text, company, "en")
+        return cls._text_to_html(text, company, "en", user_details=ud)
 
     # ── Language Detection ───────────────────────────────────────────────────
 
@@ -431,6 +455,7 @@ Best regards,
     ) -> str:
         """Generate a cover letter using templates when AI is unavailable."""
         import config
+        from core.validators import clean_phone_number
 
         ud = user_details or {}
         c_info = company_info
@@ -442,7 +467,7 @@ Best regards,
 
         name = ud.get("name") or config.CANDIDATE_NAME
         email = ud.get("email") or config.CANDIDATE_EMAIL
-        phone = ud.get("phone") or config.CANDIDATE_PHONE
+        phone = clean_phone_number(ud.get("phone") or config.CANDIDATE_PHONE)
         address = config.CANDIDATE_ADDRESS
         linkedin = ud.get("linkedin") or config.CANDIDATE_LINKEDIN
         profession = ud.get("profession") or "Professional"
@@ -477,7 +502,7 @@ Best regards,
                 skills=skills,
                 experience_years=experience_years,
             )
-            en_template = random.choice(cls.ALL_TEMPLATES)
+            en_template = cls.TEMPLATE_CONCISE
             en_letter = en_template.format(
                 title=title,
                 company=company,
@@ -493,7 +518,7 @@ Best regards,
             )
             return f"{ar_letter}\n\n{'─' * 50}\n\n{en_letter}"
         else:
-            template = random.choice(cls.ALL_TEMPLATES)
+            template = cls.TEMPLATE_CONCISE
             return template.format(
                 title=title,
                 company=company,
@@ -511,20 +536,37 @@ Best regards,
     # ── HTML Conversion ──────────────────────────────────────────────────────
 
     @classmethod
-    def _text_to_html(cls, text: str, company: str, language: str = "en") -> str:
-        """Convert plain text cover letter to styled HTML matching the reference email template.
-        No wrapper div — content renders directly inside the EmailBuilder <td>."""
+    def _text_to_html(cls, text: str, company: str, language: str = "en", user_details: dict = None) -> str:
+        """Convert plain text cover letter to premium Executive Application HTML email."""
+        import config
+
+        import re
+        ud = user_details or {}
+        cand_name = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh") or "Sam Salameh"
+        if cand_name.lower() in ("sam", "candidate", "executive", ""):
+            cand_name = "Sam Salameh"
+        
+        cand_email = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") or "sam.dev1@hotmail.com"
+        if not cand_email or "samatou" in cand_email.lower() or "samsalameh.cv" in cand_email.lower():
+            cand_email = "sam.dev1@hotmail.com"
+        from core.validators import clean_phone_number
+        cand_phone = clean_phone_number(ud.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009"))
+        
+        cand_title = ud.get("profession") or "Senior Software Engineer"
+        if not cand_title or "network" in cand_title.lower() or cand_title.lower() in ("professional", ""):
+            cand_title = "Senior Software Engineer"
+        elif not cand_title.lower().startswith("senior"):
+            cand_title = f"Senior {cand_title}"
+        exp_years = str(ud.get("experience_years") or "15")
+
+        # Strip any trailing plain-text signatures (e.g. Best regards, Sam Salameh...) to prevent double signature
+        pattern_sig = r'\n+(?:Best regards|Sincerely|Kind regards|Regards|Best)?[\s,]*\n?(?:' + re.escape(cand_name) + r'|Sam Salameh|sam\.dev1).*$'
+        text = re.sub(pattern_sig, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
+
         is_bilingual = language in ("bilingual", "ar")
+        accent = "#2563eb" if not is_bilingual else "#d97706"
+        bg_accent = "#f8fafc" if not is_bilingual else "#fffbeb"
 
-        # Color scheme — reference accent
-        accent = "#00b4d8" if not is_bilingual else "#d4a853"
-        bg_accent = (
-            "rgba(0, 180, 216, 0.05)"
-            if not is_bilingual
-            else "rgba(212, 168, 83, 0.05)"
-        )
-
-        # Split into sections (by horizontal rule for bilingual)
         sections = text.split("─" * 30) if "─" * 30 in text else [text]
 
         html_parts = []
@@ -533,47 +575,177 @@ Best regards,
             if not section:
                 continue
 
-            # Add language label for bilingual
             if len(sections) > 1:
                 lang_label = "العربية" if idx == 0 else "English"
                 html_parts.append(
                     f'<div style="text-align:center;margin:20px 0 10px;">'
-                    f'<span style="background:{accent};color:white;padding:4px 16px;border-radius:12px;'
-                    f'font-size:12px;font-weight:600;">{lang_label}</span></div>'
+                    f'<span style="background:{accent};color:#ffffff;padding:4px 16px;border-radius:12px;'
+                    f'font-size:12px;font-weight:700;">{lang_label}</span></div>'
                 )
 
             paragraphs = section.split("\n\n")
+            cleaned_paragraphs = []
             for p in paragraphs:
-                p = p.strip()
-                if not p:
+                p_str = p.strip()
+                if not p_str:
                     continue
+                # Skip raw redundant signature lines (e.g. "Best regards, Sam Salameh sam.dev1@hotmail.com...")
+                if re.match(r'^(?:Best regards|Sincerely|Kind regards|Regards|Best)[,\s]*\n?.*(?:Sam Salameh|sam\.dev1)', p_str, re.IGNORECASE):
+                    continue
+                cleaned_paragraphs.append(p_str)
+
+            for p in cleaned_paragraphs:
                 html_parts.append(cls._format_paragraph(p, accent, bg_accent))
 
-        # No wrapper div — just the content parts directly
-        return "".join(html_parts)
+        body_content = "".join(html_parts)
+        
+        # Build Skill Pills if skills exist
+        raw_skills = ud.get("skills") or "Python, Software Engineering, Cloud Systems"
+        if "cisco" in str(raw_skills).lower() or "mikrotik" in str(raw_skills).lower() or "network engineering" in str(raw_skills).lower():
+            raw_skills = "Python, Software Engineering, Cloud Systems"
+        if isinstance(raw_skills, list):
+            skills_list = [str(s).strip() for s in raw_skills if str(s).strip()][:8]
+        else:
+            skills_list = [s.strip() for s in str(raw_skills).split(",") if s.strip()][:8]
+        skill_pills = "".join(
+            f'<span style="display:inline-block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;'
+            f'padding:4px 10px;border-radius:14px;font-size:12px;font-weight:600;margin:3px 3px 3px 0;">{s}</span>'
+            for s in skills_list
+        )
+
+        # Executive Header Banner
+        header_banner = (
+            f'<div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 24px 28px; '
+            f'border-radius: 12px 12px 0 0; border-bottom: 4px solid #2563eb;">'
+            f'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+            f'<tr>'
+            f'<td style="vertical-align: middle;">'
+            f'<h1 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; font-family: Arial, sans-serif;">{cand_name}</h1>'
+            f'<p style="margin: 4px 0 0; font-size: 13px; color: #94a3b8; font-weight: 500;">{cand_title} &bull; {exp_years}+ Years Experience</p>'
+            f'</td>'
+            f'<td style="text-align: right; vertical-align: middle;">'
+            f'<span style="background: rgba(37, 99, 235, 0.25); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.4); '
+            f'padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Executive Candidate</span>'
+            f'</td>'
+            f'</tr>'
+            f'</table>'
+            f'</div>'
+        )
+
+        # Executive Footer Signature Card
+        footer_card = (
+            f'<div style="margin-top: 28px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">'
+            f'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
+            f'<tr>'
+            f'<td width="48" style="vertical-align: middle;">'
+            f'<div style="width: 44px; height: 44px; background: #2563eb; color: #ffffff; border-radius: 50%; '
+            f'font-size: 16px; font-weight: 700; text-align: center; line-height: 44px; font-family: Arial, sans-serif;">SS</div>'
+            f'</td>'
+            f'<td style="padding-left: 14px; vertical-align: middle;">'
+            f'<strong style="font-size: 15px; color: #0f172a; display: block; font-family: Arial, sans-serif;">{cand_name}</strong>'
+            f'<span style="font-size: 13px; color: #64748b; display: block;">{cand_title}</span>'
+            f'<span style="font-size: 12px; color: #2563eb; font-weight: 600; display: block; margin-top: 2px;">{cand_email} &bull; {cand_phone}</span>'
+            f'</td>'
+            f'</tr>'
+            f'</table>'
+            f'</div>'
+            f'<div style="margin-top: 12px; padding: 12px 16px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 6px; font-size: 12px; color: #1e40af; font-family: Arial, sans-serif;">'
+            f'📄 <strong>Attached Document:</strong> Complete Professional Resume ({cand_name.replace(" ", "_")}_CV.pdf)'
+            f'</div>'
+        )
+
+        # Full Executive Email Wrapper
+        return (
+            f'<div style="font-family: \'Inter\', -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; '
+            f'max-width: 660px; margin: 0 auto; background-color: #ffffff; color: #1e293b; border-radius: 12px; '
+            f'border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08); overflow: hidden;">'
+            f'{header_banner}'
+            f'<div style="padding: 28px;">'
+            f'{body_content}'
+            f'<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f1f5f9;">'
+            f'<strong style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px;">Key Technical Competencies:</strong>'
+            f'{skill_pills}'
+            f'</div>'
+            f'{footer_card}'
+            f'</div>'
+            f'</div>'
+        )
 
     @classmethod
     def _format_paragraph(cls, p: str, accent: str, bg_accent: str) -> str:
-        """Format a single paragraph into HTML with smart styling."""
-        # Bullet lists
+        """Format a single paragraph into HTML with smart styling and crisp readability."""
+        import re
+
+        # Handle inline/block bullet lists (Key qualifications I bring: - 15+ years... - Expert-level...)
+        if " - " in p or p.strip().startswith("- "):
+            lines = p.split("\n")
+            out = []
+            for l in lines:
+                l_str = l.strip()
+                if not l_str:
+                    continue
+                if " - " in l_str or l_str.startswith("- "):
+                    parts = [pt.strip() for pt in re.split(r'(?:^|\s+)-\s+', l_str) if pt.strip()]
+                    if parts:
+                        if not l_str.startswith("- ") and len(parts) > 1 and ":" in parts[0]:
+                            out.append(f'<p style="margin:14px 0 6px;font-size:15px;font-weight:700;color:#0f172a;line-height:1.6;">{parts[0]}</p>')
+                            bullet_pts = parts[1:]
+                        else:
+                            bullet_pts = parts
+                        
+                        items_html = "".join(f'<li style="margin:6px 0;color:#334155;font-size:14px;line-height:1.7;">{b}</li>' for b in bullet_pts)
+                        out.append(f'<ul style="margin:8px 0 16px;padding-left:22px;list-style-type:disc;">{items_html}</ul>')
+                else:
+                    out.append(f'<p style="margin:14px 0;font-size:15px;color:#1e293b;line-height:1.7;">{l_str}</p>')
+            if out:
+                return "".join(out)
+
+        # Handle lines with arrows (e.g., Reliability → ..., Efficiency → ...)
+        if "→" in p:
+            lines = [l.strip() for l in p.split("\n") if l.strip()]
+            items = []
+            for l in lines:
+                if "→" in l:
+                    parts = l.split("→", 1)
+                    items.append(
+                        f'<div style="margin:8px 0;padding:10px 14px;background:{bg_accent};border-left:3px solid {accent};border-radius:6px;">'
+                        f'<strong style="color:{accent};font-size:14px;">{parts[0].strip()} →</strong> '
+                        f'<span style="color:#334155;font-size:14px;line-height:1.6;">{parts[1].strip()}</span></div>'
+                    )
+                else:
+                    items.append(f'<p style="margin:12px 0;font-size:15px;color:#1e293b;line-height:1.7;">{l}</p>')
+            return "".join(items)
+
+        # Bullet lists (- ...)
         if p.startswith("- "):
             items = "".join(
-                f'<li style="margin:6px 0;color:#e2e8f0;font-size:15px;line-height:1.8;">{l[2:]}</li>'
+                f'<li style="margin:6px 0;color:#334155;font-size:14px;line-height:1.7;">{l[2:].strip()}</li>'
                 for l in p.split("\n")
-                if l.startswith("- ")
+                if l.strip().startswith("- ")
             )
-            return f'<ul style="margin:20px 0;padding-left:20px;list-style:none;">{items}</ul>'
+            return f'<ul style="margin:16px 0;padding-left:20px;list-style-type:disc;">{items}</ul>'
 
         # Numbered sections (01. 02. 03.)
         if re.match(r"^\d{2}\.", p):
             lines = p.split("\n")
             title_line = lines[0]
-            desc_lines = " ".join(lines[1:]) if len(lines) > 1 else ""
+            desc_content = []
+            for l in lines[1:]:
+                l_str = l.strip()
+                if not l_str:
+                    continue
+                if l_str.startswith("- "):
+                    desc_content.append(f'<li style="margin:4px 0;color:#1e293b;font-size:14px;line-height:1.6;">{l_str[2:]}</li>')
+                else:
+                    desc_content.append(f'<div style="margin:4px 0;color:#1e293b;font-size:14px;line-height:1.6;">{l_str}</div>')
+            body_inner = "".join(desc_content)
+            if "<li>" in body_inner:
+                body_inner = f'<ul style="margin:6px 0;padding-left:18px;list-style-type:disc;">{body_inner}</ul>'
             return (
-                f'<div style="margin:10px 0;padding:15px;background:{bg_accent};'
-                f'border-left:4px solid {accent};">'
-                f'<strong style="color:{accent};">{title_line}</strong><br>'
-                f'<span style="color:#b8c5d0;font-size:13px;line-height:1.6;">{desc_lines}</span></div>'
+                f'<div style="margin:14px 0;padding:16px 18px;background:{bg_accent};'
+                f'border-left:4px solid {accent};border-radius:8px;">'
+                f'<strong style="color:{accent};font-size:15px;display:block;margin-bottom:8px;">{title_line}</strong>'
+                f'{body_inner}</div>'
             )
 
         # Key-value pairs (PROVEN EXPERTISE: ...)
@@ -584,44 +756,51 @@ Best regards,
                 parts = line.split(": ", 1)
                 if len(parts) == 2 and parts[0].strip().isupper():
                     formatted.append(
-                        f'<div style="margin:8px 0;">'
-                        f'<strong style="color:{accent};">{parts[0]}:</strong> '
-                        f'<span style="color:#e2e8f0;">{parts[1]}</span></div>'
+                        f'<div style="margin:10px 0;">'
+                        f'<strong style="color:{accent};font-size:14px;">{parts[0]}:</strong> '
+                        f'<span style="color:#334155;font-size:14px;line-height:1.6;">{parts[1]}</span></div>'
                     )
                 else:
                     formatted.append(
-                        f'<p style="margin:20px 0;font-size:15px;color:#e2e8f0;'
-                        f'line-height:1.8;">{line}</p>'
+                        f'<p style="margin:14px 0;font-size:15px;color:#1e293b;line-height:1.7;">{line}</p>'
                     )
             return "".join(formatted)
 
         # Arrow items (▸ ...)
         if p.startswith("▸"):
             items = "".join(
-                f'<div style="margin:6px 0;padding-left:8px;border-left:3px solid {accent};'
-                f'color:#e2e8f0;font-size:15px;line-height:1.8;">{l.strip()}</div>'
+                f'<div style="margin:6px 0;padding:8px 12px;background:{bg_accent};border-left:3px solid {accent};'
+                f'color:#334155;font-size:14px;line-height:1.6;border-radius:4px;">{l.strip()}</div>'
                 for l in p.split("\n")
                 if l.strip().startswith("▸")
             )
-            return f'<div style="margin:10px 0;">{items}</div>'
+            return f'<div style="margin:12px 0;">{items}</div>'
 
-        # Signature block
-        if "Sam Salameh" in p and ("|" in p or "@" in p):
-            lines = p.split("\n")
-            name_line = lines[0] if lines else p
-            contact_lines = lines[1:] if len(lines) > 1 else []
-            contact_html = "<br>".join(
-                f'<span style="color:#94a3b8;font-size:13px;">{l.strip()}</span>'
-                for l in contact_lines
-            )
-            return (
-                f'<div style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.1);">'
-                f'<strong style="color:{accent};font-size:16px;">{name_line}</strong><br>'
-                f"{contact_html}</div>"
-            )
+        # Signature block (only matches true contact info line with email or website/phone, avoiding body paragraphs with "15+ years")
+        if ("@" in p or "|" in p or "http" in p) and len(p.split("\n")) <= 3 and not re.search(r"\d+\+?\s*years", p, re.IGNORECASE):
+            lines = [l.strip() for l in p.split("\n") if l.strip()]
+            if not lines:
+                return f'<p style="margin:14px 0;font-size:15px;color:#1e293b;line-height:1.7;">{p}</p>'
+            
+            name_line = lines[0]
+            contact_line = " | ".join(lines[1:]) if len(lines) > 1 else ""
+            
+            if contact_line and contact_line != name_line:
+                return (
+                    f'<div style="margin-top:24px;padding-top:16px;border-top:2px solid #e2e8f0;">'
+                    f'<strong style="color:{accent};font-size:16px;display:block;margin-bottom:4px;">{name_line}</strong>'
+                    f'<span style="color:#64748b;font-size:13px;">{contact_line}</span>'
+                    f'</div>'
+                )
+            else:
+                return (
+                    f'<div style="margin-top:24px;padding-top:16px;border-top:2px solid #e2e8f0;">'
+                    f'<strong style="color:{accent};font-size:16px;display:block;">{name_line}</strong>'
+                    f'</div>'
+                )
 
-        # Regular paragraph — reference font 15px, line-height 1.8
-        return f'<p style="margin:20px 0;font-size:15px;color:#e2e8f0;line-height:1.8;">{p}</p>'
+        # Regular paragraph — crisp dark slate text (#1e293b), font 15px, line-height 1.7
+        return f'<p style="margin:14px 0;font-size:15px;color:#1e293b;line-height:1.7;">{p}</p>'
 
     # ── Icebreakers ──────────────────────────────────────────────────────────
 
@@ -647,12 +826,5 @@ Best regards,
                     f"{company}'s values of {company_info['values'][:50]} align closely with how I approach network engineering challenges — with precision, reliability, and continuous improvement."
                 )
         if not breakers:
-            breakers = [
-                f"I am particularly drawn to this opportunity at {company} because it aligns perfectly with my 15+ years of expertise in SD-WAN, enterprise networking, and security architecture.",
-                f"The {title} role at {company} represents an ideal match for my extensive experience designing and managing multi-site networks across 10+ countries.",
-                f"{company}'s reputation for technical excellence in the networking space makes this an exciting opportunity for my next career step.",
-                f"The technical challenges at {company} are exactly the kind that have defined my career — from SD-WAN deployments across 50+ sites to Zero Trust security implementations for thousands of users.",
-                f"Having designed and managed enterprise networks across the Middle East and beyond for 15+ years, I am excited about the opportunity to bring this experience to {company}.",
-                f"With {company}'s continued growth and focus on digital transformation, I believe my expertise in network automation, cloud networking, and security architecture would be immediately valuable.",
-            ]
-        return random.choice(breakers)
+            return f"With {company}'s continued growth and focus on digital transformation, I believe my expertise in network automation, cloud networking, and security architecture would be immediately valuable."
+        return breakers[0]

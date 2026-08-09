@@ -29,7 +29,10 @@ def setup_cache(app: FastAPI) -> None:  # noqa: ARG001
              consistency with lifespan hooks that pass it).
     """
     redis_url = os.getenv("REDIS_URL")
+    if os.getenv("TESTING") == "1" or os.getenv("PYTEST_RUNNING") == "1":
+        redis_url = None
     if redis_url:
+
         try:
             from fastapi_cache.backends.redis import RedisBackend
             from redis import asyncio as aioredis  # type: ignore[import]

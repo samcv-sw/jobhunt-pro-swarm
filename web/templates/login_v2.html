@@ -53,7 +53,7 @@
       overflow: hidden;
     }
     .auth-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      content: ''; position: absolute; top: 0; inset-inline-start: 0; inset-inline-end: 0; height: 2px;
       background: linear-gradient(90deg, transparent, #00f0ff, #8b5cf6, transparent);
     }
     .auth-header { text-align: center; margin-bottom: 28px; }
@@ -104,13 +104,13 @@
     }
 
     .oauth-divider {
-      text-align: center; margin: 20px 0; color: #94a3b8; position: relative; font-size: 13px; font-weight: 500;
+      text-align: center; margin: 20px 0; color: #94a3b8; position: relative; font-size: 14px; font-weight: 500;
     }
     .oauth-divider::before, .oauth-divider::after {
       content: ''; position: absolute; top: 50%; width: 38%; height: 1px; background: rgba(255, 255, 255, 0.12);
     }
-    .oauth-divider::before { right: 0; }
-    .oauth-divider::after { left: 0; }
+    .oauth-divider::before { inset-inline-end: 0; }
+    .oauth-divider::after { inset-inline-start: 0; }
 
     .form-group { margin-bottom: 20px; text-align: start; }
     .form-group label {
@@ -135,7 +135,7 @@
     }
 
     .remember-row {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-size: 13px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-size: 14px;
     }
     .checkbox-label {
       display: flex; align-items: center; gap: 8px; color: #cbd5e1; cursor: pointer; user-select: none;
@@ -171,7 +171,7 @@
 
     .trust-strip {
       display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;
-      margin-top: 24px; font-size: 13px; color: #cbd5e1; text-align: center; font-weight: 500;
+      margin-top: 24px; font-size: 14px; color: #cbd5e1; text-align: center; font-weight: 500;
     }
 
     .error {
@@ -219,17 +219,17 @@
         <form action="/login" method="POST" dir="rtl">
           <div class="form-group">
             <label for="email">البريد الإلكتروني</label>
-            <input type="email" id="email" name="email" placeholder="name@example.com" required dir="auto"/ dir="auto">
+            <input type="email" id="email" name="email" placeholder="name@example.com" required dir="auto">
           </div>
 
           <div class="form-group">
             <label for="password">كلمة المرور</label>
-            <input type="password" id="password" name="password" placeholder="●●●●●●●●" required dir="auto"/ dir="auto">
+            <input type="password" id="password" name="password" placeholder="●●●●●●●●" required dir="auto">
           </div>
 
           <div class="remember-row">
             <label class="checkbox-label">
-              <input type="checkbox" name="remember" checked/ dir="auto">
+              <input type="checkbox" name="remember" checked dir="auto">
               <span>تذكرني</span>
             </label>
             <a href="/forgot-password" class="forgot-link">نسيت كلمة المرور؟</a>

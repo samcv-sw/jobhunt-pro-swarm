@@ -1,0 +1,63 @@
+<div class="space-y-8" dir="rtl">
+    
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 border border-pink-500/20 p-6 md:p-10 shadow-2xl">
+        <div class="absolute -top-24 -end-24 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-400 text-xs font-bold uppercase tracking-wider mb-4">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>عروض اشتراكات الذكاء الاصطناعي والمواقع الشريكة</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2 font-display">
+                    خصومات اشتراكات أدوات الذكاء الاصطناعي والمواقع
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-2xl leading-relaxed">
+                    احصل على خصومات حصرية، كودات ترويجية، وااشتراكات مجانية ممتدة لأهم أدوات الذكاء الاصطناعي والمواقع الشريكة المخصصة لأعضاء JobHunt Pro.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/external-offers?cat=ai" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ 'bg-pink-500 text-white shadow-lg shadow-pink-500/25' if selected_cat == 'ai' else 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' }}">
+                    🤖 اشتراكات الذكاء الاصطناعي
+                </a>
+                <a href="/external-offers?cat=promos" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all {{ 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25' if selected_cat == 'promos' else 'bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700' }}">
+                    🎁 عروض المواقع والـ Web
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offers Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for offer in offers %}
+        <div class="group relative rounded-2xl bg-slate-900/80 border border-white/10 p-6 flex flex-col justify-between hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] transition-all duration-300">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 text-xl font-black">
+                        {{ offer.id[:2].upper() }}
+                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                        {{ offer.badge_ar or offer.badge }}
+                    </span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-pink-300 transition-colors">{{ offer.title_ar or offer.title }}</h3>
+                    <p class="text-xs text-slate-400 mt-1">{{ offer.description_ar or offer.description }}</p>
+                </div>
+                {% if offer.promo_code %}
+                <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between">
+                    <span class="text-xs font-mono text-slate-400">كود الخصم:</span>
+                    <span class="text-xs font-mono font-bold text-pink-400 select-all">{{ offer.promo_code }}</span>
+                </div>
+                {% endif %}
+            </div>
+            <div class="pt-6">
+                <a href="{{ offer.target_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 font-bold text-xs border border-pink-500/30 transition-all">
+                    <span>{{ offer.button_text_ar or offer.button_text }}</span>
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

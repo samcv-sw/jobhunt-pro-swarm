@@ -7,4 +7,4 @@ templates = Jinja2Templates(directory="web/templates")
 
 @router.get("/ats-resume-sculptor", response_class=HTMLResponse)
 async def get_ats_sculptor_page(request: Request):
-    return templates.TemplateResponse("ats_resume_sculptor.html", {"request": request})
+    return templates.TemplateResponse(request, "ats_resume_sculptor.html", {})

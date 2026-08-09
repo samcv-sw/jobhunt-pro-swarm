@@ -7,4 +7,4 @@ templates = Jinja2Templates(directory="web/templates")
 
 @router.get("/scraping-swarm", response_class=HTMLResponse)
 async def get_scraping_swarm_page(request: Request):
-    return templates.TemplateResponse("scraping_swarm.html", {"request": request})
+    return templates.TemplateResponse(request, "scraping_swarm.html", {})

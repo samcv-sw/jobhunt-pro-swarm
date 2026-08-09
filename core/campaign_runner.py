@@ -20,6 +20,7 @@ import logging
 import os
 import random
 import re
+import uuid
 
 if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
     import core.pg_sqlite_shim as sqlite3
@@ -132,7 +133,7 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
     already_sent_emails = set()
     already_sent_companies = set()
 
-    # 1. User-wide ALL Email Dedup across ALL campaigns
+    # 1. Lifetime User-wide Email Dedup across ALL campaigns and history
     for row in conn.execute(
         """SELECT DISTINCT LOWER(ce.email_address) as email
            FROM campaign_emails ce
@@ -143,7 +144,7 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
         if row["email"]:
             already_sent_emails.add(row["email"].strip().lower())
 
-    # 2. User-wide ALL Company Dedup across ALL campaigns
+    # 2. Lifetime User-wide Company Dedup across ALL campaigns
     for row in conn.execute(
         """SELECT DISTINCT LOWER(ce.company_name) as comp
            FROM campaign_emails ce
@@ -154,8 +155,34 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
         if row["comp"]:
             already_sent_companies.add(row["comp"].strip().lower())
 
+    # 3. Multi-platform dispatches lifetime company dedup
+    try:
+        for row in conn.execute(
+            """SELECT DISTINCT LOWER(company) as comp
+               FROM multi_platform_apps
+               WHERE user_id = ? AND company IS NOT NULL AND company != ''""",
+            (user_id,),
+        ).fetchall():
+            if row["comp"]:
+                already_sent_companies.add(row["comp"].strip().lower())
+    except Exception:
+        pass
+
+    # 4. Jobs table lifetime company dedup
+    try:
+        for row in conn.execute(
+            """SELECT DISTINCT LOWER(company) as comp
+               FROM jobs
+               WHERE user_id = ? AND status = 'applied' AND company IS NOT NULL AND company != ''""",
+            (user_id,),
+        ).fetchall():
+            if row["comp"]:
+                already_sent_companies.add(row["comp"].strip().lower())
+    except Exception:
+        pass
+
     logger.info(
-        f"[CampaignRunner] STRICT TENANT DEDUP: {len(already_sent_emails)} emails & {len(already_sent_companies)} companies excluded for user {user_id}"
+        f"[CampaignRunner] STRICT PERMANENT LIFETIME DEDUP: {len(already_sent_emails)} emails & {len(already_sent_companies)} companies permanently excluded for user {user_id}"
     )
     return already_sent_emails, already_sent_companies
 
@@ -306,97 +333,87 @@ async def _discover_jobs(
             added_gen = 0
             needed = (campaign.get("total_companies", 100) * 2) - len(jobs)
             
-            while added_gen < needed and gen_idx < 1000:
-                p_name = prefixes[gen_idx % len(prefixes)]
-                d_name = domains[(gen_idx // len(prefixes)) % len(domains)]
-                c_name = f"{p_name} {d_name} {gen_idx}"
-                clean_comp = re.sub(r'[^a-z0-9]', '', c_name.lower())
-                e_addr = f"careers@{clean_comp}.com"
-                
-                if c_name.lower() not in all_sent_companies and e_addr.lower() not in all_sent_companies:
+            # Only add curated/verified contacts to prevent bounce backs
+            from core.curated_contacts import CURATED_CONTACTS
+            from core.email_verifier import is_deliverable_email
+            
+            for cc in CURATED_CONTACTS:
+                if len(jobs) >= campaign.get("total_companies", 100):
+                    break
+                e_addr = cc.get("email")
+                if e_addr and is_deliverable_email(e_addr) and e_addr.lower() not in all_sent_companies:
                     jobs.append({
-                        "id": f"gen_target_{gen_idx}",
-                        "title": roles[gen_idx % len(roles)],
-                        "company": c_name,
+                        "id": f"curated_target_{cc.get('id', uuid.uuid4().hex[:6])}",
+                        "title": cc.get("title") or "Technical Role",
+                        "company": cc.get("company") or "Global Firm",
                         "email": e_addr,
-                        "snippet": f"Immediate opening for {roles[gen_idx % len(roles)]} at {c_name}.",
-                        "source": "dynamic_unique_target",
-                        "location": loc_list[gen_idx % len(loc_list)]
+                        "snippet": f"Career opening at {cc.get('company')}.",
+                        "source": "curated_verified_contact",
+                        "location": cc.get("location") or "Remote"
                     })
-                    all_sent_companies.add(c_name.lower())
-                    added_gen += 1
-                gen_idx += 1
-            logger.info(f"[CampaignRunner] 🚀 Generated {added_gen} BRAND-NEW unique regional target companies!")
+                    all_sent_companies.add(e_addr.lower())
         except Exception as gen_err:
-            logger.error(f"[CampaignRunner] Dynamic target generation error: {gen_err}")
+            logger.error(f"[CampaignRunner] Target generation error: {gen_err}")
 
     return jobs
 
 async def _enrich_jobs_emails(
     jobs: list[dict[str, Any]], pa_mode: bool
 ) -> list[dict[str, Any]]:
-    # Dynamic unique targets already have pre-formatted valid emails — skip external DNS lookup
-    external_jobs = [j for j in jobs if j.get("source") != "dynamic_unique_target"]
+    external_jobs = [j for j in jobs if j.get("source") != "curated_verified_contact"]
     if not external_jobs:
         return jobs
-    """Enrich jobs with email addresses using EmailFinder and fallback email synthesis.
 
-    Args:
-        jobs: List of job dicts.
-        pa_mode: Whether running in PythonAnywhere mode.
-
-    Returns:
-        List of enriched job dicts.
-    """
     original_emails = {j.get("company", ""): j.get("email", "") for j in jobs}
     try:
         from core.email_finder import EmailFinder
         email_finder = EmailFinder()
         try:
-            jobs = await asyncio.wait_for(email_finder.enrich_jobs(jobs, fast=True), timeout=10.0)
+            enrich_timeout = max(15.0, min(45.0, len(external_jobs) * 1.5))
+            jobs = await asyncio.wait_for(email_finder.enrich_jobs(jobs, fast=True), timeout=enrich_timeout)
         finally:
             await email_finder.close()
     except Exception as ef_err:
-        logger.warning(f"[CampaignRunner] EmailFinder.enrich_jobs timed out/failed: {ef_err}")
+        err_msg = str(ef_err) or type(ef_err).__name__
+        logger.warning(f"[CampaignRunner] EmailFinder.enrich_jobs timed out/failed: {err_msg}")
 
-    # Fallback email synthesis for jobs with missing email property
+    # ANTI-BOUNCE SHIELD: Validate all emails against DNS MX records & suppression list!
+    from core.email_verifier import verify_email_deliverability
+    valid_jobs = []
     for j in jobs:
-        if not j.get("email") or "@" not in j.get("email", ""):
-            c = j.get("company", "company").lower().strip()
-            clean_c = "".join([ch for ch in c if ch.isalnum() or ch == '']).replace(" ", "")
-            if clean_c:
-                j["email"] = f"careers@{clean_c}.com"
+        email = j.get("email", "")
+        if email:
+            is_valid, reason = verify_email_deliverability(email)
+            if is_valid:
+                valid_jobs.append(j)
+            else:
+                logger.warning(f"[Anti-Bounce Shield] Stripped undeliverable email for {j.get('company')}: {email} ({reason})")
+                j["email"] = ""  # Strip invalid email to prevent 550 bounce
+                valid_jobs.append(j)
+        else:
+            valid_jobs.append(j)
 
     enriched = sum(
         1
-        for j in jobs
+        for j in valid_jobs
         if j.get("email")
         and j.get("email") != original_emails.get(j.get("company", ""), "")
     )
     if enriched > 0:
         logger.info(
-            f"[CampaignRunner] EmailFinder enriched {enriched} of {len(jobs)} jobs"
+            f"[CampaignRunner] EmailFinder enriched {enriched} of {len(valid_jobs)} jobs with verified deliverable emails"
         )
-    return jobs
+    return valid_jobs
 
 
 def _filter_jobs_anti_ban_scam(
     jobs: list[dict[str, Any]],
     campaign: dict[str, Any],
     already_sent_emails: set,
-    pa_mode: bool,
+    already_sent_companies: set | None = None,
+    pa_mode: bool = False,
 ) -> list[dict[str, Any]]:
-    """Filter jobs through anti-ban checks and scam detector.
-
-    Args:
-        jobs: List of job dicts.
-        campaign: Campaign configuration details.
-        already_sent_emails: Set of emails already sent in this campaign.
-        pa_mode: Whether running in PythonAnywhere mode.
-
-    Returns:
-        List of valid/filtered job dicts.
-    """
+    """Filter jobs through anti-ban checks, strict lifetime dedup, and scam detector."""
     valid_jobs = []
     scam_blocked = 0
     anti_ban_blocked = 0
@@ -406,58 +423,63 @@ def _filter_jobs_anti_ban_scam(
     except ImportError:
         anti_ban = None
 
+    user_id = campaign.get("user_id")
+
     for job in jobs:
         email_addr = job.get("email", "")
         company = job.get("company", "Unknown")
         description = job.get("snippet", "") or job.get("description", "")
 
-        if (
-            email_addr
-            and "@" in email_addr
-            and email_addr.lower() not in already_sent_emails
-        ):
-            if job.get("source") == "dynamic_unique_target":
-                valid_jobs.append(job)
-                continue
-            if anti_ban:
-                if anti_ban.is_honeypot(email_addr, company, description):
-                    logger.info(
-                        f"[CampaignRunner] 🚫 HONEYPOT BLOCKED: {company} ({email_addr})"
-                    )
-                    anti_ban_blocked += 1
-                    continue
+        email_clean = (email_addr or "").strip().lower()
+        comp_clean = (company or "").strip().lower()
 
-                can_apply, reason = anti_ban.can_apply_to_company(
-                    company, user_id=campaign.get("user_id")
+        if not email_clean or "@" not in email_clean:
+            continue
+
+        if email_clean in already_sent_emails:
+            logger.info(f"[CampaignRunner] 🚫 STRICT DEDUP EMAIL BLOCKED: {email_clean}")
+            anti_ban_blocked += 1
+            continue
+
+        if anti_ban:
+            if anti_ban.is_honeypot(email_addr, company, description):
+                logger.info(
+                    f"[CampaignRunner] 🚫 HONEYPOT BLOCKED: {company} ({email_addr})"
                 )
-                if not can_apply:
+                anti_ban_blocked += 1
+                continue
+
+            can_apply, reason = anti_ban.can_apply_to_company(
+                company, user_id=user_id
+            )
+            if not can_apply:
+                logger.info(
+                    f"[CampaignRunner] 🚫 RATE LIMIT BLOCKED: {company} — {reason}"
+                )
+                anti_ban_blocked += 1
+                continue
+
+            if anti_ban.should_blacklist_company(
+                company, user_id=user_id
+            ):
+                logger.info(f"[CampaignRunner] 🚫 BLACKLIST BLOCKED: {company}")
+                anti_ban_blocked += 1
+                continue
+
+        if pa_mode:
+            try:
+                from core.scam_detector import is_scam_job
+
+                is_scam, reason = is_scam_job(job)
+                if is_scam:
                     logger.info(
-                        f"[CampaignRunner] 🚫 RATE LIMIT BLOCKED: {company} — {reason}"
+                        f"[CampaignRunner] 🚫 SCAM BLOCKED: {company} — {reason}"
                     )
-                    anti_ban_blocked += 1
+                    scam_blocked += 1
                     continue
-
-                if anti_ban.should_blacklist_company(
-                    company, user_id=campaign.get("user_id")
-                ):
-                    logger.info(f"[CampaignRunner] 🚫 BLACKLIST BLOCKED: {company}")
-                    anti_ban_blocked += 1
-                    continue
-
-            if pa_mode:
-                try:
-                    from core.scam_detector import is_scam_job
-
-                    is_scam, reason = is_scam_job(job)
-                    if is_scam:
-                        logger.info(
-                            f"[CampaignRunner] 🚫 SCAM BLOCKED: {company} — {reason}"
-                        )
-                        scam_blocked += 1
-                        continue
-                except ImportError:
-                    pass
-            valid_jobs.append(job)
+            except ImportError:
+                pass
+        valid_jobs.append(job)
 
     if scam_blocked:
         logger.info(f"[CampaignRunner] 🛡️ Scam shield blocked {scam_blocked} jobs")
@@ -511,7 +533,7 @@ async def _generate_cover_letters_for_jobs(
                         [f"<p>{p}</p>" for p in html.split("\n\n") if p.strip()]
                     )
                 except Exception as e:
-                    logger.error(f"AI draft failed for {c}: {e}")
+                    logger.debug(f"AI draft failed for {c}: {e}")
                     from core.cover_letter import CoverLetterWriter
                     return (
                         CoverLetterWriter.write_html_pa(c, t, user_details)
@@ -568,25 +590,14 @@ async def _filter_and_enrich_jobs(
     pa_mode: bool,
     campaign: dict[str, Any],
     already_sent_emails: set,
+    already_sent_companies: set | None,
     unlocked_weapons: set,
     user_details: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """Filter and enrich jobs with contact info and cover letters.
-
-    Args:
-        jobs: List of raw job dicts.
-        pa_mode: Whether running on PythonAnywhere.
-        campaign: Campaign settings.
-        already_sent_emails: Set of emails already sent.
-        unlocked_weapons: Unlocked premium tools.
-        user_details: Candidate information.
-
-    Returns:
-        List of enriched and filtered jobs under quota limit.
-    """
+    """Filter and enrich jobs with contact info and cover letters."""
     jobs = await _enrich_jobs_emails(jobs, pa_mode)
     valid_jobs = _filter_jobs_anti_ban_scam(
-        jobs, campaign, already_sent_emails, pa_mode
+        jobs, campaign, already_sent_emails, already_sent_companies, pa_mode
     )
 
     remaining_quota = max(1, campaign.get("total_companies", 100))
@@ -663,8 +674,8 @@ def _setup_campaign_and_user_details(
     row = conn.execute(query, (campaign_id,)).fetchone()
 
     if not row:
-        logger.error(f"[CampaignRunner] Campaign {campaign_id} not found in DB!")
-        raise ValueError(f"Campaign {campaign_id} not found")
+        logger.info(f"[CampaignRunner] Campaign {campaign_id} not found in DB — skipped/pruned.")
+        return {"status": "skipped", "reason": "not_found", "sent": 0, "failed": 0}
 
     campaign = dict(row)
 
@@ -717,10 +728,11 @@ def _setup_campaign_and_user_details(
         if titles:
             profession = titles[0]
 
+    from core.validators import clean_phone_number
     user_details = {
         "name": user.get("name") or config.CANDIDATE_NAME,
         "email": user.get("email") or config.CANDIDATE_EMAIL,
-        "phone": user.get("phone") or config.CANDIDATE_PHONE,
+        "phone": clean_phone_number(user.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009")),
         "linkedin": config.CANDIDATE_LINKEDIN,
         "profession": profession,
         "skills": profile.get("skills") or "",
@@ -861,6 +873,11 @@ async def _send_campaign_emails(
     failed_count = 0
     sent_this_cycle = 0
 
+    remaining_needed = max(0, campaign.get("total_companies", 100) - sent_in_this_campaign)
+    if remaining_needed <= 0:
+        return sent_count, 0, None
+    valid_jobs = valid_jobs[:remaining_needed]
+
     if pa_mode:
         if elapsed > 90:
             valid_jobs = valid_jobs[:1]
@@ -897,7 +914,7 @@ async def _send_campaign_emails(
             already_sent_emails=already_sent_emails,
             cv_path=config.CV_PATH,
             user_details=user_details,
-            max_concurrent=10,
+            max_concurrent=15,
         )
 
         sent_count += batch_sent
@@ -1011,9 +1028,12 @@ async def run_campaign(
 
     conn = get_db_fn()
     try:
-        campaign, profile, user, user_details = _setup_campaign_and_user_details(
+        setup_res = _setup_campaign_and_user_details(
             conn, campaign_id, config
         )
+        if isinstance(setup_res, dict) or not isinstance(setup_res, tuple) or len(setup_res) != 4 or setup_res[0] is None:
+            return setup_res if isinstance(setup_res, dict) else {"status": "skipped", "reason": "not_found", "sent": 0, "failed": 0}
+        campaign, profile, user, user_details = setup_res
 
         # Load tenant-specific SMTP credentials into user_details.
         # NOTE: This block MUST remain in run_campaign (not in a helper) because
@@ -1064,9 +1084,9 @@ async def run_campaign(
                 "[CampaignRunner] ⚡ PA MODE — using PAJobScraper (JSearch + LinkedIn XHR)"
             )
 
-        already_sent_emails, all_sent_companies = _load_dedup_sets(conn, campaign_id, campaign["user_id"])
+        already_sent_emails, already_sent_companies = _load_dedup_sets(conn, campaign_id, campaign["user_id"])
 
-        jobs = await _discover_jobs(pa_mode, job_title, job_location, campaign, all_sent_companies, search)
+        jobs = await _discover_jobs(pa_mode, job_title, job_location, campaign, already_sent_companies, search)
 
         jobs = _interleave_and_shuffle_jobs(jobs)
 
@@ -1078,7 +1098,7 @@ async def run_campaign(
         )
 
         valid_jobs = await _filter_and_enrich_jobs(
-            jobs, pa_mode, campaign, already_sent_emails, unlocked_weapons, user_details
+            jobs, pa_mode, campaign, already_sent_emails, already_sent_companies, unlocked_weapons, user_details
         )
 
         elapsed = time.time() - start_time
@@ -1105,8 +1125,16 @@ async def run_campaign(
         ).fetchone()[0]
         if sent_in_this_campaign < campaign["total_companies"]:
             logger.info(
-                f"[CampaignRunner] ⏱️ Yielding to next cycle ({sent_count}/{campaign['total_companies']} sent)."
+                f"[CampaignRunner] ⏱️ Yielding to next cycle ({sent_count}/{campaign['total_companies']} sent). Auto-enqueueing next chunk."
             )
+            try:
+                import json
+                conn.execute(
+                    "INSERT INTO job_queue (task_type, payload, status) VALUES ('run_campaign', ?, 'pending')",
+                    (json.dumps({"campaign_id": campaign_id}),)
+                )
+            except Exception as kq_err:
+                logger.warning(f"[CampaignRunner] Could not re-enqueue campaign task: {kq_err}")
             conn.execute(
                 "UPDATE campaigns SET started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
                 (campaign_id,),

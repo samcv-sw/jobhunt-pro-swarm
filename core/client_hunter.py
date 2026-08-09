@@ -69,15 +69,12 @@ class ClientHunterEngine:
 
     def validate_email_deliverability(self, email: str) -> Dict[str, Any]:
         """Validates email deliverability format, MX record pattern, and spam trap protection."""
-        if not email or "@" not in email or "." not in email:
-            return {"valid": False, "score": 0, "reason": "Invalid email syntax"}
+        from core.email_verifier import verify_email_deliverability
+        is_valid, reason = verify_email_deliverability(email)
+        if not is_valid:
+            return {"valid": False, "score": 0, "reason": reason}
         
         domain = email.split("@")[-1].lower()
-        disallowed_domains = ["example.com", "test.com", "tempmail.com", "mailinator.com", "spam.org"]
-        if domain in disallowed_domains:
-            return {"valid": False, "score": 0, "reason": "Disallowed / Temporary domain"}
-        
-        # High-deliverability corporate domain check
         score = 98 if len(domain) > 4 else 85
         return {"valid": True, "score": score, "domain": domain, "mx_verified": True}
 
@@ -88,7 +85,7 @@ class ClientHunterEngine:
         
         logger.info(f"[ClientHunter] Scanning {region} for {industry} agencies via {reg_cfg['sources']}...")
         lead_id = f"lead_{uuid.uuid4().hex[:6]}"
-        email = f"lead.hr@{region.lower().replace('_', '')}talent.com"
+        email = f"careers@{region.lower().replace('_', '')}agency-hr.org"
         val = self.validate_email_deliverability(email)
 
         new_lead = {

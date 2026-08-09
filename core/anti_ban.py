@@ -59,6 +59,9 @@ class AntiBanProtection:
     """
 
     def __init__(self):
+        # Track database path for testing and override
+        self.db_path: str | None = None
+
         # Track applications per company
         self.company_applications: dict[str, list[datetime]] = {}
 
@@ -105,10 +108,10 @@ class AntiBanProtection:
             ],
         }
 
-        # Rate limits
-        self.max_apps_per_company_per_day = 10
-        self.max_apps_per_company_per_week = 30
-        self.max_apps_per_company_total = 100
+        # Rate limits & Per-Recipient Email Dedup
+        self.max_apps_per_company_per_day = 1
+        self.max_apps_per_company_per_week = 20
+        self.max_apps_per_company_total = 100  # Allows contacting distinct HR emails at the same company
         self.min_time_between_apps = 1  # 1 second minimum
         self.max_apps_per_hour = 500  # High throughput
         self.max_apps_per_day = 5000  # Multi-tenant capacity
@@ -185,8 +188,14 @@ class AntiBanProtection:
         user_key = self._get_user_key(company_key, user_id)
         now = datetime.now()
 
-        # 1. Check in-memory blacklist first (fastest)
-        if user_key in self.suspicious_companies:
+        # 1. Check strict permanent company blocklist & in-memory blacklist
+        comp_lower = (company or "").lower().strip()
+        blocked_keywords = ["idm lebanon", "idm", "inconet data management", "inconet"]
+        if any(kw in comp_lower for kw in blocked_keywords):
+            logger.warning(f"🚫 SYSTEM BLOCKLIST: Company '{company}' is permanently blocked by user directive.")
+            return False, f"Company '{company}' (IDM Lebanon) is permanently blacklisted across all users."
+
+        if user_key in self.suspicious_companies or company_key in self.suspicious_companies:
             return False, "Company is blacklisted for this tenant (in-memory)"
 
         # 2. Check in-memory application history (fastest local checks)
@@ -219,39 +228,67 @@ class AntiBanProtection:
 
         # 3. Check historical database counts and blacklist in a single combined query
         try:
-            with sqlite3.connect(DB_PATH, timeout=10) as conn:
-                # Detect if user_id column exists in jobs table
+            import sys
+            mod = sys.modules.get("core.anti_ban")
+            target_db = getattr(self, "db_path", None) or (getattr(mod, "DB_PATH", None) if mod else None) or DB_PATH
+            with sqlite3.connect(target_db, timeout=10) as conn:
+                # Detect columns and optional tables
                 has_user_id = True
                 try:
                     conn.execute("SELECT user_id FROM jobs LIMIT 1")
                 except Exception:
                     has_user_id = False
 
+                has_ce = True
+                try:
+                    conn.execute("SELECT id FROM campaign_emails LIMIT 1")
+                except Exception:
+                    has_ce = False
+
+                has_mpa = True
+                try:
+                    conn.execute("SELECT id FROM multi_platform_apps LIMIT 1")
+                except Exception:
+                    has_mpa = False
+
+                ce_sql = "(SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE LOWER(ce.company_name)=? AND c.user_id=?)" if (has_ce and has_user_id and user_id) else ("(SELECT COUNT(*) FROM campaign_emails WHERE LOWER(company_name)=?)" if has_ce else "0")
+                mpa_sql = "(SELECT COUNT(*) FROM multi_platform_apps WHERE LOWER(company)=? AND user_id=?)" if (has_mpa and user_id) else ("(SELECT COUNT(*) FROM multi_platform_apps WHERE LOWER(company)=?)" if has_mpa else "0")
+
                 if has_user_id and user_id:
+                    sql_params = [company.lower().strip(), user_id]
+                    if has_ce: sql_params.extend([company.lower().strip(), user_id])
+                    if has_mpa: sql_params.extend([company.lower().strip(), user_id])
+                    sql_params.extend([company.lower().strip(), user_id])
+                    
                     cur = conn.execute(
-                        """
+                        f"""
                         SELECT
                             SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
+                            SUM(CASE WHEN status='applied' AND (created_at IS NULL OR created_at >= datetime('now', '-1 day') OR date(created_at) >= date('now', '-1 day')) THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND (created_at IS NULL OR created_at >= datetime('now', '-7 days') OR date(created_at) >= date('now', '-7 days')) THEN 1 ELSE 0 END),
+                            (SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL) AND status='applied') + {ce_sql} + {mpa_sql}
                         FROM jobs
                         WHERE LOWER(company)=? AND (user_id=? OR user_id IS NULL)
                     """,
-                        (company.lower().strip(), user_id),
+                        sql_params,
                     )
                 else:
+                    sql_params = [company.lower().strip()]
+                    if has_ce: sql_params.append(company.lower().strip())
+                    if has_mpa: sql_params.append(company.lower().strip())
+                    sql_params.append(company.lower().strip())
+
                     cur = conn.execute(
-                        """
+                        f"""
                         SELECT
                             SUM(CASE WHEN response_type='blacklisted' OR response_type='honeypot' THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' AND datetime(created_at) >= datetime('now', '-7 days') THEN 1 ELSE 0 END),
-                            SUM(CASE WHEN status='applied' THEN 1 ELSE 0 END)
+                            SUM(CASE WHEN status='applied' AND (created_at IS NULL OR created_at >= datetime('now', '-1 day') OR date(created_at) >= date('now', '-1 day')) THEN 1 ELSE 0 END),
+                            SUM(CASE WHEN status='applied' AND (created_at IS NULL OR created_at >= datetime('now', '-7 days') OR date(created_at) >= date('now', '-7 days')) THEN 1 ELSE 0 END),
+                            (SELECT COUNT(*) FROM jobs WHERE LOWER(company)=? AND status='applied') + {ce_sql} + {mpa_sql}
                         FROM jobs
                         WHERE LOWER(company)=?
                     """,
-                        (company.lower().strip(),),
+                        sql_params,
                     )
 
                 row = cur.fetchone()
@@ -338,7 +375,10 @@ class AntiBanProtection:
 
         # Check database
         try:
-            with sqlite3.connect(DB_PATH, timeout=10) as conn:
+            import sys
+            mod = sys.modules.get("core.anti_ban")
+            target_db = getattr(self, "db_path", None) or (getattr(mod, "DB_PATH", None) if mod else None) or DB_PATH
+            with sqlite3.connect(target_db, timeout=10) as conn:
                 # Detect if user_id column exists
                 has_user_id = True
                 try:

@@ -241,15 +241,22 @@ async def register(
         return resp
 
 
+@router.get("/auth/login", response_class=HTMLResponse)
+def auth_login_page(request: Request, plan: str = ""):
+    try:
+        from web.app_v2 import render_template
+        return HTMLResponse(render_template("login_v2.html", request=request, plan=plan, VERSION=config.VERSION))
+    except Exception:
+        _, _, templates, config, _ = _deps()
+        return templates.TemplateResponse(request, "login_v2.html", {"plan": plan, "VERSION": config.VERSION})
+
+
 @router.get("/login", response_class=HTMLResponse)
 def login_page(request: Request, plan: str = ""):
-    _, _, templates, config, _ = _deps()
-    return templates.TemplateResponse(
-        request, "login_v2.html", {"plan": plan, "VERSION": config.VERSION}
-    )
+    return auth_login_page(request, plan=plan)
 
 
-@router.post("/login")
+@router.post("/auth/login")
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     get_db, session_serializer, templates, config, _ = _deps()
     email = email.strip().lower()
@@ -293,6 +300,11 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=False, path="/"
         )
         return response
+
+
+@router.post("/login")
+async def login_direct(request: Request, email: str = Form(...), password: str = Form(...)):
+    return await login(request, email=email, password=password)
 
 
 @router.post("/api/v1/login")

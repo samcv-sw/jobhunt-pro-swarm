@@ -68,14 +68,16 @@ async def health_check(request: Request = None) -> dict[str, Any]:
     try:
         async with async_session() as session:
             from sqlalchemy import text
-            await asyncio.wait_for(session.execute(text("SELECT 1")), timeout=3.0)
+            await asyncio.wait_for(session.execute(text("SELECT 1")), timeout=1.0)
     except Exception as e:
         logger.warning(f"Health check DB query failed: {e}")
         db_status = "error"
+
     return {
         "status": "ok" if db_status == "ok" else "degraded",
         "database": db_status
     }
+
 
 
 @router.get("/healthz")

@@ -14,13 +14,19 @@ os.environ["FORCE_SQLITE"] = "1"
 logger = logging.getLogger(__name__)
 
 VERSION = "1"
-APP_NAME = "JobHunt Pro"
-DB_PATH = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+APP_NAME = os.getenv("APP_NAME", "JobHunt Pro")
+if os.getenv("TESTING") == "1" or os.getenv("PYTEST_RUNNING") == "1":
+
+    DB_PATH = "data/jobhunt_test.db"
+else:
+    DB_PATH = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")
+
 IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHERE_DOMAIN") or ""
 
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "JobHunt Pro Team")
-CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
+CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
 CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "jobhuntpro.app@zohomail.com")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
@@ -180,7 +186,7 @@ BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "sam.dev1@hotmail.com")
 JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
-SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "3C4BHM5-V7641D9-KHBEJY7-865AFER")
 NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "hCGQjbcilPsaJQkW073hfzg5ziDyszfl")
 NOWPAYMENTS_PUBLIC_KEY = os.getenv("NOWPAYMENTS_PUBLIC_KEY", "d5bd644a-297c-44b6-82cf-ff62a3d891bd")

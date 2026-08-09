@@ -249,6 +249,12 @@ class EmailSenderClient:
             if not self.can_send():
                 return False
 
+            from core.email_verifier import verify_email_deliverability
+            is_valid, reason = verify_email_deliverability(to_email)
+            if not is_valid:
+                logger.warning(f"[Anti-Bounce Shield] Blocked send via {self.account.name} to undeliverable address {to_email}: {reason}")
+                return False
+
             if self._smtp_conn is None:
                 connected = await self._connect()
                 if not connected:
@@ -465,6 +471,12 @@ class EmailRotatorPool:
         Send email by finding best available account.
         Returns (success, account_name_or_error).
         """
+        from core.email_verifier import verify_email_deliverability
+        is_valid, reason = verify_email_deliverability(to_email)
+        if not is_valid:
+            logger.warning(f"[Anti-Bounce Shield] Blocked EmailRotatorPool send to undeliverable address {to_email}: {reason}")
+            return False, f"Anti-Bounce Shield blocked undeliverable address: {reason}"
+
         if tenant_id:
             try:
                 from core.multi_tenant import MultiTenantRunner

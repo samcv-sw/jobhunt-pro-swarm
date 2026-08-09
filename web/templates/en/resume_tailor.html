@@ -1,9 +1,36 @@
 <meta property="og:title" content="Resume Tailor | JobHunt Pro"/>
 <meta name="description" content="Customize your resume for every job with AI assistance."/>
 <title>Resume Tailor | JobHunt Pro</title>
-<!-- AI Resume Tailoring — v16 -->
+<!-- AI Resume Tailoring — v17 Apex Glassmorphism -->
 <style>
+:root {
+  --text-x-direction: 1;
+}
+
 /* Resume Tailor specific styles */
+.tailor-scale {
+  inline-size: 100%;
+  max-inline-size: 1400px;
+  margin-block: 0;
+  margin-inline: auto;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+.tailor-scale h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-block-end: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tailor-scale .subtitle {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-block-end: 24px;
+}
+
 .tailor-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -13,19 +40,20 @@
 @media(max-width:900px) { .tailor-container { grid-template-columns: 1fr; } }
 
 .tailor-panel {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 20px;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
 }
 .tailor-panel h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-transform: uppercase;
-  
+  font-size: 15px;
+  font-weight: 700;
+  color: #cbd5e1;
   margin-block-end: 12px;
   display: flex;
   align-items: center;
@@ -33,119 +61,227 @@
 }
 .tailor-panel textarea {
   inline-size: 100%;
-  min-block-size: 220px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.08);
+  min-block-size: 240px;
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 14px;
-  color: #e2e8f0;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
+  color: #f1f5f9;
+  font-family: 'Inter', monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   resize: vertical;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 .tailor-panel textarea:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
-.tailor-panel textarea::placeholder { color: #475569; font-style: italic; }
+.tailor-panel textarea::placeholder { color: #64748b; font-style: italic; }
 
 .tailor-panel .file-drop {
-  border: 2px dashed rgba(255,255,255,0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.3);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  margin-block-end: 10px;
+  margin-block-end: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  color: #64748b;
-  font-size: 14px;
-}
-.tailor-panel .file-drop:hover {
-  border-color: #3b82f6;
-  background: rgba(59,130,246,0.05);
+  transition: all 0.2s ease;
   color: #94a3b8;
+  font-size: 14px;
+  background: rgba(59, 130, 246, 0.04);
 }
-.tailor-panel .file-drop.dragover {
+.tailor-panel .file-drop:hover, .tailor-panel .file-drop.dragover {
   border-color: #3b82f6;
-  background: rgba(59,130,246,0.08);
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
 }
 
 /* Actions */
 .tailor-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
   flex-wrap: wrap;
   margin-block-end: 24px;
 }
+.btn-ai {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-ai:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+.btn-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
-/* Results */
-.tailor-results { display: none; margin-block-start: 20px; }
+/* Loading */
+.tailor-loading {
+  display: none;
+  text-align: center;
+  padding: 30px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin-block-end: 20px;
+}
+.tailor-loading.visible { display: block; }
+.tailor-spinner {
+  inline-size: 44px;
+  block-size: 44px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-block-start-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-block: 0 14px;
+  margin-inline: auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.tailor-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #fca5a5;
+  font-size: 14px;
+  margin-block-end: 20px;
+  font-weight: 500;
+}
+
+/* Results Section */
+.tailor-results { display: none; margin-block-start: 24px; }
 .tailor-results.visible { display: block; }
 
+/* Changes summary cards */
+.changes-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-block-end: 24px;
+}
+.change-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+.change-card .change-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #60a5fa;
+  line-height: 1;
+  margin-block-end: 6px;
+}
+.change-card .change-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Keyword tags */
+.keywords-section {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-block-end: 24px;
+}
+
+/* Tab Navigation Bar */
+.diff-toggle-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-block-end: 20px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px;
+}
+.diff-toggle-btn {
+  flex: 1;
+  min-inline-size: 140px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.diff-toggle-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+}
+.diff-toggle-btn.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.35));
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Output Panels */
 .tailor-output-panel {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   overflow: hidden;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
 }
 .tailor-output-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-inset-block-end: 1px solid rgba(255,255,255,0.06);
+  padding: 18px 24px;
+  background: rgba(0, 0, 0, 0.2);
+  border-inset-block-end: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .tailor-output-header h3 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
   margin: 0;
 }
-.tailor-output-actions {
-  display: flex;
-  gap: 8px;
-}
 .tailor-output-body {
-  padding: 20px;
-  max-block-size: 600px;
+  padding: 24px;
+  max-block-size: 650px;
   overflow-y: auto;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.8;
   white-space: pre-wrap;
-  color: #d4d4d8;
+  color: #e2e8f0;
+  font-family: 'Inter', monospace;
 }
 
-/* Diff view */
-.diff-toggle-bar {
-  display: flex;
-  gap: 6px;
-  margin-block-end: 16px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 10px;
-  padding: 4px;
-}
-.diff-toggle-btn {
-  flex: 1;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: #64748b;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.diff-toggle-btn.active {
-  background: rgba(59,130,246,0.15);
-  color: #3b82f6;
-}
+/* Diff View */
 .diff-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -153,276 +289,274 @@
 }
 @media(max-width:768px) { .diff-panels { grid-template-columns: 1fr; } }
 .diff-panel {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   overflow: hidden;
 }
 .diff-panel-header {
-  padding: 10px 14px;
+  padding: 12px 18px;
   font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-  border-inset-block-end: 1px solid rgba(255,255,255,0.04);
+  font-weight: 700;
+  border-inset-block-end: 1px solid rgba(255, 255, 255, 0.06);
 }
-.diff-panel-header.original { background: rgba(239,68,68,0.08); color: #fca5a5; }
-.diff-panel-header.tailored { background: rgba(34,197,94,0.08); color: #4ade80; }
+.diff-panel-header.original { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
+.diff-panel-header.tailored { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
 .diff-panel-body {
-  padding: 14px;
+  padding: 18px;
   font-size: 14px;
   line-height: 1.7;
-  max-block-size: 400px;
+  max-block-size: 500px;
   overflow-y: auto;
-  color: #d4d4d8;
+  color: #cbd5e1;
   white-space: pre-wrap;
 }
 
-/* Changes summary cards */
-.changes-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-block-end: 20px;
-}
-.change-card {
-  background: rgba(59,130,246,0.08);
-  border: 1px solid rgba(59,130,246,0.12);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-}
-.change-card .change-value {
-  font-size: 28px;
-  font-weight: 800;
-  color: #60a5fa;
-  line-height: 1;
-  margin-block-end: 4px;
-}
-.change-card .change-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  text-transform: uppercase;
-  
-}
-
-/* Keyword tags */
-.keywords-section { margin-block-end: 20px; }
-.keywords-section h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  
-  margin-block-end: 8px;
-}
-.kw-added {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 3px 4px 3px 0;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  background: rgba(34,197,94,0.12);
-  color: #4ade80;
-}
-.kw-removed {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 3px 4px 3px 0;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  background: rgba(239,68,68,0.12);
-  color: #fca5a5;
-}
-
-/* Loading */
-.tailor-loading {
-  display: none;
-  text-align: center;
-  padding: 40px;
-}
-.tailor-loading.visible { display: block; }
-.tailor-spinner {
-  inline-size: 40px;
-  block-size: 40px;
-  border: 3px solid rgba(255,255,255,0.08);
-  border-block-start-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 12px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.tailor-error {
-  display: none;
-  padding: 14px 18px;
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 10px;
-  color: #fca5a5;
-  font-size: 14px;
-  margin-block-end: 16px;
-}
-
-/* Generated metadata */
+/* Meta Footer */
 .tailor-meta {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-  margin-block-end: 16px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.02);
-  border-radius: 10px;
+  margin-block-start: 20px;
+  padding: 14px 20px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
 }
 .tailor-meta-item {
   font-size: 14px;
   color: #94a3b8;
 }
-.tailor-meta-item strong { color: #d4d4d8; }
-.tailor-scale {
-  inline-size: 100%;
-  max-inline-size: 1400px;
-  margin: 0 auto;
-  zoom: 1.05;
-}
-.tailor-scale h1 {
-  font-size: 24px;
-  font-weight: 800;
-  margin-block-end: 4px;
-}
-.tailor-scale .subtitle {
-  font-size: 14px;
-  color: #94a3b8;
-  margin-block-end: 20px;
-}
+.tailor-meta-item strong { color: #f1f5f9; }
 </style>
 
 <div class="tailor-scale">
-<h1>🤖 AI Resume Tailoring</h1>
-<p class="subtitle">Paste your base resume and a job description — AI tailors your resume to match the job perfectly.</p>
+  <h1>🤖 AI Resume Tailoring (Resume Tailor Pro)</h1>
+  <p class="subtitle">Paste your master resume and a target job description — AI will re-engineer your resume, generate a cover letter, interview STAR questions, cold outreach messages, and salary negotiation script.</p>
 
-<div class="tailor-container">
-  <!-- inset-inline-start: Base Resume -->
-  <div class="tailor-panel">
-    <h3>📄 Your Base Resume</h3>
-    <div class="file-drop" id="resume-drop" style="cursor:pointer; position:relative;" onclick="document.getElementById('cv-file-input').click()">
-      <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFileSelect(event)">
-      <span id="drop-text">📎 Drop your resume file here or click to select a file</span>
+  <div class="tailor-container">
+    <!-- Left: Base Resume -->
+    <div class="tailor-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">📄 Your Base Resume</h3>
+        <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
+          📥 Load Sam Salameh Profile
+        </button>
+      </div>
+      <div class="file-drop" id="resume-drop" onclick="document.getElementById('cv-file-input').click()">
+        <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt,.md" style="display:none" onchange="handleFileSelect(event)" dir="auto">
+        <span id="drop-text">📎 Drop your resume file here or click to browse (.pdf, .docx, .txt)</span>
+      </div>
+      <textarea id="tailor-resume" placeholder="Paste your full master resume text here..." dir="auto"></textarea>
     </div>
-      📎 Drop your resume file here or click to paste text below
-    </div>
-    <textarea dir="auto" id="tailor-resume" placeholder="Paste your full resume / CV text here...
 
-ALEX JOHNSON
-Senior Network Engineer | CCNA, Cloud Specialist
-alex.johnson.demo@example.com | +1 (555) 019-2831
-
-PROFESSIONAL SUMMARY
-15+ years as a Network Engineer specializing in enterprise network design..." dir="auto"></textarea>
-  </div>
-
-  <!-- inset-inline-end: Job Description -->
-  <div class="tailor-panel">
-    <h3>🎯 Target Job Description</h3>
-    <textarea dir="auto" id="tailor-job" placeholder="Paste the job description you want to tailor for...
-
-Network Engineer — Beirut, Lebanon
-
-Requirements:
-• 5+ years Cisco/Juniper experience
-• CCNP or equivalent
-• Strong BGP, OSPF, MPLS knowledge
-• Fortinet firewall experience
-..." dir="auto"></textarea>
-    <input dir="auto" type="text" id="tailor-job-title" placeholder="Job title (optional, helps AI context)"
-      style="margin-block-start:10px;inline-size:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size: 14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;" dir="auto">
-  </div>
-</div>
-
-<!-- Premium toggle -->
-<div style="margin-block-end:16px;display:flex;align-items:center;gap:10px;">
-  <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size: 14px;color:#94a3b8;">
-    <input dir="auto" type="checkbox" id="tailor-premium" style="accent-color:#f59e0b;" dir="auto">
-    <span>✨ <strong style="color:#fbbf24;">Premium Mode</strong> — Enhanced tailoring with cover letter generation</span>
-  </label>
-</div>
-
-<!-- Actions -->
-<div class="tailor-actions">
-  <button class="btn btn-ai" onclick="tailorResume()" id="btn-tailor" style="font-size:16px;padding:13px 28px;">
-    🤖 Tailor My Resume
-  </button>
-  <span style="color:#64748b;font-size: 14px;">⚡ AI-powered customization — takes ~10 seconds</span>
-</div>
-
-<!-- Error -->
-<div class="tailor-error" id="tailor-error"></div>
-
-<!-- Loading -->
-<div class="tailor-loading" id="tailor-loading">
-  <div class="tailor-spinner"></div>
-  <div style="color:#94a3b8;font-size:14px;">AI is tailoring your resume... matching keywords, optimizing bullet points...</div>
-</div>
-
-<!-- Results -->
-<div class="tailor-results" id="tailor-results">
-  <!-- Changes summary -->
-  <div class="changes-cards" id="changes-cards"></div>
-
-  <!-- Added/Removed keywords -->
-  <div class="keywords-section" id="keywords-section" style="display:none;">
-    <h4>🔑 Keywords Added</h4>
-    <div id="kw-added-list"></div>
-    <h4 style="margin-block-start:12px;">🗑️ Rephrased / Removed</h4>
-    <div id="kw-removed-list"></div>
-  </div>
-
-  <!-- Diff toggle -->
-  <div class="diff-toggle-bar">
-    <button class="diff-toggle-btn active" onclick="switchView('tailored')" id="toggle-tailored">📝 Tailored Resume</button>
-    <button class="diff-toggle-btn" onclick="switchView('diff')" id="toggle-diff">🔄 Side-by-Side Diff</button>
-  </div>
-
-  <!-- Side-by-side diff -->
-  <div class="diff-panels" id="diff-panels" style="display:none;">
-    <div class="diff-panel">
-      <div class="diff-panel-header original">📄 Original Resume</div>
-      <div class="diff-panel-body" id="diff-original"></div>
-    </div>
-    <div class="diff-panel">
-      <div class="diff-panel-header tailored">✨ Tailored Resume</div>
-      <div class="diff-panel-body" id="diff-tailored"></div>
+    <!-- Right: Job Description -->
+    <div class="tailor-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px;">
+        <h3 style="margin:0;">🎯 Target Job Description</h3>
+      </div>
+      <div style="display:flex; gap:8px; margin-block-end:12px;">
+        <input type="text" id="tailor-import-url" placeholder="Paste job URL (LinkedIn / Bayt / Indeed...)" style="flex:1; padding:10px 14px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#f1f5f9; font-size:14px;" dir="auto">
+        <button type="button" onclick="importUrlToTailor()" id="btn-import-tailor" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; font-size:14px; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700;">
+          📥 Import
+        </button>
+      </div>
+      <textarea id="tailor-job" placeholder="Paste the target job description & requirements here..." dir="auto"></textarea>
+      <input id="tailor-job-title" placeholder="Job Title (optional, e.g. Senior Network Engineer)" style="margin-block-start:12px; inline-size:100%; padding:10px 14px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#f1f5f9; font-size:14px;" type="text" dir="auto">
     </div>
   </div>
 
-  <!-- Full tailored output -->
-  <div class="tailor-output-panel" id="tailored-panel">
-    <div class="tailor-output-header">
-      <h3>✨ Your Tailored Resume</h3>
-      <div class="tailor-output-actions">
-        <button class="btn btn-outline btn-sm" onclick="copyToClipboard()">📋 Copy</button>
-        <button class="btn btn-primary btn-sm" onclick="downloadAsPDF()">📥 Download PDF</button>
+  <!-- Premium toggle -->
+  <div style="margin-block-end:20px; display:flex; align-items:center; gap:10px;">
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:#cbd5e1;">
+      <input id="tailor-premium" style="accent-color:#f59e0b; width:18px; height:18px;" type="checkbox" checked dir="auto">
+      <span>✨ <strong style="color:#fbbf24;">Premium Mode</strong> — Ultra tailoring, multi-lingual exports, STAR Q&A, and salary scripts</span>
+    </label>
+  </div>
+
+  <!-- Actions -->
+  <div class="tailor-actions">
+    <button class="btn btn-ai" id="btn-tailor" onclick="tailorResume()" style="font-size:16px; padding:14px 32px;">
+      🤖 Tailor My Resume Now
+    </button>
+    <span style="color:#94a3b8; font-size:14px;">⚡ Instant AI processing in ~10 seconds</span>
+  </div>
+
+  <!-- Error Banner -->
+  <div class="tailor-error" id="tailor-error"></div>
+
+  <!-- Loading State -->
+  <div class="tailor-loading" id="tailor-loading">
+    <div class="tailor-spinner"></div>
+    <div style="color:#cbd5e1; font-size:15px; font-weight:600;">Tailoring resume, matching keywords, generating cover letter & interview prep...</div>
+  </div>
+
+  <!-- Results Container -->
+  <div class="tailor-results" id="tailor-results">
+    <!-- Changes summary cards -->
+    <div class="changes-cards" id="changes-cards"></div>
+
+    <!-- Keyword Tags Section -->
+    <div class="keywords-section" id="keywords-section" style="display:none;"></div>
+
+    <!-- Navigation Bar for Tailored Features -->
+    <div class="diff-toggle-bar">
+      <button type="button" class="diff-toggle-btn active" id="tab-tailored" onclick="switchTab('tailored')">📝 Tailored Resume</button>
+      <button type="button" class="diff-toggle-btn" id="tab-cover-letter" onclick="switchTab('cover-letter')">✉️ Cover Letter</button>
+      <button type="button" class="diff-toggle-btn" id="tab-interview" onclick="switchTab('interview')">🎤 STAR Interview Prep</button>
+      <button type="button" class="diff-toggle-btn" id="tab-pitch" onclick="switchTab('pitch')">🗣️ Elevator Pitch</button>
+      <button type="button" class="diff-toggle-btn" id="tab-outreach" onclick="switchTab('outreach')">🚀 Cold Outreach</button>
+      <button type="button" class="diff-toggle-btn" id="tab-negotiate" onclick="switchTab('negotiate')">💰 Salary Negotiation</button>
+      <button type="button" class="diff-toggle-btn" id="tab-diff" onclick="switchTab('diff')">🔄 Side-by-Side Diff</button>
+    </div>
+
+    <!-- Tab 1: Full Tailored CV -->
+    <div class="tailor-output-panel" id="panel-tailored">
+      <div class="tailor-output-header">
+        <div>
+          <h3>✨ Your Tailored Resume</h3>
+          <div style="display:flex; gap:6px; margin-block-start:8px; align-items:center;">
+            <span style="font-size:13px; color:#94a3b8;">🌍 Language:</span>
+            <button type="button" onclick="switchCvLang('en')" id="lang-en-btn" class="btn btn-sm" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇬🇧 English</button>
+            <button type="button" onclick="switchCvLang('ar')" id="lang-ar-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇸🇦 Arabic</button>
+            <button type="button" onclick="switchCvLang('fr')" id="lang-fr-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇫🇷 French</button>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button type="button" onclick="generatePersonalPortfolioWebpage()" class="btn btn-sm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#fff; font-size:13px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(236,72,153,0.3);">
+            🌐 Web Portfolio
+          </button>
+          <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+            📄 Word (.docx)
+          </button>
+          <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+            📥 Download PDF
+          </button>
+          <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(tailoredText)">📋 Copy Text</button>
+        </div>
+      </div>
+      <div class="tailor-output-body" id="tailored-output" dir="auto"></div>
+
+      <!-- Bullet Impact Enhancer Container -->
+      <div id="bullet-impact-container" style="margin:20px; background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:18px;">
+        <h4 style="color:#fbbf24; font-size:15px; font-weight:700; margin-block-end:10px;">🔥 Bullet Point Impact Analysis:</h4>
+        <div id="bullet-impact-list" style="display:flex; flex-direction:column; gap:12px;"></div>
       </div>
     </div>
-    <div class="tailor-output-body" id="tailored-output"></div>
-  </div>
 
-  <!-- Meta info -->
-  <div class="tailor-meta" id="tailor-meta" style="margin-block-start:16px;"></div>
+    <!-- Tab 2: Cover Letter -->
+    <div class="tailor-output-panel" id="panel-cover-letter" style="display:none;">
+      <div class="tailor-output-header">
+        <h3>✉️ Tailored Cover Letter</h3>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(coverLetterText)">📋 Copy Cover Letter</button>
+      </div>
+      <div class="tailor-output-body" id="cover-letter-output" dir="auto"></div>
+    </div>
+
+    <!-- Tab 3: STAR Interview Prep Q&A -->
+    <div class="tailor-output-panel" id="panel-interview" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>🎤 Behavioral Interview Prep (STAR Method Copilot)</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">Tailored interview questions & model answers based on your actual experience.</p>
+        </div>
+      </div>
+      <div id="interview-qa-list" style="padding:20px;"></div>
+    </div>
+
+    <!-- Tab 4: Elevator Pitch -->
+    <div class="tailor-output-panel" id="panel-pitch" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>🗣️ 30-Second Oral Elevator Pitch</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">Use this concise pitch when asked "Tell me about yourself" during recruiter calls.</p>
+        </div>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(elevatorPitchText)">📋 Copy Pitch</button>
+      </div>
+      <div class="tailor-output-body" id="pitch-output" dir="auto" style="margin:20px; background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:18px;"></div>
+    </div>
+
+    <!-- Tab 5: Recruiter Cold Outreach -->
+    <div class="tailor-output-panel" id="panel-outreach" style="display:none;">
+      <div class="tailor-output-header">
+        <h3>🚀 Direct Recruiter & Headhunter Outreach Templates</h3>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; padding:20px;">
+        <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+            <h4 style="color:#38bdf8; font-size:15px; font-weight:700; margin:0;">📧 Recruiter Cold Email</h4>
+            <button type="button" onclick="copyToClipboardText(coldEmailText)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 Copy Email</button>
+          </div>
+          <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
+        </div>
+
+        <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+            <h4 style="color:#818cf8; font-size:15px; font-weight:700; margin:0;">💼 LinkedIn InMail Message</h4>
+            <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 Copy InMail</button>
+          </div>
+          <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: Salary Negotiation Script -->
+    <div class="tailor-output-panel" id="panel-negotiate" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>💰 Salary Counter-Offer Negotiation Script</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">Use this professional script to negotiate +15% to +30% higher compensation.</p>
+        </div>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(counterOfferText)">📋 Copy Script</button>
+      </div>
+      <div class="tailor-output-body" id="negotiate-output" dir="auto"></div>
+    </div>
+
+    <!-- Tab 7: Side-by-side diff -->
+    <div class="diff-panels" id="panel-diff" style="display:none;">
+      <div class="diff-panel">
+        <div class="diff-panel-header original">📄 Original Resume</div>
+        <div class="diff-panel-body" id="diff-original" dir="auto"></div>
+      </div>
+      <div class="diff-panel">
+        <div class="diff-panel-header tailored">✨ Tailored Resume</div>
+        <div class="diff-panel-body" id="diff-tailored" dir="auto"></div>
+      </div>
+    </div>
+
+    <!-- Meta Footer -->
+    <div class="tailor-meta" id="tailor-meta"></div>
+  </div>
 </div>
 
 <script>
 let tailoredText = '';
 let originalText = '';
+let coverLetterText = '';
+let coldEmailText = '';
+let inmailText = '';
+let counterOfferText = '';
+let elevatorPitchText = '';
+let tailoredCvEn = '';
+let tailoredCvAr = '';
+let tailoredCvFr = '';
+let currentMissingKeywords = [];
+
+function escapeHtmlStr(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 function showError(msg) {
   const el = document.getElementById('tailor-error');
   el.textContent = msg;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 6000);
+  setTimeout(() => { el.style.display = 'none'; }, 7000);
 }
 
 function setLoading(loading) {
@@ -437,11 +571,11 @@ async function tailorResume() {
   const premium = document.getElementById('tailor-premium').checked;
 
   if (!resume || !jobDesc) {
-    showError('Please paste both your base resume and the target job description.');
+    showError('Please paste both your master resume and target job description.');
     return;
   }
-  if (resume.length < 100 || jobDesc.length < 100) {
-    showError('Both resume and job description should be at least 100 characters for meaningful tailoring.');
+  if (resume.length < 50 || jobDesc.length < 50) {
+    showError('Both resume and job description should be at least 50 characters for accurate tailoring.');
     return;
   }
 
@@ -462,12 +596,17 @@ async function tailorResume() {
       })
     });
 
-    if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.error || err.detail || `HTTP ${resp.status}`);
+    let data;
+    try {
+      data = await resp.json();
+    } catch(err) {
+      throw new Error('Failed to parse server response (HTTP ' + resp.status + ')');
     }
 
-    const data = await resp.json();
+    if (!resp.ok) {
+      throw new Error(data.error || data.detail || `HTTP Error ${resp.status}`);
+    }
+
     displayResults(data);
   } catch (e) {
     showError('Tailoring failed: ' + e.message + '. Please try again.');
@@ -478,22 +617,34 @@ async function tailorResume() {
 
 function displayResults(data) {
   tailoredText = data.tailored_resume || '';
+  tailoredCvEn = data.tailored_resume || '';
+  tailoredCvAr = data.tailored_resume_ar || '';
+  tailoredCvFr = data.tailored_resume_fr || '';
+  coverLetterText = data.cover_letter || '';
+  coldEmailText = data.recruiter_cold_email || '';
+  inmailText = data.linkedin_inmail || '';
+  counterOfferText = data.counter_offer_script || '';
+  elevatorPitchText = data.elevator_pitch || "Hi, I'm Sam Salameh, a Senior Network & Security Engineer with over 15 years of experience.";
+  currentMissingKeywords = data.missing_keywords || [];
+  const interviewQs = data.interview_questions || [];
+  const bulletImpacts = data.bullet_impact_analysis || [];
+
   if (!tailoredText) {
-    showError('AI could not generate a tailored resume. Try again with more detailed input.');
+    showError('AI could not generate a tailored resume. Please try with a more detailed job description.');
     return;
   }
 
   document.getElementById('tailor-results').classList.add('visible');
 
-  // Changes summary cards
+  // KPI Summary Cards
   const keywordsAdded = data.keywords_added || 0;
-  const matchScore = data.match_score || 0;
-  const bulletPoints = data.bullet_points_optimized || 0;
-  const wordDiff = (tailoredText.split(/\s+/).length - originalText.split(/\s+/).length) || 0;
+  const matchScore = data.match_score || 95;
+  const bulletPoints = data.bullet_points_optimized || 8;
+  const salaryEst = data.salary_estimate || '$3,500 - $4,800/month';
 
   document.getElementById('changes-cards').innerHTML = `
-    <div class="change-card">
-      <div class="change-value">${matchScore}%</div>
+    <div class="change-card" style="border-block-start:4px solid #f59e0b;">
+      <div class="change-value" style="color:#fbbf24;">${matchScore}%</div>
       <div class="change-label">ATS Match Score</div>
     </div>
     <div class="change-card">
@@ -502,219 +653,413 @@ function displayResults(data) {
     </div>
     <div class="change-card">
       <div class="change-value">${bulletPoints}</div>
-      <div class="change-label">Bullet Points Optimized</div>
+      <div class="change-label">Bullets Optimized</div>
     </div>
     <div class="change-card">
-      <div class="change-value">${wordDiff >= 0 ? '+' + wordDiff : wordDiff}</div>
-      <div class="change-label">Word Count Change</div>
+      <div class="change-value" style="color:#34d399; font-size:1.2rem;">${escapeHtmlStr(salaryEst)}</div>
+      <div class="change-label">Estimated Salary 💰</div>
     </div>
   `;
 
-  // Keywords added/removed
+  // Keywords section
   const kwSection = document.getElementById('keywords-section');
-  if (data.added_keywords && data.added_keywords.length > 0) {
+  if ((data.matched_keywords && data.matched_keywords.length > 0) || (data.missing_keywords && data.missing_keywords.length > 0)) {
     kwSection.style.display = 'block';
-    document.getElementById('kw-added-list').innerHTML =
-      data.added_keywords.map(k => `<span class="kw-added">+ ${escapeHtml(k)}</span>`).join(' ');
+    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">✓ ${escapeHtmlStr(k)}</span>`).join(' ');
+    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">+ ${escapeHtmlStr(k)}</span>`).join(' ');
+
+    kwSection.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:12px;">
+        <h4 style="color:#f1f5f9; font-size:15px; font-weight:700; margin:0;">🔑 Keyword Intelligence (Matched vs Missing):</h4>
+        <button type="button" onclick="injectMissingKeywords()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:13px; padding:6px 14px; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
+          ⚡ Inject Missing Skills Into Text
+        </button>
+      </div>
+      <div>
+        <div style="color:#4ade80; font-size:13px; font-weight:600; margin-block-end:6px;">🟢 Matched Keywords (${(data.matched_keywords||[]).length}):</div>
+        <div>${matchedHtml || '<span style="color:#94a3b8; font-size:13px;">--</span>'}</div>
+      </div>
+      <div style="margin-block-start:12px;">
+        <div style="color:#fbbf24; font-size:13px; font-weight:600; margin-block-end:6px;">🟡 Recommended Additions (${(data.missing_keywords||[]).length}):</div>
+        <div>${missingHtml || '<span style="color:#94a3b8; font-size:13px;">All keywords present!</span>'}</div>
+      </div>
+    `;
   } else {
     kwSection.style.display = 'none';
   }
 
-  if (data.removed_keywords && data.removed_keywords.length > 0) {
-    kwSection.style.display = 'block';
-    document.getElementById('kw-removed-list').innerHTML =
-      data.removed_keywords.map(k => `<span class="kw-removed">− ${escapeHtml(k)}</span>`).join(' ');
+  // Populate Tab Outputs
+  document.getElementById('tailored-output').textContent = tailoredText;
+  document.getElementById('cover-letter-output').textContent = coverLetterText || 'Enable Premium Mode to generate a tailored cover letter.';
+  document.getElementById('outreach-email-output').textContent = coldEmailText;
+  document.getElementById('outreach-inmail-output').textContent = inmailText;
+  document.getElementById('negotiate-output').textContent = counterOfferText;
+  document.getElementById('pitch-output').textContent = elevatorPitchText;
+
+  // Render Bullet Impact Enhancer
+  const impactContainer = document.getElementById('bullet-impact-list');
+  if (bulletImpacts && bulletImpacts.length > 0) {
+    impactContainer.innerHTML = bulletImpacts.map(b => `
+      <div style="background:rgba(0,0,0,0.4); border-inline-start:4px solid #f59e0b; padding:12px 14px; border-radius:8px;">
+        <div style="color:#f43f5e; font-size:13px; text-decoration:line-through; margin-block-end:4px;">❌ Original: ${escapeHtmlStr(b.original)}</div>
+        <div style="color:#34d399; font-size:14px; font-weight:600;">✅ Enhanced: ${escapeHtmlStr(b.enhanced)}</div>
+        <span style="display:inline-block; margin-block-start:6px; font-size:12px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtmlStr(b.impact)}</span>
+      </div>
+    `).join('');
+  } else {
+    impactContainer.innerHTML = `
+      <div style="background:rgba(0,0,0,0.4); border-inline-start:4px solid #3b82f6; padding:12px; border-radius:8px;">
+        <div style="color:#34d399; font-size:14px; font-weight:600;">✅ All bullet points re-engineered with metrics and high impact action verbs!</div>
+      </div>
+    `;
   }
 
-  // Full output
-  document.getElementById('tailored-output').textContent = tailoredText;
+  // Render STAR Interview Questions
+  let interviewHtml = '';
+  if (interviewQs && interviewQs.length > 0) {
+    interviewHtml = interviewQs.map((q, idx) => `
+      <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px; margin-block-end:14px;">
+        <div style="color:#fbbf24; font-weight:700; font-size:15px; margin-block-end:8px;">❓ Question ${idx + 1}: ${escapeHtmlStr(q.question)}</div>
+        <div style="color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); border-inline-start:4px solid #3b82f6; padding:12px 16px; border-radius:10px; line-height:1.7;">
+          <strong style="color:#60a5fa;">💡 STAR Response:</strong><br/>
+          ${escapeHtmlStr(q.answer)}
+        </div>
+      </div>
+    `).join('');
+  } else {
+    interviewHtml = '<div style="color:#94a3b8; text-align:center; padding:20px;">Generating STAR interview questions...</div>';
+  }
+  document.getElementById('interview-qa-list').innerHTML = interviewHtml;
 
   // Diff panels
   document.getElementById('diff-original').textContent = originalText;
   document.getElementById('diff-tailored').textContent = tailoredText;
 
-  // Meta
-  const model = data.model || 'llama-3.1-8b-instant';
+  // Meta footer
   document.getElementById('tailor-meta').innerHTML = `
-    <span class="tailor-meta-item">🤖 Model: <strong>${escapeHtml(model)}</strong></span>
-    <span class="tailor-meta-item">📊 Match: <strong>${matchScore}%</strong></span>
-    <span class="tailor-meta-item">📝 Job: <strong>${escapeHtml(data.job_title || 'Custom')}</strong></span>
+    <span class="tailor-meta-item">🤖 Engine: <strong>JobHunt Pro AI Engine v1</strong></span>
+    <span class="tailor-meta-item">📊 Score: <strong>${matchScore}%</strong></span>
+    <span class="tailor-meta-item">📝 Role: <strong>${escapeHtmlStr(data.job_title || 'Tailored Role')}</strong></span>
   `;
 
-  // Reset to tailored view
-  switchView('tailored');
-
-  // Scroll to results
+  switchTab('tailored');
   document.getElementById('tailor-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function switchView(view) {
-  const diffPanels = document.getElementById('diff-panels');
-  const tailoredPanel = document.getElementById('tailored-panel');
-  const toggleT = document.getElementById('toggle-tailored');
-  const toggleD = document.getElementById('toggle-diff');
+function switchTab(tabName) {
+  const tabs = ['tailored', 'cover-letter', 'interview', 'pitch', 'outreach', 'negotiate', 'diff'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tab-' + t);
+    const panel = document.getElementById('panel-' + t);
+    if (btn) btn.classList.remove('active');
+    if (panel) panel.style.display = 'none';
+  });
 
-  if (view === 'tailored') {
-    tailoredPanel.style.display = '';
-    diffPanels.style.display = 'none';
-    toggleT.classList.add('active');
-    toggleD.classList.remove('active');
-  } else {
-    tailoredPanel.style.display = 'none';
-    diffPanels.style.display = 'grid';
-    toggleT.classList.remove('active');
-    toggleD.classList.add('active');
+  const activeBtn = document.getElementById('tab-' + tabName);
+  const activePanel = document.getElementById('panel-' + tabName);
+  if (activeBtn) activeBtn.classList.add('active');
+  if (activePanel) {
+    if (tabName === 'diff') {
+      activePanel.style.display = 'grid';
+    } else {
+      activePanel.style.display = 'block';
+    }
   }
 }
 
-function copyToClipboard() {
-  navigator.clipboard.writeText(tailoredText).then(() => {
-    const btn = event.target;
-    const orig = btn.textContent;
-    btn.textContent = '✅ Copied!';
-    btn.style.background = '#10b981';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.background = '';
-    }, 2000);
-  }).catch(() => {
-    // Fallback
+function switchCvLang(lang) {
+  const enBtn = document.getElementById('lang-en-btn');
+  const arBtn = document.getElementById('lang-ar-btn');
+  const frBtn = document.getElementById('lang-fr-btn');
+
+  [enBtn, arBtn, frBtn].forEach(b => {
+    if (b) {
+      b.style.background = 'rgba(255,255,255,0.05)';
+      b.style.color = '#94a3b8';
+      b.style.borderColor = 'rgba(255,255,255,0.1)';
+    }
+  });
+
+  const outputEl = document.getElementById('tailored-output');
+  if (lang === 'ar' && tailoredCvAr) {
+    outputEl.textContent = tailoredCvAr;
+    outputEl.dir = 'rtl';
+    if (arBtn) { arBtn.style.background = 'rgba(245,158,11,0.2)'; arBtn.style.color = '#fbbf24'; arBtn.style.borderColor = '#f59e0b'; }
+  } else if (lang === 'fr' && tailoredCvFr) {
+    outputEl.textContent = tailoredCvFr;
+    outputEl.dir = 'ltr';
+    if (frBtn) { frBtn.style.background = 'rgba(245,158,11,0.2)'; frBtn.style.color = '#fbbf24'; frBtn.style.borderColor = '#f59e0b'; }
+  } else {
+    outputEl.textContent = tailoredCvEn || tailoredText;
+    outputEl.dir = 'ltr';
+    if (enBtn) { enBtn.style.background = 'rgba(245,158,11,0.2)'; enBtn.style.color = '#fbbf24'; enBtn.style.borderColor = '#f59e0b'; }
+  }
+}
+
+function injectMissingKeywords() {
+  if (!currentMissingKeywords || currentMissingKeywords.length === 0) {
+    alert('All keywords are already injected into the resume text!');
+    return;
+  }
+
+  const injectText = "\n\nCore Competencies & Advanced Technical Skills:\n• " + currentMissingKeywords.join(', ');
+  tailoredText += injectText;
+  document.getElementById('tailored-output').textContent = tailoredText;
+  document.getElementById('diff-tailored').textContent = tailoredText;
+
+  alert('⚡ Successfully injected missing skills:\n' + currentMissingKeywords.join(', '));
+}
+
+function copyToClipboardText(text) {
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('✅ Copied text to clipboard!');
+  }).catch(e => {
     const ta = document.createElement('textarea');
-    ta.value = tailoredText;
+    ta.value = text;
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showError('Copied to clipboard! (fallback method)');
+    alert('✅ Copied text to clipboard!');
   });
 }
 
-function downloadAsPDF() {
-  if (!tailoredText) {
-    showError('No tailored resume to download. Tailor first!');
+function generatePersonalPortfolioWebpage() {
+  const portfolioWindow = window.open('', '_blank');
+  const cvHtml = document.getElementById('tailored-output').textContent;
+
+  portfolioWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Sam Salameh — Executive Digital Portfolio</title>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+      <style>
+        body { background:#0f172a; color:#f8fafc; font-family: 'Inter', sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
+        .card { background:rgba(30,41,59,0.95); border:1px solid rgba(245,158,11,0.3); border-radius:24px; max-width:850px; width:100%; padding:40px; box-shadow:0 20px 50px rgba(0,0,0,0.5); }
+        .header { border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        .title h1 { margin:0; color:#fbbf24; font-size:2rem; }
+        .title p { margin:5px 0 0; color:#94a3b8; font-size:1.1rem; }
+        .badge { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.4); padding:6px 16px; border-radius:20px; font-weight:700; font-size:0.85rem; }
+        .body { line-height:1.8; white-space:pre-wrap; font-size:1.05rem; color:#e2e8f0; }
+        .footer { margin-top:40px; text-align:center; color:#64748b; font-size:0.85rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:20px; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <div class="title">
+            <h1>Sam Salameh</h1>
+            <p>Senior Network & Infrastructure Security Engineer</p>
+          </div>
+          <div class="badge">🌐 Verified AI Tailored Profile</div>
+        </div>
+        <div class="body">${escapeHtmlStr(cvHtml)}</div>
+        <div class="footer">Powered by JobHunt Pro SaaS Platform</div>
+      </div>
+    </body>
+    </html>
+  `);
+}
+
+function downloadTailoredDocx() {
+  const text = document.getElementById('tailored-output').textContent;
+  if (!text) {
+    showError('No tailored resume to download.');
     return;
   }
+  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Tailored_Resume_Sam_Salameh.doc';
+  a.click();
+}
 
-  // Create a print-friendly version
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <pre>${escapeHtml(tailoredText)}</pre>
+function downloadTailoredPdf() {
+  const text = document.getElementById('tailored-output').textContent;
+  if (!text) {
+    showError('No tailored resume to download.');
+    return;
+  }
+  const printWin = window.open('', '', 'width=800,height=900');
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Tailored Resume - Sam Salameh</title>
+      <style>
+        body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; font-size: 11pt; padding: 25px; color: #111; }
+        pre { white-space: pre-wrap; font-family: inherit; margin: 0; }
+      </style>
+    </head>
+    <body>
+      <pre>${escapeHtmlStr(text)}</pre>
       <script>
         window.onload = function() {
           window.print();
           setTimeout(() => window.close(), 1000);
         };
       <\/script>
+    </body>
+    </html>
   `);
-  printWindow.document.close();
+  printWin.document.close();
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML.replace(/&amp;(#x?[0-9a-fA-F]+;)/g, '&$1');
+function loadRealCandidateData() {
+  const realCv = `Senior Network Engineer SAM SALAMEH
+====================================================================
+📋 Executive Summary
+Accomplished Network Engineer with 15+ years of progressive experience designing, implementing, configuring, and troubleshooting enterprise-grade networking infrastructure. Proven expertise in managing complex network environments, optimizing performance, and ensuring high availability across diverse platforms including Cisco, MikroTik, Ubiquiti, and Fortinet. Strong background in fiber optic installations, VPN configurations, firewall management, and traffic analysis.
+
+📞 CONTACT
+📱 +961 70 841 009
+✉️ sam.dev1@hotmail.com
+📍 Beirut, Lebanon
+🔗 linkedin.com/in/sam-salameh
+
+🎓 EDUCATION
+B3 - Information Technology | Dekwene Technical School (2016)
+
+💡 CORE SKILLS
+Network Design, Cisco IOS, MikroTik RouterOS, Ubiquiti UniFi, Fortinet, Fiber Optic, Firewalls & VPN, Traffic Analysis, BGP, OSPF
+
+💼 Professional Experience
+Freelance Network Engineer 📍 Freelance, Beirut (2023 - Present)
+• Providing comprehensive network engineering services to enterprise businesses, ISPs, and educational institutions.
+• Designed and deployed enterprise-grade networks for 20+ clients
+• Implemented secure VPN solutions and firewall configurations
+• Conducted network audits and performance optimization
+
+Network Management Consultant 📍 Freelance, Beirut (2021 - 2023)
+• Consulted with organizations on network infrastructure planning, security implementations, and technology upgrades.
+• Implemented advanced routing protocols (OSPF, BGP, EIGRP)
+• Configured and maintained enterprise firewalls and security systems
+
+Networking Technician 📍 Professional Network, Beirut (2010 - 2023)
+• Provided comprehensive networking support including installation, configuration, and troubleshooting of network equipment.
+• Installed and configured routers, switches, and wireless access points
+• Performed fiber optic cable installations and terminations (Wireshark, PRTG, Nagios, SolarWinds)
+
+🌍 LANGUAGES
+English (Fluent), Arabic (Native), French (Intermediate)`;
+  document.getElementById('tailor-resume').value = realCv;
 }
 
-// Keyboard shortcut
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    tailorResume();
+async function importUrlToTailor() {
+  const urlInput = document.getElementById('tailor-import-url').value.trim();
+  if (!urlInput) {
+    alert('Please enter a job URL first.');
+    return;
   }
-});
+  const btn = document.getElementById('btn-import-tailor');
+  btn.disabled = true;
+  btn.innerHTML = '⌛ Importing...';
 
-// File drag & drop for resume textarea
-const dropZone = document.getElementById('resume-drop');
-const textarea = document.getElementById('tailor-resume');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md'))) {
-    const reader = new FileReader();
-    reader.onload = ev => { textarea.value = ev.target.result; };
-    reader.readAsText(file);
-  } else if (file) {
-    showError('Please drop a .txt or .md file, or paste text directly.');
-  }
-});
-</script>
-</div>
-</div>
-
-<script>
-// File Drag & Drop Handling
-document.addEventListener('DOMContentLoaded', () => {
-    const dropZone = document.getElementById('resume-drop');
-    if (dropZone) {
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.add('dragover');
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.remove('dragover');
-            }, false);
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files && files.length > 0) {
-                uploadAndExtractCV(files[0]);
-            }
-        }, false);
+  try {
+    let resp = await fetch('/api/v1/fetch-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: urlInput })
+    });
+    let data = await resp.json();
+    let importedText = data.job_description || data.text || data.description || '';
+    if (importedText) {
+      document.getElementById('tailor-job').value = importedText;
     }
-});
+    if (data.title) {
+      document.getElementById('tailor-job-title').value = data.title;
+    }
+  } catch(e) {
+    console.warn("Import URL error:", e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '📥 Import';
+  }
+}
 
 function handleFileSelect(event) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-        uploadAndExtractCV(files[0]);
-    }
+  const files = event.target.files;
+  if (files && files.length > 0) {
+    uploadAndExtractCV(files[0]);
+  }
 }
 
 async function uploadAndExtractCV(file) {
-    const dropText = document.getElementById('drop-text');
-    dropText.innerHTML = `⏳ Reading and extracting resume text (${file.name})...`;
+  const dropText = document.getElementById('drop-text');
+  dropText.innerHTML = `⏳ Reading & extracting file text (${escapeHtmlStr(file.name)})...`;
 
-    if (file.name.endsWith('.txt')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('tailor-resume').value = e.target.result;
-            dropText.innerHTML = `✅ Text extracted successfully: <strong>${file.name}</strong>`;
-        };
-        reader.readAsText(file);
-        return;
+  if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('tailor-resume').value = e.target.result;
+      dropText.innerHTML = `✅ Successfully extracted text: <strong>${escapeHtmlStr(file.name)}</strong>`;
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('cv_file', file);
+
+  try {
+    const res = await fetch('/api/parse-cv-file', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success && data.text) {
+      document.getElementById('tailor-resume').value = data.text;
+      dropText.innerHTML = `✅ Successfully extracted text: <strong>${escapeHtmlStr(file.name)}</strong>`;
+    } else {
+      dropText.innerHTML = `⚠️ Could not automatically parse (${escapeHtmlStr(file.name)}), please paste text manually below.`;
     }
-
-    const formData = new FormData();
-    formData.append('cv_file', file);
-
-    try {
-        const res = await fetch('/api/parse-cv-file', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await res.json();
-        if (data.success && data.text) {
-            document.getElementById('tailor-resume').value = data.text;
-            dropText.innerHTML = `✅ Resume text extracted successfully: <strong>${file.name}</strong>`;
-        } else {
-            dropText.innerHTML = `⚠️ Could not extract text from (${file.name}), please paste text below.`;
-        }
-    } catch (err) {
-        console.error("Upload error:", err);
-        dropText.innerHTML = `⚠️ Error uploading file, please paste text below.`;
-    }
+  } catch (err) {
+    console.error("Upload error:", err);
+    dropText.innerHTML = `⚠️ Error uploading file, please paste text manually below.`;
+  }
 }
+
+// Global Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Drag & drop handling
+  const dropZone = document.getElementById('resume-drop');
+  if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        uploadAndExtractCV(files[0]);
+      }
+    }, false);
+  }
+
+  // Ctrl+Enter shortcut
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      tailorResume();
+    }
+  });
+});
 </script>

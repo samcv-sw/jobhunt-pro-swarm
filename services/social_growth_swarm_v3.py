@@ -40,6 +40,12 @@ class SocialGrowthSwarm:
             "tagline": content["tagline"],
             "body": content["body"],
             "status": "scheduled",
+            "opengraph": {
+                "og_title": content["title"],
+                "og_description": content["tagline"],
+                "og_image": f"https://jobhuntpro.io/assets/og-{channel}.png",
+                "twitter_card": "summary_large_image"
+            },
             "estimated_impressions": random.randint(15000, 50000),
             "projected_conversions": random.randint(350, 1200)
         }

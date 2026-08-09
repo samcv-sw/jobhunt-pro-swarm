@@ -5,7 +5,7 @@ Analyzes job descriptions, identifies keywords, and dynamically tailors resumes 
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List, Dict, Optional
 import re
 import datetime
 
@@ -15,6 +15,7 @@ class ResumeSculptRequest(BaseModel):
     original_resume: str
     job_title: str
     job_description: str
+    target_company: Optional[str] = "Target Enterprise"
 
 class ResumeSculptResponse(BaseModel):
     sculpt_id: str
@@ -22,6 +23,8 @@ class ResumeSculptResponse(BaseModel):
     matched_keywords: List[str]
     missing_keywords: List[str]
     tailored_resume_markdown: str
+    printable_html: str
+    download_url: str
     suggested_improvements: List[str]
     created_at: str
 
@@ -61,12 +64,49 @@ Results-driven Software Engineer with extensive experience building high-scale a
 * Designed secure data pipelines following OWASP best practices.
 """
 
+    sculpt_id = f"sculpt_{int(datetime.datetime.now().timestamp())}"
+    company = req.target_company or "Target Company"
+
+    printable_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {{ font-family: 'Cairo', 'Inter', sans-serif; line-height: 1.6; color: #1e293b; margin: 0; padding: 2rem; }}
+  h1 {{ font-size: 24px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 16px; color: #0f172a; }}
+  h2 {{ font-size: 18px; color: #1d4ed8; margin-top: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }}
+  ul {{ padding-inline-start: 20px; }}
+  li {{ margin-bottom: 6px; }}
+  .ats-badge {{ background: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block; }}
+</style>
+</head>
+<body>
+  <div class="ats-badge">Optimized for {company} — Match Score: {match_percentage}%</div>
+  <h1>{req.job_title}</h1>
+  <h2>Professional Summary</h2>
+  <p>Results-driven Software Engineer tailored for <strong>{req.job_title}</strong> at <strong>{company}</strong> with proven mastery in {', '.join(matched) if matched else 'core engineering domains'}.</p>
+  <h2>Core Technical Competencies</h2>
+  <ul>
+    <li><strong>Languages & Frameworks:</strong> {', '.join(matched[:4]) if matched else 'Python, TypeScript, Node.js'}</li>
+    <li><strong>Cloud & DevOps:</strong> Docker, CI/CD, AWS, Kubernetes</li>
+    <li><strong>Data Architecture:</strong> PostgreSQL, Redis, Microservices</li>
+  </ul>
+  <h2>Professional Experience</h2>
+  <ul>
+    <li>Engineered backend services using {matched[0] if matched else 'Python'} achieving 99.99% uptime.</li>
+    <li>Integrated scalable API gateways to accelerate deployment cycles by 40%.</li>
+  </ul>
+</body>
+</html>"""
+
     return ResumeSculptResponse(
-        sculpt_id=f"sculpt_{int(datetime.datetime.now().timestamp())}",
+        sculpt_id=sculpt_id,
         ats_score=match_percentage,
         matched_keywords=matched if matched else ["python", "api", "docker"],
         missing_keywords=missing if missing else ["kubernetes"],
         tailored_resume_markdown=tailored_md,
+        printable_html=printable_html,
+        download_url=f"/api/v1/ats-sculptor/download/{sculpt_id}.pdf",
         suggested_improvements=[
             f"Add quantified metrics for experience in '{missing[0]}'" if missing else "Quantify leadership impact in bullet #2",
             "Ensure core tech terms appear in the top 1/3 of the first page.",

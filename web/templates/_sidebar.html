@@ -250,11 +250,14 @@
     <a href="/upload-cv" {{ 'class=active' if active_page == 'upload-cv' else '' }}><span class="nav-icon">📄</span>رفع السيرة الذاتية</a>
     <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>مقياس ATS</a>
     <a href="/resume-tailor" {{ 'class=active' if active_page == 'resume-tailor' else '' }} style="color:{{ '#f0c040' if active_page == 'resume-tailor' else '#a78bfa' }};"><span class="nav-icon">✨</span>تخصيص السيرة الذاتية</a>
+    <a href="/zero-unemployment" onclick="return (window.openZeroModalFast ? window.openZeroModalFast(event) : true);" style="color:#00f0ff; font-weight:800;"><span class="nav-icon">💡</span>0% Unemployment AI</a>
 
     <div class="nav-section-label" style="color:#00f0ff;">🚀 أدوات الذكاء الخارقة</div>
+    <a href="/interview-copilot" {{ 'class=active' if active_page == 'interview-copilot' else '' }} style="color:#c4b5fd;font-weight:700;"><span class="nav-icon">🎙️</span>مساعد المقابلات (AI Copilot)</a>
+    <a href="/salary-negotiator" {{ 'class=active' if active_page == 'salary-negotiator' else '' }} style="color:#fbbf24;font-weight:700;"><span class="nav-icon">💰</span>حاسبة الراتب والتفاوض</a>
     <a href="/auto-applier" {{ 'class=active' if active_page == 'auto_applier' else '' }} style="color:#00f0ff;"><span class="nav-icon">🤖</span>التقديم التلقائي (Swarm)</a>
     <a href="/voice-interview" {{ 'class=active' if active_page == 'voice_interview' else '' }} style="color:#a78bfa;"><span class="nav-icon">🎙️</span>محاكي المقابلات (Voice AI)</a>
-    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }} style="color:#34d399;"><span class="nav-icon">⚡</span>استوديو ATS التكيّفي</a>
+    <a href="/ats-studio" {{ 'class=active' if active_page == 'ats-studio' else '' }} style="color:#34d399;"><span class="nav-icon">⚡</span>استوديو ATS التكيّفي</a>
     <a href="/b2b/portal" {{ 'class=active' if active_page == 'b2b' else '' }} style="color:#f59e0b;"><span class="nav-icon">🏢</span>منصة الشركات والـ HR</a>
 
     <div class="nav-section-label">الحملات</div>
@@ -293,7 +296,7 @@
 
     <div class="nav-gap"></div>
     <div class="nav-divider"></div>
-    <a href="#" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
+    <a href="javascript:void(0)" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">
       <span class="nav-icon">🔔</span>الإشعارات
       <span class="notif-badge" id="notif-badge" style="display:none;">0</span>
     </a>

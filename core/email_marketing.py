@@ -24,6 +24,8 @@ import config
 import core.pg_sqlite_shim as sqlite3
 from core.email_engine import send_email_via_brevo_http
 
+
+
 logger = logging.getLogger(__name__)
 
 # ── Campaign intervals (seconds) ───────────────────────────────
@@ -76,8 +78,12 @@ def _send_via_gmail_smtp(
 
 def _get_db():
     """Open a connection to the main SaaS database."""
-    db_path = str(Path(__file__).parent.parent / "jobhunt_saas_v2.db")
-    conn = sqlite3.connect(db_path)
+    try:
+        from web.shared import DB_PATH
+        conn = sqlite3.connect(DB_PATH)
+    except Exception:
+        db_path = str(Path(__file__).parent.parent / "data" / "jobhunt_saas_v2.db")
+        conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 

@@ -1343,7 +1343,7 @@ body{
 
 .price-card.popular:hover{transform:scale(1.04) translateY(-8px)}
 
-.price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
+.price-badge{position:absolute;top:-14px;inset-inline-start: 0;inset-inline-end: 0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size: 14px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
 
 .price-badge.hot{background:linear-gradient(135deg,#ff0055,#e11d48);color:#ffffff;box-shadow:0 0 20px rgba(255,0,85,0.4)}
 
@@ -1967,7 +1967,7 @@ body{
 
  .price-amount{font-size:26px}
 
- .price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
+ .price-badge{position:absolute;top:-14px;inset-inline-start: 0;inset-inline-end: 0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size: 14px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
 
  .footer-grid{grid-template-columns:1fr;text-align:center;gap:20px}
 
@@ -2143,8 +2143,8 @@ body{
  position: fixed !important;
  bottom: 0 !important;
  top: auto !important;
- left: 0 !important;
- right: 0 !important;
+ inset-inline-start: 0 !important;
+ inset-inline-end: 0 !important;
  width: 100% !important;
  z-index: 99999 !important;
  background: rgba(5, 5, 15, 0.95) !important;
@@ -2216,8 +2216,8 @@ body{
 .ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
 
 .ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
-.ats-score-circle svg{position:absolute;top:0;left:0;width:100%;height:100%}
-.ats-score-text{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;direction:ltr;line-height:1.1}
+.ats-score-circle svg{position:absolute;top:0;inset-inline-start: 0;width:100%;height:100%}
+.ats-score-text{position:absolute;top:0;inset-inline-start: 0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;direction:ltr;line-height:1.1}
 .ats-score-num{font-size:36px;font-weight:900;color:#ffffff;display:block}
 .ats-score-total{font-size:14px;color:#94a3b8;display:block;margin-top:2px}
 
@@ -2328,7 +2328,7 @@ body{
   content: '' !important;
   position: absolute !important;
   top: -50% !important;
-  left: -50% !important;
+  inset-inline-start: -50% !important;
   width: 200% !important;
   height: 200% !important;
   background: linear-gradient(60deg, transparent, rgba(255,255,255,0.4), transparent) !important;
@@ -2417,7 +2417,7 @@ body{
 }
 
 .roi-badge {
-  font-family: 'Fira Code', 'Space Grotesk', monospace;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Fira Code', 'Space Grotesk', monospace;
   font-size: 20px;
   font-weight: 800;
   color: #ffb300;
@@ -2515,7 +2515,7 @@ body{
 }
 
 .roi-stat-lbl {
-  font-size: 12px;
+  font-size: 14px;
   color: #94a3b8;
   font-weight: 500;
 }
@@ -2657,7 +2657,7 @@ body{
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: #10b981;
   background: rgba(16, 185, 129, 0.1);
@@ -2767,7 +2767,7 @@ body{
   color: #ffffff !important;
   margin-bottom: 12px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -2778,7 +2778,7 @@ body{
   line-height: 1.65 !important;
   font-weight: 400 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   max-width: none !important;
@@ -2869,7 +2869,7 @@ body{
   margin-bottom: 6px !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -2882,7 +2882,7 @@ body{
   margin: 0 !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .guarantee-verified-seal {
@@ -2969,7 +2969,7 @@ body{
   margin-bottom: 6px !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -2982,7 +2982,7 @@ body{
   margin: 0 !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .guarantee-verified-seal {
@@ -3134,11 +3134,11 @@ body{
 
 .fomo-item .fomo-label {
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   font-weight: 600 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   width: auto !important;
@@ -3171,7 +3171,7 @@ a.btn-outline {
   font-size: 16px !important;
   font-weight: 900 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   text-decoration: none !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
@@ -3297,7 +3297,7 @@ a.btn-outline:hover {
   color: #ffffff !important;
   line-height: 1.2 !important;
   margin-bottom: 20px !important;
-  letter-spacing: -1px !important;
+  
   text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   position: relative !important;
   z-index: 2 !important;
@@ -3375,7 +3375,7 @@ a.btn-outline:hover {
   padding: 8px 16px !important;
   border-radius: 50px !important;
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -3428,7 +3428,7 @@ a.btn-outline:hover {
   color: #ffffff !important;
   line-height: 1.2 !important;
   margin-bottom: 20px !important;
-  letter-spacing: -1px !important;
+  
   text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   position: relative !important;
   z-index: 2 !important;
@@ -3500,7 +3500,7 @@ a.btn-outline:hover {
   padding: 8px 16px !important;
   border-radius: 50px !important;
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -3569,7 +3569,7 @@ a.btn-outline:hover {
 .exit-close {
   position: absolute !important;
   top: 18px !important;
-  right: 18px !important;
+  inset-inline-end: 18px !important;
   width: 36px !important;
   height: 36px !important;
   border-radius: 50% !important;
@@ -3613,7 +3613,7 @@ a.btn-outline:hover {
   font-weight: 900 !important;
   color: #ffffff !important;
   margin-bottom: 12px !important;
-  letter-spacing: normal !important;
+  
   text-transform: none !important;
 }
 
@@ -3624,7 +3624,7 @@ a.btn-outline:hover {
   line-height: 1.6 !important;
   margin-bottom: 24px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .exit-value-props {
@@ -3648,7 +3648,7 @@ a.btn-outline:hover {
   font-weight: 700 !important;
   color: #00f0ff !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
@@ -3688,7 +3688,7 @@ a.btn-outline:hover {
 
 .exit-footnote {
   font-family: 'Cairo', 'Tajawal', sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   margin: 0 !important;
   font-weight: 500 !important;
@@ -3712,7 +3712,7 @@ a.btn-outline:hover {
 .exit-close {
   position: absolute !important;
   top: 18px !important;
-  right: 18px !important;
+  inset-inline-end: 18px !important;
   width: 36px !important;
   height: 36px !important;
   border-radius: 50% !important;
@@ -3756,7 +3756,7 @@ a.btn-outline:hover {
   font-weight: 900 !important;
   color: #ffffff !important;
   margin-bottom: 12px !important;
-  letter-spacing: normal !important;
+  
   text-transform: none !important;
 }
 
@@ -3767,7 +3767,7 @@ a.btn-outline:hover {
   line-height: 1.6 !important;
   margin-bottom: 24px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .exit-value-props {
@@ -3791,7 +3791,7 @@ a.btn-outline:hover {
   font-weight: 700 !important;
   color: #00f0ff !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
@@ -3831,7 +3831,7 @@ a.btn-outline:hover {
 
 .exit-footnote {
   font-family: 'Cairo', 'Tajawal', sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   margin: 0 !important;
   font-weight: 500 !important;
@@ -4594,7 +4594,7 @@ window.applyTheme = function(theme) {
 </div>
 <div class="faq-item" onclick="toggleFaq(this)">
 <div class="faq-question">ما هي الدول والصناعات التي تغطيها؟<span class="faq-icon">+</span></div>
-<div class="faq-answer"><p>نغطي 🌍 جميع دول العالم 100% (Worldwide Coverage) في الشرق الأوسط (لبنان، الإمارات، السعودية، قطر، الكويت، عمان، البحرين، الأردن، مصر، العراق)، أوروبا، أمريكا الشمالية، وآسيا. محركاتنا تفحص جميع الصناعات الرئيسية. إذا كان هناك وظيفة منشورة على الإنترنت، يمكننا العثور عليها.</p></div>
+<div class="faq-answer"><p>نغطي 🌍 جميع دول وأقاليم العالم الـ 250+ بالكامل 100% (250+ Worldwide Countries & Territories Coverage) في الشرق الأوسط (لبنان، الإمارات، السعودية، قطر، الكويت، عمان، البحرين، الأردن، مصر، العراق)، أوروبا، أمريكا الشمالية، وآسيا. محركاتنا تفحص جميع الصناعات والمؤسسات والشركات. إذا كان هناك وظيفة منشورة في أي بقعة على كوكب الأرض، يمكننا العثور عليها ومساعدتك في التقديم عليها فوراً.</p></div>
 </div>
 <div class="faq-item" onclick="toggleFaq(this)">
 <div class="faq-question">كيف تتم حماية بياناتي والحفاظ على خصوصيتي؟<span class="faq-icon">+</span></div>
@@ -4628,11 +4628,11 @@ window.applyTheme = function(theme) {
       </label>
       <input class="roi-slider" id="roiSlider" max="200000" min="12000" oninput="updateROI(this.value)" step="1000" type="range" value="50000" dir="auto">
     </div>
-    <div style="display:flex;justify-content:space-between;color:#64748b;font-size:12px;font-weight:600;padding:0 4px;">
+    <div style="display:flex;justify-content:space-between;color:#64748b;font-size: 14px;font-weight:600;padding:0 4px;">
       <span>$12,000 / سنة</span>
       <span>$200,000 / سنة</span>
     </div>
-    <div style="font-size:13px;color:#94a3b8;line-height:1.6;margin-top:8px;background:rgba(255,255,255,0.02);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
+    <div style="font-size: 14px;color:#94a3b8;line-height:1.6;margin-top:8px;background:rgba(255,255,255,0.02);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
       💡 بقاؤك بدون عمل لشهر واحد يكلفك آلاف الدفعات. التقديم المباشر يضمن اختصار الوقت والوصول الفوري للمقابلة.
     </div>
   </div>
@@ -5448,7 +5448,7 @@ window.applyTheme = function(theme) {
         
         let toast = document.createElement('div');
         toast.className = 'social-toast-popup';
-        toast.style.cssText = 'position:fixed;bottom:24px;left:24px;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(16px);border:1px solid rgba(0,240,255,0.3);padding:14px 20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5);color:#fff;font-family:sans-serif;font-size:13px;display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);direction:ltr;';
+        toast.style.cssText = 'position:fixed;bottom:24px;inset-inline-start: 24px;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(16px);border:1px solid rgba(0,240,255,0.3);padding:14px 20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5);color:#fff;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, sans-serif;font-size: 14px;display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);direction:ltr;';
         
         toast.innerHTML = `<span style="font-size:20px;">⚡</span><div><strong style="color:#00f0ff;">${name}</strong> <span style="color:#94a3b8;">${action}</span></div>`;
         document.body.appendChild(toast);
@@ -5472,7 +5472,7 @@ window.applyTheme = function(theme) {
 
 
 <!-- Interactive Particle Canvas & Live ATS Engine -->
-<canvas id="bgParticleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;"></canvas>
+<canvas id="bgParticleCanvas" style="position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;"></canvas>
 
 <script>
 // Particle Canvas Animation

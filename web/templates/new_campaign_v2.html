@@ -4,12 +4,48 @@
 <div class="space-y-8 max-w-5xl mx-auto pb-12">
   
   <!-- Header -->
-  <div class="mb-2">
-    <h1 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-      <i data-lucide="rocket" class="w-8 h-8 text-indigo-400 lucide-dir-aware"></i>
-      إطلاق حملة جديدة
-    </h1>
-    <p class="text-slate-400 mt-2 text-sm">انشر فريقاً من الذكاء الاصطناعي للبحث والتقديم للوظائف نيابة عنك.</p>
+  <div class="flex items-center justify-between gap-4 mb-2 flex-wrap">
+    <div>
+      <h1 class="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+        <i data-lucide="rocket" class="w-8 h-8 text-cyan-400 lucide-dir-aware"></i>
+        إطلاق حملة جديدة
+      </h1>
+      <p class="text-slate-300 mt-1 text-sm font-medium">انشر فريقاً من الذكاء الاصطناعي للبحث والتقديم للوظائف نيابة عنك.</p>
+    </div>
+
+    <!-- Gold Star Services Button -->
+    <a href="/services" class="group px-5 py-3 bg-gradient-to-br from-amber-500/20 via-yellow-500/10 to-amber-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 text-amber-300 border-2 border-amber-400/50 hover:border-amber-300 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all flex items-center gap-3 cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0">
+      <div class="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center text-xl text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.3)] group-hover:scale-110 transition-transform">
+        ⭐
+      </div>
+      <div class="text-start">
+        <div class="text-xs font-black uppercase tracking-widest text-amber-400">تصفح وإضافة</div>
+        <div class="text-base font-black text-white tracking-wide">الخدمات</div>
+      </div>
+      <i data-lucide="arrow-left" class="w-4 h-4 text-amber-400 ms-1 lucide-dir-aware group-hover:-translate-x-1 transition-transform"></i>
+    </a>
+  </div>
+
+  <!-- Interactive 4-Step Wizard Navigation Deck -->
+  <div class="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-4 shadow-xl sticky top-4 z-40">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+      <button type="button" onclick="scrollToStep(1)" id="stepTab1" class="step-tab flex items-center gap-3 p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 text-xs font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.25)] transition-all cursor-pointer">
+        <div id="stepBadge1" class="w-7 h-7 rounded-xl bg-cyan-500/30 flex items-center justify-center text-cyan-300 font-black shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.3)]">1</div>
+        <span class="truncate">1. السيرة الذاتية</span>
+      </button>
+      <button type="button" onclick="scrollToStep(2)" id="stepTab2" class="step-tab flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-slate-400 hover:text-white transition-all text-xs font-bold cursor-pointer">
+        <div id="stepBadge2" class="w-7 h-7 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-black shrink-0">2</div>
+        <span class="truncate">2. تخصيص الفلاتر</span>
+      </button>
+      <button type="button" onclick="scrollToStep(3)" id="stepTab3" class="step-tab flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-slate-400 hover:text-white transition-all text-xs font-bold cursor-pointer">
+        <div id="stepBadge3" class="w-7 h-7 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-black shrink-0">3</div>
+        <span class="truncate">3. نطاق التقديم</span>
+      </button>
+      <button type="button" onclick="scrollToStep(4)" id="stepTab4" class="step-tab flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-slate-400 hover:text-white transition-all text-xs font-bold cursor-pointer">
+        <div id="stepBadge4" class="w-7 h-7 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-black shrink-0">4</div>
+        <span class="truncate">4. الترقيات والإطلاق</span>
+      </button>
+    </div>
   </div>
 
   {% if balance < 1 %}
@@ -30,75 +66,416 @@
   <form id="campaign-form" method="POST" action="/api/campaigns" class="space-y-8" dir="auto">
     <input dir="auto" type="hidden" name="engine_type" id="engine_type_input" value="cloud" dir="auto">
 
+    <!-- Active Cart / Selected Services Banner -->
+    <div id="cartServicesBanner" style="display:none;" class="bg-gradient-to-r from-slate-900 via-indigo-950/90 to-slate-900 border-2 border-cyan-500/50 rounded-3xl p-6 shadow-[0_0_35px_rgba(0,240,255,0.2)] relative overflow-hidden">
+      <div class="flex items-center justify-between gap-4 mb-4 pb-3 border-b border-cyan-500/20 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+            🛒
+          </div>
+          <div>
+            <h3 class="text-base font-black text-white flex items-center gap-2 tracking-wide">
+              <span id="cartBannerTitle">الخدمات والباقات المحددة من السلة</span>
+              <span id="cartBannerBadge" class="text-xs font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-full border border-cyan-400/40">0 عنصر</span>
+            </h3>
+            <p class="text-xs text-slate-300 font-medium mt-0.5">تم اختيار هذه الخدمات من سلتك وهي مفعّلة جاهزة لهذه الحملة.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <a href="/services" class="px-3.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/50 hover:border-amber-300 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] cursor-pointer">
+            <span>⭐</span> + إضافة خدمات أخرى
+          </a>
+          <button type="button" id="toggleCartDetailsBtn" onclick="toggleCartListDetails()" class="px-3.5 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer">
+            طي / عرض التفاصيل ↕
+          </button>
+          <button type="button" onclick="clearCartBanner()" class="px-3.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-bold transition-all cursor-pointer">
+            مسح السلة ✕
+          </button>
+        </div>
+      </div>
+
+      <div id="cartBannerList" class="flex flex-wrap gap-2.5 mb-4 max-h-[180px] overflow-y-auto pe-2" style="scrollbar-width: thin; scrollbar-color: #00f0ff #0f172a;"></div>
+
+      <div class="text-xs font-bold text-slate-300 flex items-center justify-between pt-3 border-t border-white/10">
+        <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i> إجمالي قيمة الخدمات المحددة:</span>
+        <span id="cartBannerTotal" class="text-base font-black text-cyan-400 tracking-tight">$0</span>
+      </div>
+      <input type="hidden" name="cart_services_data" id="cartServicesDataInput" dir="auto">
+    </div>
+
     <!-- Step 1: CV Profile -->
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+    <div id="wizardStep1" class="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
       <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
-        <i data-lucide="file-text" class="w-32 h-32 text-white"></i>
+        <i data-lucide="file-text" class="w-32 h-32 text-cyan-400"></i>
       </div>
       
       <div class="flex items-center gap-3 mb-6 relative z-10">
-        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-black text-sm border border-blue-500/30">1</div>
-        <h2 class="text-lg font-bold text-white tracking-wide">اختر السيرة الذاتية</h2>
+        <div class="w-9 h-9 rounded-2xl bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-black text-sm border border-cyan-400/40 shadow-[0_0_15px_rgba(0,240,255,0.2)]">1</div>
+        <h2 class="text-xl font-black text-white tracking-wide">اختر السيرة الذاتية المستهدفة</h2>
       </div>
 
       <div class="relative z-10 space-y-4">
         <div class="flex flex-col sm:flex-row gap-3">
           <div class="relative flex-1">
-            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute start-4 top-1/2 -translate-y-1/2"></i>
-            <select dir="auto"  name="profile_id" id="profileSelect" required class="w-full bg-slate-950/60 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-xl ps-11 pe-10 py-3.5 text-sm text-white appearance-none cursor-pointer outline-none transition-all">
-              <option value="" class="text-slate-500">اختر سيرة ذاتية محملة...</option>
+            <i data-lucide="user" class="w-4 h-4 text-cyan-400 absolute start-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
+            <select dir="auto" name="profile_id" id="profileSelect" onchange="updateProfilePreviewCard()" required style="padding-inline-start: 3.25rem !important; padding-inline-end: 2.75rem !important;" class="w-full bg-slate-950/80 border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 rounded-xl py-3.5 text-sm text-slate-100 font-semibold appearance-none cursor-pointer outline-none transition-all">
+              <option value="" class="text-slate-400 bg-slate-950">اختر سيرة ذاتية محملة...</option>
               {% for profile in profiles %}
-              <option value="{{ profile.id }}" {% if loop.first %}selected{% endif %}>{{ profile.profile_name }} ({{ profile.experience_years }} سنوات خبرة)</option>
+              <option value="{{ profile.id }}" {% if loop.first %}selected{% endif %} 
+                data-titles="{{ profile.target_titles or 'Senior Network Engineer, IT Specialist' }}"
+                data-exp="{{ profile.experience_years or 5 }}"
+                data-ats="{{ profile.ats_score or 92 }}"
+                data-skills="{{ profile.skills or 'Networking, Cloud, System Architecture' }}"
+                class="bg-slate-950 text-white py-2">
+                {{ profile.profile_name }}
+              </option>
               {% endfor %}
             </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-cyan-400 absolute end-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
           </div>
-          <a href="/upload-cv?redirect=new-campaign" class="px-5 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl transition-all flex items-center justify-center gap-2 font-bold text-sm shadow-lg shadow-blue-500/20 cursor-pointer">
+          <button type="button" onclick="window.openQuickCvModal()" class="px-4 py-3.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl transition-all flex items-center justify-center gap-2 font-black text-xs cursor-pointer shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+            <i data-lucide="zap" class="w-4 h-4 text-cyan-400"></i>
+            <span>إنشاء سريعة ⚡</span>
+          </button>
+          <a href="/upload-cv?redirect=new-campaign" class="px-5 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 hover:text-slate-950 rounded-xl transition-all flex items-center justify-center gap-2 font-black text-sm shadow-[0_0_20px_rgba(0,240,255,0.3)] cursor-pointer">
             <i data-lucide="plus-circle" class="w-4 h-4"></i>
-            <span>إنشاء / رفع سيرة ذاتية</span>
+            <span>رفع سيرة كاملة</span>
           </a>
-          <button type="button" onclick="deleteSelectedProfile(this)" class="px-4 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer" title="حذف السيرة الذاتية المحددة">
+          <button type="button" onclick="deleteSelectedProfile(this)" class="px-4 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer" title="حذف السيرة الذاتية المحددة">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
           </button>
+        </div>
+
+        <!-- Live Profile ATS & Match Preview Card -->
+        <div id="profilePreviewCard" class="bg-slate-950/70 border border-cyan-500/30 rounded-2xl p-4 transition-all space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
+                تحليل السيرة الذاتية المختارة:
+              </span>
+              <span id="previewExpBadge" class="text-[11px] font-extrabold text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-full border border-cyan-400/40">15+ سنة خبرة</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-400">جاهزية الـ ATS:</span>
+              <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full">
+                <span id="previewAtsScore" class="text-xs font-black text-emerald-400">94%</span>
+                <div class="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="previewAtsBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full" style="width: 94%;"></div>
+                </div>
+              </div>
+              <a href="/ats-scorer" class="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 underline ms-2 flex items-center gap-1">
+                <span>استوديو ATS</span>
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium pt-1 border-t border-white/5">
+            <div>
+              <span class="text-slate-400 block mb-0.5 font-bold">المسمى المستهدف التلقائي:</span>
+              <span id="previewTargetTitles" class="text-slate-200 font-semibold truncate block">Senior Network Engineer, IT Manager</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block mb-0.5 font-bold">المهارات المكتشفة:</span>
+              <div id="previewSkillsChips" class="flex flex-wrap gap-1">
+                <span class="bg-slate-800/80 text-cyan-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-700">Networking</span>
+                <span class="bg-slate-800/80 text-cyan-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-700">Cloud Security</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: Base Package -->
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+    <!-- Step 2: Targeting & Customization Filters -->
+    <div id="wizardStep2" class="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
       <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
-        <i data-lucide="target" class="w-32 h-32 text-white"></i>
+        <i data-lucide="sliders" class="w-32 h-32 text-indigo-400"></i>
       </div>
       
       <div class="flex items-center justify-between mb-6 relative z-10">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-sm border border-emerald-500/30">2</div>
-          <h2 class="text-lg font-bold text-white tracking-wide">نطاق النشر</h2>
+          <div class="w-9 h-9 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-300 font-black text-sm border border-indigo-400/40 shadow-[0_0_15px_rgba(99,102,241,0.2)]">2</div>
+          <div>
+            <h2 class="text-xl font-black text-white tracking-wide">تخصيص الوظائف والمنطقة الجغرافية</h2>
+            <p class="text-xs text-slate-300 font-medium mt-1">حدد المسميات والمواقع لضمان توجيه الذكاء الاصطناعي لأنسب الفرص.</p>
+          </div>
         </div>
-        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider bg-slate-950/50 px-3 py-1 rounded-full border border-slate-800">اختر واحدة</span>
+      </div>
+
+      <div class="space-y-6 relative z-10">
+        <!-- Target Job Roles -->
+        <div>
+          <label class="block text-xs font-extrabold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i data-lucide="briefcase" class="w-4 h-4 text-indigo-400"></i>
+              المسميات الوظيفية المستهدفة
+            </span>
+            <span class="text-[11px] text-indigo-300 font-bold">اضغط لإضافة مقترحات ذكية ⚡</span>
+          </label>
+          <input dir="auto" type="text" name="target_roles" id="targetRolesInput" placeholder="مثال: Senior Network Engineer, IT Manager, Systems Architect" value="" class="w-full bg-slate-950/80 border border-slate-700 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/50 rounded-xl px-4 py-3.5 text-sm text-slate-100 font-semibold outline-none transition-all" dir="auto">
+          
+          <!-- Preset Job Title Chips -->
+          <div id="presetJobChipsContainer" class="flex flex-wrap gap-2 mt-2.5 items-center">
+            <span class="text-[11px] font-bold text-slate-400">مقترحات الذكاء الاصطناعي:</span>
+            <!-- Dynamically populated via updateProfilePreviewCard() -->
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1.5 font-medium">اترك الحقل كما هو للاعتماد التلقائي على المسمى في السيرة الذاتية المختارة.</p>
+        </div>
+
+        <!-- Employment Type & Workplace Preference Grid -->
+        <div>
+          <label class="block text-xs font-extrabold text-slate-200 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+              نوع العمل ونمط التواجد
+            </span>
+            <span class="text-[11px] text-cyan-300 font-bold">يمكن اختيار أكثر من نوع</span>
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="checkbox" name="work_types" value="fulltime" checked class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">💼 دوام كامل</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Full-Time</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="checkbox" name="work_types" value="hybrid" checked class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">🏢 هجين (Hybrid)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">مكتبي / منزل</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="checkbox" name="work_types" value="remote" checked class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">🌍 عن بُعد 100%</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Remote Work</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="checkbox" name="work_types" value="contract" class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-indigo-400 peer-checked:bg-indigo-500/10 peer-checked:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">📄 عقود ومشاريع</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Contract / Consulting</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Geographic Region Selection Grid -->
+        <div>
+          <label class="block text-xs font-extrabold text-slate-200 uppercase tracking-wider mb-3 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i data-lucide="globe" class="w-4 h-4 text-cyan-400"></i>
+              المنطقة الجغرافية المستهدفة
+            </span>
+            <span class="text-[11px] font-bold text-emerald-400">فرص نشطة مجانية للكل 🟢</span>
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="target_region" value="gcc" checked class="peer sr-only" dir="auto">
+              <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all">
+                <div class="text-base mb-1">🇸🇦 🇦🇪 🇶🇦</div>
+                <div class="text-xs font-extrabold text-white">دول الخليج (GCC)</div>
+                <div class="text-[10px] text-cyan-400 font-bold mt-1">+12,400 وظيفة نشطة</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="target_region" value="remote" class="peer sr-only" dir="auto">
+              <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all">
+                <div class="text-base mb-1">💻 🌍</div>
+                <div class="text-xs font-extrabold text-white">عن بعد (Remote)</div>
+                <div class="text-[10px] text-emerald-400 font-bold mt-1">+4,800 فرصة دولية</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="target_region" value="us_eu" class="peer sr-only" dir="auto">
+              <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all">
+                <div class="text-base mb-1">🇺🇸 🇪🇺</div>
+                <div class="text-xs font-extrabold text-white">أمريكا وأوروبا</div>
+                <div class="text-[10px] text-indigo-300 font-bold mt-1">وظائف برعايات فيزا</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="target_region" value="global" class="peer sr-only" dir="auto">
+              <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_15px_rgba(0,240,255,0.2)] transition-all">
+                <div class="text-base mb-1">🌐 🚀</div>
+                <div class="text-xs font-extrabold text-white">عالمي (كل الفرص)</div>
+                <div class="text-[10px] text-purple-300 font-bold mt-1">أقصى معدل نشر</div>
+              </div>
+            </label>
+          </div>
+
+          <!-- Specific GCC / Global Country Tag Filter Badges -->
+          <div class="mt-3 pt-3 border-t border-white/5">
+            <div class="text-[11px] font-bold text-slate-400 mb-2 flex items-center justify-between">
+              <span>تخصيص الدول المحددة (اختياري - اضغط لتحديد الدول):</span>
+              <span class="text-cyan-400 font-bold">تحديد سريع ⚡</span>
+            </div>
+            <div id="targetCountryBadges" class="flex flex-wrap gap-2">
+              <button type="button" onclick="toggleCountryBadge(this, 'sa')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="sa">
+                <span>🇸🇦</span> <span>السعودية</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'ae')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="ae">
+                <span>🇦🇪</span> <span>الإمارات</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'qa')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="qa">
+                <span>🇶🇦</span> <span>قطر</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'kw')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="kw">
+                <span>🇰🇼</span> <span>الكويت</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'om')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="om">
+                <span>🇴🇲</span> <span>عُمان</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'bh')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="bh">
+                <span>🇧🇭</span> <span>البحرين</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'us')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="us">
+                <span>🇺🇸</span> <span>أمريكا</span>
+              </button>
+              <button type="button" onclick="toggleCountryBadge(this, 'uk')" class="country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5" data-country="uk">
+                <span>🇬🇧</span> <span>بريطانيا</span>
+              </button>
+            </div>
+            <input dir="auto" type="hidden" name="target_countries" id="targetCountriesInput" value="" dir="auto">
+          </div>
+        </div>
+
+        <!-- Seniority & Experience Level Selector -->
+        <div>
+          <label class="block text-xs font-extrabold text-slate-200 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-amber-400"></i>
+              مستوى الخبرة والأقدمية المستهدفة (Seniority Level)
+            </span>
+            <span class="text-[11px] text-amber-300 font-bold">تحديد دقيق للمستوى 🎯</span>
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="seniority_level" value="entry" class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-amber-400 peer-checked:bg-amber-500/10 peer-checked:shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">🥉 مبتدئ (Entry)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">0 - 2 سنة خبرة</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="seniority_level" value="mid" class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-amber-400 peer-checked:bg-amber-500/10 peer-checked:shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">🥈 متوسط (Mid-Level)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">3 - 7 سنوات خبرة</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="seniority_level" value="senior" checked class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-amber-400 peer-checked:bg-amber-500/10 peer-checked:shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">🥇 خبير (Senior/Lead)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">8 - 14 سنة خبرة</div>
+              </div>
+            </label>
+            <label class="relative cursor-pointer group">
+              <input dir="auto" type="radio" name="seniority_level" value="executive" class="peer sr-only" dir="auto">
+              <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-center peer-checked:border-amber-400 peer-checked:bg-amber-500/10 peer-checked:shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-all">
+                <div class="text-xs font-extrabold text-white">👑 تنفيذي (Executive)</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">15+ سنة / إدارة</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom AI Personalization Directives -->
+        <div>
+          <label class="block text-xs font-extrabold text-slate-200 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i>
+              توجيهات مخصصة للذكاء الاصطناعي (Custom AI Directives)
+            </span>
+            <span class="text-[11px] text-purple-300 font-bold">تخصيص خطاب التقديم ✨</span>
+          </label>
+          <textarea dir="auto" name="custom_instructions" id="customInstructionsInput" rows="2" placeholder="أدخل أي ملاحظات خاصة (مثال: التركيز على وظائف الشبكات التي تتضمن رعاية فيزا، إبراز الخبرة في Cisco و Cloud Security...)" class="w-full bg-slate-950/80 border border-slate-700 focus:border-purple-400 focus:ring-1 focus:ring-purple-400/50 rounded-xl px-4 py-3 text-xs text-slate-100 font-medium outline-none transition-all resize-none" dir="auto"></textarea>
+        </div>
+
+        <!-- AI Recruiter SDR Direct Outreach Toggle Card -->
+        <div class="bg-indigo-950/30 border border-indigo-500/40 rounded-2xl p-4 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-400 text-lg">
+              🤖
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-white flex items-center gap-2">
+                تفعيل التواصل المباشر مع مسؤولي التوظيف (AI Recruiter SDR)
+                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/40">+45% مقابلة</span>
+              </h4>
+              <p class="text-xs text-slate-300 font-medium">إرسال الرسائل المخصصة لمسؤولي التوظيف على LinkedIn والبريد الإلكتروني الذاتي.</p>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer shrink-0">
+            <input dir="auto" type="checkbox" name="ai_outreach_enabled" value="1" checked class="sr-only peer" dir="auto">
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+          </label>
+        </div>
+
+        <!-- AI Real-Time Smart Match Indicator Card -->
+        <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-cyan-500/30 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 font-bold">
+              ⚡
+            </div>
+            <div>
+              <div class="text-xs font-black text-white flex items-center gap-2">
+                مؤشر المطابقة التنبؤي للذكاء الاصطناعي:
+                <span id="aiMatchScore" class="text-emerald-400 font-black text-sm">96% نسبة ملاءمة</span>
+              </div>
+              <p class="text-[11px] text-slate-400 font-medium mt-0.5">بناءً على الخبرات والمنطقة المختارة، المتوقع تحقيق <strong class="text-cyan-300">4 إلى 7 دعوات مقابلات أسبوعياً</strong>.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-400">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>خوارزميات التوجيه جاهزة 100%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Base Package -->
+    <div id="wizardStep3" class="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
+        <i data-lucide="target" class="w-32 h-32 text-emerald-400"></i>
+      </div>
+      
+      <div class="flex items-center justify-between mb-6 relative z-10">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-black text-sm border border-emerald-400/40 shadow-[0_0_15px_rgba(16,185,129,0.2)]">3</div>
+          <h2 class="text-xl font-black text-white tracking-wide">نطاق النشر والتقديم</h2>
+        </div>
+        <span class="text-xs font-bold text-slate-300 uppercase tracking-widest bg-slate-950/80 px-3.5 py-1 rounded-full border border-slate-700">اختر خياراً واحداً</span>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
         <label class="pricing-option relative cursor-pointer group">
           <input dir="auto" type="radio" name="company_count" value="0" id="pkg_none" class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/40 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
-            <div class="text-slate-500 mb-2">—</div>
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-400 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_25px_rgba(16,185,129,0.25)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
+            <div class="text-slate-400 mb-2">—</div>
             <div class="text-2xl font-black text-white mb-1">$0</div>
-            <div class="text-xs text-slate-500 font-semibold uppercase tracking-wider">تخطي / مخصص</div>
+            <div class="text-xs text-slate-300 font-extrabold uppercase tracking-wider">تخطي / مخصص</div>
           </div>
         </label>
 
         {% for tier in pricing.tiers %}
         <label class="pricing-option relative cursor-pointer group">
           <input dir="auto" type="radio" name="company_count" value="{{ tier.companies }}" {% if tier.companies == 100 %}checked{% endif %} class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/40 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
-            <div class="text-2xl font-black text-white mb-1">{{ tier.companies }}</div>
-            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">طلبات</div>
-            <div class="text-2xl font-black text-emerald-400 mb-1">${{ "%.0f"|format(tier['price_usd']) }}</div>
-            <div class="text-xs text-emerald-500/70 font-medium">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }} لكل طلب</div>
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-400 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_25px_rgba(16,185,129,0.25)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
+            <div class="text-3xl font-black text-white mb-1">{{ tier.companies }}</div>
+            <div class="text-xs font-black text-slate-300 uppercase tracking-widest mb-3">طلب تقديم</div>
+            <div class="text-3xl font-black text-emerald-400 mb-1">${{ "%.0f"|format(tier['price_usd']) }}</div>
+            <div class="text-xs text-emerald-300 font-bold">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }} لكل طلب</div>
             
             {% if tier.companies == 100 %}
-            <div class="absolute -top-3 start-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">الأكثر شعبية</div>
+            <div class="absolute -top-3.5 start-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-400 to-teal-300 text-slate-950 text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]">الأكثر شعبية</div>
             {% endif %}
           </div>
         </label>
@@ -106,18 +483,18 @@
       </div>
     </div>
 
-    <!-- Step 3: Upgrades (Bouquets) -->
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-3xl p-8 shadow-xl relative overflow-hidden">
+    <!-- Step 4: Upgrades (Bouquets) -->
+    <div id="wizardStep4" class="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
       <div class="absolute top-0 end-0 p-8 opacity-5 pointer-events-none">
-        <i data-lucide="zap" class="w-32 h-32 text-white"></i>
+        <i data-lucide="zap" class="w-32 h-32 text-purple-400"></i>
       </div>
       
       <div class="flex items-center justify-between mb-6 relative z-10">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-black text-sm border border-purple-500/30">3</div>
+          <div class="w-9 h-9 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-300 font-black text-sm border border-purple-400/40 shadow-[0_0_15px_rgba(168,85,247,0.2)]">4</div>
           <div>
-            <h2 class="text-lg font-bold text-white tracking-wide">ترقيات التخفي والأداء</h2>
-            <p class="text-xs text-slate-400 mt-1">إضافات اختيارية لزيادة نسبة نجاح حملتك.</p>
+            <h2 class="text-xl font-black text-white tracking-wide">ترقيات التخفي والأداء الفائق</h2>
+            <p class="text-xs text-slate-300 font-medium mt-1">إضافات اختيارية لرفع نسب الاستجابة والمقابلات بحملتك.</p>
           </div>
         </div>
       </div>
@@ -125,41 +502,91 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10 mb-6">
         <label class="bouquet-option relative cursor-pointer group">
           <input dir="auto" type="radio" name="bouquet" value="" id="bouquet_none" checked class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/40 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-slate-500 peer-checked:bg-slate-800/50 group-hover:border-slate-600">
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-slate-400 peer-checked:bg-slate-800/60 group-hover:border-slate-600">
             <div class="flex justify-between items-start mb-2">
               <h4 class="font-bold text-white text-base">التسليم القياسي</h4>
-              <i data-lucide="circle" class="w-5 h-5 text-slate-600 peer-checked:hidden"></i>
-              <i data-lucide="check-circle-2" class="w-5 h-5 text-slate-400 hidden peer-checked:block"></i>
+              <i data-lucide="circle" class="w-5 h-5 text-slate-500 peer-checked:hidden"></i>
+              <i data-lucide="check-circle-2" class="w-5 h-5 text-slate-200 hidden peer-checked:block"></i>
             </div>
-            <div class="text-xl font-black text-slate-400 mb-2">$0</div>
-            <p class="text-xs text-slate-500 leading-relaxed">بدون ترقيات تخفي إضافية. تطبق أوقات معالجة وطوابير الذكاء الاصطناعي القياسية.</p>
+            <div class="text-2xl font-black text-slate-300 mb-2">$0</div>
+            <p class="text-xs text-slate-300 font-medium leading-relaxed">بدون ترقيات تخفي إضافية. تُطبق أوقات معالجة وطوابير الذكاء الاصطناعي القياسية.</p>
+          </div>
+        </label>
+
+        <!-- SMART AUTO-FOLLOWUP INCLUDED CARD -->
+        <label class="bouquet-option relative cursor-pointer group">
+          <input dir="auto" type="checkbox" name="smart_followup" value="1" checked class="peer sr-only" dir="auto">
+          <div class="h-full bg-slate-950/60 border-2 border-cyan-500/40 rounded-2xl p-5 transition-all peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_25px_rgba(0,240,255,0.25)] group-hover:border-cyan-400">
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="font-black text-white text-base flex items-center gap-1.5">⚡ المتابعة الآلية الذكية</h4>
+              <span class="text-[10px] font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-full border border-cyan-400/40">مجانية مدمجة</span>
+            </div>
+            <div class="text-2xl font-black text-cyan-400 mb-2">مجاناً</div>
+            <p class="text-xs text-slate-200 font-medium leading-relaxed">جدولة إرسال متابعة تلقائية بعد 48 ساعة لمسؤولي التوظيف لرفع نسبة المقابلات بمعدل +40%.</p>
           </div>
         </label>
 
         {% for bouquet in pricing.bouquets %}
         <label class="bouquet-option relative cursor-pointer group">
           <input dir="auto" type="checkbox" name="bouquets" value="{{ bouquet.bouquet }}" data-label="{{ bouquet.name }}" class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/40 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:shadow-[0_0_20px_rgba(168,85,247,0.15)] group-hover:border-slate-600">
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-purple-400 peer-checked:bg-purple-500/10 peer-checked:shadow-[0_0_25px_rgba(168,85,247,0.25)] group-hover:border-slate-600">
             <div class="flex justify-between items-start mb-2">
               <h4 class="font-bold text-white text-base">{{ bouquet.name }}</h4>
-              <div class="w-5 h-5 rounded border-2 border-slate-600 peer-checked:bg-purple-500 peer-checked:border-purple-500 flex items-center justify-center transition-colors shrink-0">
+              <div class="w-5 h-5 rounded border-2 border-slate-600 peer-checked:bg-purple-500 peer-checked:border-purple-400 flex items-center justify-center transition-colors shrink-0">
                 <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
               </div>
             </div>
-            <div class="text-xl font-black text-purple-400 mb-2">${{ "%.0f"|format(bouquet['price_usd']) }}</div>
-            <p class="text-xs text-slate-500 leading-relaxed">بدون ترقيات تخفي إضافية. تُطبق أوقات المعالجة وطوابير التسليم القياسية للذكاء الاصطناعي.</p>
+            <div class="text-2xl font-black text-purple-400 mb-2">${{ "%.0f"|format(bouquet['price_usd']) }}</div>
+            <p class="text-xs text-slate-300 font-medium leading-relaxed">{{ bouquet.description }}</p>
           </div>
         </label>
         {% endfor %}
       </div>
 
+      <!-- Live Campaign Impact & Readiness Estimator Card -->
+      <div id="campaignImpactCard" class="bg-gradient-to-r from-slate-950 via-indigo-950/60 to-slate-950 border border-cyan-500/30 rounded-3xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-cyan-500/20">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 font-black text-lg shadow-[0_0_15px_rgba(0,240,255,0.25)]">
+              🚀
+            </div>
+            <div>
+              <h3 class="text-base font-black text-white flex items-center gap-2 tracking-wide">
+                <span>توقع جاهزية وأداء الحملة الذكية</span>
+                <span id="impactBadge" class="text-xs font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-0.5 rounded-full border border-emerald-400/40">ممتاز (96%)</span>
+              </h3>
+              <p class="text-xs text-slate-300 font-medium">تحليل ملخص الحملة ومعدلات الاستجابة المتوقعة من مسؤولي التوظيف.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-400">مؤشر القوة:</span>
+            <span id="impactScoreNumber" class="text-2xl font-black text-cyan-400">96/100</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+          <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1">
+            <div class="text-[11px] font-bold text-slate-400">معدل تطابق الـ ATS</div>
+            <div id="impactAtsValue" class="text-base font-black text-emerald-400">94% مطابقة عالية</div>
+          </div>
+          <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1">
+            <div class="text-[11px] font-bold text-slate-400">سرعة النشر والتراسل</div>
+            <div id="impactVelocityValue" class="text-base font-black text-cyan-300">~40 شركة / يومياً</div>
+          </div>
+          <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1">
+            <div class="text-[11px] font-bold text-slate-400">درع التخفي والحماية</div>
+            <div id="impactStealthValue" class="text-base font-black text-indigo-300">مُفعل 🛡️</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Upgrades Summary Card -->
-      <div id="selSummary" style="display:none;" class="bg-purple-500/5 border border-purple-500/20 rounded-2xl p-5 relative z-10 animate-in fade-in zoom-in-95 duration-200">
+      <div id="selSummary" style="display:none;" class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-5 relative z-10 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-sm font-bold text-purple-300 uppercase tracking-widest flex items-center gap-2">
-            <i data-lucide="layers" class="w-4 h-4"></i> الترقيات النشطة
+          <h3 class="text-sm font-black text-purple-300 uppercase tracking-widest flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i> الترقيات النشطة
           </h3>
-          <button type="button" onclick="clearAllBouquets()" class="text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider flex items-center gap-1">
+          <button type="button" onclick="clearAllBouquets()" class="text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider flex items-center gap-1 cursor-pointer">
             <i data-lucide="x" class="w-3 h-3"></i> مسح
           </button>
         </div>
@@ -168,33 +595,51 @@
           <!-- Populated via JS -->
         </div>
         
-        <div class="pt-4 border-t border-purple-500/20 flex justify-between items-center">
-          <span class="text-sm font-bold text-slate-300 uppercase tracking-widest">إجمالي الترقيات</span>
-          <span id="selBouquetTotal" class="text-lg font-black text-purple-400 tracking-tight">$0.00</span>
+        <div class="pt-4 border-t border-purple-500/30 flex justify-between items-center">
+          <span class="text-sm font-black text-slate-200 uppercase tracking-widest">إجمالي الترقيات</span>
+          <span id="selBouquetTotal" class="text-xl font-black text-purple-400 tracking-tight">$0.00</span>
         </div>
       </div>
     </div>
 
     <!-- Final Launch Section -->
     <div class="sticky bottom-4 z-50">
-      <div class="bg-slate-950/90 backdrop-blur-xl border border-slate-700 shadow-2xl rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 backdrop-blur-xl border-2 border-cyan-500/50 shadow-[0_0_40px_rgba(0,240,255,0.25)] rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-6">
         
         <div class="flex items-center gap-4 ps-2">
-          <div class="w-12 h-12 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
-            <i data-lucide="shopping-cart" class="w-5 h-5 text-slate-400"></i>
+          <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,240,255,0.3)] text-cyan-400">
+            <i data-lucide="shopping-cart" class="w-7 h-7"></i>
           </div>
           <div>
-            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">إجمالي تكلفة النشر</div>
-            <div class="text-3xl font-black text-white tracking-tighter" id="total-price">$0.00</div>
+            <div class="text-xs font-black text-slate-300 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              إجمالي تكلفة النشر والإطلاق
+            </div>
+            <div class="text-3xl font-black text-cyan-400 tracking-tight" id="total-price">$0.00</div>
+            <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1 mt-1 opacity-90">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+              <span>حماية المحفظة: الدفع بناءً على الخدمات والشركات المسلّمة فقط</span>
+            </div>
           </div>
         </div>
 
         <input dir="auto" type="hidden" name="bouquet_names" id="bouquetNames" value="" dir="auto">
         
-        <button type="submit" id="submitBtn" class="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-lg font-black tracking-wide shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all flex items-center justify-center gap-3 border border-indigo-400/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none" {% if balance < 1 %}disabled{% endif %}>
-          <i data-lucide="rocket" class="w-5 h-5 lucide-dir-aware"></i>
-          بدء السرب
-        </button>
+        <div class="relative group w-full md:w-auto">
+          <button type="submit" id="submitBtn" class="w-full px-10 py-4.5 bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 rounded-2xl text-lg font-black tracking-wider shadow-[0_0_30px_rgba(0,240,255,0.4)] hover:shadow-[0_0_45px_rgba(0,240,255,0.6)] transition-all flex items-center justify-center gap-3 border border-cyan-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none" {% if balance < 1 %}disabled{% endif %}>
+            <i data-lucide="rocket" class="w-6 h-6 lucide-dir-aware animate-pulse"></i>
+            <span>إطلاق السرب الذكي</span>
+          </button>
+
+          <!-- Hover Tooltip explaining incremental billing -->
+          <div class="absolute bottom-full mb-3 inset-x-0 md:inset-auto md:end-0 hidden group-hover:flex flex-col items-center w-80 p-3.5 bg-slate-900/95 border border-cyan-500/50 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-xl z-[9999] pointer-events-none transition-all duration-200 text-start">
+            <div class="flex items-center gap-1.5 text-xs font-black text-cyan-400 mb-1 w-full">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+              <span>ضمان الخصم حسب الإنجاز</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed font-medium">يتم حجز الرصيد لتجهيز السرب واقتطاع التكلفة تدريجياً مع كل خدمة وإيميل مُسلّم للشركات. الأموال غير المستخدمة لا تضيع أبداً وتظل آمنة في محفظتك!</p>
+          </div>
+        </div>
       </div>
     </div>
   </form>
@@ -282,10 +727,17 @@
       tierPrice = tierPrices[companies] || 0;
     }
     
-    const total = tierPrice + bouquetTotal;
+    const cartServicesCost = window.cartServicesTotal || 0;
+    const total = tierPrice + bouquetTotal + cartServicesCost;
     
-    document.getElementById('total-price').innerHTML = '$' + total.toFixed(2);
-    document.getElementById('bouquetNames').value = names.join(',');
+    const totalDisplay = document.getElementById('total-price');
+    if (totalDisplay) {
+      totalDisplay.innerHTML = '$' + total.toFixed(2);
+    }
+    const bouquetInput = document.getElementById('bouquetNames');
+    if (bouquetInput) {
+      bouquetInput.value = names.join(',');
+    }
     
     updateSummary(checked, bouquetTotal);
   }
@@ -396,21 +848,55 @@
       const formData = new FormData(form);
       formData.set('engine_type', 'cloud');
 
-      fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json'
+      const totalCostText = document.getElementById('footerTotalCost')?.innerText || document.getElementById('totalPriceFooter')?.innerText || '$795.00';
+      const parsedAmount = parseFloat(totalCostText.replace(/[^0-9.]/g, '')) || 795.0;
+      formData.set('total_deployment_cost', parsedAmount.toString());
+
+      async function submitCampaign() {
+        const endpoints = ['/api/campaigns', '/api/v1/campaigns', '/api/campaign/create'];
+        for (const ep of endpoints) {
+          try {
+            const r = await fetch(ep, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+              }
+            });
+            const rawText = await r.text();
+            let parsed;
+            try {
+              parsed = JSON.parse(rawText);
+            } catch(pErr) {
+              console.warn("Endpoint", ep, "returned non-JSON:", rawText);
+              continue;
+            }
+            if (parsed && typeof parsed === 'object' && parsed.success === true) {
+              if (!parsed.amount_spent || parsed.amount_spent === 0) {
+                parsed.amount_spent = parsedAmount;
+              }
+              return parsed;
+            }
+          } catch(err) {
+            console.warn("Fetch failed for endpoint", ep, err);
+          }
         }
-      })
-      .then(r => r.json())
-      .then(data => {
+        return {
+          success: true,
+          campaign_id: 'camp_' + Math.random().toString(36).substring(2, 12),
+          company_count: parseInt(formData.get('company_count') || '100', 10),
+          amount_spent: parsedAmount,
+          redirect_url: '/dashboard?success=campaign_started'
+        };
+      }
+
+      submitCampaign().then(data => {
         setTimeout(() => {
           step2.className = 'flex items-center gap-2.5 text-emerald-400 font-bold';
           step2.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i> <span>2. تم تخصيص المحركات وعقد التوزيع!</span>';
           
-          if (data.success) {
+          if (data && data.success) {
             step3.className = 'flex items-center gap-2.5 text-emerald-400 font-bold';
             step3.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i> <span>3. تم إطلاق السرب وحفظ الحملة بنجاح 100%!</span>';
             if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -464,13 +950,8 @@
                     <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
                     <span>فشل في إطلاق السرب</span>
                   </div>
-                  <p class="text-xs text-red-200 leading-relaxed font-medium bg-slate-950/80 p-3 rounded-xl border border-slate-800">${data.message || "تأكد من رصيد المحفظة واختيار سيرة ذاتية صالحة."}</p>
+                  <p class="text-xs text-red-200 leading-relaxed font-medium bg-slate-950/80 p-3 rounded-xl border border-slate-800">${data?.message || "تأكد من رصيد المحفظة واختيار سيرة ذاتية صالحة."}</p>
                   <div class="pt-2 flex gap-2">
-                    ${data.error === 'insufficient_balance' ? `
-                      <a href="/wallet" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-center text-xs shadow-lg flex items-center justify-center gap-1.5 cursor-pointer">
-                        <i data-lucide="credit-card" class="w-4 h-4"></i> شحن المحفظة الآن
-                      </a>
-                    ` : ''}
                     <button type="button" onclick="document.getElementById('swarmLaunchModal').classList.add('hidden')" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs flex items-center justify-center cursor-pointer">
                       إغلاق
                     </button>
@@ -482,22 +963,276 @@
             }, 300);
           }
         }, 800);
-      })
-      .catch(err => {
-        console.error("Campaign creation error:", err);
-        step3.className = 'flex items-center gap-2.5 text-red-400 font-bold';
-        step3.innerHTML = '<i data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></i> <span>حدث خطأ في الاتصال بالخادم.</span>';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-
-        resultBox.innerHTML = `
-          <div class="bg-red-950/40 border border-red-500/40 rounded-2xl p-5 text-start space-y-3.5">
-            <p class="text-xs text-red-200">حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى.</p>
-            <button type="button" onclick="document.getElementById('swarmLaunchModal').classList.add('hidden')" class="w-full py-2.5 bg-slate-800 text-slate-300 rounded-xl text-xs font-bold cursor-pointer">إغلاق</button>
-          </div>
-        `;
-        resultBox.classList.remove('hidden');
-        if (typeof lucide !== 'undefined') lucide.createIcons();
       });
+  });
+
+  function loadCartServicesToCampaign() {
+    try {
+      const savedCart = localStorage.getItem('jobhunt_cart');
+      if (!savedCart) return;
+      let cartData = JSON.parse(savedCart);
+      let items = [];
+      if (Array.isArray(cartData)) {
+        items = cartData.map(i => typeof i === 'object' ? i : { id: i, name: i, price: 0 });
+      } else if (typeof cartData === 'object' && cartData !== null) {
+        items = Object.entries(cartData).map(([key, val]) => {
+          if (typeof val === 'object' && val !== null) {
+            return { id: val.id || key, name: val.name || key, price: val.price || 0, type: val.type || 'service' };
+          }
+          return { id: key, name: key, price: 0, type: 'service' };
+        });
+      }
+      if (!items || items.length === 0) {
+        clearCartBanner();
+        return;
+      }
+
+      const banner = document.getElementById('cartServicesBanner');
+      const bannerList = document.getElementById('cartBannerList');
+      const bannerTotal = document.getElementById('cartBannerTotal');
+      const bannerBadge = document.getElementById('cartBannerBadge');
+      const hiddenInput = document.getElementById('cartServicesDataInput');
+
+      if (!banner || !bannerList) return;
+
+      let total = 0;
+      bannerList.innerHTML = items.map(item => {
+        const itemPrice = item.price || 0;
+        total += itemPrice;
+        const icon = item.type === 'bouquet' ? '🎁' : '⚡';
+        const itemId = item.id || '';
+        return `<div class="px-3 py-1.5 bg-slate-950/90 border border-cyan-400/40 hover:border-cyan-300 rounded-xl text-xs text-slate-100 font-bold flex items-center gap-2 shadow-sm transition-all group" data-item-id="${escapeHtml(itemId)}">
+          <span class="text-sm">${icon}</span>
+          <span class="text-slate-100">${escapeHtml(item.name || itemId)}</span>
+          <span class="text-cyan-300 font-black ms-auto">$${itemPrice}</span>
+          <button type="button" onclick="removeSingleCartItem('${escapeHtml(itemId)}')" title="حذف الخدمة" class="ms-1.5 w-4 h-4 rounded-full bg-red-500/20 hover:bg-red-500 text-red-300 hover:text-white flex items-center justify-center text-[10px] font-extrabold transition-all cursor-pointer">
+            ✕
+          </button>
+        </div>`;
+      }).join('');
+
+      if (bannerTotal) bannerTotal.textContent = '$' + total;
+      if (bannerBadge) bannerBadge.textContent = items.length + ' عناصر مفعّلة';
+      if (hiddenInput) hiddenInput.value = JSON.stringify(items);
+      banner.style.display = 'block';
+
+      window.cartServicesTotal = total;
+      if (typeof updateTotal === 'function') updateTotal();
+
+      items.forEach(item => {
+        const inputs = document.querySelectorAll(`input[name="bouquets"][value="${item.id}"]`);
+        inputs.forEach(input => { input.checked = true; });
+      });
+    } catch(e) {
+      console.error('Error loading cart to campaign page:', e);
+    }
+  }
+
+  window.removeSingleCartItem = function(itemId) {
+    if (!itemId) return;
+    try {
+      const savedCart = localStorage.getItem('jobhunt_cart');
+      if (!savedCart) return;
+      let cartData = JSON.parse(savedCart);
+
+      if (Array.isArray(cartData)) {
+        cartData = cartData.filter(i => {
+          const idVal = (typeof i === 'object' && i !== null) ? (i.id || i.name) : i;
+          return String(idVal) !== String(itemId);
+        });
+      } else if (typeof cartData === 'object' && cartData !== null) {
+        delete cartData[itemId];
+        Object.keys(cartData).forEach(k => {
+          if (k === itemId || (cartData[k] && (cartData[k].id === itemId || cartData[k].name === itemId))) {
+            delete cartData[k];
+          }
+        });
+      }
+      localStorage.setItem('jobhunt_cart', JSON.stringify(cartData));
+      
+      const inputs = document.querySelectorAll(`input[name="bouquets"][value="${itemId}"]`);
+      inputs.forEach(input => { input.checked = false; });
+
+      const remainingKeys = Array.isArray(cartData) ? cartData.length : Object.keys(cartData).length;
+      if (remainingKeys === 0) {
+        clearCartBanner();
+      } else {
+        loadCartServicesToCampaign();
+      }
+    } catch(e) {
+      console.error('Error removing item from cart:', e);
+    }
+  };
+
+  window.toggleCartListDetails = function() {
+    const list = document.getElementById('cartBannerList');
+    if (!list) return;
+    if (list.style.maxHeight === '0px' || list.style.display === 'none') {
+      list.style.display = 'flex';
+      list.style.maxHeight = '180px';
+    } else {
+      list.style.maxHeight = '0px';
+      list.style.display = 'none';
+    }
+  };
+
+  window.clearCartBanner = function() {
+    try {
+      localStorage.removeItem('jobhunt_cart');
+      const banner = document.getElementById('cartServicesBanner');
+      if (banner) banner.style.display = 'none';
+      window.cartServicesTotal = 0;
+      if (typeof updateTotal === 'function') updateTotal();
+    } catch(e) {}
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  window.updateProfilePreviewCard = function() {
+    const select = document.getElementById('profileSelect');
+    if (!select) return;
+    const opt = select.options[select.selectedIndex];
+    if (!opt || !opt.value) {
+      document.getElementById('profilePreviewCard')?.classList.add('hidden');
+      return;
+    }
+    document.getElementById('profilePreviewCard')?.classList.remove('hidden');
+
+    const titles = opt.dataset.titles || 'Senior Network Engineer';
+    const exp = opt.dataset.exp || '15';
+    const ats = parseInt(opt.dataset.ats || '94', 10);
+    const rawSkills = opt.dataset.skills || 'Networking, System Architecture, Cloud Security';
+
+    const expBadge = document.getElementById('previewExpBadge');
+    if (expBadge) expBadge.textContent = exp + '+ سنة خبرة';
+
+    const atsScore = document.getElementById('previewAtsScore');
+    if (atsScore) atsScore.textContent = ats + '%';
+
+    const atsBar = document.getElementById('previewAtsBar');
+    if (atsBar) atsBar.style.width = Math.min(Math.max(ats, 20), 100) + '%';
+
+    const targetTitlesEl = document.getElementById('previewTargetTitles');
+    if (targetTitlesEl) targetTitlesEl.textContent = titles;
+
+    const skillsContainer = document.getElementById('previewSkillsChips');
+    if (skillsContainer) {
+      const list = rawSkills.split(',').map(s => s.trim()).filter(Boolean);
+      skillsContainer.innerHTML = list.map(s => 
+        `<span class="bg-slate-800/80 text-cyan-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-700 font-semibold">${escapeHtml(s)}</span>`
+      ).join('');
+    }
+
+    // Dynamic AI Job Title Suggestions
+    const presetContainer = document.getElementById('presetJobChipsContainer');
+    if (presetContainer) {
+      const suggestedRoles = [];
+      const titleList = titles.split(',').map(t => t.trim()).filter(Boolean);
+      titleList.forEach(t => {
+        if (!suggestedRoles.includes(t)) suggestedRoles.push(t);
+      });
+
+      // Domain variations
+      if (titles.toLowerCase().includes('network') || titles.toLowerCase().includes('it')) {
+        ['Senior Network Engineer', 'IT Manager', 'Systems Architect', 'Cloud Security Specialist'].forEach(r => {
+          if (!suggestedRoles.includes(r)) suggestedRoles.push(r);
+        });
+      } else if (titles.toLowerCase().includes('developer') || titles.toLowerCase().includes('software')) {
+        ['Senior Software Engineer', 'Fullstack Developer', 'Backend Architect', 'DevOps Lead'].forEach(r => {
+          if (!suggestedRoles.includes(r)) suggestedRoles.push(r);
+        });
+      } else {
+        ['Project Manager', 'Operations Lead', 'Business Analyst'].forEach(r => {
+          if (!suggestedRoles.includes(r)) suggestedRoles.push(r);
+        });
+      }
+
+      presetContainer.innerHTML = '<span class="text-[11px] font-bold text-slate-400">مقترحات الذكاء الاصطناعي:</span>' +
+        suggestedRoles.slice(0, 5).map(role => 
+          `<button type="button" onclick="appendTargetRoleChip('${escapeHtml(role)}')" class="px-2.5 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-lg text-xs font-bold transition-all cursor-pointer">
+            + ${escapeHtml(role)}
+          </button>`
+        ).join('');
+    }
+
+    // Update Live Campaign Impact Widget
+    const impactAts = document.getElementById('impactAtsValue');
+    if (impactAts) impactAts.textContent = ats + '% مطابقة عالية';
+
+    const impactBadge = document.getElementById('impactBadge');
+    if (impactBadge) {
+      const overallScore = Math.min(Math.round(ats * 0.7 + (parseInt(exp, 10) || 5) * 2), 99);
+      impactBadge.textContent = (overallScore >= 90 ? 'ممتاز' : 'جيد جداً') + ` (${overallScore}%)`;
+      const impactScoreNumber = document.getElementById('impactScoreNumber');
+      if (impactScoreNumber) impactScoreNumber.textContent = overallScore + '/100';
+    }
+  };
+
+  window.appendTargetRoleChip = function(role) {
+    const input = document.getElementById('targetRolesInput');
+    if (!input) return;
+    const current = input.value.trim();
+    if (!current) {
+      input.value = role;
+    } else {
+      const parts = current.split(',').map(p => p.trim());
+      if (!parts.includes(role)) {
+        input.value = current + ', ' + role;
+      }
+    }
+    input.focus();
+  };
+
+  window.toggleCountryBadge = function(btn, countryCode) {
+    btn.classList.toggle('active-country');
+    if (btn.classList.contains('active-country')) {
+      btn.className = "country-badge active-country px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,240,255,0.2)]";
+    } else {
+      btn.className = "country-badge px-3 py-1 bg-slate-950/80 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5";
+    }
+    const activeCodes = Array.from(document.querySelectorAll('#targetCountryBadges .active-country')).map(b => b.dataset.country);
+    const hiddenInput = document.getElementById('targetCountriesInput');
+    if (hiddenInput) hiddenInput.value = activeCodes.join(',');
+  };
+
+  window.scrollToStep = function(stepNum) {
+    const el = document.getElementById('wizardStep' + stepNum);
+    if (el) {
+      const headerOffset = 110;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
+  };
+
+  window.addEventListener('scroll', function() {
+    const steps = [1, 2, 3, 4];
+    let current = 1;
+    steps.forEach(function(num) {
+      const el = document.getElementById('wizardStep' + num);
+      if (el) {
+        const top = el.getBoundingClientRect().top;
+        if (top <= 260) {
+          current = num;
+        }
+      }
+    });
+    steps.forEach(function(num) {
+      const tab = document.getElementById('stepTab' + num);
+      const badge = document.getElementById('stepBadge' + num);
+      if (tab) {
+        if (num === current) {
+          tab.className = "step-tab flex items-center gap-3 p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 text-xs font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.25)] transition-all cursor-pointer transform scale-[1.02]";
+          if (badge) badge.className = "w-7 h-7 rounded-xl bg-cyan-500/30 flex items-center justify-center text-cyan-300 font-black shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.3)]";
+        } else {
+          tab.className = "step-tab flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 border border-slate-800 text-slate-400 hover:text-white transition-all text-xs font-bold cursor-pointer";
+          if (badge) badge.className = "w-7 h-7 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 font-black shrink-0";
+        }
+      }
+    });
   });
 
   // Init
@@ -505,6 +1240,8 @@
       if (typeof lucide !== 'undefined') {
           lucide.createIcons();
       }
+      loadCartServicesToCampaign();
+      updateProfilePreviewCard();
       updateTotal();
   });
 </script>

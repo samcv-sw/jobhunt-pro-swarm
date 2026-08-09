@@ -4,9 +4,10 @@ Extracted from app_v2.py - Phase 1 Refactor
 """
 import logging
 import os
+import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Form, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
@@ -571,6 +572,117 @@ def admin_generate_code(
         pass  # conn.close()
         codes_str = ', '.join(codes)
         return RedirectResponse(f"/admin?success=Generated+{len(codes)}+codes:+{codes_str}", status_code=303)
+
+
+@router.post("/admin/delete-code")
+async def admin_delete_single_code(request: Request, code: str = Form(...)):
+    """Delete a single redeem code."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+    with get_db() as conn:
+        conn.execute("DELETE FROM redeem_codes WHERE code = ?", (code.strip(),))
+        conn.commit()
+    return RedirectResponse(f"/admin?success=Deleted+code+{code}", status_code=303)
+
+
+@router.post("/admin/delete-codes")
+async def admin_delete_codes(request: Request):
+    """Delete selected redeem codes (bulk)."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+
+    form = await request.form()
+    codes_list = form.getlist("codes")
+    if not codes_list:
+        raw = form.get("codes", "")
+        if raw:
+            codes_list = [c.strip() for c in str(raw).split(",") if c.strip()]
+
+    if codes_list:
+        with get_db() as conn:
+            placeholders = ",".join("?" for _ in codes_list)
+            conn.execute(f"DELETE FROM redeem_codes WHERE code IN ({placeholders})", tuple(codes_list))
+            conn.commit()
+        return RedirectResponse(f"/admin?success=Deleted+{len(codes_list)}+redeem+codes", status_code=303)
+    return RedirectResponse("/admin", status_code=303)
+
+
+@router.post("/admin/delete-user")
+async def admin_delete_single_user(request: Request, target_user_id: str = Form(...)):
+    """Delete a single user."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+    with get_db() as conn:
+        conn.execute("DELETE FROM users WHERE user_id = ? AND user_type != 'admin'", (target_user_id.strip(),))
+        conn.commit()
+    return RedirectResponse(f"/admin?success=User+deleted+successfully", status_code=303)
+
+
+@router.post("/admin/delete-users")
+async def admin_delete_users(request: Request):
+    """Delete selected users (bulk)."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+
+    form = await request.form()
+    user_ids = form.getlist("user_ids")
+    if not user_ids:
+        raw = form.get("user_ids", "")
+        if raw:
+            user_ids = [u.strip() for u in str(raw).split(",") if u.strip()]
+
+    if user_ids:
+        with get_db() as conn:
+            placeholders = ",".join("?" for _ in user_ids)
+            conn.execute(f"DELETE FROM users WHERE user_id IN ({placeholders}) AND user_type != 'admin'", tuple(user_ids))
+            conn.commit()
+        return RedirectResponse(f"/admin?success=Deleted+{len(user_ids)}+users", status_code=303)
+    return RedirectResponse("/admin", status_code=303)
+
+
+@router.post("/admin/delete-campaign")
+async def admin_delete_single_campaign(request: Request, campaign_id: str = Form(...)):
+    """Delete a single campaign."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+    with get_db() as conn:
+        conn.execute("DELETE FROM campaigns WHERE campaign_id = ?", (campaign_id.strip(),))
+        conn.commit()
+    return RedirectResponse(f"/admin?success=Campaign+deleted+successfully", status_code=303)
+
+
+@router.post("/admin/delete-campaigns")
+async def admin_delete_campaigns(request: Request):
+    """Delete selected campaigns (bulk)."""
+    get_db, get_verified_user_id, _, _, _, _ = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+
+    form = await request.form()
+    campaign_ids = form.getlist("campaign_ids")
+    if not campaign_ids:
+        raw = form.get("campaign_ids", "")
+        if raw:
+            campaign_ids = [c.strip() for c in str(raw).split(",") if c.strip()]
+
+    if campaign_ids:
+        with get_db() as conn:
+            placeholders = ",".join("?" for _ in campaign_ids)
+            conn.execute(f"DELETE FROM campaigns WHERE campaign_id IN ({placeholders})", tuple(campaign_ids))
+            conn.commit()
+        return RedirectResponse(f"/admin?success=Deleted+{len(campaign_ids)}+campaigns", status_code=303)
+    return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/admin/toggle-user")

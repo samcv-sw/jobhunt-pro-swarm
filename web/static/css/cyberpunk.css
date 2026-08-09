@@ -23,3 +23,55 @@
 .blog-empty p{font-size:16px;line-height:1.8;color:var(--text-muted,#9ca3af);margin-block-end:24px}
 .blog-empty-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-block-start:24px}
 .cta-secondary{background:transparent;border:1px solid var(--border,rgba(255,255,255,.15));color:var(--text,#fff)}
+
+/* Apex Glassmorphism & World-Class SaaS UX Enhancements */
+.glass-hero {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.85) 50%, rgba(15, 23, 42, 0.92) 100%) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(0, 240, 255, 0.25) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--cyber-radius-xl, 24px) !important;
+}
+
+.glow-card-accent {
+  position: relative !important;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.glow-card-accent:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 20px 40px rgba(0, 240, 255, 0.18), inset 0 0 20px rgba(0, 240, 255, 0.08) !important;
+}
+
+.badge-live-pulse {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.35rem 0.85rem !important;
+  border-radius: 9999px !important;
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+  border: 1px solid rgba(0, 255, 65, 0.35) !important;
+  background: rgba(0, 255, 65, 0.08) !important;
+  color: var(--cyber-green, #00ff41) !important;
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.25) !important;
+}
+
+/* Gulf RTL Arabic Typography Standard */
+[dir="rtl"], :lang(ar) {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+  letter-spacing: normal !important;
+}
+
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6 {
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
+  letter-spacing: normal !important;
+  line-height: 1.5 !important;
+}
+
+.dir-flip {
+  transform: scaleX(var(--text-x-direction, 1)) !important;
+}
+

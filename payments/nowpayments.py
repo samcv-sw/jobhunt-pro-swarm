@@ -197,33 +197,40 @@ def create_crypto_invoice(
     order_id: str,
     customer_email: str = "",
     service_name: str = "",
+    pay_currency: str = ""
 ) -> dict | None:
     """
     Create a NOWPayments invoice for a service order.
     Returns invoice data or None on failure.
-
-    Example return:
-    {
-        "nowpayments_id": 12345,
-        "invoice_url": "https://nowpayments.io/payment?invoice_id=...",
-        "pay_address": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-        "pay_amount": 0.0012,
-        "pay_currency": "BTC",
-        "price_amount": 10.0,
-        "payment_status": "waiting",
-    }
     """
     if not config.NOWPAYMENTS_API_KEY:
         logger.warning("NOWPayments API key not configured — falling back to manual addresses")
         return None
 
+    # Leave target_currency empty if not explicitly specified so NOWPayments presents all available active coins to the buyer
+    target_currency = pay_currency if pay_currency else ""
+
+    site_url = config.SITE_URL if (config.SITE_URL and config.SITE_URL.startswith("https://")) else "https://jhfguf.pythonanywhere.com"
     client = NOWPaymentsClient()
+    
     result = client.create_invoice(
         price_amount=amount_usd,
+        pay_currency=target_currency,
         order_id=order_id,
         order_description=f"JobHunt Pro: {service_name or 'Service'}",
-        ipn_callback_url=f"{config.SITE_URL}/api/v2/nowpayments-ipn",
+        ipn_callback_url=f"{site_url}/api/v2/nowpayments-ipn",
     )
+
+    # Fallback retry if primary coin is under temporary NOWPayments maintenance
+    if not result and target_currency != "trx":
+        logger.warning(f"NOWPayments coin {target_currency} unavailable — retrying with TRX (TRON)...")
+        result = client.create_invoice(
+            price_amount=amount_usd,
+            pay_currency="trx",
+            order_id=order_id,
+            order_description=f"JobHunt Pro: {service_name or 'Service'}",
+            ipn_callback_url=f"{site_url}/api/v2/nowpayments-ipn",
+        )
 
     if not result:
         return None

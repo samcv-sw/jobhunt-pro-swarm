@@ -225,9 +225,11 @@ def _get_conn(db_path: str | None = None) -> sqlite3.Connection:
     path = db_path or _get_db_path()
     conn = sqlite3.connect(path, timeout=30)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=DELETE")
-    conn.execute("PRAGMA busy_timeout=5000")
-    conn.execute("PRAGMA synchronous=FULL")
+    try:
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=15000")
+    except Exception:
+        pass
     return conn
 
 
@@ -265,6 +267,15 @@ def log_multi_platform_application(
     """Insert a record into multi_platform_apps."""
     conn = _get_conn(db_path)
     try:
+        if company and user_id:
+            existing = conn.execute(
+                "SELECT 1 FROM multi_platform_apps WHERE user_id = ? AND LOWER(company) = LOWER(?) AND LOWER(job_title) = LOWER(?) LIMIT 1",
+                (user_id, company.strip(), job_title.strip())
+            ).fetchone()
+            if existing:
+                logger.info(f"[LOG-MPA] Skipped duplicate application for user {user_id} at {company}")
+                return
+
         conn.execute(
             """INSERT INTO multi_platform_apps
                (user_id, campaign_id, platform, job_id, job_title, company, location, url, status, message)

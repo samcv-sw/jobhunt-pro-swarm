@@ -5,7 +5,7 @@ Handles background job matching, automated form filling, and 24/7 application di
 
 import datetime
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Query, HTTPException
 from pydantic import BaseModel, Field
@@ -39,6 +39,30 @@ class AutoApplyStatusResponse(BaseModel):
 
 # In-memory session state for auto-applier jobs
 _AUTO_APPLY_SESSIONS: dict[str, dict[str, Any]] = {}
+_SCREENING_VAULTS: dict[str, dict[str, Any]] = {}
+
+class SmartScreeningVault(BaseModel):
+    user_id: str
+    desired_salary_usd: float = 120000.0
+    notice_period_days: int = 30
+    work_authorization: List[str] = Field(default_factory=lambda: ["UAE", "Saudi Arabia", "Remote", "US"])
+    requires_sponsorship: bool = False
+    years_of_experience: int = 6
+    relocation_willing: bool = True
+    preferred_work_mode: str = "Hybrid / Remote"
+    custom_answers: Dict[str, str] = Field(default_factory=dict)
+
+class ScreeningQuestionRequest(BaseModel):
+    user_id: str
+    question_text: str
+    portal_name: Optional[str] = "Workday"  # Workday, Greenhouse, Lever, Ashby, Taleo
+
+class ScreeningAnswerResponse(BaseModel):
+    question_text: str
+    suggested_answer: str
+    confidence_score: float
+    matched_category: str
+
 
 class PlaywrightAutomationConfig(BaseModel):
     headless: bool = True
@@ -191,3 +215,88 @@ async def stop_auto_apply(user_id: str) -> Dict[str, str]:
     except Exception as e:
         logger.error(f"Failed to stop session for user {user_id}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to stop session: {str(e)}")
+
+@router.post("/screening-vault", response_model=Dict[str, Any])
+async def save_screening_vault(vault: SmartScreeningVault) -> Dict[str, Any]:
+    """Saves candidate pre-sets for company screening portal questions."""
+    _SCREENING_VAULTS[vault.user_id] = vault.model_dump()
+    return {"status": "success", "message": f"Screening vault updated for user {vault.user_id}", "vault": _SCREENING_VAULTS[vault.user_id]}
+
+@router.get("/screening-vault", response_model=Dict[str, Any])
+async def get_screening_vault(user_id: str = Query(..., description="User ID")) -> Dict[str, Any]:
+    """Retrieves candidate screening vault pre-sets."""
+    vault = _SCREENING_VAULTS.get(user_id)
+    if not vault:
+        default_vault = SmartScreeningVault(user_id=user_id).model_dump()
+        _SCREENING_VAULTS[user_id] = default_vault
+        return {"status": "success", "vault": default_vault}
+    return {"status": "success", "vault": vault}
+
+@router.post("/screening-answer", response_model=ScreeningAnswerResponse)
+async def resolve_screening_question(req: ScreeningQuestionRequest) -> ScreeningAnswerResponse:
+    """Uses semantic AI classification to auto-answer custom screening portal questions."""
+    user_id = req.user_id
+    q = req.question_text.lower()
+    vault = _SCREENING_VAULTS.get(user_id, SmartScreeningVault(user_id=user_id).model_dump())
+
+    # Check custom answers first
+    for custom_q, custom_a in vault.get("custom_answers", {}).items():
+        if custom_q.lower() in q:
+            return ScreeningAnswerResponse(
+                question_text=req.question_text,
+                suggested_answer=custom_a,
+                confidence_score=0.99,
+                matched_category="custom_override"
+            )
+
+    if any(k in q for k in ["salary", "remuneration", "compensation", "pay", "rate"]):
+        salary = vault.get("desired_salary_usd", 120000)
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer=f"${int(salary):,} USD / year (Negotiable based on package)",
+            confidence_score=0.95,
+            matched_category="salary_expectation"
+        )
+    elif any(k in q for k in ["sponsorship", "visa", "work permit", "authorized", "eligible"]):
+        sponsorship = vault.get("requires_sponsorship", False)
+        auth = ", ".join(vault.get("work_authorization", ["UAE", "Remote"]))
+        ans = f"No sponsorship required. Authorized for: {auth}" if not sponsorship else "Yes, require visa sponsorship."
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer=ans,
+            confidence_score=0.94,
+            matched_category="work_authorization"
+        )
+    elif any(k in q for k in ["notice", "start", "available", "when can you"]):
+        days = vault.get("notice_period_days", 30)
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer=f"{days} days notice period (Immediate start negotiable)",
+            confidence_score=0.92,
+            matched_category="notice_period"
+        )
+    elif any(k in q for k in ["years", "experience", "how long"]):
+        exp = vault.get("years_of_experience", 6)
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer=f"{exp}+ years of professional relevant experience",
+            confidence_score=0.91,
+            matched_category="experience_years"
+        )
+    elif any(k in q for k in ["relocate", "moving", "onsite"]):
+        reloc = vault.get("relocation_willing", True)
+        ans = "Yes, open to relocation and hybrid/onsite work." if reloc else "Prefer remote / local arrangements."
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer=ans,
+            confidence_score=0.90,
+            matched_category="relocation_preference"
+        )
+    else:
+        return ScreeningAnswerResponse(
+            question_text=req.question_text,
+            suggested_answer="Highly experienced professional aligned with role requirements.",
+            confidence_score=0.75,
+            matched_category="general_fallback"
+        )
+

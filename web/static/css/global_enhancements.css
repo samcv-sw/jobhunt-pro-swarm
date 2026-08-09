@@ -1,0 +1,246 @@
+/* ==========================================================================
+   GLOBAL ENHANCEMENTS CSS — JobHunt Pro World-Class Suite
+   Combining USA Silicon Valley Conversion Toasts, Chinese Super-App Micro-UX,
+   Russian Resilient Layouts, and GCC RTL Ergonomic Perfection.
+   ========================================================================== */
+
+/* --- CSS LOGICAL PROPERTIES & RTL DESIGN TOKENS --- */
+:root {
+  --font-arabic: 'Tajawal', 'Cairo', 'IBM Plex Arabic', sans-serif;
+  --bg-glass-dark: rgba(15, 23, 42, 0.85);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --glow-cyan: rgba(6, 182, 212, 0.35);
+  --glow-gold: rgba(234, 179, 8, 0.35);
+  --glow-emerald: rgba(16, 185, 129, 0.35);
+  --text-x-direction: 1;
+}
+
+[dir="rtl"] {
+  --text-x-direction: -1;
+  font-family: var(--font-arabic);
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+  line-height: 1.7;
+}
+
+/* --- CHINESE SUPER-APP SKELETON LOADER (Zero-Latency Micro-UX) --- */
+.skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.12) 37%,
+    rgba(255, 255, 255, 0.04) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 6px;
+  display: inline-block;
+  block-size: 1.25rem;
+  inline-size: 100%;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* --- USA SILICON VALLEY LIVE CONVERSION TOAST SYSTEM --- */
+#live-conversion-toasts {
+  position: fixed;
+  inset-block-end: 1.5rem;
+  inset-inline-start: 1.5rem;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-inline-size: 380px;
+  pointer-events: none;
+}
+
+.conversion-toast {
+  pointer-events: auto;
+  background: var(--bg-glass-dark);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-inline-start: 4px solid #10b981;
+  border-radius: 12px;
+  padding-inline: 1rem;
+  padding-block: 0.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px var(--glow-emerald);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #f8fafc;
+  animation: toast-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+.conversion-toast.toast-hiding {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+
+.conversion-toast .toast-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.conversion-toast .toast-content {
+  flex-grow: 1;
+}
+
+.conversion-toast .toast-title {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #38bdf8;
+  margin-block-end: 0.15rem;
+}
+
+.conversion-toast .toast-desc {
+  font-size: 0.775rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.conversion-toast .toast-close {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding-inline: 0.25rem;
+  padding-block: 0.25rem;
+  font-size: 1rem;
+  transition: color 0.15s ease;
+}
+
+.conversion-toast .toast-close:hover {
+  color: #f1f5f9;
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- FLOATING COMMAND PALETTE (CMD + K / CTRL + K) --- */
+#global-cmd-k-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 7, 18, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-block-start: 10vh;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+#global-cmd-k-backdrop.cmd-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cmd-k-dialog {
+  background: #0f172a;
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  inline-size: 90%;
+  max-inline-size: 640px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px var(--glow-cyan);
+  overflow: hidden;
+  transform: translateY(-20px) scale(0.96);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#global-cmd-k-backdrop.cmd-active .cmd-k-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.cmd-k-input-wrapper {
+  display: flex;
+  align-items: center;
+  padding-inline: 1.25rem;
+  padding-block: 1rem;
+  border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 0.75rem;
+}
+
+.cmd-k-input-wrapper input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f8fafc;
+  font-size: 1.125rem;
+  inline-size: 100%;
+}
+
+.cmd-k-results {
+  max-block-size: 360px;
+  overflow-y: auto;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+}
+
+.cmd-k-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 1rem;
+  padding-block: 0.75rem;
+  border-radius: 10px;
+  color: #cbd5e1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.cmd-k-item:hover,
+.cmd-k-item.selected {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.cmd-k-shortcut {
+  font-size: 0.75rem;
+  padding-inline: 0.5rem;
+  padding-block: 0.2rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: #94a3b8;
+}
+
+/* --- GLASS SCROLLBAR & RTL ICON FLIP --- */
+::-webkit-scrollbar {
+  inline-size: 8px;
+  block-size: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+.icon-rtl-flip {
+  transform: scaleX(var(--text-x-direction));
+}

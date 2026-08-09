@@ -512,4 +512,6 @@ UI_TEXT_TRANSLATIONS = {
         'military_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker': 'Military Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker',
         'student_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker': 'Student Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker',
         'recent_grad_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker': 'Recent Graduate Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker',
-        'experienced_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker': 'Experienced Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker
+        'experienced_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker_worker': 'Experienced Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker Worker'
+    }
+}

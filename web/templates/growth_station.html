@@ -1,561 +1,236 @@
-<meta property="og:title" content="محطة النمو & Swarm Leads | JobHunt Pro"/>
-<meta name="description" content="استخدم الوكلاء لجمع آلاف العملاء والباحثين عن العمل تلقائياً والبدء في حملات تسويقية ذكية."/>
-<title>محطة النمو & Swarm Leads | JobHunt Pro</title>
+<div class="max-w-6xl mx-auto space-y-8 p-4 md:p-6" dir="rtl">
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-cyan-950/60 to-slate-900 border border-cyan-500/30 p-6 md:p-10 shadow-2xl">
+        <div class="absolute -top-24 -start-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-4">
+                    <span>📢 محرك تنقيب الفرص التلقائي وتنمية الأعمال (Growth Station)</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                    محطة النمو وتجميع الفرص والتواصل (Leads Engine)
+                </h1>
+                <p class="text-slate-400 text-sm md:text-base max-w-2xl">
+                    استخرج الفرص الوظيفية وإيميلات مسؤولي التوظيف والشركات تلقائياً عبر منصات LinkedIn و GitHub و Reddit و دليل الشركات.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/new-campaign" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 cursor-pointer">
+                    <span>🚀 إطلاق حملة إرسال إيميلات مكثفة</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
-<style>
-/* Growth Station styles matching Dashboard V3 */
-.glass-panel {
-  background: rgba(10,10,25,0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0,240,255,0.15);
-  border-radius: 16px;
-  transition: all 0.3s ease;
-}
-.glass-panel:hover {
-  border-color: rgba(0,240,255,0.3);
-  box-shadow: 0 20px 40px rgba(0,240,255,0.08);
-}
-
-.stat-card-premium {
-  position: relative;
-  background: rgba(10,10,25,0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0,240,255,0.15);
-  border-radius: 16px;
-  padding: 22px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-.stat-card-premium::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(139,92,246,0.5), rgba(0,212,170,0.3), rgba(0,240,255,0.2));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-.stat-card-premium:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,240,255,0.1);
-  border-color: rgba(0,240,255,0.3);
-}
-
-.agent-card {
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(255,255,255,0.02);
-  border-radius: 14px;
-  padding: 18px;
-  transition: all 0.25s ease;
-}
-.agent-card:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(139,92,246,0.3);
-  transform: translateY(-2px);
-}
-
-.btn-premium {
-  background: linear-gradient(135deg, #8b5cf6, #00d4aa);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(139,92,246,0.35);
-  transition: all 0.2s;
-}
-.btn-premium:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(139,92,246,0.5);
-}
-
-.btn-secondary-premium {
-  background: rgba(255,255,255,0.05);
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-secondary-premium:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-/* Custom Table Design */
-.premium-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.premium-table th {
-  text-align: start;
-  padding: 14px 16px;
-  border-bottom: 2px solid rgba(255,255,255,0.08);
-  color: #64748b;
-  font-size: 14px;
-  text-transform: uppercase;
-  font-weight: 700;
-}
-.premium-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  color: #e2e8f0;
-  font-size: 14px;
-}
-.premium-table tr:hover {
-  background: rgba(255,255,255,0.02);
-}
-
-.text-gradient-purple {
-  background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #00d4aa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Modal styles */
-.modal-box {
-  background: #0d0d1e;
-  border: 1px solid rgba(0,240,255,0.2);
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-  color: #fff;
-}
-</style>
-
-<div class="space-y-6 reveal">
-  <!-- Hero Area -->
-  <div class="glass-panel relative overflow-hidden p-8">
-    <div class="absolute inset-0" style="background:radial-gradient(ellipse 70% 80% at 80% 50%,rgba(139,92,246,0.12) 0%,transparent 70%);"></div>
-    <div class="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-      <div class="max-w-2xl">
-        <h1 class="text-gradient-purple" style="font-size:clamp(24px, 4vw, 38px); font-weight:900; line-height:1.2; margin:0;">
-          🚀 محطة النمو الذكية & Swarm Leads
-        </h1>
-        <p class="mt-2 text-base text-slate-400">
-          اكتشف واستهدف leads الباحثين عن عمل وأصحاب العمل تلقائياً عن طريق سحابة من الوكلاء الأذكياء. قم بفلترتهم، وإطلاق حملات إرسال باردة فورية.
+    <!-- Simple Guide Banner: What is this page & How to benefit (Super Easy Explanation) -->
+    <div class="p-6 rounded-3xl bg-gradient-to-br from-cyan-950/40 via-slate-900 to-slate-950 border border-cyan-500/30 shadow-xl space-y-4">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">💡</span>
+            <h2 class="text-lg font-extrabold text-cyan-300">ما هي هذه الصفحة وكيف تستفيد منها ببساطة؟</h2>
+        </div>
+        <p class="text-slate-300 text-sm leading-relaxed">
+            هذه الصفحة هي بمثابة <strong class="text-cyan-400">"المساعد الذكي السحري"</strong> الذي يرفع عنك كاهل البحث اليدوي الشاق عن الوظائف والشركات!
         </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- KPI stats -->
-  <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-    <div class="stat-card-premium">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center">
-          <i data-lucide="users" class="text-indigo-400 w-5 h-5"></i>
-        </div>
-        <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded-full">إجمالي الـ leads</span>
-      </div>
-      <div class="text-3xl font-black text-white stat-counter" id="leads-count">{{ leads_count }}</div>
-      <p class="text-xs text-slate-500 mt-1">leads تم جمعهم من مصادر مختلفة</p>
-    </div>
-
-    <div class="stat-card-premium">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-          <i data-lucide="clock" class="text-amber-400 w-5 h-5"></i>
-        </div>
-        <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded-full">في الانتظار</span>
-      </div>
-      <div class="text-3xl font-black text-white stat-counter" id="pending-count">{{ pending_count }}</div>
-      <p class="text-xs text-slate-500 mt-1">جاهزون للاستهداف بحملات تسويقية</p>
-    </div>
-
-    <div class="stat-card-premium">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-          <i data-lucide="send" class="text-emerald-400 w-5 h-5"></i>
-        </div>
-        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-full">تم استهدافهم</span>
-      </div>
-      <div class="text-3xl font-black text-white stat-counter" id="sent-count">{{ sent_count }}</div>
-      <p class="text-xs text-slate-500 mt-1">تلقوا عروضاً باردة أو ردوداً تلقائية</p>
-    </div>
-  </div>
-
-  <!-- Agent Selection & Setup -->
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <!-- Left: Scraper Form -->
-    <div class="glass-panel p-6 lg:col-span-1 space-y-4">
-      <h3 class="text-lg font-bold text-white mb-2">🤖 تهيئة وكيل البحث</h3>
-      
-      <div class="space-y-1">
-        <label class="text-sm font-semibold text-slate-400">اختر وكيل الاستكشاف:</label>
-        <select id="agent-type" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
-          <option value="linkedin_dork">LinkedIn Google-Dork (Stealth)</option>
-          <option value="github">GitHub Job-Seekers</option>
-          <option value="reddit">Reddit Sniper (ATS & Letter help)</option>
-          <option value="b2b_maps">B2B Directory maps (Corporate leads)</option>
-        </select>
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-sm font-semibold text-slate-400">الكلمة المفتاحية / التخصص:</label>
-        <input type="text" id="keyword" dir="auto" placeholder="مثال: React Developer أو ATS" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500" dir="auto">
-      </div>
-
-      <div class="space-y-1" id="location-wrapper">
-        <label class="text-sm font-semibold text-slate-400">الموقع الجغرافي:</label>
-        <input type="text" id="location" dir="auto" placeholder="مثال: Lebanon أو Dubai" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500" dir="auto">
-      </div>
-
-      <div class="space-y-1">
-        <label class="text-sm font-semibold text-slate-400">الحد الأقصى للنتائج:</label>
-        <select id="max-leads" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-indigo-500">
-          <option value="10">10 Leads</option>
-          <option value="25" selected>25 Leads</option>
-          <option value="50">50 Leads</option>
-          <option value="100">100 Leads</option>
-        </select>
-      </div>
-
-      <button onclick="startScrape()" class="btn-premium w-full flex items-center justify-center gap-2 mt-4">
-        <i data-lucide="play" class="w-4 h-4"></i> أطلق الوكيل للبحث
-      </button>
-
-      <div id="scrape-status" class="hidden text-sm bg-indigo-950/40 border border-indigo-500/20 text-indigo-300 rounded-lg p-3 mt-3 animate-pulse-slow">
-        جاري تشغيل الوكيل في الخلفية... يرجى الانتظار دقيقة وتحديث الجدول.
-      </div>
-    </div>
-
-    <!-- Right: Active Agents Status -->
-    <div class="glass-panel p-6 lg:col-span-2 flex flex-col justify-between">
-      <div>
-        <h3 class="text-lg font-bold text-white mb-4">🛡️ شبكة وكلاء الاستكشاف النشطة</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          <div class="agent-card">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl">🔗</div>
-              <div>
-                <h4 class="font-bold text-white text-sm">LinkedIn Google-Dork</h4>
-                <p class="text-xs text-slate-400 mt-1">يستغل محركات البحث للعثور على إيميلات LinkedIn المعلنة العامة. آمن 100%.</p>
-              </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="text-xl">🔍 1. البحث التلقائي السريع</div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    بدلاً من البحث بنفسك لعدة ساعات، يقوم الذكاء الاصطناعي بالبحث في الإنترنت وجلب الإيميلات الحقيقية لمسؤولي التوظيف المهتمين بمجالك.
+                </div>
             </div>
-          </div>
 
-          <div class="agent-card">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl">🐙</div>
-              <div>
-                <h4 class="font-bold text-white text-sm">GitHub Job-Seekers</h4>
-                <p class="text-xs text-slate-400 mt-1">يفتش في الحسابات العامة للمبرمجين الذين يضعون Open to work في ملفاتهم.</p>
-              </div>
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="text-xl">✉️ 2. إرسال الـ CV بنقرة واحدة</div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    بلمسة زر واحدة، يمكنك إرسال سيرتك الذاتية (CV) ورسالتك فوراً إلى صندوق البريد المباشر لكل مسؤول توظيف وشركة.
+                </div>
             </div>
-          </div>
 
-          <div class="agent-card">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl">👽</div>
-              <div>
-                <h4 class="font-bold text-white text-sm">Reddit Sniper</h4>
-                <p class="text-xs text-slate-400 mt-1">يتصيد المشاكل المتعلقة بالتوظيف وكتابة السير في Reddit ويصيغ ردوداً ذكية.</p>
-              </div>
+            <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+                <div class="text-xl">🎯 3. زيادة فرص المقابلات</div>
+                <div class="text-xs text-slate-400 leading-normal">
+                    بدلاً من إرسال طلب واحد أو اثنين، تتيح لك الصفحة التواصل مع عشرات أصحاب العمل في وقت قياسي وتضاعف فرص حصولك على الوظيفة.
+                </div>
             </div>
-          </div>
-
-          <div class="agent-card">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl">🏢</div>
-              <div>
-                <h4 class="font-bold text-white text-sm">B2B Directory Maps</h4>
-                <p class="text-xs text-slate-400 mt-1">يزحف لمواقع الشركات والجهات التوظيفية المحلية لجمع عناوين البريد المباشرة.</p>
-              </div>
-            </div>
-          </div>
-
         </div>
-      </div>
-
-      <div class="bg-indigo-950/20 border border-indigo-500/10 rounded-lg p-4 mt-6">
-        <h5 class="text-sm font-bold text-white mb-1">💡 كيف يجلب هذا النظام مستخدمين لموقعك؟</h5>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          يقوم وكلاء Swarm Leads بالبحث عن مئات الأشخاص المهتمين بالتوظيف في نفس اللحظة. عندما ترسل لهم حملة باردة، تروج لأدواتك المجانية (ATS Scorer، Roast). يدخلون الموقع، يعجبهم التحليل، ثم يقومون بالترقية إلى خطة مدفوعة!
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter & Lead list -->
-  <div class="glass-panel p-6">
-    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-      <div>
-        <h3 class="text-lg font-bold text-white">📋 قائمة الـ Leads المستكشفة</h3>
-        <p class="text-sm text-slate-400">حدد الـ leads لبدء حملة تواصل باردة.</p>
-      </div>
-      <div class="flex flex-wrap gap-2 w-full md:w-auto">
-        <select id="filter-source" dir="auto" onchange="loadLeads()" class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
-          <option value="">كل المصادر</option>
-          <option value="linkedin_dork">LinkedIn Dork</option>
-          <option value="github">GitHub</option>
-          <option value="reddit">Reddit</option>
-          <option value="b2b_maps">B2B Maps</option>
-        </select>
-        
-        <input type="text" id="search-input" dir="auto" onkeyup="loadLeads()" placeholder="ابحث بالاسم أو البريد..." class="bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none" dir="auto">
-        
-        <button onclick="openOutreachModal()" class="btn-premium flex items-center gap-1.5 text-sm">
-          <i data-lucide="megaphone" class="w-4 h-4"></i> أطلق حملة outreach
-        </button>
-      </div>
     </div>
 
-    <!-- Table container -->
-    <div class="overflow-x-auto">
-      <table class="premium-table" id="leads-table">
-        <thead>
-          <tr>
-            <th class="w-10"><input type="checkbox" id="select-all" dir="auto" onclick="toggleSelectAll(this)" dir="auto"></th>
-            <th>الاسم</th>
-            <th>البريد الإلكتروني</th>
-            <th>المصدر</th>
-            <th>المجال / الوظيفة</th>
-            <th>الموقع</th>
-            <th>الحالة</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody id="leads-body">
-          <tr>
-            <td colspan="8" class="text-center py-8 text-slate-500">جاري تحميل البيانات...</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Stat Metrics -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-cyan-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">إجمالي الفرص المستخرجة</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400" id="totalLeadsCount">{{ leads_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-2xl text-cyan-400">
+                📊
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-amber-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">الفرص المتبقية للإرسال</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400" id="pendingLeadsCount">{{ pending_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-2xl text-amber-400">
+                ⏳
+            </div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-emerald-500/20 shadow-xl flex items-center justify-between">
+            <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">الفرص المرسلة بنجاح</div>
+                <div class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400" id="sentLeadsCount">{{ sent_count }}</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl text-emerald-400">
+                ✅
+            </div>
+        </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="flex items-center justify-between mt-4">
-      <span class="text-sm text-slate-400" id="pagination-text"></span>
-      <div class="flex gap-2">
-        <button id="prev-btn" onclick="changePage(-1)" class="btn-secondary-premium px-3 py-1.5 text-xs">السابق</button>
-        <button id="next-btn" onclick="changePage(1)" class="btn-secondary-premium px-3 py-1.5 text-xs">التالي</button>
-      </div>
+    <!-- AI Swarm Harvester Control Form -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-cyan-500/30 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🤖</span>
+                <div>
+                    <h3 class="text-lg font-extrabold text-white">وكيل التنقيب بالذكاء الاصطناعي (AI Scraper Agent)</h3>
+                    <p class="text-xs text-slate-400">حدد نوع الوكيل لاستخراج إيميلات مسؤولي التوظيف والفرص النشطة.</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="scrapeForm" onsubmit="handleStartScrape(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">وكيل التنقيب</label>
+                <select id="agentSelect" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none">
+                    <option value="linkedin_dork">🌐 LinkedIn Job Dorks & HR Search</option>
+                    <option value="github">💻 GitHub Engineering & Candidate Seekers</option>
+                    <option value="reddit">🎯 Reddit Hiring Sniper & Subreddits</option>
+                    <option value="b2b_maps">🏢 B2B Company Directory & Maps</option>
+                    <option value="google_jobs">🔎 Google Jobs & Career Portals</option>
+                    <option value="indeed_radar">💼 Indeed Hiring Managers Radar</option>
+                    <option value="glassdoor_hr">🏛️ Glassdoor Corporate & HR Directory</option>
+                    <option value="crunchbase">🚀 Crunchbase Funded Startups & Founders</option>
+                    <option value="wellfound">🦄 Wellfound (AngelList) Recruiters</option>
+                    <option value="techcrunch_vc">📰 TechCrunch Funded Companies & HR</option>
+                    <option value="ycombinator">⚡ Y-Combinator Portfolio Companies</option>
+                    <option value="remoteok">🌍 RemoteOK Global Remote Recruiters</option>
+                    <option value="weworkremotely">🏝️ WeWorkRemotely Hiring Directors</option>
+                    <option value="wuzzuf_gulf">🐪 Bayt & Wuzzuf MENA / Gulf HR</option>
+                    <option value="monster_jobs">👾 Monster & CareerBuilder HR Leads</option>
+                    <option value="twitter_x_hiring">🐦 X (Twitter) Hiring Tweets & Tech Leads</option>
+                    <option value="upwork_clients">🛠️ Upwork & Freelance Client Directors</option>
+                    <option value="clutch_co">🤝 Clutch.co Verified Executive Directors</option>
+                    <option value="producthunt">🏆 ProductHunt Launched Startup Founders</option>
+                    <option value="zoominfo_dork">📞 Apollo & ZoomInfo Executive Contacts</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">الكلمة المفتاحية / المسمى</label>
+                <input type="text" id="scrapeKeyword" required placeholder="مثال: مهندس برمجيات أو مدير HR" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">الموقع / الدولة</label>
+                <input type="text" id="scrapeLocation" placeholder="مثال: دبي أو السعودية أو عن بُعد" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" id="btnStartScrape" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>⚡ تشغيل وكيل التنقيب</span>
+                </button>
+            </div>
+        </form>
+
+        <div id="scrapeStatusAlert" class="hidden p-3 rounded-xl bg-cyan-950/60 border border-cyan-500/30 text-xs text-cyan-200 font-bold"></div>
     </div>
-  </div>
+
+    <!-- Harvested Leads Data Table -->
+    <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-white/10 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <h3 class="text-base font-extrabold text-white">جدول الفرص والإيميلات المستخرجة</h3>
+            <button onclick="loadLeadsTable()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">
+                🔄 تحديث الجدول
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-end text-xs text-slate-300">
+                <thead class="text-[11px] font-extrabold uppercase bg-slate-950/60 text-slate-400 border-b border-white/10">
+                    <tr>
+                        <th class="p-3">الشركة / المرشح</th>
+                        <th class="p-3">بريد التواصل</th>
+                        <th class="p-3">مصدر التنقيب</th>
+                        <th class="p-3">الموقع</th>
+                        <th class="p-3">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody id="leadsTableBody" class="divide-y divide-white/5">
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-500 font-medium">جاري تحميل بيانات الفرص...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- Outreach Campaign Modal -->
-<dialog id="outreachModal" class="modal bg-transparent">
-  <div class="modal-box max-w-md w-full p-6">
-    <h3 class="font-bold text-lg text-white mb-4">🚀 أطلق حملة outreach باردة</h3>
-    <p class="text-sm text-slate-400 mb-4">سيتم جدولة رسائل تسويقية للـ leads المحددين باستخدام Cold Blaster الخاص بـ JobHunt Pro.</p>
-    
-    <div class="space-y-4">
-      <div>
-        <label class="text-sm font-semibold text-slate-400 block mb-1">اسم الحملة:</label>
-        <input type="text" id="campaign-name" dir="auto" placeholder="مثال: React Developers Lebanon" class="w-full bg-slate-900 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500" dir="auto">
-      </div>
-    </div>
-    
-    <div class="modal-action flex justify-end gap-2 mt-6">
-      <button onclick="document.getElementById('outreachModal').close()" class="btn-secondary-premium">إلغاء</button>
-      <button onclick="launchBlast()" class="btn-premium">بدء الإرسال</button>
-    </div>
-  </div>
-</dialog>
-
-<!-- Note View Modal (For Reddit Snipe pitches) -->
-<dialog id="noteModal" class="modal bg-transparent">
-  <div class="modal-box max-w-lg w-full p-6">
-    <h3 class="font-bold text-lg text-white mb-2" id="note-modal-title">تفاصيل الـ Lead</h3>
-    <div class="bg-slate-900 border border-white/10 rounded-lg p-4 text-sm text-slate-300 overflow-y-auto max-h-60" style="white-space: pre-wrap;" id="note-modal-content"></div>
-    <div class="modal-action mt-6">
-      <button onclick="document.getElementById('noteModal').close()" class="btn-premium">إغلاق</button>
-    </div>
-  </div>
-</dialog>
-
 <script>
-let currentPage = 1;
-let totalLeads = 0;
-const limit = 20;
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadLeads();
-  
-  // Hide location wrapper if Reddit sniper is selected (since Reddit is globally online)
-  document.getElementById("agent-type").addEventListener("change", (e) => {
-    const locWrapper = document.getElementById("location-wrapper");
-    if (e.target.value === "reddit") {
-      locWrapper.classList.add("hidden");
+async function loadLeadsTable() {
+  const tbody = document.getElementById('leadsTableBody');
+  if (!tbody) return;
+  try {
+    const res = await fetch('/api/growth/leads?page=1&limit=50');
+    const data = await res.json();
+    if (data.leads && data.leads.length > 0) {
+      document.getElementById('totalLeadsCount').innerText = data.total || data.leads.length;
+      tbody.innerHTML = data.leads.map(lead => `
+        <tr class="hover:bg-white/5 transition-colors">
+          <td class="p-3 font-bold text-white">${lead.name || lead.job_title || 'جهة اتصال جديدة'}</td>
+          <td class="p-3 font-mono text-cyan-300" dir="ltr">${lead.email || 'N/A'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20">${lead.source || 'web'}</span></td>
+          <td class="p-3">${lead.location || 'عام'}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded ${lead.status === 'sent' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">${lead.status || 'مُعلق'}</span></td>
+        </tr>
+      `).join('');
     } else {
-      locWrapper.classList.remove("hidden");
+      tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">لا توجد فرص مستخرجة حالياً. شغل وكيل التنقيب أعلاه!</td></tr>';
     }
-  });
-});
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-400">تعذر تحميل بيانات الفرص.</td></tr>';
+  }
+}
 
-async function loadLeads() {
-  const source = document.getElementById("filter-source").value;
-  const search = document.getElementById("search-input").value;
-  
-  let url = `/api/growth/leads?page=${currentPage}&limit=${limit}`;
-  if (source) url += `&source=${source}`;
-  if (search) url += `&search=${encodeURIComponent(search)}`;
-  
+async function handleStartScrape(e) {
+  e.preventDefault();
+  const alert = document.getElementById('scrapeStatusAlert');
+  const btn = document.getElementById('btnStartScrape');
+  const agent = document.getElementById('agentSelect').value;
+  const keyword = document.getElementById('scrapeKeyword').value;
+  const location = document.getElementById('scrapeLocation').value;
+
+  btn.disabled = true;
+  btn.innerText = '⏳ جاري التنقيب...';
+  alert.classList.remove('hidden');
+  alert.innerText = '🤖 وكيل التنقيب بالذكاء الاصطناعي يعمل الآن في الخلفية...';
+
   try {
-    const resp = await fetch(url);
-    const data = await resp.json();
-    
-    totalLeads = data.total;
-    renderLeads(data.leads);
-    updatePagination();
-  } catch (e) {
-    console.error("Failed to load leads:", e);
-  }
-}
-
-function renderLeads(leads) {
-  const tbody = document.getElementById("leads-body");
-  tbody.innerHTML = "";
-  
-  if (!leads || leads.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">لا يوجد leads مطابقة للبحث.</td></tr>`;
-    return;
-  }
-  
-  leads.forEach(l => {
-    let sourceBadge = "";
-    if (l.source === "linkedin_dork") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded">LinkedIn Dork</span>';
-    else if (l.source === "github") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded">GitHub</span>';
-    else if (l.source === "reddit") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded">Reddit</span>';
-    else if (l.source === "b2b_maps") sourceBadge = '<span class="px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">B2B Directory</span>';
-    
-    let statusBadge = "";
-    if (l.status === "pending") statusBadge = '<span class="text-amber-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> في الانتظار</span>';
-    else if (l.status === "sent") statusBadge = '<span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> تم الإرسال</span>';
-    
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><input type="checkbox" dir="auto" class="lead-checkbox" value="${l.id}" dir="auto"></td>
-      <td><div class="font-bold text-white">${l.name}</div></td>
-      <td><span class="font-mono text-slate-300 text-xs">${l.email}</span></td>
-      <td>${sourceBadge}</td>
-      <td>${l.job_title}</td>
-      <td>${l.location}</td>
-      <td>${statusBadge}</td>
-      <td>
-        <button onclick="viewLeadNotes(${l.id}, '${l.name}', \`${encodeURIComponent(l.notes || '')}\`)" class="text-xs text-indigo-400 hover:text-indigo-300 underline font-semibold bg-transparent border-0 cursor-pointer">
-          ${l.source === 'reddit' ? 'عرض التعليق الذكي' : 'عرض التفاصيل'}
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function updatePagination() {
-  const text = document.getElementById("pagination-text");
-  const totalPages = Math.ceil(totalLeads / limit) || 1;
-  text.textContent = `الصفحة ${currentPage} من ${totalPages} (إجمالي ${totalLeads})`;
-  
-  document.getElementById("prev-btn").disabled = currentPage === 1;
-  document.getElementById("next-btn").disabled = currentPage >= totalPages;
-}
-
-function changePage(direction) {
-  currentPage += direction;
-  loadLeads();
-}
-
-function toggleSelectAll(master) {
-  const checkboxes = document.querySelectorAll(".lead-checkbox");
-  checkboxes.forEach(c => c.checked = master.checked);
-}
-
-function getSelectedLeadIds() {
-  const checkboxes = document.querySelectorAll(".lead-checkbox:checked");
-  return Array.from(checkboxes).map(c => parseInt(c.value));
-}
-
-async function startScrape() {
-  const agent = document.getElementById("agent-type").value;
-  const keyword = document.getElementById("keyword").value;
-  const location = document.getElementById("location").value;
-  const maxLeads = parseInt(document.getElementById("max-leads").value);
-  
-  if (!keyword) {
-    alert("الرجاء إدخال كلمة مفتاحية للبحث.");
-    return;
-  }
-  
-  const statusEl = document.getElementById("scrape-status");
-  statusEl.classList.remove("hidden");
-  
-  try {
-    const resp = await fetch("/api/growth/scrape", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ agent, keyword, location, max_leads: maxLeads })
+    const res = await fetch('/api/growth/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent, keyword, location, max_leads: 25 })
     });
-    
-    const result = await resp.json();
-    if (result.status === "success") {
-      setTimeout(() => {
-        statusEl.classList.add("hidden");
-        currentPage = 1;
-        loadLeads();
-      }, 5000);
-    }
-  } catch (e) {
-    console.error(e);
-    statusEl.classList.add("hidden");
+    const data = await res.json();
+    alert.innerText = '✅ ' + (data.message || 'تم إطلاق مهمة التنقيب بنجاح! انظر أسفل الصفحة لرؤية النتائج مباشرة في الجدول.');
+    loadLeadsTable();
+    setTimeout(() => { loadLeadsTable(); }, 1500);
+    setTimeout(() => { loadLeadsTable(); }, 3500);
+  } catch (err) {
+    alert.innerText = '❌ خطأ في إطلاق التنقيب: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerText = '⚡ تشغيل وكيل التنقيب';
   }
 }
 
-function viewLeadNotes(id, name, notesEncoded) {
-  const notes = decodeURIComponent(notesEncoded);
-  document.getElementById("note-modal-title").textContent = `تفاصيل الـ Lead: ${name}`;
-  document.getElementById("note-modal-content").textContent = notes || "لا يوجد ملاحظات إضافية لهذا الـ Lead.";
-  document.getElementById("noteModal").showModal();
-}
-
-function openOutreachModal() {
-  const ids = getSelectedLeadIds();
-  if (ids.length === 0) {
-    alert("الرجاء تحديد lead واحد على الأقل للبدء.");
-    return;
-  }
-  document.getElementById("campaign-name").value = `Outreach Blast ${new Date().toLocaleDateString()}`;
-  document.getElementById("outreachModal").showModal();
-}
-
-async function launchBlast() {
-  const ids = getSelectedLeadIds();
-  const campaignName = document.getElementById("campaign-name").value;
-  
-  if (!campaignName) {
-    alert("الرجاء تحديد اسم للحملة.");
-    return;
-  }
-  
-  try {
-    const resp = await fetch("/api/growth/blast", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lead_ids: ids, campaign_name: campaignName })
-    });
-    
-    const result = await resp.json();
-    if (result.status === "success") {
-      alert(`تم إطلاق الحملة بنجاح! تم إرسال الرسائل لـ ${result.result.sent} leads.`);
-      document.getElementById("outreachModal").close();
-      loadLeads();
-      
-      // Update stats counters
-      document.getElementById("pending-count").textContent = parseInt(document.getElementById("pending-count").textContent) - result.result.sent;
-      document.getElementById("sent-count").textContent = parseInt(document.getElementById("sent-count").textContent) + result.result.sent;
-    }
-  } catch (e) {
-    alert("حدث خطأ أثناء إطلاق الحملة.");
-  }
-}
+document.addEventListener('DOMContentLoaded', loadLeadsTable);
 </script>

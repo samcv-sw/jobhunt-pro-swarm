@@ -85,7 +85,7 @@ def dequeue_task():
                             SELECT id, task_type, payload FROM job_queue
                             WHERE (status = 'pending' OR status = 'failed')
                               AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                            ORDER BY priority ASC, next_retry_at ASC, created_at ASC
+                            ORDER BY priority ASC, next_retry_at ASC, created_at DESC
                             LIMIT 1
                         """)
                         row = cur.fetchone()
@@ -114,7 +114,7 @@ def dequeue_task():
                         SELECT id FROM job_queue
                         WHERE (status = 'pending' OR status = 'failed')
                           AND (next_retry_at IS NULL OR next_retry_at <= CURRENT_TIMESTAMP)
-                        ORDER BY priority ASC, next_retry_at ASC, created_at ASC
+                        ORDER BY priority ASC, next_retry_at ASC, created_at DESC
                         LIMIT 1
                         FOR UPDATE SKIP LOCKED
                     )

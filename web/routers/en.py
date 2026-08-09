@@ -196,6 +196,20 @@ def en_contact(request: Request):
     })
 
 
+@router.post("/contact")
+def en_contact_submit(request: Request, name: str = Form(""), email: str = Form(""), message: str = Form(""), subject: str = Form("")):
+    """Handle English contact form submission and deliver notification to jobhuntpro.app@zohomail.com."""
+    try:
+        from fastapi.responses import RedirectResponse
+        from core.email_engine import send_email_notification
+        target_email = getattr(config, "SUPPORT_EMAIL", "jobhuntpro.app@zohomail.com")
+        body = f"New Contact Form Submission (EN):\n\nName: {name}\nSender Email: {email}\nSubject: {subject}\n\nMessage:\n{message}"
+        send_email_notification(to_email=target_email, subject=f"📩 Contact Form: {subject or 'New Inquiry'}", body=body)
+    except Exception as exc:
+        logger.error(f"EN Contact submit error: {exc}")
+    return RedirectResponse("/contact?msg=Thank+you!+Your+message+has+been+sent.", status_code=303)
+
+
 # ── Privacy & Terms ───────────────────────────────────────────────────────────
 @router.get("/privacy", response_class=HTMLResponse)
 def en_privacy(request: Request):

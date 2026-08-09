@@ -553,7 +553,7 @@ class MultiTenantRunner:
                     )
         return tenant_result
 
-    async def tick(self) -> dict[str, Any]:
+    async def tick(self, campaign_id: str | None = None) -> dict[str, Any]:
         """
         Main multi-tenant tick:
         0. Auto-create campaigns for tenants with profiles but no active campaign
@@ -565,6 +565,8 @@ class MultiTenantRunner:
         Returns:
             A dictionary containing summary statistics of the tick execution.
         """
+        if campaign_id is not None:
+            self.campaign_id = campaign_id
         start_time = time.time()
         results = {
             "timestamp": datetime.now().isoformat(),

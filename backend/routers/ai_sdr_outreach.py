@@ -4,7 +4,7 @@ Handles recruiter targeting, hyper-personalized outreach generation, and sequenc
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 import datetime
 
@@ -23,8 +23,10 @@ class OutreachSequenceRequest(BaseModel):
     target_role: str
     key_achievements: List[str]
     recruiter: RecruiterTarget
-    channel: str = "linkedin" # linkedin, email, twitter
+    channel: str = "linkedin" # linkedin, email, twitter, whatsapp
     tone: str = "persuasive_professional" # casual, formal, persuasive_professional
+    job_description: Optional[str] = None
+    company_pain_points: Optional[List[str]] = Field(default_factory=lambda: ["scaling backend infrastructure", "fast-time-to-market"])
 
 class OutreachSequenceResponse(BaseModel):
     sequence_id: str
@@ -34,8 +36,11 @@ class OutreachSequenceResponse(BaseModel):
     initial_message: str
     follow_up_1: str
     follow_up_2: str
+    day3_scheduled_at: str
+    day7_scheduled_at: str
     ats_relevance_score: float
     created_at: str
+
 
 # Mock sequence database
 outreach_db = {}
@@ -51,20 +56,26 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
     seq_id = f"seq_{len(outreach_db) + 1}_{int(datetime.datetime.now().timestamp())}"
     achievements_str = " ".join(req.key_achievements) if req.key_achievements else "proven track record in engineering"
 
+    now = datetime.datetime.now()
+    day3 = (now + datetime.timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S")
+    day7 = (now + datetime.timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+
+    pain_points_str = f" to solve challenges in {', '.join(req.company_pain_points)}" if req.company_pain_points else ""
+
     if req.channel == "email":
         initial = (
             f"Subject: Quick question re: {req.target_role} at {req.recruiter.company}\n\n"
             f"Hi {req.recruiter.name},\n\n"
-            f"I noticed {req.recruiter.company} is driving strong impact in {req.recruiter.industry}. "
-            f"As a {req.target_role} specializing in {achievements_str}, I’ve delivered measurable results that align with your team's goals.\n\n"
+            f"I noticed {req.recruiter.company} is driving strong impact in {req.recruiter.industry}{pain_points_str}. "
+            f"As a {req.target_role} specializing in {achievements_str}, I’ve delivered measurable results that align directly with your team's goals.\n\n"
             f"Would you be open to a 5-minute chat this week?\n\nBest,\n{req.candidate_name}"
         )
-        fu1 = f"Hi {req.recruiter.name}, following up on my previous note. Would love to share how my background in {req.target_role} can help drive upcoming initiatives at {req.recruiter.company}."
+        fu1 = f"Hi {req.recruiter.name}, following up on my note re: {req.target_role}. Would love to share how my experience with {achievements_str} can help drive upcoming initiatives at {req.recruiter.company}."
         fu2 = f"Hi {req.recruiter.name}, floating this back to the top. If now isn't the right time, I'd still welcome connecting for future opportunities."
     else: # Default: LinkedIn / Social DM
         initial = (
             f"Hi {req.recruiter.name}! 👋 Came across your profile while exploring {req.target_role} roles at {req.recruiter.company}. "
-            f"I bring deep expertise in {achievements_str}. Would love to connect and share a quick summary of my work!"
+            f"I bring deep expertise in {achievements_str}{pain_points_str}. Would love to connect and share a quick summary of my work!"
         )
         fu1 = f"Hi {req.recruiter.name}, hope you're having a great week! Just bumping this in case you had a moment to review my message regarding the {req.target_role} role."
         fu2 = f"Hi {req.recruiter.name}, completely understand you're busy! I've attached my interactive portfolio here if useful. Best of luck with hiring!"
@@ -77,8 +88,10 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
         initial_message=initial,
         follow_up_1=fu1,
         follow_up_2=fu2,
-        ats_relevance_score=94.5,
-        created_at=datetime.datetime.now().isoformat()
+        day3_scheduled_at=day3,
+        day7_scheduled_at=day7,
+        ats_relevance_score=96.5,
+        created_at=now.isoformat()
     )
 
     outreach_db[seq_id] = response_data

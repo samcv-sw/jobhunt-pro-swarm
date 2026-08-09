@@ -56,7 +56,14 @@ class TelegramNotifier:
     """
 
     def __init__(self, db_path: str, send_callback: Callable):
-        self.db_path = db_path
+        from pathlib import Path
+        _p = Path(db_path)
+        if not _p.exists():
+            _root = Path(__file__).parent.parent
+            _alt = _root / _p.name
+            if _alt.exists():
+                _p = _alt
+        self.db_path = str(_p)
         self.send_callback = send_callback  # async function to send Telegram message
         self._running = False
         self._thread = None

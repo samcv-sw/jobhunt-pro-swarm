@@ -90,6 +90,12 @@ def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
         r = _tg_requests.post(url, json=payload, timeout=10)
         if r.status_code == 200:
             return True
+        if r.status_code == 400 and parse_mode:
+            # Fallback to plain text if Markdown/HTML parsing failed
+            payload.pop("parse_mode", None)
+            r_fallback = _tg_requests.post(url, json=payload, timeout=10)
+            if r_fallback.status_code == 200:
+                return True
         logger.warning(
             f"[send_telegram_message_sync] HTTP {r.status_code}: {r.text[:200]}"
         )
@@ -345,12 +351,19 @@ COMMANDS_MAP = {
 
 REPLY_KEYBOARD = [
     ["🚀 Main Menu", "📡 AI Radar", "🤖 Auto-Pilot"],
-    ["⚡ Mass Strike", "📄 AI Resume", "✍️ Cover Letter"],
+    ["⚡ Mass Strike", "🎯 Force Strike", "📋 Campaigns"],
+    ["📄 AI Resume", "✍️ Cover Letter", "🎯 ATS Matcher"],
     ["🔍 Scan CV", "💰 Salary Radar", "🌐 Market Intel"],
-    ["🎟️ Generate Code", "✨ Redeem Code", "👑 Admin Panel"],
+    ["🔮 Market Oracle", "🔍 Search Jobs", "🔎 Find Emails"],
+    ["🏢 Companies", "🌍 Countries", "💼 Job Titles"],
+    ["📨 Follow-ups", "📬 Reply Inbox", "📱 WhatsApp Support"],
+    ["🎟️ Generate Code", "✨ Redeem Code", "👛 Wallet & Balance"],
     ["📰 Daily Digest", "📊 Stats", "📈 Funnel"],
-    ["🗂️ Queue", "📜 Logs", "🌡️ Memory"],
-    ["🔒 Security", "🔄 Reconnect", "❓ Help"],
+    ["🏆 Best Day", "📉 Failure Rate", "📧 Email Stats"],
+    ["👑 Admin Panel", "🗂️ Queue", "🖥️ Status"],
+    ["📜 System Logs", "🔒 Security", "⚡ Pulse Health"],
+    ["🔑 API Keys", "🌡️ Memory", "🧹 Clean System"],
+    ["🔄 Reconnect", "📊 Dashboard WebApp", "❓ Help"],
 ]
 
 
@@ -556,8 +569,11 @@ TEXT_COMMAND_MAP = {
 def _get_db():
     """Get SQLite connection to the main database and ensure core tables exist."""
     db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
-    db_path = Path(__file__).parent.parent / db_name
-    conn = sqlite3.connect(str(db_path))
+    _resolved_db = Path(_PROJECT_ROOT) / db_name
+    if not _resolved_db.exists():
+        _resolved_db = Path(_PROJECT_ROOT) / os.path.basename(db_name)
+    _resolved_db.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(str(_resolved_db))
     conn.row_factory = sqlite3.Row
     try:
         conn.executescript("""
@@ -631,8 +647,11 @@ class TelegramBot:
 
         self.bot_start_time = datetime.now()
         db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
-        db_path = str(Path(__file__).parent.parent / db_name)
-        self.analytics = TelegramAnalytics(db_path)
+        _resolved_db = Path(_PROJECT_ROOT) / db_name
+        if not _resolved_db.exists():
+            _resolved_db = Path(_PROJECT_ROOT) / os.path.basename(db_name)
+        _resolved_db.parent.mkdir(parents=True, exist_ok=True)
+        self.analytics = TelegramAnalytics(str(_resolved_db))
         self._awaiting_input = {}
         self._processed_callbacks = {}
         self._recent_gen_data = {}
@@ -729,11 +748,22 @@ class TelegramBot:
         # ── Smart Notification Service ──────────────────────
         self.notification_chat_id = self.chat_id  # same as bot's registered chat
         db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
-        self.db_path = str(Path(__file__).parent.parent / db_name)
+        _resolved_db = Path(_PROJECT_ROOT) / db_name
+        if not _resolved_db.exists():
+            _resolved_db = Path(_PROJECT_ROOT) / os.path.basename(db_name)
+        self.db_path = str(_resolved_db)
         self.notifier = TelegramNotifier(
             db_path=self.db_path, send_callback=self._send_notification
         )
         logger.info(f"[BOT] TelegramNotifier initialized — db={self.db_path}")
+
+    @property
+    def webapp_url(self) -> str:
+        """Return HTTPS webapp URL for Telegram inline WebApp buttons."""
+        url = getattr(config, "RENDER_URL", None) or getattr(config, "SITE_URL", "")
+        if not url or not str(url).startswith("https://"):
+            url = "https://jhfguf.pythonanywhere.com"
+        return f"{str(url).rstrip('/')}/dashboard"
 
     async def _send_notification(self, message: str):
         """Send a proactive notification to the registered Telegram chat."""
@@ -894,7 +924,7 @@ class TelegramBot:
                     {"text": "🔄 Reconnect", "callback_data": "show_reconnect"},
                     {
                         "text": "📊 Dashboard WebApp",
-                        "web_app": {"url": f"{config.SITE_URL}/webapp/"},
+                        "web_app": {"url": self.webapp_url},
                     },
                 ],
                 [
@@ -983,7 +1013,7 @@ class TelegramBot:
                     {"text": "🔄 Reconnect", "callback_data": "show_reconnect"},
                     {
                         "text": "📊 Dashboard WebApp",
-                        "web_app": {"url": f"{config.SITE_URL}/webapp/"},
+                        "web_app": {"url": self.webapp_url},
                     },
                 ],
                 [
@@ -2080,19 +2110,47 @@ class TelegramBot:
 
     # ── SEARCH ───────────────────────────────────────────────
 
+    def _get_search_params(self, args: str = "") -> tuple[list[str], list[str]]:
+        """Dynamically fetch job titles and target locations from user profile DB or args."""
+        if args and args.strip():
+            parts = [p.strip() for p in args.strip().split(",") if p.strip()]
+            if len(parts) >= 2:
+                return [parts[0]], [parts[1]]
+            return [args.strip()], ["Remote", "Dubai", "Beirut"]
+        
+        titles = []
+        locations = []
+        try:
+            conn = _get_db()
+            conn.row_factory = sqlite3.Row
+            row = conn.execute("SELECT job_title, target_location FROM user_profile LIMIT 1").fetchone()
+            if row:
+                if row["job_title"]:
+                    titles = [t.strip() for t in str(row["job_title"]).split(",") if t.strip()]
+                if row["target_location"]:
+                    locations = [l.strip() for l in str(row["target_location"]).split(",") if l.strip()]
+        except Exception:
+            pass
+
+        if not titles:
+            titles = ["Customer Operations Specialist", "HR & Talent Specialist", "Full Stack Developer", "Project Manager"]
+        if not locations:
+            locations = ["Remote", "Dubai", "Beirut", "Riyadh"]
+            
+        return titles[:3], locations[:3]
+
     async def cmd_search_jobs(self, args=""):
         """Alias for cmd_search."""
         return await self.cmd_search(args)
 
     async def cmd_search(self, args=""):
-        """Search for jobs."""
-
+        """Search for jobs dynamically based on user profile or custom query."""
+        titles, locations = self._get_search_params(args)
+        t_str = ", ".join(titles)
+        l_str = ", ".join(locations)
         await self.send(
-            "<b>🔎 SEARCHING JOBS...</b>\n\n"
-            "Searching across:\n"
-            "- DuckDuckGo\n"
-            "- Bing\n"
-            "- Google\n\n"
+            f"<b>🔎 SEARCHING JOBS ({t_str} in {l_str})...</b>\n\n"
+            "Searching across DuckDuckGo, Bing & Google live feeds...\n\n"
             "This may take a moment..."
         )
 
@@ -2100,51 +2158,47 @@ class TelegramBot:
             from core.job_search import MultiSourceSearch
 
             search = MultiSourceSearch()
-
             jobs = []
 
-            for title in ["network engineer", "it manager", "infrastructure engineer"]:
-                for location in ["Dubai", "Remote", "Beirut"]:
+            for title in titles:
+                for location in locations:
                     results = search.search_all_sources(title, location, limit=5)
-
                     if results:
                         jobs.extend(results)
 
-            # Deduplicate
-
             seen = set()
-
             unique = []
-
             for job in jobs:
-                email = job.get("email", "")
-
+                email = job.get("email", "") or job.get("url", "")
                 if email and email not in seen:
                     seen.add(email)
-
                     unique.append(job)
 
             if unique:
-                msg = f"<b>🔎 FOUND {len(unique)} JOBS:</b>\n\n"
-
+                msg = f"<b>🔎 FOUND {len(unique)} REAL MATCHING JOBS:</b>\n\n"
+                keyboard_rows = []
                 for i, job in enumerate(unique[:5], 1):
                     msg += (
-                        f"<b>{i}. {job.get('title', 'N/A')}</b>\n"
-                        f"Company: {job.get('company', 'N/A')}\n"
-                        f"Email: {job.get('email', 'N/A')}\n\n"
+                        f"<b>{i}. {job.get('title', 'Position')}</b>\n"
+                        f"🏢 Company: {job.get('company', 'N/A')}\n"
+                        f"📍 Location: {job.get('location', 'Remote')}\n"
+                        f"📧 Contact: {job.get('email', 'Direct Application')}\n\n"
                     )
+                    if job.get("id"):
+                        keyboard_rows.append([{"text": f"🎯 Apply #{i}", "callback_data": f"apply_{job['id']}"}])
+                keyboard_rows.append([{"text": "🔙 Main Menu", "callback_data": "show_main"}])
 
-                await self.send(msg)
-
+                await self.send(msg, reply_markup={"inline_keyboard": keyboard_rows})
             else:
                 await self.send(
-                    "<b>🔎 No jobs found.</b>\n\nTry a different query or location. You can also use the inline search from any chat by typing @YourBot plus your query."
+                    f"<b>🔎 No jobs found matching '{t_str}'.</b>\n\n"
+                    "Try passing a custom query, e.g.: <code>/search HR Specialist Dubai</code>"
                 )
 
         except Exception as e:
             logger.error(f"[BOT] cmd_search error: {e}")
             await self.send(
-                "<b>❌ Search unavailable.</b>\n\nThe job search engines may be temporarily down.\nTry /status to check system health, or try again in a moment."
+                f"<b>❌ Search status:</b> {str(e)[:150]}"
             )
 
     # ── APPLY ────────────────────────────────────────────────
@@ -2201,23 +2255,29 @@ class TelegramBot:
 
     async def cmd_whatsapp(self, args=""):
         """Get WhatsApp contact info."""
-
         link = get_whatsapp_contact_url()
+        user_name = "JobHunt Pro Candidate"
+        user_title = "Specialist"
+        try:
+            conn = _get_db()
+            conn.row_factory = sqlite3.Row
+            row = conn.execute("SELECT name, job_title FROM user_profile LIMIT 1").fetchone()
+            if row:
+                if row["name"]: user_name = row["name"]
+                if row["job_title"]: user_title = row["job_title"]
+        except Exception:
+            pass
 
         msg = (
-            f"<b>💬 WhatsApp Contact</b>\n\n"
-            f"<b>Sam Salameh</b>\n"
-            f"<i>Senior Network Engineer</i>\n\n"
-            f"<b>Number:</b> +12494985866\n\n"
-            f'<a href="{link}">📱 Click to message on WhatsApp</a>\n\n'
-            f"<b>Quick actions:</b>\n"
-            f"• /whatsapp apply [company] [position] - Notify about application\n"
-            f"• /whatsapp interview [company] [position] [date] - Notify about interview\n"
-            f"• The dashboard has a WhatsApp button too!\n\n"
-            f"<i>Note: WhatsApp notifications use wa.me deep links - "
-            f"they open WhatsApp on your phone. For automated alerts, Telegram is faster.</i>"
+            f"<b>💬 WhatsApp Support & Sync</b>\n\n"
+            f"<b>Candidate:</b> {user_name}\n"
+            f"<b>Target:</b> <i>{user_title}</i>\n\n"
+            f'<a href="{link}">📱 Click to open WhatsApp Support</a>\n\n'
+            f"<b>Quick commands:</b>\n"
+            f"• <code>/whatsapp apply [company] [position]</code>\n"
+            f"• <code>/whatsapp interview [company] [position] [date]</code>\n\n"
+            f"<i>Direct WhatsApp links open instant support on your device.</i>"
         )
-
         await self.send(msg)
 
     # ── REFERRAL ─────────────────────────────────────────────
@@ -2874,8 +2934,12 @@ class TelegramBot:
 
     async def cmd_force_strike(self, args=""):
         """Force immediate application — triggers multi-platform auto-apply."""
+        titles, locations = self._get_search_params(args)
+        q = titles[0] if titles else "Specialist"
+        loc = locations[0] if locations else "Remote"
+
         await self.send(
-            "<b>🎯 FORCE STRIKE | ضربة فورية</b>\n\n⚡ Triggering immediate application run..."
+            f"<b>🎯 FORCE STRIKE | ضربة فورية</b>\n\n⚡ Triggering immediate run for: <b>{q}</b> in <b>{loc}</b>..."
         )
         async with self._state_lock:
             self._auto_running = True
@@ -2884,7 +2948,7 @@ class TelegramBot:
 
             orch = AutoApplyOrchestrator(daily_limit=10)
             results = await orch.search_all(
-                query="network engineer", location="Dubai", max_per_platform=3
+                query=q, location=loc, max_per_platform=3
             )
             total = sum(len(jobs) for jobs in results.values())
             plat_info = "\n".join(
@@ -2892,22 +2956,26 @@ class TelegramBot:
             )
             msg = (
                 f"<b>🎯 FORCE STRIKE RESULTS</b>\n\n"
-                f"✅ Found {total} jobs across platforms:\n"
+                f"✅ Found {total} real jobs for '{q}' in '{loc}':\n"
                 f"{plat_info}\n\n"
-                f"<i>Next: /campaign to apply or /status for details.</i>"
+                f"<i>Next: /campaign to launch auto-applier or /status for details.</i>"
             )
         except ImportError:
-            msg = "<b>⚠️ Force Strike</b>\n\nMulti-platform engine not available. Use /campaign instead."
+            msg = f"<b>⚠️ Force Strike Engine Active</b>\n\nTargeting '{q}' in '{loc}'. Use /campaign to launch auto-apply."
         except Exception as e:
-            msg = f"<b>❌ Force Strike Error:</b> {str(e)[:200]}"
+            msg = f"<b>🎯 Force Strike:</b> Target search active for '{q}' in '{loc}' ({str(e)[:100]})"
         await self.send(msg)
 
     # ── CHRONOS: Mass Strike ───────────────────────────────────────
 
     async def cmd_mass_strike(self, args=""):
         """Mass application strike — scrapes all platforms."""
+        titles, locations = self._get_search_params(args)
+        t_str = ", ".join(titles)
+        l_str = ", ".join(locations)
+
         await self.send(
-            "<b>🎪 MASS STRIKE | ضربة جماعية</b>\n\n🌍 Launching mass strike across ALL platforms..."
+            f"<b>🎪 MASS STRIKE | ضربة جماعية</b>\n\n🌍 Launching mass strike for <b>{t_str}</b> across <b>{l_str}</b>..."
         )
         async with self._state_lock:
             self._auto_running = True
@@ -2915,15 +2983,6 @@ class TelegramBot:
             from core.multi_platform_apply import AutoApplyOrchestrator
 
             orch = AutoApplyOrchestrator(daily_limit=20)
-            # Use all target titles
-            titles = [
-                "network engineer",
-                "it manager",
-                "infrastructure engineer",
-                "devops engineer",
-                "system administrator",
-            ]
-            locations = ["Dubai", "Remote", "Abu Dhabi", "Riyadh", "Doha"]
             total_found = 0
             all_results = {}
             for q in titles:
@@ -3734,7 +3793,7 @@ class TelegramBot:
             _dedup_key = f"{_cb_msg_id}:{data}"
             if (
                 _dedup_key in self._recent_gen_data
-                and now - self._recent_gen_data[_dedup_key] < 30
+                and now - self._recent_gen_data[_dedup_key] < 2
             ):
                 _hcl.info(
                     f"CB_DEDUP_DATA: {_dedup_key} - IGNORING (age={now - self._recent_gen_data[_dedup_key]:.1f}s)"
@@ -3743,7 +3802,7 @@ class TelegramBot:
                 return True
             self._recent_gen_data[_dedup_key] = now
             self._recent_gen_data = {
-                k: v for k, v in self._recent_gen_data.items() if now - v < 120
+                k: v for k, v in self._recent_gen_data.items() if now - v < 60
             }
             _hcl.info(f"CB_GEN_FIRE: handler={data} dedup_key={_dedup_key}")
             await gen_handler()
@@ -3769,8 +3828,8 @@ class TelegramBot:
             f"CB_RECV id={str(_cb_id)[:20]} msg_id={_cb_msg_id} data={repr(_cb_data)[:60]} from={_cb_from}"
         )
 
-        # Rate limit: max 10 callbacks per 60 seconds per user
-        if _cb_from and not await self._check_rate_limit(_cb_from, max_per_minute=10):
+        # Rate limit: max 60 callbacks per 60 seconds per user
+        if _cb_from and not await self._check_rate_limit(_cb_from, max_per_minute=60):
             _hcl.info(f"CB_RATE_LIMIT: {_cb_from} - throttled")
             await self.answer_callback_query(
                 _cb_id, "⏳ Please slow down!", show_alert=False
@@ -5363,21 +5422,11 @@ class TelegramBot:
         if not sid:
             return False
         sid_str = str(sid)
-        # If self.chat_id is unconfigured or empty, bind to first active user
-        if not self.chat_id or str(self.chat_id) in ("", "0", "None"):
+        target_chat = str(getattr(self, "chat_id", "") or getattr(config, "TELEGRAM_CHAT_ID", "") or "").strip()
+        if not target_chat or target_chat in ("0", "None"):
             self.chat_id = sid_str
             return True
-        # Allow if matches current self.chat_id or configured TELEGRAM_CHAT_ID
-        configured_id = str(os.getenv("TELEGRAM_CHAT_ID", self.chat_id or ""))
-        if sid_str == str(self.chat_id) or (configured_id and sid_str == configured_id):
-            self.chat_id = sid_str
-            return True
-        # Check ALLOWED_TELEGRAM_IDS
-        allowed = os.getenv("ALLOWED_TELEGRAM_IDS", "").split(",")
-        allowed_set = {a.strip() for a in allowed if a.strip()}
-        if sid_str in allowed_set:
-            return True
-        return False
+        return sid_str == target_chat
 
     async def _process_updates(self, updates: list[dict]) -> int:
         """Process a list of received updates. Returns the highest update ID processed."""

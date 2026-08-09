@@ -162,10 +162,41 @@ function toggleApiKey() {
 }
 </script>
 
+<!-- Direct Card Payment (Visa / Mastercard / Apple Pay) -->
+<div style="margin-block-end:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.85)); border:1px solid rgba(59,130,246,0.25); border-radius:14px; text-align:center;">
+<h3 style="font-size:15px; font-weight:700; color:#60a5fa; margin-block-end:4px;">💳 Buy Credits with Visa / Mastercard / Apple Pay</h3>
+<p style="font-size:12px; color:#94a3b8; margin-block-end:4px;">100% Secure global checkout — Pay with your bank card and top up instantly!</p>
+<div style="font-size:11px; color:#60a5fa; font-weight:700; margin-block-end:10px;">
+  📌 Minimum Card Top-up: $10 USD
+</div>
+<button type="button" onclick="openDirectCardPaymentFromWallet()" style="width:100%; max-width:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
+  💳 Pay with Visa / Mastercard Now →
+</button>
+<div style="margin-block-start:6px; font-size:11px; color:#94a3b8;">
+  <span>⇄ Server busy or slow?</span>
+  <a href="javascript:void(0)" onclick="openDirectCardPaymentFromWallet('moonpay')" style="color:#60a5fa; text-decoration:underline; font-weight:600; margin-inline-start:4px;">
+    Try MoonPay Fallback Option ⚙️
+  </a>
+</div>
+
+<!-- Compact Minimal Country Info Box -->
+<div style="margin-block-start:12px; padding:10px 14px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-size:11px; text-align:left; display:flex; flex-direction:column; gap:6px;">
+  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+    <span style="color:#4ade80; font-weight:700; white-space:nowrap;">🟢 Supported (170+ Countries):</span>
+    <span style="color:#cbd5e1;">USA 🇺🇸, Canada 🇨🇦, UK 🇬🇧, All EU 🇪🇺, UAE 🇦🇪, KSA 🇸🇦, Qatar 🇶🇦, Kuwait 🇰🇼, Oman, Australia, Japan...</span>
+  </div>
+  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+    <span style="color:#f87171; font-weight:700; white-space:nowrap;">🔴 Restricted Cards:</span>
+    <span style="color:#fca5a5;">Lebanon 🇱🇧, Syria 🇸🇾, Yemen 🇾🇪, Iran 🇮🇷, Russia 🇷🇺, Belarus 🇧🇾, N. Korea 🇰🇵, Cuba 🇨🇺, Venezuela 🇻🇪 &mdash; <em style="color:#fbbf24;">Use USDT / Crypto below instead!</em></span>
+  </div>
+</div>
+</div>
+
 <div class="topup-card" id="topupCard">
     <h3>🪙 Buy Credits with Crypto</h3>
-    <p class="sub">Powered by NOWPayments &mdash; instant invoice, pay with your preferred crypto.</p>
+    <p class="sub">Powered by NOWPayments &mdash; instant invoice, pay with your preferred crypto (📌 Minimum: $8 USD).</p>
     <div class="preset-grid" id="presetGrid">
+        <button class="preset-btn" data-amount="8">$8</button>
         <button class="preset-btn" data-amount="10">$10</button>
         <button class="preset-btn selected" data-amount="25">$25</button>
         <button class="preset-btn" data-amount="50">$50</button>
@@ -174,7 +205,7 @@ function toggleApiKey() {
     <div class="topup-row">
         <div class="topup-amount">
             <label>Amount (USD)</label>
-            <input dir="auto" type="number" id="topupAmount" value="25" min="10" max="1000" step="1" / dir="auto">
+            <input dir="auto" type="number" id="topupAmount" value="25" min="8" max="1000" step="1" / dir="auto">
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;">
             <label style="font-size: 14px;color:#64748b;text-transform:uppercase;">Pay with</label>
@@ -201,7 +232,7 @@ function toggleApiKey() {
         <div class="pay-addr" id="invAddr">Loading...</div>
         <p style="font-size: 14px;color:#64748b;margin-block-end:16px;">Order: <span id="invOrder">---</span></p>
         <div class="btn-row">
-            <a class="btn-pay" id="btnPayUrl" href="#" target="_blank">💳 Open Payment Page</a>
+            <a class="btn-pay" id="btnPayUrl" href="javascript:void(0)" target="_blank">💳 Open Payment Page</a>
             <button class="btn-close" onclick="closeInvoice()">Close</button>
         </div>
     </div>
@@ -242,8 +273,19 @@ function toggleApiKey() {
 </div>
 
 <script>
+function openDirectCardPaymentFromWallet(provider) {
+  var amtInput = document.getElementById('topupAmount');
+  var val = amtInput ? amtInput.value : '25';
+  var walletAddr = '0x3d2e9d8a2a506417F2D5A2Ea5149b868d2A72492';
+  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdt&amount=' + encodeURIComponent(val || '25') + '&recipient=' + encodeURIComponent(walletAddr);
+  if (provider === 'moonpay') {
+    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(val || '25');
+  }
+  window.open(cardUrl, '_blank');
+}
+
 async function handleRedeem(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   const input = document.getElementById('redeemCodeInput');
   const btn = document.getElementById('btnRedeemSubmit');
   const alertBox = document.getElementById('redeemStatusAlert');
@@ -268,7 +310,7 @@ async function handleRedeem(e) {
       alertBox.textContent = d.message || '🎉 Code redeemed successfully!';
       alertBox.style.display = 'block';
       input.value = '';
-      setTimeout(() => window.location.reload(), 1500);
+      setTimeout(() => window.location.href = '/wallet', 1200);
     } else {
       alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
       alertBox.style.color = '#f87171';
@@ -287,6 +329,34 @@ async function handleRedeem(e) {
     btn.textContent = '✨ Redeem';
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const codeParam = urlParams.get('code') || urlParams.get('redeem');
+  if (codeParam) {
+    const input = document.getElementById('redeemCodeInput') || document.querySelector('.redeem-input');
+    const alertBox = document.getElementById('redeemStatusAlert');
+    if (input) {
+      input.value = codeParam.trim();
+      input.focus();
+      input.style.borderColor = '#38bdf8';
+      input.style.boxShadow = '0 0 15px rgba(56, 189, 248, 0.4)';
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      if (alertBox) {
+        alertBox.style.background = 'rgba(14, 165, 233, 0.15)';
+        alertBox.style.color = '#38bdf8';
+        alertBox.style.border = '1px solid rgba(14, 165, 233, 0.3)';
+        alertBox.textContent = '⚡ Auto-redeeming code from URL...';
+        alertBox.style.display = 'block';
+      }
+
+      setTimeout(() => {
+        handleRedeem();
+      }, 500);
+    }
+  }
+});
 </script>
 
 <h3 class="section-title" style="margin-block-start:24px;">📜 Transaction History</h3>
@@ -348,7 +418,7 @@ window.createTopup = async function(){
     var selectedCoin = document.querySelector('#coinSelect .coin-btn.selected');
     if (!selectedCoin) { alert('Please select a currency first'); return; }
     var coin = selectedCoin.dataset.coin;
-    if (!amount || amount < 10){ alert('Minimum $10.00'); return; }
+    if (!amount || amount < 8){ alert('Minimum Crypto Top-up $8.00'); return; }
 
     btn.disabled = true; btn.textContent = 'Creating...';
     try {

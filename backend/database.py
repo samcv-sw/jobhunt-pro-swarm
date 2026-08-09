@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import sys
 
 _db_logger = logging.getLogger(__name__)
 from sqlite3 import Connection as SQLite3Connection
@@ -80,6 +81,11 @@ REMOTE_PG_URL = (
 
 def _build_active_url() -> str:
     """Return the resolved async database URL at startup, logging the active backend."""
+    import sys
+    if os.getenv("TESTING") == "1" or "pytest" in sys.modules or "PYTEST_CURRENT_TEST" in os.environ:
+        test_url = os.getenv("TEST_DATABASE_URL") or "sqlite+aiosqlite:///./data/jobhunt_test.db"
+        _db_logger.info('{"msg": "Using isolated test SQLite database", "url": "%s"}', test_url)
+        return test_url
     if TURSO_URL:
         # libsql+aiosqlite over HTTPS — aiosqlite supports the libsql URL scheme
         # when the libsql-experimental package is installed.
@@ -98,6 +104,7 @@ def _build_active_url() -> str:
     return LOCAL_DB_URL
 
 
+
 ACTIVE_DB_URL = _build_active_url()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -114,7 +121,12 @@ if "sqlite" in ACTIVE_DB_URL:
     if TURSO_AUTH_TOKEN:
         connect_args["auth_token"] = TURSO_AUTH_TOKEN
     engine_kwargs["connect_args"] = connect_args
+    if os.getenv("TESTING") == "1" or "pytest" in sys.modules:
+        from sqlalchemy.pool import NullPool
+        engine_kwargs["poolclass"] = NullPool
+
 else:
+
     # PostgreSQL: production-hardened pool tuned for Neon free tier
     # - pool_size=3: Neon free allows 10 concurrent conns; leaving headroom
     # - pool_recycle=280: Neon serverless auto-suspends at 300s idle; recycle at 280s to avoid stale conns

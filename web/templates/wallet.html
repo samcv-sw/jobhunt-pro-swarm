@@ -167,11 +167,42 @@ function toggleApiKey() {
   }
 }
 </script>
+<!-- Direct Card Payment (Visa / Mastercard / Apple Pay) -->
+<div style="margin-block-end:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.85)); border:1px solid rgba(59,130,246,0.25); border-radius:14px; text-align:center;">
+<h3 style="font-size:15px; font-weight:700; color:#60a5fa; margin-block-end:4px;">💳 شحن الرصيد ببطاقات الفيزا والماستركارد (Visa / Mastercard / Apple Pay)</h3>
+<p style="font-size:12px; color:#94a3b8; margin-block-end:4px;">دفع عالمي آمن ومباشر 100% — ادفع ببطاقتك واشحن حسابك فوراً!</p>
+<div style="font-size:11px; color:#60a5fa; font-weight:700; margin-block-end:10px;">
+  📌 الحد الأدنى للشحن بالبطاقة: 10$ دولار
+</div>
+<button type="button" onclick="openDirectCardPaymentFromWallet()" style="width:100%; max-width:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
+  💳 ادفع ببطاقة الفيزا / ماستركارد الآن →
+</button>
+<div style="margin-block-start:6px; font-size:11px; color:#94a3b8;">
+  <span>⇄ تواجه بطء بالسيرفر الأول؟</span>
+  <a href="javascript:void(0)" onclick="openDirectCardPaymentFromWallet('moonpay')" style="color:#60a5fa; text-decoration:underline; font-weight:600; margin-inline-start:4px;">
+    جرب خيار MoonPay الاحتياطي ⚙️
+  </a>
+</div>
+
+<!-- Compact Minimal Country Info Box -->
+<div style="margin-block-start:12px; padding:10px 14px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-size:11px; text-align:start; display:flex; flex-direction:column; gap:6px;" dir="rtl">
+  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+    <span style="color:#4ade80; font-weight:700; white-space:nowrap;">🟢 الدول المسموحة بالبطاقة (170+ دولة):</span>
+    <span style="color:#cbd5e1;">أمريكا 🇺🇸، كندا 🇨🇦، بريطانيا 🇬🇧، دول أوروبا 🇪🇺، الإمارات 🇦🇪، السعودية 🇸🇦، قطر 🇶🇦، الكويت 🇰🇼، عمان، أستراليا، اليابان...</span>
+  </div>
+  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+    <span style="color:#f87171; font-weight:700; white-space:nowrap;">🔴 البطاقات المحظورة محلياً:</span>
+    <span style="color:#fca5a5;">لبنان 🇱🇧، سوريا 🇸🇾، اليمن 🇾🇪، إيران 🇮🇷، روسيا 🇷🇺، بيلاروسيا 🇧🇾، كوريا الشمالية 🇰🇵، كونا، فنزويلا 🇻🇪 &mdash; <em style="color:#fbbf24;">استخدم USDT / الكريبتو بالأسفل بدلاً منها!</em></span>
+  </div>
+</div>
+</div>
+
 <!-- NOWPayments Top-Up -->
 <div class="topup-card" id="topupCard">
 <h3>🪙 شراء رصيد بالعملة المشفرة</h3>
-<p class="sub">مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة.</p>
+<p class="sub">مدعوم بـ NOWPayments — فاتورة فورية، ادفع بعملتك المشفرة المفضلة (📌 الحد الأدنى: 8$).</p>
 <div class="preset-grid" id="presetGrid">
+<button class="preset-btn" data-amount="8">$8</button>
 <button class="preset-btn" data-amount="10">$10</button>
 <button class="preset-btn selected" data-amount="25">$25</button>
 <button class="preset-btn" data-amount="50">$50</button>
@@ -180,7 +211,7 @@ function toggleApiKey() {
 <div class="topup-row">
 <div class="topup-amount">
 <label>المبلغ (دولار)</label>
-<input dir="auto" id="topupAmount" max="1000" min="10" step="1" type="number" value="25"/ dir="auto">
+<input dir="auto" id="topupAmount" max="1000" min="8" step="1" type="number" value="25"/ dir="auto">
 </div>
 <div style="display:flex;flex-direction:column;gap:6px;">
 <label style="font-size: 14px;color:#64748b;text-transform:uppercase;">ادفع بـ</label>
@@ -206,7 +237,7 @@ function toggleApiKey() {
 <div class="pay-addr" id="invAddr">جاري التحميل...</div>
 <p style="font-size: 14px;color:#64748b;margin-block-end:16px;">الطلب: <span id="invOrder">---</span></p>
 <div class="btn-row">
-<a class="btn-pay" href="#" id="btnPayUrl" target="_blank">💳 افتح صفحة الدفع</a>
+<a class="btn-pay" href="javascript:void(0)" id="btnPayUrl" target="_blank">💳 افتح صفحة الدفع</a>
 <button class="btn-close" onclick="closeInvoice()">إغلاق</button>
 </div>
 </div>
@@ -235,13 +266,102 @@ function toggleApiKey() {
     {% endif %}
 </div>
 <div class="redeem-card">
-<h3>🎁 استرداد كود</h3>
-<p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
-<form dir="auto" action="/redeem" class="redeem-form" method="POST">
-<input autocomplete="off" class="redeem-input" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/ dir="auto">
-<button class="btn-redeem" type="submit">✨ استرداد</button>
-</form>
+  <h3>🎁 استرداد كود</h3>
+  <p>لديك بطاقة هدية أو كود ترويجي؟ أدخله أدناه لإضافة رصيد فوري إلى محفظتك.</p>
+  <form dir="auto" id="redeemForm" action="/redeem" class="redeem-form" method="POST" onsubmit="handleRedeem(event)">
+    <input autocomplete="off" class="redeem-input" id="redeemCodeInput" dir="auto" name="code" placeholder="XXXX-XXXX-XXXX" required="" type="text"/ dir="auto">
+    <button class="btn-redeem" id="btnRedeemSubmit" type="submit">✨ استرداد</button>
+  </form>
+  <div id="redeemStatusAlert" style="display:none;margin-block-start:12px;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;"></div>
 </div>
+
+<script dir="auto">
+function openDirectCardPaymentFromWallet(provider) {
+  var amtInput = document.getElementById('topupAmount');
+  var val = amtInput ? amtInput.value : '25';
+  var walletAddr = '0x3d2e9d8a2a506417F2D5A2Ea5149b868d2A72492';
+  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdt&amount=' + encodeURIComponent(val || '25') + '&recipient=' + encodeURIComponent(walletAddr);
+  if (provider === 'moonpay') {
+    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(val || '25');
+  }
+  window.open(cardUrl, '_blank');
+}
+
+async function handleRedeem(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('redeemCodeInput');
+  const btn = document.getElementById('btnRedeemSubmit');
+  const alertBox = document.getElementById('redeemStatusAlert');
+  const code = input.value.trim();
+  if (!code) return;
+
+  btn.disabled = true;
+  btn.textContent = '✨ جاري الاسترداد...';
+  alertBox.style.display = 'none';
+
+  try {
+    const r = await fetch('/redeem', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code })
+    });
+    const d = await r.json();
+    if (r.ok && d.success) {
+      alertBox.style.background = 'rgba(34, 197, 94, 0.15)';
+      alertBox.style.color = '#4ade80';
+      alertBox.style.border = '1px solid rgba(34, 197, 94, 0.3)';
+      alertBox.textContent = d.message || '🎉 تم استرداد الكود وشحن الرصيد بنجاح!';
+      alertBox.style.display = 'block';
+      input.value = '';
+      setTimeout(() => window.location.href = '/wallet', 1200);
+    } else {
+      alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
+      alertBox.style.color = '#f87171';
+      alertBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+      alertBox.textContent = d.error || 'الكود غير صحيح أو تم استخدامه سابقاً.';
+      alertBox.style.display = 'block';
+    }
+  } catch (err) {
+    alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
+    alertBox.style.color = '#f87171';
+    alertBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+    alertBox.textContent = 'خطأ في الاتصال: ' + err.message;
+    alertBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ استرداد';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code') || urlParams.get('redeem');
+    if (codeParam) {
+        const input = document.getElementById('redeemCodeInput') || document.querySelector('.redeem-input');
+        const alertBox = document.getElementById('redeemStatusAlert');
+        if (input) {
+            input.value = codeParam.trim();
+            input.focus();
+            input.style.borderColor = '#00f0ff';
+            input.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            if (alertBox) {
+                alertBox.style.background = 'rgba(14, 165, 233, 0.15)';
+                alertBox.style.color = '#38bdf8';
+                alertBox.style.border = '1px solid rgba(14, 165, 233, 0.3)';
+                alertBox.textContent = '⚡ جاري استرداد الكود تلقائياً من الرابط...';
+                alertBox.style.display = 'block';
+            }
+
+            setTimeout(() => {
+                handleRedeem();
+            }, 500);
+        }
+    }
+});
+</script>
+
 <h3 class="section-title" style="margin-block-start:24px;">📜 سجل العمليات</h3>
 {% if transactions %}
 <div style="overflow-x:auto;">
@@ -264,22 +384,6 @@ function toggleApiKey() {
     </tbody>
 </table>
 </div>
-<script dir="auto">
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const codeParam = urlParams.get('code') || urlParams.get('redeem');
-    if (codeParam) {
-        const input = document.querySelector('.redeem-input');
-        if (input) {
-            input.value = codeParam.trim();
-            input.focus();
-            input.style.borderColor = '#00f0ff';
-            input.style.boxShadow = '0 0 15px rgba(0, 240, 255, 0.4)';
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-});
-</script>
 {% else %}
 <div class="empty-tx">
 <div class="empty-icon">💰</div>
@@ -317,7 +421,7 @@ window.createTopup = async function(){
     var selectedCoin = document.querySelector('#coinSelect .coin-btn.selected');
     if (!selectedCoin) { alert('الرجاء تحديد العملة أولاً'); return; }
     var coin = selectedCoin.dataset.coin;
-    if (!amount || amount < 10){ alert('الحد الأدنى 10.00$'); return; }
+    if (!amount || amount < 8){ alert('الحد الأدنى لشحن الكريبتو 8.00$'); return; }
 
     btn.disabled = true; btn.textContent = 'جاري الإنشاء...';
     try {

@@ -30,7 +30,7 @@
   --glass-border-hover: rgba(245, 158, 11, 0.35);
 
   /* Typography */
-  --font-arabic: 'Cairo', 'Tajawal', 'IBM Plex Arabic', 'Inter', sans-serif;
+  --font-arabic: var(--font-cairo), var(--font-tajawal), 'IBM Plex Arabic', sans-serif;
   --font-size-base: 16px;
   --line-height-base: 1.8;
 

@@ -798,7 +798,7 @@ class MultiSourceSearch:
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
             future_to_scraper = {executor.submit(_run_single_scraper, s): s for s in self._scrapers}
             try:
-                for future in concurrent.futures.as_completed(future_to_scraper, timeout=2.0):
+                for future in concurrent.futures.as_completed(future_to_scraper, timeout=4.0):
                     try:
                         s_name, scraper_jobs = future.result()
                         for job in scraper_jobs:

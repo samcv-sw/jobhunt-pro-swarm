@@ -14,7 +14,9 @@ self.onmessage = async function (e) {
 
     // Fast regex extraction in Web Worker
     const emailMatch = rawText.match(/[\w\.-]+@[\w\.-]+\.\w+/);
-    const phoneMatch = rawText.match(/\+?\d[\d\s\-\(\)]{8,}\d/);
+    const cleanRawText = rawText.replace(/(?:\+?961[\s\-]*){2,}/gi, '+961 ');
+    const phoneMatch = cleanRawText.match(/(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}/) || cleanRawText.match(/\+?\d[\d\s\-\(\)]{8,}\d/);
+    let phoneVal = phoneMatch ? phoneMatch[0].replace(/^(?:\+?961[\s\-]*)+/gi, '+961 ').trim() : "";
 
     const commonSkills = ["Python", "FastAPI", "React", "TypeScript", "SQL", "Docker", "AWS", "Node.js", "GraphQL"];
     const detectedSkills = commonSkills.filter(skill => 
@@ -26,7 +28,7 @@ self.onmessage = async function (e) {
       fileName: fileName,
       raw_text: rawText,
       email: emailMatch ? emailMatch[0] : "",
-      phone: phoneMatch ? phoneMatch[0] : "",
+      phone: phoneVal,
       skills: detectedSkills,
       parseTimeMs: 4.2
     };

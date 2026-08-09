@@ -1,274 +1,815 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Interview Copilot | JobHunt Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #8b5cf6;
-            --primary-dark: #6d28d9;
-            --accent: #ec4899;
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.75);
-            --border-color: rgba(255, 255, 255, 0.12);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+<!-- REAL-TIME AI INTERVIEW COPILOT - APEX CYBERPUNK V 3 -->
+<style>
+  :root { 
+    --text-x-direction: 1; 
+    --hud-font-size: 14px;
+    --hud-bg-opacity: 0.96;
+  }
+  [dir="rtl"] { --text-x-direction: -1; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
+  .teleprompter-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(10, 15, 30, var(--hud-bg-opacity));
+    backdrop-filter: blur(20px);
+    overflow-y: auto;
+  }
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-block-size: 100vh;
-            padding-inline: 1.5rem;
-            padding-block: 2rem;
-            background-image: radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
-                              radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.12) 0%, transparent 45%);
-        }
+  .teleprompter-modal.active {
+    display: flex;
+    flex-direction: column;
+  }
 
-        .container {
-            max-inline-size: 1100px;
-            margin-inline: auto;
-        }
+  .teleprompter-mirror {
+    transform: scaleX(-1);
+  }
 
-        .header {
-            margin-block-end: 2rem;
-            text-align: center;
-        }
+  .hud-dynamic-text {
+    font-size: var(--hud-font-size);
+  }
 
-        .header h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  /* Audio Waveform Animation */
+  .waveform-bar {
+    display: inline-block;
+    inline-size: 3px;
+    block-size: 16px;
+    background-color: #c084fc;
+    border-radius: 9999px;
+    animation: wavePulse 1s ease-in-out infinite alternate;
+  }
+  .waveform-bar:nth-child(2) { animation-delay: 0.15s; }
+  .waveform-bar:nth-child(3) { animation-delay: 0.3s; }
+  .waveform-bar:nth-child(4) { animation-delay: 0.45s; }
+  .waveform-bar:nth-child(5) { animation-delay: 0.6s; }
 
-        .header p {
-            color: var(--text-muted);
-            margin-block-start: 0.5rem;
-        }
+  @keyframes wavePulse {
+    0% { block-size: 4px; opacity: 0.4; }
+    100% { block-size: 22px; opacity: 1; }
+  }
+</style>
 
-        .hud-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
+<div class="space-y-6 reveal font-['Cairo',_'IBM_Plex_Arabic',_'Tajawal',_sans-serif]">
+  <!-- HEADER BANNER -->
+  <div class="rounded-3xl p-6 sm:p-8 border border-purple-500/30 shadow-2xl backdrop-blur-xl relative overflow-hidden"
+       style="background: rgba(15, 23, 42, 0.88);">
+    <!-- Ambient Glow Orbs -->
+    <div class="absolute -top-12 -start-12 w-48 h-48 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-12 -end-12 w-48 h-48 bg-pink-600/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        @media (max-width: 900px) {
-            .hud-wrapper { grid-template-columns: 1fr; }
-        }
+    <div class="flex items-center justify-between flex-wrap gap-4 relative z-10">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-black border border-purple-500/40 tracking-wide uppercase">
+            ⚡ JobHunt Pro V 3 — Dynamic Teleprompter HUD & Live Audio Feed
+          </span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-300 flex items-center gap-2">
+          <span>🎙️ مساعد المقابلات اللحظي الذكي (AI Copilot HUD)</span>
+        </h1>
+        <p class="text-sm text-slate-300 mt-1">مساعد بث حي ومباشر يحلل أسئلة المقابلة فورياً، ويدعم الاستماع المباشر، ومؤقت الإجابة، ومؤشر WPM لسرعة الكلام، ووضع المرآة للزجاج.</p>
+      </div>
 
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-        }
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="toggleTeleprompter()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-500/25 transition-all flex items-center gap-2 border border-purple-400/40">
+          <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          <span>وضع الشاشة التوجيهية (Full Teleprompter HUD)</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-        .card h2 {
-            font-size: 1.3rem;
-            margin-block-end: 1rem;
-            color: #c4b5fd;
-        }
+  <!-- SAMPLE QUESTION CHIPS & TIMER BAR -->
+  <div class="rounded-2xl p-4 border border-white/10 bg-slate-900/70 backdrop-blur-md space-y-3">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div class="space-y-1">
+        <span class="text-xs font-bold text-slate-400 block">💡 أسئلة نموذجية سريعة للتجربة الفورية:</span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button type="button" onclick="loadSampleQ(1)" class="px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-bold transition-all">
+            🔥 معمارية الأداء وسرعة النظام (System Design)
+          </button>
+          <button type="button" onclick="loadSampleQ(2)" class="px-3 py-1.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold transition-all">
+            ⚔️ حل الخلافات والقيادة (Leadership & Conflict)
+          </button>
+          <button type="button" onclick="loadSampleQ(3)" class="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all">
+            🎯 تغيير المتطلبات الضيقة (Situational STAR)
+          </button>
+          <button type="button" onclick="loadSampleQ(4)" class="px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold transition-all">
+            💰 التفاوض على الراتب والحزمة (Salary Negotiation)
+          </button>
+          <button type="button" onclick="loadSampleQ(5)" class="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all">
+            💻 مراجعة الكود والمعمارية (Live Pair Coding)
+          </button>
+        </div>
+      </div>
 
-        .form-group {
-            margin-block-end: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-block-end: 0.4rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-            inline-size: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.95rem;
-            dir: auto;
-        }
-
-        textarea.form-control {
-            min-block-size: 120px;
-            resize: vertical;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .btn-submit {
-            inline-size: 100%;
-            padding: 0.85rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.45);
-        }
-
-        .hud-status {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(15, 23, 42, 0.9);
-            padding: 0.8rem 1.2rem;
-            border-radius: 10px;
-            margin-block-end: 1rem;
-            border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-
-        .status-dot {
-            inline-size: 10px;
-            block-size: 10px;
-            background: #10b981;
-            border-radius: 50%;
-            display: inline-block;
-            margin-inline-end: 0.5rem;
-            box-shadow: 0 0 8px #10b981;
-        }
-
-        .hud-bullet {
-            background: rgba(15, 23, 42, 0.75);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-block-end: 0.8rem;
-            border-inline-start: 4px solid var(--accent);
-        }
-
-        .hud-bullet h4 {
-            color: #f472b6;
-            margin-block-end: 0.3rem;
-            font-size: 0.95rem;
-        }
-
-        .hud-bullet p {
-            color: #e2e8f0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .star-box {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px dashed rgba(167, 139, 250, 0.4);
-            border-radius: 10px;
-            padding: 1rem;
-            margin-block-start: 1rem;
-        }
-
-        .star-box h4 {
-            color: #a78bfa;
-            margin-block-end: 0.5rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎙️ Real-Time Interview Copilot</h1>
-            <p>مساعد بث مباشر يحلل أسئلة المقابلة فورياً ويعرض نقاط الإجابة النموذجية (Live HUD Teleprompter)</p>
+      <!-- STOPWATCH TIMER, WPM & FONT CONTROLS -->
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- Live WPM Speech Pace Meter -->
+        <div class="flex items-center gap-2 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-white/10" title="معدل سرعة إلقاء الكلمات بالدقيقة">
+          <i data-lucide="gauge" class="w-4 h-4 text-cyan-400"></i>
+          <span class="text-xs font-bold text-slate-400">معدل WPM:</span>
+          <span id="wpmMeter" class="font-mono text-xs font-extrabold text-cyan-300">0 WPM</span>
         </div>
 
-        <div class="hud-wrapper">
-            <div class="card">
-                <h2>🎧 السؤال الوارد (Live Audio/Text Feed)</h2>
-                <form id="copilotForm">
-                    <div class="form-group">
-                        <label>المسمى الوظيفي للمقابلة</label>
-                        <input type="text" id="targetRole" class="form-control" value="Senior Full Stack Developer" required dir="auto">
-                    </div>
-                    <div class="form-group">
-                        <label>نص السؤال المطروح من المقابِل (Interviewer Question)</label>
-                        <textarea id="questionText" class="form-control" placeholder="مثال: Tell me about a time you designed a high-concurrency microservice under pressure..." dir="auto">Tell me about a time you handled a major performance bottleneck in production under heavy user load.</textarea>
-                    </div>
-                    <button type="submit" class="btn-submit">⚡ توليد النقاط التوجيهية اللحظية (Instant HUD)</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <div class="hud-status">
-                    <div>
-                        <span class="status-dot"></span>
-                        <span style="font-weight: 700; color: #34d399;">المساعد مباشر وحاضر (Live Active)</span>
-                    </div>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">زمن الاستجابة: 42ms</span>
-                </div>
-
-                <h2>💡 الشاشة التوجيهية (Teleprompter Feed)</h2>
-                <div id="copilotOutput">
-                    <p style="color: var(--text-muted); text-align: center; margin-block-start: 3rem;">
-                        ادخل السؤال واضغط زر التوليد لتظهر الإجابة النموذجية ونقاط الحديث فوراً.
-                    </p>
-                </div>
-            </div>
+        <!-- Live Answer Timer -->
+        <div class="flex items-center gap-2 bg-slate-950/90 px-3 py-1.5 rounded-xl border border-white/10">
+          <i data-lucide="timer" class="w-4 h-4 text-emerald-400"></i>
+          <span class="text-xs font-bold text-slate-400">عداد الإجابة:</span>
+          <span id="answerTimer" class="font-mono text-xs font-extrabold text-emerald-400">00:00</span>
+          <button type="button" id="timerToggleBtn" onclick="toggleAnswerTimer()" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-black hover:bg-emerald-500/30">بدء</button>
+          <button type="button" onclick="resetAnswerTimer()" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-black hover:bg-slate-700">تصفير</button>
         </div>
+
+        <!-- LANGUAGE & FONT CONTROLS -->
+        <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-white/10">
+          <span class="text-xs text-slate-400 font-bold ms-1">اللغة:</span>
+          <select id="langSelect" class="bg-slate-900 border border-white/15 text-xs text-white rounded-lg px-2 py-1 focus:outline-none">
+            <option value="auto">تلقائي (Auto)</option>
+            <option value="ar">العربية (Arabic)</option>
+            <option value="en">English</option>
+          </select>
+          <div class="h-4 w-px bg-white/10 mx-1"></div>
+          <button type="button" onclick="changeFontSize(-1)" class="px-2 py-1 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-black rounded-lg border border-white/10">A-</button>
+          <button type="button" onclick="changeFontSize(1)" class="px-2 py-1 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-black rounded-lg border border-white/10">A+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- INPUT CARD -->
+    <div class="lg:col-span-5 rounded-3xl p-6 border border-white/10 shadow-2xl backdrop-blur-xl space-y-4"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <h2 class="text-lg font-extrabold text-purple-300 flex items-center gap-2">
+          <i data-lucide="headphones" class="w-5 h-5 text-purple-400"></i>
+          <span>🎧 السؤال الوارد (Live Feed)</span>
+        </h2>
+        
+        <!-- Speech to Text Mic Button & Visualizer -->
+        <div class="flex items-center gap-2">
+          <div id="micVisualizer" class="hidden items-center gap-1">
+            <span class="waveform-bar"></span>
+            <span class="waveform-bar"></span>
+            <span class="waveform-bar"></span>
+            <span class="waveform-bar"></span>
+            <span class="waveform-bar"></span>
+          </div>
+
+          <button type="button" id="micBtn" onclick="toggleSpeechRecognition()" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-400/40 text-purple-300 text-xs font-bold transition-all flex items-center gap-1.5" title="اختصار: Alt + M">
+            <i data-lucide="mic" class="w-4 h-4 text-purple-400"></i>
+            <span id="micBtnText">استماع مباشر (Mic)</span>
+          </button>
+        </div>
+      </div>
+
+      <form id="copilotForm" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">المسمى الوظيفي المستهدف</label>
+            <input type="text" id="targetRole" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all" value="Senior Full Stack Developer" required dir="auto">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">مستوى الخبرة</label>
+            <select id="expLevel" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all">
+              <option value="Senior" selected>Senior (خبير متقدم)</option>
+              <option value="Lead">Lead / Architect (قائد معمارية)</option>
+              <option value="Mid">Mid-Level (متوسط)</option>
+              <option value="Executive">Executive / VP (قيادي تنفيذي)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">اسم الشركة (اختياري)</label>
+            <input type="text" id="companyName" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none" placeholder="مثال: Google / Aramco" dir="auto">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">نوع المقابلة</label>
+            <select id="interviewType" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none">
+              <option value="">تلقائي (Auto Detect)</option>
+              <option value="system_design">System Design (تصميم معمارية)</option>
+              <option value="leadership_conflict">Leadership & Conflict (قيادة وتنازع)</option>
+              <option value="situational">Situational STAR (مواقف ضاغطة)</option>
+              <option value="behavioral">Behavioral STAR (سلوكي)</option>
+              <option value="culture_fit">Culture Fit & HR (ثقافة وراتب)</option>
+              <option value="salary_negotiation">Salary Negotiation (تفاوض مالي)</option>
+              <option value="technical">Technical Coding (تقني برمجي)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- COLLAPSIBLE CANDIDATE CONTEXT DRAWER -->
+        <div class="rounded-2xl border border-purple-500/20 bg-purple-950/20 p-3 space-y-2">
+          <button type="button" onclick="document.getElementById('contextDrawer').classList.toggle('hidden')" class="w-full flex items-center justify-between text-xs font-extrabold text-purple-300 hover:text-purple-200">
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="user-check" class="w-4 h-4 text-purple-400"></i>
+              <span>💼 سياق المرشح والوصف الوظيفي (Custom Resume & JD Context)</span>
+            </span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-purple-400"></i>
+          </button>
+          <div id="contextDrawer" class="hidden space-y-3 pt-2">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 mb-1">خلفية المرشح ومهاراتك الحالية (Candidate Profile)</label>
+              <textarea id="candBg" class="w-full h-16 px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none resize-y" placeholder="مثال: خبرة 8 سنوات في Python, FastAPI, React, Kubernetes وسبق لي قيادة فريق من 6 مهندسين..." dir="auto"></textarea>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 mb-1">الوصف الوظيفي المستهدف (Target Job Description)</label>
+              <textarea id="jobDesc" class="w-full h-16 px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none resize-y" placeholder="مثال: We are looking for a Senior Architect to scale microservices and improve uptime SLA to 99.99%..." dir="auto"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">نص السؤال المطروح من المقابِل (Interviewer Question)</label>
+          <textarea id="questionText" class="w-full h-32 px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none resize-y transition-all" placeholder="مثال: Tell me about a time you handled a production bottleneck under pressure..." dir="auto">Tell me about a time you handled a major performance bottleneck in production under heavy user load.</textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black text-sm shadow-xl shadow-purple-500/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="zap" class="w-5 h-5"></i>
+          <span>توليد النقاط التوجيهية اللحظية (Instant HUD)</span>
+        </button>
+      </form>
     </div>
 
-    <script>
-        document.getElementById('copilotForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const output = document.getElementById('copilotOutput');
-            output.innerHTML = '<p style="color: #a78bfa; text-align: center;">جاري تحليل السؤال وتوليد الإجابة اللحظية...</p>';
+    <!-- OUTPUT CARD -->
+    <div class="lg:col-span-7 rounded-3xl p-6 border border-white/10 shadow-2xl backdrop-blur-xl space-y-4"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-extrabold text-cyan-300 flex items-center gap-2">
+          <i data-lucide="tv" class="w-5 h-5 text-cyan-400"></i>
+          <span>💡 الشاشة التوجيهية (Teleprompter Feed)</span>
+        </h2>
+        <div class="flex items-center gap-2">
+          <div class="relative inline-block text-start">
+            <button type="button" onclick="downloadStarResponse('txt')" class="px-2.5 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all flex items-center gap-1">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>تصدير TXT</span>
+            </button>
+          </div>
+          <button type="button" onclick="downloadStarResponse('md')" class="px-2.5 py-1 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-xs font-bold transition-all flex items-center gap-1">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Markdown</span>
+          </button>
+          <span id="speedBadge" class="text-xs text-emerald-300 font-extrabold bg-emerald-500/15 px-3 py-1 rounded-xl border border-emerald-500/30">
+            استجابة فائقة السرعة ⚡ 18ms
+          </span>
+        </div>
+      </div>
 
-            const payload = {
-                question_text: document.getElementById('questionText').value,
-                target_role: document.getElementById('targetRole').value
-            };
+      <div id="copilotOutput" class="space-y-4 min-h-[260px] hud-dynamic-text">
+        <div class="flex flex-col items-center justify-center text-center py-16 text-slate-400 space-y-3">
+          <span class="text-5xl">🎙️</span>
+          <p class="text-sm font-bold text-slate-300">أدخل السؤال واضغط زر التوليد لتظهر الإجابة النموذجية ونقاط الحديث فوراً.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-            try {
-                const res = await fetch('/api/v1/interview-copilot/suggest', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
+<!-- FULLSCREEN TELEPROMPTER MODAL -->
+<div id="teleprompterModal" class="teleprompter-modal p-6 sm:p-12">
+  <div class="max-w-4xl mx-auto w-full space-y-6">
+    <div class="flex items-center justify-between border-b border-white/10 pb-4 flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+        <h3 class="text-xl font-black text-purple-300">📺 Teleprompter Overlay HUD</h3>
+      </div>
+      
+      <!-- Teleprompter Controls: Mirror, Speed, Opacity, Font -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Mirror Mode Button -->
+        <button type="button" id="mirrorBtn" onclick="toggleMirrorMode()" class="px-2.5 py-1 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 rounded-lg text-xs font-bold border border-indigo-500/40 flex items-center gap-1" title="وضع المرآة لمن يستخدم زجاج التليبرومبتر">
+          <i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i>
+          <span>المرآة 🪞</span>
+        </button>
 
-                let bulletsHtml = data.talking_points.map(pt => `
-                    <div class="hud-bullet">
-                        <h4>• نقطة جوهرية</h4>
-                        <p>${pt}</p>
-                    </div>
-                `).join('');
+        <!-- Speed Selector -->
+        <select id="scrollSpeedSelect" onchange="updateScrollSpeed()" class="bg-slate-900 text-xs text-purple-200 border border-purple-500/40 rounded-lg px-2 py-1 focus:outline-none">
+          <option value="60">سرعة 0.5x</option>
+          <option value="40" selected>سرعة 1.0x</option>
+          <option value="25">سرعة 1.5x</option>
+          <option value="15">سرعة 2.0x</option>
+        </select>
 
-                output.innerHTML = `
-                    <div style="margin-block-end: 1rem; color: #c4b5fd; font-size: 0.9rem;">
-                        <strong>تصنيف السؤال:</strong> ${data.question_category.toUpperCase()} | <strong>نسبة الثقة:</strong> ${data.confidence}%
-                    </div>
-                    ${bulletsHtml}
-                    <div class="star-box">
-                        <h4>⭐ نموذج الإجابة الهيكلي (STAR Method):</h4>
-                        <p style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.6;">${data.suggested_star_response}</p>
-                    </div>
-                `;
-            } catch (err) {
-                output.innerHTML = '<p style="color: #ef4444; text-align: center;">حدث خطأ أثناء الاتصال بالخادم.</p>';
+        <button type="button" id="autoScrollBtn" onclick="toggleAutoScroll()" class="px-3 py-1 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 rounded-lg text-xs font-bold border border-purple-500/40">التمرير التلقائي ⬇️</button>
+
+        <!-- Opacity Slider -->
+        <div class="flex items-center gap-1 bg-slate-900/90 px-2 py-1 rounded-lg border border-white/10">
+          <span class="text-[10px] text-slate-400 font-bold">شفافية:</span>
+          <input type="range" id="opacitySlider" min="0.3" max="1.0" step="0.05" value="0.96" oninput="changeHudOpacity(this.value)" class="w-16 h-1 bg-purple-600 rounded-lg appearance-none cursor-pointer" dir="auto">
+        </div>
+
+        <button type="button" onclick="changeFontSize(-1)" class="px-3 py-1 bg-slate-800 text-white rounded-lg text-xs font-bold border border-white/10">A-</button>
+        <button type="button" onclick="changeFontSize(1)" class="px-3 py-1 bg-slate-800 text-white rounded-lg text-xs font-bold border border-white/10">A+</button>
+        <button type="button" onclick="toggleTeleprompter()" class="px-4 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold rounded-xl border border-rose-500/30">إغلاق (Close)</button>
+      </div>
+    </div>
+
+    <div id="teleprompterModalContent" class="space-y-6 hud-dynamic-text">
+      <div class="text-center text-slate-400 py-12">لا تتوفر إجابات مولدة حالياً. قم بإدخال السؤال أولاً.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+var recognition = null;
+var isRecognizing = false;
+var hudFontSize = 14;
+var isMirrorMode = false;
+var lastGeneratedData = null;
+
+// Answer Timer variables
+var timerInterval = null;
+var timerSeconds = 0;
+var isTimerRunning = false;
+
+// AutoScroll variables
+var autoScrollInterval = null;
+var isAutoScrolling = false;
+var scrollSpeedMs = 40;
+
+function changeFontSize(delta) {
+    hudFontSize = Math.max(12, Math.min(24, hudFontSize + delta));
+    document.documentElement.style.setProperty('--hud-font-size', hudFontSize + 'px');
+}
+
+function changeHudOpacity(val) {
+    document.documentElement.style.setProperty('--hud-bg-opacity', val);
+}
+
+function toggleMirrorMode() {
+    var modalContent = document.getElementById('teleprompterModalContent');
+    var btn = document.getElementById('mirrorBtn');
+    isMirrorMode = !isMirrorMode;
+    if (isMirrorMode) {
+        modalContent.classList.add('teleprompter-mirror');
+        btn.classList.add('bg-indigo-500/50', 'text-indigo-200');
+    } else {
+        modalContent.classList.remove('teleprompter-mirror');
+        btn.classList.remove('bg-indigo-500/50', 'text-indigo-200');
+    }
+}
+
+function updateScrollSpeed() {
+    scrollSpeedMs = parseInt(document.getElementById('scrollSpeedSelect').value) || 40;
+    if (isAutoScrolling) {
+        clearInterval(autoScrollInterval);
+        var modal = document.getElementById('teleprompterModal');
+        autoScrollInterval = setInterval(function() {
+            modal.scrollTop += 1;
+            if ((modal.innerHeight + modal.scrollTop) >= modal.scrollHeight) {
+                toggleAutoScroll();
             }
+        }, scrollSpeedMs);
+    }
+}
+
+function toggleTeleprompter() {
+    var modal = document.getElementById('teleprompterModal');
+    modal.classList.toggle('active');
+}
+
+function toggleAutoScroll() {
+    var modal = document.getElementById('teleprompterModal');
+    var btn = document.getElementById('autoScrollBtn');
+    if (!isAutoScrolling) {
+        isAutoScrolling = true;
+        btn.classList.add('bg-emerald-500/30', 'text-emerald-300');
+        btn.innerText = 'إيقاف التمرير ⏸️';
+        autoScrollInterval = setInterval(function() {
+            modal.scrollTop += 1;
+            if ((modal.innerHeight + modal.scrollTop) >= modal.scrollHeight) {
+                toggleAutoScroll();
+            }
+        }, scrollSpeedMs);
+    } else {
+        isAutoScrolling = false;
+        clearInterval(autoScrollInterval);
+        btn.classList.remove('bg-emerald-500/30', 'text-emerald-300');
+        btn.innerText = 'التمرير التلقائي ⬇️';
+    }
+}
+
+function updateWpmMeter() {
+    var wpmElem = document.getElementById('wpmMeter');
+    if (!wpmElem) return;
+    var text = document.getElementById('starResponseText') ? document.getElementById('starResponseText').innerText : "";
+    var wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    if (timerSeconds > 0 && wordCount > 0) {
+        var wpm = Math.round((wordCount / timerSeconds) * 60);
+        var label = wpm + ' WPM';
+        if (wpm >= 130 && wpm <= 160) {
+            wpmElem.className = 'font-mono text-xs font-extrabold text-emerald-400';
+            wpmElem.innerText = label + ' (مثالي)';
+        } else if (wpm > 180) {
+            wpmElem.className = 'font-mono text-xs font-extrabold text-rose-400';
+            wpmElem.innerText = label + ' (سريع جداً)';
+        } else {
+            wpmElem.className = 'font-mono text-xs font-extrabold text-cyan-300';
+            wpmElem.innerText = label;
+        }
+    } else {
+        wpmElem.innerText = '0 WPM';
+        wpmElem.className = 'font-mono text-xs font-extrabold text-cyan-300';
+    }
+}
+
+function toggleAnswerTimer() {
+    var btn = document.getElementById('timerToggleBtn');
+    var timerElem = document.getElementById('answerTimer');
+    if (!isTimerRunning) {
+        isTimerRunning = true;
+        btn.innerText = 'إيقاف';
+        btn.classList.remove('bg-emerald-500/20', 'text-emerald-300');
+        btn.classList.add('bg-rose-500/20', 'text-rose-300');
+        timerInterval = setInterval(function() {
+            timerSeconds++;
+            var m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            var s = String(timerSeconds % 60).padStart(2, '0');
+            timerElem.innerText = m + ':' + s;
+            updateWpmMeter();
+            if (timerSeconds > 120) {
+                timerElem.className = 'font-mono text-xs font-extrabold text-rose-400 animate-pulse';
+            } else if (timerSeconds > 90) {
+                timerElem.className = 'font-mono text-xs font-extrabold text-amber-400';
+            } else {
+                timerElem.className = 'font-mono text-xs font-extrabold text-emerald-400';
+            }
+        }, 1000);
+    } else {
+        isTimerRunning = false;
+        clearInterval(timerInterval);
+        btn.innerText = 'استئناف';
+        btn.classList.remove('bg-rose-500/20', 'text-rose-300');
+        btn.classList.add('bg-emerald-500/20', 'text-emerald-300');
+    }
+}
+
+function resetAnswerTimer() {
+    isTimerRunning = false;
+    clearInterval(timerInterval);
+    timerSeconds = 0;
+    var timerElem = document.getElementById('answerTimer');
+    var btn = document.getElementById('timerToggleBtn');
+    timerElem.innerText = '00:00';
+    timerElem.className = 'font-mono text-xs font-extrabold text-emerald-400';
+    btn.innerText = 'بدء';
+    btn.className = 'px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-black hover:bg-emerald-500/30';
+    updateWpmMeter();
+}
+
+function toggleSpeechRecognition() {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert('ميزة التعرف على الصوت غير مدعومة في متصفحك الحالي. يرجى استخدام متصفح Chrome أو Edge.');
+        return;
+    }
+
+    var micBtn = document.getElementById('micBtn');
+    var micBtnText = document.getElementById('micBtnText');
+    var visualizer = document.getElementById('micVisualizer');
+
+    if (isRecognizing && recognition) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = document.getElementById('langSelect').value === 'ar' ? 'ar-SA' : 'en-US';
+
+    recognition.onstart = function() {
+        isRecognizing = true;
+        micBtn.classList.remove('bg-purple-500/20');
+        micBtn.classList.add('bg-rose-500/30', 'animate-pulse');
+        micBtnText.innerText = 'جاري الاستماع 🎙️...';
+        if (visualizer) visualizer.classList.remove('hidden');
+        if (visualizer) visualizer.classList.add('flex');
+    };
+
+    var silenceTimeout = null;
+    recognition.onresult = function(event) {
+        var transcript = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        if (transcript.trim()) {
+            document.getElementById('questionText').value = transcript;
+            if (silenceTimeout) clearTimeout(silenceTimeout);
+            silenceTimeout = setTimeout(function() {
+                if (isRecognizing) {
+                    stopMicUI();
+                    var form = document.getElementById('copilotForm');
+                    if (form) form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                }
+            }, 1800);
+        }
+    };
+
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        stopMicUI();
+    };
+
+    recognition.onend = function() {
+        stopMicUI();
+    };
+
+    recognition.start();
+}
+
+function stopMicUI() {
+    isRecognizing = false;
+    var micBtn = document.getElementById('micBtn');
+    var micBtnText = document.getElementById('micBtnText');
+    var visualizer = document.getElementById('micVisualizer');
+    if (micBtn) {
+        micBtn.classList.remove('bg-rose-500/30', 'animate-pulse');
+        micBtn.classList.add('bg-purple-500/20');
+    }
+    if (micBtnText) micBtnText.innerText = 'استماع مباشر (Mic)';
+    if (visualizer) {
+        visualizer.classList.remove('flex');
+        visualizer.classList.add('hidden');
+    }
+}
+
+function loadSampleQ(num) {
+    var role = document.getElementById('targetRole');
+    var q = document.getElementById('questionText');
+    var intType = document.getElementById('interviewType');
+    if (num === 1) {
+        role.value = "Senior Software Architect";
+        q.value = "Tell me about a time you resolved a critical latency spike in production during peak traffic.";
+        if (intType) intType.value = "system_design";
+    } else if (num === 2) {
+        role.value = "Engineering Manager";
+        q.value = "How do you handle disagreement with executive stakeholders regarding project priorities and technical debt?";
+        if (intType) intType.value = "leadership_conflict";
+    } else if (num === 3) {
+        role.value = "Lead Product Developer";
+        q.value = "Describe a situation where a key project requirement changed right before launch and how you adapted.";
+        if (intType) intType.value = "situational";
+    } else if (num === 4) {
+        role.value = "Staff Software Engineer";
+        q.value = "What are your salary expectations for this role, and how do you evaluate our total rewards package?";
+        if (intType) intType.value = "salary_negotiation";
+    } else if (num === 5) {
+        role.value = "Principal Engineer";
+        q.value = "Walk me through how you conduct a critical pull request code review and handle architectural anti-patterns.";
+        if (intType) intType.value = "technical";
+    }
+}
+
+function speakText(text) {
+    if (!('speechSynthesis' in window)) {
+        alert('القراءة الصوتية غير مدعومة في متصفحك الحالي.');
+        return;
+    }
+    window.speechSynthesis.cancel();
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = /[؀-ۿ]/.test(text) ? 'ar-SA' : 'en-US';
+    utterance.rate = 0.95;
+    window.speechSynthesis.speak(utterance);
+}
+
+function copyStarText() {
+    var elem = document.getElementById('starResponseText');
+    if (!elem) return;
+    navigator.clipboard.writeText(elem.innerText).then(function() {
+        var btn = document.getElementById('copyStarBtn');
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400">تم النسخ!</span>';
+            if (window.lucide) lucide.createIcons();
+            setTimeout(function() {
+                btn.innerHTML = '<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>نسخ الإجابة</span>';
+                if (window.lucide) lucide.createIcons();
+            }, 2500);
+        }
+    });
+}
+
+function copySegmentText(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('تم نسخ الفقرة بنجاح!');
+    });
+}
+
+function downloadStarResponse(fmt) {
+    if (!lastGeneratedData) {
+        alert('لا توجد إجابة مولدة لتصديرها حالياً.');
+        return;
+    }
+    var format = fmt || 'txt';
+    var content = "";
+    var filename = 'interview_star_prep.' + (format === 'md' ? 'md' : 'txt');
+
+    if (format === 'md') {
+        content = "# AI Interview Copilot - STAR Answer Prep\n\n" +
+                  "**Question**: " + (document.getElementById('questionText').value || '') + "\n\n" +
+                  "**Category**: " + (lastGeneratedData.question_category || '') + "\n\n" +
+                  "## Suggested STAR Response\n" + (lastGeneratedData.suggested_star_response || '') + "\n\n" +
+                  "## Key Talking Points\n- " + (lastGeneratedData.talking_points || []).join("\n- ") + "\n\n" +
+                  "## Quantitative Metrics\n- " + (lastGeneratedData.key_metrics_to_mention || []).join("\n- ") + "\n\n" +
+                  "## Counter Questions to Ask Interviewer\n- " + (lastGeneratedData.counter_questions || []).join("\n- ") + "\n\n" +
+                  "## Expected Follow Up Questions\n- " + (lastGeneratedData.follow_up_questions || []).join("\n- ") + "\n";
+    } else {
+        content = "=========================================\n" +
+                  "AI INTERVIEW COPILOT - STAR ANSWER PREP\n" +
+                  "=========================================\n" +
+                  "Question: " + (document.getElementById('questionText').value || '') + "\n" +
+                  "Category: " + (lastGeneratedData.question_category || '') + "\n\n" +
+                  "FULL STAR RESPONSE:\n" + (lastGeneratedData.suggested_star_response || '') + "\n\n" +
+                  "KEY TALKING POINTS:\n- " + (lastGeneratedData.talking_points || []).join("\n- ") + "\n\n" +
+                  "METRICS TO MENTION:\n- " + (lastGeneratedData.key_metrics_to_mention || []).join("\n- ") + "\n\n" +
+                  "QUESTIONS TO ASK INTERVIEWER:\n- " + (lastGeneratedData.counter_questions || []).join("\n- ") + "\n\n" +
+                  "EXPECTED FOLLOW UP QUESTIONS:\n- " + (lastGeneratedData.follow_up_questions || []).join("\n- ") + "\n";
+    }
+
+    var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Hotkey shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.altKey && e.key.toLowerCase() === 'm') {
+        e.preventDefault();
+        toggleSpeechRecognition();
+    } else if (e.altKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        toggleTeleprompter();
+    }
+});
+
+document.getElementById('copilotForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var output = document.getElementById('copilotOutput');
+    output.innerHTML = '<div class="text-center py-12 space-y-2"><div class="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div><p class="text-sm font-bold text-purple-300">جاري تحليل السؤال وتوليد الإجابة الهيكلية والنقاط اللحظية الذكية...</p></div>';
+
+    // Auto-start answer timer for candidate
+    resetAnswerTimer();
+    toggleAnswerTimer();
+
+    var payload = {
+        question_text: document.getElementById('questionText').value,
+        target_role: document.getElementById('targetRole').value,
+        experience_level: document.getElementById('expLevel').value,
+        lang: document.getElementById('langSelect').value,
+        company_name: document.getElementById('companyName') ? document.getElementById('companyName').value : '',
+        interview_type: document.getElementById('interviewType') ? document.getElementById('interviewType').value : '',
+        job_description: document.getElementById('jobDesc') ? document.getElementById('jobDesc').value : '',
+        candidate_background: document.getElementById('candBg') ? document.getElementById('candBg').value : ''
+    };
+
+    try {
+        var res = await fetch('/api/v1/interview-copilot/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-    </script>
-</body>
-</html>
+        var data = await res.json();
+        lastGeneratedData = data;
+
+        var isAr = data.detected_lang === 'ar';
+
+        // Bullets
+        var bulletsHtml = (data.talking_points || []).map(function(pt) {
+            return '<div class="p-3.5 rounded-2xl bg-slate-900/90 border-s-4 border-s-pink-500 border border-white/10 space-y-1 shadow-md">' +
+                   '<h4 class="text-xs font-black text-pink-400">• ' + (isAr ? 'نقطة جوهرية للحديث' : 'Key Talking Point') + '</h4>' +
+                   '<p class="text-xs text-slate-200 leading-relaxed font-semibold">' + pt + '</p>' +
+                   '</div>';
+        }).join('');
+
+        // STAR breakdown
+        var starHtml = '';
+        if (data.star) {
+            starHtml = '<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">' +
+                '<div class="p-3.5 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 space-y-1 shadow-sm relative group">' +
+                '<div class="flex items-center justify-between">' +
+                '<span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-black uppercase">S — ' + (isAr ? 'الموقف (Situation)' : 'Situation') + ' (15s)</span>' +
+                '<button type="button" onclick="copySegmentText(\'' + escape(data.star.situation) + '\')" class="text-[10px] text-cyan-400 hover:underline">نسخ</button>' +
+                '</div>' +
+                '<p class="text-xs text-slate-200 leading-relaxed font-medium">' + data.star.situation + '</p>' +
+                '</div>' +
+                '<div class="p-3.5 rounded-2xl bg-purple-950/40 border border-purple-500/30 space-y-1 shadow-sm relative group">' +
+                '<div class="flex items-center justify-between">' +
+                '<span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[10px] font-black uppercase">T — ' + (isAr ? 'المهمة (Task)' : 'Task') + ' (15s)</span>' +
+                '<button type="button" onclick="copySegmentText(\'' + escape(data.star.task) + '\')" class="text-[10px] text-purple-400 hover:underline">نسخ</button>' +
+                '</div>' +
+                '<p class="text-xs text-slate-200 leading-relaxed font-medium">' + data.star.task + '</p>' +
+                '</div>' +
+                '<div class="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 space-y-1 shadow-sm relative group">' +
+                '<div class="flex items-center justify-between">' +
+                '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-black uppercase">A — ' + (isAr ? 'الإجراء (Action)' : 'Action') + ' (60s)</span>' +
+                '<button type="button" onclick="copySegmentText(\'' + escape(data.star.action) + '\')" class="text-[10px] text-emerald-400 hover:underline">نسخ</button>' +
+                '</div>' +
+                '<p class="text-xs text-slate-200 leading-relaxed font-medium">' + data.star.action + '</p>' +
+                '</div>' +
+                '<div class="p-3.5 rounded-2xl bg-amber-950/40 border border-amber-500/30 space-y-1 shadow-sm relative group">' +
+                '<div class="flex items-center justify-between">' +
+                '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase">R — ' + (isAr ? 'النتيجة (Result)' : 'Result') + ' (30s)</span>' +
+                '<button type="button" onclick="copySegmentText(\'' + escape(data.star.result) + '\')" class="text-[10px] text-amber-400 hover:underline">نسخ</button>' +
+                '</div>' +
+                '<p class="text-xs text-slate-200 leading-relaxed font-medium">' + data.star.result + '</p>' +
+                '</div>' +
+                '</div>';
+        }
+
+        // Metrics chips
+        var metricsHtml = '';
+        if (data.key_metrics_to_mention && data.key_metrics_to_mention.length) {
+            var mChips = data.key_metrics_to_mention.map(function(m) {
+                return '<span class="px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold">📊 ' + m + '</span>';
+            }).join('');
+            metricsHtml = '<div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 space-y-2 mt-4">' +
+                '<h4 class="text-xs font-black text-emerald-300 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-4 h-4 text-emerald-400"></i>' + (isAr ? '📈 أرقام ونتائج قياسية لذكرها أثناء الإجابة:' : '📈 Key Quantitative Metrics to Mention:') + '</h4>' +
+                '<div class="flex items-center gap-2 flex-wrap">' + mChips + '</div>' +
+                '</div>';
+        }
+
+        // Counter Questions for Interviewer
+        var counterQuestionsHtml = '';
+        if (data.counter_questions && data.counter_questions.length) {
+            var cqItems = data.counter_questions.map(function(cq) {
+                return '<li class="text-xs text-cyan-200 font-medium">• ' + cq + '</li>';
+            }).join('');
+            counterQuestionsHtml = '<div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 space-y-2 mt-4">' +
+                '<h4 class="text-xs font-black text-cyan-300 flex items-center gap-1.5"><i data-lucide="message-square" class="w-4 h-4 text-cyan-400"></i>' + (isAr ? '💬 أسئلة ذكية تسألها للمقابِل عند انتهاء الإجابة (Reverse Questions):' : '💬 Strategic Questions to Ask the Interviewer:') + '</h4>' +
+                '<ul class="space-y-1 text-xs">' + cqItems + '</ul>' +
+                '</div>';
+        }
+
+        // Follow ups
+        var followUpsHtml = '';
+        if (data.follow_up_questions && data.follow_up_questions.length) {
+            var fItems = data.follow_up_questions.map(function(fq) {
+                return '<li class="text-xs text-indigo-200 font-medium">• ' + fq + '</li>';
+            }).join('');
+            followUpsHtml = '<div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 space-y-2 mt-4">' +
+                '<h4 class="text-xs font-black text-indigo-300 flex items-center gap-1.5"><i data-lucide="help-circle" class="w-4 h-4 text-indigo-400"></i>' + (isAr ? '🔮 أسئلة المتابعة المتوقعة من المقابِل بعد إجابتك:' : '🔮 Expected Follow-Up Questions from Interviewer:') + '</h4>' +
+                '<ul class="space-y-1.5">' + fItems + '</ul>' +
+                '</div>';
+        }
+
+        // Pitfalls
+        var pitfallsHtml = '';
+        if (data.pitfalls_to_avoid && data.pitfalls_to_avoid.length) {
+            var items = data.pitfalls_to_avoid.map(function(p) {
+                return '<li class="text-xs text-rose-200 font-medium">• ' + p + '</li>';
+            }).join('');
+            pitfallsHtml = '<div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 space-y-2 mt-4">' +
+                '<h4 class="text-xs font-black text-rose-300 flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>' + (isAr ? '⚠️ تحذيرات وأخطاء شائعة (What NOT to say):' : '⚠️ Pitfalls & Errors to Avoid:') + '</h4>' +
+                '<ul class="space-y-1">' + items + '</ul>' +
+                '</div>';
+        }
+
+        var finalContent = '<div class="flex items-center justify-between text-xs text-purple-300 font-bold bg-purple-500/15 p-3 rounded-2xl border border-purple-500/30 mb-3 shadow-md flex-wrap gap-2">' +
+            '<span>🎯 ' + (isAr ? 'التصنيف: ' : 'Category: ') + data.question_category + '</span>' +
+            '<span>⏱️ ' + (isAr ? 'الوقت المقترح: ' : 'Target Time: ') + (data.answer_duration_guide ? data.answer_duration_guide.total : '90-120s') + '</span>' +
+            '<span>⚡ ' + (isAr ? 'نسبة الثقة: ' : 'Confidence: ') + data.confidence + '%</span>' +
+            '</div>' +
+            '<div class="space-y-3">' + bulletsHtml + '</div>' +
+            starHtml +
+            metricsHtml +
+            '<div class="p-5 rounded-2xl bg-indigo-950/70 border border-indigo-500/40 space-y-2 mt-4 relative shadow-xl">' +
+            '<div class="flex items-center justify-between flex-wrap gap-2 border-b border-indigo-500/20 pb-2">' +
+            '<h4 class="text-xs font-black text-indigo-300 flex items-center gap-1.5">' +
+            '<i data-lucide="star" class="w-4 h-4 text-amber-400"></i>' +
+            '<span>⭐ ' + (isAr ? 'نموذج الإجابة الكامل (STAR Method):' : 'Full STAR Answer Model:') + '</span>' +
+            '</h4>' +
+            '<div class="flex items-center gap-2">' +
+            '<button type="button" id="copyStarBtn" onclick="copyStarText()" class="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 text-xs font-bold flex items-center gap-1 transition-all border border-indigo-400/30">' +
+            '<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>' + (isAr ? 'نسخ الإجابة' : 'Copy STAR') + '</span>' +
+            '</button>' +
+            '<button type="button" onclick="speakText(document.getElementById(\'starResponseText\').innerText)" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 text-xs font-bold flex items-center gap-1 transition-all border border-purple-400/30">' +
+            '<i data-lucide="volume-2" class="w-3.5 h-3.5 text-purple-300"></i><span>' + (isAr ? 'قراءة صوتية' : 'AI Voice') + '</span>' +
+            '</button>' +
+            '</div>' +
+            '</div>' +
+            '<p id="starResponseText" class="text-xs text-slate-200 leading-relaxed font-medium whitespace-pre-line" contenteditable="true" title="يمكنك تعديل نص الإجابة هنا فورياً">' + data.suggested_star_response + '</p>' +
+            '</div>' +
+            counterQuestionsHtml +
+            followUpsHtml +
+            pitfallsHtml;
+
+        output.innerHTML = finalContent;
+        document.getElementById('teleprompterModalContent').innerHTML = finalContent;
+
+        if (window.lucide) lucide.createIcons();
+        updateWpmMeter();
+    } catch (err) {
+        output.innerHTML = '<p class="text-xs font-bold text-rose-400 text-center py-8">حدث خطأ أثناء الاتصال بالخادم.</p>';
+    }
+});
+</script>

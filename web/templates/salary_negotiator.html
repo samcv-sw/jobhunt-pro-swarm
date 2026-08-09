@@ -1,264 +1,820 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autonomous AI Salary Negotiator | JobHunt Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #f59e0b;
-            --primary-dark: #d97706;
-            --accent: #10b981;
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.75);
-            --border-color: rgba(255, 255, 255, 0.12);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+<!-- AI SALARY NEGOTIATOR & MARKET VALUE ENGINE -->
+<div class="space-y-6 reveal font-['Cairo','IBM_Plex_Arabic','Tajawal',sans-serif]">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-        }
+  <!-- HERO HEADER (APEX GLASS) -->
+  <div class="relative overflow-hidden p-6 sm:p-8 rounded-3xl border border-amber-500/30 shadow-2xl backdrop-blur-2xl reveal"
+       style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(24, 16, 4, 0.90) 100%);">
+    <!-- Ambient Glow Orbs -->
+    <div class="absolute -top-24 -start-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -end-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            min-block-size: 100vh;
-            padding-inline: 1.5rem;
-            padding-block: 2rem;
-            background-image: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.18) 0%, transparent 45%),
-                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 45%);
-        }
+    <div class="relative z-10 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+            AI Negotiation Engine
+          </span>
+          <span class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-white/10 text-white border border-white/20">V 1</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-400 flex items-center gap-3">
+          <span>💰 حاسبة الراتب المستحق ومُولّد التفاوض الآلي الذكي</span>
+        </h1>
+        <p class="text-sm sm:text-base text-slate-300 mt-2 max-w-3xl leading-relaxed">
+          حلّل قيمتك السوقية الحقيقية في الإمارات والسعودية والخليج والدول العالمية، واحصل على خطاب تفاوض ومكالمة شفهية بالذكاء الاصطناعي لرفع عرضك المالي بنسبة <span class="text-amber-300 font-extrabold">+15% إلى +35%</span>.
+        </p>
+      </div>
 
-        .container {
-            max-inline-size: 1100px;
-            margin-inline: auto;
-        }
+      <div class="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-extrabold shadow-lg">
+        <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+        <span>مؤشر الرواتب والقدرة الشرائية محيّن 2026</span>
+      </div>
+    </div>
+  </div>
 
-        .header {
-            margin-block-end: 2rem;
-            text-align: center;
-        }
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- INPUT & BENCHMARK FORM -->
+    <div class="lg:col-span-5 rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-xl space-y-5"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <h2 class="text-lg font-extrabold text-amber-300 flex items-center gap-2 border-b border-white/10 pb-3">
+        <i data-lucide="sliders" class="w-5 h-5 text-amber-400"></i>
+        <span>📊 مدخلات تشخيص العرض المالي</span>
+      </h2>
 
-        .header h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fbbf24 0%, #34d399 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            color: var(--text-muted);
-            margin-block-start: 0.5rem;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .grid-layout { grid-template-columns: 1fr; }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-        }
-
-        .card h2 {
-            font-size: 1.3rem;
-            margin-block-end: 1rem;
-            color: #fde68a;
-        }
-
-        .form-group {
-            margin-block-end: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-block-end: 0.4rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .form-control {
-            inline-size: 100%;
-            padding: 0.75rem 1rem;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.95rem;
-            dir: auto;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .btn-submit {
-            inline-size: 100%;
-            padding: 0.85rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-block-start: 0.5rem;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45);
-        }
-
-        .upside-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-block-end: 1rem;
-        }
-
-        .upside-value {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #34d399;
-        }
-
-        .letter-box {
-            background: rgba(15, 23, 42, 0.9);
-            border-radius: 10px;
-            padding: 1.2rem;
-            color: #e2e8f0;
-            font-family: inherit;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin-block-end: 1rem;
-            border: 1px solid var(--border-color);
-        }
-
-        .bullet-item {
-            background: rgba(15, 23, 42, 0.7);
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            margin-block-end: 0.5rem;
-            border-inline-start: 3px solid var(--primary);
-            font-size: 0.9rem;
-            color: #f8fafc;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>💰 Autonomous AI Salary Negotiator</h1>
-            <p>مساعد ذكي يولد خطابات ومحاور التفاوض على الرواتب بناءً على بيانات السوق واقتناص أفضل عرض</p>
+      <form id="salaryForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">المسمى الوظيفي المستهدف</label>
+          <input type="text" id="jobRole" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="Senior Software Engineer" required dir="auto">
         </div>
 
-        <div class="grid-layout">
-            <div class="card">
-                <h2>📋 تفاصيل العرض والهدف</h2>
-                <form id="negForm">
-                    <div class="form-group">
-                        <label>الاسم الكامل</label>
-                        <input type="text" id="candidateName" class="form-control" value="سامي أحمد" required dir="auto">
-                    </div>
-                    <div class="form-group">
-                        <label>المسمى الوظيفي</label>
-                        <input type="text" id="jobTitle" class="form-control" value="Senior Backend Developer" required dir="auto">
-                    </div>
-                    <div class="form-group">
-                        <label>اسم الشركة</label>
-                        <input type="text" id="companyName" class="form-control" value="Enterprise Corp" required dir="auto">
-                    </div>
-                    <div class="form-group">
-                        <label>العرض الحالي المعروض ($ USD / سنوياً)</label>
-                        <input type="number" id="currentOffer" class="form-control" value="120000" required dir="auto">
-                    </div>
-                    <div class="form-group">
-                        <label>الراتب المستهدف المطلوبة ($ USD / سنوياً)</label>
-                        <input type="number" id="targetOffer" class="form-control" value="145000" required dir="auto">
-                    </div>
-                    <button type="submit" class="btn-submit">⚡ توليد خطة واستراتيجية التفاوض</button>
-                </form>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">المستوى الوظيفي</label>
+            <select id="seniorityLevel" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="junior">Junior (مبتدئ - 1-2 سنوات)</option>
+              <option value="mid">Mid-Level (متوسط - 3-5 سنوات)</option>
+              <option value="senior" selected>Senior (خبير - 5-8 سنوات)</option>
+              <option value="lead">Lead / Principal (قائد - 8+ سنوات)</option>
+              <option value="director">Director / Executive (مدير تنفيذي)</option>
+            </select>
+          </div>
 
-            <div class="card">
-                <h2>📈 استراتيجية وخطاب التفاوض</h2>
-                <div id="negResults">
-                    <p style="color: var(--text-muted); text-align: center; margin-block-start: 4rem;">
-                        قم بإدخال بيانات العرض واضغط على التزر للحصول على خطة التفاوض والخطاب المقترح.
-                    </p>
-                </div>
-            </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">العملة المفضلة</label>
+            <select id="currency" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="USD" selected>USD ($)</option>
+              <option value="AED">AED (درهم إماراتي)</option>
+              <option value="SAR">SAR (ريال سعودي)</option>
+              <option value="QAR">QAR (ريال قطري)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="EGP">EGP (جنيه مصري)</option>
+              <option value="LBP">LBP (ليرة لبنانية)</option>
+            </select>
+          </div>
         </div>
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">المنطقة الجغرافية / الدولة</label>
+          <select id="country" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+            <optgroup label="🌟 الوجهات الرئيسية (Top Destinations)">
+              <option value="United Arab Emirates (الإمارات - UAE)" selected>🇦🇪 الإمارات (دبي / أبوظبي - UAE)</option>
+              <option value="Saudi Arabia (السعودية - KSA)">🇸🇦 السعودية (الرياض / جدة - KSA)</option>
+              <option value="Qatar (قطر)">🇶🇦 قطر (الدوحة - Qatar)</option>
+              <option value="Kuwait (الكويت)">🇰🇼 الكويت (Kuwait)</option>
+              <option value="Lebanon (لبنان)">🇱🇧 لبنان (Lebanon)</option>
+              <option value="Oman (عُمان)">🇴🇲 عُمان (Oman)</option>
+              <option value="Bahrain (البحرين)">🇧🇭 البحرين (Bahrain)</option>
+              <option value="Jordan (الأردن)">🇯🇴 الأردن (Jordan)</option>
+              <option value="Egypt (مصر)">🇪🇬 مصر (Egypt)</option>
+              <option value="Remote International (عن بُعد عالمياً)">🌐 عن بُعد عالمياً (Remote International)</option>
+              <option value="United States (أمريكا - USA)">🇺🇸 الولايات المتحدة (USA)</option>
+              <option value="United Kingdom (بريطانيا - UK)">🇬🇧 المملكة المتحدة (UK)</option>
+              <option value="Canada (كندا)">🇨🇦 كندا (Canada)</option>
+              <option value="Germany (ألمانيا)">🇩🇪 ألمانيا (Germany)</option>
+              <option value="France (فرنسا)">🇫🇷 فرنسا (France)</option>
+              <option value="Switzerland (سويسرا)">🇨🇭 سويسرا (Switzerland)</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">الراتب الأساسي المعروض</label>
+            <input type="number" id="currentOffer" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="4500" required dir="auto">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">البونوس السنوي</label>
+            <input type="number" id="offeredBonus" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="500" dir="auto">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">الأسهم / المزايا</label>
+            <input type="number" id="offeredEquity" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all" value="0" dir="auto">
+          </div>
+        </div>
+
+        <!-- TARGET BOOST PRESETS -->
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>نسبة الزيادة المستهدفة (Target Boost)</span>
+            <span id="targetPctDisplay" class="text-amber-300 font-extrabold">+20%</span>
+          </label>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="setTargetPct(15)" id="pctBtn15" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white border border-white/10 transition-all">+15%</button>
+            <button type="button" onclick="setTargetPct(20)" id="pctBtn20" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition-all">+20%</button>
+            <button type="button" onclick="setTargetPct(25)" id="pctBtn25" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white border border-white/10 transition-all">+25%</button>
+            <button type="button" onclick="setTargetPct(30)" id="pctBtn30" class="flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white border border-white/10 transition-all">+30%</button>
+          </div>
+          <input type="hidden" id="customTargetPct" value="20" dir="auto">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">نبرة الخطاب المطلوبة</label>
+            <select id="pitchStyle" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="diplomatic" selected>🤝 دبلوماسي متعاون (Diplomatic)</option>
+              <option value="assertive">🔥 حاسم وقوي (Assertive)</option>
+              <option value="executive">👔 استراتيجي تنفيذي (Executive)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">هل لديك عرض وظيفي منافس؟</label>
+            <select id="competingOffer" class="w-full px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none transition-all">
+              <option value="false">لا، هذا العرض الوحيد حالياً</option>
+              <option value="true">نعم، لدي عرض/فرصة موازية</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">أبرز المهارات ونقاط القوة الحسمية</label>
+          <textarea id="skillsNotes" class="w-full h-20 px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20 focus:outline-none resize-y transition-all" placeholder="مثال: خبرة 6 سنوات، قيادة فريق من 5 مهندسين، Cloud Architecture..." dir="auto">خبرة 6 سنوات، تصميم شبكات سحابية، قيادة فرق عمل.</textarea>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-emerald-500 hover:from-amber-400 hover:to-emerald-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/25 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center gap-2">
+          <i data-lucide="calculator" class="w-5 h-5"></i>
+          <span id="btnText">🔮 تشخيص العرض المالي وتوليد حزمة التفاوض</span>
+        </button>
+      </form>
     </div>
 
-    <script>
-        document.getElementById('negForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const results = document.getElementById('negResults');
-            results.innerHTML = '<p style="color: #fbbf24; text-align: center;">جاري بناء استراتيجية التفاوض وتحليل السوق...</p>';
+    <!-- RESULT & PITCH CARD -->
+    <div class="lg:col-span-7 rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl backdrop-blur-xl space-y-5"
+         style="background: rgba(15, 23, 42, 0.85);">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
+        <h2 class="text-lg font-extrabold text-emerald-400 flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-5 h-5 text-emerald-400"></i>
+          <span>🎯 نتائج التقييم وحزمة التفاوض الذكية</span>
+        </h2>
+        <div class="flex items-center gap-2">
+          <span id="expectedBoostBadge" class="text-xs text-amber-300 font-extrabold bg-amber-500/15 px-3 py-1 rounded-xl border border-amber-500/30 shadow-sm">
+            نسبة الزيادة المستهدفة: +22%
+          </span>
+          <button type="button" id="exportDossierBtn" onclick="exportNegotiationDossier()" class="text-xs font-bold text-slate-200 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-xl border border-white/15 transition-all flex items-center gap-1 shadow-sm">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>تنزيل التقرير</span>
+          </button>
+        </div>
+      </div>
 
-            const payload = {
-                candidate_name: document.getElementById('candidateName').value,
-                job_title: document.getElementById('jobTitle').value,
-                company_name: document.getElementById('companyName').value,
-                current_offer_amount: parseFloat(document.getElementById('currentOffer').value),
-                target_amount: parseFloat(document.getElementById('targetOffer').value),
-                currency: "USD"
-            };
+      <div id="salaryOutput" class="space-y-5">
+        <!-- STATS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-700/50 text-center shadow-lg relative overflow-hidden">
+            <span class="text-xs font-bold text-slate-400 block mb-1">المتوسط السوقي للمنطقة</span>
+            <span id="marketBenchmarkText" class="text-xl font-black text-slate-200">$4,800</span>
+          </div>
 
-            try {
-                const res = await fetch('/api/v1/salary-negotiator/generate-counter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-emerald-500/40 text-center shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 end-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <span class="text-xs font-bold text-emerald-400 block mb-1">الراتب المستهدف التفاوضي</span>
+            <span id="targetSalaryText" class="text-2xl font-black text-emerald-400">$5,500</span>
+          </div>
 
-                let bulletsHtml = data.negotiation_script_bullets.map(b => `<div class="bullet-item">📌 ${b}</div>`).join('');
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-amber-500/40 text-center shadow-lg relative overflow-hidden">
+            <div class="absolute top-0 end-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <span class="text-xs font-bold text-amber-300 block mb-1">الربح السنوي المتوقع</span>
+            <span id="potentialGainText" class="text-xl font-black text-amber-300">+$12,000 / سنة</span>
+          </div>
+        </div>
 
-                results.innerHTML = `
-                    <div class="upside-card">
-                        <div>
-                            <div style="color: var(--text-muted); font-size: 0.85rem;">الزيادة المستهدفة المتوقعة</div>
-                            <div style="color: #fff; font-size: 0.95rem;">مستوى السوق: $${data.market_benchmark_median.toLocaleString()}</div>
-                        </div>
-                        <div class="upside-value">+$${data.potential_upside.toLocaleString()}</div>
-                    </div>
+        <!-- TAX & NET SALARY INSIGHTS CARD -->
+        <div id="taxInsightsCard" class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3">
+          <div class="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div class="text-xs text-slate-200 leading-relaxed">
+            <div class="font-extrabold text-amber-300 flex items-center gap-2">
+              <span id="taxBadgeText">🇦🇪 الإمارات: 0% ضريبة دخل</span>
+            </div>
+            <p id="taxNoteText" class="text-slate-300 text-[11px] mt-0.5">
+              المنطقة معفاة تماماً من ضريبة الدخل الشخصي (0%) مما يرفع صافي الراتب والقوة الشرائية الحقيقية.
+            </p>
+          </div>
+        </div>
 
-                    <h4 style="font-size: 0.95rem; color: #fde68a; margin-block-end: 0.5rem;">خطاب المضادة المعياري (Counter-Offer Letter):</h4>
-                    <div class="letter-box">${data.counter_offer_letter}</div>
+        <!-- TOTAL COMP VISUALIZER -->
+        <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-300">
+            <span>مكونات التعويض الشامل (Total Compensation):</span>
+            <span id="totalCompSumText" class="text-emerald-400 font-extrabold">إجمالي المعروض: $5,000</span>
+          </div>
+          <div class="w-full h-3 rounded-full bg-slate-800 overflow-hidden flex">
+            <div id="barBase" class="h-full bg-emerald-500 transition-all duration-500" style="width: 80%;" title="الراتب الأساسي"></div>
+            <div id="barBonus" class="h-full bg-amber-400 transition-all duration-500" style="width: 15%;" title="البونوس"></div>
+            <div id="barEquity" class="h-full bg-purple-500 transition-all duration-500" style="width: 5%;" title="الأسهم والامتيازات"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>الراتب الأساسي</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-400"></span>البونوس السنوي</span>
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span>الأسهم والحوافز</span>
+          </div>
+        </div>
 
-                    <h4 style="font-size: 0.95rem; color: #fde68a; margin-block-end: 0.5rem;">محاور الحديث أثناء المكالمة (Call Script):</h4>
-                    ${bulletsHtml}
-                `;
-            } catch (err) {
-                results.innerHTML = '<p style="color: #ef4444; text-align: center;">حدث خطأ أثناء الاتصال بالخادم.</p>';
+        <!-- GENERATED PITCH LETTER WITH TONE & LANG & FORMAT SWITCHER -->
+        <div class="p-5 rounded-2xl bg-slate-950/90 border border-amber-500/30 space-y-3 shadow-inner">
+          <!-- TOOLBAR HEADER -->
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-2.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <!-- FORMAT TABS (Email vs Call) -->
+              <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[11px]">
+                <button type="button" onclick="switchPitchFormat('email')" id="fmtEmail" class="px-2.5 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all flex items-center gap-1">
+                  <i data-lucide="mail" class="w-3 h-3"></i><span>إيميل</span>
+                </button>
+                <button type="button" onclick="switchPitchFormat('call')" id="fmtCall" class="px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1">
+                  <i data-lucide="phone-call" class="w-3 h-3"></i><span>مكالمة شفهية</span>
+                </button>
+              </div>
+
+              <!-- TONE TABS -->
+              <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[11px]">
+                <button type="button" onclick="switchPitchTone('diplomatic')" id="tabDiplomatic" class="px-2 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all">دبلوماسي</button>
+                <button type="button" onclick="switchPitchTone('assertive')" id="tabAssertive" class="px-2 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">حاسم</button>
+                <button type="button" onclick="switchPitchTone('executive')" id="tabExecutive" class="px-2 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">تنفيذي</button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- LANGUAGE TOGGLE -->
+              <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[11px]">
+                <button type="button" onclick="switchPitchLang('ar')" id="langAr" class="px-2 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all">العربية 🇸🇦</button>
+                <button type="button" onclick="switchPitchLang('en')" id="langEn" class="px-2 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all">English 🇬🇧</button>
+              </div>
+
+              <button id="copyPitchBtn" onclick="copyPitchLetter()" class="text-xs font-bold text-slate-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-all flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>نسخ النص</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="pitchTextContainer" class="p-4 rounded-xl bg-slate-900/90 border border-white/10 text-slate-200 text-xs sm:text-sm leading-relaxed font-mono whitespace-pre-wrap selection:bg-amber-500/30 dir-auto">السادة فريق التوظيف المحترمين،
+
+أشكركم جزيل الشكر على تقديم العرض الوظيفي لمنصب Senior Software Engineer. أنا متحمس للغاية للرؤية المستقبلية للفريق وولدي الثقة الكاملة في تحقيق نتائج ملموسة واستثنائية.
+
+استناداً إلى بيانات ومؤشرات الرواتب لعام 2026 لمنصب Senior Software Engineer في المنطقة، أود اقتراح تعديل الراتب الأساسي ليصل إلى $5,500.
+
+أنا ملتزم تماماً بالانضمام وتقديم قيمة مضاعفة، وأتطلع لسماع رأيكم الكريم للتوقيع والبدء فوراً.
+
+مع خالص التقدير والاحترام،
+المترشح</div>
+        </div>
+
+        <!-- RECRUITER OBJECTIONS & COUNTER-REBUTTALS DECK -->
+        <div class="p-5 rounded-2xl bg-slate-950/90 border border-amber-500/30 space-y-3.5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2.5 flex-wrap gap-2">
+            <h3 class="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
+              <span>🛡️ محرك الرد على اعتراضات مسئول التوظيف (Recruiter Objections Handler)</span>
+            </h3>
+            <span class="text-[11px] font-bold text-slate-400">اختر سيناريو الرفض للحصول على رد حاسم:</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px]" id="objectionBtns">
+            <button type="button" onclick="selectObjection('budget_capped')" id="obj_budget_capped" class="p-2 rounded-xl border font-bold text-center bg-amber-500/20 text-amber-300 border-amber-500/40 transition-all">
+              🛡️ الميزانية مغلقة
+            </button>
+            <button type="button" onclick="selectObjection('standard_band')" id="obj_standard_band" class="p-2 rounded-xl border font-bold text-center bg-slate-900 text-slate-300 border-white/10 hover:text-white transition-all">
+              📊 حد النطاق الأقصى
+            </button>
+            <button type="button" onclick="selectObjection('other_candidates')" id="obj_other_candidates" class="p-2 rounded-xl border font-bold text-center bg-slate-900 text-slate-300 border-white/10 hover:text-white transition-all">
+              ⏳ مرشحون آخرون
+            </button>
+            <button type="button" onclick="selectObjection('no_signon')" id="obj_no_signon" class="p-2 rounded-xl border font-bold text-center bg-slate-900 text-slate-300 border-white/10 hover:text-white transition-all">
+              🚫 سياسة البونوس
+            </button>
+            <button type="button" onclick="selectObjection('wfh_adjusted')" id="obj_wfh_adjusted" class="p-2 rounded-xl border font-bold text-center bg-slate-900 text-slate-300 border-white/10 hover:text-white transition-all col-span-2 sm:col-span-1">
+              🏠 العمل عن بعد
+            </button>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+              <span id="objectionTitle" class="text-xs font-black text-amber-300">🛡️ الميزانية المحددة للمنصب مغلقة وغير قابلة للتعديل</span>
+              <button type="button" onclick="copyObjectionRebuttal()" id="copyObjBtn" class="text-[11px] font-bold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1 transition-all">
+                <i data-lucide="copy" class="w-3 h-3"></i><span>نسخ الرد</span>
+              </button>
+            </div>
+            <div id="objectionText" class="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap font-mono dir-auto">
+أفهم تماماً قيود الميزانية المحددة للمنصب. لتجسير الفارق دون تجاوز سقف السلم الوظيفي، أقترح إضافة مكافأة انضمام ترحيبية (Sign-on Bonus) أو الجدولة لمراجعة استثنائية للراتب بعد 6 أشهر بناءً على نتائج الأداء.
+            </div>
+          </div>
+        </div>
+
+        <!-- PERKS & NON-SALARY BENEFITS CHECKLIST -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-3">
+          <div class="flex items-center justify-between border-b border-white/10 pb-2">
+            <h4 class="text-xs font-extrabold text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="gift" class="w-4 h-4 text-emerald-400"></i>
+              <span>🎁 قائمة المزايا والبدلات القابلة للتفاوض (Perks Negotiation Suite)</span>
+            </h4>
+            <span id="perksTotalEstimate" class="text-xs font-black text-emerald-300 bg-emerald-500/15 px-2.5 py-0.5 rounded-lg border border-emerald-500/30">
+              قيمة المزايا المضافة: $0
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-300" id="perksChecklist">
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="1500" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>✈️ تذاكر طيران سنوية (Annual Tickets)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="2000" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>🏠 بدل تجهيز مكتب منزلي (Home Office)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="2500" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>🎓 ميزانية التعليم والشهادات (Education Fund)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="3000" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>🚀 مكافأة الانضمام (Sign-on Bonus)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="1200" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>🏥 تأمين صحي شامل للعائلة (Health Insurance)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-emerald-500/30 transition-all">
+              <input type="checkbox" onchange="calcPerksValue()" data-val="1800" class="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500/20 bg-slate-900" dir="auto">
+              <span>⏰ ساعات عمل مرنة وخيار Hybrid/Remote</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- PURCHASING POWER & REGIONAL PPP COMPARISON MATRIX -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-3">
+          <h4 class="text-xs font-extrabold text-amber-300 flex items-center gap-1.5">
+            <i data-lucide="globe" class="w-4 h-4 text-amber-400"></i>
+            <span>🌐 مقارنة القوة الشرائية والصافي بعد الضريبة (Net Take-Home PPP)</span>
+          </h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-end text-[11px] text-slate-300 border-collapse">
+              <thead>
+                <tr class="border-b border-white/10 text-slate-400 font-bold bg-slate-950/50">
+                  <th class="p-2">المنطقة</th>
+                  <th class="p-2">نسبة الضريبة</th>
+                  <th class="p-2">الراتب الإجمالي</th>
+                  <th class="p-2 text-emerald-400">الصافي الفعلي</th>
+                </tr>
+              </thead>
+              <tbody id="pppTableBody" class="divide-y divide-white/5 font-mono">
+                <tr>
+                  <td class="p-2 font-bold text-white">🇦🇪 الإمارات (دبي)</td>
+                  <td class="p-2 text-emerald-400 font-bold">0%</td>
+                  <td class="p-2">AED 20,185</td>
+                  <td class="p-2 font-bold text-emerald-400">AED 20,185</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold text-white">🇸🇦 السعودية (الرياض)</td>
+                  <td class="p-2 text-emerald-400 font-bold">0%</td>
+                  <td class="p-2">SAR 20,625</td>
+                  <td class="p-2 font-bold text-emerald-400">SAR 20,625</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-bold text-white">🇺🇸 أمريكا (USA)</td>
+                  <td class="p-2 text-amber-400 font-bold">28%</td>
+                  <td class="p-2">$5,500</td>
+                  <td class="p-2 font-bold text-amber-300">$3,960</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- NEGOTIATION PLAYBOOK & TACTICS -->
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2.5">
+          <h4 class="text-xs font-extrabold text-emerald-400 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+            <span>تكتيكات وإجراءات التفاوض الموصى بها (Negotiation Playbook):</span>
+          </h4>
+          <ul id="tacticsList" class="space-y-1.5 text-xs text-slate-300">
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span><span>رفع العرض الأساسي المستهدف بنسبة +22% لتغطية الفارق مع معيار السوق.</span></li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span><span>المطالبة بمكافأة انضمام ترحيبية (Sign-on Bonus) في حال وجود سقف مالي محدد للراتب.</span></li>
+            <li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span><span>إدراج بند مراجعة الراتب والأداء بعد 6 أشهر من بداية الاستلام.</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentData = null;
+let activeTone = 'diplomatic';
+let activeFormat = 'email'; // 'email' or 'call'
+let activeLang = 'ar'; // 'ar' or 'en'
+let activeObjectionKey = 'budget_capped';
+
+function setTargetPct(pct) {
+    document.getElementById('customTargetPct').value = pct;
+    document.getElementById('targetPctDisplay').innerText = '+' + pct + '%';
+    [15, 20, 25, 30].forEach(p => {
+        const btn = document.getElementById('pctBtn' + p);
+        if (btn) {
+            if (p === pct) {
+                btn.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition-all';
+            } else {
+                btn.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 hover:text-white border border-white/10 transition-all';
             }
+        }
+    });
+}
+
+function copyPitchLetter() {
+    const text = document.getElementById('pitchTextContainer').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyPitchBtn');
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i><span class="text-emerald-400">تم النسخ!</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => {
+            btn.innerHTML = '<i data-lucide="copy" class="w-3.5 h-3.5"></i><span>نسخ النص</span>';
+            if (window.lucide) lucide.createIcons();
+        }, 2500);
+    });
+}
+
+function switchPitchFormat(fmt) {
+    activeFormat = fmt;
+    ['fmtEmail', 'fmtCall'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            if ((id === 'fmtEmail' && fmt === 'email') || (id === 'fmtCall' && fmt === 'call')) {
+                btn.className = 'px-2.5 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all flex items-center gap-1';
+            } else {
+                btn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1';
+            }
+        }
+    });
+    renderActiveScript();
+}
+
+function switchPitchTone(tone) {
+    activeTone = tone;
+    ['Diplomatic', 'Assertive', 'Executive'].forEach(t => {
+        const tab = document.getElementById('tab' + t);
+        if (tab) {
+            if (t.toLowerCase() === tone) {
+                tab.className = 'px-2 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all';
+            } else {
+                tab.className = 'px-2 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all';
+            }
+        }
+    });
+    renderActiveScript();
+}
+
+function switchPitchLang(lang) {
+    activeLang = lang;
+    ['langAr', 'langEn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            if ((id === 'langAr' && lang === 'ar') || (id === 'langEn' && lang === 'en')) {
+                btn.className = 'px-2 py-1 rounded-lg font-bold text-amber-300 bg-amber-500/20 transition-all';
+            } else {
+                btn.className = 'px-2 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition-all';
+            }
+        }
+    });
+    renderActiveScript();
+    if (currentData && currentData.objection_rebuttals) {
+        renderObjectionContent(activeObjectionKey);
+    }
+}
+
+function renderActiveScript() {
+    if (!currentData) return;
+
+    const sourceDict = activeFormat === 'call' ? (currentData.call_scripts || currentData.scripts) : (currentData.scripts || {});
+    const toneObj = sourceDict[activeTone] || sourceDict['diplomatic'] || sourceDict['balanced'];
+    
+    let text = '';
+    if (typeof toneObj === 'object') {
+        text = toneObj[activeLang] || toneObj['ar'] || toneObj['en'] || '';
+    } else {
+        text = toneObj || '';
+    }
+
+    const container = document.getElementById('pitchTextContainer');
+    container.innerText = text;
+    container.setAttribute('dir', activeLang === 'ar' ? 'rtl' : 'ltr');
+}
+
+function selectObjection(key) {
+    activeObjectionKey = key;
+    ['budget_capped', 'standard_band', 'other_candidates', 'no_signon', 'wfh_adjusted'].forEach(k => {
+        const btn = document.getElementById('obj_' + k);
+        if (btn) {
+            if (k === key) {
+                btn.className = 'p-2 rounded-xl border font-bold text-center bg-amber-500/20 text-amber-300 border-amber-500/40 transition-all shadow-sm';
+            } else {
+                btn.className = 'p-2 rounded-xl border font-bold text-center bg-slate-900 text-slate-300 border-white/10 hover:text-white transition-all';
+            }
+        }
+    });
+    renderObjectionContent(key);
+}
+
+function renderObjectionContent(key) {
+    if (!currentData || !currentData.objection_rebuttals || !currentData.objection_rebuttals[key]) return;
+    const obj = currentData.objection_rebuttals[key];
+    const title = activeLang === 'en' ? obj.title_en : obj.title_ar;
+    const text = activeFormat === 'call' ? (activeLang === 'en' ? obj.verbal_en : obj.verbal_ar) : (activeLang === 'en' ? obj.email_en : obj.email_ar);
+
+    document.getElementById('objectionTitle').innerText = title;
+    const textEl = document.getElementById('objectionText');
+    textEl.innerText = text;
+    textEl.setAttribute('dir', activeLang === 'ar' ? 'rtl' : 'ltr');
+}
+
+function copyObjectionRebuttal() {
+    const text = document.getElementById('objectionText').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyObjBtn');
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3 text-emerald-400"></i><span class="text-emerald-400">تم النسخ!</span>';
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => {
+            btn.innerHTML = '<i data-lucide="copy" class="w-3 h-3"></i><span>نسخ الرد</span>';
+            if (window.lucide) lucide.createIcons();
+        }, 2500);
+    });
+}
+
+function calcPerksValue() {
+    let total = 0;
+    const checkboxes = document.querySelectorAll('#perksChecklist input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            total += parseFloat(cb.getAttribute('data-val') || 0);
+        }
+    });
+    const sym = (currentData && currentData.currency) ? (currentData.currency === 'USD' ? '$' : currentData.currency + ' ') : '$';
+    document.getElementById('perksTotalEstimate').innerText = 'قيمة المزايا المضافة: ' + sym + total.toLocaleString();
+}
+
+function renderPPPTable(matrix, curr) {
+    if (!matrix || !matrix.length) return;
+    const tbody = document.getElementById('pppTableBody');
+    tbody.innerHTML = matrix.map(r => `
+        <tr class="hover:bg-white/5 transition-all">
+            <td class="p-2 font-bold text-white">${activeLang === 'en' ? r.region_en : r.region_ar}</td>
+            <td class="p-2 ${r.tax_rate_pct === 0 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}">${r.tax_rate_pct}%</td>
+            <td class="p-2 text-slate-300">${r.currency} ${r.gross_local.toLocaleString()}</td>
+            <td class="p-2 font-bold ${r.tax_rate_pct === 0 ? 'text-emerald-400' : 'text-amber-300'}">${r.currency} ${r.net_local.toLocaleString()}</td>
+        </tr>
+    `).join('');
+}
+
+document.getElementById('salaryForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    btnText.innerText = 'جاري التحليل وتوليد الخطاب بالذكاء الاصطناعي...';
+    btn.disabled = true;
+
+    const role = document.getElementById('jobRole').value || 'Senior Software Engineer';
+    const seniority = document.getElementById('seniorityLevel').value || 'senior';
+    const country = document.getElementById('country').value || 'United Arab Emirates';
+    const curr = document.getElementById('currency').value || 'USD';
+    const offer = parseFloat(document.getElementById('currentOffer').value) || 4500;
+    const bonus = parseFloat(document.getElementById('offeredBonus').value) || 0;
+    const equity = parseFloat(document.getElementById('offeredEquity').value) || 0;
+    const style = document.getElementById('pitchStyle').value || 'diplomatic';
+    const competing = document.getElementById('competingOffer').value === 'true';
+    const notes = document.getElementById('skillsNotes').value || '';
+    const targetPct = parseFloat(document.getElementById('customTargetPct').value) || 20;
+
+    const payload = {
+        role: role,
+        initial_offer: offer,
+        region: country,
+        years_experience: seniority === 'lead' ? 9 : (seniority === 'director' ? 12 : (seniority === 'senior' ? 6 : 3)),
+        style: style,
+        currency: curr,
+        offered_bonus: bonus,
+        offered_equity: equity,
+        competing_offer: competing,
+        skills_summary: notes,
+        target_percentage: targetPct,
+        lang: activeLang
+    };
+
+    try {
+        const res = await fetch('/api/salary-negotiator/oracle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-    </script>
-</body>
-</html>
+
+        if (res.ok) {
+            const data = await res.json();
+            currentData = data;
+            updateResultsUI(data, curr);
+        } else {
+            fallbackLocalCalculate(payload);
+        }
+    } catch (err) {
+        console.warn('API connection offline, using client-side calculation fallback:', err);
+        fallbackLocalCalculate(payload);
+    } finally {
+        btnText.innerText = '🔮 تشخيص العرض المالي وتوليد حزمة التفاوض';
+        btn.disabled = false;
+        if (window.lucide) lucide.createIcons();
+    }
+});
+
+function updateResultsUI(data, curr) {
+    const sym = curr === 'USD' ? '$' : curr + ' ';
+    const target = data.recommended_counter_offer || Math.round(data.initial_offer * 1.22);
+    const benchmark = data.market_benchmark || Math.round(data.initial_offer * 1.05);
+    const annualGain = data.potential_gain ? data.potential_gain * 12 : (target - data.initial_offer) * 12;
+    const pct = data.potential_percentage_gain || Math.round(((target - data.initial_offer) / data.initial_offer) * 100);
+
+    document.getElementById('targetSalaryText').innerText = sym + target.toLocaleString();
+    document.getElementById('marketBenchmarkText').innerText = sym + benchmark.toLocaleString();
+    document.getElementById('potentialGainText').innerText = '+' + sym + Math.round(annualGain).toLocaleString() + ' / سنة';
+    document.getElementById('expectedBoostBadge').innerText = 'نسبة الزيادة المستهدفة: +' + pct + '%';
+
+    // Tax Insights Card
+    if (data.tax_insights) {
+        document.getElementById('taxBadgeText').innerText = (data.region || 'المنطقة') + ': ' + data.tax_insights.tax_rate_estimate;
+        document.getElementById('taxNoteText').innerText = activeLang === 'en' ? data.tax_insights.note_en : data.tax_insights.note_ar;
+    }
+
+    // Total Comp Visualizer
+    const base = data.initial_offer || 4500;
+    const bonus = data.offered_bonus || 0;
+    const eq = data.offered_equity || 0;
+    const total = base + bonus + eq;
+    document.getElementById('totalCompSumText').innerText = 'إجمالي المعروض الحقيقي: ' + sym + total.toLocaleString();
+
+    const basePct = Math.round((base / total) * 100);
+    const bonusPct = Math.round((bonus / total) * 100);
+    const eqPct = 100 - basePct - bonusPct;
+
+    document.getElementById('barBase').style.width = basePct + '%';
+    document.getElementById('barBonus').style.width = bonusPct + '%';
+    document.getElementById('barEquity').style.width = eqPct + '%';
+
+    // Render active script & objection rebuttal
+    renderActiveScript();
+    renderObjectionContent(activeObjectionKey);
+
+    // Render PPP Matrix
+    if (data.ppp_matrix) {
+        renderPPPTable(data.ppp_matrix, curr);
+    }
+
+    // Tactics list
+    const tactics = activeLang === 'en' ? (data.negotiation_tactics_en || data.negotiation_tactics) : (data.negotiation_tactics_ar || data.negotiation_tactics);
+    if (tactics) {
+        const list = document.getElementById('tacticsList');
+        list.innerHTML = tactics.map(t => `<li class="flex items-start gap-2"><span class="text-amber-400 font-bold">•</span><span>${t}</span></li>`).join('');
+    }
+}
+
+function fallbackLocalCalculate(payload) {
+    const sym = payload.currency === 'USD' ? '$' : payload.currency + ' ';
+    const offer = payload.initial_offer;
+    const boost = payload.target_percentage ? (1 + payload.target_percentage / 100) : 1.22;
+    const target = Math.round(offer * boost);
+    const benchmark = Math.round(offer * 1.08);
+
+    currentData = {
+        recommended_counter_offer: target,
+        market_benchmark: benchmark,
+        potential_gain: target - offer,
+        potential_percentage_gain: Math.round((boost - 1) * 100),
+        initial_offer: offer,
+        offered_bonus: payload.offered_bonus,
+        offered_equity: payload.offered_equity,
+        style: payload.style,
+        region: payload.region,
+        currency: payload.currency,
+        tax_insights: {
+            is_tax_free: true,
+            tax_rate_estimate: "0% Income Tax",
+            note_ar: "المنطقة معفاة تماماً من ضريبة الدخل الشخصي (0%) مما يرفع القوة الشرائية الحقيقية.",
+            note_en: "0% Personal Income Tax in this region, maximizing your net take-home compensation."
+        },
+        scripts: {
+            diplomatic: {
+                ar: `السادة فريق التوظيف المحترمين،\n\nأشكركم جزيل الشكر على تقديم العرض الوظيفي لمنصب ${payload.role}. أنا متحمس للغاية للعمل مع الفريق.\n\nبناءً على مؤشرات السوق لعام 2026 في ${payload.region} وخبرتي الميدانية في ${payload.skills_summary}، أود اقتراح تعديل الراتب الأساسي إلى ${sym}${target.toLocaleString()}.\n\nأتطلع لسماع رأيكم الكريم للتوقيع والبدء فوراً.\n\nمع خالص التقدير،`,
+                en: `Dear Hiring Team,\n\nThank you for extending the offer for ${payload.role}. I am very excited about this opportunity.\n\nBased on 2026 market standards in ${payload.region} and my experience in ${payload.skills_summary}, I would like to propose a base salary of ${sym}${target.toLocaleString()}.\n\nI look forward to discussing this and signing as soon as possible.\n\nBest regards,`
+            },
+            assertive: {
+                ar: `مرحباً فريق التوظيف،\n\nشكراً لكم على إرسال تفاصيل العرض لمنصب ${payload.role}.\n\nبعد مراجعة نطاق العمل ومؤشرات السوق لعام 2026 في ${payload.region}، أهدف لتحديد الراتب الأساسي عند ${sym}${target.toLocaleString()}.\n\nعند الاتفاق، سأكون جاهزاً للتوقيع والبدء فوراً.\n\nتحياتي،`,
+                en: `Hi Hiring Team,\n\nThank you for the offer for ${payload.role}.\n\nHaving evaluated the scope and 2026 benchmarks in ${payload.region}, I am targeting a base salary of ${sym}${target.toLocaleString()}.\n\nLet me know so we can finalize the agreement.\n\nBest,`
+            },
+            executive: {
+                ar: `السادة الإدارة التنفيذية،\n\nأقدر العرض الوظيفي الرسمي لمنصب ${payload.role}.\n\nوليعكس العرض الأثر الاستراتيجي وخبرتي (${payload.skills_summary}) والمعايير المعتمدة، أقترح تحديد الراتب الأساسي عند ${sym}${target.toLocaleString()}.\n\nوتفضلوا بقبول الاحترام،`,
+                en: `Dear Executive Team,\n\nI appreciate the formal offer for ${payload.role}.\n\nTo align our compensation structure with strategic ROI and 2026 market benchmarks in ${payload.region}, I propose a base salary of ${sym}${target.toLocaleString()}.\n\nSincerely,`
+            }
+        },
+        call_scripts: {
+            diplomatic: {
+                ar: `📞 مكالمة شفهية (دبلوماسي):\n- الشكر على العرض لـ ${payload.role}\n- اقتراح تعديل الراتب الأساسي إلى ${sym}${target.toLocaleString()}\n- التأكيد على الانضمام فور الاتفاق.`,
+                en: `📞 Verbal Call Script (Diplomatic):\n- Express thanks for ${payload.role}\n- Propose base salary of ${sym}${target.toLocaleString()}\n- Confirm immediate onboarding upon agreement.`
+            }
+        },
+        objection_rebuttals: {
+            budget_capped: {
+                title_ar: "🛡️ الميزانية المحددة للمنصب مغلقة وغير قابلة للتعديل",
+                title_en: "🛡️ Budget for this role is strictly capped",
+                email_ar: `أفهم تماماً قيود الميزانية المحددة لمنصب ${payload.role}. لتجسير الفارق دون تجاوز سقف السلم الوظيفي، أقترح إضافة مكافأة انضمام ترحيبية (Sign-on Bonus) أو الجدولة لمراجعة استثنائية للراتب بعد 6 أشهر بناءً على نتائج الأداء.`,
+                email_en: `I completely respect budget constraints for ${payload.role}. To bridge the gap towards ${sym}${target.toLocaleString()} without exceeding scale caps, I propose incorporating a one-time sign-on bonus or setting a 6-month performance review milestone.`,
+                verbal_ar: `"أقدر صراحتكم بشأن الميزانية. هل يمكننا هيكلة الفارق عن طريق مكافأة انضمام لمرة واحدة أو تقييم أداء مبكر بعد 6 أشهر؟"`,
+                verbal_en: `"Could we bridge the gap with a one-time sign-on bonus or schedule an accelerated 6-month performance review?"`
+            }
+        },
+        ppp_matrix: [
+            { region_ar: "🇦🇪 الإمارات (دبي)", region_en: "UAE (Dubai)", tax_rate_pct: 0, gross_local: target * 3.67, net_local: target * 3.67, currency: "AED" },
+            { region_ar: "🇸اؤودية (الرياض)", region_en: "KSA (Riyadh)", tax_rate_pct: 0, gross_local: target * 3.75, net_local: target * 3.75, currency: "SAR" },
+            { region_ar: "🇺🇸 أمريكا (USA)", region_en: "United States", tax_rate_pct: 28, gross_local: target, net_local: target * 0.72, currency: "USD" }
+        ],
+        negotiation_tactics_ar: [
+            `رفع العرض الأساسي المستهدف إلى ${sym}${target.toLocaleString()}.`,
+            `المطالبة بمكافأة انضمام ترحيبية (Sign-on Bonus).`,
+            `مراجعة الراتب والأداء بعد 6 أشهر من تاريخ بدء العمل.`
+        ],
+        negotiation_tactics_en: [
+            `Target base salary counter of ${sym}${target.toLocaleString()}.`,
+            `Request a Sign-on Bonus if base salary budget is capped.`,
+            `Include a 6-month performance review milestone.`
+        ]
+    };
+    updateResultsUI(currentData, payload.currency);
+}
+
+function exportNegotiationDossier() {
+    if (!currentData) {
+        alert('الرجاء تشخيص العرض أولاً لتوليد التقرير.');
+        return;
+    }
+    const sym = currentData.currency === 'USD' ? '$' : currentData.currency + ' ';
+    const reportText = `=====================================================
+            JOBHUNT PRO - AI SALARY NEGOTIATION DOSSIER
+=====================================================
+
+Role: ${currentData.role || 'N/A'}
+Region: ${currentData.region || 'N/A'}
+Currency: ${currentData.currency}
+
+FINANCIAL SUMMARY:
+------------------
+- Initial Base Offer: ${sym}${(currentData.initial_offer || 0).toLocaleString()}
+- Regional Market Benchmark: ${sym}${(currentData.market_benchmark || 0).toLocaleString()}
+- Recommended Counter Target: ${sym}${(currentData.recommended_counter_offer || 0).toLocaleString()} (+${currentData.potential_percentage_gain}%)
+- Estimated Annual Gain: ${sym}${((currentData.potential_gain || 0) * 12).toLocaleString()} / year
+
+TAX & PURCHASING POWER INSIGHTS:
+--------------------------------
+${currentData.tax_insights ? currentData.tax_insights.tax_rate_estimate + " - " + currentData.tax_insights.note_en : 'N/A'}
+
+PROPOSED COUNTER EMAIL:
+-----------------------
+${document.getElementById('pitchTextContainer').innerText}
+
+SELECTED RECRUITER OBJECTION REBUTTAL:
+--------------------------------------
+${document.getElementById('objectionTitle').innerText}
+${document.getElementById('objectionText').innerText}
+
+RECOMMENDED NEGOTIATION TACTICS:
+--------------------------------
+${(currentData.negotiation_tactics_en || currentData.negotiation_tactics || []).map(t => '- ' + t).join('\n')}
+
+Generated by AI Salary Negotiator (JobHunt Pro SaaS 2026)
+=====================================================`;
+
+    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Salary_Negotiation_Dossier_${(currentData.role || 'Role').replace(/\s+/g, '_')}.txt`;
+    link.click();
+}
+</script>
+
+
+

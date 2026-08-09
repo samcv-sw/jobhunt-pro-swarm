@@ -478,67 +478,34 @@ body {
   transform: scaleX(var(--text-x-direction, -1));
 }
 
-/* Global Arabic Typography */
+/* Global Arabic & LTR Typography */
 body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
+  font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.8;
 }
 
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
+/* Skeleton & Shimmer Loading States */
+.skeleton-pulse {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite ease-in-out;
+  border-radius: 6px;
+  display: inline-block;
 }
 
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
+.shimmer-glow {
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+  transition: box-shadow 0.3s ease;
+}
+.shimmer-glow:hover {
+  box-shadow: 0 0 25px rgba(0, 242, 254, 0.45);
 }
 
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
-}
-
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
-}
-
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
-}
-
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
-}
-
-
-/* Global Arabic Typography */
-body, html, input, textarea, select {
-  font-family: 'Cairo', 'Tajawal', sans-serif;
-  line-height: 1.8;
-}
 
 
 /* Global Arabic Typography */

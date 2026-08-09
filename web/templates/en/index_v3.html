@@ -682,7 +682,7 @@ body{
  z-index:2;
 }
 .price-card.popular:hover{transform:scale(1.04) translateY(-8px)}
-.price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
+.price-badge{position:absolute;top:-14px;inset-inline-start: 0;inset-inline-end: 0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size: 14px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
 .price-badge.hot{background:linear-gradient(135deg,#ff0055,#e11d48);color:#ffffff;box-shadow:0 0 20px rgba(255,0,85,0.4)}
 .price-badge.best{background:linear-gradient(135deg,#00f0ff,#0284c7);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;box-shadow:0 0 20px rgba(0,240,255,0.4)}
 .price-badge.new{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;box-shadow:0 0 20px rgba(251,191,36,0.4)}
@@ -994,7 +994,7 @@ body{
  .price-card h3{font-size:18px}
  .price-apps{font-size:28px}
  .price-amount{font-size:26px}
- .price-badge{position:absolute;top:-14px;left:0;right:0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size:13px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
+ .price-badge{position:absolute;top:-14px;inset-inline-start: 0;inset-inline-end: 0;margin:0 auto;width:fit-content;transform:none;padding:6px 20px;border-radius:50px;font-size: 14px;font-weight:800;text-transform:uppercase;white-space:nowrap;z-index:5}
  .footer-grid{grid-template-columns:1fr;text-align:center;gap:20px}
  .feature-grid,.steps{margin:0;max-inline-size:100%}
  .step-card{padding:20px 16px}
@@ -1088,8 +1088,8 @@ body{
  position: fixed !important;
  bottom: 0 !important;
  top: auto !important;
- left: 0 !important;
- right: 0 !important;
+ inset-inline-start: 0 !important;
+ inset-inline-end: 0 !important;
  width: 100% !important;
  z-index: 99999 !important;
  background: rgba(5, 5, 15, 0.95) !important;
@@ -1132,8 +1132,8 @@ body{
 .ats-scan-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,240,255,0.3)}
 .ats-score-preview{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px}
 .ats-score-circle{width:120px;height:120px;margin:0 auto 16px;position:relative}
-.ats-score-circle svg{position:absolute;top:0;left:0;width:100%;height:100%}
-.ats-score-text{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;direction:ltr;line-height:1.1}
+.ats-score-circle svg{position:absolute;top:0;inset-inline-start: 0;width:100%;height:100%}
+.ats-score-text{position:absolute;top:0;inset-inline-start: 0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;direction:ltr;line-height:1.1}
 .ats-score-num{font-size:36px;font-weight:900;color:#ffffff;display:block}
 .ats-score-total{font-size:14px;color:#94a3b8;display:block;margin-top:2px}
 .ats-sample-label{text-align:center;font-size: 14px;color:var(--muted);margin-block-end:20px;font-style:italic}
@@ -1202,7 +1202,7 @@ body{
   content: '' !important;
   position: absolute !important;
   top: -50% !important;
-  left: -50% !important;
+  inset-inline-start: -50% !important;
   width: 200% !important;
   height: 200% !important;
   background: linear-gradient(60deg, transparent, rgba(255,255,255,0.4), transparent) !important;
@@ -1291,7 +1291,7 @@ body{
 }
 
 .roi-badge {
-  font-family: 'Fira Code', 'Space Grotesk', monospace;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Fira Code', 'Space Grotesk', monospace;
   font-size: 20px;
   font-weight: 800;
   color: #ffb300;
@@ -1389,7 +1389,7 @@ body{
 }
 
 .roi-stat-lbl {
-  font-size: 12px;
+  font-size: 14px;
   color: #94a3b8;
   font-weight: 500;
 }
@@ -1531,7 +1531,7 @@ body{
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: #10b981;
   background: rgba(16, 185, 129, 0.1);
@@ -1641,7 +1641,7 @@ body{
   color: #ffffff !important;
   margin-bottom: 12px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -1652,7 +1652,7 @@ body{
   line-height: 1.65 !important;
   font-weight: 400 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   max-width: none !important;
@@ -1709,7 +1709,7 @@ body{
 
 .ba-choice-pill {
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 800 !important;
   color: #00f0ff !important;
   background: rgba(0, 240, 255, 0.1) !important;
@@ -1720,7 +1720,7 @@ body{
   word-break: keep-all !important;
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  
   text-align: center !important;
 }
 
@@ -1848,7 +1848,7 @@ body{
 }
 
 .ba-choice-pill {
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 800 !important;
   color: #00f0ff !important;
   background: rgba(0, 240, 255, 0.1) !important;
@@ -1858,7 +1858,7 @@ body{
   white-space: nowrap !important;
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  
 }
 
 .ba-card {
@@ -2028,7 +2028,7 @@ body{
   margin-bottom: 6px !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -2041,7 +2041,7 @@ body{
   margin: 0 !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .guarantee-verified-seal {
@@ -2128,7 +2128,7 @@ body{
   margin-bottom: 6px !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   line-height: 1.3 !important;
 }
 
@@ -2141,7 +2141,7 @@ body{
   margin: 0 !important;
   display: block !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .guarantee-verified-seal {
@@ -2293,11 +2293,11 @@ body{
 
 .fomo-item .fomo-label {
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   font-weight: 600 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   width: auto !important;
@@ -2330,7 +2330,7 @@ a.btn-outline {
   font-size: 16px !important;
   font-weight: 900 !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   text-decoration: none !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
@@ -2456,7 +2456,7 @@ a.btn-outline:hover {
   color: #ffffff !important;
   line-height: 1.2 !important;
   margin-bottom: 20px !important;
-  letter-spacing: -1px !important;
+  
   text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   position: relative !important;
   z-index: 2 !important;
@@ -2534,7 +2534,7 @@ a.btn-outline:hover {
   padding: 8px 16px !important;
   border-radius: 50px !important;
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -2587,7 +2587,7 @@ a.btn-outline:hover {
   color: #ffffff !important;
   line-height: 1.2 !important;
   margin-bottom: 20px !important;
-  letter-spacing: -1px !important;
+  
   text-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
   position: relative !important;
   z-index: 2 !important;
@@ -2659,7 +2659,7 @@ a.btn-outline:hover {
   padding: 8px 16px !important;
   border-radius: 50px !important;
   font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 700 !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -2728,7 +2728,7 @@ a.btn-outline:hover {
 .exit-close {
   position: absolute !important;
   top: 18px !important;
-  right: 18px !important;
+  inset-inline-end: 18px !important;
   width: 36px !important;
   height: 36px !important;
   border-radius: 50% !important;
@@ -2772,7 +2772,7 @@ a.btn-outline:hover {
   font-weight: 900 !important;
   color: #ffffff !important;
   margin-bottom: 12px !important;
-  letter-spacing: normal !important;
+  
   text-transform: none !important;
 }
 
@@ -2783,7 +2783,7 @@ a.btn-outline:hover {
   line-height: 1.6 !important;
   margin-bottom: 24px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .exit-value-props {
@@ -2807,7 +2807,7 @@ a.btn-outline:hover {
   font-weight: 700 !important;
   color: #00f0ff !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
@@ -2847,7 +2847,7 @@ a.btn-outline:hover {
 
 .exit-footnote {
   font-family: 'Cairo', 'Tajawal', sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   margin: 0 !important;
   font-weight: 500 !important;
@@ -2871,7 +2871,7 @@ a.btn-outline:hover {
 .exit-close {
   position: absolute !important;
   top: 18px !important;
-  right: 18px !important;
+  inset-inline-end: 18px !important;
   width: 36px !important;
   height: 36px !important;
   border-radius: 50% !important;
@@ -2915,7 +2915,7 @@ a.btn-outline:hover {
   font-weight: 900 !important;
   color: #ffffff !important;
   margin-bottom: 12px !important;
-  letter-spacing: normal !important;
+  
   text-transform: none !important;
 }
 
@@ -2926,7 +2926,7 @@ a.btn-outline:hover {
   line-height: 1.6 !important;
   margin-bottom: 24px !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
 }
 
 .exit-value-props {
@@ -2950,7 +2950,7 @@ a.btn-outline:hover {
   font-weight: 700 !important;
   color: #00f0ff !important;
   text-transform: none !important;
-  letter-spacing: normal !important;
+  
   margin: 0 !important;
   padding: 0 !important;
   background: transparent !important;
@@ -2990,7 +2990,7 @@ a.btn-outline:hover {
 
 .exit-footnote {
   font-family: 'Cairo', 'Tajawal', sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: #94a3b8 !important;
   margin: 0 !important;
   font-weight: 500 !important;
@@ -3801,11 +3801,11 @@ a.btn-outline:hover {
         </label>
         <input type="range" class="roi-slider" id="roiSlider" min="12000" max="200000" value="50000" step="1000" oninput="updateROI(this.value)" dir="auto">
       </div>
-      <div style="display:flex;justify-content:space-between;color:#64748b;font-size:12px;font-weight:600;padding:0 4px;">
+      <div style="display:flex;justify-content:space-between;color:#64748b;font-size: 14px;font-weight:600;padding:0 4px;">
         <span>$12,000 / yr</span>
         <span>$200,000 / yr</span>
       </div>
-      <div style="font-size:13px;color:#94a3b8;line-height:1.6;margin-top:8px;background:rgba(255,255,255,0.02);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
+      <div style="font-size: 14px;color:#94a3b8;line-height:1.6;margin-top:8px;background:rgba(255,255,255,0.02);padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);">
         💡 Staying unemployed for even one month costs thousands in lost compensation. Autonomous applications dramatically shorten your search.
       </div>
     </div>
@@ -4298,7 +4298,7 @@ function toggleFaq(item){
         
         let toast = document.createElement('div');
         toast.className = 'social-toast-popup';
-        toast.style.cssText = 'position:fixed;bottom:24px;left:24px;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(16px);border:1px solid rgba(0,240,255,0.3);padding:14px 20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5);color:#fff;font-family:sans-serif;font-size:13px;display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);direction:ltr;';
+        toast.style.cssText = 'position:fixed;bottom:24px;inset-inline-start: 24px;z-index:9999;background:rgba(15,23,42,0.92);backdrop-filter:blur(16px);border:1px solid rgba(0,240,255,0.3);padding:14px 20px;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.5);color:#fff;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, sans-serif;font-size: 14px;display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.5s cubic-bezier(0.16,1,0.3,1);direction:ltr;';
         
         toast.innerHTML = `<span style="font-size:20px;">⚡</span><div><strong style="color:#00f0ff;">${name}</strong> <span style="color:#94a3b8;">${action}</span></div>`;
         document.body.appendChild(toast);
@@ -4322,7 +4322,7 @@ function toggleFaq(item){
 
 
 <!-- Interactive Particle Canvas & Live ATS Engine -->
-<canvas id="bgParticleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;"></canvas>
+<canvas id="bgParticleCanvas" style="position:fixed;top:0;inset-inline-start: 0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0.4;"></canvas>
 
 <script>
 // Particle Canvas Animation

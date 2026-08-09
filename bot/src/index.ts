@@ -149,8 +149,13 @@ async function runAgent() {
             return page.waitForSelector("body", { timeout: 15000 });
         });
         
-        // Example Ghost Cursor execution with random jitter
-        // await cursor.click(page.getByRole('button', { name: /Apply/i }));
+        // Execute Ghost Cursor interaction for apply actions
+        const applyBtn = page.getByRole('button', { name: /Apply|Easy Apply/i });
+        if (await applyBtn.count() > 0 && await applyBtn.first().isVisible()) {
+            console.log("🎯 Easy Apply button detected via Playwright Ghost Cursor. Triggering click...");
+            await cursor.click(applyBtn.first());
+            await page.waitForTimeout(2000);
+        }
         
         const htmlContent = await page.content();
         const mdContent = htmlToText(htmlContent, { wordwrap: 130 });

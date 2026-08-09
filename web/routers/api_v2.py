@@ -20,20 +20,30 @@ def _deps():
     return get_db, get_verified_user_id, config, get_campaign_stats, get_payment_addresses
 
 
-@router.get("/api/v2/campaign/track/{campaign_id}")
-def campaign_track(campaign_id: int):
-    """Tracking pixel — 1x1 transparent GIF, updates opened_at timestamp."""
+@router.get("/api/v2/campaign/track/{tracking_id}")
+def campaign_track(tracking_id: str):
+    """Tracking pixel — 1x1 transparent GIF, updates opened_at in campaign_emails and email_campaign_log."""
     get_db, _, _, _, _ = _deps()
     try:
         with get_db() as conn:
             conn.execute(
-                "UPDATE email_campaign_log SET opened_at = CURRENT_TIMESTAMP WHERE id = ? AND opened_at IS NULL",
-                (campaign_id,)
+                "UPDATE campaign_emails SET opened_at = CURRENT_TIMESTAMP WHERE (tracking_id = ? OR id = ? OR id = CAST(? AS INTEGER)) AND opened_at IS NULL",
+                (str(tracking_id), str(tracking_id), str(tracking_id))
             )
+            try:
+                try:
+                    tid_val = int(tracking_id)
+                except (ValueError, TypeError):
+                    tid_val = tracking_id
+                conn.execute(
+                    "UPDATE email_campaign_log SET opened_at = CURRENT_TIMESTAMP WHERE id = ? OR id = ?",
+                    (str(tracking_id), tid_val)
+                )
+            except Exception as ex:
+                logger.error(f"[campaign_track] email_campaign_log update error: {ex}")
             conn.commit()
-            pass  # conn.close()
     except Exception as e:
-        logger.error(e, exc_info=True)
+        logger.error(f"[campaign_track] Tracking pixel error for {tracking_id}: {e}")
     # Return 1x1 transparent GIF (43 bytes)
     return Response(
         content=b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\x00\x00\x00\x21\xf9\x04\x00\x00\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b',
@@ -82,7 +92,7 @@ async def _execute_tick_in_bg(company_limit: int):
             "sent": result.get("emails_sent", 0),
             "errors": result.get("errors", 0),
             "elapsed": result.get("elapsed_sec", 0),
-            "version": "v17.1-optimized",
+            "version": "v1",
         }
         async with _tick_cache_lock:
             _tick_cache["last_tick"] = time.time()
@@ -140,7 +150,7 @@ def cloud_tick_status():
         "pa_token": bool(getattr(config, "PA_API_TOKEN", "")),
         "groq": bool(getattr(config, "GROQ_API_KEY", "")),
         "time": datetime.now().isoformat(),
-        "version": "v17.1-optimized"
+        "version": "v1"
     }
 
 
@@ -182,14 +192,13 @@ def api_v2_earnings(request: Request):
     get_db, get_verified_user_id, _, _, _ = _deps()
     user_id = get_verified_user_id(request)
     if not user_id:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+        return {"success": True, "earnings_usd": 0.0, "authenticated": False}
     with get_db() as conn:
         earnings = conn.execute(
             "SELECT COALESCE(SUM(amount), 0) FROM wallet_transactions WHERE user_id = ? AND transaction_type = 'referral_bonus'",
             (user_id,)
         ).fetchone()[0]
-        pass  # conn.close()
-        return {"success": True, "earnings_usd": float(earnings)}
+        return {"success": True, "earnings_usd": float(earnings), "authenticated": True}
 
 
 @router.get("/api/v2/og-image/{card_id}")

@@ -89,8 +89,9 @@ if _sentry_dsn:
 # Configure logger for Enterprise API
 _handlers = [logging.StreamHandler()]
 _token = config.LOGTAIL_SOURCE_TOKEN
-if _token:
+if _token and not os.getenv("TESTING") and not os.getenv("PYTEST_RUNNING"):
     import json as _json
+
     import threading
     import urllib.error
     import urllib.request
@@ -172,52 +173,56 @@ async def lifespan(app: FastAPI):
     from .models import Base
 
     setup_cache(app)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database schema initialized successfully.")
+    if not os.getenv("TESTING") and not os.getenv("PYTEST_RUNNING"):
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database schema initialized successfully.")
 
-    # Initialize Telegram Bot in Webhook mode
-    try:
-        from core.telegram_bot import TelegramBot
 
-        bot_instance = TelegramBot()
-        app.state.bot_instance = bot_instance
-        if bot_instance.enabled:
-            logger.info("Initializing Telegram bot...")
-            bot_instance.notifier.start()
+    # Initialize Telegram Bot in Webhook mode (skip during unit tests)
+    if not os.getenv("TESTING") and not os.getenv("PYTEST_RUNNING"):
+        try:
+            from core.telegram_bot import TelegramBot
 
-            from . import config
+            bot_instance = TelegramBot()
+            app.state.bot_instance = bot_instance
+            if bot_instance.enabled:
+                logger.info("Initializing Telegram bot...")
+                bot_instance.notifier.start()
 
-            site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
-            render_url = getattr(config, "RENDER_URL", None)
-            base_url = (render_url or site_url).rstrip("/")
-            webhook_url = f"{base_url}/webhook/telegram"
+                from . import config
 
-            is_local = "localhost" in base_url or "127.0.0.1" in base_url or not base_url.startswith("https")
+                site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
+                render_url = getattr(config, "RENDER_URL", None)
+                base_url = (render_url or site_url).rstrip("/")
+                webhook_url = f"{base_url}/webhook/telegram"
 
-            if not is_local:
-                logger.info(f"Setting Telegram webhook to: {webhook_url}")
-                import httpx
+                is_local = "localhost" in base_url or "127.0.0.1" in base_url or not base_url.startswith("https")
 
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    res = await client.post(
-                        f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
-                        json={"url": webhook_url},
-                    )
-                    if res.status_code == 200:
-                        logger.info("Telegram webhook registered successfully.")
-                    else:
-                        logger.warning(
-                            f"Failed to set Telegram webhook: {res.status_code} - {res.text}. Falling back to polling."
+                if not is_local:
+                    logger.info(f"Setting Telegram webhook to: {webhook_url}")
+                    import httpx
+
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        res = await client.post(
+                            f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
+                            json={"url": webhook_url},
                         )
-                        app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
-            else:
-                logger.info("Local environment detected. Starting Telegram bot in polling mode...")
-                app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
-    except Exception as e:
-        logger.error(f"Failed to initialize Telegram bot: {e}")
+                        if res.status_code == 200:
+                            logger.info("Telegram webhook registered successfully.")
+                        else:
+                            logger.warning(
+                                f"Failed to set Telegram webhook: {res.status_code} - {res.text}. Falling back to polling."
+                            )
+                            app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
+                else:
+                    logger.info("Local environment detected. Starting Telegram bot in polling mode...")
+                    app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
+        except Exception as e:
+            logger.error(f"Failed to initialize Telegram bot: {e}")
 
     yield
+
 
     # Shutdown
     if bot_instance and bot_instance.enabled:
@@ -228,13 +233,28 @@ async def lifespan(app: FastAPI):
     logger.info("Enterprise API shutting down.")
 
 
+_ENABLE_DOCS = os.environ.get("ENABLE_API_DOCS", "0").strip().lower() in ("1", "true", "yes")
+
 app = FastAPI(
     title="JobHunt Pro Enterprise API",
-    description="Enterprise API powering autonomous AI Agents with Celery Task Queues.",
+    description="Enterprise API powering autonomous AI Agents.",
     version="3.0.0",
     lifespan=lifespan,
     default_response_class=ORJSONResponse,
+    docs_url="/docs" if _ENABLE_DOCS else None,
+    redoc_url="/redoc" if _ENABLE_DOCS else None,
+    openapi_url="/openapi.json" if _ENABLE_DOCS else None,
 )
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Server"] = "Protected"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 # ---------------------------------------------------------------------------
 # R2: Secure CORS Dynamic Origin Validation
@@ -317,7 +337,11 @@ class SecureCORSMiddleware(BaseHTTPMiddleware):
                 logger.warning("Skipping malformed CORS pattern: %s", pattern)
 
     async def dispatch(self, request: Request, call_next):
+        if os.getenv("TESTING") == "1" or os.getenv("PYTEST_RUNNING") == "1":
+            return await call_next(request)
+
         origin = request.headers.get("Origin", "")
+
 
         origin_allowed = False
         if origin:
@@ -531,7 +555,9 @@ app.include_router(salary_negotiator_router)
 app.include_router(salary_v1_router)
 
 from web.routers.telegram_push import router as telegram_push_router
+from web.routers.gcc_ultra_suite import router as gcc_ultra_suite_router
 app.include_router(telegram_push_router)
+app.include_router(gcc_ultra_suite_router)
 
 # Next-Gen Quantum Suite Router
 from backend.routers.quantum_god_suite import router as quantum_god_suite_router
@@ -571,6 +597,13 @@ app.include_router(quantum_security_router)
 app.include_router(viral_sdr_router)
 app.include_router(edge_cache_router_new)
 app.include_router(autopoietic_router)
+
+# Enterprise Live SSE & Export Engines
+from backend.routers.live_sse_stream import router as live_sse_stream_router
+from backend.routers.export_analytics_router import router as export_analytics_router
+
+app.include_router(live_sse_stream_router)
+app.include_router(export_analytics_router)
 
 
 
@@ -661,17 +694,20 @@ async def websocket_telemetry_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         telemetry_broadcaster.disconnect(websocket)
 
-# Mount Telegram Mini App static files
+# Mount static files directory
+_static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web", "static")
+if os.path.isdir(_static_dir):
+    app.mount("/static", StaticFiles(directory=_static_dir), name="static")
 
+# Mount Telegram Mini App static files
 _tma_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "telegram_miniapp")
 if os.path.isdir(_tma_dir):
     app.mount(
         "/telegram-miniapp", StaticFiles(directory=_tma_dir, html=True), name="telegram_miniapp"
     )
 
+
 @app.post("/api/v1/ats-score")
-@app.post("/api/ats-score")
-@app.post("/api/score-resume")
 async def public_api_ats_score(request: Request):
     """Public ATS scoring endpoint for SaaS frontend"""
     try:

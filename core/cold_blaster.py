@@ -40,14 +40,10 @@ if str(_ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(_ROOT_DIR))
 try:
     import config
-
-    SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip(
-        "/"
-    )
+    SITE_URL = getattr(config, "SITE_URL", os.getenv("SITE_URL", "http://127.0.0.1:8000")).rstrip("/")
 except Exception:
     import os
-
-    SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
+    SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000").rstrip("/")
 UNSUBSCRIBE_URL = f"{SITE_URL}/unsubscribe"
 PHYSICAL_ADDRESS = "Beirut, Lebanon"
 
@@ -359,6 +355,13 @@ def send_blast(
     recipients, max_sends = _prepare_recipients_and_limits(
         recipients, max_sends, test_mode, today
     )
+
+    # ANTI-BOUNCE SHIELD: Filter recipient list
+    from core.email_verifier import is_deliverable_email
+    clean_recipients = [r for r in recipients if r.get("email") and is_deliverable_email(r.get("email"))]
+    if len(clean_recipients) < len(recipients):
+        logger.info(f"[Anti-Bounce Shield] Filtered out {len(recipients) - len(clean_recipients)} undeliverable recipients from blast list.")
+    recipients = clean_recipients
 
     if max_sends <= 0:
         return {

@@ -13,7 +13,7 @@ class PaginationParams(BaseModel):
     page: int = Field(default=1, ge=1, le=1000)
     per_page: int = Field(default=20, ge=1, le=100)
     sort_by: Optional[str] = None
-    sort_order: Optional[str] = Field(default="asc", regex="^(asc|desc)$")
+    sort_order: Optional[str] = Field(default="asc", pattern="^(asc|desc)$")
 
 
 class SearchParams(BaseModel):
@@ -29,7 +29,7 @@ class UserProfileValidation(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
     last_name: Optional[str] = Field(None, min_length=1, max_length=100)
     email: Optional[EmailStr] = None
-    phone: Optional[str] = Field(None, regex=r"^\+?1?\d{9,15}$")
+    phone: Optional[str] = Field(None, pattern=r"^\+?1?\d{9,15}$")
     bio: Optional[str] = Field(None, max_length=1000)
     avatar_url: Optional[str] = None
     
@@ -100,7 +100,7 @@ class PasswordValidation(BaseModel):
 class BulkActionValidation(BaseModel):
     """Bulk operation validation."""
     ids: List[int] = Field(min_items=1, max_items=1000)
-    action: str = Field(regex="^(delete|archive|approve|reject)$")
+    action: str = Field(pattern="^(delete|archive|approve|reject)$")
     reason: Optional[str] = Field(None, max_length=500)
 
 
@@ -132,3 +132,25 @@ def validate_url(url: str) -> bool:
     import re
     pattern = r"^https?://[^\s/$.?#].[^\s]*$"
     return bool(re.match(pattern, url))
+
+
+def clean_phone_number(phone_str: str) -> str:
+    """Clean and format Lebanese and international phone numbers cleanly, eliminating duplicated country codes (+961)."""
+    if not phone_str:
+        return "+961 70 841 009"
+    import re as _re_p
+    s = str(phone_str).strip()
+    # Completely eliminate repeated +961 or 961 prefixes
+    s = _re_p.sub(r'(?:\+?961[\s\-]*)+', ' ', s, flags=_re_p.IGNORECASE).strip()
+    digits = _re_p.sub(r'\D', '', s)
+    if len(digits) == 8:
+        return f"+961 {digits[:2]} {digits[2:5]} {digits[5:]}"
+    elif len(digits) > 8:
+        last8 = digits[-8:]
+        if last8[:2] in ("70", "71", "76", "78", "79", "81", "03", "01", "04", "05", "06", "07", "08", "09"):
+            return f"+961 {last8[:2]} {last8[2:5]} {last8[5:]}"
+        return f"+{digits}"
+    elif len(digits) >= 6:
+        return f"+961 {digits[:2]} {digits[2:]}"
+    return "+961 70 841 009"
+

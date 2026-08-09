@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="/static/css/cyberpunk.css">
     <link rel="stylesheet" href="/static/css/premium-ui.css">
     <link rel="stylesheet" href="/static/css/interactive-system.css">
+    <link rel="stylesheet" href="/static/css/global_enhancements.css">
     <link rel="preload" href="/static/css/cyberpunk-rtl.css?v=20260629_v2" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="/static/css/cyberpunk-rtl.css?v=20260629_v2"></noscript>
     <style>
@@ -392,7 +393,48 @@
     }
     setInterval(checkAndRunBackgroundScan, 5000);
 })();
-</script>
 
+// Live Conversion Toast Stream Engine
+(function(){
+    let tickerEvents = [];
+    let currentIndex = 0;
+    
+    function fetchTickerEvents() {
+        fetch('/api/public/live-ticker')
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success && data.events && data.events.length > 0) {
+                    tickerEvents = data.events;
+                    showNextTickerToast();
+                }
+            })
+            .catch(err => console.debug('Live ticker fetch:', err));
+    }
+
+    function showNextTickerToast() {
+        if (!tickerEvents.length) return;
+        const ev = tickerEvents[currentIndex % tickerEvents.length];
+        currentIndex++;
+
+        const isAr = document.documentElement.lang === 'ar' || document.documentElement.dir === 'rtl' || !window.location.pathname.startsWith('/en');
+        const title = isAr ? ev.title_ar : ev.title_en;
+
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-5 start-5 z-[9999] bg-slate-900/95 border border-indigo-500/40 text-slate-100 px-4 py-3 rounded-2xl shadow-[0_0_30px_rgba(99,102,241,0.25)] flex items-center gap-3 max-w-sm text-xs font-bold animate-pulse transition-all backdrop-blur-md';
+        toast.innerHTML = `<span class="text-lg">${ev.icon}</span> <div class="flex-1"><div>${title}</div><div class="text-[10px] text-slate-400 font-normal mt-0.5">${ev.time}</div></div>`;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
+            setTimeout(() => toast.remove(), 500);
+        }, 6000);
+    }
+
+    setTimeout(fetchTickerEvents, 3000);
+    setInterval(fetchTickerEvents, 45000);
+})();
+</script>
+<script src="/static/js/global-enhancements.js"></script>
 </body>
 </html>

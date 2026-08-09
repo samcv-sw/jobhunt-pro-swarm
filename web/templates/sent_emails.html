@@ -1,137 +1,706 @@
 <meta property="og:title" content="الرسائل المرسلة | JobHunt Pro"/>
-<meta name="description" content="تتبع جميع رسائل التقديم المرسلة عبر JobHunt Pro."/>
+<meta name="description" content="تتبع ودرجة إدارة جميع رسائل التقديم المرسلة عبر JobHunt Pro."/>
 <title>الرسائل المرسلة | JobHunt Pro</title>
-<div class="space-y-6">
+
+<style>
+  :root {
+    --text-x-direction: 1;
+  }
+  [dir="rtl"] {
+    --text-x-direction: -1;
+  }
+  body, input, select, textarea, button {
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .lucide-dir-aware {
+    transform: scaleX(var(--text-x-direction));
+  }
+  .font-arabic-clean {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    line-height: 1.7;
+  }
+</style>
+
+<div class="space-y-6 relative text-slate-100 font-arabic-clean">
   <!-- Page Header -->
   <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
-      <h1 class="text-2xl font-black text-white flex items-center gap-3 tracking-tight">
-        <i data-lucide="send" class="w-7 h-7 text-blue-400 lucide-dir-aware"></i>
-        الرسائل المرسلة
-      </h1>
-      <p class="text-sm text-slate-400 mt-1">كل بريد أُرسل — شاهد أين، وإلى من، وماذا حدث. شفافية تامة.</p>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3 tracking-tight">
+          <i data-lucide="send" class="w-8 h-8 text-cyan-400 lucide-dir-aware"></i>
+          الرسائل المرسلة وتقديمات الوظائف
+        </h1>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> مباشر
+        </span>
+      </div>
+      <p class="text-base text-slate-400 mt-1.5 leading-relaxed">
+        شفافية تامة ومتابعة فورية — تتبع كافّة إيميلات التقديم والمعاينة مع إجراءات الإرسال والمتابعة الجماعية بالذكاء الاصطناعي.
+      </p>
     </div>
     
-    <div class="flex items-center gap-3">
-      <a href="/api/v1/sent-emails/export" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2">
+    <div class="flex items-center gap-3 flex-wrap">
+      <button onclick="window.location.reload()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-sm transition-all border border-slate-700 flex items-center gap-2">
+        <i data-lucide="refresh-cw" class="w-4 h-4 text-cyan-400"></i> تحديث القائمة
+      </button>
+      <a href="/api/v1/sent-emails/export" download="JobHunt_Sent_Emails_Export.csv" target="_blank" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold rounded-xl text-sm shadow-lg shadow-emerald-600/20 transition-all flex items-center gap-2">
         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> 📊 تصدير الكل إلى Excel (CSV)
       </a>
     </div>
   </div>
 
-  <!-- Stats Grid -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-5 border-t-4 border-t-blue-500 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all">
-      <div class="text-3xl font-black text-blue-500 mb-1 tracking-tight">{{ total }}</div>
-      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">إجمالي المرسل</div>
+  <!-- Funnel Analytics Visual Conversion Stage Bar -->
+  <div class="bg-gradient-to-r from-slate-900/90 via-cyan-950/40 to-slate-900/90 backdrop-blur-md border border-cyan-500/30 rounded-2xl p-5 shadow-[0_8px_32px_rgba(6,182,212,0.12)] space-y-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800/80 pb-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <i data-lucide="filter" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+            تحليلات القمع ومعدلات التحويل (Funnel Analytics)
+            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30 uppercase tracking-widest font-mono">مباشر</span>
+          </h2>
+          <p class="text-xs text-slate-400">مسار التوظيف والتحويل الكامل من لحظة إرسال التقديم إلى ردود المقابلات.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs font-mono text-slate-300">
+        <span class="px-2.5 py-1 bg-slate-950/80 border border-slate-800 rounded-lg flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>معدل الرد والاستجابة:</span>
+          <strong id="statCardResponseRate" class="text-emerald-400 font-bold">{% if total > 0 %}{{ (((responded_count or 0) / total * 100)|round(1)) }}%{% else %}0%{% endif %}</strong>
+        </span>
+      </div>
     </div>
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-5 border-t-4 border-t-green-500 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all">
-      <div class="text-3xl font-black text-green-500 mb-1 tracking-tight">{{ delivered_count }}</div>
-      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">تم التسليم</div>
-    </div>
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-5 border-t-4 border-t-purple-500 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all">
-      <div class="text-3xl font-black text-purple-500 mb-1 tracking-tight">{{ opened_count }}</div>
-      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">تم الفتح</div>
-    </div>
-    <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl p-5 border-t-4 border-t-red-500 shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all">
-      <div class="text-3xl font-black text-red-500 mb-1 tracking-tight">{{ bounced_count }}</div>
-      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">مرفوض</div>
+
+    <!-- Visual 4-Stage Conversion Funnel -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+      <!-- Stage 1: Dispatched -->
+      <div id="statCardTotal" onclick="filterByStat('all')" class="stat-card cursor-pointer bg-slate-950/60 border border-blue-500/30 rounded-xl p-3.5 relative overflow-hidden group hover:border-blue-400/80 hover:-translate-y-0.5 transition-all">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-md bg-blue-500/20 flex items-center justify-center text-[10px]">1</span>
+            تم الإرسال (Dispatched)
+          </span>
+          <span class="text-xs font-bold text-blue-400 font-mono">100%</span>
+        </div>
+        <div id="statCardTotalVal" class="text-2xl font-black text-white font-sans">{{ total }}</div>
+        <div class="text-[11px] text-slate-400 mt-1">إجمالي تقديمات الوظائف المرسلة</div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-600 to-cyan-400 h-1.5 rounded-full w-full"></div>
+        </div>
+      </div>
+
+      <!-- Stage 2: Delivered -->
+      <div id="statCardDelivered" onclick="filterByStat('sent')" class="stat-card cursor-pointer bg-slate-950/60 border border-green-500/30 rounded-xl p-3.5 relative overflow-hidden group hover:border-green-400/80 hover:-translate-y-0.5 transition-all">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-green-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-md bg-green-500/20 flex items-center justify-center text-[10px]">2</span>
+            تم التسليم (Delivered)
+          </span>
+          <span id="statCardDeliveredPct" class="text-xs font-bold text-green-400 font-mono">
+            {% if total > 0 %}{{ ((delivered_count / total * 100)|round(1)) }}%{% else %}0%{% endif %}
+          </span>
+        </div>
+        <div id="statCardDeliveredVal" class="text-2xl font-black text-white font-sans">{{ delivered_count }}</div>
+        <div class="text-[11px] text-slate-400 mt-1">وصلت لصندوق مسؤول التوظيف</div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div id="statCardDeliveredBar" class="bg-gradient-to-r from-emerald-500 to-green-400 h-1.5 rounded-full" style="width: {% if total > 0 %}{{ (delivered_count / total * 100)|round(0) }}{% else %}0{% endif %}%;"></div>
+        </div>
+      </div>
+
+      <!-- Stage 3: Opened -->
+      <div id="statCardOpened" onclick="filterByStat('opened')" class="stat-card cursor-pointer bg-slate-950/60 border border-purple-500/30 rounded-xl p-3.5 relative overflow-hidden group hover:border-purple-400/80 hover:-translate-y-0.5 transition-all">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-md bg-purple-500/20 flex items-center justify-center text-[10px]">3</span>
+            تم الفتح (Opened)
+          </span>
+          <span id="statCardOpenedPct" class="text-xs font-bold text-purple-400 font-mono">
+            {% if total > 0 %}{{ ((opened_count / total * 100)|round(1)) }}%{% else %}0%{% endif %}
+          </span>
+        </div>
+        <div id="statCardOpenedVal" class="text-2xl font-black text-white font-sans">{{ opened_count }}</div>
+        <div class="text-[11px] text-slate-400 mt-1">تمت قراءتها من مدير التوظيف</div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div id="statCardOpenedBar" class="bg-gradient-to-r from-purple-500 to-indigo-400 h-1.5 rounded-full" style="width: {% if total > 0 %}{{ (opened_count / total * 100)|round(0) }}{% else %}0{% endif %}%;"></div>
+        </div>
+      </div>
+
+      <!-- Stage 4: Replied / Interviews -->
+      <div id="statCardResponded" onclick="filterByStat('responded')" class="stat-card cursor-pointer bg-slate-950/60 border border-cyan-500/30 rounded-xl p-3.5 relative overflow-hidden group hover:border-cyan-400/80 hover:-translate-y-0.5 transition-all">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-5 h-5 rounded-md bg-cyan-500/20 flex items-center justify-center text-[10px]">4</span>
+            تم الرد / مقابلات (Replied)
+          </span>
+          <span id="statCardRespondedPct" class="text-xs font-bold text-cyan-400 font-mono">
+            {% if total > 0 %}{{ (((responded_count or 0) / total * 100)|round(1)) }}%{% else %}0%{% endif %}
+          </span>
+        </div>
+        <div id="statCardRespondedVal" class="text-2xl font-black text-white font-sans">{{ responded_count or 0 }}</div>
+        <div class="text-[11px] text-slate-400 mt-1">ردود ومواعيد مقابلات مباشرة</div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div id="statCardRespondedBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-1.5 rounded-full" style="width: {% if total > 0 %}{{ ((responded_count or 0) / total * 100)|round(0) }}{% else %}0{% endif %}%;"></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Filter Bar -->
-  <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex flex-wrap gap-3 items-center">
-    <div class="relative flex-1 min-w-[200px]">
-      <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2"></i>
-      <input dir="auto" type="text" id="searchInput" placeholder="ابحث باسم الشركة، المسمى الوظيفي، أو البريد الإلكتروني..." oninput="filterTable()" class="w-full bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg ps-9 pe-4 py-2 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
+  <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex flex-wrap gap-3 items-center shadow-md">
+    <div class="relative flex-1 min-w-[240px]">
+      <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+      <input dir="auto" type="text" id="searchInput" placeholder="ابحث باسم الشركة، المسمى الوظيفي، أو البريد..." oninput="filterTable()" class="w-full bg-slate-950/70 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 rounded-xl ps-9 pe-16 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
+      <kbd class="hidden sm:inline-block absolute end-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 pointer-events-none">Ctrl K</kbd>
     </div>
-    <select dir="auto"  id="statusFilter" onchange="filterTable()" class="bg-slate-950/50 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 rounded-lg px-4 py-2 text-sm text-white outline-none transition-all cursor-pointer min-w-[150px]">
+
+    <!-- Status Filter -->
+    <select dir="auto" id="statusFilter" onchange="filterTable()" class="bg-slate-950/70 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-all cursor-pointer min-w-[160px]">
       <option value="all">كل الحالات</option>
       <option value="sent">✅ تم التسليم</option>
-      <option value="failed">❌ فشل</option>
       <option value="opened">👀 تم الفتح</option>
+      <option value="responded">💬 تم الرد</option>
+      <option value="failed">❌ مرفوض / فشل</option>
     </select>
-    <a href="/api/v1/sent-emails/export" download="JobHunt_Sent_Emails_Export.csv" target="_blank" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-lg text-sm transition-all border border-emerald-500/30 flex items-center gap-2 whitespace-nowrap">
-      <i data-lucide="download" class="w-4 h-4"></i> تحميل الظاهر بالإكسل (CSV)
+
+    <!-- Campaign Filter -->
+    <select dir="auto" id="campaignFilter" onchange="filterTable()" class="bg-slate-950/70 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-all cursor-pointer min-w-[160px]">
+      <option value="all">كل الحملات</option>
+      {% for c in campaigns %}
+      <option value="{{ c.campaign_id }}">{{ c.campaign_name or c.job_title or ('حملة #' ~ c.campaign_id) }}</option>
+      {% endfor %}
+    </select>
+
+    <!-- Time Range Filter -->
+    <select dir="auto" id="timeFilter" onchange="filterTable()" class="bg-slate-950/70 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50 rounded-xl px-4 py-2.5 text-sm text-white outline-none transition-all cursor-pointer min-w-[150px]">
+      <option value="all">كل الأوقات</option>
+      <option value="today">📅 اليوم</option>
+      <option value="7days">⚡ آخر 7 أيام</option>
+      <option value="30days">🗓️ آخر 30 يوم</option>
+    </select>
+    
+    <button id="clearBtn" onclick="clearFilter()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-sm transition-all border border-slate-700 flex items-center gap-2 whitespace-nowrap">
+      <i data-lucide="rotate-ccw" class="w-4 h-4"></i> مسح الفلاتر
+    </button>
+    
+    <button onclick="copyVisibleEmails()" class="px-4 py-2.5 bg-slate-800 hover:bg-cyan-950/60 text-cyan-300 hover:text-white rounded-xl text-sm transition-all border border-cyan-500/30 flex items-center gap-2 whitespace-nowrap" title="نسخ كافّة إيميلات المستقبلين الظاهرة">
+      <i data-lucide="copy" class="w-4 h-4 text-cyan-400"></i> نسخ الإيميلات الظاهرة
+    </button>
+    
+    <span class="text-xs text-slate-300 font-mono bg-slate-950/90 px-3.5 py-2.5 rounded-xl border border-slate-800 flex items-center gap-2 whitespace-nowrap">
+      <i data-lucide="list" class="w-4 h-4 text-cyan-400"></i>
+      <span>الظاهر:</span>
+      <strong id="visibleCount" class="text-cyan-400 font-bold text-sm">{{ rows|length }}</strong>
+      <span>من {{ total }}</span>
+    </span>
+
+    <a href="/api/v1/sent-emails/export" download="JobHunt_Sent_Emails_Export.csv" target="_blank" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-extrabold rounded-xl text-sm transition-all border border-emerald-500/30 flex items-center gap-2 whitespace-nowrap ms-auto">
+      <i data-lucide="download" class="w-4 h-4"></i> تحميل بالإكسل (CSV)
     </a>
+  </div>
+
+  <!-- FLOATING BULK ACTION BAR -->
+  <div id="bulkActionBar" class="hidden sticky top-4 z-[999] bg-cyan-950/95 border border-cyan-500/50 backdrop-blur-md rounded-2xl p-4 shadow-[0_10px_35px_rgba(6,182,212,0.3)] flex flex-wrap items-center justify-between gap-4 transition-all animate-in fade-in slide-in-from-top-4">
+    <div class="flex items-center gap-3">
+      <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/60 flex items-center justify-center text-cyan-300 font-black text-sm" id="selectedCountBadge">0</span>
+      <span class="text-sm font-extrabold text-white">رسائل تم تحديدها للإجراء الجماعي</span>
+    </div>
+    <div class="flex items-center gap-3 flex-wrap">
+      <button onclick="exportSelectedToCSV()" id="bulkExportBtn" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-xl text-xs uppercase tracking-wider transition-all border border-emerald-500/30 flex items-center gap-1.5">
+        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> تصدير المحدد (CSV)
+      </button>
+      <button onclick="executeBulkFollowup()" id="bulkFollowupBtn" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-purple-600/30">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> تذكير AI للمحدد
+      </button>
+      <button onclick="executeBulkDelete()" id="bulkDeleteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-red-600/30">
+        <i data-lucide="trash-2" class="w-4 h-4"></i> حذف المحدد
+      </button>
+      <button onclick="clearBulkSelection()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition-all">
+        إلغاء التحديد
+      </button>
+    </div>
   </div>
 
   <!-- Email Table -->
   {% if rows %}
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
     <div class="overflow-x-auto">
       <table class="w-full text-start border-collapse" id="emailTable">
         <thead>
-          <tr class="bg-slate-950/50 border-b border-slate-800">
-            <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">إلى</th>
-            <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">الموضوع / المسمى الوظيفي</th>
-            <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">الشركة</th>
-            <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">الحالة</th>
-            <th class="py-4 px-5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">التاريخ</th>
+          <tr class="bg-slate-950/60 border-b border-slate-800 select-none">
+            <th onclick="var cb = document.getElementById('selectAllCheckbox'); if (event.target !== cb) { cb.checked = !cb.checked; toggleSelectAll(cb); }" class="py-4 px-4 w-12 text-center cursor-pointer hover:bg-slate-800/60 transition-colors" title="تحديد / إلغاء تحديد الكل">
+              <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" onclick="event.stopPropagation()" class="w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto">
+            </th>
+            <th onclick="sortTable(1)" class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-cyan-400 transition-colors">
+              <div class="flex items-center gap-1.5">إلى البريد <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i></div>
+            </th>
+            <th onclick="sortTable(2)" class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-cyan-400 transition-colors">
+              <div class="flex items-center gap-1.5">الموضوع / المسمى الوظيفي <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i></div>
+            </th>
+            <th onclick="sortTable(3)" class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-cyan-400 transition-colors">
+              <div class="flex items-center gap-1.5">الشركة <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i></div>
+            </th>
+            <th onclick="sortTable(4)" class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-cyan-400 transition-colors">
+              <div class="flex items-center gap-1.5">الحالة <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i></div>
+            </th>
+            <th onclick="sortTable(5)" class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider cursor-pointer hover:text-cyan-400 transition-colors">
+              <div class="flex items-center gap-1.5">التاريخ <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-slate-600"></i></div>
+            </th>
+            <th class="py-4 px-5 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">إجراءات التحكم</th>
           </tr>
         </thead>
         <tbody id="emailTableBody" class="divide-y divide-slate-800/50">
           {% for r in rows %}
-          <tr data-status="{{ r.status }}" data-opened="{{ '1' if r.opened_at else '0' }}" class="hover:bg-slate-800/30 transition-colors">
-            <td class="py-3 px-5 text-sm text-slate-400">{{ r.email_address or '—' }}</td>
-            <td class="py-3 px-5 text-sm font-medium text-slate-300">{{ r.job_title or '—' }}</td>
-            <td class="py-3 px-5 text-sm font-bold text-white">{{ r.company_name or '—' }}</td>
-            <td class="py-3 px-5">
-              {% if r.status == 'sent' or r.status == 'delivered' %}
-              <span class="inline-flex items-center justify-center px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">{{ r.status }}</span>
-              {% elif r.status == 'failed' or r.status == 'bounced' %}
-              <span class="inline-flex items-center justify-center px-3 py-1 bg-red-500/10 text-red-400 border border-red-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">{{ r.status }}</span>
-              {% elif r.opened_at %}
-              <span class="inline-flex items-center justify-center px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">تم الفتح</span>
-              {% elif r.responded_at %}
-              <span class="inline-flex items-center justify-center px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">تم الرد</span>
-              {% else %}
-              <span class="inline-flex items-center justify-center px-3 py-1 bg-slate-500/10 text-slate-400 border border-slate-500/30 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">{{ r.status or 'قيد الانتظار' }}</span>
+          <tr id="row-{{ r.id }}" data-id="{{ r.id }}" data-campaign="{{ r.campaign_id or '' }}" data-date="{{ r.sent_at or '' }}" data-status="{{ r.status }}" data-opened="{{ '1' if r.opened_at or r.status == 'opened' else '0' }}" data-responded="{{ '1' if r.responded_at or r.status in ['responded', 'replied'] else '0' }}" class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-3.5 px-4 w-12 text-center">
+              <input type="checkbox" value="{{ r.id }}" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto">
+            </td>
+            <td class="py-3.5 px-5 text-sm text-slate-300 font-sans">
+              <div class="flex items-center gap-2">
+                <span class="truncate max-w-[190px]" title="{{ r.to_email or r.email_address or '—' }}">{{ r.to_email or r.email_address or '—' }}</span>
+                {% if r.to_email or r.email_address %}
+                <button onclick="copyToClipboard('{{ r.to_email or r.email_address }}')" class="text-slate-500 hover:text-cyan-400 transition-colors p-1 rounded hover:bg-slate-800" title="نسخ البريد الإلكتروني">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+                {% endif %}
+              </div>
+            </td>
+            <td class="py-3.5 px-5 text-sm font-semibold text-slate-200">
+              <div class="font-bold text-slate-200">{{ r.job_title or '—' }}</div>
+              {% if r.subject %}
+              <div class="text-xs text-slate-400 font-sans mt-0.5 truncate max-w-[220px]" title="{{ r.subject }}">{{ r.subject }}</div>
               {% endif %}
             </td>
-            <td class="py-3 px-5 text-xs text-slate-500">{{ (r.sent_at or '')[:16] }}</td>
+            <td class="py-3.5 px-5 text-sm font-bold text-white">
+              <div class="flex items-center gap-1.5">
+                <span>{{ r.company_name or '—' }}</span>
+                {% if r.company_name %}
+                <a href="https://www.google.com/search?q={{ r.company_name | urlencode }}+careers" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors p-1 rounded" title="بحث عن الشركة ووظائفها في جوجل">
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                </a>
+                {% endif %}
+              </div>
+            </td>
+            <td class="py-3.5 px-5">
+              {% if r.responded_at or r.status in ['responded', 'replied'] %}
+              <span class="inline-flex items-center justify-center px-3 py-1 bg-cyan-950/80 text-cyan-300 border border-cyan-500/50 rounded-full text-xs font-extrabold tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(34,211,238,0.2)]">💬 تم الرد</span>
+              {% elif r.opened_at or r.status in ['opened', 'read'] %}
+              <span class="inline-flex items-center justify-center px-3 py-1 bg-purple-950/80 text-purple-300 border border-purple-500/50 rounded-full text-xs font-extrabold tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(192,132,252,0.2)]">👀 تم الفتح</span>
+              {% elif r.status in ['sent', 'delivered', 'applied', 'success'] or not r.status %}
+              <span class="inline-flex items-center justify-center px-3 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 rounded-full text-xs font-extrabold tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(52,211,153,0.25)]">✅ تم التسليم</span>
+              {% elif r.status in ['failed', 'bounced', 'error'] %}
+              <span class="inline-flex items-center justify-center px-3 py-1 bg-rose-950/80 text-rose-400 border border-rose-500/50 rounded-full text-xs font-extrabold tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(248,113,113,0.2)]">❌ مرفوض</span>
+              {% else %}
+              <span class="inline-flex items-center justify-center px-3 py-1 bg-emerald-950/80 text-emerald-300 border border-emerald-500/50 rounded-full text-xs font-extrabold tracking-wider whitespace-nowrap shadow-[0_0_10px_rgba(52,211,153,0.25)]">✅ تم التسليم</span>
+              {% endif %}
+            </td>
+            <td class="py-3.5 px-5 text-xs text-slate-400 font-mono"><span class="dispatch-time" data-time="{{ r.sent_at or r.applied_at or '' }}">{{ (r.sent_at or '')[:16] }}</span></td>
+            <td class="py-3.5 px-5 text-xs">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="openEmailPreview('{{ r.id }}')" class="px-3 py-1.5 bg-cyan-950/50 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold tracking-wider transition-all flex items-center gap-1" title="معاينة التقديم">
+                  <i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400 pointer-events-none"></i> معاينة
+                </button>
+                <span class="px-2.5 py-1.5 bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1" title="مقدم مرة واحدة لعدم التكرار">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i> تم التقديم
+                </span>
+                <button onclick="openAIFollowupModal('{{ r.id }}')" class="px-2.5 py-1.5 bg-purple-950/50 hover:bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1" title="توليد تذكير AI">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 pointer-events-none"></i> تذكير
+                </button>
+                <button onclick="markStatus('{{ r.id }}', 'responded')" class="p-1.5 bg-slate-800 hover:bg-cyan-900/60 text-cyan-400 rounded-lg border border-slate-700 transition-all" title="تحديد كـ تم الرد">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+                <button onclick="deleteSingleEmail('{{ r.id }}')" class="p-1.5 bg-slate-800 hover:bg-red-900/60 text-red-400 rounded-lg border border-slate-700 transition-all" title="حذف السجل">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i>
+                </button>
+              </div>
+            </td>
           </tr>
           {% endfor %}
-        </tbody>
+          <tr id="emptyFilterRow" class="hidden">
+            <td colspan="7" class="py-12 px-4 text-center">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-800/80 border border-slate-700 text-slate-400 mb-3">
+                <i data-lucide="search-x" class="w-6 h-6"></i>
+              </div>
+              <div class="text-slate-300 font-bold text-base">لا توجد نتائج تطابق فلاتر البحث الحالية</div>
+              <p class="text-xs text-slate-500 mt-1">جرّب تغيير كلمات البحث أو إلغاء تحديد تصفية الحالة.</p>
+              <button onclick="clearFilter()" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold rounded-xl text-xs transition-all border border-slate-700 inline-flex items-center gap-1.5 shadow-md">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> مسح جميع الفلاتر
+              </button>
+            </td>
+          </tr>
       </table>
     </div>
+
+    {% if total > rows|length %}
+    <div class="p-4 border-t border-slate-800/80 text-center bg-slate-950/50">
+      <button id="loadMoreBtn" onclick="loadMore()" class="px-7 py-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-extrabold rounded-xl text-sm transition-all border border-cyan-500/30 inline-flex items-center gap-2 shadow-lg hover:shadow-cyan-500/10">
+        <i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد من الرسائل ({{ rows|length }} من {{ total }})
+      </button>
+    </div>
+    {% endif %}
   </div>
-
-  
-
   {% else %}
-  <div class="text-center py-16 px-6 bg-slate-900/50 border border-slate-800 border-dashed rounded-2xl">
-    <i data-lucide="mail-x" class="w-12 h-12 text-slate-600 mx-auto mb-4 opacity-80"></i>
-    <div class="text-slate-400 font-medium">لم يتم إرسال أي رسائل بعد. أنشئ حملة للبدء.</div>
+  <div class="text-center py-20 px-6 bg-slate-900/50 border border-slate-800 border-dashed rounded-3xl">
+    <i data-lucide="mail-x" class="w-14 h-14 text-slate-600 mx-auto mb-4 opacity-80"></i>
+    <div class="text-slate-300 font-bold text-lg">لم يتم إرسال أي رسائل بعد.</div>
+    <p class="text-sm text-slate-500 mt-1">قم بإنشاء حملة تقديم جديدة لبدء الإرسال التلقائي لمسؤولي التوظيف.</p>
   </div>
   {% endif %}
+</div>
+
+<!-- EMAIL PREVIEW CYBERPUNK MODAL -->
+<div id="emailPreviewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[999999] hidden items-center justify-center p-4">
+  <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl max-w-3xl w-full shadow-[0_0_60px_rgba(6,182,212,0.2)] overflow-hidden flex flex-col max-h-[92vh]">
+    <!-- Modal Header -->
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold">
+          <i data-lucide="mail-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="prevModalSubject" class="text-base font-black text-white">معاينة التقديم الإلكتروني</h3>
+          <div class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+            <span id="prevModalCompany" class="text-cyan-400 font-bold">الشركة</span>
+            <span>•</span>
+            <span id="prevModalJob" class="text-slate-300">المسمى الوظيفي</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Controls -->
+      <div class="flex items-center gap-1.5 shrink-0 flex-nowrap">
+        <select dir="auto" id="modalStatusSelect" onchange="updateModalSelectColor(this); markStatusFromModal(this.value);" style="color: #34d399 !important; background-color: #020617 !important;" class="border border-emerald-500/40 text-emerald-400 font-extrabold px-3 py-1.5 rounded-xl text-xs outline-none cursor-pointer shadow-md transition-all shrink-0" title="تغيير حالة التقديم">
+          <option value="sent" style="color: #34d399; background-color: #020617;" class="font-extrabold py-1">✅ تم التسليم (Delivered)</option>
+          <option value="opened" style="color: #c084fc; background-color: #020617;" class="font-extrabold py-1">👀 تم الفتح (Opened)</option>
+          <option value="responded" style="color: #22d3ee; background-color: #020617;" class="font-extrabold py-1">💬 تم الرد (Replied)</option>
+          <option value="failed" style="color: #f87171; background-color: #020617;" class="font-extrabold py-1">❌ مرفوض / فشل (Failed)</option>
+        </select>
+        <button onclick="navigatePreview(-1)" title="التقديم السابق" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white font-extrabold text-xs transition-all border border-slate-700 flex items-center gap-1 shadow-sm shrink-0">
+          <span class="text-cyan-400 font-bold text-sm">‹</span>
+          <span>السابق</span>
+        </button>
+        <button onclick="navigatePreview(1)" title="التقديم التالي" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white font-extrabold text-xs transition-all border border-slate-700 flex items-center gap-1 shadow-sm shrink-0">
+          <span>التالي</span>
+          <span class="text-cyan-400 font-bold text-sm">›</span>
+        </button>
+        <button onclick="closeEmailPreviewModal()" title="إغلاق النافذة" class="w-8 h-8 rounded-xl bg-slate-800/90 hover:bg-rose-900/40 hover:border-rose-500/60 text-slate-300 hover:text-rose-300 border border-slate-700 flex items-center justify-center transition-all ms-1 shrink-0 font-extrabold text-base leading-none">
+          ✕
+        </button>
+      </div>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="p-6 overflow-y-auto space-y-4 text-sm flex-1">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-slate-950/60 rounded-xl border border-slate-800 text-xs">
+        <div>
+          <span class="text-slate-500">إلى (Recruiter):</span>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <strong id="prevModalTo" class="text-slate-200 block truncate font-sans text-sm"></strong>
+            <button onclick="copyRecipientEmail()" class="text-slate-500 hover:text-cyan-400 transition-colors" title="نسخ">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+        <div><span class="text-slate-500">من (Sender):</span> <strong id="prevModalSender" class="text-slate-200 block truncate font-sans text-sm"></strong></div>
+        <div><span class="text-slate-500">تاريخ الإرسال:</span> <span id="prevModalDate" class="text-slate-400 block font-mono text-sm"></span></div>
+        <div><span class="text-slate-500">المرفقات:</span> <span class="text-cyan-400 font-bold block flex items-center gap-1 text-sm mt-0.5"><i data-lucide="paperclip" class="w-4 h-4"></i> Sam_Salameh_CV.pdf (ATS Verified)</span></div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-2">
+          <div class="flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+            <button id="previewTabHtml" onclick="switchPreviewTab('html')" class="px-3 py-1 bg-cyan-600 text-white rounded-lg text-xs font-bold transition-all shadow-md">
+              📄 التنسيق الكامل (HTML)
+            </button>
+            <button id="previewTabText" onclick="switchPreviewTab('text')" class="px-3 py-1 bg-transparent text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-all">
+              📝 النص فقط (Plain Text)
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openAIFollowupFromPreview()" class="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl transition-all">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> 🤖 إنشاء وتوليد تذكير AI
+            </button>
+            <button onclick="copyPreviewBody()" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/30 px-3 py-1.5 rounded-xl transition-all">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> نسخ النص
+            </button>
+          </div>
+        </div>
+        
+        <div id="prevModalHtmlContainer" class="p-1 bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden min-h-[260px]">
+          <iframe id="prevModalFrame" class="w-full h-[320px] rounded-xl bg-white border-0"></iframe>
+        </div>
+        <div id="prevModalBody" class="hidden p-5 bg-slate-950 border border-slate-800 rounded-2xl text-slate-200 font-sans leading-relaxed whitespace-pre-wrap selection:bg-cyan-500 selection:text-black text-sm min-h-[260px]">
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="px-4 py-2 bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 font-extrabold rounded-xl text-xs flex items-center gap-2 shadow-sm">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+          <span>🔒 تم التقديم (مقدم مرة واحدة لكل شركة)</span>
+        </div>
+        <button onclick="markStatus(currentPreviewEmailId, 'responded')" class="px-4 py-2 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 font-bold rounded-xl text-xs transition-all border border-cyan-500/30 flex items-center gap-2">
+          <i data-lucide="message-square-check" class="w-4 h-4"></i> تحديد كـ تم الرد
+        </button>
+      </div>
+      <button onclick="closeEmailPreviewModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all">
+        إغلاق
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AI FOLLOWUP GENERATOR & SENDER MODAL -->
+<div id="aiFollowupModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[9999999] hidden items-center justify-center p-4">
+  <div class="bg-slate-900 border border-purple-500/40 rounded-2xl max-w-xl w-full shadow-[0_0_60px_rgba(168,85,247,0.25)] overflow-hidden flex flex-col">
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-white">مسودة ومحرك تذكير المتابعة (AI Follow-up Sender)</h3>
+          <p class="text-xs text-purple-300">مكتوبة باحترافية عالية لزيادة نسبة الرد من مسؤولي التوظيف</p>
+        </div>
+      </div>
+      <button onclick="closeAIFollowupModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+    </div>
+
+    <div class="p-6 space-y-4 text-sm">
+      <div>
+        <label class="text-xs font-bold text-slate-400 block mb-1.5">نبرة الخطاب (Tone):</label>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="changeAIFollowupTone('executive')" id="toneBtnExecutive" class="px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold transition-all shadow-md">👔 تنفيذي (Executive)</button>
+          <button type="button" onclick="changeAIFollowupTone('short')" id="toneBtnShort" class="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-all">⚡ قصير ومباشر (Short)</button>
+          <button type="button" onclick="changeAIFollowupTone('friendly')" id="toneBtnFriendly" class="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-all">🤝 دافئ وودود (Friendly)</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-400 block mb-1">عنوان البريد (Subject):</label>
+        <input type="text" id="followupSubjectInput" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white text-sm focus:border-purple-500 outline-none" dir="auto">
+      </div>
+
+      <div>
+        <label class="text-xs font-bold text-slate-400 block mb-1">محتوى رسالة التذكير (Follow-up Message):</label>
+        <textarea id="followupBodyInput" rows="7" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-200 text-sm font-sans leading-relaxed focus:border-purple-500 outline-none" dir="auto"></textarea>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-3">
+      <button id="sendFollowupBtn" onclick="dispatchAIFollowupNow()" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold rounded-xl text-sm transition-all shadow-lg shadow-purple-600/30 flex items-center gap-2">
+        <i data-lucide="send" class="w-4 h-4"></i> إرسال التذكير الآن عبر الإيميل
+      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="copyFollowupDraft()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all flex items-center gap-1.5">
+          <i data-lucide="copy" class="w-4 h-4"></i> نسخ النص
+        </button>
+        <button onclick="closeAIFollowupModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-sm transition-all">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+<!-- Custom Apex Cyberpunk Glassmorphism Confirmation Modal -->
+<div id="cyberpunkConfirmModal" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+  <div class="relative w-full max-w-md bg-slate-900/95 border border-red-500/40 rounded-2xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.9),0_0_35px_rgba(239,68,68,0.3)] transform scale-95 transition-all duration-300 overflow-hidden" id="cyberpunkConfirmCard">
+    <!-- Glowing Top Accent Line -->
+    <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-80"></div>
+    
+    <div class="flex items-start gap-4 mb-5">
+      <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+        <i data-lucide="alert-triangle" class="w-6 h-6 animate-pulse"></i>
+      </div>
+      <div>
+        <h3 id="cyberpunkConfirmTitle" class="text-lg font-black text-white mb-1 tracking-wide">تأكيد الحذف النهائي</h3>
+        <p id="cyberpunkConfirmMessage" class="text-sm text-slate-300 leading-relaxed">
+          هل أنت متأكد من رغبتك في حذف السجلات المحددة؟ لا يمكنك التراجع عن هذا الإجراء.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/80">
+      <button id="cyberpunkConfirmCancelBtn" type="button" class="px-4 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 transition-all">
+        إلغاء الأمر
+      </button>
+      <button id="cyberpunkConfirmOkBtn" type="button" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 border border-red-400/30 shadow-[0_4px_20px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_25px_rgba(239,68,68,0.6)] transition-all transform hover:-translate-y-0.5">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+        <span id="cyberpunkConfirmOkLabel">تأكيد الحذف</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
 var currentRows = {{ rows|length }};
 var totalRows = {{ total }};
 var allLoaded = currentRows >= totalRows;
+var currentPreviewEmailId = null;
+var sortDirections = [true, true, true, true, true, true];
+
+function recalculateFunnelStats() {
+    var rows = document.querySelectorAll('#emailTableBody tr');
+    var total = 0;
+    var delivered = 0;
+    var opened = 0;
+    var responded = 0;
+
+    rows.forEach(function(r) {
+        if (r.id === 'emptyFilterRow') return;
+        total++;
+        var status = (r.getAttribute('data-status') || '').toLowerCase();
+        var isOpened = r.getAttribute('data-opened') === '1';
+        var isResponded = r.getAttribute('data-responded') === '1';
+
+        if (status === 'sent' || status === 'delivered' || status === 'applied') {
+            delivered++;
+        }
+        if (isOpened || status === 'opened') {
+            opened++;
+            delivered++;
+        }
+        if (isResponded || status === 'responded' || status === 'replied') {
+            responded++;
+            opened++;
+            delivered++;
+        }
+    });
+
+    delivered = Math.min(total, delivered);
+    opened = Math.min(delivered, opened);
+    responded = Math.min(opened, responded);
+
+    var respRate = total > 0 ? (responded / total * 100).toFixed(1) : '0';
+    var delivPct = total > 0 ? (delivered / total * 100).toFixed(1) : '0';
+    var openPct = total > 0 ? (opened / total * 100).toFixed(1) : '0';
+    var respPct = total > 0 ? (responded / total * 100).toFixed(1) : '0';
+
+    var rateEl = document.getElementById('statCardResponseRate');
+    if (rateEl) rateEl.textContent = respRate + '%';
+
+    var totalEl = document.getElementById('statCardTotalVal');
+    if (totalEl) totalEl.textContent = total;
+
+    var delivVal = document.getElementById('statCardDeliveredVal');
+    var delivPctEl = document.getElementById('statCardDeliveredPct');
+    var delivBar = document.getElementById('statCardDeliveredBar');
+    if (delivVal) delivVal.textContent = delivered;
+    if (delivPctEl) delivPctEl.textContent = delivPct + '%';
+    if (delivBar) delivBar.style.width = delivPct + '%';
+
+    var openVal = document.getElementById('statCardOpenedVal');
+    var openPctEl = document.getElementById('statCardOpenedPct');
+    var openBar = document.getElementById('statCardOpenedBar');
+    if (openVal) openVal.textContent = opened;
+    if (openPctEl) openPctEl.textContent = openPct + '%';
+    if (openBar) openBar.style.width = openPct + '%';
+
+    var respVal = document.getElementById('statCardRespondedVal');
+    var respPctEl = document.getElementById('statCardRespondedPct');
+    var respBar = document.getElementById('statCardRespondedBar');
+    if (respVal) respVal.textContent = responded;
+    if (respPctEl) respPctEl.textContent = respPct + '%';
+    if (respBar) respBar.style.width = respPct + '%';
+}
+window.recalculateFunnelStats = recalculateFunnelStats;
 
 function filterTable(){
     var searchInput = document.getElementById('searchInput');
     var statusFilter = document.getElementById('statusFilter');
+    var campaignFilter = document.getElementById('campaignFilter');
+    var timeFilter = document.getElementById('timeFilter');
     var q = (searchInput ? searchInput.value : '').toLowerCase().trim();
     var s = statusFilter ? statusFilter.value : 'all';
+    var cVal = campaignFilter ? campaignFilter.value : 'all';
+    var tf = timeFilter ? timeFilter.value : 'all';
     var rows = document.querySelectorAll('#emailTableBody tr');
+    var visibleCount = 0;
+    var now = new Date();
+
     rows.forEach(function(r){
+        if (r.id === 'emptyFilterRow') return;
         var txt = r.textContent.toLowerCase();
         var status = (r.getAttribute('data-status') || '').toLowerCase();
+        var campId = r.getAttribute('data-campaign') || '';
         var opened = r.getAttribute('data-opened') || '0';
+        var responded = r.getAttribute('data-responded') || '0';
+        var dateStr = r.getAttribute('data-date') || '';
+        
         var matchSearch = !q || txt.indexOf(q) !== -1;
+        var matchCampaign = (cVal === 'all' || campId === cVal);
         var matchStatus = true;
         if (s === 'sent') matchStatus = (status === 'sent' || status === 'delivered');
         else if (s === 'failed') matchStatus = (status === 'failed' || status === 'bounced');
         else if (s === 'opened') matchStatus = (opened === '1');
-        r.style.display = (matchSearch && matchStatus) ? '' : 'none';
+        else if (s === 'responded') matchStatus = (responded === '1' || status === 'responded' || status === 'replied');
+
+        var matchTime = true;
+        if (tf !== 'all' && dateStr) {
+            var rDate = new Date(dateStr.replace(' ', 'T'));
+            if (!isNaN(rDate.getTime())) {
+                var diffMs = now.getTime() - rDate.getTime();
+                var diffDays = diffMs / (1000 * 3600 * 24);
+                if (tf === 'today') matchTime = diffDays <= 1.0;
+                else if (tf === '7days') matchTime = diffDays <= 7.0;
+                else if (tf === '30days') matchTime = diffDays <= 30.0;
+            }
+        }
+        
+        if (matchSearch && matchStatus && matchTime && matchCampaign) {
+            r.style.display = '';
+            visibleCount++;
+        } else {
+            r.style.display = 'none';
+        }
     });
+    var countBadge = document.getElementById('visibleCount');
+    if (countBadge) { countBadge.textContent = visibleCount; }
+
+    var emptyRow = document.getElementById('emptyFilterRow');
+    if (emptyRow) {
+        var dataRows = Array.from(rows).filter(function(r){ return r.id !== 'emptyFilterRow'; });
+        if (visibleCount === 0 && dataRows.length > 0) {
+            emptyRow.classList.remove('hidden');
+            emptyRow.style.display = '';
+        } else {
+            emptyRow.classList.add('hidden');
+            emptyRow.style.display = 'none';
+        }
+    }
 }
 
-    if (statusFilter) { statusFilter.value = 'all'; statusFilter.dispatchEvent(new Event('change', { bubbles: true })); }
+function filterByStat(statusVal) {
+    var statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        statusFilter.value = statusVal;
+        filterTable();
+    }
+    document.querySelectorAll('.stat-card').forEach(function(card){
+        card.classList.remove('ring-2', 'ring-blue-500', 'ring-green-500', 'ring-purple-500', 'ring-cyan-500', 'ring-red-500');
+    });
+    if (statusVal === 'sent') document.getElementById('statCardDelivered')?.classList.add('ring-2', 'ring-green-500');
+    else if (statusVal === 'opened') document.getElementById('statCardOpened')?.classList.add('ring-2', 'ring-purple-500');
+    else if (statusVal === 'responded') document.getElementById('statCardResponded')?.classList.add('ring-2', 'ring-cyan-500');
+    else if (statusVal === 'failed') document.getElementById('statCardBounced')?.classList.add('ring-2', 'ring-red-500');
+    else if (statusVal === 'all') document.getElementById('statCardTotal')?.classList.add('ring-2', 'ring-blue-500');
+}
+
+function clearFilter(){
+    var searchInput = document.getElementById('searchInput');
+    var statusFilter = document.getElementById('statusFilter');
+    var campaignFilter = document.getElementById('campaignFilter');
+    var timeFilter = document.getElementById('timeFilter');
+    if (searchInput) searchInput.value = '';
+    if (statusFilter) statusFilter.value = 'all';
+    if (campaignFilter) campaignFilter.value = 'all';
+    if (timeFilter) timeFilter.value = 'all';
+    document.querySelectorAll('.stat-card').forEach(function(card){
+        card.classList.remove('ring-2', 'ring-blue-500', 'ring-green-500', 'ring-purple-500', 'ring-cyan-500', 'ring-red-500');
+    });
     filterTable();
     var btn = document.getElementById('clearBtn');
     if (btn) {
@@ -139,6 +708,448 @@ function filterTable(){
         btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-400"></i> تم المسح!';
         if (typeof lucide !== 'undefined') lucide.createIcons();
         setTimeout(function(){ btn.innerHTML = orig; if (typeof lucide !== 'undefined') lucide.createIcons(); }, 1200);
+    }
+}
+
+function switchPreviewTab(tab) {
+    var htmlContainer = document.getElementById('prevModalHtmlContainer');
+    var bodyText = document.getElementById('prevModalBody');
+    var btnHtml = document.getElementById('previewTabHtml');
+    var btnText = document.getElementById('previewTabText');
+    if (tab === 'html') {
+        if (htmlContainer) htmlContainer.classList.remove('hidden');
+        if (bodyText) bodyText.classList.add('hidden');
+        if (btnHtml) { btnHtml.className = 'px-3 py-1 bg-cyan-600 text-white rounded-lg text-xs font-bold transition-all shadow-md'; }
+        if (btnText) { btnText.className = 'px-3 py-1 bg-transparent text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-all'; }
+    } else {
+        if (htmlContainer) htmlContainer.classList.add('hidden');
+        if (bodyText) bodyText.classList.remove('hidden');
+        if (btnHtml) { btnHtml.className = 'px-3 py-1 bg-transparent text-slate-400 hover:text-white rounded-lg text-xs font-bold transition-all'; }
+        if (btnText) { btnText.className = 'px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-bold transition-all shadow-md'; }
+    }
+}
+
+function exportSelectedToCSV() {
+    var checkedRows = Array.from(document.querySelectorAll('.email-checkbox:checked')).map(function(cb){ return cb.closest('tr'); });
+    if (checkedRows.length === 0) {
+        showToast('لم تقم بتحديد أي رسائل لتصديرها', 'warning');
+        return;
+    }
+    var headers = ["ID", "Email", "Job Title", "Subject", "Company", "Status", "Sent At"];
+    var csvRows = [headers.join(",")];
+    checkedRows.forEach(function(tr){
+        if (!tr) return;
+        var id = tr.getAttribute('data-id') || '';
+        var email = tr.children[1] ? tr.children[1].innerText.trim().replace(/"/g, '""') : '';
+        var jobCellText = tr.children[2] ? tr.children[2].innerText.trim() : '';
+        var parts = jobCellText.split('\n');
+        var job = parts[0] ? parts[0].trim().replace(/"/g, '""') : '';
+        var subject = parts[1] ? parts[1].trim().replace(/"/g, '""') : '';
+        var company = tr.children[3] ? tr.children[3].innerText.trim().replace(/"/g, '""') : '';
+        var status = tr.getAttribute('data-status') || '';
+        var sentAt = tr.getAttribute('data-date') || '';
+        csvRows.push([id, '"' + email + '"', '"' + job + '"', '"' + subject + '"', '"' + company + '"', '"' + status + '"', '"' + sentAt + '"'].join(","));
+    });
+    var blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'Selected_Sent_Emails.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('📊 تم تصدير الإيميلات المحددة بنجاح!', 'success');
+}
+
+function toggleSelectAll(master) {
+    var checkboxes = document.querySelectorAll('.email-checkbox');
+    checkboxes.forEach(function(cb) {
+        if (cb.closest('tr').style.display !== 'none') {
+            cb.checked = master.checked;
+        }
+    });
+    updateBulkBar();
+}
+
+function updateBulkBar() {
+    var checked = document.querySelectorAll('.email-checkbox:checked');
+    var visibleCheckboxes = Array.from(document.querySelectorAll('.email-checkbox')).filter(function(cb){ return cb.closest('tr') && cb.closest('tr').style.display !== 'none'; });
+    var bar = document.getElementById('bulkActionBar');
+    var badge = document.getElementById('selectedCountBadge');
+    var master = document.getElementById('selectAllCheckbox');
+
+    if (master) {
+        if (visibleCheckboxes.length > 0 && checked.length === visibleCheckboxes.length) {
+            master.checked = true;
+            master.indeterminate = false;
+        } else if (checked.length > 0 && checked.length < visibleCheckboxes.length) {
+            master.checked = false;
+            master.indeterminate = true;
+        } else {
+            master.checked = false;
+            master.indeterminate = false;
+        }
+    }
+
+    if (bar) {
+        if (checked.length > 0) {
+            bar.classList.remove('hidden');
+            bar.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important;';
+            if (badge) badge.textContent = checked.length;
+        } else {
+            bar.classList.add('hidden');
+            bar.style.cssText = 'display: none !important;';
+        }
+    }
+}
+
+function clearBulkSelection() {
+    var master = document.getElementById('selectAllCheckbox');
+    if (master) master.checked = false;
+    document.querySelectorAll('.email-checkbox').forEach(function(cb){ cb.checked = false; });
+    updateBulkBar();
+}
+
+function executeBulkResend() {
+    var checked = Array.from(document.querySelectorAll('.email-checkbox:checked')).map(function(cb){ var val = cb.value ? cb.value.trim() : ''; return (/^\d+$/).test(val) ? parseInt(val, 10) : val; }).filter(Boolean);
+    if (checked.length === 0) {
+        showToast('⚠️ يرجى تحديد سجل إيميل واحد على الأقل لإعادة الإرسال أولاً', 'warning');
+        return;
+    }
+    
+    var btn = document.getElementById('bulkResendBtn');
+    var orig = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جارٍ الإرسال...';
+        btn.disabled = true;
+    }
+
+    fetch('/api/v1/sent-emails/bulk-resend', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ids: checked})
+    })
+    .then(function(r){
+        if (!r.ok) return fetch('/api/sent-emails/bulk-resend', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ids: checked}) }).then(function(r2){ return r2.json(); });
+        return r.json();
+    })
+    .then(function(data){
+        if (data.status === 'success') {
+            showToast('✅ ' + data.message, 'success');
+            clearBulkSelection();
+        } else {
+            showToast('حدث خطأ في الإرسال الجماعي: ' + (data.message || ''), 'error');
+        }
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    })
+    .catch(function(err){
+        showToast('خطأ بالاتصال أثناء الإرسال الجماعي', 'error');
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    });
+}
+
+function executeBulkFollowup() {
+    var checked = Array.from(document.querySelectorAll('.email-checkbox:checked')).map(function(cb){ var val = cb.value ? cb.value.trim() : ''; return (/^\d+$/).test(val) ? parseInt(val, 10) : val; }).filter(Boolean);
+    if (checked.length === 0) return;
+    
+    if (checked.length === 1) {
+        openAIFollowupModal(checked[0]);
+        return;
+    }
+
+    var btn = document.getElementById('bulkFollowupBtn');
+    var orig = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جارٍ إرسال التذكيرات...';
+        btn.disabled = true;
+    }
+
+    var promises = checked.map(function(id) {
+        return fetch('/api/v1/sent-emails/send-followup/' + id, { method: 'POST' });
+    });
+
+    Promise.all(promises).then(function() {
+        showToast('✅ تم إرسال تذكيرات AI لـ ' + checked.length + ' إيميل بنجاح!', 'success');
+        clearBulkSelection();
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    }).catch(function() {
+        showToast('خطأ في إرسال التذكيرات الجماعية', 'error');
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    });
+}
+
+function showCyberpunkConfirm(options) {
+    return new Promise(function(resolve) {
+        try {
+            var modal = document.getElementById('cyberpunkConfirmModal');
+            var card = document.getElementById('cyberpunkConfirmCard');
+            var titleEl = document.getElementById('cyberpunkConfirmTitle');
+            var msgEl = document.getElementById('cyberpunkConfirmMessage');
+            var okBtn = document.getElementById('cyberpunkConfirmOkBtn');
+            var cancelBtn = document.getElementById('cyberpunkConfirmCancelBtn');
+            var okLabel = document.getElementById('cyberpunkConfirmOkLabel');
+
+            if (!modal || !okBtn || !cancelBtn) {
+                resolve(window.confirm(options.title ? (options.title + '\n\n' + (options.messageText || 'هل أنت متأكد؟')) : 'هل أنت متأكد؟'));
+                return;
+            }
+
+            if (titleEl && options.title) titleEl.textContent = options.title;
+            if (okLabel && options.okLabel) okLabel.textContent = options.okLabel;
+            if (cancelBtn && options.cancelLabel) cancelBtn.textContent = options.cancelLabel;
+            if (msgEl && options.messageHtml) msgEl.innerHTML = options.messageHtml;
+
+            document.body.appendChild(modal);
+            modal.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            modal.classList.add('flex', 'opacity-100', 'pointer-events-auto');
+            modal.style.cssText = 'display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; z-index: 9999999 !important; position: fixed !important; inset: 0 !important;';
+            if (card) {
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+                card.style.cssText = 'transform: scale(1) !important; opacity: 1 !important;';
+            }
+
+            function cleanup(result) {
+                modal.classList.remove('flex', 'opacity-100', 'pointer-events-auto');
+                modal.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+                modal.style.cssText = 'display: none !important; opacity: 0 !important; pointer-events: none !important;';
+                if (card) {
+                    card.classList.remove('scale-100');
+                    card.classList.add('scale-95');
+                    card.style.cssText = 'transform: scale(0.95) !important; opacity: 0 !important;';
+                }
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
+                resolve(result);
+            }
+
+            okBtn.onclick = function(e) {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                cleanup(true);
+            };
+
+            cancelBtn.onclick = function(e) {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                cleanup(false);
+            };
+        } catch (err) {
+            console.error('[CyberpunkConfirmError]', err);
+            resolve(window.confirm('هل أنت متأكد من رغبتك في المتابعة؟'));
+        }
+    });
+}
+window.showCyberpunkConfirm = showCyberpunkConfirm;
+
+function executeBulkDelete() {
+    var checked = Array.from(document.querySelectorAll('.email-checkbox:checked')).map(function(cb){ var val = cb.value ? cb.value.trim() : ''; return (/^\d+$/).test(val) ? parseInt(val, 10) : val; }).filter(Boolean);
+    if (checked.length === 0) {
+        if (typeof showToast === 'function') showToast('⚠️ يرجى تحديد سجل إيميل واحد على الأقل للحذف أولاً', 'warning');
+        return;
+    }
+
+    showCyberpunkConfirm({
+        title: 'تأكيد الحذف النهائي',
+        messageHtml: 'هل أنت متأكد من رغبتك في حذف <span class="text-red-400 font-extrabold px-1.5 py-0.5 rounded bg-red-500/10 border border-red-500/20">' + checked.length + '</span> سجل إيميل محدد؟ لا يمكنك التراجع عن هذا الإجراء.',
+        okLabel: 'تأكيد الحذف النهائي',
+        cancelLabel: 'إلغاء الأمر'
+    }).then(function(confirmed) {
+        if (!confirmed) return;
+
+        var btn = document.getElementById('bulkDeleteBtn');
+        var orig = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جارٍ الحذف...';
+            btn.disabled = true;
+        }
+
+        fetch('/api/v1/sent-emails/bulk-delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ids: checked})
+        })
+        .then(function(r){
+            if (!r.ok) return fetch('/api/sent-emails/bulk-delete', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ids: checked}) }).then(function(r2){ return r2.json(); });
+            return r.json();
+        })
+        .then(function(data){
+            if (data.status === 'success') {
+                checked.forEach(function(id){
+                    var row = document.getElementById('row-' + id) || document.getElementById('email-row-' + id);
+                    if (row) row.remove();
+                });
+                if (typeof showToast === 'function') showToast('🗑️ تم حذف السجلات بنجاح!', 'success');
+                if (typeof clearBulkSelection === 'function') clearBulkSelection();
+                if (typeof filterTable === 'function') filterTable();
+                if (typeof recalculateFunnelStats === 'function') recalculateFunnelStats();
+            } else {
+                if (typeof showToast === 'function') showToast('خطأ بالحذف: ' + (data.message || ''), 'error');
+            }
+            if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+        })
+        .catch(function(){
+            if (typeof showToast === 'function') showToast('خطأ بالاتصال أثناء الحذف', 'error');
+            if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+        });
+    });
+}
+window.executeBulkDelete = executeBulkDelete;
+
+function deleteSingleEmail(emailId) {
+    if (!emailId) return;
+    showCyberpunkConfirm({
+        title: 'تأكيد حذف السجل',
+        messageHtml: 'هل أنت متأكد من حذف هذا السجل المحدد؟ لا يمكنك التراجع عن هذا الإجراء.',
+        okLabel: 'حذف السجل',
+        cancelLabel: 'إلغاء الأمر'
+    }).then(function(confirmed) {
+        if (!confirmed) return;
+
+        var row = document.getElementById('row-' + emailId) || document.getElementById('email-row-' + emailId);
+        if (row) row.style.opacity = '0.3';
+
+        fetch('/api/v1/sent-emails/delete/' + emailId, { method: 'POST' })
+            .then(function(r){
+                if (!r.ok) return fetch('/api/sent-emails/delete/' + emailId, { method: 'POST' }).then(function(r2){ return r2.json(); });
+                return r.json();
+            })
+            .then(function(data){
+                if (data.status === 'success') {
+                    if (row) row.remove();
+                    if (typeof showToast === 'function') showToast('🗑️ تم حذف السجل بنجاح!', 'success');
+                    if (typeof updateBulkBar === 'function') updateBulkBar();
+                    if (typeof filterTable === 'function') filterTable();
+                    if (typeof recalculateFunnelStats === 'function') recalculateFunnelStats();
+                } else {
+                    if (row) row.style.opacity = '1';
+                    if (typeof showToast === 'function') showToast('تعذر الحذف: ' + (data.message || ''), 'error');
+                }
+            })
+            .catch(function(err){
+                if (row) row.style.opacity = '1';
+                if (typeof showToast === 'function') showToast('خطأ بالاتصال أثناء الحذف', 'error');
+            });
+    });
+}
+window.deleteSingleEmail = deleteSingleEmail;
+
+function markStatus(emailId, statusVal) {
+    if (!emailId) return;
+    fetch('/api/v1/sent-emails/mark-status/' + emailId, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: statusVal})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+        if (data.status === 'success') {
+            showToast('💬 تم تحديث الحالة بنجاح إلى: ' + statusVal, 'success');
+            var row = document.getElementById('row-' + emailId);
+            if (row) {
+                row.setAttribute('data-status', statusVal);
+                if (statusVal === 'responded') row.setAttribute('data-responded', '1');
+                else if (statusVal === 'opened') row.setAttribute('data-opened', '1');
+                
+                var cell = row.children[4];
+                if (cell) {
+                    if (statusVal === 'responded') {
+                        cell.innerHTML = '<span class="inline-flex items-center justify-center px-3 py-1 bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap">💬 تم الرد</span>';
+                    } else if (statusVal === 'opened') {
+                        cell.innerHTML = '<span class="inline-flex items-center justify-center px-3 py-1 bg-purple-500/15 text-purple-300 border border-purple-500/40 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap">👀 تم الفتح</span>';
+                    } else if (statusVal === 'sent' || statusVal === 'delivered') {
+                        cell.innerHTML = '<span class="inline-flex items-center justify-center px-3 py-1 bg-green-500/15 text-green-300 border border-green-500/40 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap">✅ تم التسليم</span>';
+                    } else if (statusVal === 'failed' || statusVal === 'bounced') {
+                        cell.innerHTML = '<span class="inline-flex items-center justify-center px-3 py-1 bg-red-500/15 text-red-300 border border-red-500/40 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap">❌ مرفوض</span>';
+                    }
+                }
+                filterTable();
+                if (typeof recalculateFunnelStats === 'function') recalculateFunnelStats();
+            }
+        }
+    })
+    .catch(function(){
+        showToast('تعذر تحديث الحالة', 'error');
+    });
+}
+
+function sortTable(colIndex) {
+    var tbody = document.getElementById('emailTableBody');
+    if (!tbody) return;
+    var rows = Array.from(tbody.querySelectorAll('tr'));
+    var asc = sortDirections[colIndex];
+    sortDirections[colIndex] = !asc;
+
+    rows.sort(function(a, b) {
+        var cellA = a.children[colIndex] ? a.children[colIndex].textContent.trim().toLowerCase() : '';
+        var cellB = b.children[colIndex] ? b.children[colIndex].textContent.trim().toLowerCase() : '';
+        if (colIndex === 5) {
+            cellA = a.getAttribute('data-date') || cellA;
+            cellB = b.getAttribute('data-date') || cellB;
+        }
+        return asc ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+    });
+
+    rows.forEach(function(r) { tbody.appendChild(r); });
+}
+
+function copyToClipboard(text) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function() {
+        showToast('📋 تم نسخ ' + text + ' بنجاح!', 'success');
+    }).catch(function() {
+        showToast('تعذر النسخ إلى الحافظة', 'error');
+    });
+}
+
+function copyRecipientEmail() {
+    var el = document.getElementById('prevModalTo');
+    if (el && el.textContent) {
+        copyToClipboard(el.textContent.trim());
+    }
+}
+
+function copyVisibleEmails() {
+    var rows = document.querySelectorAll('#emailTableBody tr');
+    var emails = [];
+    rows.forEach(function(r) {
+        if (r.id === 'emptyFilterRow' || r.style.display === 'none') return;
+        var emailCell = r.querySelector('td:nth-child(2) span');
+        if (emailCell) {
+            var emailText = emailCell.getAttribute('title') || emailCell.innerText.trim();
+            if (emailText && emailText !== '—' && emails.indexOf(emailText) === -1) {
+                emails.push(emailText);
+            }
+        }
+    });
+    if (emails.length === 0) {
+        showToast('لا توجد عناوين بريد إلكتروني ظاهرة لنسخها', 'info');
+        return;
+    }
+    navigator.clipboard.writeText(emails.join(', ')).then(function() {
+        showToast('📋 تم نسخ (' + emails.length + ') عنوان بريد إلكتروني بنجاح!', 'success');
+    }).catch(function() {
+        showToast('حدث خطأ أثناء نسخ العناوين', 'error');
+    });
+}
+
+function navigatePreview(dir) {
+    var rows = Array.from(document.querySelectorAll('#emailTableBody tr')).filter(function(r){ return r.style.display !== 'none'; });
+    if (rows.length === 0) return;
+    
+    var currentIndex = -1;
+    for (var i = 0; i < rows.length; i++) {
+        if (parseInt(rows[i].getAttribute('data-id'), 10) === currentPreviewEmailId) {
+            currentIndex = i;
+            break;
+        }
+    }
+    
+    var nextIndex = currentIndex + dir;
+    if (nextIndex < 0) nextIndex = rows.length - 1;
+    if (nextIndex >= rows.length) nextIndex = 0;
+    
+    var nextId = parseInt(rows[nextIndex].getAttribute('data-id'), 10);
+    if (nextId) {
+        openEmailPreview(nextId);
     }
 }
 
@@ -170,23 +1181,37 @@ function loadMore(){
             var fragment = document.createDocumentFragment();
             emails.forEach(function(r){
                 var tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/30 transition-colors bg-blue-500/5";
+                tr.id = 'row-' + (r.id || '');
+                tr.className = "hover:bg-slate-800/40 transition-colors";
                 
-                var statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/30';
-                var statusText = r.status || 'قيد الانتظار';
-                if (r.status === 'sent' || r.status === 'delivered') { statusClass = 'bg-green-500/10 text-green-400 border-green-500/30'; statusText = 'تم التسليم'; }
-                else if (r.status === 'failed' || r.status === 'bounced') { statusClass = 'bg-red-500/10 text-red-400 border-red-500/30'; statusText = 'فشل'; }
-                else if (r.opened_at) { statusClass = 'bg-blue-500/10 text-blue-400 border-blue-500/30'; statusText = 'تم الفتح'; }
-                else if (r.responded_at) { statusClass = 'bg-purple-500/10 text-purple-400 border-purple-500/30'; statusText = 'تم الرد'; }
+                var statusClass = 'bg-slate-500/15 text-slate-400 border-slate-500/40';
+                var statusText = '⏳ ' + (r.status || 'قيد الانتظار');
+                if (r.responded_at || r.status === 'responded' || r.status === 'replied') { statusClass = 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40'; statusText = '💬 تم الرد'; }
+                else if (r.opened_at || r.status === 'opened') { statusClass = 'bg-purple-500/15 text-purple-300 border-purple-500/40'; statusText = '👀 تم الفتح'; }
+                else if (r.status === 'sent' || r.status === 'delivered') { statusClass = 'bg-green-500/15 text-green-300 border-green-500/40'; statusText = '✅ تم التسليم'; }
+                else if (r.status === 'failed' || r.status === 'bounced') { statusClass = 'bg-red-500/15 text-red-300 border-red-500/40'; statusText = '❌ مرفوض'; }
                 
+                tr.setAttribute('data-id', r.id || '');
+                tr.setAttribute('data-date', r.sent_at || '');
                 tr.setAttribute('data-status', r.status || '');
-                tr.setAttribute('data-opened', r.opened_at ? '1' : '0');
+                tr.setAttribute('data-opened', (r.opened_at || r.status === 'opened') ? '1' : '0');
+                tr.setAttribute('data-responded', (r.responded_at || r.status === 'responded' || r.status === 'replied') ? '1' : '0');
                 tr.innerHTML =
-                    '<td class="py-3 px-5 text-sm text-slate-400">' + (r.email_address || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-medium text-slate-300">' + (r.job_title || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-bold text-white">' + (r.company_name || '—') + '</td>' +
-                    '<td class="py-3 px-5"><span class="inline-flex items-center justify-center px-3 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ' + statusClass + '">' + statusText + '</span></td>' +
-                    '<td class="py-3 px-5 text-xs text-slate-500">' + ((r.sent_at || '').substring(0,16)) + '</td>';
+                    '<td class="py-3.5 px-4 w-12 text-center"><input type="checkbox" value="' + (r.id || '') + '" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto"></td>' +
+                    '<td class="py-3.5 px-5 text-sm text-slate-300 font-sans"><div class="flex items-center gap-2"><span class="truncate max-w-[190px]" title="' + (r.email_address || '') + '">' + (r.email_address || '—') + '</span>' + (r.email_address ? '<button onclick="copyToClipboard(\'' + r.email_address + '\')" class="text-slate-500 hover:text-cyan-400 p-1 rounded"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' : '') + '</div></td>' +
+                    '<td class="py-3.5 px-5 text-sm font-semibold text-slate-200">' + (r.job_title || '—') + '</td>' +
+                    '<td class="py-3.5 px-5 text-sm font-bold text-white">' + (r.company_name || '—') + '</td>' +
+                    '<td class="py-3.5 px-5"><span class="inline-flex items-center justify-center px-3 py-1 border rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap ' + statusClass + '">' + statusText + '</span></td>' +
+                    '<td class="py-3.5 px-5 text-xs text-slate-400 font-mono">' + ((r.sent_at || '').substring(0,16)) + '</td>' +
+                    '<td class="py-3.5 px-5 text-xs">' +
+                    '  <div class="flex items-center justify-center gap-1.5">' +
+                    '    <button onclick="openEmailPreview(' + r.id + ')" class="px-3 py-1.5 bg-cyan-950/50 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold tracking-wider transition-all flex items-center gap-1"><i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400 pointer-events-none"></i> معاينة</button>' +
+                    '    <span class="px-2.5 py-1.5 bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400 pointer-events-none"></i> تم التقديم</span>' +
+                    '    <button onclick="openAIFollowupModal(' + r.id + ')" class="px-2.5 py-1.5 bg-purple-950/50 hover:bg-purple-500/20 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1"><i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-400 pointer-events-none"></i> تذكير</button>' +
+                    '    <button onclick="markStatus(' + r.id + ', \'responded\')" class="p-1.5 bg-slate-800 hover:bg-cyan-900/60 text-cyan-400 rounded-lg border border-slate-700 transition-all"><i data-lucide="message-square" class="w-3.5 h-3.5 pointer-events-none"></i></button>' +
+                    '    <button onclick="deleteSingleEmail(' + r.id + ')" class="p-1.5 bg-slate-800 hover:bg-red-900/60 text-red-400 rounded-lg border border-slate-700 transition-all"><i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i></button>' +
+                    '  </div>' +
+                    '</td>';
                 fragment.appendChild(tr);
             });
             tbody.appendChild(fragment);
@@ -199,7 +1224,7 @@ function loadMore(){
                 allLoaded = true;
                 btn.style.display = 'none';
             } else {
-                btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد';
+                btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد من الرسائل (' + currentRows + ' من ' + totalRows + ')';
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 btn.disabled = false;
             }
@@ -214,102 +1239,397 @@ function loadMore(){
         });
 }
 
+function resendEmail(emailId) {
+    if (typeof showToast === 'function') {
+        showToast('🔒 تم منع التقديم المكرر: يُسمح بتقديم سيرة ذاتية واحدة فقط لكل شركة لمنع التكرار بالإيميل.', 'warning');
+    } else {
+        alert('🔒 تم منع التقديم المكرر: يُسمح بتقديم سيرة ذاتية واحدة فقط لكل شركة لمنع التكرار بالإيميل.');
+    }
+}
+
+function openAIFollowupModal(emailId, tone) {
+    currentPreviewEmailId = emailId;
+    var t = tone || 'executive';
+    changeAIFollowupToneUI(t);
+    fetch('/api/v1/sent-emails/followup-draft/' + emailId + '?tone=' + t)
+        .then(function(r){
+            if (!r.ok) return fetch('/api/sent-emails/followup-draft/' + emailId + '?tone=' + t).then(function(r2){ return r2.json(); });
+            return r.json();
+        })
+        .then(function(data){
+            if (data.status === 'success') {
+                var subj = document.getElementById('followupSubjectInput');
+                var body = document.getElementById('followupBodyInput');
+                if (subj) subj.value = data.subject || '';
+                if (body) body.value = data.body || '';
+                
+                var modal = document.getElementById('aiFollowupModal');
+                if (modal) {
+                    modal.style.cssText = 'display: flex !important; z-index: 9999999 !important; position: fixed !important; inset: 0 !important; opacity: 1 !important; visibility: visible !important; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(12px);';
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            } else {
+                showToast('تعذر توليد التذكير في الوقت الحالي', 'error');
+            }
+        })
+        .catch(function(){
+            showToast('خطأ بالاتصال أثناء توليد التذكير', 'error');
+        });
+}
+
+function changeAIFollowupTone(tone) {
+    if (currentPreviewEmailId) {
+        openAIFollowupModal(currentPreviewEmailId, tone);
+    }
+}
+
+function changeAIFollowupToneUI(tone) {
+    var btnExec = document.getElementById('toneBtnExecutive');
+    var btnShort = document.getElementById('toneBtnShort');
+    var btnFriendly = document.getElementById('toneBtnFriendly');
+    if (btnExec) btnExec.className = (tone === 'executive') ? 'px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold transition-all shadow-md' : 'px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-all';
+    if (btnShort) btnShort.className = (tone === 'short') ? 'px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold transition-all shadow-md' : 'px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-all';
+    if (btnFriendly) btnFriendly.className = (tone === 'friendly') ? 'px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold transition-all shadow-md' : 'px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold transition-all';
+}
+
+function openAIFollowupFromPreview() {
+    if (currentPreviewEmailId) {
+        closeEmailPreviewModal();
+        openAIFollowupModal(currentPreviewEmailId, 'executive');
+    }
+}
+
+function dispatchAIFollowupNow() {
+    if (!currentPreviewEmailId) return;
+    var btn = document.getElementById('sendFollowupBtn');
+    var orig = btn ? btn.innerHTML : '';
+    var subj = document.getElementById('followupSubjectInput')?.value || '';
+    var body = document.getElementById('followupBodyInput')?.value || '';
+
+    if (btn) {
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> جارٍ إرسال التذكير حياً...';
+        btn.disabled = true;
+    }
+
+    fetch('/api/v1/sent-emails/send-followup/' + currentPreviewEmailId, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({subject: subj, body: body})
+    })
+    .then(function(r){
+        if (!r.ok) return fetch('/api/sent-emails/send-followup/' + currentPreviewEmailId, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({subject: subj, body: body}) }).then(function(r2){ return r2.json(); });
+        return r.json();
+    })
+    .then(function(data){
+        if (data.status === 'success') {
+            showToast('🚀 ' + (data.message || 'تم إرسال تذكير المتابعة بنجاح!'), 'success');
+            closeAIFollowupModal();
+        } else {
+            showToast('فشل إرسال التذكير: ' + (data.message || ''), 'error');
+        }
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    })
+    .catch(function(){
+        showToast('خطأ بالاتصال أثناء إرسال التذكير', 'error');
+        if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+    });
+}
+
+function closeAIFollowupModal() {
+    var modal = document.getElementById('aiFollowupModal');
+    if (modal) {
+        modal.style.cssText = 'display: none !important;';
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function copyFollowupDraft() {
+    var body = document.getElementById('followupBodyInput');
+    if (body && body.value) {
+        navigator.clipboard.writeText(body.value).then(function(){
+            showToast('📋 تم نسخ مسودة التذكير بنجاح!', 'success');
+        });
+    }
+}
+
+function openEmailPreview(emailId) {
+    currentPreviewEmailId = emailId;
+    var modal = document.getElementById('emailPreviewModal');
+    if (!modal) {
+        console.error("emailPreviewModal element not found");
+        return;
+    }
+    
+    document.body.appendChild(modal);
+    
+    if (document.getElementById('prevModalSubject')) document.getElementById('prevModalSubject').innerText = 'جارٍ تحميل التفاصيل...';
+    if (document.getElementById('prevModalCompany')) document.getElementById('prevModalCompany').innerText = '—';
+    if (document.getElementById('prevModalJob')) document.getElementById('prevModalJob').innerText = '—';
+    if (document.getElementById('prevModalTo')) document.getElementById('prevModalTo').innerText = '—';
+    if (document.getElementById('prevModalSender')) document.getElementById('prevModalSender').innerText = '—';
+    if (document.getElementById('prevModalDate')) document.getElementById('prevModalDate').innerText = '—';
+    if (document.getElementById('prevModalBody')) document.getElementById('prevModalBody').innerText = 'جارٍ تحميل نص الرسالة وغلاف التقديم...';
+    
+    modal.style.cssText = 'display: flex !important; z-index: 9999999 !important; position: fixed !important; inset: 0 !important; opacity: 1 !important; visibility: visible !important; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(12px);';
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    fetch('/api/v1/sent-emails/detail/' + emailId)
+        .then(function(r) {
+            if (!r.ok) { return fetch('/api/sent-emails/detail/' + emailId).then(function(r2){ return r2.json(); }); }
+            return r.json();
+        })
+        .then(function(data) {
+            if (data && (data.status === 'success' || data.email) && (data.email || data)) {
+                var em = data.email || data;
+                var modalSel = document.getElementById('modalStatusSelect');
+                if (modalSel) {
+                    var rawSt = (em.status || 'sent').toString().toLowerCase().trim();
+                    if (rawSt.includes('open') || rawSt.includes('read')) {
+                        modalSel.value = 'opened';
+                    } else if (rawSt.includes('respond') || rawSt.includes('reply') || rawSt.includes('replied')) {
+                        modalSel.value = 'responded';
+                    } else if (rawSt.includes('fail') || rawSt.includes('bounce') || rawSt.includes('reject') || rawSt.includes('error')) {
+                        modalSel.value = 'failed';
+                    } else {
+                        modalSel.value = 'sent';
+                    }
+                    if (typeof updateModalSelectColor === 'function') updateModalSelectColor(modalSel);
+                }
+                if (document.getElementById('prevModalSubject')) document.getElementById('prevModalSubject').innerText = em.subject || 'بدون عنوان';
+                if (document.getElementById('prevModalCompany')) document.getElementById('prevModalCompany').innerText = em.company_name || '—';
+                if (document.getElementById('prevModalJob')) document.getElementById('prevModalJob').innerText = em.job_title || '—';
+                if (document.getElementById('prevModalTo')) document.getElementById('prevModalTo').innerText = em.email_address || '—';
+                if (document.getElementById('prevModalSender')) document.getElementById('prevModalSender').innerText = em.sender_account || 'Live Brevo Engine (samatou683@gmail.com)';
+                if (document.getElementById('prevModalDate')) document.getElementById('prevModalDate').innerText = em.sent_at || '—';
+                
+                var bodyHtml = em.body || 'لا يوجد نص محدد.';
+                var iframe = document.getElementById('prevModalFrame');
+                if (iframe) {
+                    var fullHtml = bodyHtml;
+                    if (!fullHtml.includes('<body') && !fullHtml.includes('<html')) {
+                        fullHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body { font-family: "Cairo", "IBM Plex Arabic", "Segoe UI", sans-serif; color: #1e293b; background: #ffffff; padding: 24px; line-height: 1.7; font-size: 15px; margin: 0; }</style></head><body dir="auto">' + bodyHtml + '</body></html>';
+                    }
+                    iframe.srcdoc = fullHtml;
+                }
+                var bodyEl = document.getElementById('prevModalBody');
+                if (bodyEl) {
+                    var plainText = bodyHtml.replace(/<[^>]*>?/gm, '').trim();
+                    bodyEl.innerText = plainText || bodyHtml;
+                }
+                switchPreviewTab('html');
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        })
+        .catch(function(err) {
+            console.error("Preview detail load error:", err);
+            if (document.getElementById('prevModalBody')) document.getElementById('prevModalBody').innerText = 'تعذر تحميل نص البريد.';
+        });
+}
+
+function markStatusFromModal(statusVal) {
+    if (currentPreviewEmailId) {
+        markStatus(currentPreviewEmailId, statusVal);
+    }
+}
+
+function updateModalSelectColor(selectEl) {
+    if (!selectEl) return;
+    var v = selectEl.value;
+    if (v === 'sent') {
+        selectEl.style.color = '#34d399';
+        selectEl.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+    } else if (v === 'opened') {
+        selectEl.style.color = '#c084fc';
+        selectEl.style.borderColor = 'rgba(192, 132, 252, 0.4)';
+    } else if (v === 'responded') {
+        selectEl.style.color = '#22d3ee';
+        selectEl.style.borderColor = 'rgba(34, 211, 238, 0.4)';
+    } else if (v === 'failed') {
+        selectEl.style.color = '#f87171';
+        selectEl.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+    }
+}
+window.updateModalSelectColor = updateModalSelectColor;
+
+function closeEmailPreviewModal() {
+    var modal = document.getElementById('emailPreviewModal');
+    if (modal) {
+        modal.style.cssText = 'display: none !important;';
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+function resendFromPreviewModal() {
+    if (currentPreviewEmailId) {
+        resendEmail(currentPreviewEmailId);
+    }
+}
+
+function copyPreviewBody() {
+    var bodyElement = document.getElementById('prevModalBody');
+    var bodyText = bodyElement ? (bodyElement.innerText || bodyElement.textContent) : '';
+    navigator.clipboard.writeText(bodyText).then(function() {
+        showToast('📋 تم نسخ نص التقديم بنجاح!', 'success');
+    });
+}
+
 function showToast(msg, type) {
     var t = document.createElement('div');
-    t.className = 'fixed bottom-5 end-5 px-5 py-3 rounded-xl text-sm font-bold text-white shadow-2xl z-50 transition-all ' + (type === 'success' ? 'bg-emerald-600' : 'bg-slate-800 border border-slate-700');
+    t.className = 'fixed bottom-5 end-5 px-5 py-3 rounded-xl text-sm font-bold text-white shadow-2xl z-[9999999] transition-all flex items-center gap-2 ' + (type === 'success' ? 'bg-emerald-600 border border-emerald-400/30 shadow-emerald-500/30' : 'bg-slate-800 border border-slate-700 shadow-slate-900/50');
     t.innerHTML = msg;
     document.body.appendChild(t);
-    setTimeout(function(){ t.remove(); }, 3000);
+    setTimeout(function(){ t.remove(); }, 3500);
 }
-            var fragment = document.createDocumentFragment();
-            emails.forEach(function(r){
-                var tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/30 transition-colors";
-                
-                var statusClass = 'bg-slate-500/10 text-slate-400 border-slate-500/30';
-                var statusText = r.status || 'قيد الانتظار';
-                if (r.status === 'sent' || r.status === 'delivered') { statusClass = 'bg-green-500/10 text-green-400 border-green-500/30'; statusText = 'تم التسليم'; }
-                else if (r.status === 'failed' || r.status === 'bounced') { statusClass = 'bg-red-500/10 text-red-400 border-red-500/30'; statusText = 'فشل'; }
-                else if (r.opened_at) { statusClass = 'bg-blue-500/10 text-blue-400 border-blue-500/30'; statusText = 'تم الفتح'; }
-                else if (r.responded_at) { statusClass = 'bg-purple-500/10 text-purple-400 border-purple-500/30'; statusText = 'تم الرد'; }
-                
-                tr.setAttribute('data-status', r.status || '');
-                tr.setAttribute('data-opened', r.opened_at ? '1' : '0');
-                tr.innerHTML =
-                    '<td class="py-3 px-5 text-sm text-slate-400">' + (r.email_address || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-medium text-slate-300">' + (r.job_title || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-bold text-white">' + (r.company_name || '—') + '</td>' +
-                    '<td class="py-3 px-5"><span class="inline-flex items-center justify-center px-3 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ' + statusClass + '">' + statusText + '</span></td>' +
-                    '<td class="py-3 px-5 text-xs text-slate-500">' + ((r.sent_at || '').substring(0,16)) + '</td>';
-                fragment.appendChild(tr);
-            });
-            tbody.appendChild(fragment);
-            currentRows += emails.length;
-            totalRows = data.total || totalRows;
-            if (currentRows >= totalRows || emails.length === 0){
-                allLoaded = true;
-                btn.style.display = 'none';
-            } else {
-                btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد';
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                btn.disabled = false;
-            }
-            filterTable();
-        })
-        .catch(function(err){
-            console.error("Load more error:", err);
-            btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            btn.disabled = false;
-        });
-}
-                else if (r.status === 'failed' || r.status === 'bounced') { statusClass = 'bg-red-500/10 text-red-400 border-red-500/30'; statusText = 'فشل'; }
-                else if (r.opened_at) { statusClass = 'bg-blue-500/10 text-blue-400 border-blue-500/30'; statusText = 'تم الفتح'; }
-                else if (r.responded_at) { statusClass = 'bg-purple-500/10 text-purple-400 border-purple-500/30'; statusText = 'تم الرد'; }
-                
-                tr.setAttribute('data-status', r.status || '');
-                tr.setAttribute('data-opened', r.opened_at ? '1' : '0');
-                tr.innerHTML =
-                    '<td class="py-3 px-5 text-sm text-slate-400">' + (r.email_address || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-medium text-slate-300">' + (r.job_title || '—') + '</td>' +
-                    '<td class="py-3 px-5 text-sm font-bold text-white">' + (r.company_name || '—') + '</td>' +
-                    '<td class="py-3 px-5"><span class="inline-flex items-center justify-center px-3 py-1 border rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ' + statusClass + '">' + statusText + '</span></td>' +
-                    '<td class="py-3 px-5 text-xs text-slate-500">' + ((r.sent_at || '').substring(0,16)) + '</td>';
-                fragment.appendChild(tr);
-            });
-            tbody.appendChild(fragment);
-            currentRows += emails.length;
-            totalRows = data.total || totalRows;
-            if (currentRows >= totalRows || emails.length === 0){
-                allLoaded = true;
-                btn.style.display = 'none';
-            } else {
-                btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد';
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                btn.disabled = false;
-            }
-            filterTable();
-        })
-        .catch(function(err){
-            console.error("Load more error:", err);
-            btn.innerHTML = '<i data-lucide="arrow-down" class="w-4 h-4"></i> تحميل المزيد';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            btn.disabled = false;
-        });
-}
+
+window.showToast = showToast;
+window.resendEmail = resendEmail;
+window.filterByStat = filterByStat;
+window.clearFilter = clearFilter;
+window.sortTable = sortTable;
+window.copyToClipboard = copyToClipboard;
+window.copyRecipientEmail = copyRecipientEmail;
+window.copyVisibleEmails = copyVisibleEmails;
+window.navigatePreview = navigatePreview;
+window.toggleSelectAll = toggleSelectAll;
+window.updateBulkBar = updateBulkBar;
+window.clearBulkSelection = clearBulkSelection;
+window.executeBulkResend = executeBulkResend;
+window.executeBulkFollowup = executeBulkFollowup;
+window.executeBulkDelete = executeBulkDelete;
+window.deleteSingleEmail = deleteSingleEmail;
+window.markStatus = markStatus;
+window.markStatusFromModal = markStatusFromModal;
+window.openAIFollowupModal = openAIFollowupModal;
+window.openAIFollowupFromPreview = openAIFollowupFromPreview;
+window.dispatchAIFollowupNow = dispatchAIFollowupNow;
+window.closeAIFollowupModal = closeAIFollowupModal;
+window.copyFollowupDraft = copyFollowupDraft;
+window.openEmailPreview = openEmailPreview;
+window.closeEmailPreviewModal = closeEmailPreviewModal;
+window.resendFromPreviewModal = resendFromPreviewModal;
+window.copyPreviewBody = copyPreviewBody;
+window.switchPreviewTab = switchPreviewTab;
+window.exportSelectedToCSV = exportSelectedToCSV;
+window.changeAIFollowupTone = changeAIFollowupTone;
 
 document.addEventListener("DOMContentLoaded", function() {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
+    filterTable();
+
+    function updateDispatchTimes() {
+      const isAr = document.documentElement.lang !== 'en';
+      document.querySelectorAll('.dispatch-time').forEach(el => {
+        const tStr = el.getAttribute('data-time');
+        if (!tStr) return;
+        let isoStr = tStr.trim().replace(' ', 'T');
+        if (!isoStr.endsWith('Z') && !isoStr.includes('+')) {
+          isoStr += 'Z';
+        }
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return;
+        const diffSec = Math.floor((new Date() - d) / 1000);
+        if (diffSec < 60) {
+          el.innerText = isAr ? 'منذ ثوانٍ' : 'Just now';
+        } else if (diffSec < 3600) {
+          const mins = Math.max(1, Math.floor(diffSec / 60));
+          el.innerText = isAr ? `قبل ${mins} دقائق` : `${mins}m ago`;
+        } else if (diffSec < 86400) {
+          const hrs = Math.floor(diffSec / 3600);
+          el.innerText = isAr ? `قبل ${hrs} ساعات` : `${hrs}h ago`;
+        } else {
+          const days = Math.floor(diffSec / 86400);
+          el.innerText = isAr ? `قبل ${days} أيام` : `${days}d ago`;
+        }
+      });
+    }
+    updateDispatchTimes();
+    setInterval(updateDispatchTimes, 30000);
+
+    async function pollLiveDispatches() {
+      try {
+        const res = await fetch('/api/v1/live-dispatches?_t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+        if (data && data.success) {
+          if (data.total_sent) {
+            document.querySelectorAll('.live-total-counter').forEach(el => {
+              el.innerText = data.total_sent;
+            });
+          }
+          const tbody = document.getElementById('emailTableBody');
+          if (tbody && data.dispatches && data.dispatches.length > 0) {
+            data.dispatches.forEach(r => {
+              var existingRow = document.getElementById('row-' + r.id) || document.getElementById('email-row-' + r.id);
+              if (!existingRow && r.id) {
+                var newTr = document.createElement('tr');
+                newTr.id = 'row-' + r.id;
+                newTr.setAttribute('data-id', r.id);
+                newTr.setAttribute('data-date', r.sent_at || '');
+                newTr.setAttribute('data-status', r.status || 'applied');
+                newTr.className = 'hover:bg-slate-800/40 transition-colors animate-in fade-in';
+                var safeEmail = (r.to_email || r.email_address || '').replace(/'/g, "\\'");
+                newTr.innerHTML = `
+                  <td class="py-3.5 px-4 w-12 text-center">
+                    <input type="checkbox" value="${r.id}" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto">
+                  </td>
+                  <td class="py-3.5 px-5 text-sm text-slate-300 font-sans">
+                    <div class="flex items-center gap-2">
+                      <span class="truncate max-w-[190px]">${r.to_email || r.email_address || '—'}</span>
+                      ${(r.to_email || r.email_address) ? `<button onclick="copyToClipboard('${safeEmail}')" class="text-slate-500 hover:text-cyan-400 p-1 rounded" title="نسخ البريد"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>` : ''}
+                    </div>
+                  </td>
+                  <td class="py-3.5 px-5 text-sm font-semibold text-slate-200">
+                    <div class="font-bold text-slate-200">${r.job_title || '—'}</div>
+                  </td>
+                  <td class="py-3.5 px-5 text-sm font-bold text-white">
+                    <span>${r.company_name || '—'}</span>
+                  </td>
+                  <td class="py-3.5 px-5">
+                    <span class="inline-flex items-center justify-center px-3 py-1 bg-green-500/15 text-green-300 border border-green-500/40 rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap">✅ تم التسليم</span>
+                  </td>
+                  <td class="py-3.5 px-5 text-xs text-slate-400 font-mono"><span class="dispatch-time" data-time="${r.sent_at || ''}">${(r.sent_at || '').slice(0,16)}</span></td>
+                  <td class="py-3.5 px-5 text-xs text-center">
+                    <div class="flex items-center justify-center gap-1.5">
+                      <button onclick="openEmailPreview(${r.id})" class="px-3 py-1.5 bg-cyan-950/50 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold tracking-wider transition-all flex items-center gap-1" title="معاينة التقديم">
+                        <i data-lucide="eye" class="w-3.5 h-3.5 text-cyan-400 pointer-events-none"></i> معاينة
+                      </button>
+                      <button onclick="deleteSingleEmail(${r.id})" class="p-1.5 bg-slate-800 hover:bg-red-900/60 text-red-400 rounded-lg border border-slate-700 transition-all" title="حذف السجل">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5 pointer-events-none"></i>
+                      </button>
+                    </div>
+                  </td>
+                `;
+                tbody.insertBefore(newTr, tbody.firstChild);
+              }
+            });
+            if (typeof updateDispatchTimes === 'function') updateDispatchTimes();
+          }
+        }
+      } catch (e) {}
+    }
+    pollLiveDispatches();
+    setInterval(pollLiveDispatches, 5000);
 });
 
-function exportTableToCSV() {
-    var a = document.createElement('a');
-    a.href = '/api/v1/sent-emails/export';
-    a.download = 'JobHunt_Sent_Emails_Export.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
+document.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        var searchInput = document.getElementById("searchInput");
+        if (searchInput) searchInput.focus();
+    }
+    var prevModal = document.getElementById("emailPreviewModal");
+    if (prevModal && !prevModal.classList.contains("hidden")) {
+        if (e.key === "Escape") closeEmailPreviewModal();
+        else if (e.key === "ArrowLeft") navigatePreview(1);
+        else if (e.key === "ArrowRight") navigatePreview(-1);
+    }
+});
+
 </script>

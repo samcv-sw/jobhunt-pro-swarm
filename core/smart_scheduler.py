@@ -172,8 +172,11 @@ class SmartScheduler:
 
     def _init_db(self):
         """Initialize the smart_scheduler_state table in SQLite."""
+        if os.getenv("TESTING") in ("1", "true", "yes") or os.getenv("PYTEST_RUNNING"):
+            return
         try:
             with closing(sqlite3.connect(DB_PATH, timeout=10)) as conn:
+
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS smart_scheduler_state (
                         provider_name TEXT PRIMARY KEY,
@@ -517,7 +520,12 @@ class SmartScheduler:
         """Wait until we can send and return available provider.
         MAXIMUM THROUGHPUT MODE: minimal delay, instant retry.
         """
-        if self._send_lock is None:
+        try:
+            curr_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            curr_loop = None
+
+        if self._send_lock is None or getattr(self._send_lock, "_loop", None) != curr_loop:
             self._send_lock = asyncio.Lock()
 
         async with self._send_lock:
@@ -536,7 +544,7 @@ class SmartScheduler:
 
                 await asyncio.sleep(1)  # Fast retry instead of 60s
 
-            logger.warning("No providers available after max wait, returning None")
+            logger.debug("No providers available after max wait, returning None")
             return None
 
     def get_warm_up_delay(self, provider: str, day_number: int) -> float:

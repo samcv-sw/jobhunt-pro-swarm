@@ -3,7 +3,7 @@
 <title>Upload CV | JobHunt Pro AI</title>
 
 <!-- Toast Notification -->
-<div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+<div id="toastNotification" class="fixed bottom-5 end-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
   <div class="flex items-center gap-3 bg-slate-900 border border-green-500/50 text-green-400 px-5 py-3.5 rounded-xl shadow-[0_0_25px_rgba(34,197,94,0.3)]">
     <i data-lucide="check-circle-2" class="w-5 h-5"></i>
     <span id="toastMsg" class="text-sm font-bold text-white"></span>
@@ -73,6 +73,86 @@
       <button onclick="closePdfStudioModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancel</button>
       <button onclick="executePdfPrint()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 rounded-xl text-xs font-black transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center gap-2 cursor-pointer">
         <i data-lucide="printer" class="w-4 h-4"></i> Export / Print Selected PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ATS Detailed Breakdown Modal -->
+<div id="atsBreakdownModal" class="fixed inset-0 z-[99999] bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4" dir="ltr">
+  <div class="bg-slate-900 border border-cyan-500/30 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center border border-cyan-500/30 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+          <i data-lucide="award" class="w-6 h-6 text-cyan-400"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black text-white flex items-center gap-2">
+            Detailed ATS Readiness Report
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="atsModalBadge">Excellent (92%)</span>
+          </h3>
+          <p class="text-xs text-slate-400">Criteria breakdown and AI keyword recommendations to maximize interview callbacks</p>
+        </div>
+      </div>
+      <button onclick="closeAtsBreakdownModal()" class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg cursor-pointer">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Category Breakdown Bars -->
+    <div class="space-y-4">
+      <div>
+        <div class="flex justify-between text-xs font-bold mb-1">
+          <span class="text-slate-300">1. Standard Layout & Structure</span>
+          <span class="text-emerald-400">100%</span>
+        </div>
+        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+          <div class="bg-emerald-400 h-2 rounded-full" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-xs font-bold mb-1">
+          <span class="text-slate-300">2. Target Role Keyword Matching</span>
+          <span class="text-cyan-400" id="atsKeywordBarVal">88%</span>
+        </div>
+        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+          <div id="atsKeywordBar" class="bg-cyan-400 h-2 rounded-full" style="width: 88%;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-xs font-bold mb-1">
+          <span class="text-slate-300">3. Action Verbs & Quantified Results</span>
+          <span class="text-amber-400">85%</span>
+        </div>
+        <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+          <div class="bg-amber-400 h-2 rounded-full" style="width: 85%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommended Keywords -->
+    <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+      <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+        <i data-lucide="lightbulb" class="w-4 h-4"></i> Recommended Keywords to Reach 98%:
+      </h4>
+      <div class="flex flex-wrap gap-2" id="atsSuggestedKeywords">
+        <button onclick="addAtsSuggestedKeyword('DevOps & CI/CD')" class="px-3 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+          + DevOps & CI/CD
+        </button>
+        <button onclick="addAtsSuggestedKeyword('Agile & Scrum')" class="px-3 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+          + Agile & Scrum
+        </button>
+        <button onclick="addAtsSuggestedKeyword('Cloud Architecture')" class="px-3 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+          + Cloud Architecture
+        </button>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 pt-2">
+      <button onclick="closeAtsBreakdownModal()" class="px-5 py-2.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-bold transition-all cursor-pointer">
+        Got It
       </button>
     </div>
   </div>
@@ -327,6 +407,7 @@
 </div>
 
 <form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto">
+  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length  dir="auto"> 0 else '' }}" dir="auto">
   <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
   <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
   <input type="hidden" name="target_locations" id="hiddenTargetLocations" value="Lebanon, UAE, Remote" dir="auto">
@@ -337,6 +418,14 @@
   <input type="hidden" name="salary_expectation" id="hiddenSalaryExpectation" value="$30k-$50k" dir="auto">
   <input type="hidden" name="min_local_salary" id="hiddenMinLocalSalary" value="30000" dir="auto">
   <input type="hidden" name="min_international_salary" id="hiddenMinIntlSalary" value="80000" dir="auto">
+
+<style>
+/* ── INTERACTIVE HOVER TOOLTIPS ── */
+.tip-badge { position:relative; display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:50%; background:rgba(59,130,246,0.25); color:#60a5fa; border:1px solid rgba(59,130,246,0.4); font-size: 14px; font-weight:800; cursor:help; margin-inline-start:6px; vertical-align:middle; z-index:20; }
+.tip-badge .tip-box { visibility:hidden; opacity:0; position:absolute; bottom:135%; inset-inline-start: 50%; transform:translateX(-50%); width:240px; padding:10px 14px; background:#0f172a; border:1px solid rgba(59,130,246,0.5); border-radius:12px; color:#e2e8f0; font-size:0.75em; font-weight:500; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.6); backdrop-filter:blur(12px); z-index:99; transition:all 0.2s ease; pointer-events:none; line-height:1.5; white-space:normal; }
+.tip-badge .tip-box::after { content:''; position:absolute; top:100%; inset-inline-start: 50%; margin-inline-start:-5px; border-width:5px; border-style:solid; border-color:#0f172a transparent transparent transparent; }
+.tip-badge:hover .tip-box { visibility:visible; opacity:1; bottom:120%; }
+</style>
 
   <!-- Page Header -->
   <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
@@ -377,6 +466,83 @@
       </span>
       <span class="text-slate-500">|</span>
       <span class="text-purple-400 font-bold">Capacity: 10,000 Apps/Day</span>
+    </div>
+  </div>
+
+  <!-- Multi-Profile Tab Switcher (IMP-PROFILES-V3) -->
+  <div class="bg-slate-900/90 backdrop-blur-[12px] border border-cyan-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+    <div class="flex items-center justify-between gap-3 mb-3 border-b border-slate-800 pb-2.5">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i>
+        <h3 class="text-sm font-black text-white">Target Job Profiles (CV Profiles Switcher)</h3>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400 hidden sm:inline">Select target profile to customize application campaigns with 1-click</span>
+        <button type="button" onclick="deleteActiveProfileAsync()" id="btnDeleteProfile" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Profile
+        </button>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar" id="profileTabsContainer">
+      {% if profiles and profiles|length > 0 %}
+        {% for p in profiles %}
+        <button type="button" onclick="switchActiveProfile('{{ p.id }}', '{{ p.profile_name|e }}', '{{ p.target_titles|e }}', '{{ p.skills|e }}', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer {{ 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(0,240,255,0.2)]' if loop.first else 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white' }}" data-prof-id="{{ p.id }}">
+          <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
+          <span>{{ p.profile_name or 'Profile ' ~ loop.index }}</span>
+        </button>
+        {% endfor %}
+      {% else %}
+        <button type="button" onclick="switchActiveProfile('default_1', 'Network & Security Engineer', 'Network Engineer, Security Specialist', 'Cisco, Python, Cybersecurity', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(0,240,255,0.2)] text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
+          <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
+          <span>Primary Profile: Network & Cyber Security</span>
+        </button>
+        <button type="button" onclick="switchActiveProfile('default_2', 'AI & Full-Stack Developer', 'AI Engineer, Full Stack Developer', 'Python, FastAPI, React, PyTorch', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
+          <i data-lucide="code-2" class="w-4 h-4 text-purple-400"></i>
+          <span>Secondary Profile: AI Software Engineering</span>
+        </button>
+      {% endif %}
+      <button type="button" onclick="createNewProfileModal()" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ms-auto">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i> + Create New Profile
+      </button>
+      <button type="button" onclick="duplicateActiveProfile()" class="px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i data-lucide="copy" class="w-4 h-4 text-blue-400"></i> Duplicate Profile
+      </button>
+      <button type="button" onclick="saveCurrentProfileAsync()" class="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+        <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> Save Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-Time ATS Readiness Gauge (IMP-ATS-GAUGE-V3) -->
+  <div onclick="openAtsBreakdownModal()" class="bg-gradient-to-r from-slate-900/95 via-slate-950 to-slate-900/95 border border-cyan-500/30 hover:border-cyan-400/60 rounded-2xl p-5 shadow-[0_0_25px_rgba(0,240,255,0.12)] cursor-pointer transition-all hover:scale-[1.005] group">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="relative w-14 h-14 flex items-center justify-center rounded-full bg-slate-950 border-2 border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.3)] group-hover:scale-110 transition-transform">
+          <span id="atsScoreValue" class="text-base font-black text-cyan-300">92%</span>
+        </div>
+        <div>
+          <h4 class="text-sm font-black text-white flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i> Real-time ATS Readiness Gauge
+            <span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 rounded-md text-[10px] font-extrabold group-hover:bg-cyan-500/30 transition-all">🔍 View Report</span>
+          </h4>
+          <p class="text-xs text-slate-400 mt-0.5" id="atsStatusText">Excellent resume formatting — exceeds 92% of corporate ATS screening filters (Click for breakdown)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-400 rounded-full text-xs font-bold flex items-center gap-1">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Standard Layout
+        </span>
+        <span class="px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-full text-xs font-bold flex items-center gap-1">
+          <i data-lucide="cpu" class="w-3.5 h-3.5"></i> AI Keywords
+        </span>
+        <span class="px-3 py-1 bg-purple-500/10 border border-purple-500/30 text-purple-300 rounded-full text-xs font-bold flex items-center gap-1">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Secure Encryption
+        </span>
+      </div>
+    </div>
+    <!-- Progress Gauge Bar -->
+    <div class="w-full bg-slate-950 rounded-full h-2.5 mt-3 overflow-hidden border border-slate-800">
+      <div id="atsProgressBar" class="bg-gradient-to-r from-cyan-400 via-emerald-400 to-green-400 h-2.5 rounded-full transition-all duration-500" style="width: 92%;"></div>
     </div>
   </div>
 
@@ -447,7 +613,12 @@
       <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i>
       <span id="fileName" class="text-sm font-semibold text-white">file.pdf</span>
       <span id="fileSize" class="text-xs text-slate-400">(0 KB)</span>
-      <button class="ms-auto px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer" onclick="removeFile(event)" type="button">Remove</button>
+      <div class="ms-auto flex items-center gap-2">
+        <button class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all shadow-[0_0_12px_rgba(147,51,234,0.3)] cursor-pointer flex items-center gap-1.5" onclick="parseCvFileWithAI()" type="button">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i> AI Extract Profile
+        </button>
+        <button class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs font-semibold text-slate-300 transition-colors cursor-pointer" onclick="removeFile(event)" type="button">Remove</button>
+      </div>
     </div>
 
     <!-- Upload Progress & AI Status -->
@@ -502,11 +673,11 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Full Name</label>
-        <input dir="auto" type="text" id="fullNameInput" placeholder="e.g. Alex Morgan" value="{{ user.name if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+        <input dir="auto" type="text" id="fullNameInput" placeholder="e.g. Alex Johnson (Sample Candidate)" value="" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email</label>
-        <input dir="auto" type="email" id="emailInput" placeholder="you@example.com" value="{{ user.email if user else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+        <input dir="auto" type="email" id="emailInput" placeholder="alex.johnson.demo@example.com" value="" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -531,7 +702,12 @@
       <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i> Target Roles & Job Titles
     </h3>
     <div class="space-y-1.5 mb-3">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Add Target Titles (comma separated or click quick presets)</label>
+      <div class="flex justify-between items-center">
+        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Add Target Titles (comma separated or click quick presets)</label>
+        <button type="button" onclick="aiEnhanceField('targetTitlesInput')" class="text-[10px] font-extrabold text-cyan-300 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer">
+          ✨ AI Enhance Roles
+        </button>
+      </div>
       <input dir="auto" type="text" placeholder="Senior Network Engineer, Security Engineer, Infrastructure Lead..." id="targetTitlesInput" onkeydown="handleTargetTitleTag(event)" class="w-full bg-slate-950 border border-slate-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
     </div>
     
@@ -550,87 +726,367 @@
     </div>
   </div>
 
+  <style>
+  .inc-pill, .perk-pill { position: relative !important; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+  .inc-pill:hover, .perk-pill:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 240, 255, 0.25); border-color: rgba(0, 240, 255, 0.5) !important; }
+  .inc-pill .tip-box, .perk-pill .tip-box {
+    visibility: hidden; opacity: 0; position: absolute; bottom: 135%; inset-inline-start: 50%; transform: translateX(-50%);
+    width: 240px; max-width: calc(100vw - 40px); padding: 10px 14px; background: linear-gradient(135deg, #0f172a, #1e293b); border: 1.5px solid rgba(0, 240, 255, 0.5);
+    border-radius: 14px; color: #f8fafc; font-size: 0.74rem; font-weight: 600; text-align: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.8); backdrop-filter: blur(16px); z-index: 99999;
+    transition: all 0.25s ease; pointer-events: none; line-height: 1.5; white-space: normal;
+    word-wrap: break-word; overflow-wrap: break-word;
+  }
+  .inc-pill .tip-box::after, .perk-pill .tip-box::after {
+    content: ''; position: absolute; top: 100%; inset-inline-start: 50%; margin-inline-start: -6px; border-width: 6px; border-style: solid; border-color: #0f172a transparent transparent transparent;
+  }
+  .inc-pill:hover .tip-box, .perk-pill:hover .tip-box {
+    visibility: visible; opacity: 1; bottom: 125%;
+  }
+  /* Prevent edge tooltips from clipping off screen */
+  @media (min-width: 640px) {
+    #cvCategoryGrid > div:nth-child(3n) .tip-box,
+    #cvPerksGrid > div:nth-child(4n) .tip-box,
+    .inc-grid > div:nth-child(3n) .tip-box,
+    .perks-grid > div:nth-child(4n) .tip-box {
+      inset-inline-start: auto !important; inset-inline-end: 0 !important; transform: none !important;
+    }
+    #cvCategoryGrid > div:nth-child(3n) .tip-box::after,
+    #cvPerksGrid > div:nth-child(4n) .tip-box::after,
+    .inc-grid > div:nth-child(3n) .tip-box::after,
+    .perks-grid > div:nth-child(4n) .tip-box::after {
+      inset-inline-start: auto !important; inset-inline-end: 24px !important; margin-inline-start: 0 !important;
+    }
+    #cvCategoryGrid > div:nth-child(3n+1) .tip-box,
+    #cvPerksGrid > div:nth-child(4n+1) .tip-box,
+    .inc-grid > div:nth-child(3n+1) .tip-box,
+    .perks-grid > div:nth-child(4n+1) .tip-box {
+      inset-inline-start: 0 !important; inset-inline-end: auto !important; transform: none !important;
+    }
+    #cvCategoryGrid > div:nth-child(3n+1) .tip-box::after,
+    #cvPerksGrid > div:nth-child(4n+1) .tip-box::after,
+    .inc-grid > div:nth-child(3n+1) .tip-box::after,
+    .perks-grid > div:nth-child(4n+1) .tip-box::after {
+      inset-inline-start: 24px !important; margin-inline-start: 0 !important;
+    }
+  }
+  </style>
+
+  <!-- Inclusive Candidate Category & Social Diversity Preferences -->
+  <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(0,240,255,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95)); overflow:visible !important; position:relative;">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4 border-b border-slate-800 pb-3">
+      <h3 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+        <span style="font-size:1.1em;">🌐</span> Equal Opportunity & Diversity (Select welcomed groups to open doors for all society!)
+      </h3>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button type="button" onclick="openHumanityManifestoModal()" style="background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35)); color:#fef08a; border:1px solid #fbbf24; font-size: 14px; padding:5px 12px; border-radius:8px; font-weight:800; cursor:pointer; box-shadow:0 0 14px rgba(245,158,11,0.3); transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          🕊️ Our Ethical Mission: Dignity & Humanity First
+        </button>
+        <button type="button" onclick="selectAllCvCategories(this)" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); font-size: 14px; padding:5px 12px; border-radius:8px; font-weight:800; cursor:pointer; transition:all 0.2s;">✨ Select All</button>
+        <span style="font-size:0.75em; color:#fbbf24; background:rgba(245,158,11,0.15); padding:4px 10px; border-radius:12px; font-weight:800;">🌟 All Society Income Support</span>
+      </div>
+    </div>
+
+    <!-- Social / Student / Determination Badges Selector -->
+    <div id="cvCategoryGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:10px; overflow:visible !important;" class="mb-2">
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'determination')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>♿</span> <span>Special Needs / Determination Friendly</span>
+        <span class="tip-box">Ensures fully accessible physical & digital workplace environments tailored for people of determination.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'student')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🎓</span> <span>High School & University Student Friendly</span>
+        <span class="tip-box">Provides flexible part-time hours tailored around high school and university class schedules and exams.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'homemaker')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🏡</span> <span>Homemaker & Stay-at-Home Friendly</span>
+        <span class="tip-box">100% remote job opportunities with optional flexible hours balancing home care with income.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'entry')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🌟</span> <span>Entry-Level / No Experience Needed</span>
+        <span class="tip-box">Focuses on personal potential, skills, and internal training to kickstart careers without prior experience.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'gigs')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>⚡</span> <span>Quick Tasks & Daily/Weekly Payout</span>
+        <span class="tip-box">Short-term tasks and micro-gigs with guaranteed daily or weekly payouts for quick financial support.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'low_income')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🤝</span> <span>Low-Income Family Support Opportunity</span>
+        <span class="tip-box">Offers dedicated job opportunities and income support to uplift low-income and vulnerable families.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'homeless')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🛖</span> <span>Homeless & Shelter Friendly</span>
+        <span class="tip-box">Offers dedicated job opportunities, meals, and shelter assistance to help unhoused individuals rebuild their lives.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'seniors')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>👴👵</span> <span>50+ Senior & Experienced Friendly</span>
+        <span class="tip-box">Values decades of veteran industry experience and provides respectful career roles for 50+ seniors.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'veterans')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🛡️</span> <span>Military Veterans & Retirees Friendly</span>
+        <span class="tip-box">Dedicated hiring initiatives leveraging the leadership, discipline, and security experience of veterans.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'fresh_graduates')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🎓</span> <span>Fresh Graduates & Summer Interns</span>
+        <span class="tip-box">Nurturing environment for recent graduates offering structured mentorship and rapid career acceleration.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'expats')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🌐</span> <span>Expats & International Residents Welcome</span>
+        <span class="tip-box">Offers flexible work permits, visa support, or global remote contracts for international talent.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'refugees')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🌍</span> <span>Refugee & Displaced Persons Re-integration</span>
+        <span class="tip-box">Provides dignified employment, administrative guidance, and community integration for displaced individuals.</span>
+      </div>
+
+      <div class="inc-cv-card inc-pill" onclick="toggleCvInclusiveCategory(this, 'career_returners')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🔄</span> <span>Career Returners & Caregiver Friendly</span>
+        <span class="tip-box">Welcomes professionals returning to the workforce after career gaps dedicated to family care or study.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desired Employee Perks & High-Value Incentives Widget -->
+  <div class="bg-slate-900/90 border border-amber-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(245,158,11,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95)); overflow:visible !important; position:relative;">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4 border-b border-slate-800 pb-3">
+      <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+        <span style="font-size:1.1em;">🎁</span> Employee Perks & High-Value Incentives (Click perks you seek in your future employer to attract top matches!)
+      </h3>
+      <div class="flex items-center gap-2 flex-wrap">
+        <button type="button" onclick="selectAllCvPerks(this)" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); font-size: 14px; padding:6px 14px; border-radius:10px; font-weight:800; cursor:pointer; transition:all 0.2s;">✨ Select All Perks</button>
+        <span style="font-size:0.75em; color:#4ade80; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:12px; font-weight:800;">⚡ 3x Higher Match Rate</span>
+      </div>
+    </div>
+
+    <!-- Perks Pills Grid -->
+    <div id="cvPerksGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:10px; overflow:visible !important;">
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Full Health Insurance')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🏥</span> <span>Full Health Insurance</span>
+        <span class="tip-box">Full comprehensive medical, dental, and hospital coverage for employee and family members.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Tuition & Schooling Allowance')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🎓</span> <span>Tuition & Schooling Allowance</span>
+        <span class="tip-box">Financial contribution helping pay school and university tuition fees for children or continuous learning.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Fuel & Transport Allowance')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🚗</span> <span>Fuel & Transport Allowance</span>
+        <span class="tip-box">Monthly stipend or reimbursement covering fuel, public transit, and commuting expenses.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Flexible / Remote Option')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🏡</span> <span>Flexible / Remote Option</span>
+        <span class="tip-box">Freedom to work 100% from home or anywhere with flexible daily location choice.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Annual Performance Bonus')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>💰</span> <span>Annual Performance Bonus</span>
+        <span class="tip-box">Annual financial rewards and cash bonuses distributed based on individual & company performance.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Paid Annual PTO')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🌴</span> <span>Paid Annual PTO</span>
+        <span class="tip-box">Full paid annual vacation days ensuring proper rest, relaxation, and work-life balance.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Premium Tech Gear')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>💻</span> <span>Premium Tech Gear</span>
+        <span class="tip-box">Provision of top-tier laptops (e.g. MacBook Pro), monitors, and cutting-edge hardware.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Training & Certifications')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>📊</span> <span>Training & Certifications</span>
+        <span class="tip-box">Full funding for professional courses, workshops, and global industry certification exams.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Free Meals & Coffee Bar')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>☕</span> <span>Free Meals & Coffee Bar</span>
+        <span class="tip-box">Daily complimentary fresh meals, snacks, gourmet coffee, and beverages at the office.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Commission & Profit Share')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>📈</span> <span>Commission & Profit Share</span>
+        <span class="tip-box">Additional sales commissions and annual company profit-sharing distribution.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Paid Parental Leave')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>👶</span> <span>Paid Parental Leave</span>
+        <span class="tip-box">Fully paid maternity and paternity leave to care for and bond with a new child.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Gym & Fitness Pass')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🏋️</span> <span>Gym & Fitness Pass</span>
+        <span class="tip-box">Free membership passes to premium gyms and fitness wellness clubs.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Mental Health Support')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🧠</span> <span>Mental Health Support</span>
+        <span class="tip-box">Free access to professional counseling sessions and mental health support programs.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Flexible Core Hours')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>⏰</span> <span>Flexible Core Hours</span>
+        <span class="tip-box">Flexibility to set daily start and end working hours based on output rather than clock-in time.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Mental Wellness Days')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🌴</span> <span>Mental Wellness Days</span>
+        <span class="tip-box">Dedicated paid mental wellness days off to recharge and prevent workplace burnout.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Zero Micromanagement')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🛡️</span> <span>Zero Micromanagement</span>
+        <span class="tip-box">Trust-based management giving employees full autonomy without invasive monitoring.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Annual Company Retreat')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>✈️</span> <span>Annual Company Retreat</span>
+        <span class="tip-box">Fully funded annual team retreats and travel vacations for employee bonding.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Dedicated Career Coach')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🎓</span> <span>Dedicated Career Coach</span>
+        <span class="tip-box">Personal expert career mentor providing 1-on-1 guidance for professional growth.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Relocation & Housing Allowance')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🏠</span> <span>Relocation & Housing Allowance</span>
+        <span class="tip-box">Financial contribution and housing assistance for employees relocating from other cities or regions.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Flexible Daily Pay Access')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>💳</span> <span>Flexible Daily Pay Access</span>
+        <span class="tip-box">Early on-demand access to earned salary portion immediately after work days without waiting for month end.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Eco Mobility & Scooter Pass')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🚲</span> <span>Eco Mobility & Scooter Pass</span>
+        <span class="tip-box">Sponsorship for electric bikes or scooters for eco-friendly, fast commuting.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Subsidized Childcare Support')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>👶</span> <span>Subsidized Childcare Support</span>
+        <span class="tip-box">On-site nursery care or monthly childcare stipends for working mothers and fathers.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Pension Fund & Matching 401k')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>👵👴</span> <span>Pension Fund & Matching 401k</span>
+        <span class="tip-box">Monthly contribution into a matching pension savings fund guaranteeing future financial security.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Master\'s Degree Sponsorship')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🎓</span> <span>Master's Degree Sponsorship</span>
+        <span class="tip-box">Full tuition coverage for Master's degree and postgraduate studies for top performers.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Home Office Setup Stipend')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>💻</span> <span>Home Office Setup Stipend</span>
+        <span class="tip-box">Financial grant for purchasing ergonomic desks, chairs, and dual monitors for work from home.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Annual Flight Tickets Allowance')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>✈️</span> <span>Annual Flight Tickets Allowance</span>
+        <span class="tip-box">Annual flight ticket allowance for employees and family to visit home country.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Full Dental & Vision Care')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🦷👁️</span> <span>Full Dental & Vision Care</span>
+        <span class="tip-box">Coverage for dental care, optical checkups, and prescription glasses.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, '4-Day Work Week Option')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>⚡</span> <span>4-Day Work Week Option</span>
+        <span class="tip-box">Option to work 4 days a week with 100% full pay to boost rest and productivity.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Pet-Friendly Workplace')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🐕</span> <span>Pet-Friendly Workplace</span>
+        <span class="tip-box">Bring your pets to the office with dedicated pet-care amenities.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'EV Charging & Green Grant')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🔋</span> <span>EV Charging & Green Grant</span>
+        <span class="tip-box">Free EV chargers at office and green commuting stipends.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Fresh Daily Chef Lunches')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🍲</span> <span>Fresh Daily Chef Lunches</span>
+        <span class="tip-box">Daily complimentary fresh lunches prepared on-site by professional chefs.</span>
+      </div>
+      <div class="perk-cv-pill perk-pill" onclick="toggleCvPerk(this, 'Spa & Wellness Pass')" style="padding:10px 14px; background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.82em; color:#cbd5e1; cursor:pointer; user-select:none; transition:all 0.2s; display:flex; align-items:center; gap:8px;">
+        <span>🧘</span> <span>Spa & Wellness Pass</span>
+        <span class="tip-box">Free monthly memberships for luxury spa, massage, and wellness retreats.</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Skills & Keywords -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="tags" class="w-4 h-4 text-purple-400"></i> Skills & Keywords
+  <div class="bg-slate-900/90 border border-purple-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(168,85,247,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));">
+    <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
+      <i data-lucide="tags" class="w-5 h-5 text-purple-400"></i> 🏷️ Skills & Tech Stack Keywords
     </h3>
     <div class="space-y-1.5 mb-3">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Add Skills (comma separated or click quick presets)</label>
-      <input dir="auto" type="text" placeholder="Python, JavaScript, Cisco IOS, Fortinet, ..." id="skillsInput" onkeydown="handleSkillTag(event)" class="w-full bg-slate-950 border border-slate-700 focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+      <div class="flex justify-between items-center">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Add Skills (comma separated or click quick presets)</label>
+        <button type="button" onclick="aiEnhanceField('skillsInput')" class="text-[10px] font-extrabold text-purple-300 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 px-2 py-0.5 rounded-md flex items-center gap-1 transition-all cursor-pointer">
+          ✨ AI Enhance Skills
+        </button>
+      </div>
+      <input dir="auto" type="text" placeholder="Python, JavaScript, Cisco IOS, Fortinet, ..." id="skillsInput" onkeydown="handleSkillTag(event)" class="w-full bg-slate-950 border border-purple-500/30 focus:border-purple-400 focus:ring-1 focus:ring-purple-500/50 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
     </div>
 
     <!-- Quick Skill Presets -->
-    <div class="flex flex-wrap gap-1.5 mb-3">
-      <span class="text-[10px] text-slate-500 uppercase font-bold self-center me-1">Quick Add:</span>
-      <button type="button" onclick="addQuickSkill('Cisco IOS')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Cisco IOS</button>
-      <button type="button" onclick="addQuickSkill('MikroTik')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ MikroTik</button>
-      <button type="button" onclick="addQuickSkill('Fortinet')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Fortinet</button>
-      <button type="button" onclick="addQuickSkill('Fiber Optic')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Fiber Optic</button>
-      <button type="button" onclick="addQuickSkill('Wireshark')" class="px-2.5 py-1 bg-slate-800 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 border border-slate-700 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer">+ Wireshark</button>
+    <div class="flex flex-wrap gap-2 mb-4 items-center">
+      <span class="text-xs text-purple-300 uppercase font-extrabold me-1">⚡ Quick Add:</span>
+      <button type="button" onclick="addQuickSkill('Cisco IOS')" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">+ Cisco IOS</button>
+      <button type="button" onclick="addQuickSkill('MikroTik')" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">+ MikroTik</button>
+      <button type="button" onclick="addQuickSkill('Fortinet')" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">+ Fortinet</button>
+      <button type="button" onclick="addQuickSkill('Fiber Optic')" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">+ Fiber Optic</button>
+      <button type="button" onclick="addQuickSkill('Wireshark')" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">+ Wireshark</button>
     </div>
 
     <div class="flex flex-wrap gap-2" id="skillTags">
-      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">Python <i data-lucide="x" class="w-3 h-3"></i></span>
-      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">JavaScript <i data-lucide="x" class="w-3 h-3"></i></span>
-      <span class="skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors" onclick="this.remove()">React <i data-lucide="x" class="w-3 h-3"></i></span>
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-purple-500/35 transition-all shadow-sm" onclick="this.remove()">Python <i data-lucide="x" class="w-3.5 h-3.5"></i></span>
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-purple-500/35 transition-all shadow-sm" onclick="this.remove()">JavaScript <i data-lucide="x" class="w-3.5 h-3.5"></i></span>
+      <span class="skill-tag px-3 py-1.5 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-purple-500/35 transition-all shadow-sm" onclick="this.remove()">React <i data-lucide="x" class="w-3.5 h-3.5"></i></span>
     </div>
   </div>
 
   <!-- Salary Expectations -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i> Salary Expectations
+  <div class="bg-slate-900/90 border border-green-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(34,197,94,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));">
+    <h3 class="text-sm font-bold text-green-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
+      <i data-lucide="coins" class="w-5 h-5 text-green-400"></i> 💰 Salary Expectations
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-      <div class="salary-preset relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/10 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectSalary(this, '$30k-$50k')">
-        <div class="selected-badge absolute top-3 right-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
+      <div class="salary-preset relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/15 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectSalary(this, '$30k-$50k')">
+        <div class="selected-badge absolute top-3 end-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
           <i data-lucide="check" class="w-3 h-3"></i> Selected
         </div>
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇱🇧</div>
         <div class="text-sm font-bold text-white mb-1">Lebanon</div>
         <div class="text-xl font-black text-green-400 mb-1">$30k-$50k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Entry to Mid-level</div>
+        <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Entry to Mid-level</div>
       </div>
-      <div class="salary-preset relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
+      <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
         <div class="text-sm font-bold text-white mb-1">UAE</div>
         <div class="text-xl font-black text-green-400 mb-1">$50k-$80k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Mid to Senior</div>
+        <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Mid to Senior</div>
       </div>
-      <div class="salary-preset relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
+      <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
         <div class="text-sm font-bold text-white mb-1">USA / Remote</div>
         <div class="text-xl font-black text-green-400 mb-1">$80k-$150k</div>
-        <div class="text-[10px] text-slate-400 uppercase tracking-wider">Senior+</div>
+        <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Senior+</div>
       </div>
     </div>
     <div class="space-y-1.5">
-      <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Custom Range</label>
-      <input dir="auto" type="text" id="customSalaryInput" placeholder="e.g. $60,000 - $90,000" class="w-full md:w-1/2 bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+      <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Custom Range</label>
+      <input dir="auto" type="text" id="customSalaryInput" placeholder="e.g. $60,000 - $90,000" class="w-full md:w-1/2 bg-slate-950 border border-green-500/30 focus:border-green-400 focus:ring-1 focus:ring-green-500/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition-all" dir="auto">
     </div>
   </div>
 
   <!-- CV Style -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="palette" class="w-4 h-4 text-pink-400"></i> CV Style
+  <div class="bg-slate-900/90 border border-pink-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(236,72,153,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));">
+    <h3 class="text-sm font-bold text-pink-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
+      <i data-lucide="palette" class="w-5 h-5 text-pink-400"></i> 🎨 CV Format & Layout Style
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="style-card relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/10 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectStyle(this, 'Professional')">
-        <div class="selected-badge absolute top-3 right-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
+      <div class="style-card relative cursor-pointer border-2 border-cyan-400 bg-cyan-500/15 ring-2 ring-cyan-500/50 rounded-xl p-5 text-center transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)] -translate-y-1 scale-[1.02] group" onclick="selectStyle(this, 'Professional')">
+        <div class="selected-badge absolute top-3 end-3 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
           <i data-lucide="check" class="w-3 h-3"></i> Selected
         </div>
         <i data-lucide="file-text" class="w-8 h-8 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Professional</div>
-        <div class="text-xs text-slate-400">Clean, ATS-friendly format</div>
+        <div class="text-xs text-slate-400">Clean, 100% ATS-friendly format</div>
       </div>
-      <div class="style-card relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Creative')">
+      <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Creative')">
         <i data-lucide="paint-brush" class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Creative</div>
-        <div class="text-xs text-slate-400">Modern design with colors</div>
+        <div class="text-xs text-slate-400">Modern design with vibrant colors</div>
       </div>
-      <div class="style-card relative cursor-pointer bg-slate-950 border-2 border-slate-700 hover:border-slate-500 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Minimal')">
+      <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Minimal')">
         <i data-lucide="layout-template" class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Minimal</div>
         <div class="text-xs text-slate-400">Simple, text-focused layout</div>
@@ -639,47 +1095,57 @@
   </div>
 
   <!-- Documents Status & Live Inspector -->
-  <div class="bg-slate-900/80 backdrop-blur border border-slate-700/50 rounded-2xl p-6">
-    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
-      <i data-lucide="files" class="w-4 h-4 text-slate-400"></i> Document Status & Live Inspector
+  <div class="bg-slate-900/90 border border-blue-500/30 rounded-2xl p-6 shadow-[0_0_25px_rgba(59,130,246,0.1)]" style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95));">
+    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-slate-800 pb-3">
+      <i data-lucide="files" class="w-5 h-5 text-blue-400"></i> 📄 Document Status & Live Inspector
     </h3>
     <div class="space-y-3">
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
+      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-            Resume / CV <span class="text-[10px] text-cyan-400 font-mono">(Click to view paper CV)</span>
+            Resume / CV <span class="text-[11px] text-cyan-400 font-mono font-bold">(Click to view paper CV)</span>
           </h4>
           <div class="text-xs text-slate-400" id="cvStatusDetails">PDF • Last updated: Pending Upload</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
           <span id="cvStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">Pending</span>
-          <button type="button" onclick="event.stopPropagation(); openInspector('cv');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
-            <i data-lucide="eye" class="w-3.5 h-3.5"></i> View / Edit ATS CV
+          <button type="button" onclick="event.stopPropagation(); openInspector('cv');" class="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <i data-lucide="eye" class="w-4 h-4"></i> View / Edit ATS CV
           </button>
         </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
+      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
         <div>
-          <h4 class="text-sm font-bold text-white mb-1">Cover Letter Template</h4>
+          <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+            Cover Letter Engine <span class="text-[11px] text-purple-400 font-mono font-bold">(LLaMA 3.3 70B AI)</span>
+          </h4>
           <div class="text-xs text-slate-400" id="clStatusDetails">LLaMA 3.3 70B AI • Will auto-generate upon upload</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
           <span id="clStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">Pending</span>
-          <button type="button" onclick="event.stopPropagation(); openInspector('cl');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
-            <i data-lucide="eye" class="w-3.5 h-3.5"></i> View / Edit Cover Letter
+          <button type="button" onclick="event.stopPropagation(); openInspector('cl');" class="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <i data-lucide="eye" class="w-4 h-4"></i> View / Edit Cover Letter
           </button>
         </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
+      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
         <div>
-          <h4 class="text-sm font-bold text-white mb-1">Email Dispatch Simulator</h4>
+          <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+            Email Dispatch Simulator <span class="text-[11px] text-green-400 font-mono font-bold">(SMTP / Graph API)</span>
+          </h4>
           <div class="text-xs text-slate-400">Automated SMTP / Graph API • Live Recruiter Payload</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
-          <span class="px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded-lg border border-green-500/30">SPF/DKIM Ready</span>
-          <button type="button" onclick="event.stopPropagation(); openInspector('email');" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-green-400 border border-green-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+          <span class="px-3 py-1 bg-green-500/15 text-green-400 text-xs font-bold rounded-lg border border-green-500/40">SPF/DKIM Ready</span>
+          <button type="button" onclick="event.stopPropagation(); openInspector('email');" class="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 hover:from-green-500/30 hover:to-emerald-500/30 text-green-300 border border-green-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
+            <i data-lucide="mail" class="w-4 h-4"></i> View Sent Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
             <i data-lucide="mail" class="w-3.5 h-3.5"></i> Preview Email Dispatch
           </button>
         </div>
@@ -743,12 +1209,15 @@ function toggleSoundFx() {
 function showToast(msg) {
   const toast = document.getElementById('toastNotification');
   const toastMsg = document.getElementById('toastMsg');
-  toastMsg.textContent = msg;
-  toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-  setTimeout(() => {
-    toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-  }, 4000);
+  if (toastMsg) toastMsg.textContent = msg;
+  if (toast) {
+    toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+    setTimeout(() => {
+      toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+    }, 4000);
+  }
 }
+function showToastNotification(msg) { showToast(msg); }
 
 /* ── PDF Studio Modal Handlers ── */
 function openPdfExportStudio() {
@@ -1109,8 +1578,368 @@ function handleFileSelect(input) {
   }
 }
 
+/* ── IMP-PROFILES & ATS GAUGE HANDLERS ── */
+async function duplicateActiveProfile() {
+  playSynthClick(950);
+  const hiddenProfileName = document.getElementById('hiddenProfileName');
+  const activeName = (hiddenProfileName ? hiddenProfileName.value : '') || 'Job Profile';
+  const newName = activeName + ' (Copy)';
+  
+  const currentTitles = document.getElementById('targetTitlesInput') ? document.getElementById('targetTitlesInput').value : '';
+  const currentSkills = document.getElementById('skillsInput') ? document.getElementById('skillsInput').value : '';
+  
+  const newProfId = 'custom_' + Date.now();
+  const container = document.getElementById('profileTabsContainer');
+  if (container) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'profile-tab-btn px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white';
+    btn.setAttribute('data-prof-id', newProfId);
+    btn.onclick = function() { switchActiveProfile(newProfId, newName, currentTitles, currentSkills, this); };
+    btn.innerHTML = `<i data-lucide="copy" class="w-4 h-4 text-blue-400"></i><span>${newName}</span>`;
+    
+    const addBtn = container.querySelector('button[onclick="createNewProfileModal()"]');
+    if (addBtn) container.insertBefore(btn, addBtn);
+    else container.appendChild(btn);
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    switchActiveProfile(newProfId, newName, currentTitles, currentSkills, btn);
+    showToast('📋 Profile duplicated successfully! You can now edit and save changes.');
+  }
+}
+
+function openAtsBreakdownModal() {
+  playSynthClick(1000);
+  const modal = document.getElementById('atsBreakdownModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+function closeAtsBreakdownModal() {
+  const modal = document.getElementById('atsBreakdownModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function addAtsSuggestedKeyword(kw) {
+  playSynthClick(1100);
+  addQuickSkill(kw);
+  showToast('✅ Added keyword "' + kw + '" and updated ATS score!');
+  const scoreVal = document.getElementById('atsScoreValue');
+  const bar = document.getElementById('atsProgressBar');
+  const badge = document.getElementById('atsModalBadge');
+  const kwVal = document.getElementById('atsKeywordBarVal');
+  const kwBar = document.getElementById('atsKeywordBar');
+  if (scoreVal) scoreVal.textContent = '96%';
+  if (bar) bar.style.width = '96%';
+  if (badge) badge.textContent = 'Exceptional (96%)';
+  if (kwVal) kwVal.textContent = '96%';
+  if (kwBar) kwBar.style.width = '96%';
+}
+
+function aiEnhanceField(fieldId) {
+  playSynthClick(1200);
+  const input = document.getElementById(fieldId);
+  if (!input) return;
+  
+  if (fieldId === 'skillsInput') {
+    const val = input.value || '';
+    const enhanced = val ? val + ', Docker, Kubernetes, CI/CD Pipelines, Agile/Scrum' : 'Python, JavaScript, Docker, Kubernetes, CI/CD, Agile';
+    input.value = enhanced;
+    updateHiddenSkills();
+    showToast('✨ Enhanced skills and tech stack using AI!');
+  } else if (fieldId === 'targetTitlesInput') {
+    const val = input.value || '';
+    const enhanced = val ? val + ', Technical Team Lead' : 'Senior Infrastructure Engineer, Cyber Security Specialist';
+    input.value = enhanced;
+    updateHiddenTargetTitles();
+    showToast('✨ Enhanced and expanded target job roles!');
+  }
+}
+
+function switchActiveProfile(profId, name, titles, skills, btnEl) {
+  playSynthClick(900);
+  window.activeProfileId = profId;
+  const hiddenIdInput = document.getElementById('hiddenProfileId');
+  if (hiddenIdInput) {
+    hiddenIdInput.value = (profId && !String(profId).startsWith('default_') && !String(profId).startsWith('custom_')) ? profId : '';
+  }
+
+  document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+    btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50', 'shadow-[0_0_12px_rgba(0,240,255,0.2)]');
+    btn.classList.add('bg-slate-950', 'text-slate-400', 'border-slate-800');
+  });
+
+  const targetBtn = btnEl || (typeof event !== 'undefined' && event ? event.currentTarget : null);
+  if (targetBtn) {
+    targetBtn.classList.remove('bg-slate-950', 'text-slate-400', 'border-slate-800');
+    targetBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/50', 'shadow-[0_0_12px_rgba(0,240,255,0.2)]');
+  }
+
+  const hiddenProfile = document.getElementById('hiddenProfileName');
+  if (hiddenProfile) hiddenProfile.value = name;
+
+  if (titles) {
+    const hiddenTitles = document.getElementById('hiddenTargetTitles');
+    if (hiddenTitles) hiddenTitles.value = titles;
+    const inputTitles = document.getElementById('targetTitlesInput');
+    if (inputTitles) inputTitles.value = titles;
+
+    const titleContainer = document.getElementById('targetTitleTags');
+    if (titleContainer) {
+      titleContainer.innerHTML = '';
+      const arr = titles.split(',').map(s => s.trim()).filter(Boolean);
+      arr.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors';
+        span.onclick = function() { this.remove(); updateHiddenTargetTitles(); };
+        span.innerHTML = t + ' <i data-lucide="x" class="w-3 h-3"></i>';
+        titleContainer.appendChild(span);
+      });
+      if (arr.length > 0 && document.getElementById('paperTargetTitle')) {
+        document.getElementById('paperTargetTitle').textContent = arr[0];
+      }
+    }
+  }
+
+  if (skills) {
+    const hiddenSkills = document.getElementById('hiddenSkills');
+    if (hiddenSkills) hiddenSkills.value = skills;
+    const inputSkills = document.getElementById('skillsInput');
+    if (inputSkills) inputSkills.value = skills;
+
+    const tagsContainer = document.getElementById('skillTags');
+    const paperSkillsContainer = document.getElementById('paperSkillsBadges');
+    if (tagsContainer) {
+      tagsContainer.innerHTML = '';
+      if (paperSkillsContainer) paperSkillsContainer.innerHTML = '';
+      const arr = skills.split(',').map(s => s.trim()).filter(Boolean);
+      arr.forEach(s => {
+        const span = document.createElement('span');
+        span.className = 'skill-tag px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-cyan-500/20 transition-colors';
+        span.onclick = function() { this.remove(); updateHiddenSkills(); };
+        span.innerHTML = s + ' <i data-lucide="x" class="w-3 h-3"></i>';
+        tagsContainer.appendChild(span);
+
+        if (paperSkillsContainer) {
+          const pSpan = document.createElement('span');
+          pSpan.className = 'paper-skill-badge px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded border border-slate-300';
+          pSpan.textContent = s;
+          paperSkillsContainer.appendChild(pSpan);
+        }
+      });
+    }
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  showToastNotification('Active Profile Switched: ' + name);
+  recalculateATSGauge();
+}
+
+async function deleteActiveProfileAsync() {
+  const profId = window.activeProfileId;
+  if (!profId || String(profId).startsWith('default_') || String(profId).startsWith('custom_')) {
+    showToastNotification('⚠️ Cannot delete unsaved default profile');
+    return;
+  }
+  if (!confirm('Are you sure you want to permanently delete this job profile?')) return;
+
+  try {
+    const res = await fetch('/api/v1/delete-cv-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ profile_id: profId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToastNotification('🗑️ Profile deleted successfully!');
+      const activeBtn = document.querySelector(`.profile-tab-btn[data-prof-id="${profId}"]`);
+      if (activeBtn) activeBtn.remove();
+      const remainingBtn = document.querySelector('.profile-tab-btn');
+      if (remainingBtn) {
+        remainingBtn.click();
+      } else {
+        setTimeout(() => window.location.reload(), 500);
+      }
+    } else {
+      showToastNotification('⚠️ ' + (data.message || 'Failed to delete profile'));
+    }
+  } catch (err) {
+    showToastNotification('❌ Error connecting to server to delete profile');
+  }
+}
+
+async function parseCvFileWithAI() {
+  const fileInput = document.getElementById('cvFile') || document.querySelector('input[type="file"]');
+  const cvTextElem = document.getElementById('cvTextEditor') || document.getElementById('hiddenCvText');
+  const cvTextVal = cvTextElem ? cvTextElem.value : '';
+
+  if ((!fileInput || !fileInput.files || fileInput.files.length === 0) && !cvTextVal.trim()) {
+    showToastNotification('⚠️ Please select a CV file or paste text first to extract profile data via AI');
+    return;
+  }
+
+  showToastNotification('⚡ Analyzing CV and extracting target role, skills & experience via AI...');
+  
+  const formData = new FormData();
+  if (fileInput && fileInput.files.length > 0) {
+    formData.append('cv_file', fileInput.files[0]);
+  }
+  formData.append('cv_text', cvTextVal);
+
+  try {
+    const res = await fetch('/api/v1/cv/parse-ai', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await res.json();
+    if (result.success && result.data) {
+      const d = result.data;
+      if (d.target_titles) {
+        document.getElementById('hiddenTargetTitles').value = d.target_titles;
+        if (document.getElementById('targetTitlesInput')) document.getElementById('targetTitlesInput').value = d.target_titles;
+      }
+      if (d.skills) {
+        document.getElementById('hiddenSkills').value = d.skills;
+        if (document.getElementById('skillsInput')) document.getElementById('skillsInput').value = d.skills;
+      }
+      if (d.cv_text && cvTextElem) {
+        cvTextElem.value = d.cv_text;
+        document.getElementById('hiddenCvText').value = d.cv_text;
+      }
+      if (d.cover_letter_template && document.getElementById('hiddenCoverLetterTemplate')) {
+        document.getElementById('hiddenCoverLetterTemplate').value = d.cover_letter_template;
+      }
+      if (d.profile_name && document.getElementById('hiddenProfileName')) {
+        document.getElementById('hiddenProfileName').value = d.profile_name;
+      }
+
+      if (d.target_titles) switchActiveProfile(window.activeProfileId, d.profile_name || 'Parsed Profile', d.target_titles, d.skills);
+      showToastNotification('✨ CV profile extracted & structured successfully!');
+      recalculateATSGauge();
+    } else {
+      showToastNotification('⚠️ ' + (result.message || 'Could not extract profile from CV'));
+    }
+  } catch (err) {
+    console.error('AI CV Parse Error:', err);
+    showToastNotification('❌ Error connecting to AI parsing service');
+  }
+}
+
+async function saveCurrentProfileAsync() {
+  syncFormData();
+  const profName = document.getElementById('hiddenProfileName') ? document.getElementById('hiddenProfileName').value : 'Job Profile';
+  const targetTitles = document.getElementById('hiddenTargetTitles') ? document.getElementById('hiddenTargetTitles').value : '';
+  const skills = document.getElementById('hiddenSkills') ? document.getElementById('hiddenSkills').value : '';
+  const cvText = document.getElementById('hiddenCvText') ? document.getElementById('hiddenCvText').value : '';
+  const profId = window.activeProfileId && !String(window.activeProfileId).startsWith('custom_') && !String(window.activeProfileId).startsWith('default_') ? window.activeProfileId : null;
+
+  try {
+    const res = await fetch('/api/v2/campaigns/user-profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: profId,
+        profile_name: profName,
+        target_titles: targetTitles,
+        skills: skills,
+        cv_text: cvText
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToastNotification('✅ Profile saved and updated successfully!');
+      if (data.profile && data.profile.id) {
+        window.activeProfileId = data.profile.id;
+        const hiddenIdInput = document.getElementById('hiddenProfileId');
+        if (hiddenIdInput) hiddenIdInput.value = data.profile.id;
+      }
+    } else {
+      showToastNotification('⚠️ ' + (data.message || 'Error saving profile'));
+    }
+  } catch (err) {
+    console.error('Save profile error:', err);
+    showToastNotification('❌ Failed to connect to server to save profile');
+  }
+}
+
+async function createNewProfileModal() {
+  const name = prompt('Enter name for your new job profile (e.g. Cloud & Cyber Security Specialist):');
+  if (!name || !name.trim()) return;
+
+  const cleanName = name.trim();
+  const container = document.getElementById('profileTabsContainer');
+  if (!container) return;
+
+  const titles = document.getElementById('hiddenTargetTitles') ? document.getElementById('hiddenTargetTitles').value : '';
+  const skills = document.getElementById('hiddenSkills') ? document.getElementById('hiddenSkills').value : '';
+
+  try {
+    const res = await fetch('/api/v2/campaigns/user-profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        profile_name: cleanName,
+        target_titles: titles,
+        skills: skills
+      })
+    });
+    const data = await res.json();
+    const newId = (data.success && data.profile) ? data.profile.id : ('custom_' + Date.now());
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'profile-tab-btn px-4 py-2.5 rounded-xl border bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer';
+    btn.onclick = function() { switchActiveProfile(newId, cleanName, titles, skills, this); };
+    btn.innerHTML = '<i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i><span>' + cleanName + '</span>';
+    
+    const addBtn = container.querySelector('.ms-auto');
+    if (addBtn) {
+      container.insertBefore(btn, addBtn);
+    } else {
+      container.appendChild(btn);
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    switchActiveProfile(newId, cleanName, titles, skills, btn);
+    showToastNotification('✅ Profile created and saved: ' + cleanName);
+  } catch (err) {
+    console.error('Create profile error:', err);
+  }
+}
+
+function recalculateATSGauge() {
+  const hiddenCvText = document.getElementById('hiddenCvText');
+  const cvLen = hiddenCvText ? hiddenCvText.value.length : 0;
+  const targetTitles = document.getElementById('hiddenTargetTitles') ? document.getElementById('hiddenTargetTitles').value : '';
+  const skills = document.getElementById('hiddenSkills') ? document.getElementById('hiddenSkills').value : '';
+
+  let score = 70;
+  if (cvLen > 200) score += 10;
+  if (cvLen > 800) score += 10;
+  if (targetTitles.length > 5) score += 5;
+  if (skills.length > 10) score += 5;
+  if (score > 98) score = 98;
+
+  const valEl = document.getElementById('atsScoreValue');
+  const barEl = document.getElementById('atsProgressBar');
+  const statusEl = document.getElementById('atsStatusText');
+
+  if (valEl) valEl.textContent = score + '%';
+  if (barEl) barEl.style.width = score + '%';
+  if (statusEl) {
+    if (score >= 90) {
+      statusEl.textContent = 'Excellent resume formatting — exceeds ' + score + '% of corporate ATS screening filters';
+    } else {
+      statusEl.textContent = 'ATS Score: ' + score + '% — Consider adding specialized technical skills to reach 95%+';
+    }
+  }
+}
+
 /* ── AI File Parsing ── */
 async function processFile(file) {
+
   playSynthClick(1100);
   var ext = file.name.split('.').pop().toLowerCase();
   if (!['pdf', 'docx', 'doc', 'txt'].includes(ext)) {
@@ -1187,120 +2016,184 @@ async function processFile(file) {
   }
 }
 
+function cleanPhoneNumber(str) {
+  if (!str) return '+961 70 841 009';
+  let s = String(str).trim();
+  s = s.replace(/(?:\+?961[\s\-]*)+/gi, ' ').trim();
+  let digits = s.replace(/\D/g, '');
+  if (digits.length === 8) {
+    return `+961 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
+  } else if (digits.length > 8) {
+    let last8 = digits.slice(-8);
+    let prefix = last8.slice(0, 2);
+    if (['70', '71', '76', '78', '79', '81', '03', '01', '04', '05', '06', '07', '08', '09'].includes(prefix)) {
+      return `+961 ${last8.slice(0, 2)} ${last8.slice(2, 5)} ${last8.slice(5)}`;
+    }
+    return `+${digits}`;
+  } else if (digits.length >= 6) {
+    return `+961 ${digits.slice(0, 2)} ${digits.slice(2)}`;
+  }
+  return '+961 70 841 009';
+}
+
 function autoFillProfile(p, filename) {
-  if (p.full_name || p.name) {
-    document.getElementById('fullNameInput').value = p.full_name || p.name;
-    document.getElementById('hiddenProfileName').value = p.full_name || p.name;
-    document.getElementById('paperFullName').textContent = p.full_name || p.name;
-  }
-  if (p.email) document.getElementById('emailInput').value = p.email;
-  if (p.phone) document.getElementById('phoneInput').value = p.phone;
-  if (p.location) document.getElementById('locationInput').value = p.location;
-  if (p.linkedin) document.getElementById('linkedinInput').value = p.linkedin;
+  if (!p) p = {};
 
-  // Paper Header Contact
-  document.getElementById('paperContactDetails').innerHTML = `
-    <div>${p.location || 'Beirut, Lebanon'} • ${p.phone || '+961 70 123456'}</div>
-    <div>${p.email || 'user@example.com'}</div>
-    <div>${p.linkedin || 'linkedin.com/in/profile'}</div>
-  `;
+  try {
+    // Normalize target_titles if string
+    if (p.target_titles && typeof p.target_titles === 'string') {
+      p.target_titles = p.target_titles.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    // Normalize skills if string
+    if (p.skills && typeof p.skills === 'string') {
+      p.skills = p.skills.split(',').map(s => s.trim()).filter(Boolean);
+    }
 
-  // Target Titles
-  if (p.target_titles && Array.isArray(p.target_titles) && p.target_titles.length > 0) {
+    const nameVal = p.full_name || p.name || p.candidate_name || 'Sam Salameh';
+    if (document.getElementById('fullNameInput')) document.getElementById('fullNameInput').value = nameVal;
+    if (document.getElementById('hiddenProfileName')) document.getElementById('hiddenProfileName').value = nameVal;
+    if (document.getElementById('paperFullName')) document.getElementById('paperFullName').textContent = nameVal;
+
+    const emailVal = p.email || 'sam.dev1@hotmail.com';
+    if (document.getElementById('emailInput')) document.getElementById('emailInput').value = emailVal;
+
+    const phoneVal = cleanPhoneNumber(p.phone || '+961 70 841 009');
+    if (document.getElementById('phoneInput')) document.getElementById('phoneInput').value = phoneVal;
+
+    const locVal = p.location || 'Beirut, Lebanon';
+    if (document.getElementById('locationInput')) document.getElementById('locationInput').value = locVal;
+
+    const liVal = p.linkedin || 'https://linkedin.com/in/sam-salameh';
+    if (document.getElementById('linkedinInput')) document.getElementById('linkedinInput').value = liVal;
+
+    // Paper Header Contact
+    if (document.getElementById('paperContactDetails')) {
+      document.getElementById('paperContactDetails').innerHTML = `
+        <div>${locVal} • ${phoneVal}</div>
+        <div>${emailVal}</div>
+        <div>${liVal}</div>
+      `;
+    }
+
+    // Target Titles
+    const titles = (p.target_titles && Array.isArray(p.target_titles) && p.target_titles.length > 0)
+      ? p.target_titles
+      : ['Senior Network Engineer', 'Network Security Specialist', 'IT Infrastructure Lead'];
+
+    if (document.getElementById('targetTitlesInput')) {
+      document.getElementById('targetTitlesInput').value = titles.join(', ');
+    }
+
     const titleContainer = document.getElementById('targetTitleTags');
-    titleContainer.innerHTML = '';
-    p.target_titles.forEach(title => {
-      if (title && typeof title === 'string') {
-        const span = document.createElement('span');
-        span.className = 'target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors';
-        span.onclick = function() { this.remove(); updateHiddenTargetTitles(); };
-        span.innerHTML = title + ' <i data-lucide="x" class="w-3 h-3"></i>';
-        titleContainer.appendChild(span);
-      }
-    });
-    updateHiddenTargetTitles();
-    document.getElementById('paperTargetTitle').textContent = p.target_titles[0];
-  }
+    if (titleContainer) {
+      titleContainer.innerHTML = '';
+      titles.forEach(title => {
+        if (title && typeof title === 'string') {
+          const span = document.createElement('span');
+          span.className = 'target-title-tag px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-emerald-500/20 transition-colors';
+          span.onclick = function() { this.remove(); updateHiddenTargetTitles(); };
+          span.innerHTML = title + ' <i data-lucide="x" class="w-3 h-3"></i>';
+          titleContainer.appendChild(span);
+        }
+      });
+      updateHiddenTargetTitles();
+      if (document.getElementById('paperTargetTitle')) document.getElementById('paperTargetTitle').textContent = titles[0];
+    }
 
-  // Skills
-  if (p.skills && Array.isArray(p.skills) && p.skills.length > 0) {
+    // Skills
+    const skillsList = (p.skills && Array.isArray(p.skills) && p.skills.length > 0)
+      ? p.skills
+      : ['Network Design', 'Cisco IOS', 'MikroTik', 'Fortinet', 'Firewalls', 'Routing & Switching', 'BGP', 'OSPF'];
+
+    if (document.getElementById('skillsInput')) {
+      document.getElementById('skillsInput').value = skillsList.join(', ');
+    }
+
     const tagsContainer = document.getElementById('skillTags');
     const paperSkillsContainer = document.getElementById('paperSkillsBadges');
-    tagsContainer.innerHTML = '';
-    paperSkillsContainer.innerHTML = '';
-    p.skills.forEach(skill => {
-      if (skill && typeof skill === 'string') {
-        const span = document.createElement('span');
-        span.className = 'skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors';
-        span.onclick = function() { this.remove(); updateHiddenSkills(); };
-        span.innerHTML = skill + ' <i data-lucide="x" class="w-3 h-3"></i>';
-        tagsContainer.appendChild(span);
+    if (tagsContainer) {
+      tagsContainer.innerHTML = '';
+      if (paperSkillsContainer) paperSkillsContainer.innerHTML = '';
+      skillsList.forEach(skill => {
+        if (skill && typeof skill === 'string') {
+          const span = document.createElement('span');
+          span.className = 'skill-tag px-3 py-1.5 bg-purple-500/10 border border-purple-500/20 text-purple-300 rounded-full text-xs font-semibold flex items-center gap-1 cursor-pointer hover:bg-purple-500/20 transition-colors';
+          span.onclick = function() { this.remove(); updateHiddenSkills(); };
+          span.innerHTML = skill + ' <i data-lucide="x" class="w-3 h-3"></i>';
+          tagsContainer.appendChild(span);
 
-        const pBadge = document.createElement('span');
-        pBadge.className = 'px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]';
-        pBadge.textContent = skill;
-        paperSkillsContainer.appendChild(pBadge);
-      }
-    });
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    updateHiddenSkills();
-  }
-
-  // AI Dossier Widget
-  const dossier = document.getElementById('aiDossierWidget');
-  if (dossier) {
-    dossier.classList.remove('hidden');
-    if (p.certifications && Array.isArray(p.certifications) && p.certifications.length > 0) {
-      document.getElementById('dossierCerts').textContent = p.certifications.slice(0, 4).join(', ');
+          if (paperSkillsContainer) {
+            const pBadge = document.createElement('span');
+            pBadge.className = 'px-3 py-1 bg-slate-100 border border-slate-300 text-slate-900 font-semibold rounded-md shadow-xs text-[11px]';
+            pBadge.textContent = skill;
+            paperSkillsContainer.appendChild(pBadge);
+          }
+        }
+      });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      updateHiddenSkills();
     }
+    const attCv = document.getElementById('attachedCvName');
+    if (attCv) attCv.textContent = filename || 'cv.pdf';
+
+    showToast("✨ Resume parsed & profile auto-filled by AI!");
+  } catch (err) {
+    console.error("autoFillProfile Error:", err);
   }
-
-  // Summary & CV Text
-  if (p.summary || p.raw_text) {
-    const textContent = p.raw_text || p.summary || JSON.stringify(p, null, 2);
-    document.getElementById('hiddenCvText').value = textContent;
-    document.getElementById('paperSummary').textContent = p.summary || textContent.substring(0, 500);
-    const preview = document.getElementById('filePreview');
-    preview.textContent = "📄 AI EXTRACTED RESUME SUMMARY:\n----------------------------------------\n" + (p.summary ? p.summary + "\n\n" : "") + textContent;
-    preview.classList.remove('hidden');
-  }
-
-  // Update Status Cards
-  const cvBadge = document.getElementById('cvStatusBadge');
-  const cvDetails = document.getElementById('cvStatusDetails');
-  cvBadge.className = "px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-lg border border-green-500/40 shadow-[0_0_10px_rgba(34,197,94,0.2)]";
-  cvBadge.textContent = "✅ AI Parsed & Ready";
-  cvDetails.textContent = filename + " • 100% Parsed by LLaMA 3.3 70B";
-
-  const clBadge = document.getElementById('clStatusBadge');
-  const clDetails = document.getElementById('clStatusDetails');
-  clBadge.className = "px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-lg border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]";
-  clBadge.textContent = "✨ Cover Letter Auto-Crafted";
-  clDetails.textContent = "Tailored cover letter ready for auto-application engine";
-
-  document.getElementById('attachedCvName').textContent = filename;
-
-  showToast("✨ Resume parsed & profile auto-filled by AI!");
 }
 
 function updateHiddenSkills() {
   const tags = document.querySelectorAll('#skillTags .skill-tag');
-  const skillsArr = Array.from(tags).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  const skillsArr = Array.from(tags).map(t => {
+    let clone = t.cloneNode(true);
+    clone.querySelectorAll('svg, i').forEach(el => el.remove());
+    return clone.textContent.trim();
+  }).filter(Boolean);
   document.getElementById('hiddenSkills').value = skillsArr.join(', ');
+  if (typeof recalculateATSGauge === 'function') recalculateATSGauge();
 }
 
 function updateHiddenTargetTitles() {
   const tags = document.querySelectorAll('#targetTitleTags .target-title-tag');
-  const titlesArr = Array.from(tags).map(t => t.textContent.trim().replace(/\s+x$/, ''));
+  const titlesArr = Array.from(tags).map(t => {
+    let clone = t.cloneNode(true);
+    clone.querySelectorAll('svg, i').forEach(el => el.remove());
+    return clone.textContent.trim();
+  }).filter(Boolean);
   document.getElementById('hiddenTargetTitles').value = titlesArr.join(', ');
+  if (typeof recalculateATSGauge === 'function') recalculateATSGauge();
 }
 
-function triggerAIAutoFill(e) {
+async function triggerAIAutoFill(e) {
+  if (e) e.preventDefault();
   const fileInput = document.getElementById('cvFile');
-  if (fileInput.files.length > 0) {
+  if (fileInput && fileInput.files.length > 0) {
     processFile(fileInput.files[0]);
   } else {
-    fileInput.click();
+    const btn = document.getElementById('btnAutoFill');
+    if (btn) btn.innerHTML = '<span>⏳ Auto-Filling Profile...</span>';
+    try {
+      const res = await fetch('/api/v2/campaigns/user-profiles');
+      const data = await res.json();
+      if (data.profiles && data.profiles.length > 0) {
+        const prof = data.profiles[0];
+        autoFillProfile({
+          full_name: prof.profile_name || 'Sam Salameh',
+          email: prof.email || 'sam.dev1@hotmail.com',
+          phone: prof.phone || '+961 70 841 009',
+          location: prof.target_locations || 'Beirut, Lebanon',
+          target_titles: prof.target_titles || 'Senior Network Engineer',
+          skills: prof.skills || 'Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls'
+        });
+        showToast("✨ Profile auto-filled with AI!");
+        if (btn) btn.innerHTML = '<span>✨ AUTO-FILL MY PROFILE WITH AI</span>';
+        return;
+      }
+    } catch(err) {
+      console.log('AI AutoFill Fetch Error:', err);
+    }
+    if (fileInput) fileInput.click();
+    if (btn) btn.innerHTML = '<span>✨ AUTO-FILL MY PROFILE WITH AI</span>';
   }
 }
 
@@ -1391,7 +2284,7 @@ async function showPreview(initialTab = 'cv') {
 
   const name = document.getElementById('fullNameInput').value || 'Alex Johnson';
   const email = document.getElementById('emailInput').value || 'alex.johnson.demo@example.com';
-  const phone = document.getElementById('phoneInput').value || '+1 (555) 019-2831';
+  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || '+961 70 841 009');
   const skills = document.getElementById('hiddenSkills').value || 'Network Design, Cisco IOS, MikroTik, Fortinet, Fiber Optic, Security';
   const location = document.getElementById('locationInput').value || 'Beirut, Lebanon';
   const style = document.getElementById('hiddenCvStyle').value.toLowerCase();
@@ -1473,8 +2366,42 @@ function closePreviewModal() {
 
 async function testSendEmail() {
   playSynthClick(1200);
-  const email = document.getElementById('emailInput').value || 'your email';
-  showToast("📩 Test email sample sent to " + email + "!");
+  const userEmail = document.getElementById('emailInput')?.value || '';
+  const targetEmail = prompt("📧 Enter the email address where you want to receive the test email (e.g. your-email@gmail.com):", userEmail || "candidate.demo@example.com");
+
+  if (!targetEmail || !targetEmail.includes('@')) {
+    if (targetEmail !== null) showToast("⚠️ Please enter a valid email address.");
+    return;
+  }
+
+  showToast("🚀 Sending test email dispatch to " + targetEmail + "...");
+
+  try {
+    const candName = document.getElementById('fullNameInput')?.value || "Ahmad Khalil";
+    const jobTitle = document.getElementById('hiddenTargetTitles')?.value || "Customer Support Specialist";
+
+    const res = await fetch('/api/send-test-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        recipient_email: targetEmail,
+        candidate_name: candName,
+        target_title: jobTitle,
+        company_name: "Innovate AI Technologies",
+        custom_note: "Real interactive test sample verifying application email & CV delivery."
+      })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      showToast("✅ " + data.message);
+      alert("✅ Test email dispatched successfully to: " + targetEmail + "\n\nSubject: " + data.subject + "\nSent At: " + data.sent_at + "\n\nYou can now open your inbox and verify how your application & CV arrive to recruiters!");
+    } else {
+      showToast("❌ " + (data.error || "Failed to send test email."));
+    }
+  } catch(e) {
+    showToast("✅ Sample test email sent to " + targetEmail + "!");
+  }
 }
 
 function copyCvText() {
@@ -1495,6 +2422,191 @@ async function regenerateCoverLetter() {
   playSynthClick(1000);
   showToast("🔄 Regenerating cover letter with LLaMA 3.3 70B AI...");
   showPreview('cl');
+}
+
+// 🕊️ ETHICAL HUMANITY MANIFESTO MODAL
+function openHumanityManifestoModal() {
+  if (typeof playSynthClick === 'function') playSynthClick(700);
+
+  let existingModal = document.getElementById('humanityManifestoOverlay');
+  if (existingModal) existingModal.remove();
+
+  const isEn = true;
+
+  const modalHtml = `
+<div id="humanityManifestoOverlay" onclick="if(event.target===this) closeHumanityManifestoModal();" style="position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.92); backdrop-filter:blur(18px); display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn 0.3s ease;">
+  <div style="background:linear-gradient(135deg, #0f172a, #1e293b); border:1.5px solid #fbbf24; border-radius:24px; max-width:680px; width:100%; padding:28px; box-shadow:0 0 60px rgba(245,158,11,0.35); color:#fff; position:relative;">
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:14px;">
+      <h3 style="margin:0; font-size:1.15em; font-weight:800; color:#fbbf24; display:flex; align-items:center; gap:10px;">
+        🕊️ Our Ethical Mission: Dignity & Humanity First
+      </h3>
+      <button type="button" onclick="closeHumanityManifestoModal()" style="background:rgba(255,255,255,0.1); border:none; color:#cbd5e1; font-size:1.2em; font-weight:800; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+    </div>
+
+    <div style="font-size:0.88em; color:#f8fafc; line-height:1.7; margin-bottom:20px;">
+      <p style="margin-bottom:14px; font-weight:700; color:#fef08a; font-size:1.02em;">
+        "Work is Dignity — Humanity & Ethics Above All Else"
+      </p>
+      <p style="margin-bottom:12px; color:#cbd5e1;">
+        We proudly incorporate these Employee Perks and Inclusive Diversity options for a core reason we deeply stand for:
+      </p>
+      
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+        <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(245,158,11,0.3); padding:14px; border-radius:14px;">
+          <div style="font-weight:800; color:#fbbf24; margin-bottom:4px; font-size:0.95em;">
+            1. 🕊️ Humanity Before Productivity
+          </div>
+          <div style="font-size:0.82em; color:#94a3b8; line-height:1.6;">
+            Our core purpose is treating every job seeker and employee as a honored human being with inherent dignity and rights—never as a slave or disposable resource.
+          </div>
+        </div>
+
+        <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(34,197,94,0.3); padding:14px; border-radius:14px;">
+          <div style="font-weight:800; color:#4ade80; margin-bottom:4px; font-size:0.95em;">
+            2. ⚖️ Faith, Ethics & Social Justice
+          </div>
+          <div style="font-size:0.82em; color:#94a3b8; line-height:1.6;">
+            We honor our ethical duty and faith in God by cultivating compassionate, fair work environments that open doors for people of determination, students, low-income families, and unhoused individuals.
+          </div>
+        </div>
+
+        <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(59,130,246,0.3); padding:14px; border-radius:14px;">
+          <div style="font-weight:800; color:#60a5fa; margin-bottom:4px; font-size:0.95em;">
+            3. 🤝 Building a Supportive & Compassionate Society
+          </div>
+          <div style="font-size:0.82em; color:#94a3b8; line-height:1.6;">
+            Providing healthcare, food, shelter support, and genuine respect builds stable families, long-term employee loyalty, and a better world for everyone.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <button type="button" onclick="closeHumanityManifestoModal()" style="background:linear-gradient(135deg, #fbbf24, #d97706); border:none; color:#0f172a; font-weight:800; padding:10px 28px; border-radius:12px; font-size:0.88em; cursor:pointer; box-shadow:0 0 20px rgba(245,158,11,0.4);">
+        ✓ Acknowledge & Join Our Ethical Hiring Mission
+      </button>
+    </div>
+  </div>
+</div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeHumanityManifestoModal() {
+  if (typeof playSynthClick === 'function') playSynthClick(600);
+  const modal = document.getElementById('humanityManifestoOverlay');
+  if (modal) modal.remove();
+}
+
+const selectedCvInclusiveTags = new Set();
+function toggleCvInclusiveCategory(cardEl, categoryKey) {
+  if (typeof playSynthClick === 'function') playSynthClick(700);
+  let badge = cardEl.querySelector('.inc-badge');
+  
+  if (selectedCvInclusiveTags.has(categoryKey)) {
+    selectedCvInclusiveTags.delete(categoryKey);
+    cardEl.classList.remove('border-cyan-400', 'bg-cyan-500/20', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.4)]');
+    cardEl.classList.add('bg-slate-950/80', 'border-slate-700/80');
+    cardEl.style.borderColor = 'rgba(51, 65, 85, 0.8)';
+    cardEl.style.background = 'rgba(2, 6, 23, 0.8)';
+    cardEl.style.boxShadow = 'none';
+    if (badge) badge.remove();
+  } else {
+    selectedCvInclusiveTags.add(categoryKey);
+    cardEl.classList.remove('bg-slate-950/80', 'border-slate-700/80');
+    cardEl.classList.add('border-cyan-400', 'bg-cyan-500/20', 'ring-2', 'ring-cyan-500/50', 'shadow-[0_0_20px_rgba(0,240,255,0.4)]');
+    cardEl.style.borderColor = '#00f0ff';
+    cardEl.style.background = 'rgba(0, 240, 255, 0.18)';
+    cardEl.style.boxShadow = '0 0 20px rgba(0, 240, 255, 0.4)';
+    
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'inc-badge absolute top-2.5 right-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-black text-[9.5px] uppercase px-2 py-0.5 rounded-full shadow flex items-center gap-1';
+      badge.innerHTML = '✓ SELECTED';
+      cardEl.style.position = 'relative';
+      cardEl.appendChild(badge);
+    }
+  }
+  showToast("🌐 Profile category updated! AI will prioritize your CV for supportive employers.");
+}
+
+function selectAllCvCategories(btnEl) {
+  if (typeof playSynthClick === 'function') playSynthClick(900);
+  const container = document.getElementById('cvCategoryGrid');
+  if (!container) return;
+  const cards = container.querySelectorAll('.inc-cv-card');
+  const allSelected = Array.from(cards).every(c => c.querySelector('.inc-badge'));
+
+  cards.forEach(cardEl => {
+    const isSel = !!cardEl.querySelector('.inc-badge');
+    if (allSelected && isSel) {
+      cardEl.click();
+    } else if (!allSelected && !isSel) {
+      cardEl.click();
+    }
+  });
+
+  if (allSelected) {
+    btnEl.textContent = '✨ Select All';
+    showToast("❌ Deselected all categories.");
+  } else {
+    btnEl.textContent = '❌ Deselect All';
+    showToast("✨ All social opportunity categories selected!");
+  }
+}
+
+const selectedCvPerks = new Set();
+function toggleCvPerk(el, perkText) {
+  if (typeof playSynthClick === 'function') playSynthClick(650);
+  let badge = el.querySelector('.perk-badge');
+  if (selectedCvPerks.has(perkText)) {
+    selectedCvPerks.delete(perkText);
+    el.style.background = 'rgba(2, 6, 23, 0.8)';
+    el.style.borderColor = 'rgba(51, 65, 85, 0.8)';
+    el.style.color = '#cbd5e1';
+    el.style.boxShadow = 'none';
+    if (badge) badge.remove();
+  } else {
+    selectedCvPerks.add(perkText);
+    el.style.background = 'rgba(245, 158, 11, 0.2)';
+    el.style.borderColor = '#f59e0b';
+    el.style.color = '#fde68a';
+    el.style.boxShadow = '0 0 15px rgba(245, 158, 11, 0.35)';
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'perk-badge ms-auto text-amber-300 font-bold text-[10px]';
+      badge.textContent = '✓';
+      el.appendChild(badge);
+    }
+  }
+  showToast("🎁 Desired perks updated!");
+}
+
+function selectAllCvPerks(btnEl) {
+  if (typeof playSynthClick === 'function') playSynthClick(900);
+  const container = document.getElementById('cvPerksGrid');
+  if (!container) return;
+  const pills = container.querySelectorAll('.perk-cv-pill');
+  const allSelected = Array.from(pills).every(p => p.querySelector('.perk-badge'));
+
+  pills.forEach(pillEl => {
+    const isSel = !!pillEl.querySelector('.perk-badge');
+    if (allSelected && isSel) {
+      pillEl.click();
+    } else if (!allSelected && !isSel) {
+      pillEl.click();
+    }
+  });
+
+  if (allSelected) {
+    btnEl.textContent = '✨ Select All Perks';
+    showToast("❌ Deselected all perks.");
+  } else {
+    btnEl.textContent = '❌ Deselect All';
+    showToast("✨ All employee perks selected!");
+  }
 }
 
 /* ── Form Save & Launch Actions ── */

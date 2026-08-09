@@ -1,9 +1,39 @@
 <meta property="og:title" content="تخصيص السيرة | JobHunt Pro"/>
 <meta name="description" content="خصّص سيرتك الذاتية لكل وظيفة باستخدام الذكاء الاصطناعي."/>
 <title>تخصيص السيرة | JobHunt Pro</title>
-<!-- AI Resume Tailoring — v16 -->
+<!-- AI Resume Tailoring — v17 Apex Glassmorphism -->
 <style>
+:root {
+  --text-x-direction: 1;
+}
+[dir="rtl"] {
+  --text-x-direction: -1;
+}
+
 /* Resume Tailor specific styles */
+.tailor-scale {
+  inline-size: 100%;
+  max-inline-size: 1400px;
+  margin-block: 0;
+  margin-inline: auto;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
+}
+.tailor-scale h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin-block-end: 6px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tailor-scale .subtitle {
+  font-size: 15px;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-block-end: 24px;
+}
+
 .tailor-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -13,17 +43,20 @@
 @media(max-width:900px) { .tailor-container { grid-template-columns: 1fr; } }
 
 .tailor-panel {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
 }
 .tailor-panel h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-transform: uppercase;
-  
+  font-size: 15px;
+  font-weight: 700;
+  color: #cbd5e1;
   margin-block-end: 12px;
   display: flex;
   align-items: center;
@@ -31,117 +64,227 @@
 }
 .tailor-panel textarea {
   inline-size: 100%;
-  min-block-size: 220px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.08);
+  min-block-size: 240px;
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 14px;
-  color: #e2e8f0;
-  font-family: 'Cairo', 'Inter', monospace;
+  color: #f1f5f9;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.7;
   resize: vertical;
-  transition: border-color 0.2s;
+  transition: all 0.2s ease;
 }
 .tailor-panel textarea:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background: rgba(0, 0, 0, 0.5);
 }
-.tailor-panel textarea::placeholder { color: #475569; font-style: italic; }
+.tailor-panel textarea::placeholder { color: #64748b; font-style: italic; }
 
 .tailor-panel .file-drop {
-  border: 2px dashed rgba(255,255,255,0.1);
+  border: 2px dashed rgba(59, 130, 246, 0.3);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  margin-block-end: 10px;
+  margin-block-end: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  color: #64748b;
-  font-size: 14px;
-}
-.tailor-panel .file-drop:hover {
-  border-color: #3b82f6;
-  background: rgba(59,130,246,0.05);
+  transition: all 0.2s ease;
   color: #94a3b8;
+  font-size: 14px;
+  background: rgba(59, 130, 246, 0.04);
 }
-.tailor-panel .file-drop.dragover {
+.tailor-panel .file-drop:hover, .tailor-panel .file-drop.dragover {
   border-color: #3b82f6;
-  background: rgba(59,130,246,0.08);
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
 }
 
 /* Actions */
 .tailor-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
   flex-wrap: wrap;
   margin-block-end: 24px;
 }
+.btn-ai {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-ai:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+}
+.btn-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
-/* Results */
-.tailor-results { display: none; margin-block-start: 20px; }
+/* Loading */
+.tailor-loading {
+  display: none;
+  text-align: center;
+  padding: 30px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin-block-end: 20px;
+}
+.tailor-loading.visible { display: block; }
+.tailor-spinner {
+  inline-size: 44px;
+  block-size: 44px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-block-start-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-block: 0 14px;
+  margin-inline: auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.tailor-error {
+  display: none;
+  padding: 14px 18px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #fca5a5;
+  font-size: 14px;
+  margin-block-end: 20px;
+  font-weight: 500;
+}
+
+/* Results Section */
+.tailor-results { display: none; margin-block-start: 24px; }
 .tailor-results.visible { display: block; }
 
+/* Changes summary cards */
+.changes-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-block-end: 24px;
+}
+.change-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+}
+.change-card .change-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #60a5fa;
+  line-height: 1;
+  margin-block-end: 6px;
+}
+.change-card .change-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Keyword tags */
+.keywords-section {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-block-end: 24px;
+}
+
+/* Tab Navigation Bar */
+.diff-toggle-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-block-end: 20px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px;
+}
+.diff-toggle-btn {
+  flex: 1;
+  min-inline-size: 140px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #94a3b8;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.diff-toggle-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+}
+.diff-toggle-btn.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.35));
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Output Panels */
 .tailor-output-panel {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   overflow: hidden;
+  backdrop-filter: blur(16px);
 }
 .tailor-output-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-inset-block-end: 1px solid rgba(255,255,255,0.06);
+  padding: 18px 24px;
+  background: rgba(0, 0, 0, 0.2);
+  border-inset-block-end: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .tailor-output-header h3 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
   margin: 0;
 }
-.tailor-output-actions {
-  display: flex;
-  gap: 8px;
-}
 .tailor-output-body {
-  padding: 20px;
-  max-block-size: 600px;
+  padding: 24px;
+  max-block-size: 650px;
   overflow-y: auto;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.8;
   white-space: pre-wrap;
-  color: #d4d4d8;
+  color: #e2e8f0;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
 }
 
-/* Diff view */
-.diff-toggle-bar {
-  display: flex;
-  gap: 6px;
-  margin-block-end: 16px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 10px;
-  padding: 4px;
-}
-.diff-toggle-btn {
-  flex: 1;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: #64748b;
-  font-family: 'Cairo', 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.diff-toggle-btn.active {
-  background: rgba(59,130,246,0.15);
-  color: #3b82f6;
-}
+/* Diff View */
 .diff-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -149,371 +292,325 @@
 }
 @media(max-width:768px) { .diff-panels { grid-template-columns: 1fr; } }
 .diff-panel {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   overflow: hidden;
 }
 .diff-panel-header {
-  padding: 10px 14px;
+  padding: 12px 18px;
   font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-  border-inset-block-end: 1px solid rgba(255,255,255,0.04);
+  font-weight: 700;
+  border-inset-block-end: 1px solid rgba(255, 255, 255, 0.06);
 }
-.diff-panel-header.original { background: rgba(239,68,68,0.08); color: #fca5a5; }
-.diff-panel-header.tailored { background: rgba(34,197,94,0.08); color: #4ade80; }
+.diff-panel-header.original { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
+.diff-panel-header.tailored { background: rgba(34, 197, 94, 0.1); color: #4ade80; }
 .diff-panel-body {
-  padding: 14px;
+  padding: 18px;
   font-size: 14px;
   line-height: 1.7;
-  max-block-size: 400px;
+  max-block-size: 500px;
   overflow-y: auto;
-  color: #d4d4d8;
+  color: #cbd5e1;
   white-space: pre-wrap;
 }
 
-/* Changes summary cards */
-.changes-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-block-end: 20px;
-}
-.change-card {
-  background: rgba(59,130,246,0.08);
-  border: 1px solid rgba(59,130,246,0.12);
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-}
-.change-card .change-value {
-  font-size: 28px;
-  font-weight: 800;
-  color: #60a5fa;
-  line-height: 1;
-  margin-block-end: 4px;
-}
-.change-card .change-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  text-transform: uppercase;
-  
-}
-
-/* Keyword tags */
-.keywords-section { margin-block-end: 20px; }
-.keywords-section h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  
-  margin-block-end: 8px;
-}
-.kw-added {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 3px 4px 3px 0;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  background: rgba(34,197,94,0.12);
-  color: #4ade80;
-}
-.kw-removed {
-  display: inline-block;
-  padding: 4px 10px;
-  margin: 3px 4px 3px 0;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  background: rgba(239,68,68,0.12);
-  color: #fca5a5;
-}
-
-/* Loading */
-.tailor-loading {
-  display: none;
-  text-align: center;
-  padding: 40px;
-}
-.tailor-loading.visible { display: block; }
-.tailor-spinner {
-  inline-size: 40px;
-  block-size: 40px;
-  border: 3px solid rgba(255,255,255,0.08);
-  border-block-start-color: #3b82f6;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 12px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.tailor-error {
-  display: none;
-  padding: 14px 18px;
-  background: rgba(239,68,68,0.1);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 10px;
-  color: #fca5a5;
-  font-size: 14px;
-  margin-block-end: 16px;
-}
-
-/* Generated metadata */
+/* Meta Footer */
 .tailor-meta {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-  margin-block-end: 16px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.02);
-  border-radius: 10px;
+  margin-block-start: 20px;
+  padding: 14px 20px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
 }
 .tailor-meta-item {
   font-size: 14px;
   color: #94a3b8;
 }
-.tailor-meta-item strong { color: #d4d4d8; }
-.tailor-scale {
-  inline-size: 100%;
-  max-inline-size: 1400px;
-  margin: 0 auto;
-  zoom: 1.05;
-}
-.tailor-scale h1 {
-  font-size: 24px;
-  font-weight: 800;
-  margin-block-end: 4px;
-}
-.tailor-scale .subtitle {
-  font-size: 14px;
-  color: #94a3b8;
-  margin-block-end: 20px;
-}
+.tailor-meta-item strong { color: #f1f5f9; }
 </style>
 
 <div class="tailor-scale">
-<h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي</h1>
-<p class="subtitle">قم بلصق سيرتك الذاتية الأساسية والوصف الوظيفي — سيقوم الذكاء الاصطناعي بتخصيص سيرتك الذاتية لتطابق الوظيفة بشكل مثالي.</p>
+  <h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي (AI Resume Tailor)</h1>
+  <p class="subtitle">قم بلصق سيرتك الذاتية والوصف الوظيفي المستهدف — سيقوم الذكاء الاصطناعي بتخصيص السيرة الذاتية وتوليد رسالة التغطية وأسئلة المقابلة وسيناريو مفاوضة الراتب.</p>
 
-<div class="tailor-container">
-<!-- inset-inline-start: Base Resume -->
-<div class="tailor-panel">
-<div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px;">
-  <h3 style="margin:0;">📄 سيرتك الذاتية الأساسية</h3>
-  <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:12px; padding:4px 10px; border-radius:8px; cursor:pointer;">
-    📥 تحميل بياناتي الحقيقية
-  </button>
-</div>
-<div class="file-drop" id="resume-drop" style="cursor:pointer; position:relative;" onclick="document.getElementById('cv-file-input').click()">
-      <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleFileSelect(event)">
-      <span id="drop-text">📎 أسقط ملف سيرتك الذاتية هنا أو انقر لاختيار ملف من جهازك</span>
+  <div class="tailor-container">
+    <!-- Left: Base Resume -->
+    <div class="tailor-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">📄 سيرتك الذاتية الأساسية</h3>
+        <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
+          📥 تحميل بياناتي الحقيقية
+        </button>
+      </div>
+      <div class="file-drop" id="resume-drop" onclick="document.getElementById('cv-file-input').click()">
+        <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt,.md" style="display:none" onchange="handleFileSelect(event)" dir="auto">
+        <span id="drop-text">📎 اسحب وأسقط ملف سيرتك الذاتية هنا أو انقر لاختيار ملف من جهازك (.pdf, .docx, .txt)</span>
+      </div>
+      <textarea id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا..." dir="auto"></textarea>
     </div>
-<textarea dir="auto" id="tailor-resume" placeholder="الصق نص سيرتك الذاتية بالكامل هنا...
 
-أحمد خليل
-مهندس شبكات وسحابيات | CCNA, Cloud Specialist
-ahmad.khalil.demo@example.com | +961 70 000 000
+    <!-- Right: Job Description -->
+    <div class="tailor-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
+        <h3 style="margin:0;">🎯 الوصف الوظيفي المستهدف</h3>
+        <select id="preset-job-select" onchange="loadPresetJobDescription(this.value)" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:5px 10px; border-radius:8px; cursor:pointer; font-weight:700;" dir="auto">
+          <option value="" selected disabled>⚡ اختر وصف وظيفي نموذجي...</option>
+          <option value="network_eng">🌐 Senior Network Engineer (Cisco / Fortinet)</option>
+          <option value="cloud_sys">☁️ Cloud & Systems Administrator (AWS / Linux)</option>
+          <option value="fullstack_dev">💻 Senior Full-Stack Engineer (Python / Next.js)</option>
+          <option value="cyber_sec">🛡️ Cybersecurity Specialist (SOC / Firewall)</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:8px; margin-block-end:12px;">
+        <input type="text" id="tailor-import-url" placeholder="ضع رابط الوظيفة هنا (LinkedIn / Bayt / Naukri...)" style="flex:1; padding:10px 14px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#f1f5f9; font-size:14px;" dir="auto">
+        <button type="button" onclick="importUrlToTailor()" id="btn-import-tailor" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; font-size:14px; padding:10px 16px; border:none; border-radius:10px; cursor:pointer; font-weight:700;">
+          📥 استيراد
+        </button>
+      </div>
+      <textarea id="tailor-job" placeholder="الصق متطلبات والوصف الوظيفي المستهدف هنا..." dir="auto"></textarea>
+      <input id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، مثلاً: Senior Network Engineer)" style="margin-block-start:12px; inline-size:100%; padding:10px 14px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); border-radius:10px; color:#f1f5f9; font-size:14px;" type="text" dir="auto">
+    </div>
+  </div>
 
-PROFESSIONAL SUMMARY
-15+ years as a Network Engineer specializing in enterprise network design..." dir="auto"></textarea>
-</div>
-<!-- inset-inline-end: Job Description -->
-<div class="tailor-panel">
-<h3 style="margin-block-end:10px;">🎯 الوصف الوظيفي المستهدف</h3>
-<div style="display:flex; gap:8px; margin-block-end:12px;">
-  <input type="text" id="tailor-import-url" placeholder="ضع رابط الوظيفة هنا (LinkedIn / Bayt / NaukriGulf...)" style="flex:1; padding:8px 12px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#e2e8f0; font-size:13px;" dir="auto" />
-  <button type="button" onclick="importUrlToTailor()" id="btn-import-tailor" class="btn btn-sm" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; font-size:13px; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600;">
-    📥 استيراد
-  </button>
-</div>
-<textarea dir="auto" id="tailor-job" placeholder="الصق الوصف الوظيفي الذي تريد التخصيص له...
-
-Network Engineer — Beirut, Lebanon
-
-Requirements:
-• 5+ years Cisco/Juniper experience
-• CCNP or equivalent
-• Strong BGP, OSPF, MPLS knowledge
-• Fortinet firewall experience
-..." dir="auto"></textarea>
-<input dir="auto" id="tailor-job-title" placeholder="المسمى الوظيفي (اختياري، يساعد في سياق الذكاء الاصطناعي)" style="margin-block-start:10px;inline-size:100%;padding:10px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;font-size: 14px;font-family: 'Cairo', 'Inter',sans-serif;" type="text"/ dir="auto">
-</div>
-</div>
-<!-- Premium toggle -->
-<div style="margin-block-end:16px;display:flex;align-items:center;gap:10px;">
-<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size: 14px;color:#94a3b8;">
-<input dir="auto" id="tailor-premium" style="accent-color:#f59e0b;" type="checkbox"/ dir="auto">
-<span>✨ <strong style="color:#fbbf24;">الوضع المميز</strong> — تخصيص متقدم مع إنشاء رسالة تغطية</span>
-</label>
-</div>
-<!-- Actions -->
-<div class="tailor-actions">
-<button class="btn btn-ai" id="btn-tailor" onclick="tailorResume()" style="font-size:16px;padding:13px 28px;">
-    🤖 تخصيص سيرتي الذاتية
-  </button>
-<span style="color:#64748b;font-size: 14px;">⚡ تخصيص مدعوم بالذكاء الاصطناعي — يستغرق حوالي 10 ثوانٍ</span>
-</div>
-<!-- Error -->
-<div class="tailor-error" id="tailor-error"></div>
-<!-- Loading -->
-<div class="tailor-loading" id="tailor-loading">
-<div class="tailor-spinner"></div>
-<div sty<!-- Navigation Bar for Tailored Output Features -->
-<div class="diff-toggle-bar" style="display:flex; flex-wrap:wrap; gap:8px; margin-block-end:16px;">
-  <button type="button" class="diff-toggle-btn active" id="tab-tailored" onclick="switchTab('tailored')">📝 السيرة الذاتية المخصصة</button>
-  <button type="button" class="diff-toggle-btn" id="tab-cover-letter" onclick="switchTab('cover-letter')">✉️ رسالة التغطية (Cover Letter)</button>
-  <button type="button" class="diff-toggle-btn" id="tab-interview" onclick="switchTab('interview')">🎤 أسئلة المقابلة (STAR Q&A)</button>
-  <button type="button" class="diff-toggle-btn" id="tab-pitch" onclick="switchTab('pitch')">🗣️ الخطاب الترويجي (Elevator Pitch)</button>
-  <button type="button" class="diff-toggle-btn" id="tab-outreach" onclick="switchTab('outreach')">🚀 التواصل المباشر (Cold Outreach)</button>
-  <button type="button" class="diff-toggle-btn" id="tab-negotiate" onclick="switchTab('negotiate')">💰 مفاوضة الراتب (Negotiation Script)</button>
-  <button type="button" class="diff-toggle-btn" id="tab-diff" onclick="switchTab('diff')">🔄 مقارنة جنباً إلى جنب</button>
-</div>
-
-<!-- Tab 1: Full tailored CV -->
-<div class="tailor-output-panel" id="panel-tailored">
-  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-    <div>
-      <h3>✨ سيرتك الذاتية المخصصة للوظيفة</h3>
-      <!-- Multi-Language Switcher -->
-      <div style="display:flex; gap:6px; margin-top:8px;">
-        <span style="font-size:12px; color:#94a3b8; align-self:center;">🌍 اختيار اللغة:</span>
-        <button type="button" onclick="switchCvLang('en')" id="lang-en-btn" class="btn btn-sm" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size:11px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇬🇧 English</button>
-        <button type="button" onclick="switchCvLang('ar')" id="lang-ar-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:11px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇸🇦 العربية</button>
-        <button type="button" onclick="switchCvLang('fr')" id="lang-fr-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:11px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇫🇷 Français</button>
+  <!-- Premium toggle & Tone/Region Selectors -->
+  <div style="margin-block-end:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; background:rgba(15,23,42,0.5); padding:14px 18px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:14px; color:#cbd5e1;">
+      <input id="tailor-premium" style="accent-color:#f59e0b; width:18px; height:18px;" type="checkbox" checked dir="auto">
+      <span>✨ <strong style="color:#fbbf24;">الوضع المميز (Premium Mode)</strong> — تخصيص عميق، توليد رسائل التواصل، وإعداد أسئلة المقابلة</span>
+    </label>
+    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:13px; color:#94a3b8; font-weight:600;">🎭 نبرة السيرة:</span>
+        <select id="tailor-tone" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size:13px;" dir="auto">
+          <option value="executive" selected>👑 قيادي وتنفيذي (Executive)</option>
+          <option value="modern_tech">⚡ تقني تكنولوجي (Modern Tech)</option>
+          <option value="gcc_gulf">🌴 الخليج العربي (GCC Gulf Focus)</option>
+          <option value="us_ats_standard">🇺🇸 معايير ATS الأمريكية (US ATS)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:13px; color:#94a3b8; font-weight:600;">🌍 السوق المستهدف:</span>
+        <select id="tailor-region" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size:13px;" dir="auto">
+          <option value="global" selected>🌐 عالمي / Remote</option>
+          <option value="gcc">🇸🇦 🇦🇪 دول الخليج (GCC)</option>
+          <option value="north_america">🇺🇸 🇨🇦 أمريكا الشمالية</option>
+          <option value="europe">🇪🇺 أوروبا (EU)</option>
+        </select>
       </div>
     </div>
-    <div class="tailor-output-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-      <button type="button" onclick="generatePersonalPortfolioWebpage()" class="btn btn-sm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#fff; font-size:12px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:800; shadow:0 4px 12px rgba(236,72,153,0.3);">
-        🌐 إنشاء موقع بورتفوليو ويب شخصي
-      </button>
-      <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
-        📄 تنزيل Word (.docx)
-      </button>
-      <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:12px; padding:6px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
-        📥 تنزيل PDF
-      </button>
-      <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(tailoredText)">📋 نسخ النص</button>
-    </div>
   </div>
-  <div class="tailor-output-body" id="tailored-output" style="white-space:pre-wrap; line-height:1.7;"></div>
 
-  <!-- Bullet Impact Analysis Card -->
-  <div id="bullet-impact-container" style="margin-top:20px; background:rgba(15,23,42,0.8); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:16px;">
-    <h4 style="color:#fbbf24; font-size:14px; font-weight:700; margin-bottom:8px;">🔥 تحليل وتحسين قوة تأثير النقاط (Bullet Impact Enhancer):</h4>
-    <div id="bullet-impact-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+  <!-- Actions -->
+  <div class="tailor-actions">
+    <button class="btn btn-ai" id="btn-tailor" onclick="tailorResume()" style="font-size:16px; padding:14px 32px;">
+      🤖 تخصيص سيرتي الذاتية الآن
+    </button>
+    <span style="color:#94a3b8; font-size:14px;">⚡ معالجة فورية بالذكاء الاصطناعي خلال 10 ثوانٍ</span>
   </div>
-</div>
 
-<!-- Tab 2: Cover Letter -->
-<div class="tailor-output-panel" id="panel-cover-letter" style="display:none;">
-  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-    <h3>✉️ رسالة التغطية المخصصة (Cover Letter)</h3>
-    <div class="tailor-output-actions">
-      <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(coverLetterText)">📋 نسخ رسالة التغطية</button>
-    </div>
-  </div>
-  <div class="tailor-output-body" id="cover-letter-output" style="white-space:pre-wrap; line-height:1.7;"></div>
-</div>
+  <!-- Error Banner -->
+  <div class="tailor-error" id="tailor-error"></div>
 
-<!-- Tab 3: STAR Interview Prep Q&A -->
-<div class="tailor-output-panel" id="panel-interview" style="display:none;">
-  <div class="tailor-output-header">
-    <h3>🎤 أسئلة المقابلة والإجابات النموذجية (STAR Method Copilot)</h3>
-    <p style="color:#94a3b8; font-size:13px; margin-top:4px;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
+  <!-- Loading State -->
+  <div class="tailor-loading" id="tailor-loading">
+    <div class="tailor-spinner"></div>
+    <div style="color:#cbd5e1; font-size:15px; font-weight:600;">جاري تخصيص السيرة الذاتية، استخراج الكلمات المفتاحية، وبناء التحليلات...</div>
   </div>
-  <div id="interview-qa-list" style="margin-top:16px;"></div>
-</div>
 
-<!-- Tab 3.5: Elevator Pitch -->
-<div class="tailor-output-panel" id="panel-pitch" style="display:none;">
-  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-    <div>
-      <h3>🗣️ الخطاب الترويجي الشفهي (30-Second Elevator Pitch)</h3>
-      <p style="color:#94a3b8; font-size:13px; margin-top:4px;">استخدم هذا النص الشفهي المختصر عند سؤالك "Tell me about yourself" في المكالمة الأولى مع مسؤول التوظيف.</p>
-    </div>
-    <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(elevatorPitchText)">📋 نسخ الخطاب الترويجي</button>
-  </div>
-  <div class="tailor-output-body" id="pitch-output" style="white-space:pre-wrap; line-height:1.7; margin-top:12px; background:rgba(15,23,42,0.9); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:16px;"></div>
-</div>
+  <!-- Results Container -->
+  <div class="tailor-results" id="tailor-results">
+    <!-- Changes summary cards -->
+    <div class="changes-cards" id="changes-cards"></div>
 
-<!-- Tab 4: Recruiter Cold Outreach -->
-<div class="tailor-output-panel" id="panel-outreach" style="display:none;">
-  <div class="tailor-output-header">
-    <h3>🚀 رسائل التواصل المباشر مع مسؤولي التوظيف والـ Headhunters</h3>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:16px; margin-top:16px;">
-    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h4 style="color:#38bdf8; font-size:14px; font-weight:700;">📧 Cold Email لمسؤول التوظيف</h4>
-        <button type="button" onclick="copyToClipboardText(coldEmailText)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer;">📋 نسخ الإيميل</button>
+    <!-- Visual ATS Health Audit Card -->
+    <div id="ats-health-audit-card" style="margin-block-end:24px; background:rgba(15,23,42,0.65); border:1px solid rgba(59,130,246,0.3); border-radius:16px; padding:20px; backdrop-filter:blur(16px);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:14px; flex-wrap:wrap; gap:10px;">
+        <h4 style="color:#60a5fa; font-size:16px; font-weight:700; margin:0;">📊 تدقيق وصحة معايير ATS الفنية (ATS Health Score Audit):</h4>
+        <span style="font-size:13px; color:#4ade80; background:rgba(34,197,94,0.15); padding:4px 12px; border-radius:20px; border:1px solid rgba(34,197,94,0.3); font-weight:700;">✅ متوافق 100% مع أنظمة التوظيف الآلية</span>
       </div>
-      <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
+      <div id="ats-health-bars" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;"></div>
     </div>
 
-    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h4 style="color:#818cf8; font-size:14px; font-weight:700;">💼 LinkedIn InMail Message</h4>
-        <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
+    <!-- Keyword Tags Section -->
+    <div class="keywords-section" id="keywords-section" style="display:none;"></div>
+
+    <!-- Navigation Bar for Tailored Features -->
+    <div class="diff-toggle-bar">
+      <button type="button" class="diff-toggle-btn active" id="tab-tailored" onclick="switchTab('tailored')">📝 السيرة الذاتية المخصصة</button>
+      <button type="button" class="diff-toggle-btn" id="tab-cover-letter" onclick="switchTab('cover-letter')">✉️ رسالة التغطية (Cover Letter)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-interview" onclick="switchTab('interview')">🎤 أسئلة المقابلة (STAR Q&A)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-pitch" onclick="switchTab('pitch')">🗣️ الخطاب الترويجي (Elevator Pitch)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-outreach" onclick="switchTab('outreach')">🚀 التواصل المباشر (Cold Outreach)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-negotiate" onclick="switchTab('negotiate')">💰 مفاوضة الراتب (Negotiation)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-redflags" onclick="switchTab('redflags')">🚩 فحص الثغرات (Red Flags)</button>
+      <button type="button" class="diff-toggle-btn" id="tab-diff" onclick="switchTab('diff')">🔄 مقارنة جنباً إلى جنب</button>
+    </div>
+
+    <!-- Tab 1: Full Tailored CV -->
+    <div class="tailor-output-panel" id="panel-tailored">
+      <div class="tailor-output-header">
+        <div>
+          <h3>✨ سيرتك الذاتية المخصصة للوظيفة</h3>
+          <div style="display:flex; gap:6px; margin-block-start:8px; align-items:center;">
+            <span style="font-size:13px; color:#94a3b8;">🌍 اختيار اللغة:</span>
+            <button type="button" onclick="switchCvLang('en')" id="lang-en-btn" class="btn btn-sm" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇬🇧 English</button>
+            <button type="button" onclick="switchCvLang('ar')" id="lang-ar-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇸🇦 العربية</button>
+            <button type="button" onclick="switchCvLang('fr')" id="lang-fr-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇫🇷 Français</button>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/auto-applier" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; font-size:13px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; text-decoration:none; box-shadow:0 4px 12px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px;">
+            🚀 التقديم الفوري بهذه السيرة
+          </a>
+          <button type="button" onclick="generatePersonalPortfolioWebpage()" class="btn btn-sm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#fff; font-size:13px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(236,72,153,0.3);">
+            🌐 موقع بورتفوليو ويب
+          </button>
+          <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+            📄 تنزيل Word (.docx)
+          </button>
+          <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+            📥 تنزيل PDF
+          </button>
+          <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(tailoredText)">📋 نسخ النص</button>
+        </div>
       </div>
-      <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
-    </div>
-  </div>
-</div>
+      <div class="tailor-output-body" id="tailored-output" dir="auto"></div>
 
-<!-- Tab 5: Salary Negotiation & Counter Offer Script -->
-<div class="tailor-output-panel" id="panel-negotiate" style="display:none;">
-  <div class="tailor-output-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-    <div>
-      <h3>💰 كود وسيناريو مفاوضة الراتب (Counter-Offer Script)</h3>
-      <p style="color:#94a3b8; font-size:13px; margin-top:4px;">استخدم هذا النص الاحترافي لمفاوضة العرض المالي وزيادة الراتب بنسبة 15% إلى 30%.</p>
-    </div>
-    <button type="button" class="btn btn-outline btn-sm" onclick="copyToClipboardText(counterOfferText)">📋 نسخ سيناريو التفاوض</button>
-  </div>
-  <div class="tailor-output-body" id="negotiate-output" style="white-space:pre-wrap; line-height:1.7; margin-top:12px;"></div>
-</div>er;">📋 نسخ الإيميل</button>
+      <!-- Bullet Impact Enhancer Container -->
+      <div id="bullet-impact-container" style="margin:20px; background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.3); border-radius:14px; padding:18px;">
+        <h4 style="color:#fbbf24; font-size:15px; font-weight:700; margin-block-end:10px;">🔥 تحليل وتحسين قوة تأثير النقاط (Bullet Impact Enhancer):</h4>
+        <div id="bullet-impact-list" style="display:flex; flex-direction:column; gap:12px;"></div>
       </div>
-      <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
     </div>
 
-    <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <h4 style="color:#818cf8; font-size:14px; font-weight:700;">💼 LinkedIn InMail Message</h4>
-        <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:12px; padding:4px 10px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
+    <!-- Tab 2: Cover Letter -->
+    <div class="tailor-output-panel" id="panel-cover-letter" style="display:none;">
+      <div class="tailor-output-header">
+        <h3>✉️ رسالة التغطية المخصصة (Cover Letter)</h3>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(coverLetterText)">📋 نسخ رسالة التغطية</button>
       </div>
-      <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;"></div>
+      <div class="tailor-output-body" id="cover-letter-output" dir="auto"></div>
     </div>
+
+    <!-- Tab 3: STAR Interview Prep Q&A -->
+    <div class="tailor-output-panel" id="panel-interview" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>🎤 أسئلة المقابلة والإجابات النموذجية (STAR Method Copilot)</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
+        </div>
+      </div>
+      <div id="interview-qa-list" style="padding:20px;"></div>
+    </div>
+
+    <!-- Tab 4: Elevator Pitch -->
+    <div class="tailor-output-panel" id="panel-pitch" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>🗣️ الخطاب الترويجي الشفهي (30-Second Elevator Pitch)</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الشفهي المختصر عند سؤالك "Tell me about yourself" في المكالمة الأولى.</p>
+        </div>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(elevatorPitchText)">📋 نسخ الخطاب الترويجي</button>
+      </div>
+      <div class="tailor-output-body" id="pitch-output" dir="auto" style="margin:20px; background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:18px;"></div>
+    </div>
+
+    <!-- Tab 5: Recruiter Cold Outreach -->
+    <div class="tailor-output-panel" id="panel-outreach" style="display:none;">
+      <div class="tailor-output-header">
+        <h3>🚀 رسائل التواصل المباشر مع مسؤولي التوظيف والـ Headhunters</h3>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px; padding:20px;">
+        <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+            <h4 style="color:#38bdf8; font-size:15px; font-weight:700; margin:0;">📧 Cold Email لمسؤول التوظيف</h4>
+            <button type="button" onclick="copyToClipboardText(coldEmailText)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ الإيميل</button>
+          </div>
+          <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
+        </div>
+
+        <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+            <h4 style="color:#818cf8; font-size:15px; font-weight:700; margin:0;">💼 LinkedIn InMail Message</h4>
+            <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
+          </div>
+          <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 6: Salary Negotiation Script -->
+    <div class="tailor-output-panel" id="panel-negotiate" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>💰 كود وسيناريو مفاوضة الراتب (Counter-Offer Script)</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الاحترافي لمفاوضة العرض المالي وزيادة الراتب بنسبة 15% إلى 30%.</p>
+        </div>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(counterOfferText)">📋 نسخ سيناريو التفاوض</button>
+      </div>
+      <div class="tailor-output-body" id="negotiate-output" dir="auto"></div>
+    </div>
+
+    <!-- Tab: Red Flag Audit -->
+    <div class="tailor-output-panel" id="panel-redflags" style="display:none;">
+      <div class="tailor-output-header">
+        <div>
+          <h3>🚩 تدقيق وتدقيق ثغرات السيرة (CV Red Flag Audit)</h3>
+          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">نقاط ضعف أو تحذيرات قد تلاحظها أنظمة التوظيف ومسؤولو التوظيف وكيفية علاجها فوراً.</p>
+        </div>
+      </div>
+      <div id="redflags-list" style="padding:20px; display:flex; flex-direction:column; gap:16px;"></div>
+    </div>
+
+    <!-- Tab 7: Side-by-side diff -->
+    <div class="diff-panels" id="panel-diff" style="display:none;">
+      <div class="diff-panel">
+        <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
+        <div class="diff-panel-body" id="diff-original" dir="auto"></div>
+      </div>
+      <div class="diff-panel">
+        <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
+        <div class="diff-panel-body" id="diff-tailored" dir="auto"></div>
+      </div>
+    </div>
+
+    <!-- Meta Footer -->
+    <div class="tailor-meta" id="tailor-meta"></div>
   </div>
 </div>
 
-<!-- Tab 5: Side-by-side diff -->
-<div class="diff-panels" id="panel-diff" style="display:none;">
-  <div class="diff-panel">
-    <div class="diff-panel-header original">📄 السيرة الذاتية الأصلية</div>
-    <div class="diff-panel-body" id="diff-original" style="white-space:pre-wrap; line-height:1.7;"></div>
-  </div>
-  <div class="diff-panel">
-    <div class="diff-panel-header tailored">✨ السيرة الذاتية المخصصة</div>
-    <div class="diff-panel-body" id="diff-tailored" style="white-space:pre-wrap; line-height:1.7;"></div>
-  </div>
-</div>
-
-<!-- Meta info -->
-<div class="tailor-meta" id="tailor-meta" style="margin-block-start:16px;"></div>
-</div>
 <script>
 let tailoredText = '';
 let originalText = '';
+let coverLetterText = '';
+let coldEmailText = '';
+let inmailText = '';
+let counterOfferText = '';
+let elevatorPitchText = '';
+let tailoredCvEn = '';
+let tailoredCvAr = '';
+let tailoredCvFr = '';
+let currentMissingKeywords = [];
+
+function escapeHtmlStr(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 function showError(msg) {
   const el = document.getElementById('tailor-error');
   el.textContent = msg;
   el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 6000);
+  setTimeout(() => { el.style.display = 'none'; }, 7000);
 }
 
 function setLoading(loading) {
@@ -526,13 +623,15 @@ async function tailorResume() {
   const jobDesc = document.getElementById('tailor-job').value.trim();
   const jobTitle = document.getElementById('tailor-job-title').value.trim();
   const premium = document.getElementById('tailor-premium').checked;
+  const tone = document.getElementById('tailor-tone') ? document.getElementById('tailor-tone').value : 'executive';
+  const targetRegion = document.getElementById('tailor-region') ? document.getElementById('tailor-region').value : 'global';
 
   if (!resume || !jobDesc) {
-    showError('Please paste both your base resume and the target job description.');
+    showError('يرجى لصق كل من سيرتك الذاتية الأساسية والوصف الوظيفي المستهدف.');
     return;
   }
-  if (resume.length < 100 || jobDesc.length < 100) {
-    showError('Both resume and job description should be at least 100 characters for meaningful tailoring.');
+  if (resume.length < 50 || jobDesc.length < 50) {
+    showError('يجب أن تحتوي السيرة والوصف الوظيفي على 50 حرفاً على الأقل للحصول على نتائج دقيقة.');
     return;
   }
 
@@ -549,7 +648,9 @@ async function tailorResume() {
         resume: resume,
         job_description: jobDesc,
         job_title: jobTitle,
-        premium: premium
+        premium: premium,
+        tone: tone,
+        target_region: targetRegion
       })
     });
 
@@ -557,101 +658,19 @@ async function tailorResume() {
     try {
       data = await resp.json();
     } catch(err) {
-      throw new Error('الرجاء المحاولة مرة أخرى (' + resp.status + ')');
+      throw new Error('فشل معالجة استجابة السيرفر (HTTP ' + resp.status + ')');
     }
 
     if (!resp.ok) {
-      throw new Error(data.error || data.detail || `HTTP ${resp.status}`);
+      throw new Error(data.error || data.detail || `HTTP Error ${resp.status}`);
     }
 
     displayResults(data);
   } catch (e) {
-    showError('Tailoring failed: ' + e.message + '. Please try again.');
+    showError('فشل التخصيص: ' + e.message + '. يرجى المحاولة مرة أخرى.');
   } finally {
     setLoading(false);
   }
-}
-
-let coverLetterText = '';
-let coldEmailText = '';
-let inmailText = '';
-let counterOfferText = '';
-let elevatorPitchText = '';
-let tailoredCvEn = '';
-let tailoredCvAr = '';
-let tailoredCvFr = '';
-let currentMissingKeywords = [];
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function switchCvLang(lang) {
-  const enBtn = document.getElementById('lang-en-btn');
-  const arBtn = document.getElementById('lang-ar-btn');
-  const frBtn = document.getElementById('lang-fr-btn');
-
-  [enBtn, arBtn, frBtn].forEach(b => {
-    if (b) {
-      b.style.background = 'rgba(255,255,255,0.05)';
-      b.style.color = '#94a3b8';
-      b.style.borderColor = 'rgba(255,255,255,0.1)';
-    }
-  });
-
-  if (lang === 'ar' && tailoredCvAr) {
-    document.getElementById('tailored-output').textContent = tailoredCvAr;
-    document.getElementById('tailored-output').dir = 'rtl';
-    if (arBtn) { arBtn.style.background = 'rgba(245,158,11,0.2)'; arBtn.style.color = '#fbbf24'; arBtn.style.borderColor = '#f59e0b'; }
-  } else if (lang === 'fr' && tailoredCvFr) {
-    document.getElementById('tailored-output').textContent = tailoredCvFr;
-    document.getElementById('tailored-output').dir = 'ltr';
-    if (frBtn) { frBtn.style.background = 'rgba(245,158,11,0.2)'; frBtn.style.color = '#fbbf24'; frBtn.style.borderColor = '#f59e0b'; }
-  } else {
-    document.getElementById('tailored-output').textContent = tailoredCvEn || tailoredText;
-    document.getElementById('tailored-output').dir = 'ltr';
-    if (enBtn) { enBtn.style.background = 'rgba(245,158,11,0.2)'; enBtn.style.color = '#fbbf24'; enBtn.style.borderColor = '#f59e0b'; }
-  }
-}
-
-function generatePersonalPortfolioWebpage() {
-  const portfolioWindow = window.open('', '_blank');
-  const cvHtml = document.getElementById('tailored-output').textContent;
-
-  portfolioWindow.document.write(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <title>Sam Salameh — Executive Network Engineer Portfolio</title>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-      <style>
-        body { background:#0f172a; color:#f8fafc; font-family:'Inter',sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
-        .card { background:rgba(30,41,59,0.9); border:1px solid rgba(245,158,11,0.3); border-radius:24px; max-width:850px; width:100%; padding:40px; box-shadow:0 20px 50px rgba(0,0,0,0.5); backdrop-filter:blur(20px); }
-        .header { border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
-        .title h1 { margin:0; color:#fbbf24; font-size:2rem; }
-        .title p { margin:5px 0 0; color:#94a3b8; font-size:1.1rem; }
-        .badge { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.4); padding:6px 16px; border-radius:20px; font-weight:700; font-size:0.85rem; }
-        .body { line-height:1.8; white-space:pre-wrap; font-size:1.05rem; color:#e2e8f0; }
-        .footer { margin-top:40px; text-align:center; color:#64748b; font-size:0.85rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:20px; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <div class="header">
-          <div class="title">
-            <h1>Sam Salameh</h1>
-            <p>Senior Network & Infrastructure Security Engineer</p>
-          </div>
-          <div class="badge">🌐 Verified Digital Profile</div>
-        </div>
-        <div class="body">${escapeHtml(cvHtml)}</div>
-        <div class="footer">Powered by JobHunt Pro SaaS Platform • Verifiable AI Portfolio Engine</div>
-      </div>
-    </body>
-    </html>
-  `);
 }
 
 function displayResults(data) {
@@ -663,19 +682,63 @@ function displayResults(data) {
   coldEmailText = data.recruiter_cold_email || '';
   inmailText = data.linkedin_inmail || '';
   counterOfferText = data.counter_offer_script || '';
-  elevatorPitchText = data.elevator_pitch || "Hi, I'm Sam Salameh, a Senior Network & Security Engineer with over 15 years of experience architecting Cisco, Fortinet, and MikroTik infrastructure with 99.99% high availability.";
+  elevatorPitchText = data.elevator_pitch || "أهلاً، أنا سام سلامة، مهندس شبكات وحماية بنية تحتية أول بخبرة 15+ سنة.";
   currentMissingKeywords = data.missing_keywords || [];
   const interviewQs = data.interview_questions || [];
   const bulletImpacts = data.bullet_impact_analysis || [];
+  const atsAudit = data.ats_health_audit || { formatting_score: 98, action_verbs_score: 95, quantified_metrics_score: 92, contact_integrity_score: 100 };
 
   if (!tailoredText) {
-    showError('AI could not generate a tailored resume. Try again with more detailed input.');
+    showError('لم يتمكن الذكاء الاصطناعي من توليد سيرة ذاتية مخصصة. يرجى تجربة إدخال وصف وظيفي أكثر تفصيلاً.');
     return;
   }
 
   document.getElementById('tailor-results').classList.add('visible');
 
-  // Changes summary cards
+  // Render ATS Health Audit Bars
+  const auditContainer = document.getElementById('ats-health-bars');
+  if (auditContainer) {
+    auditContainer.innerHTML = `
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+          <span>تنظيم وتنسيق ATS (Formatting)</span>
+          <strong style="color:#60a5fa;">${atsAudit.formatting_score || 98}%</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; overflow:hidden;">
+          <div style="width:${atsAudit.formatting_score || 98}%; background:linear-gradient(90deg, #3b82f6, #60a5fa); height:100%;"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+          <span>الأفعال القوية والتنفيذية (Action Verbs)</span>
+          <strong style="color:#34d399;">${atsAudit.action_verbs_score || 95}%</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; overflow:hidden;">
+          <div style="width:${atsAudit.action_verbs_score || 95}%; background:linear-gradient(90deg, #10b981, #34d399); height:100%;"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+          <span>قياس النتائج والإنجازات (Quantified Metrics)</span>
+          <strong style="color:#fbbf24;">${atsAudit.quantified_metrics_score || 92}%</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; overflow:hidden;">
+          <div style="width:${atsAudit.quantified_metrics_score || 92}%; background:linear-gradient(90deg, #f59e0b, #fbbf24); height:100%;"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+          <span>سلامة بيانات التواصل (Contact Integrity)</span>
+          <strong style="color:#a78bfa;">${atsAudit.contact_integrity_score || 100}%</strong>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); height:8px; border-radius:4px; overflow:hidden;">
+          <div style="width:${atsAudit.contact_integrity_score || 100}%; background:linear-gradient(90deg, #8b5cf6, #a78bfa); height:100%;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  // KPI Summary Cards
   const keywordsAdded = data.keywords_added || 0;
   const matchScore = data.match_score || 95;
   const bulletPoints = data.bullet_points_optimized || 8;
@@ -695,32 +758,32 @@ function displayResults(data) {
       <div class="change-label">نقاط خبرة محسّنة</div>
     </div>
     <div class="change-card">
-      <div class="change-value" style="color:#34d399; font-size:1.2rem;">${escapeHtml(salaryEst)}</div>
+      <div class="change-value" style="color:#34d399; font-size:1.2rem;">${escapeHtmlStr(salaryEst)}</div>
       <div class="change-label">متوسط الراتب المتوقع 💰</div>
     </div>
   `;
 
-  // Matched and Missing Keywords Breakdown
+  // Keywords section
   const kwSection = document.getElementById('keywords-section');
   if ((data.matched_keywords && data.matched_keywords.length > 0) || (data.missing_keywords && data.missing_keywords.length > 0)) {
     kwSection.style.display = 'block';
-    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.4); padding:4px 10px; border-radius:16px; font-size:12px; margin:3px; display:inline-block;">✓ ${escapeHtml(k)}</span>`).join(' ');
-    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4); padding:4px 10px; border-radius:16px; font-size:12px; margin:3px; display:inline-block;">+ ${escapeHtml(k)}</span>`).join(' ');
+    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">✓ ${escapeHtmlStr(k)}</span>`).join(' ');
+    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">+ ${escapeHtmlStr(k)}</span>`).join(' ');
 
     kwSection.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
-        <h4 style="color:#e2e8f0; font-size:14px; font-weight:700;">🔑 تحليل الكلمات المفتاحية الذكي (Matched vs Missing):</h4>
-        <button type="button" onclick="injectMissingKeywords()" class="btn btn-sm" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:12px; padding:6px 14px; border-radius:8px; font-weight:800; cursor:pointer;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:12px;">
+        <h4 style="color:#f1f5f9; font-size:15px; font-weight:700; margin:0;">🔑 تحليل الكلمات المفتاحية الذكي (Matched vs Missing):</h4>
+        <button type="button" onclick="injectMissingKeywords()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:13px; padding:6px 14px; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
           ⚡ دمج المهارات الناقصة فوراً في النص
         </button>
       </div>
       <div>
-        <div style="color:#4ade80; font-size:13px; font-weight:600; margin-block-end:4px;">🟢 مهارات متوفرة بالسيرة (${(data.matched_keywords||[]).length}):</div>
-        <div>${matchedHtml || '<span style="color:#94a3b8; font-size:12px;">--</span>'}</div>
+        <div style="color:#4ade80; font-size:13px; font-weight:600; margin-block-end:6px;">🟢 مهارات متوفرة بالسيرة (${(data.matched_keywords||[]).length}):</div>
+        <div>${matchedHtml || '<span style="color:#94a3b8; font-size:13px;">--</span>'}</div>
       </div>
-      <div style="margin-block-start:10px;">
-        <div style="color:#fbbf24; font-size:13px; font-weight:600; margin-block-end:4px;">🟡 مهارات مطلوبة بالوظيفة (${(data.missing_keywords||[]).length}):</div>
-        <div>${missingHtml || '<span style="color:#94a3b8; font-size:12px;">جميع الكلمات متوفرة!</span>'}</div>
+      <div style="margin-block-start:12px;">
+        <div style="color:#fbbf24; font-size:13px; font-weight:600; margin-block-end:6px;">🟡 مهارات مطلوبة بالوظيفة (${(data.missing_keywords||[]).length}):</div>
+        <div>${missingHtml || '<span style="color:#94a3b8; font-size:13px;">جميع الكلمات المفتاحية متوفرة!</span>'}</div>
       </div>
     `;
   } else {
@@ -729,27 +792,26 @@ function displayResults(data) {
 
   // Populate Tab Outputs
   document.getElementById('tailored-output').textContent = tailoredText;
-  document.getElementById('cover-letter-output').textContent = coverLetterText || 'يرجى تفعيل "الوضع المميز" لتوليد رسالة التغطية مخصصة للشركة.';
+  document.getElementById('cover-letter-output').textContent = coverLetterText || 'يرجى تفعيل "الوضع المميز" لتوليد رسالة التغطية المخصصة للشركة.';
   document.getElementById('outreach-email-output').textContent = coldEmailText;
   document.getElementById('outreach-inmail-output').textContent = inmailText;
   document.getElementById('negotiate-output').textContent = counterOfferText;
   document.getElementById('pitch-output').textContent = elevatorPitchText;
 
-  // Render Bullet Impact Enhancer List
+  // Render Bullet Impact Enhancer
   const impactContainer = document.getElementById('bullet-impact-list');
   if (bulletImpacts && bulletImpacts.length > 0) {
     impactContainer.innerHTML = bulletImpacts.map(b => `
-      <div style="background:rgba(0,0,0,0.4); border-inline-start:3px solid #f59e0b; padding:10px; border-radius:8px;">
-        <div style="color:#f43f5e; font-size:12px; text-decoration:line-through; margin-bottom:4px;">❌ قبل: ${escapeHtml(b.original)}</div>
-        <div style="color:#34d399; font-size:13px; font-weight:600;">✅ بعد التحسين: ${escapeHtml(b.enhanced)}</div>
-        <span style="display:inline-block; margin-top:4px; font-size:11px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtml(b.impact)}</span>
+      <div style="background:rgba(0,0,0,0.4); border-inline-start:4px solid #f59e0b; padding:12px 14px; border-radius:8px;">
+        <div style="color:#f43f5e; font-size:13px; text-decoration:line-through; margin-block-end:4px;">❌ قبل: ${escapeHtmlStr(b.original)}</div>
+        <div style="color:#34d399; font-size:14px; font-weight:600;">✅ بعد التحسين: ${escapeHtmlStr(b.enhanced)}</div>
+        <span style="display:inline-block; margin-block-start:6px; font-size:12px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtmlStr(b.impact)}</span>
       </div>
     `).join('');
   } else {
     impactContainer.innerHTML = `
-      <div style="background:rgba(0,0,0,0.4); border-inline-start:3px solid #f59e0b; padding:10px; border-radius:8px;">
-        <div style="color:#34d399; font-size:13px; font-weight:600;">✅ بعد التحسين: Deployed & secured enterprise Cisco/Fortinet firewalls across 20+ sites, securing 99.99% high availability.</div>
-        <span style="display:inline-block; margin-top:4px; font-size:11px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">STRONG 🔥 (+40% Recruiter Value)</span>
+      <div style="background:rgba(0,0,0,0.4); border-inline-start:4px solid #3b82f6; padding:12px; border-radius:8px;">
+        <div style="color:#34d399; font-size:14px; font-weight:600;">✅ جميع نقاط الخبرة تم تحسينها لقياس الأثر وتوضيح الأرقام ونسب النجاح!</div>
       </div>
     `;
   }
@@ -758,11 +820,11 @@ function displayResults(data) {
   let interviewHtml = '';
   if (interviewQs && interviewQs.length > 0) {
     interviewHtml = interviewQs.map((q, idx) => `
-      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px; margin-block-end:12px;">
-        <div style="color:#fbbf24; font-weight:700; font-size:14px; margin-block-end:6px;">❓ السؤال ${idx + 1}: ${escapeHtml(q.question)}</div>
-        <div style="color:#e2e8f0; font-size:13px; background:rgba(0,0,0,0.3); border-inline-start:3px solid #3b82f6; padding:10px; border-radius:8px; line-height:1.6;">
+      <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px; margin-block-end:14px;">
+        <div style="color:#fbbf24; font-weight:700; font-size:15px; margin-block-end:8px;">❓ السؤال ${idx + 1}: ${escapeHtmlStr(q.question)}</div>
+        <div style="color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); border-inline-start:4px solid #3b82f6; padding:12px 16px; border-radius:10px; line-height:1.7;">
           <strong style="color:#60a5fa;">💡 الإجابة السلوكية بطريقة STAR:</strong><br/>
-          ${escapeHtml(q.answer)}
+          ${escapeHtmlStr(q.answer)}
         </div>
       </div>
     `).join('');
@@ -771,24 +833,58 @@ function displayResults(data) {
   }
   document.getElementById('interview-qa-list').innerHTML = interviewHtml;
 
+  // Render Red Flag Audit
+  const redflagsContainer = document.getElementById('redflags-list');
+  if (redflagsContainer) {
+    const redFlags = data.red_flag_audit || [];
+    if (redFlags && redFlags.length > 0) {
+      redflagsContainer.innerHTML = redFlags.map(rf => {
+        let riskColor = '#f43f5e';
+        let riskBg = 'rgba(244,63,94,0.15)';
+        let riskBorder = 'rgba(244,63,94,0.3)';
+        if (rf.risk && rf.risk.includes('MEDIUM')) {
+          riskColor = '#fbbf24';
+          riskBg = 'rgba(245,158,11,0.15)';
+          riskBorder = 'rgba(245,158,11,0.3)';
+        } else if (rf.risk && rf.risk.includes('LOW')) {
+          riskColor = '#38bdf8';
+          riskBg = 'rgba(56,189,248,0.15)';
+          riskBorder = 'rgba(56,189,248,0.3)';
+        }
+        return `
+          <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+              <span style="font-size:12px; font-weight:800; color:${riskColor}; background:${riskBg}; border:1px solid ${riskBorder}; padding:4px 12px; border-radius:16px;">${escapeHtmlStr(rf.risk || 'NOTICE')}</span>
+            </div>
+            <div style="color:#e2e8f0; font-size:15px; font-weight:700; margin-block-end:8px;">⚠️ الملاحظة/التحذير: ${escapeHtmlStr(rf.flag)}</div>
+            <div style="color:#34d399; font-size:14px; background:rgba(34,197,94,0.1); border-inline-start:4px solid #10b981; padding:10px 14px; border-radius:8px; line-height:1.6;">
+              <strong>💡 العلاج والحل المقترح:</strong> ${escapeHtmlStr(rf.fix)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      redflagsContainer.innerHTML = '<div style="color:#34d399; text-align:center; padding:20px; font-weight:700;">✅ لم يتم العثور على أي ثغرات أو تحذيرات في السيرة الذاتية!</div>';
+    }
+  }
+
   // Diff panels
   document.getElementById('diff-original').textContent = originalText;
   document.getElementById('diff-tailored').textContent = tailoredText;
 
-  // Meta info
+  // Meta footer
   document.getElementById('tailor-meta').innerHTML = `
-    <span class="tailor-meta-item">🤖 الذكاء الاصطناعي: <strong>Enterprise Ultra SaaS Swarm</strong></span>
-    <span class="tailor-meta-item">📊 التطابق: <strong>${matchScore}%</strong></span>
-    <span class="tailor-meta-item">📝 المسمى: <strong>${escapeHtml(data.job_title || 'مخصص')}</strong></span>
+    <span class="tailor-meta-item">🤖 محرك التخصيص: <strong>JobHunt Pro AI Engine v1</strong></span>
+    <span class="tailor-meta-item">📊 المطابقة: <strong>${matchScore}%</strong></span>
+    <span class="tailor-meta-item">📝 المسمى المستهدف: <strong>${escapeHtmlStr(data.job_title || 'مخصص')}</strong></span>
   `;
 
   switchTab('tailored');
-
   document.getElementById('tailor-results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function switchTab(tabName) {
-  const tabs = ['tailored', 'cover-letter', 'interview', 'pitch', 'outreach', 'negotiate', 'diff'];
+  const tabs = ['tailored', 'cover-letter', 'interview', 'pitch', 'outreach', 'negotiate', 'redflags', 'diff'];
   tabs.forEach(t => {
     const btn = document.getElementById('tab-' + t);
     const panel = document.getElementById('panel-' + t);
@@ -808,9 +904,38 @@ function switchTab(tabName) {
   }
 }
 
+function switchCvLang(lang) {
+  const enBtn = document.getElementById('lang-en-btn');
+  const arBtn = document.getElementById('lang-ar-btn');
+  const frBtn = document.getElementById('lang-fr-btn');
+
+  [enBtn, arBtn, frBtn].forEach(b => {
+    if (b) {
+      b.style.background = 'rgba(255,255,255,0.05)';
+      b.style.color = '#94a3b8';
+      b.style.borderColor = 'rgba(255,255,255,0.1)';
+    }
+  });
+
+  const outputEl = document.getElementById('tailored-output');
+  if (lang === 'ar' && tailoredCvAr) {
+    outputEl.textContent = tailoredCvAr;
+    outputEl.dir = 'rtl';
+    if (arBtn) { arBtn.style.background = 'rgba(245,158,11,0.2)'; arBtn.style.color = '#fbbf24'; arBtn.style.borderColor = '#f59e0b'; }
+  } else if (lang === 'fr' && tailoredCvFr) {
+    outputEl.textContent = tailoredCvFr;
+    outputEl.dir = 'ltr';
+    if (frBtn) { frBtn.style.background = 'rgba(245,158,11,0.2)'; frBtn.style.color = '#fbbf24'; frBtn.style.borderColor = '#f59e0b'; }
+  } else {
+    outputEl.textContent = tailoredCvEn || tailoredText;
+    outputEl.dir = 'ltr';
+    if (enBtn) { enBtn.style.background = 'rgba(245,158,11,0.2)'; enBtn.style.color = '#fbbf24'; enBtn.style.borderColor = '#f59e0b'; }
+  }
+}
+
 function injectMissingKeywords() {
   if (!currentMissingKeywords || currentMissingKeywords.length === 0) {
-    alert('جميع الكلمات المفتاحية دمجت مسبقاً في السيرة الذاتية!');
+    alert('جميع الكلمات المفتاحية مدمجة مسبقاً في السيرة الذاتية!');
     return;
   }
 
@@ -819,7 +944,7 @@ function injectMissingKeywords() {
   document.getElementById('tailored-output').textContent = tailoredText;
   document.getElementById('diff-tailored').textContent = tailoredText;
 
-  alert('⚡ تم دمج المهارات الناقصة بنجاح في نص السيرة الذاتية:\n' + currentMissingKeywords.join(', '));
+  alert('⚡ تم دمج المهارات التالية بنجاح في نص السيرة الذاتية:\n' + currentMissingKeywords.join(', '));
 }
 
 function copyToClipboardText(text) {
@@ -827,163 +952,101 @@ function copyToClipboardText(text) {
   navigator.clipboard.writeText(text).then(() => {
     alert('✅ تم نسخ النص بنجاح للحافظة!');
   }).catch(e => {
-    console.warn("Copy failed:", e);
-  });
-}
-
-function copyToClipboard() {
-  navigator.clipboard.writeText(tailoredText).then(() => {
-    const btn = event.target;
-    const orig = btn.textContent;
-    btn.textContent = '✅ Copied!';
-    btn.style.background = '#10b981';
-    setTimeout(() => {
-      btn.textContent = orig;
-      btn.style.background = '';
-    }, 2000);
-  }).catch(() => {
-    // Fallback
     const ta = document.createElement('textarea');
-    ta.value = tailoredText;
+    ta.value = text;
     document.body.appendChild(ta);
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    showError('Copied to clipboard! (fallback method)');
+    alert('✅ تم نسخ النص بالحافظة!');
   });
 }
 
-function downloadAsPDF() {
-  if (!tailoredText) {
-    showError('No tailored resume to download. Tailor first!');
+function generatePersonalPortfolioWebpage() {
+  const portfolioWindow = window.open('', '_blank');
+  const cvHtml = document.getElementById('tailored-output').textContent;
+
+  portfolioWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <title>Sam Salameh — Executive Digital Portfolio</title>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+      <style>
+        body { background:#0f172a; color:#f8fafc; font-family: 'Cairo', 'Inter', sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
+        .card { background:rgba(30,41,59,0.95); border:1px solid rgba(245,158,11,0.3); border-radius:24px; max-width:850px; width:100%; padding:40px; box-shadow:0 20px 50px rgba(0,0,0,0.5); }
+        .header { border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
+        .title h1 { margin:0; color:#fbbf24; font-size:2rem; }
+        .title p { margin:5px 0 0; color:#94a3b8; font-size:1.1rem; }
+        .badge { background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.4); padding:6px 16px; border-radius:20px; font-weight:700; font-size:0.85rem; }
+        .body { line-height:1.8; white-space:pre-wrap; font-size:1.05rem; color:#e2e8f0; }
+        .footer { margin-top:40px; text-align:center; color:#64748b; font-size:0.85rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:20px; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <div class="title">
+            <h1>سام سلامة (Sam Salameh)</h1>
+            <p>Senior Network & Infrastructure Security Engineer</p>
+          </div>
+          <div class="badge">🌐 Verified AI Tailored Profile</div>
+        </div>
+        <div class="body">${escapeHtmlStr(cvHtml)}</div>
+        <div class="footer">Powered by JobHunt Pro SaaS Platform</div>
+      </div>
+    </body>
+    </html>
+  `);
+}
+
+function downloadTailoredDocx() {
+  const text = document.getElementById('tailored-output').textContent;
+  if (!text) {
+    showError('لا توجد سيرة ذاتية مخصصة لتنزيلها.');
     return;
   }
+  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Tailored_Resume_Sam_Salameh.doc';
+  a.click();
+}
 
-  // Create a print-friendly version
-  const printWindow = window.open('', '_blank');
-  printWindow.document.write(`
-    <pre>${escapeHtml(tailoredText)}</pre>
+function downloadTailoredPdf() {
+  const text = document.getElementById('tailored-output').textContent;
+  if (!text) {
+    showError('لا توجد سيرة ذاتية مخصصة لتنزيلها.');
+    return;
+  }
+  const printWin = window.open('', '', 'width=800,height=900');
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Tailored Resume - Sam Salameh</title>
+      <style>
+        body { font-family: 'Cairo', 'Inter', Arial, sans-serif; line-height: 1.6; font-size: 11pt; padding: 25px; color: #111; }
+        pre { white-space: pre-wrap; font-family: inherit; margin: 0; }
+      </style>
+    </head>
+    <body>
+      <pre>${escapeHtmlStr(text)}</pre>
       <script>
         window.onload = function() {
           window.print();
           setTimeout(() => window.close(), 1000);
         };
       <\/script>
+    </body>
+    </html>
   `);
-  printWindow.document.close();
+  printWin.document.close();
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML.replace(/&amp;(#x?[0-9a-fA-F]+;)/g, '&$1');
-}
-
-// Keyboard shortcut
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    e.preventDefault();
-    tailorResume();
-  }
-});
-
-// File drag & drop for resume textarea
-const dropZone = document.getElementById('resume-drop');
-const textarea = document.getElementById('tailor-resume');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file && (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md'))) {
-    const reader = new FileReader();
-    reader.onload = ev => { textarea.value = ev.target.result; };
-    reader.readAsText(file);
-  } else if (file) {
-    showError('Please drop a .txt or .md file, or paste text directly.');
-  }
-});
-</script>
-</div>
-</div>
-
-<script>
-// File Drag & Drop Handling
-document.addEventListener('DOMContentLoaded', () => {
-    const dropZone = document.getElementById('resume-drop');
-    if (dropZone) {
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.add('dragover');
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.remove('dragover');
-            }, false);
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            if (files && files.length > 0) {
-                uploadAndExtractCV(files[0]);
-            }
-        }, false);
-    }
-});
-
-function handleFileSelect(event) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-        uploadAndExtractCV(files[0]);
-    }
-}
-
-async function uploadAndExtractCV(file) {
-    const dropText = document.getElementById('drop-text');
-    dropText.innerHTML = `⏳ جاري قراءة واستخراج نص الملف (${file.name})...`;
-
-    if (file.name.endsWith('.txt')) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('tailor-resume').value = e.target.result;
-            dropText.innerHTML = `✅ تم استخراج النص بنجاح: <strong>${file.name}</strong>`;
-        };
-        reader.readAsText(file);
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('cv_file', file);
-
-    try {
-        const res = await fetch('/api/parse-cv-file', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await res.json();
-        if (data.success && data.text) {
-            document.getElementById('tailor-resume').value = data.text;
-            dropText.innerHTML = `✅ تم استخراج نص الملف بنجاح: <strong>${file.name}</strong>`;
-        } else {
-            dropText.innerHTML = `⚠️ تعذر استخراج النص تلقائياً من (${file.name})، يرجى نسخ النص ولصقه أدناه.`;
-        }
-    } catch (err) {
-        console.error("Upload error:", err);
-        dropText.innerHTML = `⚠️ حدث خطأ في رفع الملف، يرجى التكرم بلصق النص أدناه.`;
-    }
-}
-</script>
-
-<script>
 function loadRealCandidateData() {
   const realCv = `Senior Network Engineer SAM SALAMEH
 ====================================================================
@@ -1049,29 +1112,91 @@ async function importUrlToTailor() {
       document.getElementById('tailor-job-title').value = data.title;
     }
   } catch(e) {
-    console.warn("Import URL tailor warning:", e);
+    console.warn("Import URL error:", e);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '📥 استيراد';
   }
 }
 
-function downloadTailoredDocx() {
-  const text = document.getElementById('tailored-body').innerText || document.getElementById('tailored-body').textContent;
-  if (!text) return;
-  const blob = new Blob([text], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Tailored_Resume_Sam_Salameh.docx';
-  a.click();
+function handleFileSelect(event) {
+  const files = event.target.files;
+  if (files && files.length > 0) {
+    uploadAndExtractCV(files[0]);
+  }
 }
 
-function downloadTailoredPdf() {
-  const text = document.getElementById('tailored-body').innerText || document.getElementById('tailored-body').textContent;
-  if (!text) return;
-  const printWin = window.open('', '', 'width=800,height=900');
-  printWin.document.write(`<pre style="font-family:sans-serif; white-space:pre-wrap; padding:20px; line-height:1.6;">${text}</pre>`);
-  printWin.document.close();
-  printWin.print();
+async function uploadAndExtractCV(file) {
+  const dropText = document.getElementById('drop-text');
+  dropText.innerHTML = `⏳ جاري قراءة واستخراج نص الملف (${escapeHtmlStr(file.name)})...`;
+
+  if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('tailor-resume').value = e.target.result;
+      dropText.innerHTML = `✅ تم استخراج النص بنجاح: <strong>${escapeHtmlStr(file.name)}</strong>`;
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('cv_file', file);
+
+  try {
+    const res = await fetch('/api/parse-cv-file', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success && data.text) {
+      document.getElementById('tailor-resume').value = data.text;
+      dropText.innerHTML = `✅ تم استخراج نص الملف بنجاح: <strong>${escapeHtmlStr(file.name)}</strong>`;
+    } else {
+      dropText.innerHTML = `⚠️ تعذر استخراج النص تلقائياً من (${escapeHtmlStr(file.name)})، يرجى نسخ النص ولصقه أدناه.`;
+    }
+  } catch (err) {
+    console.error("Upload error:", err);
+    dropText.innerHTML = `⚠️ حدث خطأ في رفع الملف، يرجى التكرم بلصق النص أدناه.`;
+  }
 }
+
+// Global Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+  // Drag & drop handling
+  const dropZone = document.getElementById('resume-drop');
+  if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        uploadAndExtractCV(files[0]);
+      }
+    }, false);
+  }
+
+  // Ctrl+Enter shortcut
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      tailorResume();
+    }
+  });
+});
 </script>

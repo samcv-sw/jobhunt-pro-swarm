@@ -51,11 +51,18 @@ class OracleRequest(BaseModel):
     region: str = "us"
     years_experience: int = 5
     style: str = "balanced"
+    currency: Optional[str] = "USD"
+    offered_bonus: Optional[float] = 0.0
+    offered_equity: Optional[float] = 0.0
+    competing_offer: Optional[bool] = False
+    skills_summary: Optional[str] = ""
+    target_percentage: Optional[float] = None
+    lang: Optional[str] = "ar"
 
 @router.post("/oracle")
 async def calculate_salary_oracle(payload: OracleRequest):
     """
-    Data-backed global salary calculation, benchmark calculation, and counter-offer script with localized PPP.
+    Data-backed global salary calculation, TC breakdown, multi-tone scripts, and localized PPP.
     """
     from core.salary_negotiation_oracle import salary_oracle
     return salary_oracle.calculate_compensation_oracle(
@@ -63,7 +70,14 @@ async def calculate_salary_oracle(payload: OracleRequest):
         initial_offer=payload.initial_offer,
         region=payload.region,
         years_experience=payload.years_experience,
-        style=payload.style
+        style=payload.style or "balanced",
+        currency=payload.currency or "USD",
+        offered_bonus=payload.offered_bonus or 0.0,
+        offered_equity=payload.offered_equity or 0.0,
+        competing_offer=payload.competing_offer or False,
+        skills_summary=payload.skills_summary or "",
+        target_percentage=payload.target_percentage,
+        lang=payload.lang or "ar"
     )
 
 
@@ -75,5 +89,28 @@ async def get_hiring_velocity(
     """Predicts hiring velocity, response time, and application ROI."""
     from core.predictive_job_ml import predictive_ml_engine
     return {"status": "success", "analytics": predictive_ml_engine.predict_hiring_velocity_and_roi(company, role)}
+
+
+class RebuttalRequest(BaseModel):
+    role: str = "Senior Engineer"
+    target_salary: float = 6500.0
+    currency: str = "USD"
+    lang: str = "ar"
+
+
+@router.post("/rebuttal")
+async def get_objection_rebuttals(payload: RebuttalRequest):
+    """Returns counter-rebuttal scripts for 5 major recruiter objection scenarios."""
+    from core.salary_negotiation_oracle import salary_oracle
+    return {
+        "status": "success",
+        "rebuttals": salary_oracle.get_all_objection_rebuttals(
+            role=payload.role,
+            target_salary=payload.target_salary,
+            currency=payload.currency,
+            lang=payload.lang
+        )
+    }
+
 
 

@@ -74,9 +74,9 @@ def init(data_dir=None):
     """
     global _active_accounts
 
-    # Try to revive any dead accounts first
+    # Try to revive any dead accounts first (non-forced)
     try:
-        revived = try_revive_dead_accounts(force=True)
+        revived = try_revive_dead_accounts(force=False)
         if revived > 0:
             logger.info(f"[HOTMAIL-POOL] Revived {revived} accounts on startup")
     except Exception:
@@ -106,15 +106,33 @@ def init(data_dir=None):
 # ════════════════════════════════════════════
 
 
+def safe_load_json(file_path):
+    """Load JSON file safely with strict=False and control character stripping fallback."""
+    import re
+    p = Path(file_path)
+    if not p.exists():
+        return {}
+    try:
+        with open(p, encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+        return json.loads(content, strict=False)
+    except Exception:
+        try:
+            with open(p, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            clean = re.sub(r'[\x00-\x1f\x7f-\x9f]', ' ', content)
+            return json.loads(clean, strict=False)
+        except Exception:
+            return {}
+
+
 def load_pool():
     """Load Hotmail accounts from JSON pool."""
     global _pool_cache
     if _pool_cache:
         return _pool_cache
-    if POOL_FILE.exists():
-        with open(POOL_FILE, encoding="utf-8") as f:
-            data = json.load(f)
-            _pool_cache = data.get("accounts", [])
+    data = safe_load_json(POOL_FILE)
+    _pool_cache = data.get("accounts", [])
     return _pool_cache or []
 
 
@@ -246,6 +264,12 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
 
     import requests
 
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked Hotmail send to undeliverable address {to_email}: {reason}")
+        return (False, f"Blocked: {reason}", "")
+
     # Pareto Stochastic Delay (Heavy-tail distribution) instead of periodic sine waves
     # This prevents automated signature detection of harmonic patterns.
     try:
@@ -348,10 +372,8 @@ def send_email_sync(to_email: str, msg_str: str) -> tuple:
 def _mark_account_dead(email: str, reason: str):
     """Mark a specific account as dead in the pool JSON."""
     try:
-        if POOL_FILE.exists():
-            with open(POOL_FILE, encoding="utf-8") as f:
-                data = json.load(f)
-
+        data = safe_load_json(POOL_FILE)
+        if data:
             for acct in data.get("accounts", []):
                 if acct.get("email") == email:
                     acct["dead"] = True
@@ -393,7 +415,8 @@ def try_revive_dead_accounts(force: bool = False) -> int:
     """
     global _last_revival_attempt
 
-    if os.getenv("TESTING") == "true" or os.getenv("SKIP_INSTALL") == "true":
+    skip = str(os.getenv("SKIP_INSTALL", "")).lower() in ("1", "true", "yes")
+    if os.getenv("TESTING") == "true" or skip:
         return 0
 
     now = time.time()
@@ -404,11 +427,9 @@ def try_revive_dead_accounts(force: bool = False) -> int:
     import requests
 
     try:
-        if not POOL_FILE.exists():
+        data = safe_load_json(POOL_FILE)
+        if not data:
             return 0
-
-        with open(POOL_FILE, encoding="utf-8") as f:
-            data = json.load(f)
 
         dead_accounts = [
             a

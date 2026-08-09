@@ -5,6 +5,9 @@ import random
 from typing import TypedDict
 
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
 
 # Attempt to load LangGraph / PydanticAI. Fallback to native if not installed.
 _HAS_LANGGRAPH = False

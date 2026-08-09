@@ -225,16 +225,27 @@ def init_saas_db():
         try:
             tiers = conn.execute("SELECT COUNT(*) FROM pricing_tiers").fetchone()[0]
             if tiers == 0:
-                pricing = [
-                    ("starter", 100, 5.00, "100 companies - Perfect to start"),
-                    ("basic", 200, 10.00, "200 companies - Best value"),
-                    ("pro", 500, 20.00, "500 companies - Serious job seekers"),
-                    ("enterprise", 1000, 35.00, "1000 companies - Maximum reach"),
-                    ("unlimited", 5000, 100.00, "5000 companies - Full scale"),
-                ]
-                conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
+                cols = [r[1] for r in conn.execute("PRAGMA table_info(pricing_tiers)").fetchall()]
+                if "tier_name" in cols:
+                    pricing = [
+                        ("starter", 100, 5.00, "100 companies - Perfect to start"),
+                        ("basic", 200, 10.00, "200 companies - Best value"),
+                        ("pro", 500, 20.00, "500 companies - Serious job seekers"),
+                        ("enterprise", 1000, 35.00, "1000 companies - Maximum reach"),
+                        ("unlimited", 5000, 100.00, "5000 companies - Full scale"),
+                    ]
+                    conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
+                elif "tier" in cols:
+                    pricing = [
+                        ("starter", "Starter Package", 100, 5.00, "100 companies - Perfect to start"),
+                        ("basic", "Basic Package", 200, 10.00, "200 companies - Best value"),
+                        ("pro", "Pro Package", 500, 20.00, "500 companies - Serious job seekers"),
+                        ("enterprise", "Enterprise Package", 1000, 35.00, "1000 companies - Maximum reach"),
+                        ("unlimited", "Unlimited Package", 5000, 100.00, "5000 companies - Full scale"),
+                    ]
+                    conn.executemany("INSERT INTO pricing_tiers (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)", pricing)
         except Exception as e:
-            logger.warning(f"Failed to seed pricing_tiers (likely schema mismatch): {e}")
+            logger.warning(f"Failed to seed pricing_tiers: {e}")
 
         conn.commit()
 
@@ -438,6 +449,10 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
     return response
 
 @app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/webapp", response_class=HTMLResponse)
+@app.get("/webapp/", response_class=HTMLResponse)
+@app.get("/telegram-miniapp", response_class=HTMLResponse)
+@app.get("/telegram-miniapp/", response_class=HTMLResponse)
 async def dashboard(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
@@ -473,11 +488,28 @@ async def dashboard(request: Request):
     })
 
 @app.get("/upload-cv", response_class=HTMLResponse)
+@app.get("/en/upload-cv", response_class=HTMLResponse)
 async def upload_cv_page(request: Request):
     user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
-    return templates.TemplateResponse(request=request, name="upload_cv.html", context={"request": request})
+    user = {}
+    if user_id:
+        with get_db() as conn:
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            user = dict(user_row) if user_row else {}
+    if not user:
+        user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
+
+    is_en = (
+        request.url.path.startswith("/en") or
+        request.query_params.get("lang") == "en" or
+        request.cookies.get("jobhunt_lang") == "en" or
+        request.cookies.get("lang") == "en"
+    )
+    template_name = "en/upload_cv_v3.html" if is_en else "upload_cv_v3.html"
+    title = "Upload CV & Profiles" if is_en else "رفع السيرة الذاتية"
+
+    content = render_template(template_name, request=request, user=user, user_id=user_id or "guest")
+    return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, title, "upload-cv", request=request))
 
 @app.post("/upload-cv")
 async def upload_cv(request: Request, profile_name: str = Form(...), cv_text: str = Form(...),

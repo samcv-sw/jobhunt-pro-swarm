@@ -12,9 +12,8 @@
   <div @click="sidebarOpen = false" class="fixed inset-0 z-30 md:hidden" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);" x-cloak x-show="sidebarOpen"></div>
 
   <!-- PREMIUM SIDEBAR -->
-  <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
-    class="fixed md:sticky inset-y-0 inset-inline-start-0 top-0 h-screen z-40 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out"
-    style="inline-size:260px;flex-shrink:0;background:rgba(10,10,26,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inline-end:1px solid rgba(255,255,255,0.08);box-shadow:4px 0 40px rgba(0,0,0,0.4);">
+  <aside class="sticky top-0 h-screen z-40 flex flex-col flex-shrink-0 w-[260px] transition-all"
+    style="background:rgba(10,10,26,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-inline-end:1px solid rgba(255,255,255,0.08);box-shadow:4px 0 40px rgba(0,0,0,0.4);">
 
     <!-- Sidebar Header -->
     <div style="padding:24px 20px 16px;border-block-end:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
@@ -24,14 +23,14 @@
         </div>
         <div style="min-inline-size:0;flex:1;">
           <p style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ user.name or 'المستخدم' }}</p>
-          <p style="font-size:14px;color:#f0c040;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance|default(0)) }} <span style="font-family: 'Cairo', 'Tajawal', sans-serif;">رصيد</span></p>
+          <p style="font-size:14px;color:#f0c040;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;margin-block-start:2px;">${{ "%.2f"|format(user.wallet_balance or 0) }} <span style="font-family: 'Cairo', 'Tajawal', sans-serif;">رصيد</span></p>
         </div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:14px;font-weight:700;color:#4b5563;text-transform:uppercase;">غرفة القيادة</span>
-        <div style="display:flex;align-items:center;gap:5px;">
-          <div style="inline-size:6px;block-size:6px;border-radius:50%;background:#00d4aa;animation:sbpulse 2s ease-in-out infinite;"></div>
-          <span style="font-size:14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;font-weight:700;">LIVE</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;border-block-start:1px solid rgba(255,255,255,0.08);padding-block-start:12px;margin-block-start:12px;">
+        <span style="font-size: 14px;font-weight:900;color:#cbd5e1;text-transform:uppercase;">COMMAND CENTER</span>
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(0,212,170,0.15);padding:4px 10px;border-radius:12px;border:1px solid rgba(0,212,170,0.4);">
+          <div style="inline-size:8px;block-size:8px;border-radius:50%;background:#00d4aa;box-shadow:0 0 10px #00d4aa;animation:sbpulse 1.8s ease-in-out infinite;"></div>
+          <span style="font-size: 14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;font-weight:900;">SYSTEM ONLINE</span>
         </div>
       </div>
     </div>
@@ -43,6 +42,28 @@
       <a href="/upload-cv" class="sb-link {{ 'sb-active' if active_page == 'upload-cv' else '' }}"><i data-lucide="file-text" class="sb-icon"></i><span>رفع السيرة الذاتية</span></a>
       <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>مقياس ATS</span></a>
       <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>تخصيص السيرة الذاتية</span></a>
+      <a href="/zero-unemployment" id="btnZeroUnemploymentAi" onclick="return (window.openZeroModalFast ? window.openZeroModalFast(event) : true);" class="sb-link {{ 'sb-active' if active_page == 'zero-unemployment' else '' }}" style="color:#00f0ff; font-weight:800; background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.25); border-radius:10px; margin-block:4px; cursor:pointer;"><i data-lucide="lightbulb" class="sb-icon" style="color:#fbbf24;"></i><span style="color:#00f0ff; font-weight:800;">0% Unemployment AI</span></a>
+
+      <div class="sb-section-label" style="color:#00f0ff;font-weight:800;">🚀 أدوات الذكاء الخارقة</div>
+      <a href="/interview-copilot" class="sb-link {{ 'sb-active' if active_page == 'interview-copilot' else '' }}" style="color:#c4b5fd;font-weight:700;"><i data-lucide="mic" class="sb-icon"></i><span>مساعد المقابلات (AI Copilot)</span></a>
+      <a href="/salary-negotiator" class="sb-link {{ 'sb-active' if active_page == 'salary-negotiator' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="dollar-sign" class="sb-icon"></i><span>حاسبة الراتب والتفاوض</span></a>
+
+      {% if is_admin or (user and (user.is_admin or user.email == 'samatou683@gmail.com')) %}
+      <div class="sb-section-label" style="color:#ec4899;font-weight:800;display:flex;align-items:center;justify-content:space-between;">
+        <span>🔥 عروض واشتراكات الذكاء والمواقع</span>
+        <span style="font-size: 14px;background:rgba(236,72,153,0.2);color:#f472b6;padding:2px 6px;border-radius:4px;border:1px solid rgba(236,72,153,0.4);">عروض</span>
+      </div>
+      <a href="/external-offers?cat=ai" class="sb-link {{ 'sb-active' if active_page == 'external-offers-ai' else '' }}" style="color:#f472b6;font-weight:700;"><i data-lucide="sparkles" class="sb-icon" style="color:#ec4899;"></i><span>اشتراكات الذكاء الاصطناعي (AI Deals & Partner Offers)</span></a>
+      <a href="/external-offers?cat=otp" class="sb-link {{ 'sb-active' if active_page == 'external-offers-otp' else '' }}" style="color:#00f0ff;font-weight:700;"><i data-lucide="key-round" class="sb-icon" style="color:#00f0ff;"></i><span>مولد رموز التحقق والإيميلات (Instant OTP)</span></a>
+      <a href="/external-offers?cat=vcc" class="sb-link {{ 'sb-active' if active_page == 'external-offers-vcc' else '' }}" style="color:#c084fc;font-weight:700;"><i data-lucide="credit-card" class="sb-icon" style="color:#a855f7;"></i><span>بطاقات فيزا وماستركارد (VCC Cards)</span></a>
+      <a href="/external-offers?cat=software" class="sb-link {{ 'sb-active' if active_page == 'external-offers-software' else '' }}" style="color:#a7f3d0;font-weight:700;"><i data-lucide="key" class="sb-icon" style="color:#10b981;"></i><span>تراخيص ومفاتيح البرامج الأصلي (Software Keys)</span></a>
+      <a href="/external-offers?cat=gaming" class="sb-link {{ 'sb-active' if active_page == 'external-offers-gaming' else '' }}" style="color:#f87171;font-weight:700;"><i data-lucide="gamepad-2" class="sb-icon" style="color:#ef4444;"></i><span>بطاقات الألعاب وشحن ستيم وإكس بوكس (Gaming Cards)</span></a>
+      <a href="/external-offers?cat=domains" class="sb-link {{ 'sb-active' if active_page == 'external-offers-domains' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="globe" class="sb-icon" style="color:#f59e0b;"></i><span>حجز النطاقات والمواقع (Custom Domains)</span></a>
+      <a href="/external-offers?cat=growth" class="sb-link {{ 'sb-active' if active_page == 'external-offers-growth' else '' }}" style="color:#ec4899;font-weight:700;"><i data-lucide="trending-up" class="sb-icon" style="color:#db2777;"></i><span>توثيق وتنمية الحسابات (Social Growth)</span></a>
+      <a href="/external-offers?cat=proxies" class="sb-link {{ 'sb-active' if active_page == 'external-offers-proxies' else '' }}" style="color:#60a5fa;font-weight:700;"><i data-lucide="shield" class="sb-icon" style="color:#3b82f6;"></i><span>البروكسيات وحل الكابتشا (Proxies)</span></a>
+      <a href="/external-offers?cat=promos" class="sb-link {{ 'sb-active' if active_page == 'external-offers-promos' else '' }}" style="color:#34d399;font-weight:700;"><i data-lucide="gift" class="sb-icon" style="color:#10b981;"></i><span>عروض وكوبونات المواقع (Promos)</span></a>
+      <a href="/external-offers?cat=streaming" class="sb-link {{ 'sb-active' if active_page == 'external-offers-streaming' else '' }}" style="color:#f43f5e;font-weight:700;"><i data-lucide="tv" class="sb-icon" style="color:#e11d48;"></i><span>اشتراكات الترفيه والاستريمنغ (Streaming VIP)</span></a>
+      {% endif %}
 
       <div class="sb-section-label">الحملات</div>
       <a href="/new-campaign" class="sb-link {{ 'sb-active' if active_page == 'new-campaign' else '' }}"><i data-lucide="rocket" class="sb-icon lucide-dir-aware"></i><span>حملة جديدة</span></a>
@@ -63,7 +84,9 @@
       <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
 
       <div class="sb-section-label">النظام</div>
+      {% if is_admin or (user and (user.is_admin or user.email == 'samatou683@gmail.com')) %}
       <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
+      {% endif %}
       <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>
       <a href="/settings" class="sb-link {{ 'sb-active' if active_page == 'settings' else '' }}"><i data-lucide="settings" class="sb-icon"></i><span>الإعدادات</span></a>
     </nav>
@@ -72,7 +95,7 @@
     <div style="padding:10px 10px 14px;border-block-start:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
       <a href="/wallet" class="sb-wallet-bar">
         <i data-lucide="coins" style="inline-size:15px;block-size:15px;color:#f0c040;flex-shrink:0;"></i>
-        <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+        <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#f0c040;font-weight:700;">${{ "%.2f"|format(user.wallet_balance or 0) }}</span>
         <span style="font-size:14px;color:#4b5563;margin-inline-start:auto;display:flex;align-items:center;gap:4px;">إضافة رصيد <i data-lucide="arrow-right" class="lucide-dir-aware inline-block w-4 h-4 align-middle"></i></span>
       </a>
       <a href="/logout" class="sb-logout">
@@ -100,7 +123,7 @@
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:10px;">
             <i data-lucide="coins" style="inline-size:15px;block-size:15px;color:#f0c040;"></i>
-            <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#fff;font-weight:700;">${{ "%.2f"|format(user.wallet_balance|default(0)) }}</span>
+            <span style="font-size:14px;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;color:#fff;font-weight:700;">${{ "%.2f"|format(user.wallet_balance or 0) }}</span>
             <a href="/wallet" style="font-size:14px;color:#8b5cf6;margin-inline-start:6px;text-decoration:none;font-weight:600;">إضافة</a>
           </div>
           <a href="/new-campaign" style="display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#8b5cf6,#00d4aa);color:#fff;border-radius:10px;text-decoration:none;font-size:14px;font-weight:800;box-shadow:0 4px 20px rgba(139,92,246,0.35);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
@@ -113,7 +136,8 @@
 
     <!-- Content -->
     <div style="padding:16px 20px; max-width:1400px; margin:0 auto;">
-      {{ content_html | safe }}
+      {% block dashboard_content %}{% endblock %}
+      {{ content_html | safe if content_html else '' }}
     </div>
 
     <!-- Footer -->
@@ -122,7 +146,7 @@
         <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 14px; background:rgba(0, 240, 255, 0.1); border:1px solid rgba(0, 240, 255, 0.3); border-radius:20px; color:#00f0ff; font-weight:700; font-size:12.5px;">
           🛡️ جدار حماية هايدرا نشط
         </span>
-        <span>نظام جوبهانت برو هايدرا <strong style="color:#ffffff;">v{{ VERSION }}</strong> © {{ current_year }}</span>
+        <span>نظام جوبهانت برو هايدرا <strong style="color:#ffffff;">v{{ VERSION }}</strong> © {{ current_year or 2026 }}</span>
         <span style="color:rgba(255,255,255,0.2);">|</span>
         <span style="color:#4ade80; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
           🔒 مشفر بالكامل (End-to-End Encrypted)
@@ -187,9 +211,247 @@
 }
 </style>
 
+<!-- ==================== ZERO UNEMPLOYMENT GLOBAL AI ENGINE MODAL ==================== -->
+<div id="zeroUnemploymentModal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-3 md:p-6" style="background:rgba(5,5,16,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);">
+  <div class="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl bg-slate-950 border-2 border-amber-500/70 p-5 md:p-8 text-slate-100 shadow-[0_0_60px_rgba(245,158,11,0.35)] custom-scrollbar">
+    <!-- Close Button -->
+    <button type="button" onclick="closeZeroUnemploymentModal()" class="absolute top-5 start-5 w-9 h-9 rounded-full bg-slate-900 border border-slate-700 text-slate-400 hover:text-white hover:bg-red-500/20 hover:border-red-500/50 flex items-center justify-center transition-all cursor-pointer">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <!-- Header Banner -->
+    <div class="flex items-start gap-4 mb-6 border-b border-amber-500/30 pb-5">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 flex items-center justify-center text-slate-950 font-black text-2xl shrink-0 shadow-[0_0_25px_rgba(245,158,11,0.4)]">
+        🌐
+      </div>
+      <div>
+        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-xs font-black uppercase tracking-wider shadow-sm">
+            <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] animate-pulse"></div>
+            <span>COMMAND CENTER — SYSTEM ONLINE</span>
+          </div>
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs font-black uppercase tracking-wider shadow-sm">
+            <span>⚡ مهمة القضاء على البطالة (Zero Unemployment Mission)</span>
+          </div>
+        </div>
+        <h2 class="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-400">
+          مُولد أفكار العمل وتطوير الدخل الفوري بالذكاء الاصطناعي
+        </h2>
+        <p class="text-sm text-slate-200 mt-1.5 leading-relaxed font-semibold">
+          حتى لو لم تكن تملك أي خبرة سابقة أو لم تكن تعرف أي وظيفة تختار... أدخل الدخل الذي تطمح لجنيه شهرياً أو اختر وضعك وسيعطيك الذكاء الاصطناعي أفكار توظيف حقيقية وسيرة ذاتية فورية بنقرة واحدة!
+        </p>
+      </div>
+    </div>
+
+    <!-- Inputs & Control Box -->
+    <div class="bg-slate-900/90 border-2 border-slate-800 rounded-2xl p-5 mb-5 space-y-5 shadow-inner">
+      <!-- Target Income Row -->
+      <div>
+        <label class="text-sm font-black text-amber-300 uppercase tracking-wider block mb-2.5 flex items-center gap-2">
+          <span>💰 1. أدخل المبلغ أو الدخل المستهدف لجنيه:</span>
+        </label>
+        <div class="flex gap-2.5 flex-wrap items-center">
+          <input type="text" id="zeroTargetIncome" placeholder="مثال: $400/شهر أو $30/يوم..." value="$500/شهر" class="flex-1 min-w-[220px] bg-slate-950 border-2 border-amber-500/60 rounded-xl px-4 py-3 text-base font-black text-amber-300 placeholder-slate-500 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-500/40 transition-all shadow-sm" dir="auto">
+          <div class="flex gap-2 flex-wrap">
+            <button type="button" onclick="setZeroIncome('$300/شهر')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$300/شهر (طالب)</button>
+            <button type="button" onclick="setZeroIncome('$800/شهر')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$800/شهر (دوام جزئي)</button>
+            <button type="button" onclick="setZeroIncome('$1,500/شهر')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$1,500/شهر (كامل)</button>
+            <button type="button" onclick="setZeroIncome('$50/يوم')" class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border-2 border-amber-500/40 rounded-xl text-sm font-black transition-all cursor-pointer shadow-sm hover:scale-105">$50/يوم (مهام)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Situation Selector Cards Grid -->
+      <div>
+        <label class="text-sm font-black text-cyan-300 uppercase tracking-wider block mb-2.5 flex items-center gap-2">
+          <span>🎓 2. حدد وضعك الحالي أو ظروفك:</span>
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-sm">
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="student" checked class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🎓 طالب مدرسة / جامعة</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="homemaker" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🏡 ربة بيت / من المنزل</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="no_experience" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🌟 مبتدئ بدون أي خبرة</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="urgent" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">⚡ حاجة مادية عاجلة</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="special_needs" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">♿ ذوي الهمم والاحتياجات</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="senior" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">👴 كبار السن والمتقاعدين</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="low_income" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">🤝 محدود الدخل والأسر</span>
+          </label>
+          <label class="flex items-center gap-3 p-3.5 bg-slate-950 border-2 border-slate-800 rounded-xl cursor-pointer hover:border-cyan-400 hover:bg-cyan-500/15 transition-all group">
+            <input type="radio" name="zeroSituation" value="social_skills" class="w-4 h-4 accent-cyan-400" dir="auto">
+            <span class="font-black text-sm text-slate-100 group-hover:text-cyan-300">💬 مهارات تواصل وإقناع</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" onclick="generateZeroUnemploymentIdeas()" class="w-full py-4.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-base uppercase tracking-wider rounded-xl transition-all shadow-[0_0_35px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]">
+        <span>✨ استخراج أفكار التوظيف وصياغة السيرة الذاتية فوراً (Generate AI Blueprints)</span>
+      </button>
+    </div>
+
+    <!-- Output Showcase Grid -->
+    <div id="zeroIdeasOutputGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto custom-scrollbar p-1">
+      <!-- AI generated blueprints will render here -->
+    </div>
+  </div>
+</div>
+
 <script>
+window.openZeroModalFast = function(e) {
+  if (window.location.pathname.includes('/zero-unemployment')) {
+    if (e && e.preventDefault) e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return false;
+  }
+  const modal = document.getElementById('zeroUnemploymentModal');
+  if (modal) {
+    if (e && e.preventDefault) e.preventDefault();
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.classList.remove('hidden');
+    if (typeof window.generateZeroUnemploymentIdeas === 'function') {
+      window.generateZeroUnemploymentIdeas();
+    }
+    return false;
+  }
+  return true;
+};
+window.openZeroUnemploymentModal = window.openZeroModalFast;
+
+window.closeZeroUnemploymentModal = function() {
+  const modal = document.getElementById('zeroUnemploymentModal');
+  if (modal) modal.style.setProperty('display', 'none', 'important');
+};
+
+window.setZeroIncome = function(val) {
+  const inp = document.getElementById('zeroTargetIncome');
+  if (inp) inp.value = val;
+};
+
+function generateZeroUnemploymentIdeas() {
+  const incomeVal = document.getElementById('zeroTargetIncome')?.value || '$500/شهر';
+  const selectedSit = document.querySelector('input[name="zeroSituation"]:checked')?.value || 'student';
+  const grid = document.getElementById('zeroIdeasOutputGrid');
+  if (!grid) return;
+
+  grid.innerHTML = '<div class="col-span-2 text-center py-8 text-amber-400 font-bold animate-pulse">✨ جاري تحليل الفرص وتطوير نماذج العمل المناسبة لدخلك ووضعك...</div>';
+
+  setTimeout(() => {
+    let database = [
+      {
+        title: "🎧 مسؤوول دعم عملاء وتواصل عبر الواتساب (Remote Customer Support)",
+        incomePlan: `تحقيق ${incomeVal}: إدارة دعم استفسارات متجرين أو شركتين لمدة 3 ساعات يومياً من هاتفك الذكي.`,
+        cvStrategy: "التركيز على مهارات الاستماع، السرعة في الرد، استخدام تطبيقات التواصل، واللباقة الفائقة.",
+        skills: "خدمة عملاء, تواصل اجتماعي, WhatsApp, كتابة سريعة, إدخال بيانات",
+        presetKey: "support"
+      },
+      {
+        title: "📲 مدير محتوى وحسابات انستغرام وتيك توك (Social Media Assistant)",
+        incomePlan: `تحقيق ${incomeVal}: تصميم ونشر منشورين يومياً لـ 3 محلات تجارية أو مطاعم محلية.`,
+        cvStrategy: "التركيز على المعرفة بتطبيقات Canva وCapCut، النشر المجدول، ومتابعة التعليقات والتفاعل.",
+        skills: "Canva, CapCut, إدارة شبكات التواصل, صناعة محتوى, تسويق رقمي",
+        presetKey: "marketer"
+      },
+      {
+        title: "📋 إدخال بيانات وتنسيق ملفات ريموت (Remote Data Entry & Assistant)",
+        incomePlan: `تحقيق ${incomeVal}: إدخال 50 سجل أو قيد يومياً لصالح شركات عقار أو محاسبة عن بُعد.`,
+        cvStrategy: "التركيز على مهارات برنامج Excel وWord، الدقة والسرعة في إدخال البيانات، والانضباط بالمواعيد.",
+        skills: "Excel, Word, إدخال بيانات, سكرتارية, دقة ومتابعة",
+        presetKey: "accountant"
+      },
+      {
+        title: "⚡ منفذ مهام سريعة وتفريغ صووتي (Micro-Gigs & Transcription)",
+        incomePlan: `تحقيق ${incomeVal}: تنفيذ مهمتين مصغرتين يومياً (تفريغ مقاطع صووتية أو كتابة تقارير).`,
+        cvStrategy: "التركيز على الاستماع الدقيق، سرعة الكتابة باللغة العربية والإنجليزية، والالتزام بالإنجاز.",
+        skills: "تفريغ صووتي, كتابة تقارير, عمل حر, سرعة تنفيذ, لغة عربية",
+        presetKey: "gig"
+      },
+      {
+        title: "📚 مساعد تدريس ومتابعة دروس أونلاين (Online Tutoring Assistant)",
+        incomePlan: `تحقيق ${incomeVal}: تقديم 4 جلسات تقوية أو متابعة واجبات أسبوعياً للطلاب عن بُعد.`,
+        cvStrategy: "التركيز على الصبر، مهارات الشرح السلس، استخدام Zoom أو Google Meet، والتنظيم.",
+        skills: "تدريس أونلاين, متابعة طلاب, Zoom, شرح مبسط, رياضيات ولغات",
+        presetKey: "tutor"
+      },
+      {
+        title: "📞 منسق مواعيد ومبيعات هاتفية ريموت (Remote Appointment Setter)",
+        incomePlan: `تحقيق ${incomeVal} + عمولات: إجراء 10 مكالمات استفسار يومياً لصالح عيادات أو شركات عقارات.`,
+        cvStrategy: "التركيز على الصوت الواضح، مهارة الإقناع والتفاوض، التنسيق، ومتابعة العملاء.",
+        skills: "مبيعات هاتفية, تفاوض, تنسيق مواعيد, إقناع, تواصل تلفزيوني",
+        presetKey: "sales"
+      }
+    ];
+
+    grid.innerHTML = database.map(item => `
+      <div class="bg-slate-950/95 border-2 border-slate-800/80 hover:border-amber-500/60 p-5 rounded-2xl space-y-3 transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] hover:-translate-y-0.5">
+        <div class="font-black text-amber-300 text-sm md:text-base flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+          <span class="leading-snug">${item.title}</span>
+          <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-black uppercase tracking-wider shrink-0 shadow-sm">فرصة فورية ⚡</span>
+        </div>
+        <div class="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs text-emerald-200 leading-relaxed">
+          <strong class="text-emerald-400 font-extrabold block mb-0.5">💰 خطة الدخل والتطبيق:</strong> ${item.incomePlan}
+        </div>
+        <div class="p-3 bg-cyan-950/40 border border-cyan-500/30 rounded-xl text-xs text-cyan-200 leading-relaxed">
+          <strong class="text-cyan-400 font-extrabold block mb-0.5">📝 استراتيجية السيرة الذاتية (بدون خبرة):</strong> ${item.cvStrategy}
+        </div>
+        <button type="button" onclick="applyZeroIdeaToCv('${item.title}', '${item.skills}', '${item.presetKey}')" class="w-full py-3 bg-gradient-to-r from-cyan-400 via-cyan-500 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]">
+          <span>🚀 تطبيق هذا النموذج وتعبئة السيرة الذاتية بنقرة واحدة</span>
+        </button>
+      </div>
+    `).join('');
+  }, 350);
+}
+
+function applyZeroIdeaToCv(title, skills, presetKey) {
+  closeZeroUnemploymentModal();
+  
+  // If user is on upload-cv page, populate target title & skills directly!
+  const targetTitleInput = document.getElementById('job_title') || document.getElementById('import_job_url');
+  const skillsInput = document.getElementById('skillsInput');
+  
+  if (window.location.pathname.includes('/upload-cv')) {
+    const hiddenTitle = document.getElementById('hiddenTargetTitles');
+    if (hiddenTitle) hiddenTitle.value = title;
+    if (skillsInput) skillsInput.value = skills;
+    
+    // Smooth scroll to form
+    const form = document.getElementById('cvForm') || document.getElementById('jobForm');
+    if (form) form.scrollIntoView({ behavior: 'smooth' });
+  } else {
+    // Navigate to upload-cv with preset
+    window.location.href = '/upload-cv?title=' + encodeURIComponent(title) + '&skills=' + encodeURIComponent(skills);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Zero-Touch Zero-Click Automatic Campaign Auto-Resume on Session / Page Load
+  fetch('/api/v2/auto-applier/auto-resume', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.auto_started) {
+        console.log('⚡ Paid Campaign Zero-Touch Auto-Resumed in Background:', data);
+      }
+    })
+    .catch(err => console.debug('Zero-Touch auto-resume ping:', err));
 
   const urlParams = new URLSearchParams(window.location.search);
   const successParam = urlParams.get('success');
@@ -205,6 +467,95 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(toast);
     if (typeof lucide !== 'undefined') lucide.createIcons();
     setTimeout(() => { toast.remove(); }, 6000);
+  }
+});
+</script>
+
+<!-- ==================== OMNI COMMAND BAR MODAL (Cmd/Ctrl + K) ==================== -->
+<div id="omniCommandModal" class="fixed inset-0 z-[99999] hidden items-center justify-center p-4 style-omni-backdrop" style="background:rgba(2,6,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);">
+  <div class="relative w-full max-w-2xl rounded-3xl bg-slate-950 border-2 border-indigo-500/60 p-5 text-slate-100 shadow-[0_0_50px_rgba(99,102,241,0.35)]">
+    <div class="flex items-center gap-3 border-b border-slate-800 pb-3 mb-4">
+      <i data-lucide="search" class="w-5 h-5 text-indigo-400"></i>
+      <input type="text" id="omniSearchInput" placeholder="أدخل أمراً أو ابحث فوراً... (مثال: فحص CV, إطلاق سرب, ترقية...)" class="w-full bg-transparent text-base font-bold text-slate-100 outline-none placeholder-slate-500" dir="auto" oninput="filterOmniActions()" dir="auto">
+      <kbd class="px-2 py-1 bg-slate-900 border border-slate-700 rounded-md text-xs font-mono text-slate-400">ESC</kbd>
+    </div>
+    <div id="omniActionsList" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+      <a href="/upload-cv" class="omni-item flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-indigo-600/20 border border-slate-800/80 hover:border-indigo-500/50 transition-all cursor-pointer">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">📄</span>
+          <div>
+            <div class="font-black text-sm text-slate-100">تحليل وتطوير السيرة الذاتية (ATS Sculptor)</div>
+            <div class="text-xs text-slate-400">رفع وتعديل السيرة الذاتية لتجاوز أنظمة الفلترة</div>
+          </div>
+        </div>
+        <kbd class="text-xs bg-slate-950 px-2 py-1 rounded text-slate-400">↵</kbd>
+      </a>
+      <a href="/dashboard" class="omni-item flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-indigo-600/20 border border-slate-800/80 hover:border-indigo-500/50 transition-all cursor-pointer">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">🚀</span>
+          <div>
+            <div class="font-black text-sm text-slate-100">لوحة التحكم وغرفة العمليات المباشرة</div>
+            <div class="text-xs text-slate-400">متابعة إرساليات التوظيف والسراب الفوري</div>
+          </div>
+        </div>
+        <kbd class="text-xs bg-slate-950 px-2 py-1 rounded text-slate-400">↵</kbd>
+      </a>
+      <button type="button" onclick="toggleOmniModal(); openZeroUnemploymentModal();" class="w-full omni-item flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-amber-600/20 border border-slate-800/80 hover:border-amber-500/50 transition-all cursor-pointer text-start">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">⚡</span>
+          <div>
+            <div class="font-black text-sm text-amber-300">مُولد أفكار العمل وتطوير الدخل الفوري</div>
+            <div class="text-xs text-slate-400">ابتكار أفكار وظائف بالذكاء الاصطناعي براتب طموح</div>
+          </div>
+        </div>
+        <kbd class="text-xs bg-slate-950 px-2 py-1 rounded text-slate-400">↵</kbd>
+      </button>
+      <a href="/checkout_v3" class="omni-item flex items-center justify-between p-3 rounded-xl bg-slate-900/80 hover:bg-emerald-600/20 border border-slate-800/80 hover:border-emerald-500/50 transition-all cursor-pointer">
+        <div class="flex items-center gap-3">
+          <span class="text-xl">💎</span>
+          <div>
+            <div class="font-black text-sm text-emerald-400">شحن الرصيد والترقية (USDT / Crypto / Cards)</div>
+            <div class="text-xs text-slate-400">شحن المحفظة فورياً لتغطية الإرساليات</div>
+          </div>
+        </div>
+        <kbd class="text-xs bg-slate-950 px-2 py-1 rounded text-slate-400">↵</kbd>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleOmniModal() {
+  const m = document.getElementById('omniCommandModal');
+  if (!m) return;
+  m.classList.toggle('hidden');
+  m.classList.toggle('flex');
+  if (!m.classList.contains('hidden')) {
+    const input = document.getElementById('omniSearchInput');
+    if (input) { input.value = ''; input.focus(); filterOmniActions(); }
+  }
+}
+
+function filterOmniActions() {
+  const query = (document.getElementById('omniSearchInput')?.value || '').toLowerCase().strip ? document.getElementById('omniSearchInput').value.toLowerCase().trim() : '';
+  const items = document.querySelectorAll('.omni-item');
+  items.forEach(el => {
+    const txt = el.textContent.toLowerCase();
+    el.style.display = txt.includes(query) ? 'flex' : 'none';
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    toggleOmniModal();
+  }
+  if (e.key === 'Escape') {
+    const m = document.getElementById('omniCommandModal');
+    if (m && !m.classList.contains('hidden')) {
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
   }
 });
 </script>

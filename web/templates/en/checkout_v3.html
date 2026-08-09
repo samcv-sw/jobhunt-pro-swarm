@@ -535,6 +535,40 @@ body {
   {% if order.status in ('pending', 'pending_payment') %}
   <!-- Payment Section -->
 
+  <!-- Visa / Mastercard Instant Card Payment -->
+  <div style="margin-block-end:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.85)); border:1px solid rgba(59,130,246,0.25); border-radius:14px; text-align:center;">
+    <div style="font-size:15px; font-weight:700; color:#60a5fa; margin-block-end:4px;">
+      💳 Direct Card Checkout (Visa / Mastercard / Apple Pay)
+    </div>
+    <div style="font-size: 12px; color:#94a3b8; margin-block-end:4px;">
+      100% Secure global checkout — Pay with your credit/debit card instantly with zero sign-up required!
+    </div>
+    <div style="font-size:11px; color:#60a5fa; font-weight:700; margin-block-end:10px;">
+      📌 Minimum Card Top-up: $10 USD
+    </div>
+    <button type="button" onclick="openDirectCardPayment('{{ order.price }}')" style="width:100%; max-width:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
+      💳 Pay Now via Visa / Mastercard / Apple Pay →
+    </button>
+    <div style="margin-block-start:6px; font-size:11px; color:#94a3b8;">
+      <span>⇄ Server busy or slow?</span>
+      <a href="javascript:void(0)" onclick="openDirectCardPayment('{{ order.price }}', 'moonpay')" style="color:#60a5fa; text-decoration:underline; font-weight:600; margin-inline-start:4px;">
+        Try MoonPay Fallback Option ⚙️
+      </a>
+    </div>
+
+    <!-- Compact Minimal Country Info Box -->
+    <div style="margin-block-start:12px; padding:10px 14px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-size:11px; text-align:left; display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+        <span style="color:#4ade80; font-weight:700; white-space:nowrap;">🟢 Supported (170+ Countries):</span>
+        <span style="color:#cbd5e1;">USA 🇺🇸, Canada 🇨🇦, UK 🇬🇧, All EU 🇪🇺, UAE 🇦🇪, KSA 🇸🇦, Qatar 🇶🇦, Kuwait 🇰🇼, Oman, Australia, Japan...</span>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+        <span style="color:#f87171; font-weight:700; white-space:nowrap;">🔴 Restricted Cards:</span>
+        <span style="color:#fca5a5;">Lebanon 🇱🇧, Syria 🇸🇾, Yemen 🇾🇪, Iran 🇮🇷, Russia 🇷🇺, Belarus 🇧🇾, N. Korea 🇰🇵, Cuba 🇨🇺, Venezuela 🇻🇪 &mdash; <em style="color:#fbbf24;">Use USDT / Crypto below instead!</em></span>
+      </div>
+    </div>
+  </div>
+
   <!-- NOWPayments -->
   <div style="margin-block-end:24px; padding:20px; background:var(--accent-primary-dim); border:1px solid rgba(99,102,241,0.15); border-radius:var(--radius-lg);">
     <div style="font-size: 14px; color:var(--text-muted); margin-block-end:12px;">
@@ -765,6 +799,15 @@ async function payWithNOWPaymentsV3(btn) {
 
   btn.disabled = false;
   btn.textContent = 'Pay with NOWPayments';
+}
+
+function openDirectCardPayment(amount, provider) {
+  var walletAddr = '0x3d2e9d8a2a506417F2D5A2Ea5149b868d2A72492';
+  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdt&amount=' + encodeURIComponent(amount || '10') + '&recipient=' + encodeURIComponent(walletAddr);
+  if (provider === 'moonpay') {
+    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(amount || '10');
+  }
+  window.open(cardUrl, '_blank');
 }
 
 /* ── Generate QR Codes ── */

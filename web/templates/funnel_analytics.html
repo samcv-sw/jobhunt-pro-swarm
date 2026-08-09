@@ -1,377 +1,746 @@
-<meta property="og:title" content="تحليلات القمع | JobHunt Pro"/>
-<meta name="description" content="افهم رحلة التقديم من أول طلب حتى العرض."/>
+<meta property="og:title" content="تحليلات القمع — JobHunt Pro"/>
+<meta name="description" content="افهم رحلة التقديم من أول طلب حتى العرض وتتبع تحويلات التوظيف وتحليلات الذكاء الاصطناعي."/>
 <title>تحليلات القمع | JobHunt Pro</title>
 <link rel="stylesheet" href="/static/css/cyberpunk.css">
-  
-<!-- Application Funnel Analytics — v16 -->
+
+<!-- Application Funnel Analytics — v19 (Apex Cyberpunk Glassmorphism & Sector Benchmarks) -->
 <style>
-/* Funnel Analytics specific styles */
+.funnel-container {
+  max-inline-size: 1240px;
+  margin-inline: auto;
+  padding-block: 12px 32px;
+  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+}
+
+.funnel-hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-block-end: 24px;
+}
+
+.funnel-title-group h1 {
+  font-size: 32px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.5px;
+}
+
+.funnel-title-group p {
+  font-size: 15px;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.6;
+}
+
 .funnel-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
   gap: 16px;
   margin-block-end: 24px;
 }
+
+.funnel-filters-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
 .funnel-filters {
   display: flex;
-  gap: 8px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 12px;
-  padding: 4px;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 5px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
+
 .funnel-filter-btn {
-  padding: 8px 18px;
+  padding: 8px 16px;
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: #64748b;
-  font-family: 'Cairo', 'Inter', sans-serif;
+  color: #94a3b8;
+  font-family: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
+
 .funnel-filter-btn.active {
-  background: rgba(59,130,246,0.15);
-  color: #3b82f6;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3));
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
 }
+
 .funnel-filter-btn:hover:not(.active) {
-  color: #d4d4d8;
-  background: rgba(255,255,255,0.03);
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-/* Stats row */
-.funnel-stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 14px;
-  margin-block-end: 28px;
-}
-.funnel-stat {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+.sector-pills {
+  display: flex;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  padding: 18px 16px;
-  text-align: center;
-  transition: all 0.3s;
-  cursor: default;
-}
-.funnel-stat:hover {
-  border-color: rgba(59,130,246,0.2);
-  transform: translateY(-2px);
-}
-.funnel-stat-value {
-  font-size: 28px;
-  font-weight: 800;
-  
-  line-height: 1;
-  margin-block-end: 6px;
-}
-.funnel-stat-label {
-  font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
-  text-transform: uppercase;
-  
-  margin-block-end: 4px;
-}
-.funnel-stat-conv {
-  font-size: 14px;
-  font-weight: 600;
+  padding: 5px;
 }
 
-/* Chart container */
-.funnel-chart-container {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 24px;
-  margin-block-end: 24px;
+.sector-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.funnel-chart-header {
+
+.sector-btn.active {
+  background: rgba(168, 85, 247, 0.25);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.funnel-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-btn, .export-json-btn, .export-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.export-btn {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+.export-btn:hover { background: rgba(16, 185, 129, 0.28); transform: translateY(-2px); }
+
+.export-json-btn {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #c084fc;
+}
+.export-json-btn:hover { background: rgba(139, 92, 246, 0.28); transform: translateY(-2px); }
+
+.export-pdf-btn {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+.export-pdf-btn:hover { background: rgba(59, 130, 246, 0.28); transform: translateY(-2px); }
+
+/* AI Recommendation Card */
+.ai-insight-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 20px;
+  padding: 24px 28px;
+  margin-block-end: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.ai-insight-card::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0;
+  block-size: 100%;
+  inline-size: 5px;
+  background: linear-gradient(180deg, #c084fc, #3b82f6, #10b981);
+}
+
+.ai-insight-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-block-end: 20px;
-}
-.funnel-chart-header h3 {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0;
-}
-.funnel-chart-wrapper {
-  position: relative;
-  inline-size: 100%;
-  block-size: 400px;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-end: 12px;
 }
 
-/* Funnel visualization (CSS-only fallback / overview) */
-.funnel-visual {
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #d8b4fe;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ai-insight-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.ai-insight-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #cbd5e1;
+  margin: 0 0 16px;
+}
+
+.ai-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
+}
+
+.ai-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
+}
+
+/* Stats Row */
+.funnel-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-block-end: 32px;
+}
+
+.funnel-stat-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 22px 18px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+}
+
+.funnel-stat-card:hover {
+  border-color: rgba(96, 165, 250, 0.5);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px -5px rgba(59, 130, 246, 0.25);
+}
+
+.funnel-stat-icon { font-size: 28px; margin-block-end: 8px; }
+.funnel-stat-value { font-size: 32px; font-weight: 800; line-height: 1.1; margin-block-end: 6px; }
+.funnel-stat-label { font-size: 14px; font-weight: 700; color: #94a3b8; margin-block-end: 4px; }
+.funnel-stat-subtext { font-size: 13px; font-weight: 600; color: #64748b; }
+
+/* Stage Dwell Velocity Card */
+.velocity-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  padding: 24px;
+  margin-block-end: 32px;
+  backdrop-filter: blur(16px);
+}
+
+.velocity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 16px;
+  margin-block-start: 16px;
+}
+
+.velocity-item {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.velocity-time { font-size: 22px; font-weight: 800; color: #fbbf24; margin-block-end: 4px; }
+.velocity-label { font-size: 13px; color: #94a3b8; font-weight: 700; }
+
+/* Funnel Visualization */
+.funnel-chart-container {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  padding: 30px;
+  margin-block-end: 32px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-block-end: 24px;
 }
-.funnel-visual h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-transform: uppercase;
-  
-  margin-block-end: 14px;
-}
-.funnel-stage {
+
+.section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
   display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-toggle-group {
+  display: flex;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.6);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chart-toggle-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chart-toggle-btn.active {
+  background: rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.funnel-visual { margin-block-end: 8px; }
+.funnel-stage-item { margin-block-end: 18px; position: relative; cursor: pointer; }
+.funnel-stage-item:hover .funnel-bar-fill { filter: brightness(1.15); }
+
+.funnel-stage-meta {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-block-end: 8px;
-  gap: 14px;
+  font-size: 15px;
+  font-weight: 700;
 }
-.funnel-stage-label {
-  inline-size: 100px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #d4d4d8;
-  text-align: end;
-  flex-shrink: 0;
-}
-.funnel-stage-bar-wrap {
-  flex: 1;
-  position: relative;
+
+.funnel-stage-name { color: #f1f5f9; display: flex; align-items: center; gap: 10px; }
+.funnel-stage-count { color: #f8fafc; font-weight: 800; font-size: 16px; }
+
+.funnel-bar-bg {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
   block-size: 40px;
-  display: flex;
-  align-items: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
-.funnel-stage-bar {
+
+.funnel-bar-fill {
   block-size: 100%;
-  border-radius: 10px;
+  border-radius: 12px;
+  transition: inline-size 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-inline-end: 14px;
+  padding-inline-end: 16px;
+  font-weight: 800;
   font-size: 14px;
+  color: #ffffff;
+  min-inline-size: 48px;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+}
+
+.dropoff-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 4px 10px;
+  border-radius: 8px;
   font-weight: 700;
-  color: #fff;
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  min-inline-size: 40px;
+  margin-block-start: 6px;
+}
+
+.chart-wrapper {
+  position: relative;
+  inline-size: 100%;
+  block-size: 380px;
+}
+
+/* Cyber Table */
+.funnel-table-wrap {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cyber-table { inline-size: 100%; border-collapse: collapse; font-size: 14px; }
+.cyber-table th {
+  text-align: start;
+  padding: 16px 20px;
+  background: rgba(30, 41, 59, 0.7);
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cyber-table td {
+  padding: 16px 20px;
+  border-block-start: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.conv-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
+.conv-high { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
+.conv-mid { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); }
+.conv-low { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
+.conv-zero { background: rgba(239, 68, 68, 0.12); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* Drill-Down Modal */
+.funnel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.funnel-modal-content {
+  background: #0f172a;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 24px;
+  max-inline-size: 720px;
+  inline-size: 100%;
+  max-block-size: 85vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
   position: relative;
 }
-.funnel-stage-value {
+.funnel-modal-close {
   position: absolute;
-  inset-inline-end: -60px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #e2e8f0;
-  white-space: nowrap;
+  inset-inline-end: 20px;
+  inset-block-start: 20px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 24px;
+  cursor: pointer;
 }
-.funnel-stage-conv {
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block-start: -20px;
-  font-size: 14px;
-  color: #64748b;
-  font-weight: 600;
-}
+.funnel-modal-close:hover { color: #f8fafc; }
 
-/* التراجع indicators */
-.funnel-dropoff {
-  text-align: center;
-  font-size: 14px;
-  color: #ef4444;
-  font-weight: 600;
-  margin: 2px 0 6px 114px;
-}
-
-/* Table view */
-.funnel-table {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-block-start: 20px;
-}
-.funnel-table table {
-  inline-size: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-.funnel-table th {
-  text-align: start;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.03);
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  
-}
-.funnel-table td {
-  padding: 12px 16px;
-  border-inset-block-start: 1px solid rgba(255,255,255,0.03);
-  color: #d4d4d8;
-}
-.funnel-table .conv-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
-}
-.conv-high { background: rgba(34,197,94,0.15); color: #4ade80; }
-.conv-mid { background: rgba(59,130,246,0.15); color: #60a5fa; }
-.conv-low { background: rgba(245,158,11,0.15); color: #fbbf24; }
-.conv-zero { background: rgba(239,68,68,0.1); color: #fca5a5; }
-
-.funnel-loading {
-  text-align: center;
-  padding: 60px 20px;
-}
+.funnel-loading { text-align: center; padding: 90px 20px; }
 .funnel-spinner {
-  inline-size: 40px;
-  block-size: 40px;
-  border: 3px solid rgba(255,255,255,0.08);
+  inline-size: 48px;
+  block-size: 48px;
+  border: 4px solid rgba(255, 255, 255, 0.08);
   border-block-start-color: #3b82f6;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+  margin: 0 auto 18px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Total applications banner */
-.total-banner {
-  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
-  border: 1px solid rgba(59,130,246,0.15);
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-block-end: 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.total-banner .banner-icon {
-  font-size: 28px;
-  flex-shrink: 0;
-}
-.total-banner .banner-info h3 {
-  font-size: 14px;
-  font-weight: 600;
-  margin: 0 0 2px;
-}
-.total-banner .banner-info p {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-.total-banner .banner-value {
-  margin-inline-start: auto;
-  font-size: 32px;
-  font-weight: 800;
-  color: #60a5fa;
-  
+@media print {
+  body { background: #ffffff !important; color: #000000 !important; }
+  .funnel-actions, .funnel-filters-group, .funnel-modal-overlay { display: none !important; }
+  .funnel-container { max-inline-size: 100% !important; padding: 0 !important; }
+  .ai-insight-card, .funnel-stat-card, .funnel-chart-container, .funnel-table-wrap, .velocity-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+  }
+  .funnel-title-group h1, .funnel-title-group p, .funnel-stat-value, .funnel-stat-label, .section-title, .funnel-stage-name, .funnel-stage-count {
+    color: #0f172a !important;
+  }
 }
 
-/* Responsive */
-@media(max-width:768px) {
-  .funnel-chart-wrapper { block-size: 280px; }
-  .funnel-stats-row { grid-template-columns: repeat(2, 1fr); }
-  .funnel-header-row { flex-direction: column; }
+@media(max-width: 768px) {
+  .funnel-hero-header { flex-direction: column; align-items: stretch; }
+  .funnel-header-row { flex-direction: column; align-items: stretch; }
+  .funnel-filters { justify-content: center; }
+  .chart-wrapper { block-size: 290px; }
+  .funnel-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 
-<h1>📊 تحليلات مسار الطلبات</h1>
-<p class="subtitle">تتبع معدلات التحويل من البحث للتوظيف. شوف وين عم تخسر مرشحين وحسّن العملية.</p>
-
-<!-- Period filter -->
-<div class="funnel-header-row">
-  <div class="funnel-filters" id="funnel-filters">
-    <button class="funnel-filter-btn active" data-period="7">آخر 7 أيام</button>
-    <button class="funnel-filter-btn" data-period="30">آخر 30 يوم</button>
-    <button class="funnel-filter-btn" data-period="90">آخر 90 يوم</button>
-    <button class="funnel-filter-btn" data-period="all">كل الوقت</button>
-  </div>
-  <span id="funnel-updated" style="color:#52525b;font-size: 14px;"></span>
-</div>
-
-<!-- Loading state -->
-<div class="funnel-loading" id="funnel-loading">
-  <div class="funnel-spinner"></div>
-  <div style="color:#94a3b8;">جاري تحميل بيانات التحليلات...</div>
-</div>
-
-<!-- Data state -->
-<div id="funnel-data" style="display:none;">
-  <!-- Total banner -->
-  <div class="total-banner">
-    <div class="banner-icon">📈</div>
-    <div class="banner-info">
-      <h3>إجمالي الطلبات</h3>
-      <p>الطلبات المُرسلة في الفترة المحددة</p>
+<div class="funnel-container">
+  <!-- Hero Header -->
+  <div class="funnel-hero-header">
+    <div class="funnel-title-group">
+      <h1>📊 تحليلات مسار التقديم والتوظيف</h1>
+      <p>تتبع رحلتك الكاملة من اكتشاف الفرص وتأكيد التقديم حتى المقابلات وحصد عروض العمل.</p>
     </div>
-    <div class="banner-value" id="funnel-total">0</div>
+    
+    <div class="funnel-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span id="ws-live-status" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+        <span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e;"></span> مباشر 🟢 Live Stream
+      </span>
+      <span id="funnel-updated" style="color: #64748b; font-size: 14px; font-weight: 600;"></span>
+      <button class="export-btn" id="export-funnel-csv-btn" onclick="downloadAnalyticsReport('csv')">
+        <span>📥 تصدير CSV</span>
+      </button>
+      <button class="export-btn" id="export-funnel-xlsx-btn" onclick="downloadAnalyticsReport('xlsx')" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)); border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+        <span>📊 تصدير Excel</span>
+      </button>
+      <button class="export-pdf-btn" id="export-funnel-pdf-btn" onclick="downloadAnalyticsReport('pdf')" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.3)); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer;">
+        <span>🖨️ تصدير PDF</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Summary stats -->
-  <div class="funnel-stats-row" id="funnel-stats-row"></div>
+  <!-- Header Filter Controls & Industry Sector Switcher -->
+  <div class="funnel-header-row">
+    <div class="funnel-filters-group">
+      <div class="funnel-filters" id="funnel-filters">
+        <button class="funnel-filter-btn" data-period="7">آخر 7 أيام</button>
+        <button class="funnel-filter-btn active" data-period="30">آخر 30 يوم</button>
+        <button class="funnel-filter-btn" data-period="90">آخر 90 يوم</button>
+        <button class="funnel-filter-btn" data-period="all">كل الأوقات</button>
+      </div>
 
-  <!-- Funnel visualization -->
-  <div class="funnel-visual" id="funnel-visual-wrap">
-    <h3>🎯 مسار التحويل</h3>
-    <div id="funnel-visual"></div>
-  </div>
-
-  <!-- Bar chart -->
-  <div class="funnel-chart-container">
-    <div class="funnel-chart-header">
-      <h3>📊 تفصيل المراحل</h3>
-      <div style="display:flex;gap:12px;font-size: 14px;color:#64748b;">
-        <span>🔵 الطلبات</span>
-        <span>🟢 التحويلات</span>
+      <div class="sector-pills" id="sector-filters">
+        <button class="sector-btn active" data-sector="general">🌐 المعيار العام</button>
+        <button class="sector-btn" data-sector="software_tech">💻 تكنولوجيا وبرمجيات</button>
+        <button class="sector-btn" data-sector="remote_global">🏠 عمل عن بعد</button>
+        <button class="sector-btn" data-sector="finance_business">💼 مالية وإدارة</button>
+        <button class="sector-btn" data-sector="government_defense">🏛️ حكومي ودفاع</button>
+        <button class="sector-btn" data-sector="healthcare_medical">🩺 صحة ورعاية</button>
+        <button class="sector-btn" data-sector="sales_marketing">📢 مبيعات وتسويق</button>
       </div>
     </div>
-    <div class="funnel-chart-wrapper">
-      <canvas id="funnelChart"></canvas>
+  </div>
+
+  <!-- Loading State -->
+  <div class="funnel-loading" id="funnel-loading">
+    <div class="funnel-spinner"></div>
+    <div style="color: #94a3b8; font-size: 16px; font-weight: 700;">جاري تحليل مسار التقديم وحساب نقط الاختناق...</div>
+  </div>
+
+  <!-- Main Data Display -->
+  <div id="funnel-data" style="display: none;">
+    <!-- AI Copilot Insight & Health Score Card -->
+    <div class="ai-insight-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-block-end: 12px;">
+        <div class="ai-insight-header" style="margin-block-end: 0;">
+          <span class="ai-badge">🤖 مساعد الذكاء الاصطناعي</span>
+          <h3 class="ai-insight-title">تشخيص مسار التقديم والتوصيات الإستراتيجية</h3>
+        </div>
+        <div id="health-score-pill" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); padding: 6px 14px; border-radius: 20px;">
+          <span style="font-size: 13px; font-weight: 700; color: #94a3b8;">مؤشر الصحة:</span>
+          <span id="health-score-val" style="font-size: 16px; font-weight: 800; color: #60a5fa;">0.0/100</span>
+          <span id="health-status-badge" class="conv-badge conv-mid">جاري التحميل</span>
+        </div>
+      </div>
+      <p class="ai-insight-text" id="ai-recommendation-text">جاري تحليل البيانات واستخراج التوصيات...</p>
+      <div style="margin-block-start: 16px;">
+        <a href="/sent-emails" class="ai-action-btn" id="ai-action-link">
+          <span id="ai-action-label">متابعة إرسال الطلبات 🚀</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 6 KPI Stat Cards -->
+    <div class="funnel-stats-grid">
+      <div class="funnel-stat-card" onclick="openStageModal('applied')">
+        <div class="funnel-stat-icon">📨</div>
+        <div class="funnel-stat-value" style="color: #60a5fa;" id="stat-applied">0</div>
+        <div class="funnel-stat-label">إجمالي الطلبات</div>
+        <div class="funnel-stat-subtext">انقر للاستعراض التفصيلي</div>
+      </div>
+      <div class="funnel-stat-card" onclick="openStageModal('viewed')">
+        <div class="funnel-stat-icon">👁️</div>
+        <div class="funnel-stat-value" style="color: #818cf8;" id="stat-viewed">0</div>
+        <div class="funnel-stat-label">تمت المشاهدة</div>
+        <div class="funnel-stat-subtext" id="stat-view-rate">0% معدل الفتح</div>
+      </div>
+      <div class="funnel-stat-card" onclick="openStageModal('responded')">
+        <div class="funnel-stat-icon">💬</div>
+        <div class="funnel-stat-value" style="color: #c084fc;" id="stat-responded">0</div>
+        <div class="funnel-stat-label">ردود الشركات</div>
+        <div class="funnel-stat-subtext" id="stat-resp-rate">0% معدل الرد</div>
+      </div>
+      <div class="funnel-stat-card" onclick="openStageModal('interview')">
+        <div class="funnel-stat-icon">🎤</div>
+        <div class="funnel-stat-value" style="color: #f472b6;" id="stat-interview">0</div>
+        <div class="funnel-stat-label">المقابلات</div>
+        <div class="funnel-stat-subtext" id="stat-int-rate">0% تحويل مقابلات</div>
+      </div>
+      <div class="funnel-stat-card">
+        <div class="funnel-stat-icon">⏱️</div>
+        <div class="funnel-stat-value" style="color: #fbbf24;" id="stat-avg-response">0 أيام</div>
+        <div class="funnel-stat-label">متوسط وقت الرد</div>
+        <div class="funnel-stat-subtext">سرعة تجاوب مسؤولي التوظيف</div>
+      </div>
+      <div class="funnel-stat-card" onclick="openStageModal('hired')">
+        <div class="funnel-stat-icon">🏆</div>
+        <div class="funnel-stat-value" style="color: #34d399;" id="stat-hired">0</div>
+        <div class="funnel-stat-label">التوظيف والنجاح</div>
+        <div class="funnel-stat-subtext" id="stat-overall-conv">0% إجمالي التحويل</div>
+      </div>
+    </div>
+
+    <!-- Pipeline Stage Velocity Card -->
+    <div class="velocity-card">
+      <div class="section-title">⏱️ مؤشر السرعة الزمنية بين مراحل التقديم (متوسط الأيام)</div>
+      <div class="velocity-grid">
+        <div class="velocity-item">
+          <div class="velocity-time" id="vel-app-view">1.2 يوم</div>
+          <div class="velocity-label">من التقديم إلى الفتح 👁️</div>
+        </div>
+        <div class="velocity-item">
+          <div class="velocity-time" id="vel-view-resp">2.8 يوم</div>
+          <div class="velocity-label">من الفتح إلى الرد 💬</div>
+        </div>
+        <div class="velocity-item">
+          <div class="velocity-time" id="vel-resp-int">2.5 يوم</div>
+          <div class="velocity-label">من الرد إلى المقابلة 🎤</div>
+        </div>
+        <div class="velocity-item">
+          <div class="velocity-time" id="vel-int-off">5.0 أيام</div>
+          <div class="velocity-label">من المقابلة إلى العرض 💎</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funnel Visualization Bars -->
+    <div class="funnel-chart-container">
+      <div class="section-header-flex">
+        <div class="section-title">🎯 مراحل المسار ونسب التحويل التدريجية</div>
+      </div>
+      <div class="funnel-visual" id="funnel-visual-list"></div>
+    </div>
+
+    <!-- Chart breakdown with Bar / Line / Doughnut Toggle -->
+    <div class="funnel-chart-container">
+      <div class="section-header-flex">
+        <div class="section-title">📈 التحليل البياني البصري للمراحل</div>
+        <div class="chart-toggle-group">
+          <button class="chart-toggle-btn active" id="btn-chart-bar">📊 أعمدة</button>
+          <button class="chart-toggle-btn" id="btn-chart-line">📈 خطي</button>
+          <button class="chart-toggle-btn" id="btn-chart-doughnut">🍩 دائرية</button>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="funnelChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Detailed Cyber Table -->
+    <div class="funnel-table-wrap">
+      <table class="cyber-table">
+        <thead>
+          <tr>
+            <th>المرحلة</th>
+            <th>العدد</th>
+            <th>% من المرحلة السابقة</th>
+            <th>% من الإجمالي المرسل</th>
+            <th>معدل التراجع والفقس</th>
+          </tr>
+        </thead>
+        <tbody id="funnel-table-body"></tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Table view -->
-  <div class="funnel-table">
-    <table class="cyber-table">
-      <thead>
-        <tr>
-          <th>المرحلة</th>
-          <th>العدد</th>
-          <th>% من السابق</th>
-          <th>% من الإجمالي</th>
-          <th>التراجع</th>
-        </tr>
-      </thead>
-      <tbody id="funnel-table-body"></tbody>
-    </table>
+  <!-- Empty State -->
+  <div id="funnel-empty" style="display: none; text-align: center; padding: 85px 20px; background: rgba(15, 23, 42, 0.45); border-radius: 24px; border: 1px dashed rgba(255,255,255,0.12);">
+    <div style="font-size: 60px; margin-block-end: 18px;">📭</div>
+    <h3 style="color: #f1f5f9; font-size: 22px; font-weight: 800; margin-block-end: 10px;">لا توجد بيانات تقديم مسجلة للفترة الحالية</h3>
+    <p style="color: #94a3b8; font-size: 15px; max-inline-size: 500px; margin: 0 auto 24px; line-height: 1.6;">قم بإنشاء وسحب طلبات التوظيف أو تشغيل حملات التقديم الأوتوماتيكية لتتبع أداء مسارك وتحليلاتك هنا.</p>
+    <a href="/dashboard" class="ai-action-btn">الذهاب للوحة التحكم 🚀</a>
   </div>
 </div>
 
-<!-- Empty state -->
-<div id="funnel-empty" style="display:none;text-align:center;padding:60px 20px;">
-  <div style="font-size:48px;margin-block-end:12px;">📭</div>
-  <h3 style="color:#94a3b8;margin-block-end:8px;">ما في بيانات بعد</h3>
-  <p style="color:#52525b;font-size: 14px;">بلّش ابعت طلبات لتشوف تحليلاتك هون.</p>
+<!-- Interactive Drill-Down Modal -->
+<div id="funnel-modal-overlay" class="funnel-modal-overlay" style="display: none;">
+  <div class="funnel-modal-content">
+    <button class="funnel-modal-close" onclick="closeStageModal()">&times;</button>
+    <h3 id="modal-stage-title" style="color: #f8fafc; font-size: 20px; font-weight: 800; margin-block-end: 16px;">🔍 تفاصيل المرحلة</h3>
+    <div id="modal-stage-body">
+      <p style="color: #94a3b8;">جاري التحميل...</p>
+    </div>
+  </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 <script>
+let currentPeriod = '30';
+let currentSector = 'general';
 let funnelData = null;
-let currentPeriod = '7';
 let chartInstance = null;
+let currentChartType = 'bar';
 
-const STAGE_COLORS = ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#10b981'];
 const STAGES = [
-  { key: 'applied', label: 'تم التقديم', icon: '📨', color: '#3b82f6' },
+  { key: 'applied', label: 'الطلبات المُرسلة', icon: '📨', color: '#3b82f6' },
   { key: 'viewed', label: 'تمت المشاهدة', icon: '👁️', color: '#6366f1' },
   { key: 'responded', label: 'تم الرد', icon: '💬', color: '#8b5cf6' },
-  { key: 'interview', label: 'تمت المقابلة', icon: '🎤', color: '#a855f7' },
-  { key: 'offer', label: 'عُرضت وظيفة', icon: '💎', color: '#d946ef' },
+  { key: 'interview', label: 'المقابلات الشخصية', icon: '🎤', color: '#ec4899' },
+  { key: 'offer', label: 'عروض العمل', icon: '💎', color: '#d946ef' },
   { key: 'hired', label: 'تم التوظيف', icon: '🏆', color: '#10b981' }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Filter buttons
   document.querySelectorAll('#funnel-filters .funnel-filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('#funnel-filters .funnel-filter-btn').forEach(b => b.classList.remove('active'));
@@ -381,48 +750,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.querySelectorAll('#sector-filters .sector-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#sector-filters .sector-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentSector = this.dataset.sector;
+      if (funnelData) renderFunnel();
+    });
+  });
+
+  document.getElementById('export-funnel-csv-btn').addEventListener('click', exportFunnelCSV);
+  document.getElementById('export-funnel-json-btn').addEventListener('click', exportFunnelJSON);
+  document.getElementById('export-funnel-pdf-btn').addEventListener('click', () => window.print());
+
+  document.getElementById('btn-chart-bar').addEventListener('click', () => switchChartType('bar'));
+  document.getElementById('btn-chart-line').addEventListener('click', () => switchChartType('line'));
+  document.getElementById('btn-chart-doughnut').addEventListener('click', () => switchChartType('doughnut'));
+
   loadFunnelData();
 });
 
-function setLoading(loading) {
-  document.getElementById('funnel-loading').style.display = loading ? 'block' : 'none';
-  document.getElementById('funnel-data').style.display = loading ? 'none' : 'block';
+function setLoading(isLoading) {
+  document.getElementById('funnel-loading').style.display = isLoading ? 'block' : 'none';
+  document.getElementById('funnel-data').style.display = isLoading ? 'none' : 'block';
   document.getElementById('funnel-empty').style.display = 'none';
 }
 
 async function loadFunnelData() {
   setLoading(true);
-
   try {
-    const params = new URLSearchParams();
-    if (currentPeriod !== 'all') {
-      params.set('days', currentPeriod);
-    }
-    const resp = await fetch('/api/v1/funnel-analytics?' + params.toString());
-
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const resp = await fetch(`/api/v1/funnel-analytics?days=${currentPeriod}`);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
     funnelData = await resp.json();
     renderFunnel();
-    document.getElementById('funnel-updated').textContent =
-      'تم التحديث ' + new Date().toLocaleTimeString();
+    document.getElementById('funnel-updated').textContent = `تم التحديث ${new Date().toLocaleTimeString('ar-EG')}`;
   } catch (e) {
-    console.error('Funnel load error:', e);
-    // Fallback to existing /api/v1/funnel
-    try {
-      const resp = await fetch('/api/v1/funnel');
-      funnelData = await resp.json();
-      renderFunnel();
-    } catch (e2) {
-      document.getElementById('funnel-loading').style.display = 'none';
-      document.getElementById('funnel-empty').style.display = 'block';
-    }
+    console.error('Error loading funnel analytics:', e);
+    document.getElementById('funnel-loading').style.display = 'none';
+    document.getElementById('funnel-empty').style.display = 'block';
   }
 }
 
 function renderFunnel() {
-  const data = funnelData;
-  if (!data || !data.applied || data.applied === 0) {
+  const d = funnelData;
+  if (!d || (!d.applied && !d.discovered)) {
     document.getElementById('funnel-loading').style.display = 'none';
     document.getElementById('funnel-empty').style.display = 'block';
     return;
@@ -430,213 +802,348 @@ function renderFunnel() {
 
   setLoading(false);
 
-  const applied = data.applied || 0;
-  const viewed = data.viewed || 0;
-  const responded = data.responded || 0;
-  const interview = data.interview || 0;
-  const offer = data.offer || 0;
-  const hired = data.hired || 0;
+  // AI Recommendation & Action
+  document.getElementById('ai-recommendation-text').textContent = d.ai_recommendation_ar || d.ai_recommendation || 'استمر في تقديم الطلبات بانتظام لتحسين أداء المسار.';
+  if (d.bottleneck_action_ar) {
+    document.getElementById('ai-action-label').textContent = `${d.bottleneck_action_ar} 🚀`;
+  }
+  if (d.bottleneck_action_url) {
+    document.getElementById('ai-action-link').setAttribute('href', d.bottleneck_action_url);
+  }
 
-  // Total banner
-  document.getElementById('funnel-total').textContent = applied.toLocaleString();
+  // Health Score
+  if (d.funnel_health_score !== undefined) {
+    document.getElementById('health-score-val').textContent = `${d.funnel_health_score}/100`;
+    const stBadge = document.getElementById('health-status-badge');
+    stBadge.textContent = d.health_status_ar || 'ممتاز';
+    if (d.funnel_health_score >= 80) stBadge.className = 'conv-badge conv-high';
+    else if (d.funnel_health_score >= 60) stBadge.className = 'conv-badge conv-mid';
+    else if (d.funnel_health_score >= 35) stBadge.className = 'conv-badge conv-low';
+    else stBadge.className = 'conv-badge conv-zero';
+  }
 
-  // Stats row
-  const stages = [
-    { label: 'تم التقديم', value: applied, color: '#3b82f6' },
-    { label: 'تمت المشاهدة', value: viewed, color: '#6366f1', conv: applied > 0 ? ((viewed / applied) * 100).toFixed(1) + '% view' : '0%' },
-    { label: 'تم الرد', value: responded, color: '#8b5cf6', conv: applied > 0 ? ((responded / applied) * 100).toFixed(1) + '% resp' : '0%' },
-    { label: 'تمت المقابلة', value: interview, color: '#a855f7', conv: applied > 0 ? ((interview / applied) * 100).toFixed(1) + '% int' : '0%' },
-    { label: 'عُرضت وظيفة', value: offer, color: '#ec4899', conv: applied > 0 ? ((offer / applied) * 100).toFixed(1) + '% offer' : '0%' },
-    { label: 'تم التوظيف', value: hired, color: '#10b981', conv: applied > 0 ? ((hired / applied) * 100).toFixed(1) + '% hired' : '0%' },
-  ];
+  // 6 KPI Stat Cards
+  document.getElementById('stat-applied').textContent = (d.applied || 0).toLocaleString();
+  document.getElementById('stat-viewed').textContent = (d.viewed || 0).toLocaleString();
+  document.getElementById('stat-view-rate').textContent = `${d.conversion_rates.applied_to_viewed}% معدل الفتح`;
 
-  document.getElementById('funnel-stats-row').innerHTML = stages.map(s => `
-    <div class="funnel-stat">
-      <div class="funnel-stat-value" style="color:${s.color}">${s.value.toLocaleString()}</div>
-      <div class="funnel-stat-label">${s.label}</div>
-      ${s.conv ? `<div class="funnel-stat-conv" style="color:${s.color}80">${s.conv}</div>` : ''}
-    </div>
-  `).join('');
+  document.getElementById('stat-responded').textContent = (d.responded || 0).toLocaleString();
+  document.getElementById('stat-resp-rate').textContent = `${d.conversion_rates.viewed_to_responded}% معدل الرد`;
 
-  // Funnel visualization
-  renderFunnelVisual(data);
+  document.getElementById('stat-interview').textContent = (d.interview || 0).toLocaleString();
+  document.getElementById('stat-int-rate').textContent = `${d.conversion_rates.responded_to_interview}% تحويل المقابلات`;
 
-  // Bar chart
-  renderChart(data);
+  document.getElementById('stat-avg-response').textContent = `${d.avg_response_days || 0} يوم`;
 
-  // Table
-  renderTable(data);
+  document.getElementById('stat-hired').textContent = (d.hired || 0).toLocaleString();
+  document.getElementById('stat-overall-conv').textContent = `${d.overall_conversion_rate}% إجمالي التحويل`;
+
+  // Velocity Card
+  if (d.stage_velocities) {
+    document.getElementById('vel-app-view').textContent = `${d.stage_velocities.applied_to_viewed} يوم`;
+    document.getElementById('vel-view-resp').textContent = `${d.stage_velocities.viewed_to_responded} يوم`;
+    document.getElementById('vel-resp-int').textContent = `${d.stage_velocities.responded_to_interview} يوم`;
+    document.getElementById('vel-int-off').textContent = `${d.stage_velocities.interview_to_offer} أيام`;
+  }
+
+  // Render Visual Progress Bars
+  renderFunnelVisual(d);
+
+  // Render Dynamic Chart
+  renderChart(d);
+
+  // Render Data Table
+  renderTable(d);
+}
+
+function getActiveBenchmark() {
+  if (!funnelData) return {};
+  if (funnelData.industry_benchmarks && funnelData.industry_benchmarks[currentSector]) {
+    return funnelData.industry_benchmarks[currentSector];
+  }
+  return funnelData.benchmarks || {};
 }
 
 function renderFunnelVisual(data) {
-  const applied = data.applied || 0;
-  const viewed = data.viewed || 0;
-  const responded = data.responded || 0;
-  const interview = data.interview || 0;
-  const offer = data.offer || 0;
-  const hired = data.hired || 0;
-
-  const values = [applied, viewed, responded, interview, offer, hired];
+  const values = [data.applied, data.viewed, data.responded, data.interview, data.offer, data.hired];
   const maxVal = Math.max(...values, 1);
-
+  const bm = getActiveBenchmark();
+  const stageBmKeys = [null, 'applied_to_viewed', 'viewed_to_responded', 'responded_to_interview', 'interview_to_offer', 'offer_to_hired'];
+  const bottleneckKey = data.bottleneck;
   let html = '';
+
   for (let i = 0; i < STAGES.length; i++) {
     const stage = STAGES[i];
-    const val = values[i];
-    const pct = Math.max((val / maxVal) * 100, 2);
-    const prev = i > 0 ? values[i - 1] : val;
-    const convRate = prev > 0 ? ((val / prev) * 100).toFixed(1) : '0';
-    const dropOff = i > 0 ? prev - val : 0;
+    const val = values[i] || 0;
+    const pct = Math.max((val / maxVal) * 100, 3);
+    const prev = i > 0 ? (values[i - 1] || 0) : val;
+    const convRate = prev > 0 ? parseFloat(((val / prev) * 100).toFixed(1)) : 0;
+    const dropOff = i > 0 ? Math.max(prev - val, 0) : 0;
+
+    let bmPill = '';
+    if (i > 0 && stageBmKeys[i] && bm[stageBmKeys[i]] !== undefined) {
+      const benchmarkVal = bm[stageBmKeys[i]];
+      const diff = (convRate - benchmarkVal).toFixed(1);
+      if (convRate >= benchmarkVal) {
+        bmPill = `<span class="conv-badge conv-high" style="margin-inline-start: 8px; font-size: 11px; padding: 2px 8px;">أعلى من المتوسط (+${diff}%)</span>`;
+      } else {
+        bmPill = `<span class="conv-badge conv-low" style="margin-inline-start: 8px; font-size: 11px; padding: 2px 8px;">أقل من المتوسط (${diff}%)</span>`;
+      }
+    }
+
+    const isBottleneck = (i > 0 && stageBmKeys[i] === bottleneckKey);
+    const bottleneckPill = isBottleneck ? `<span style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.45); color: #fca5a5; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 8px; margin-inline-start: 8px;">⚠️ نقطة الاختناق الرئيسة</span>` : '';
 
     html += `
-      <div class="funnel-stage">
-        <div class="funnel-stage-label">${stage.icon} ${stage.label}</div>
-        <div class="funnel-stage-bar-wrap">
-          <div class="funnel-stage-bar" style="inline-size:${pct}%;background:${stage.color};">
-            ${val > 0 ? '<span style="position:absolute;inset-inline-start: 10px;font-size: 14px;">' + val.toLocaleString() + '</span>' : ''}
+      <div class="funnel-stage-item" onclick="openStageModal('${stage.key}')">
+        <div class="funnel-stage-meta">
+          <span class="funnel-stage-name">${stage.icon} ${stage.label} ${bottleneckPill} ${bmPill}</span>
+          <span class="funnel-stage-count">${val.toLocaleString()}</span>
+        </div>
+        <div class="funnel-bar-bg" style="${isBottleneck ? 'border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);' : ''}">
+          <div class="funnel-bar-fill" style="inline-size: ${pct}%; background: ${isBottleneck ? 'linear-gradient(90deg, #ef4444, #f97316)' : stage.color};">
+            ${val > 0 ? `<span>${val.toLocaleString()}</span>` : ''}
           </div>
         </div>
+        ${i > 0 && dropOff > 0 ? `<div class="dropoff-tag" style="${isBottleneck ? 'background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #f87171;' : ''}">🔻 تراجع ${dropOff.toLocaleString()} (${convRate}% تحويل من المرحلة السابقة)</div>` : ''}
       </div>`;
-
-    if (i > 0 && dropOff > 0) {
-      html += `<div class="funnel-dropoff">⬇ ${dropOff.toLocaleString()} تراجع (${convRate}% تحويل)</div>`;
-    }
   }
-  document.getElementById('funnel-visual').innerHTML = html;
+
+  document.getElementById('funnel-visual-list').innerHTML = html;
+}
+
+function switchChartType(type) {
+  currentChartType = type;
+  document.getElementById('btn-chart-bar').classList.toggle('active', type === 'bar');
+  document.getElementById('btn-chart-line').classList.toggle('active', type === 'line');
+  document.getElementById('btn-chart-doughnut').classList.toggle('active', type === 'doughnut');
+  if (funnelData) renderChart(funnelData);
 }
 
 function renderChart(data) {
   const ctx = document.getElementById('funnelChart').getContext('2d');
   if (chartInstance) chartInstance.destroy();
 
-  const applied = data.applied || 0;
   const labels = STAGES.map(s => s.label);
-  const values = [
-    applied,
-    data.viewed || 0,
-    data.responded || 0,
-    data.interview || 0,
-    data.offer || 0,
-    data.hired || 0
-  ];
+  const values = [data.applied, data.viewed, data.responded, data.interview, data.offer, data.hired];
+  const colors = STAGES.map(s => s.color);
 
-  // Percentage labels
-  const pctLabels = values.map((v, i) => {
-    if (i === 0) return '100%';
-    const prev = values[i - 1];
-    return prev > 0 ? ((v / prev) * 100).toFixed(1) + '%' : '0%';
-  });
+  const chartType = currentChartType === 'line' ? 'line' : (currentChartType === 'doughnut' ? 'doughnut' : 'bar');
 
   chartInstance = new Chart(ctx, {
-    type: 'bar',
+    type: chartType,
     data: {
       labels: labels,
-      datasets: [
-        {
-          label: 'الطلبات',
-          data: values,
-          backgroundColor: STAGE_COLORS.map(c => c + 'CC'),
-          borderColor: STAGE_COLORS,
-          borderWidth: 2,
-          borderRadius: 8,
-          borderSkipped: false,
-        }
-      ]
+      datasets: [{
+        label: 'عدد الطلبات والمراحل',
+        data: values,
+        backgroundColor: colors.map(c => c + (chartType === 'doughnut' ? 'DD' : '44')),
+        borderColor: colors,
+        borderWidth: 2,
+        fill: chartType === 'line',
+        tension: 0.35,
+        borderRadius: chartType === 'bar' ? 8 : 0
+      }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: chartType === 'doughnut',
+          position: 'bottom',
+          labels: { color: '#cbd5e1', font: { family: 'Cairo', size: 12, weight: '700' } }
+        },
         tooltip: {
-          backgroundColor: '#1e1e2e',
-          titleColor: '#e2e8f0',
-          bodyColor: '#d4d4d8',
-          borderColor: 'rgba(59,130,246,0.3)',
+          backgroundColor: '#0f172a',
+          titleColor: '#f8fafc',
+          bodyColor: '#cbd5e1',
+          borderColor: 'rgba(59, 130, 246, 0.4)',
           borderWidth: 1,
-          padding: 12,
+          padding: 14,
           callbacks: {
-            label: function(ctx) {
-              const idx = ctx.dataIndex;
-              return [
-                'العدد: ' + ctx.raw.toLocaleString(),
-                'نسبة التحويل: ' + pctLabels[idx]
-              ];
-            }
+            label: function(context) { return `العدد: ${context.raw.toLocaleString()}`; }
           }
         }
       },
-      scales: {
+      scales: chartType !== 'doughnut' ? {
         x: {
-          ticks: {
-            color: '#94a3b8',
-            font: { family: 'Inter', size: 11, weight: '600' },
-          },
+          ticks: { color: '#94a3b8', font: { family: 'Cairo', size: 12, weight: '700' } },
           grid: { display: false }
         },
         y: {
-          ticks: {
-            color: '#64748b',
-            font: { family: 'Inter', size: 11 },
-            callback: v => v.toLocaleString()
-          },
-          grid: {
-            color: 'rgba(255,255,255,0.04)',
-            drawBorder: false
-          },
+          ticks: { color: '#64748b', font: { family: 'Cairo', size: 11 } },
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
           beginAtZero: true
         }
-      }
+      } : {}
     }
   });
 }
 
 function renderTable(data) {
-  const applied = data.applied || 0;
-  const values = [
-    data.viewed || 0,
-    data.responded || 0,
-    data.interview || 0,
-    data.offer || 0,
-    data.hired || 0
-  ];
-
+  const values = [data.applied, data.viewed, data.responded, data.interview, data.offer, data.hired];
+  const applied = data.applied || 1;
   let rows = '';
 
-  // First row: تم التقديم
-  rows += `<tr>
-    <td><span style="font-weight:600;">📨 تم التقديم</span></td>
-    <td><strong>${applied.toLocaleString()}</strong></td>
-    <td>-</td>
-    <td>100%</td>
-    <td>-</td>
-  </tr>`;
-
-  for (let i = 0; i < values.length; i++) {
-    const stage = STAGES[i + 1];
-    const val = values[i];
-    const prev = i === 0 ? applied : values[i - 1];
+  for (let i = 0; i < STAGES.length; i++) {
+    const stage = STAGES[i];
+    const val = values[i] || 0;
+    const prev = i === 0 ? val : (values[i - 1] || 0);
     const pctPrev = prev > 0 ? ((val / prev) * 100).toFixed(1) : '0';
     const pctTotal = applied > 0 ? ((val / applied) * 100).toFixed(1) : '0';
-    const dropoff = prev - val;
+    const dropoff = i === 0 ? 0 : Math.max(prev - val, 0);
 
     let convClass = 'conv-high';
-    if (parseFloat(pctPrev) < 20) convClass = 'conv-low';
-    else if (parseFloat(pctPrev) < 50) convClass = 'conv-mid';
-    if (parseFloat(pctPrev) === 0) convClass = 'conv-zero';
+    const pVal = parseFloat(pctPrev);
+    if (pVal < 20) convClass = 'conv-low';
+    else if (pVal < 50) convClass = 'conv-mid';
+    if (pVal === 0) convClass = 'conv-zero';
 
-    rows += `<tr>
-      <td><span style="font-weight:600;">${stage.icon} ${stage.label}</span></td>
-      <td><strong>${val.toLocaleString()}</strong></td>
-      <td><span class="conv-badge ${convClass}">${pctPrev}%</span></td>
-      <td>${pctTotal}%</td>
-      <td style="color:${dropoff > 0 ? '#ef4444' : '#10b981'};">${dropoff > 0 ? '−' + dropoff.toLocaleString() : (dropoff === 0 && val > 0 ? '—' : '—')}</td>
-    </tr>`;
+    rows += `
+      <tr style="cursor: pointer;" onclick="openStageModal('${stage.key}')">
+        <td><span style="font-weight: 700; color: #f1f5f9;">${stage.icon} ${stage.label}</span></td>
+        <td><strong style="color: #60a5fa; font-size: 15px;">${val.toLocaleString()}</strong></td>
+        <td>${i === 0 ? '-' : `<span class="conv-badge ${convClass}">${pctPrev}%</span>`}</td>
+        <td>${pctTotal}%</td>
+        <td style="color: ${dropoff > 0 ? '#f87171' : '#34d399'}; font-weight: 700;">
+          ${i === 0 ? '-' : (dropoff > 0 ? `−${dropoff.toLocaleString()}` : '0')}
+        </td>
+      </tr>`;
   }
 
   document.getElementById('funnel-table-body').innerHTML = rows;
 }
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-</div>
+function openStageModal(stageKey) {
+  const stageObj = STAGES.find(s => s.key === stageKey) || { label: stageKey, icon: '📋' };
+  document.getElementById('modal-stage-title').textContent = `${stageObj.icon} تفاصيل مرحلة: ${stageObj.label}`;
+  
+  const list = (funnelData && funnelData.stage_emails && funnelData.stage_emails[stageKey]) ? funnelData.stage_emails[stageKey] : [];
+  
+  let html = '';
+  if (list.length === 0) {
+    html = `<p style="color: #94a3b8; font-size: 15px; padding: 20px 0; text-align: center;">لا توجد طلبات مسجلة حالياً في هذه المرحلة.</p>`;
+  } else {
+    html = `
+      <table class="cyber-table" style="margin-block-start: 10px;">
+        <thead>
+          <tr>
+            <th>الشركة</th>
+            <th>المسمى الوظيفي</th>
+            <th>تاريخ الإرسال</th>
+            <th>الإجراء</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    list.forEach(item => {
+      html += `
+        <tr>
+          <td><strong style="color: #f1f5f9;">${item.company_name}</strong></td>
+          <td>${item.job_title}</td>
+          <td><span style="color: #94a3b8; font-size: 13px;">${item.sent_at}</span></td>
+          <td>
+            <a href="/sent-emails" class="ai-action-btn" style="padding: 4px 10px; font-size: 12px;">عرض</a>
+          </td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+  
+  document.getElementById('modal-stage-body').innerHTML = html;
+  document.getElementById('funnel-modal-overlay').style.display = 'flex';
+}
+
+function closeStageModal() {
+  document.getElementById('funnel-modal-overlay').style.display = 'none';
+}
+
+function exportFunnelCSV() {
+  if (!funnelData) return;
+  const data = funnelData;
+  const rows = [
+    ["المرحلة", "العدد", "نسبة التحويل من المرحلة السابقة", "النسبة الإجمالية من الطلبات"],
+    ["الطلبات المُرسلة", data.applied, "100%", "100%"],
+    ["تمت المشاهدة", data.viewed, `${data.conversion_rates.applied_to_viewed}%`, `${((data.viewed / (data.applied || 1)) * 100).toFixed(1)}%`],
+    ["تم الرد", data.responded, `${data.conversion_rates.viewed_to_responded}%`, `${((data.responded / (data.applied || 1)) * 100).toFixed(1)}%`],
+    ["المقابلات", data.interview, `${data.conversion_rates.responded_to_interview}%`, `${((data.interview / (data.applied || 1)) * 100).toFixed(1)}%`],
+    ["عروض العمل", data.offer, `${data.conversion_rates.interview_to_offer}%`, `${((data.offer / (data.applied || 1)) * 100).toFixed(1)}%`],
+    ["تم التوظيف", data.hired, `${data.conversion_rates.offer_to_hired}%`, `${((data.hired / (data.applied || 1)) * 100).toFixed(1)}%`]
+  ];
+
+  let csvContent = "data:text/csv;charset=utf-8,\uFEFF" + rows.map(e => e.map(val => `"${val}"`).join(",")).join("\n");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `funnel_analytics_${currentPeriod}days.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function downloadAnalyticsReport(format) {
+  if (format === 'json') {
+    return exportFunnelJSON();
+  }
+  const url = `/api/v1/analytics/export?format=${format}`;
+  window.open(url, '_blank');
+}
+
+// Real-time Analytics WebSocket Connection
+(function initAnalyticsWebSocket() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${protocol}//${window.location.host}/ws/v1/analytics/stream`;
+  let ws;
+
+  function connect() {
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = function () {
+      const statusBadge = document.getElementById('ws-live-status');
+      if (statusBadge) {
+        statusBadge.style.display = 'inline-flex';
+        statusBadge.innerHTML = `<span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 8px #22c55e;"></span> مباشر 🟢 Live Stream`;
+      }
+    };
+
+    ws.onmessage = function (event) {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload && payload.funnel && funnelData) {
+          if (payload.funnel.applications_submitted) {
+            funnelData.applied = payload.funnel.applications_submitted;
+          }
+          if (payload.funnel.interviews_invited) {
+            funnelData.interview = payload.funnel.interviews_invited;
+          }
+          if (payload.funnel.offers_received) {
+            funnelData.offer = payload.funnel.offers_received;
+          }
+          if (typeof renderFunnelVisual === 'function') {
+            renderFunnelVisual(funnelData);
+          }
+          if (typeof renderFunnelTable === 'function') {
+            renderFunnelTable(funnelData);
+          }
+        }
+      } catch (e) {
+        console.warn('WebSocket message error:', e);
+      }
+    };
+
+    ws.onclose = function () {
+      const statusBadge = document.getElementById('ws-live-status');
+      if (statusBadge) {
+        statusBadge.innerHTML = `<span style="display: inline-block; width: 8px; height: 8px; background: #f59e0b; border-radius: 50%;"></span> إعادة اتصال...`;
+      }
+      setTimeout(connect, 4000);
+    };
+
+    ws.onerror = function () {
+      if (ws) ws.close();
+    };
+  }
+
+  connect();
+})();
+</script>

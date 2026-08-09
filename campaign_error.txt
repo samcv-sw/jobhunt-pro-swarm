@@ -1,9 +1,6 @@
-name 'sent_in_this_campaign' is not defined
+name 'already_sent_companies' is not defined
 Traceback (most recent call last):
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1045, in run_campaign
-    valid_jobs = await _filter_and_enrich_jobs(
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 557, in _filter_and_enrich_jobs
-    remaining_quota = campaign["total_companies"] - sent_in_this_campaign
-                                                    ^^^^^^^^^^^^^^^^^^^^^
-NameError: name 'sent_in_this_campaign' is not defined
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1101, in run_campaign
+    jobs, pa_mode, campaign, already_sent_emails, already_sent_companies, unlocked_weapons, user_details
+                                                  ^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'already_sent_companies' is not defined. Did you mean: 'already_sent_emails'?

@@ -1,7 +1,15 @@
 import os
 import sys
 
+os.environ["TESTING"] = "1"
+os.environ["PYTEST_RUNNING"] = "1"
+os.environ["LANGCHAIN_TRACING_V2"] = "false"
+os.environ["LANGSMITH_TRACING"] = "false"
+os.environ["LOGFIRE_IGNORE_NO_CONFIG"] = "1"
+
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 from unittest.mock import MagicMock
 
@@ -32,24 +40,42 @@ def mock_celery_send_task(monkeypatch):
     yield
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_test_database_session():
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_database_session():
     # Ensure data directory exists
     os.makedirs("./data", exist_ok=True)
+
+    # Dispose async engine if open to release file handles on Windows
+    with contextlib.suppress(Exception):
+        engine.dispose()
 
     # Remove old test DB if it exists to start fresh
     if os.path.exists(DB_PATH):
         with contextlib.suppress(Exception):
             os.remove(DB_PATH)
+        with contextlib.suppress(Exception):
+            if os.path.exists(f"{DB_PATH}-wal"):
+                os.remove(f"{DB_PATH}-wal")
+            if os.path.exists(f"{DB_PATH}-shm"):
+                os.remove(f"{DB_PATH}-shm")
 
-    # Run the table creation
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Run table creation synchronously with standard SQLite engine
+    from sqlalchemy import create_engine
+    sync_test_engine = create_engine(f"sqlite:///{DB_PATH}")
+    try:
+        Base.metadata.create_all(sync_test_engine, checkfirst=True)
+    except Exception:
+        pass
+    sync_test_engine.dispose()
 
-    # Run the web app's custom table creation functions
+
     import sqlite3
     conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA busy_timeout=5000;")
+    conn.commit()
     try:
+
         import web.app_v2 as app_v2
         if hasattr(app_v2, "_create_tables"):
             app_v2._create_tables(conn)
@@ -76,6 +102,8 @@ async def setup_test_database_session():
     if os.path.exists(DB_PATH):
         with contextlib.suppress(Exception):
             os.remove(DB_PATH)
+
+
 
 @pytest.fixture(autouse=True)
 def reset_rate_limiter_global(request):

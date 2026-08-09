@@ -305,7 +305,7 @@ class WebsiteController:
             db_name = getattr(config, "DB_PATH", None) or "jobhunt_saas_v2.db"
             db_path = Path(__file__).parent.parent / db_name
             if not db_path.exists():
-                return "📜 No database found for logs."
+                db_path = Path(__file__).parent.parent / os.path.basename(db_name)
 
             conn = sqlite3.connect(str(db_path))
             conn.row_factory = sqlite3.Row

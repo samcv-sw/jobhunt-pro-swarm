@@ -19,8 +19,12 @@ from .email_engine import RotatingEmailSender
 
 logger = logging.getLogger(__name__)
 
-# Initialize the global email sender inside the worker process
-email_sender = RotatingEmailSender()
+# Initialize the global email sender inside the worker process (lazy/skipped during testing)
+if not os.getenv("TESTING") and not os.getenv("PYTEST_RUNNING"):
+    email_sender = RotatingEmailSender()
+else:
+    email_sender = None
+
 
 import threading
 

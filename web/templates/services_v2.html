@@ -627,20 +627,23 @@
  justify-content: center;
  display: none;
  }
- .cart-sidebar {
- position: fixed;
- inset-block-start: 0; inset-inline-end: -400px;
- inline-size: 380px; block-size: 100vh;
- background: var(--card);
- border-inline-start: 1px solid var(--border);
- z-index: 9997;
- transition: right 0.3s ease;
- padding: 24px;
- overflow-y: auto;
- display: flex;
- flex-direction: column;
- }
- .cart-sidebar.open { inset-inline-end: 0; }
+  .cart-sidebar {
+  position: fixed !important;
+  inset-block-start: 0 !important; inset-inline-end: -420px;
+  inline-size: 400px !important; max-inline-size: 92vw !important;
+  block-size: 100vh !important;
+  max-block-size: 100vh !important;
+  background: var(--card) !important;
+  border-inline-start: 1px solid var(--border) !important;
+  z-index: 999999 !important;
+  transition: right 0.3s ease !important;
+  padding: 20px 24px 28px 24px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+  }
+  .cart-sidebar.open { inset-inline-end: 0; }
  .cart-sidebar h2 {
  font-size: 20px;
  font-weight: 700;
@@ -777,6 +780,20 @@
 <div class="hero-stat-value" id="statدفع">كريبتو</div>
 <div class="hero-stat-label">دفع</div>
 </div>
+</div>
+
+<!-- SELECT ALL SERVICES FAST BANNER -->
+<div style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,27,75,0.9), rgba(15,23,42,0.95)); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 20px; padding: 20px 24px; margin: 30px auto 10px; max-width: 800px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 0 30px rgba(0,240,255,0.2); backdrop-filter: blur(16px);">
+  <div style="text-align: right;">
+    <span style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; font-size: 14px; font-weight: 800; padding: 3px 12px; border-radius: 20px; border: 1px solid rgba(0, 240, 255, 0.3);">⚡ خيار الشراء السريع للعملاء المميزين</span>
+    <h3 style="color: #ffffff; font-size: 17px; font-weight: 800; margin: 8px 0 2px 0;">هل ترغب في طلب جميع الخدمات بضغطة واحدة؟</h3>
+    <p style="color: #cbd5e1; font-size: 14px; margin: 0;">يمكنك إضافة كل الخدمات دفعة واحدة إلى السلة وإتمام عملية الشراء فورياً.</p>
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <button type="button" onclick="selectAllServices()" style="background: linear-gradient(135deg, #f59e0b, #eab308, #10b981); color: #0f172a; font-weight: 900; font-size: 14px; padding: 12px 22px; border-radius: 14px; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 20px rgba(245,158,11,0.4); transition: all 0.25s;">
+      <span>🛒 تحديد وإضافة جميع الخدمات للسلة (Select All Services)</span>
+    </button>
+  </div>
 </div>
 </section>
 <!-- TIER 1: MICRO ($2-$5) -->
@@ -955,7 +972,7 @@
 <div class="cart-items" id="cartItems">
 <div class="cart-empty">سلتك فاضية.<br/>تصفح الخدمات وضيفها لسلتك.</div>
 </div>
-<div id="cartFooter" style="display:none;">
+<div id="cartFooter" style="display:block;">
 <div class="cart-total">
 <span>المجموع</span>
 <span class="cart-total-value" id="cartالمجموع">$0</span>
@@ -1024,8 +1041,10 @@ function removeFromCart(itemId) {
 function updateCartUI() {
  var badge = document.getElementById('cartBadge');
  var count = cart.reduce(function(sum, i) { return sum + (i.qty || 1); }, 0);
- badge.textContent = count;
- badge.style.display = count > 0 ? 'flex' : 'none';
+ if (badge) {
+   badge.textContent = count;
+   badge.style.display = count > 0 ? 'flex' : 'none';
+ }
 
  var itemsDiv = document.getElementById('cartItems');
  var footer = document.getElementById('cartFooter');

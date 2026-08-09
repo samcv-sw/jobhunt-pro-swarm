@@ -17,12 +17,27 @@ templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templa
 templates = Jinja2Templates(directory=templates_dir)
 
 @router.get("/ats-studio", response_class=HTMLResponse)
+@router.get("/ats-scorer", response_class=HTMLResponse)
 async def get_ats_studio_page(request: Request):
-    """Render the ATS Studio & Scorer UI."""
-    return templates.TemplateResponse(request, "ats_scorer.html", {
-        "title": "ATS Optimization Studio | JobHunt Pro",
-        "active_page": "ats-scorer"
-    })
+    """Render the ATS Studio & Scorer UI wrapped in Dashboard Shell."""
+    try:
+        from web.app_v2 import _build_dashboard_shell, render_template, get_verified_user_id, get_db
+        user_id = get_verified_user_id(request)
+        user = {}
+        if user_id:
+            with get_db() as conn:
+                user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                user = dict(user_row) if user_row else {}
+        if not user:
+            user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
+
+        content = render_template("ats_scorer.html", request=request, user=user, active_page="ats-scorer")
+        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, "مقياس ATS | JobHunt Pro", "ats-scorer", request=request))
+    except Exception as e:
+        return templates.TemplateResponse(request, "ats_scorer.html", {
+            "title": "ATS Optimization Studio | JobHunt Pro",
+            "active_page": "ats-scorer"
+        })
 
 class ATSAnalysisRequest(BaseModel):
     resume_text: str = Field(..., description="Raw text of the user's CV/Resume")

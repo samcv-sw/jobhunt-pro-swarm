@@ -51,7 +51,7 @@ def get_embedding(text: str) -> list[float]:
         data = resp.json()
         return data["embedding"]["values"]
     except Exception as e:
-        logger.error(f"Embedding failed: {e}")
+        logger.debug(f"Embedding API unavailable ({e}), using offline similarity check.")
         return []
 
 
@@ -342,7 +342,7 @@ def get_cached_response(prompt_text: str, similarity_threshold: float = 0.95, us
             embedding = get_embedding(prompt_text)
             if not embedding:
                 # Fallback to local similarity search!
-                logger.info("Embedding API failed or unreachable. Falling back to local offline similarity check.")
+                logger.debug("Embedding API unavailable. Using local offline similarity check.")
                 res = conn.execute(
                     """SELECT response_text, prompt_text, prompt_hash FROM semantic_cache 
                        WHERE (user_id = ? OR (user_id IS NULL AND ? IS NULL))

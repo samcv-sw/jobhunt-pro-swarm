@@ -27,7 +27,9 @@ import requests
 import config
 from core.smart_scheduler import scheduler
 
+
 logger = logging.getLogger(__name__)
+
 
 SITE_URL = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
@@ -422,7 +424,7 @@ def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str
         profession = (
             user_details.get("profession")
             or user_details.get("target_title")
-            or "Senior Network Engineer"
+            or "Senior Software Engineer"
         )
         candidate_address = user_details.get("address") or getattr(
             config, "CANDIDATE_ADDRESS", "Beirut, Lebanon"
@@ -432,7 +434,7 @@ def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str
         candidate_email = config.CANDIDATE_EMAIL
         phone = config.CANDIDATE_PHONE
         linkedin = config.CANDIDATE_LINKEDIN
-        profession = "Senior Network Engineer"
+        profession = "Senior Software Engineer"
         candidate_address = getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
     return name, candidate_email, phone, linkedin, profession, candidate_address
 
@@ -701,10 +703,23 @@ class RateLimiter:
 
     def __init__(self):
         self.sent_times: dict[str, list[float]] = defaultdict(list)
-        self.lock = asyncio.Lock()
+        self._lock = None
+
+    def _get_lock(self) -> asyncio.Lock:
+        try:
+            curr_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            curr_loop = None
+        if self._lock is None or getattr(self._lock, "_loop", None) != curr_loop:
+            self._lock = asyncio.Lock()
+        return self._lock
+
+    @property
+    def lock(self) -> asyncio.Lock:
+        return self._get_lock()
 
     async def can_send(self, provider: str, hourly_limit: int = 100) -> bool:
-        async with self.lock:
+        async with self._get_lock():
             now = time.time()
             self.sent_times[provider] = [
                 t for t in self.sent_times[provider] if now - t < 3600
@@ -720,11 +735,11 @@ class RateLimiter:
             return len(self.sent_times[provider]) < actual_limit
 
     async def record_send(self, provider: str):
-        async with self.lock:
+        async with self._get_lock():
             self.sent_times[provider].append(time.time())
 
     async def get_count(self, provider: str) -> int:
-        async with self.lock:
+        async with self._get_lock():
             now = time.time()
             self.sent_times[provider] = [
                 t for t in self.sent_times[provider] if now - t < 3600
@@ -983,13 +998,19 @@ Unsubscribe: {unsubscribe_url}"""
         msg.attach(alt_part)
 
         if attachments:
+            clean_name = name.strip().replace(" ", "_") if name else "Candidate"
+            clean_title = re.sub(r"[^\w\s-]", "", title).strip().replace(" ", "_")[:30] if title else "Job"
             for path in attachments:
                 if path and os.path.exists(path):
                     with open(path, "rb") as f:
                         part = MIMEBase("application", "octet-stream")
                         part.set_payload(f.read())
                         encoders.encode_base64(part)
-                        filename = os.path.basename(path)
+                        orig_name = os.path.basename(path)
+                        if "cover" in orig_name.lower():
+                            filename = f"{clean_name}_Cover_Letter.pdf"
+                        else:
+                            filename = f"{clean_name}_Resume_{clean_title}.pdf"
                         part.add_header(
                             "Content-Disposition", f'attachment; filename="{filename}"'
                         )
@@ -1031,8 +1052,13 @@ class EmailEngine:
         v3.0: Uses Microsoft Graph API instead of SMTP XOAUTH2.
         All 1000 accounts revived — OAuth2 tokens refresh with Mail.Send scope.
         """
+        if os.getenv("TESTING") in ("1", "true", "yes") or os.getenv("PYTEST_RUNNING"):
+            self._hotmail_pool = True
+            self._hotmail_pool_available = False
+            return
         if self._hotmail_pool is not None:
             return
+
         try:
             from core.hotmail_pool import get_stats, init
 
@@ -1757,6 +1783,23 @@ class EmailEngine:
         if not valid:
             return False, f"invalid: {reason}"
 
+        # Real-time Atomic Database Check: Ensure candidate user has NEVER sent to this recipient email before
+        if to_email and "@" in to_email:
+            try:
+                import core.pg_sqlite_shim as sqlite3
+                from config import DB_PATH
+                with sqlite3.connect(DB_PATH, timeout=5) as db_conn:
+                    existing = db_conn.execute(
+                        """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) LIMIT 1""",
+                        (to_email.strip(),)
+                    ).fetchone()
+                    
+                    if existing:
+                        logger.warning(f"[EmailEngine] 🚫 ATOMIC DB CHECK BLOCKED duplicate send to: {to_email}")
+                        return False, "duplicate_already_sent"
+            except Exception as e:
+                logger.warning(f"[EmailEngine] Atomic DB check warning: {e}")
+
         provider = await self.scheduler.wait_for_send_slot()
         if not provider:
             return False, "no_providers"
@@ -1911,6 +1954,29 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         # OPT#3: Collect tuples then batch commit — avoids per-email SQLite COMMIT overhead
         _pending_inserts = []
 
+        # Strictly deduplicate jobs sequentially BEFORE parallel gather to eliminate async race condition
+        unique_jobs = []
+        seen_in_batch = set()
+        for j in jobs:
+            email_clean = (j.get("email") or "").strip().lower()
+            comp_clean = (j.get("company") or "").strip().lower()
+            if not email_clean or "@" not in email_clean:
+                continue
+            if email_clean in already_sent_emails or email_clean in seen_in_batch:
+                logger.info(f"[EmailEngine] Pre-batch dedup skipped duplicate email: {email_clean}")
+                continue
+            if comp_clean and comp_clean in seen_in_batch:
+                logger.info(f"[EmailEngine] Pre-batch dedup skipped duplicate company: {comp_clean}")
+                continue
+            
+            seen_in_batch.add(email_clean)
+            if comp_clean:
+                seen_in_batch.add(comp_clean)
+            already_sent_emails.add(email_clean)
+            unique_jobs.append(j)
+
+        jobs = unique_jobs
+
         async def send_one(job: dict) -> dict:
             nonlocal _pending_inserts
             async with sem:
@@ -1926,23 +1992,24 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
                         "reason": "invalid_email",
                     }
 
-                if email_addr.lower() in already_sent_emails:
-                    return {
-                        "company": company,
-                        "status": "skipped",
-                        "reason": "duplicate",
-                    }
-
                 try:
-                    success, result = await self.send_application(
-                        email_addr,
-                        company,
-                        title,
-                        cover_html,
-                        cv_path,
-                        generate_cover_pdf=False,
-                        user_details=user_details,
-                    )
+                    success, result = False, "no_providers"
+                    for _attempt in range(3):
+                        success, result = await self.send_application(
+                            email_addr,
+                            company,
+                            title,
+                            cover_html,
+                            cv_path,
+                            generate_cover_pdf=False,
+                            user_details=user_details,
+                        )
+                        if success:
+                            break
+                        if result in ("no_providers",) or result.startswith("rate_limited"):
+                            await asyncio.sleep(1.5)
+                        else:
+                            break
                     if success:
                         already_sent_emails.add(email_addr.lower())
                         # Collect for batch commit
@@ -2021,6 +2088,12 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
         Builds a MIME message and sends via the engine infrastructure.
         """
         try:
+            from core.email_verifier import verify_email_deliverability, suppress_bounced_email
+            is_valid, reason = verify_email_deliverability(to_email)
+            if not is_valid:
+                logger.warning(f"[Anti-Bounce Shield] Blocked send_email to undeliverable address {to_email}: {reason}")
+                return False
+
             msg = MIMEMultipart("alternative")
             msg["From"] = (
                 f"{from_name or config.CANDIDATE_NAME} <{config.CANDIDATE_EMAIL}>"
@@ -2308,6 +2381,12 @@ def send_email_via_brevo_http(
     Uses BREVO_API_KEY from .env.
     Falls back to GMAIL_SMTP_USER as sender if BREVO_ACCOUNT_EMAIL not set.
     """
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked Brevo HTTP send to undeliverable address {to_email}: {reason}")
+        return False
+
     api_key = config.BREVO_API_KEY
     if not api_key:
         logger.warning("[BREVO-HTTP] BREVO_API_KEY not configured")
@@ -2398,6 +2477,11 @@ def send_email_via_sendgrid_http(
     """Send email via SendGrid REST API (no SMTP needed).
     Uses SENDGRID_API_KEY from .env.
     """
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked SendGrid HTTP send to undeliverable address {to_email}: {reason}")
+        return False
     api_key = os.getenv("SENDGRID_API_KEY")
     if not api_key:
         logger.warning("[SENDGRID-HTTP] SENDGRID_API_KEY not configured")
@@ -2478,6 +2562,12 @@ def send_email_via_gmail_smtp(
     if not smtp_user or not smtp_pass:
         return False, "Missing SMTP credentials"
 
+    from core.email_verifier import verify_email_deliverability, suppress_bounced_email
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked Gmail SMTP send to undeliverable address {to_email}: {reason}")
+        return False, f"Anti-Bounce Shield blocked undeliverable address: {reason}"
+
     if not sender_email:
         sender_email = smtp_user
     if not subject:
@@ -2543,13 +2633,21 @@ def send_email_via_gmail_smtp(
         return False, str(e)
 
 
-def _prepare_base_attachments(attachment_paths=None, attachments=None) -> list[dict]:
+def _prepare_base_attachments(attachment_paths=None, attachments=None, candidate_name: str | None = None, job_title: str | None = None) -> list[dict]:
     """Helper to extract attachments with name, content_b64, and content_type."""
     res = []
+    c_name = (candidate_name or getattr(config, "CANDIDATE_NAME", "") or "Candidate").strip().replace(" ", "_")
+    j_title = re.sub(r"[^\w\s-]", "", job_title or "").strip().replace(" ", "_")[:30] if job_title else "Application"
+
     if attachments:
         for att in attachments:
+            fname = att["filename"]
+            if fname.lower() in ("resume.pdf", "cv.pdf", "attachment.pdf") and c_name:
+                fname = f"{c_name}_Resume_{j_title}.pdf"
+            elif "cover" in fname.lower() and c_name:
+                fname = f"{c_name}_Cover_Letter.pdf"
             res.append({
-                "filename": att["filename"],
+                "filename": fname,
                 "content_b64": att["content_b64"],
                 "content_type": att.get("content_type", "application/pdf")
             })
@@ -2558,10 +2656,15 @@ def _prepare_base_attachments(attachment_paths=None, attachments=None) -> list[d
         for path in paths:
             if path and os.path.exists(path):
                 try:
+                    orig_name = os.path.basename(path)
+                    if "cover" in orig_name.lower():
+                        fname = f"{c_name}_Cover_Letter.pdf" if c_name else orig_name
+                    else:
+                        fname = f"{c_name}_Resume_{j_title}.pdf" if c_name else orig_name
                     with open(path, "rb") as f:
                         b64 = base64.b64encode(f.read()).decode("utf-8")
                         res.append({
-                            "filename": os.path.basename(path),
+                            "filename": fname,
                             "content_b64": b64,
                             "content_type": "application/pdf"
                         })
@@ -2583,6 +2686,11 @@ def send_email_via_resend(
     attachments: list | None = None,
 ) -> bool:
     """[RESEND API] Best Gmail inbox delivery. Uses HTTP port 443."""
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked Resend API send to undeliverable address {to_email}: {reason}")
+        return False
     try:
         import resend as resend_lib
     except ImportError:
@@ -2658,6 +2766,11 @@ def send_email_via_mailjet(
     attachments: list | None = None,
 ) -> bool:
     """[MAILJET API] Free 200/day. Uses HTTP port 443 — works on cloud."""
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked Mailjet API send to undeliverable address {to_email}: {reason}")
+        return False
     api_key = os.getenv("MAILJET_API_KEY", "").strip()
     api_secret = os.getenv("MAILJET_API_SECRET", "").strip()
     if not api_key or not api_secret:
@@ -2736,6 +2849,11 @@ def send_email_via_sendpulse(
     attachments: list | None = None,
 ) -> bool:
     """[PORTED FROM CHRONOS] SendPulse HTTP API — free 12,000/month (~400/day)."""
+    from core.email_verifier import verify_email_deliverability
+    is_valid, reason = verify_email_deliverability(to_email)
+    if not is_valid:
+        logger.warning(f"[Anti-Bounce Shield] Blocked SendPulse API send to undeliverable address {to_email}: {reason}")
+        return False
     global _SENDPULSE_TOKEN_CACHE
     api_key = os.getenv("SENDPULSE_API_KEY", "").strip()
     client_id = os.getenv("SENDPULSE_CLIENT_ID", "").strip()

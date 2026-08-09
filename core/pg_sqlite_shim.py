@@ -736,13 +736,13 @@ class SqliteConnectionWrapper:
             or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
         )
         if is_pa:
-            self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA journal_mode=DELETE")
             self.conn.execute("PRAGMA synchronous=NORMAL")
-            logger.info(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
+            logger.debug(f"[DB] Connected to SQLite fallback (DELETE journal mode): {_safe_str(db_path)}")
         else:
             self.conn.execute("PRAGMA journal_mode=WAL")
             self.conn.execute("PRAGMA synchronous=NORMAL")
-            logger.info(f"[DB] Connected to SQLite fallback (WAL journal mode): {_safe_str(db_path)}")
+            logger.debug(f"[DB] Connected to SQLite fallback (WAL journal mode): {_safe_str(db_path)}")
 
         self.conn.execute("PRAGMA cache_size=-64000")  # 64MB cache for sub-5ms queries
         self.conn.execute("PRAGMA temp_store=MEMORY")   # In-memory temporary tables & sorts
@@ -905,7 +905,7 @@ def connect(
         sqlite_db = default_sqlite_path
 
     if not should_use_pg(target_db):
-        logger.info(f"[DB] Bypassing PG for non-main database: {_safe_str(target_db)}")
+        logger.debug(f"[DB] Bypassing PG for non-main database: {_safe_str(target_db)}")
         return SqliteConnectionWrapper(sqlite_db)
 
     if os.getenv("FORCE_SQLITE") == "1":

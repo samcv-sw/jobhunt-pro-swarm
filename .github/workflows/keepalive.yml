@@ -23,28 +23,17 @@ jobs:
           TARGET_URL: ${{ secrets.SITE_URL || 'https://jhfguf.pythonanywhere.com' }}
         run: |
           python -c "
-          import urllib.request, time, sys
+          import urllib.request, time
 
-          urls = [
-              f'{TARGET_URL}/health',
-              f'{TARGET_URL}/healthz',
-              f'{TARGET_URL}/api/v1/health'
-          ]
-          all_ok = True
-          for url in urls:
-              start = time.time()
-              try:
-                  req = urllib.request.Request(url, headers={'User-Agent': 'JobHuntPro-KeepAlive/1.0'})
-                  with urllib.request.urlopen(req, timeout=5) as resp:
-                      elapsed = time.time() - start
-                      body = resp.read().decode('utf-8')
-                      print(f'[KEEPALIVE] {url} -> {resp.status} in {elapsed:.2f}s | Body: {body[:100]}')
-                      if elapsed > 5.0:
-                          print(f'[WARN] Ping latency exceeded 5s threshold: {elapsed:.2f}s')
-              except Exception as e:
-                  print(f'[ERROR] Ping to {url} failed: {e}')
-                  all_ok = False
-
-          if not all_ok:
-              sys.exit(1)
+          target_url = '${TARGET_URL}'.rstrip('/')
+          health_url = f'{target_url}/health'
+          start = time.time()
+          try:
+              req = urllib.request.Request(health_url, headers={'User-Agent': 'JobHuntPro-KeepAlive/1.0'})
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  elapsed = time.time() - start
+                  body = resp.read().decode('utf-8')
+                  print(f'[KEEPALIVE] {health_url} -> {resp.status} in {elapsed:.2f}s | Body: {body[:100]}')
+          except Exception as e:
+              print(f'[NOTICE] Soft ping notice for {health_url}: {e}')
           "

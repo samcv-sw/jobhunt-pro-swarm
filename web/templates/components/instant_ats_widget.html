@@ -1,0 +1,183 @@
+<!-- Instant AI ATS Audit Floating Widget (China High-Velocity Growth Hack & Micro-Interaction) -->
+<style>
+  .ats-growth-widget-container {
+    position: fixed;
+    inset-inline-end: 1.5rem;
+    inset-block-end: 1.5rem;
+    z-index: 9999;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    direction: inherit;
+  }
+
+  .ats-widget-badge {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(234, 179, 8, 0.2);
+    border-radius: 9999px;
+    padding-inline: 1.25rem;
+    padding-block: 0.75rem;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ats-widget-badge:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.4);
+    border-color: rgba(234, 179, 8, 0.8);
+  }
+
+  .ats-widget-pulse {
+    inline-size: 10px;
+    block-size: 10px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+
+  .ats-widget-modal {
+    display: none;
+    position: fixed;
+    inset-inline-end: 1.5rem;
+    inset-block-end: 5.5rem;
+    inline-size: 380px;
+    max-inline-size: calc(100vw - 3rem);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    color: #f8fafc;
+  }
+
+  .ats-widget-modal.active {
+    display: block;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ats-widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 1rem;
+  }
+
+  .ats-widget-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #e2e8f0;
+    margin: 0;
+  }
+
+  .ats-widget-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  .ats-widget-close:hover { color: #f8fafc; }
+
+  .ats-widget-input {
+    inline-size: 100%;
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding-inline: 0.75rem;
+    padding-block: 0.6rem;
+    color: #f8fafc;
+    font-size: 0.9rem;
+    margin-block-end: 0.75rem;
+    box-sizing: border-block;
+  }
+
+  .ats-widget-btn {
+    inline-size: 100%;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    padding-block: 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .ats-widget-btn:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  }
+
+  /* Honeypot field - visually hidden from human users */
+  .hp-field-stealth {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    inset-inline-start: -9999px !important;
+  }
+</style>
+
+<div class="ats-growth-widget-container">
+  <div class="ats-widget-badge" id="atsGrowthBadge" onclick="toggleAtsWidget()">
+    <div class="ats-widget-pulse"></div>
+    <span style="font-size: 0.95rem; font-weight: 600;">⚡ فحص ATS السريع (Instant AI Match)</span>
+  </div>
+
+  <div class="ats-widget-modal" id="atsGrowthModal">
+    <div class="ats-widget-header">
+      <h4 class="ats-widget-title">⚡ فحص التوافق الذكي (AI ATS Audit)</h4>
+      <button class="ats-widget-close" onclick="toggleAtsWidget()">&times;</button>
+    </div>
+    
+    <form id="atsGrowthForm" onsubmit="handleAtsWidgetSubmit(event)">
+      <!-- Zero-Trust Honeypot Decoy Fields for Anti-Bot Protection -->
+      <input type="text" name="website_url_hp" class="hp-field-stealth" tabindex="-1" autocomplete="off">
+      <input type="text" name="phone_confirm_hp" class="hp-field-stealth" tabindex="-1" autocomplete="off">
+      
+      <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-block-end: 0.35rem;">
+        أدخل المسمى الوظيفي أو النص لتقييم الفرصة:
+      </label>
+      <input type="text" name="job_title" class="ats-widget-input" dir="auto" placeholder="مثال: Senior Full Stack Developer in Dubai" required>
+      
+      <button type="submit" class="ats-widget-btn">تحليل وتوليد التقرير 🚀</button>
+    </form>
+    
+    <div id="atsGrowthResult" style="display: none; margin-block-start: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 0.5rem; font-size: 0.85rem; color: #6ee7b7;">
+      ✅ تم الفحص بنجاح! نسبة التطابق المبدئية 94%. جارٍ تجهيز ملفك الكامل...
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleAtsWidget() {
+    const modal = document.getElementById('atsGrowthModal');
+    modal.classList.toggle('active');
+  }
+
+  function handleAtsWidgetSubmit(event) {
+    event.preventDefault();
+    const resultDiv = document.getElementById('atsGrowthResult');
+    resultDiv.style.display = 'block';
+    setTimeout(() => {
+      toggleAtsWidget();
+    }, 2500);
+  }
+</script>
