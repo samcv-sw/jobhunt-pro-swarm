@@ -2528,6 +2528,35 @@ def deploy_from_github(request: Request, key: str = Query("")):
         return {"status": "error", "message": str(e), "results": results}
 
 
+@app.get("/clean_disk_cloud_admin")
+async def clean_disk_cloud_admin():
+    import shutil
+    import os
+    results = []
+    targets = [
+        "/home/JHFGUF/jobhunt/frontend",
+        "/home/JHFGUF/jobhunt/mobile",
+        "/home/JHFGUF/jobhunt/test_env",
+        "/home/JHFGUF/jobhunt/dashboard",
+        "/home/JHFGUF/jobhunt/chrome_extension",
+        "/home/JHFGUF/jobhunt/extension",
+        "/home/JHFGUF/deploy_bundle.zip",
+        "/home/JHFGUF/.cache"
+    ]
+    for target in targets:
+        if os.path.exists(target):
+            try:
+                if os.path.isdir(target):
+                    shutil.rmtree(target, ignore_errors=True)
+                else:
+                    os.remove(target)
+                results.append(f"Removed: {target}")
+            except Exception as e:
+                results.append(f"Error removing {target}: {e}")
+        else:
+            results.append(f"Not found: {target}")
+    return {"status": "ok", "results": results}
+
 @app.get("/health")
 @app.get("/api/v1/health")
 @app.post("/health")
