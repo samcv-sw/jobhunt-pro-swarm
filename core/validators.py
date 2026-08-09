@@ -120,11 +120,10 @@ def validate_pagination(page: int, per_page: int) -> tuple:
 
 def validate_email(email: str) -> bool:
     """Check if email format is valid."""
-    try:
-        EmailStr.validate(email)
-        return True
-    except ValueError:
+    if not email or not isinstance(email, str):
         return False
+    import re
+    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email.strip()))
 
 
 def validate_url(url: str) -> bool:
