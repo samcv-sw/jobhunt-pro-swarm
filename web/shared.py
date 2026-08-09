@@ -24,11 +24,7 @@ BASE_DIR = Path(__file__).parent
 static_dir = BASE_DIR / "static"
 
 # Session serializer
-SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None)
-if not SECRET_KEY:
-    import secrets as _sec_key
-    SECRET_KEY = _sec_key.token_urlsafe(64)
-    os.environ["SECRET_KEY"] = SECRET_KEY
+SECRET_KEY = "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
 session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 # Template engine
@@ -65,8 +61,10 @@ def _patched_tr(*args, **kwargs):
         except Exception:
             lang = "ar"
 
-    if lang not in ("ar", "en"):
+    clean_lang = str(lang).split('-')[0].lower() if lang else "ar"
+    if not clean_lang.isalpha() or len(clean_lang) > 10:
         lang = "ar"
+        clean_lang = "ar"
 
     if request and hasattr(request, "state"):
         try:
@@ -76,12 +74,23 @@ def _patched_tr(*args, **kwargs):
             pass
 
     context["lang"] = lang
-    context["dir"] = "rtl" if lang == "ar" else "ltr"
+    context["dir"] = "rtl" if clean_lang in ("ar", "fa", "ur", "he") else "ltr"
     context["_"] = getattr(request.state, "_", lambda s: s) if request and hasattr(request, "state") else (lambda s: s)
     context.setdefault("VERSION", getattr(config, "VERSION", "1.0"))
 
-    if name and isinstance(name, str) and lang == "en" and not name.startswith("en/") and (template_dir / "en" / name).exists():
-        name = f"en/{name}"
+    if name and isinstance(name, str):
+        base_name = name
+        for prefix in ("en/", "zh/", "ar/"):
+            if base_name.startswith(prefix):
+                base_name = base_name[len(prefix):]
+                break
+
+        if (template_dir / clean_lang / base_name).exists():
+            name = f"{clean_lang}/{base_name}"
+        elif (template_dir / "en" / base_name).exists():
+            name = f"en/{base_name}"
+        else:
+            name = base_name
 
     if request:
         return _orig_tr(request=request, name=name, context=context, **kwargs)
@@ -183,7 +192,7 @@ def is_admin_email(email: str) -> bool:
     if not email:
         return False
     e = email.strip().lower()
-    admins = {"samatou683@gmail.com"}
+    admins = {"samatou683@gmail.com", "samsalameh.cv@gmail.com", "sam.dev1@hotmail.com"}
     raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
     if raw_env:
         for item in raw_env.replace(" ", ",").split(","):

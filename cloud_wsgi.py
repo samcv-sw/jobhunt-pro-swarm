@@ -9,20 +9,27 @@ import threading
 # ─── FORCE SQLITE MODE ON PYTHONANYWHERE ──────────────────────────────────────
 os.environ['FORCE_SQLITE'] = '1'
 
-_JWT_KEY = os.environ.get('JWT_SECRET_KEY', '')
-if not _JWT_KEY:
-    _env_path = '/home/JHFGUF/jobhunt/.env'
-    try:
-        with open(_env_path) as _ef:
-            for _line in _ef:
-                _line = _line.strip()
-                if _line and not _line.startswith('#') and '=' in _line:
-                    _k, _, _v = _line.partition('=')
-                    os.environ.setdefault(_k.strip(), _v.strip())
-    except Exception:
-        pass
+# Load .env variables unconditionally for PythonAnywhere environment
+_env_paths = [
+    '/home/JHFGUF/jobhunt/.env',
+    '/home/jhfguf/jobhunt/.env',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'),
+]
+for _env_path in _env_paths:
+    if os.path.exists(_env_path):
+        try:
+            with open(_env_path, encoding='utf-8') as _ef:
+                for _line in _ef:
+                    _line = _line.strip()
+                    if _line and not _line.startswith('#') and '=' in _line:
+                        _k, _, _v = _line.partition('=')
+                        _k_str = _k.strip()
+                        _v_str = _v.strip().strip('"').strip("'")
+                        os.environ[_k_str] = _v_str
+            break
+        except Exception:
+            pass
 
-# Force SQLite mode
 os.environ['FORCE_SQLITE'] = '1'
 
 if not os.environ.get('JWT_SECRET_KEY'):

@@ -35,12 +35,7 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "427002552579-30li2c3vkjdehr7rs
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "487d1da1-69fb-4a84-8446-227973d977df")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-_secret_key = os.getenv("SECRET_KEY", "")
-if not _secret_key:
-    import secrets as _secrets
-    _secret_key = _secrets.token_urlsafe(64)
-    logger.critical("SECRET_KEY NOT SET in .env! Using a random ephemeral key — sessions will be invalidated on every restart. Set SECRET_KEY in .env immediately.")
-SECRET_KEY = _secret_key
+SECRET_KEY = os.getenv("SECRET_KEY") or "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
 CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
 CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/sam-salameh"
