@@ -180,7 +180,7 @@ async def register(
             user_id = existing["user_id"]
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
+                    "UPDATE users SET user_type = 'admin', tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
                     (user_id,),
                 )
                 conn.commit()
@@ -268,7 +268,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             new_hash = await _hash_pw_async(password)
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET password_hash = ?, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
+                    "UPDATE users SET password_hash = ?, user_type = 'admin', tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ?",
                     (new_hash, user["user_id"]),
                 )
             else:

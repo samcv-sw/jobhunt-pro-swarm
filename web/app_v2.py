@@ -2319,7 +2319,7 @@ def auto_seed_cloud_db(conn):
             if existing:
                 u_id = dict(existing).get("user_id") or user_id
                 conn.execute(
-                    "UPDATE users SET user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ? OR LOWER(email) = ?",
+                    "UPDATE users SET user_type = 'admin', tokens = MAX(COALESCE(tokens, 0), 999999) WHERE user_id = ? OR LOWER(email) = ?",
                     (u_id, email.lower()),
                 )
             else:
