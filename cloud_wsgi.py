@@ -135,7 +135,8 @@ class LazyASGIApp:
                                         active_camps = conn.execute(
                                             "SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running', 'pending') ORDER BY created_at DESC LIMIT 3"
                                         ).fetchall()
-                                        for (c_id,) in active_camps:
+                                        for row in active_camps:
+                                            c_id = row["campaign_id"] if isinstance(row, (dict, sqlite3.Row)) or hasattr(row, "keys") else row[0]
                                             loop = asyncio.new_event_loop()
                                             asyncio.set_event_loop(loop)
                                             loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=5))

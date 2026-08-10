@@ -905,7 +905,13 @@ async def add_security_and_performance_headers(request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
-    if request.url.path.startswith("/static/"):
+    
+    ct = response.headers.get("Content-Type", "")
+    if "text/html" in ct:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    elif request.url.path.startswith("/static/"):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
 
@@ -1739,11 +1745,6 @@ def get_db(max_retries: int = 3):
             except Exception: pass
             try:
                 conn.execute("PRAGMA busy_timeout=10000")
-                if not is_pa:
-                    conn.execute("PRAGMA journal_mode=WAL")
-                    conn.execute("PRAGMA synchronous=NORMAL")
-                else:
-                    conn.execute("PRAGMA journal_mode=DELETE")
             except Exception: pass
             return conn
         except sqlite3.OperationalError as e:
@@ -2368,7 +2369,12 @@ B.S. Computer Engineering & Network Infrastructure
     except Exception as e:
         logger.warning(f"[DB] auto_seed_cloud_db warning: {e}")
 
+_db_initialized = False
+
 def init_saas_v2_db(path: str = None):
+    global _db_initialized
+    if _db_initialized and path is None:
+        return
     target_path = path or db_path
     if config.SUPABASE_MODE:
         logger.info("[DB] SUPABASE_MODE: tables already exist in Supabase, skipping init")
@@ -2408,6 +2414,7 @@ def init_saas_v2_db(path: str = None):
                 init_multi_platform_db(target_path)
             except Exception as mp_err:
                 logger.warning(f"[DB] init_multi_platform_db warning: {mp_err}")
+            _db_initialized = True
             logger.info("[DB] init_saas_v2_db complete")
     except Exception as e:
         logger.error(f"[DB] init_saas_v2_db error (non-fatal): {e}")
