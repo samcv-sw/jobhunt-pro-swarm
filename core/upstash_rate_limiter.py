@@ -38,6 +38,9 @@ class RateLimiter:
             os.getenv("FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
             or os.getenv("IS_FREE_ACCOUNT", "false").lower() in ("true", "1", "yes")
             or bool(os.environ.get("PYTHONANYWHERE_SITE") or os.environ.get("PYTHONANYWHERE_DOMAIN"))
+            or "pythonanywhere" in os.environ.get("HOME", "").lower()
+            or "pythonanywhere" in os.environ.get("HOSTNAME", "").lower()
+            or os.getenv("FORCE_SQLITE") == "1"
         )
         self._enabled = bool(self.url and self.token) and not is_free_account
         self._cleanup_counter = 0

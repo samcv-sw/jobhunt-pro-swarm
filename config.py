@@ -421,6 +421,8 @@ MICROSOFT_OAUTH_TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.
 MICROSOFT_SEND_URL = "https://graph.microsoft.com/v1.0/me/sendMail"
 PORTFOLIO_BASE_URL = "https://samcv-sw.github.io/jobhunt-pro-swarm/portfolios"
 TRACKING_BASE_URL = "https://jobhuntpro.com/track/open"
+ENABLE_EMAIL_MARKETING_ENGINE = os.getenv("ENABLE_EMAIL_MARKETING_ENGINE", "false").lower() in ("true", "1", "t", "yes")
+
 
 # Centralized service URLs
 RENDER_ENGINE_URL = "https://jobhunt-pro-engine.onrender.com/"

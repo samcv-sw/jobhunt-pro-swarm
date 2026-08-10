@@ -1706,10 +1706,17 @@ DB_PATH = db_path
 
 def get_db(max_retries: int = 3):
     """Get Database connection. Optimized for Serverless (Turso first) and falls back to local SQLite on failure."""
-    turso_url = getattr(config, "TURSO_DATABASE_URL", None)
-    turso_token = getattr(config, "TURSO_AUTH_TOKEN", None)
+    is_pa = bool(
+        os.environ.get("PYTHONANYWHERE_SITE")
+        or os.environ.get("PYTHONANYWHERE_DOMAIN")
+        or "pythonanywhere" in os.environ.get("HOME", "").lower()
+        or "pythonanywhere" in os.environ.get("HOSTNAME", "").lower()
+        or os.getenv("FORCE_SQLITE") == "1"
+    )
+    turso_url = getattr(config, "TURSO_DATABASE_URL", None) if not is_pa else None
+    turso_token = getattr(config, "TURSO_AUTH_TOKEN", None) if not is_pa else None
 
-    # 1. Try Turso Cloud (Optimized for Serverless Edge)
+    # 1. Try Turso Cloud (Optimized for Serverless Edge, bypassed on PythonAnywhere)
     if turso_url and turso_token:
         try:
             import libsql_experimental
@@ -1727,12 +1734,16 @@ def get_db(max_retries: int = 3):
     # 2. Local Fallback (SQLite) - Used only if Turso fails or in local dev
     for attempt in range(max_retries):
         try:
-            conn = sqlite3.connect(db_path, check_same_thread=False, timeout=60)
+            conn = sqlite3.connect(db_path, check_same_thread=False, timeout=10)
             try: conn.row_factory = sqlite3.Row
             except Exception: pass
             try:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA busy_timeout=10000")
+                if not is_pa:
+                    conn.execute("PRAGMA journal_mode=WAL")
+                    conn.execute("PRAGMA synchronous=NORMAL")
+                else:
+                    conn.execute("PRAGMA journal_mode=DELETE")
             except Exception: pass
             return conn
         except sqlite3.OperationalError as e:
@@ -10116,7 +10127,26 @@ async def api_zero_unemployment_generate(req: ZeroUnemploymentGenerateRequest, r
         return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
 
 
+@app.get("/resume-tailor", response_class=HTMLResponse)
+@app.get("/resume-tailoring", response_class=HTMLResponse)
+@app.get("/tailor", response_class=HTMLResponse)
+def resume_tailor_page(request: Request):
+    """AI Resume Tailor page wrapped in Dashboard Shell."""
+    user_id = get_verified_user_id(request)
+    user = {}
+    if user_id:
+        with get_db() as conn:
+            user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            user = dict(user_row) if user_row else {}
+    if not user:
+        user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
+
+    content = render_template("resume_tailor.html", user=user, active_page="resume-tailor", request=request)
+    return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, "تخصيص السيرة الذاتية | JobHunt Pro", "resume-tailor", request=request))
+
+
 class ResumeTailorAPIRequest(BaseModel):
+
     resume: Optional[str] = ""
     job_description: Optional[str] = ""
     job_title: Optional[str] = ""

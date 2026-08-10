@@ -652,10 +652,12 @@ def api_export_sent_emails(request: Request):
             "SELECT email_address, job_title, company_name, status, sent_at, opened_at, tracking_id FROM campaign_emails ORDER BY id DESC"
         ).fetchall()
         
-        # Fetch all multi-platform applications
-        mpa_rows = conn.execute(
-            "SELECT platform, job_title, company, status, applied_at, url, id FROM multi_platform_apps ORDER BY id DESC"
-        ).fetchall()
+        try:
+            mpa_rows = conn.execute(
+                "SELECT platform, job_title, company, status, applied_at, url, id FROM multi_platform_apps ORDER BY id DESC"
+            ).fetchall()
+        except Exception:
+            mpa_rows = []
 
         output = io.StringIO()
         writer = csv.writer(output)

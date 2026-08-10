@@ -128,18 +128,22 @@ class LazyASGIApp:
                                             loop.run_until_complete(run_campaign(camp_id, get_db, None, company_limit=15))
                                             loop.close()
                                     complete_task(task["id"], {"status": "success"})
+                                    time.sleep(5)
                                 else:
+                                    # Fallback: Pick active, running, or pending campaigns from SQLite DB automatically
                                     with get_db() as conn:
-                                        active_camps = conn.execute("SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running') ORDER BY created_at DESC LIMIT 1").fetchall()
+                                        active_camps = conn.execute(
+                                            "SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running', 'pending') ORDER BY created_at DESC LIMIT 3"
+                                        ).fetchall()
                                         for (c_id,) in active_camps:
                                             loop = asyncio.new_event_loop()
                                             asyncio.set_event_loop(loop)
-                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=3))
+                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=5))
                                             loop.close()
+                                    time.sleep(15)
                             except Exception as e:
                                 logger.error(f"[PA WORKER] Applier daemon exception: {e}")
-
-                            time.sleep(30)
+                                time.sleep(30)
 
                     applier_thread = threading.Thread(target=_start_cloud_background_applier, daemon=True, name="PA_Background_Applier")
                     applier_thread.start()

@@ -2376,6 +2376,7 @@ def send_email_via_brevo_http(
     sender_name: str = config.CANDIDATE_NAME,
     subject: str = None,
     attachments: list | None = None,
+    attach_cv: bool = False,
 ) -> bool:
     """Send email via Brevo REST API (no SMTP needed).
     Uses BREVO_API_KEY from .env.
@@ -2424,13 +2425,13 @@ def send_email_via_brevo_http(
         "htmlContent": html_body,
     }
 
-    # Attach files if provided, else fallback to CV_PATH
+    # Attach files if explicitly provided or if attach_cv is True
     if attachments:
         payload["attachment"] = [
             {"content": att["content_b64"], "name": att["filename"]}
             for att in attachments
         ]
-    else:
+    elif attach_cv:
         try:
             cv_path = config.CV_PATH
             if cv_path and os.path.exists(cv_path):

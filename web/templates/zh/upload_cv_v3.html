@@ -407,7 +407,7 @@
 </div>
 
 <form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto">
-  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length  dir="auto"> 0 else '' }}" dir="auto">
+  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length > 0 else '' }}" dir="auto">
   <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
   <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
   <input type="hidden" name="target_locations" id="hiddenTarget工作地点s" value="Lebanon, UAE, Remote" dir="auto">

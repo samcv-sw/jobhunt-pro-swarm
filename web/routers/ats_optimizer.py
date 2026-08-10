@@ -39,6 +39,31 @@ async def get_ats_studio_page(request: Request):
             "active_page": "ats-scorer"
         })
 
+@router.get("/resume-tailor", response_class=HTMLResponse)
+@router.get("/resume-tailoring", response_class=HTMLResponse)
+@router.get("/tailor", response_class=HTMLResponse)
+async def get_resume_tailor_page(request: Request):
+    """Render the AI Resume Tailor UI wrapped in Dashboard Shell."""
+    try:
+        from web.app_v2 import _build_dashboard_shell, render_template, get_verified_user_id, get_db
+        user_id = get_verified_user_id(request)
+        user = {}
+        if user_id:
+            with get_db() as conn:
+                user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+                user = dict(user_row) if user_row else {}
+        if not user:
+            user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
+
+        content = render_template("resume_tailor.html", request=request, user=user, active_page="resume-tailor")
+        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, "تخصيص السيرة الذاتية | JobHunt Pro", "resume-tailor", request=request))
+    except Exception as e:
+        return templates.TemplateResponse(request, "resume_tailor.html", {
+            "title": "AI Resume Tailor | JobHunt Pro",
+            "active_page": "resume-tailor"
+        })
+
+
 class ATSAnalysisRequest(BaseModel):
     resume_text: str = Field(..., description="Raw text of the user's CV/Resume")
     job_description: str = Field(..., description="Target Job Description text")

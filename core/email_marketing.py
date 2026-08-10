@@ -88,19 +88,26 @@ def _get_db():
     return conn
 
 
-def _already_sent(campaign_type: str, user_id: str, since_hours: int = 24) -> bool:
-    """Return True if this campaign type was sent to user within since_hours."""
+def _already_sent(campaign_type: str, user_id: str, since_hours: int = 24, order_id: str = None) -> bool:
+    """Return True if this campaign type was sent to user within since_hours or for this order_id."""
     try:
         conn = _get_db()
-        cutoff = (datetime.now() - timedelta(hours=since_hours)).isoformat()
-        row = conn.execute(
-            "SELECT COUNT(*) as c FROM email_campaign_log WHERE campaign_type=? AND user_id=? AND sent_at>=?",
-            (campaign_type, user_id, cutoff),
-        ).fetchone()
+        if order_id:
+            row = conn.execute(
+                "SELECT COUNT(*) as c FROM email_campaign_log WHERE campaign_type=? AND (order_id=? OR (user_id=? AND datetime(sent_at) >= datetime('now', '-' || ? || ' hours')))",
+                (campaign_type, order_id, user_id, since_hours),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT COUNT(*) as c FROM email_campaign_log WHERE campaign_type=? AND user_id=? AND datetime(sent_at) >= datetime('now', '-' || ? || ' hours')",
+                (campaign_type, user_id, since_hours),
+            ).fetchone()
         conn.close()
-        return row and row["c"] > 0
-    except Exception:
+        return bool(row and row["c"] > 0)
+    except Exception as e:
+        logger.warning(f"[EMAIL-MARKETING] _already_sent error: {e}")
         return False
+
 
 
 def _log_campaign(
@@ -330,20 +337,17 @@ async def process_abandoned_carts():
     """Find pending orders older than ABANDONED_CART_MIN_AGE and send reminders."""
     try:
         conn = _get_db()
-        cutoff = (
-            datetime.now() - timedelta(seconds=ABANDONED_CART_MIN_AGE)
-        ).isoformat()
         rows = conn.execute(
             """SELECT o.order_id, o.amount_usd, o.user_id, o.package_name, u.email, COALESCE(u.name,'User') as name
                FROM orders o JOIN users u ON o.user_id = u.user_id
-               WHERE o.payment_status='pending' AND o.created_at <= ?""",
-            (cutoff,),
+               WHERE o.payment_status='pending' AND datetime(o.created_at) <= datetime('now', '-' || ? || ' seconds')""",
+            (ABANDONED_CART_MIN_AGE,),
         ).fetchall()
         conn.close()
 
         sent = 0
         for row in rows:
-            if _already_sent("abandoned_cart", row["user_id"]):
+            if _already_sent("abandoned_cart", row["user_id"], order_id=row["order_id"]):
                 continue
 
             service_name = row["package_name"] or "Service"
@@ -503,6 +507,10 @@ async def process_post_purchase():
 
 async def email_marketing_loop():
     """Background loop that runs every CHECK_INTERVAL seconds."""
+    if not getattr(config, "ENABLE_EMAIL_MARKETING_ENGINE", False):
+        logger.info("[EMAIL-MARKETING] Background engine disabled by config")
+        return
+
     logger.info("[EMAIL-MARKETING] Background engine started")
     cycle = 0
     while True:
