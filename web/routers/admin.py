@@ -928,7 +928,7 @@ def _require_admin(request: Request):
         user_type = str(user_dict.get("user_type") or "").strip().lower()
         is_admin_val = bool(user_dict.get("is_admin"))
 
-        if is_admin_email(email) or user_type == "admin" or is_admin_val or email in ("sam.dev1@hotmail.com", "samatou683@gmail.com", "samsalameh.cv@gmail.com") or (user_id and ("admin" in str(user_id).lower() or "sam" in str(user_id).lower())):
+        if is_admin_email(email) or user_type == "admin" or is_admin_val:
             return user_id
     return user_id
 

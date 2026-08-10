@@ -412,7 +412,7 @@ def is_admin_email(email: str) -> bool:
     if not email:
         return False
     e = email.strip().lower()
-    admins = {"samatou683@gmail.com", "samsalameh.cv@gmail.com", "sam.dev1@hotmail.com"}
+    admins = {"samatou683@gmail.com"}
     raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
     if raw_env:
         for item in raw_env.replace(" ", ",").split(","):
@@ -8838,7 +8838,7 @@ def require_admin(request: Request):
         user_type = str(user_dict.get("user_type") or "").strip().lower()
         is_admin_val = bool(user_dict.get("is_admin"))
 
-        if is_admin_email(email) or user_type == "admin" or is_admin_val or email in ("sam.dev1@hotmail.com", "samatou683@gmail.com", "samsalameh.cv@gmail.com"):
+        if is_admin_email(email) or user_type == "admin" or is_admin_val:
             return user_id
         return user_id
 

@@ -196,7 +196,7 @@ def is_admin_email(email: str) -> bool:
     if not email:
         return False
     e = email.strip().lower()
-    admins = {"samatou683@gmail.com", "samsalameh.cv@gmail.com", "sam.dev1@hotmail.com"}
+    admins = {"samatou683@gmail.com"}
     raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
     if raw_env:
         for item in raw_env.replace(" ", ",").split(","):
