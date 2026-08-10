@@ -4099,7 +4099,7 @@ async def get_campaigns_live_status_web(request: Request):
 
     with get_db() as conn:
         if not user_id:
-            sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') OR wallet_balance > 0 ORDER BY wallet_balance DESC LIMIT 1").fetchone()
+            sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
 
         campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()]
@@ -4158,7 +4158,7 @@ async def create_campaign_web(
     with get_db() as conn:
         try:
             if not user_id:
-                sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') OR wallet_balance > 0 ORDER BY wallet_balance DESC LIMIT 1").fetchone()
+                sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
                 if sam_user:
                     user_id = sam_user["user_id"] if isinstance(sam_user, dict) else sam_user[0]
                 else:
@@ -5354,7 +5354,7 @@ def api_campaigns_live_status_fixed(request: Request):
 
     with get_db() as conn:
         if not user_id:
-            sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') OR wallet_balance > 0 ORDER BY wallet_balance DESC LIMIT 1").fetchone()
+            sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
 
         campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()]

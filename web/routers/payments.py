@@ -1521,7 +1521,7 @@ def get_wallet_page(request: Request):
             user_row = None
 
         if not user_row:
-            sam_user = conn.execute("SELECT user_id, email, name, wallet_balance, api_key, tokens FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') OR wallet_balance > 0 ORDER BY wallet_balance DESC LIMIT 1").fetchone()
+            sam_user = conn.execute("SELECT user_id, email, name, wallet_balance, api_key, tokens FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             if sam_user:
                 user_row = sam_user
                 user_id = sam_user["user_id"]
