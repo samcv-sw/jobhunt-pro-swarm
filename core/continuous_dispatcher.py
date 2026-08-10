@@ -165,70 +165,52 @@ def _get_active_target_pool(conn, user_id):
         elif isinstance(user_row, (tuple, list)) and len(user_row) > 3:
             candidate_title = user_row[3] or candidate_title
 
-    # 1. Search for unsent targets in static enterprise pool
-    for target in ENTERPRISE_TARGET_POOL:
-        comp = target["company"]
-        title = target.get("title") or candidate_title
-        clean_comp = re.sub(r'[^a-zA-Z0-9]', '', comp).lower() or "company"
-        email = f"careers@{clean_comp}.com"
-        platform = target.get("platform") or "Direct Corporate Gateway"
+    # 1. Search for unsent targets in static enterprise pool & curated verified contacts
+    from core.curated_contacts import CURATED_CONTACTS
+    from core.lebanon_company_seeder import SAM_COMPANIES
 
-        exists = conn.execute(
-            "SELECT id FROM campaign_emails WHERE LOWER(company_name) = LOWER(?) OR LOWER(email_address) = LOWER(?)",
-            (comp, email)
-        ).fetchone()
-
-        if not exists:
-            return {
+    candidate_contacts = []
+    
+    # Process CURATED_CONTACTS
+    for cc in CURATED_CONTACTS:
+        comp = cc.get("company")
+        email = cc.get("email")
+        if comp and email:
+            candidate_contacts.append({
                 "company": comp,
-                "title": title,
-                "email": email,
-                "platform": platform,
-                "match_score": random.randint(96, 99)
-            }
+                "title": candidate_title,
+                "email": email.strip().lower(),
+                "platform": "Direct Executive Email",
+                "match_score": random.randint(95, 99)
+            })
 
-    # 2. Dynamic generation for infinite continuous expansion with strict deduplication
-    existing_cnt = (conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone() or [0])[0] or 0
-    
-    locations = ["Dubai Internet City", "Riyadh Tech Zone", "Doha Digital District", "Kuwait City", "Beirut Digital District", "Abu Dhabi Global Market"]
-    domains = ["Cloud Labs", "Digital Systems", "AI Infrastructure", "Cyber Hub", "Tech Solutions", "Enterprise Networks", "Digital Gateway"]
-    
-    for attempt in range(50):
-        gen_idx = existing_cnt + attempt + 1
-        base_comp = random.choice([
-            "NVIDIA", "Intel", "Microsoft", "Google", "Cisco", "Amazon AWS", "Oracle", "Siemens", 
-            "Honeywell", "Schneider", "Huawei", "Ericsson", "SAP", "IBM", "Palo Alto Networks",
-            "Aramco", "ADNOC", "NEOM", "Core42", "G42", "e& Enterprise", "STC Cloud", "Zain Digital"
-        ])
-        chosen_domain = random.choice(domains)
-        chosen_loc = random.choice(locations)
-        comp_name = f"{base_comp} {chosen_domain} ({chosen_loc})"
-        clean_comp = re.sub(r'[^a-zA-Z0-9]', '', comp_name).lower() or f"enterprise{gen_idx}"
-        email = f"careers@{clean_comp}.com"
+    # Process SAM_COMPANIES
+    for sc in SAM_COMPANIES:
+        comp, category, loc, email, domain, score = sc
+        if comp and email:
+            candidate_contacts.append({
+                "company": comp,
+                "title": candidate_title,
+                "email": email.strip().lower(),
+                "platform": "Direct Corporate Gateway",
+                "match_score": score
+            })
 
+    # Strict lifetime deduplication check per user account: pick first contact that this user has NEVER dispatched to
+    for target in candidate_contacts:
+        email = target["email"]
         exists = conn.execute(
-            "SELECT id FROM campaign_emails WHERE LOWER(company_name) = LOWER(?) OR LOWER(email_address) = LOWER(?)",
-            (comp_name, email)
+            """SELECT ce.id FROM campaign_emails ce 
+               JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+               WHERE c.user_id = ? AND LOWER(ce.email_address) = LOWER(?)""",
+            (user_id, email)
         ).fetchone()
 
         if not exists:
-            return {
-                "company": comp_name,
-                "title": f"Lead {candidate_title.replace('Senior ', '').replace('Lead ', '')}",
-                "email": email,
-                "platform": "Direct Executive Email",
-                "match_score": random.randint(97, 99)
-            }
+            return target
 
-    # Fallback with guaranteed unique index suffix if pool exhausted
-    unique_suffix = f"ent{existing_cnt + 1}"
-    return {
-        "company": f"Enterprise Systems {unique_suffix}",
-        "title": f"Lead {candidate_title.replace('Senior ', '').replace('Lead ', '')}",
-        "email": f"careers@{unique_suffix}.com",
-        "platform": "Direct Executive Email",
-        "match_score": 98
-    }
+    # All verified real company contacts have been dispatched for this user (Lifetime Max 1 Send per email reached)
+    return None
 
 def dispatch_single_application():
     """Dispatch one verified enterprise job application and update database state."""

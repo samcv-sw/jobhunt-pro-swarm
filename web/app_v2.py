@@ -12428,8 +12428,19 @@ def api_export_sent_emails(request: Request):
         output.write('\ufeff')  # UTF-8 BOM for Excel Arabic
         writer.writerow(["نوع التقديم", "البريد / المنصة", "المسمى الوظيفي", "اسم الشركة", "الحالة", "تاريخ الإرسال", "تاريخ الفتح", "معرف التتبع / الرابط"])
 
+        seen_emails = set()
         for r in ce_rows:
             rd = dict(r) if hasattr(r, "keys") else {}
+            email = (rd.get("email_address") or "").strip().lower()
+            comp = (rd.get("company_name") or "").strip()
+            
+            # Exclude synthetic/fake/demo patterns and duplicate email sends
+            if not email or email in seen_emails:
+                continue
+            if re.search(r'ent\d+|tech\d+|comp\d+|test\d+|demo\d+|example\d+', email) or 'enterprise systems ent' in comp.lower():
+                continue
+                
+            seen_emails.add(email)
             writer.writerow([
                 "إيميل مباشر (Email)",
                 rd.get("email_address") or "",
@@ -12441,8 +12452,19 @@ def api_export_sent_emails(request: Request):
                 rd.get("tracking_id") or ""
             ])
 
+        seen_mpa = set()
         for r in mpa_rows:
             rd = dict(r) if hasattr(r, "keys") else {}
+            comp = (rd.get("company") or "").strip()
+            title = (rd.get("job_title") or "").strip()
+            key = (comp.lower(), title.lower())
+            
+            if not comp or key in seen_mpa:
+                continue
+            if re.search(r'enterprise systems ent|test |demo ', comp.lower()):
+                continue
+                
+            seen_mpa.add(key)
             writer.writerow([
                 f"منصة تلقائية ({rd.get('platform') or 'LinkedIn/Bayt'})",
                 rd.get("platform") or "Multi-Platform",

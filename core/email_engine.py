@@ -806,11 +806,15 @@ class EmailValidator:
         local_part, domain_part = parts[0], parts[1]
 
         # Blocked domains (exact match or subdomain match)
-        blocked_domains = {"test.com", "example.com", "fake.com", "spam.com"}
+        blocked_domains = {"test.com", "example.com", "fake.com", "spam.com", "demo.com"}
         if domain_part in blocked_domains or domain_part.endswith(
             tuple("." + d for d in blocked_domains)
         ):
             return False, "blocked_domain"
+
+        # Block synthetic generated domains (e.g. ent1728.com, tech123.com)
+        if re.search(r'^(ent|tech|comp|test|demo|example)\d+\.', domain_part) or domain_part.startswith('ent') and domain_part[3:7].isdigit():
+            return False, "synthetic_domain"
 
         # Blocked local parts
         if local_part.startswith("noreply") or "noreply" in local_part:
@@ -1788,11 +1792,18 @@ class EmailEngine:
             try:
                 import core.pg_sqlite_shim as sqlite3
                 from config import DB_PATH
+                uid = user_details.get("user_id") if user_details else None
                 with sqlite3.connect(DB_PATH, timeout=5) as db_conn:
-                    existing = db_conn.execute(
-                        """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) LIMIT 1""",
-                        (to_email.strip(),)
-                    ).fetchone()
+                    if uid:
+                        existing = db_conn.execute(
+                            """SELECT 1 FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND LOWER(ce.email_address) = LOWER(?) LIMIT 1""",
+                            (uid, to_email.strip())
+                        ).fetchone()
+                    else:
+                        existing = db_conn.execute(
+                            """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) LIMIT 1""",
+                            (to_email.strip(),)
+                        ).fetchone()
                     
                     if existing:
                         logger.warning(f"[EmailEngine] 🚫 ATOMIC DB CHECK BLOCKED duplicate send to: {to_email}")
