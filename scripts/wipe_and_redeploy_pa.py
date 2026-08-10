@@ -18,8 +18,13 @@ HEADERS = {"Authorization": f"Token {API_TOKEN}"}
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ZIP_PATH = os.path.join(PROJECT_ROOT, "deploy_bundle.zip")
 
-EXCLUDE_DIRS = {".git", ".venv", ".venv2", "node_modules", ".pytest_cache", "__pycache__", "archive", "cache", ".agents", ".gemini", "brain"}
-EXCLUDE_EXTS = {".pyc", ".log", ".zip"}
+EXCLUDE_DIRS = {
+    ".git", ".venv", ".venv2", "test_env", "test_env_2", "data", "logs", "screenshots",
+    "node_modules", ".pytest_cache", "__pycache__", "archive", "cache", ".agents", ".gemini", "brain", ".next",
+    "frontend", "frontend-vue", "mobile", "extension", "dashboard", "bot", "chat_images", "chrome_extension", "backend-node"
+}
+EXCLUDE_EXTS = {".pyc", ".log", ".zip", ".tflite", ".webm", ".pack", ".db", ".sqlite", ".sqlite3"}
+EXCLUDE_FILES = {"JobHunt_Pro_Full_Chat_Log.html", "deploy_bundle.zip"}
 
 def create_full_bundle():
     print(f"[*] Packaging ALL current local project files from {PROJECT_ROOT}...")
@@ -28,11 +33,10 @@ def create_full_bundle():
         for root, dirs, files in os.walk(PROJECT_ROOT):
             dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS and not d.startswith('.')]
             for file in files:
-                ext = os.path.splitext(file)[1].lower()
-                if ext in EXCLUDE_EXTS or file.startswith('.'):
+                if file in EXCLUDE_FILES or file.startswith('.'):
                     continue
-                # Do not package large databases in the deploy zip to keep upload fast
-                if file.endswith('.db') or file.endswith('.sqlite'):
+                ext = os.path.splitext(file)[1].lower()
+                if ext in EXCLUDE_EXTS:
                     continue
                 abs_file = os.path.join(root, file)
                 rel_file = os.path.relpath(abs_file, PROJECT_ROOT)
@@ -40,6 +44,35 @@ def create_full_bundle():
                 file_count += 1
     size_mb = os.path.getsize(ZIP_PATH) / (1024 * 1024)
     print(f"[✓] Successfully created {ZIP_PATH} ({file_count} files, {size_mb:.2f} MB)")
+
+def get_or_create_console(session):
+    r_consoles = session.get(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/")
+    if r_consoles.status_code == 200:
+        consoles = r_consoles.json()
+        if isinstance(consoles, list) and len(consoles) > 0:
+            cid = consoles[0]["id"]
+            print(f"[*] Found existing console ID: {cid}")
+            return cid
+
+    # Try creating new console
+    r_create = session.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/", json={"executable": "bash"})
+    if r_create.status_code in (200, 201):
+        cid = r_create.json()["id"]
+        print(f"[✓] Created fresh console ID: {cid}")
+        return cid
+    else:
+        print(f"[!] Console creation returned status {r_create.status_code}: {r_create.text}")
+        # Delete existing consoles if limit reached
+        if r_consoles.status_code == 200 and isinstance(r_consoles.json(), list):
+            for c in r_consoles.json():
+                session.delete(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/{c['id']}/")
+            time.sleep(2)
+            r_retry = session.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/", json={"executable": "bash"})
+            if r_retry.status_code in (200, 201):
+                cid = r_retry.json()["id"]
+                print(f"[✓] Created new console ID after cleanup: {cid}")
+                return cid
+    return None
 
 def wipe_and_redeploy():
     session = requests.Session()
@@ -59,23 +92,12 @@ def wipe_and_redeploy():
         print(f"[!] Upload failed with status {r_up.status_code}: {r_up.text}")
         return False
 
-    # 2. Get active console or create new bash console
+    # 2. Get console or create new console
     print("[*] Connecting to PythonAnywhere Bash Console via API...")
-    r_consoles = session.get(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/")
-    consoles = r_consoles.json() if r_consoles.status_code == 200 else []
-    
-    console_id = None
-    if isinstance(consoles, list) and len(consoles) > 0:
-        console_id = consoles[0]["id"]
-        print(f"[*] Using existing console ID: {console_id}")
-    else:
-        r_create = session.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/", json={"executable": "bash"})
-        if r_create.status_code in (200, 201):
-            console_id = r_create.json()["id"]
-            print(f"[✓] Created new console ID: {console_id}")
-        else:
-            print(f"[!] Failed to create console: {r_create.text}")
-            return False
+    console_id = get_or_create_console(session)
+    if not console_id:
+        print("[!] Could not obtain console ID.")
+        return False
 
     # 3. Command: Clear old Python pycache, extract fresh bundle over /home/JHFGUF/jobhunt/, touch WSGI
     clean_and_extract_cmd = (
@@ -87,11 +109,24 @@ def wipe_and_redeploy():
         "touch /var/www/jhfguf_pythonanywhere_com_wsgi.py\n"
     )
     print(f"[*] Executing wipe & overwrite extraction in console {console_id}...")
+    
     r_send = session.post(
         f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/{console_id}/send_input/",
         json={"input": clean_and_extract_cmd}
     )
-    print(f"[*] Command send status: {r_send.status_code}")
+    if r_send.status_code != 200:
+        print(f"[*] Console send returned HTTP {r_send.status_code}. Re-creating console...")
+        session.delete(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/{console_id}/")
+        time.sleep(2)
+        r_new = session.post(f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/", json={"executable": "bash"})
+        if r_new.status_code in (200, 201):
+            console_id = r_new.json()["id"]
+            time.sleep(4)
+            r_send = session.post(
+                f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/consoles/{console_id}/send_input/",
+                json={"input": clean_and_extract_cmd}
+            )
+    print(f"[✓] Command send status: {r_send.status_code}")
 
     time.sleep(7)
 

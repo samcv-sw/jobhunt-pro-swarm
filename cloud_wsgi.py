@@ -110,6 +110,8 @@ class LazyASGIApp:
                         import time
                         import sqlite3
                         import asyncio
+                        # Wait 30s after WSGI start so web app responds instantly to user requests without slow_startup_error
+                        time.sleep(30)
                         logger.info("[PA WORKER] 🚀 Continuous Background Applier Daemon Started.")
                         while True:
                             try:
