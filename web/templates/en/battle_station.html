@@ -1658,6 +1658,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.bs-speed-btn').forEach(b => b.classList.remove('active'));
     activeSpeedBtn.classList.add('active');
   }
+  fetch('/api/v2/auto-applier/auto-resume', { method: 'POST' }).catch(err => console.debug('Zero-Touch auto-resume ping:', err));
   startAutopilot();
   startLivePolling(30);
 });

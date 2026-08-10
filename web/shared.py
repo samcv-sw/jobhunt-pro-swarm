@@ -170,7 +170,7 @@ def get_db(max_retries: int = 4):
                 raise RuntimeError(f"[DB] All strategies failed: {e}")
 
 def get_verified_user_id(request: Request):
-    """Verify signed cookie. Returns user_id or None."""
+    """Verify signed cookie or session. Returns user_id or None."""
     cookie = request.cookies.get("user_id", "")
     if cookie:
         try:
@@ -179,9 +179,13 @@ def get_verified_user_id(request: Request):
             if cookie.startswith("user_") or cookie.startswith("admin-") or len(cookie) >= 5:
                 return cookie
     try:
-        s = request.session.get("user")
-        if s and s.get("id"):
-            return s["id"]
+        if hasattr(request, "session") and request.session:
+            sid = request.session.get("user_id")
+            if sid:
+                return sid
+            s = request.session.get("user")
+            if isinstance(s, dict) and s.get("id"):
+                return s["id"]
     except Exception:
         pass
     return None

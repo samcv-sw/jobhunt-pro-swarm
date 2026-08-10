@@ -133,7 +133,7 @@ def dequeue_task():
         return None
 
 
-def complete_task(task_id: int):
+def complete_task(task_id: int, result: dict | None = None):
     """Marks a task as completed."""
     try:
         with connect() as conn:

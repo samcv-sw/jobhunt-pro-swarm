@@ -8,8 +8,18 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from typing import List, Optional
+import logging
 import os
 import time
+import uuid
+import asyncio
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+def _deps():
+    from web.shared import config, get_db, session_serializer, templates, _check_rate_limit
+    return get_db, session_serializer, templates, config, _check_rate_limit
 
 router = APIRouter(tags=["Auto-Applier"])
 

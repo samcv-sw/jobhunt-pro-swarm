@@ -1097,7 +1097,7 @@ def api_get_sent_email_detail(email_id: str, request: Request):
                 "sent_at": sent_at_val,
                 "opened_at": email_dict.get("opened_at"),
                 "responded_at": email_dict.get("responded_at"),
-                "sender_account": email_dict.get("sender_account") or "Live Brevo Engine (samatou683@gmail.com)"
+                "sender_account": email_dict.get("sender_account") or "Live Outreach Engine"
             }
         })
     except Exception as e:
@@ -1298,7 +1298,7 @@ async def api_send_followup_email(email_id: int, request: Request):
         api_key = getattr(config, "BREVO_API_KEY", "")
         if api_key and api_key.strip():
             try:
-                sender_email = getattr(config, "SENDER_EMAIL", "samatou683@gmail.com") or "samatou683@gmail.com"
+                sender_email = (user_info.get("email") if isinstance(user_info, dict) else "") or getattr(config, "SENDER_EMAIL", "") or "outreach@jobhunt-pro.com"
                 payload = {
                     "sender": {"email": sender_email, "name": "Sam Salameh"},
                     "to": [{"email": recipient_email}],

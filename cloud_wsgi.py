@@ -108,13 +108,14 @@ class LazyASGIApp:
                     # Start continuous background job applier thread on PythonAnywhere
                     def _start_cloud_background_applier():
                         import time
+                        import sqlite3
+                        import asyncio
                         logger.info("[PA WORKER] 🚀 Continuous Background Applier Daemon Started.")
                         while True:
                             try:
                                 from web.app_v2 import get_db
                                 from core.job_queue import dequeue_task, complete_task
                                 from core.campaign_runner import run_campaign
-                                import asyncio
 
                                 task = dequeue_task()
                                 if task:
@@ -125,9 +126,13 @@ class LazyASGIApp:
                                         if camp_id:
                                             loop = asyncio.new_event_loop()
                                             asyncio.set_event_loop(loop)
-                                            loop.run_until_complete(run_campaign(camp_id, get_db, None, company_limit=15))
-                                            loop.close()
-                                    complete_task(task["id"], {"status": "success"})
+                                            try:
+                                                loop.run_until_complete(run_campaign(camp_id, get_db, None, company_limit=15))
+                                            except Exception as camp_err:
+                                                logger.error(f"[PA WORKER] Campaign {camp_id} error: {camp_err}")
+                                            finally:
+                                                loop.close()
+                                    complete_task(task["id"], result={"status": "success"})
                                     time.sleep(5)
                                 else:
                                     # Fallback: Pick active, running, or pending campaigns from SQLite DB automatically
@@ -139,8 +144,12 @@ class LazyASGIApp:
                                             c_id = row["campaign_id"] if isinstance(row, (dict, sqlite3.Row)) or hasattr(row, "keys") else row[0]
                                             loop = asyncio.new_event_loop()
                                             asyncio.set_event_loop(loop)
-                                            loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=5))
-                                            loop.close()
+                                            try:
+                                                loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=5))
+                                            except Exception as camp_err:
+                                                logger.error(f"[PA WORKER] Fallback campaign {c_id} error: {camp_err}")
+                                            finally:
+                                                loop.close()
                                     time.sleep(15)
                             except Exception as e:
                                 logger.error(f"[PA WORKER] Applier daemon exception: {e}")

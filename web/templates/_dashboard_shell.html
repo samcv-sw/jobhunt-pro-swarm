@@ -27,10 +27,20 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;border-block-start:1px solid rgba(255,255,255,0.08);padding-block-start:12px;margin-block-start:12px;">
-        <span style="font-size: 14px;font-weight:900;color:#cbd5e1;text-transform:uppercase;">COMMAND CENTER</span>
+        <span style="font-size:14px;font-weight:900;color:#cbd5e1;text-transform:uppercase;">COMMAND CENTER</span>
         <div style="display:flex;align-items:center;gap:6px;background:rgba(0,212,170,0.15);padding:4px 10px;border-radius:12px;border:1px solid rgba(0,212,170,0.4);">
           <div style="inline-size:8px;block-size:8px;border-radius:50%;background:#00d4aa;box-shadow:0 0 10px #00d4aa;animation:sbpulse 1.8s ease-in-out infinite;"></div>
-          <span style="font-size: 14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;font-weight:900;">SYSTEM ONLINE</span>
+          <span style="font-size:14px;color:#00d4aa;font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-weight:900;">SYSTEM ONLINE</span>
+        </div>
+      </div>
+      <div style="margin-block-start:12px;padding:12px;border-radius:12px;background:linear-gradient(135deg, rgba(6,182,212,0.15), rgba(15,23,42,0.6));border:1px solid rgba(6,182,212,0.3);box-shadow:0 4px 12px rgba(6,182,212,0.1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:4px;">
+          <span style="font-size:12px;font-weight:800;color:#38bdf8;font-family: 'Cairo', 'Tajawal', sans-serif;">⚡ المحرك الآلي الذكي</span>
+          <span style="display:inline-block;inline-size:8px;block-size:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#cbd5e1;">
+          <span style="color:#94a3b8;font-family: 'Cairo', 'Tajawal', sans-serif;">وضع التشغيل المستمر:</span>
+          <span style="color:#34d399;font-weight:700;font-family: 'Cairo', 'Tajawal', sans-serif;">نشط ومفعّل ⚡</span>
         </div>
       </div>
     </div>
@@ -48,7 +58,7 @@
       <a href="/interview-copilot" class="sb-link {{ 'sb-active' if active_page == 'interview-copilot' else '' }}" style="color:#c4b5fd;font-weight:700;"><i data-lucide="mic" class="sb-icon"></i><span>مساعد المقابلات (AI Copilot)</span></a>
       <a href="/salary-negotiator" class="sb-link {{ 'sb-active' if active_page == 'salary-negotiator' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="dollar-sign" class="sb-icon"></i><span>حاسبة الراتب والتفاوض</span></a>
 
-      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
       <div class="sb-section-label" style="color:#ec4899;font-weight:800;display:flex;align-items:center;justify-content:space-between;">
         <span>🔥 عروض واشتراكات الذكاء والمواقع</span>
         <span style="font-size: 14px;background:rgba(236,72,153,0.2);color:#f472b6;padding:2px 6px;border-radius:4px;border:1px solid rgba(236,72,153,0.4);">عروض</span>
@@ -84,7 +94,7 @@
       <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
 
       <div class="sb-section-label">النظام</div>
-      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
       <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
       {% endif %}
       <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>

@@ -1526,7 +1526,7 @@ def get_wallet_page(request: Request):
                 user_row = sam_user
                 user_id = sam_user["user_id"]
             else:
-                user_row = {"user_id": "user_1b73747a6e9a41d6", "email": "samatou683@gmail.com", "name": "Sam", "wallet_balance": 50.0, "api_key": "key_demo", "tokens": 1000}
+                user_row = {"user_id": "user_1b73747a6e9a41d6", "email": "sam.dev1@hotmail.com", "name": "Sam Salameh", "wallet_balance": 50.0, "api_key": "key_demo", "tokens": 1000}
                 user_id = "user_1b73747a6e9a41d6"
 
         user = dict(user_row)

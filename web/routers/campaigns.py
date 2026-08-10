@@ -955,8 +955,6 @@ def api_campaigns_live_status(request: Request):
             user_id = sam_user["user_id"] if sam_user else "user_1b73747a6e9a41d6"
 
         campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY created_at DESC LIMIT 30", (user_id,)).fetchall()]
-        if not campaigns:
-            campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns ORDER BY created_at DESC LIMIT 30").fetchall()]
         
         # Recalculate live sent_count for each campaign row from actual email & application dispatches
         for c in campaigns:

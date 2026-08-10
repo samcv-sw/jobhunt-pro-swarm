@@ -5,11 +5,25 @@
     
     <!-- Sidebar -->
     <aside class="w-64 flex-shrink-0 bg-slate-900 border-e border-white/10 flex flex-col sticky top-0 h-screen z-40">
-        <div class="p-6 border-b border-white/10">
-            <h2 class="text-sm font-bold text-slate-400 tracking-wider uppercase mb-1">Command Center</h2>
-            <div class="flex items-center gap-2 mt-2">
-                <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-                <span class="text-xs text-cyan-400 font-mono">SYSTEM ONLINE</span>
+        <div class="p-5 border-b border-white/10 space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xs font-bold text-slate-400 tracking-wider uppercase">Command Center</h2>
+                <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">v17.4 PRO</span>
+            </div>
+            <div class="p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 via-indigo-950/40 to-slate-900 border border-cyan-500/30 backdrop-blur-md shadow-lg shadow-cyan-500/10">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] font-mono tracking-widest text-cyan-300 uppercase font-bold">⚡ AI AUTO-APPLIER</span>
+                    <span class="flex h-2.5 w-2.5 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+                    </span>
+                </div>
+                <div class="text-xs text-slate-300 font-semibold flex items-center justify-between">
+                    <span class="text-slate-400 text-[11px]">Continuous Engine:</span>
+                    <span class="text-emerald-400 font-mono font-bold text-[11px] flex items-center gap-1">
+                        <i data-lucide="zap" class="w-3 h-3 text-cyan-400"></i> ACTIVE
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -48,7 +62,7 @@
                 <span class="text-sm font-bold">AI Salary Negotiator</span>
             </a>
 
-            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
             <!-- SERVICES & OFFERS SECTION (ADMIN ONLY) -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-extrabold text-pink-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Services & Offers</span>
@@ -155,7 +169,7 @@
 
             <!-- SYSTEM SECTION -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">System</div>
-            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
             <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-red-400 hover:bg-red-500/10">
                 <i data-lucide="shield-alert" class="w-4 h-4"></i>
                 <span class="text-sm font-semibold">Admin Panel</span>

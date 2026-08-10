@@ -112,6 +112,7 @@ class AntiBanProtection:
         self.max_apps_per_company_per_day = 1
         self.max_apps_per_company_per_week = 20
         self.max_apps_per_company_total = 100  # Allows contacting distinct HR emails at the same company
+        self.max_failures_before_blacklist = 3
         self.min_time_between_apps = 1  # 1 second minimum
         self.max_apps_per_hour = 500  # High throughput
         self.max_apps_per_day = 5000  # Multi-tenant capacity
@@ -352,8 +353,8 @@ class AntiBanProtection:
 
         self.failed_applications[user_key] += 1
 
-        # Blacklist after 3 failures
-        if self.failed_applications[user_key] >= 3:
+        # Blacklist after max_failures_before_blacklist consecutive failures
+        if self.failed_applications[user_key] >= self.max_failures_before_blacklist:
             self.suspicious_companies.add(user_key)
             logger.warning(
                 f"Blacklisted {company} for tenant {user_id or 'default'} after {self.failed_applications[user_key]} failures"

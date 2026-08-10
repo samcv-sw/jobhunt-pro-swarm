@@ -11,12 +11,15 @@ HEADERS = {"Authorization": f"Token {API_TOKEN}"}
 
 log_files = [
     f"/var/log/{USERNAME.lower()}.pythonanywhere.com.error.log",
+    f"/var/log/{USERNAME.lower()}.pythonanywhere.com.server.log",
 ]
 
 for log_path in log_files:
     url = f"https://www.pythonanywhere.com/api/v0/user/{USERNAME}/files/path{log_path}"
     r = requests.get(url, headers=HEADERS, timeout=15)
     if r.status_code == 200:
-        print(f"=== {log_path} (Last 1500 chars) ===")
-        print(r.text[-1500:])
+        print(f"=== {log_path} (Last 3000 chars) ===")
+        print(r.text[-3000:])
         print("==========================================")
+    else:
+        print(f"Failed to fetch {log_path}: {r.status_code}")

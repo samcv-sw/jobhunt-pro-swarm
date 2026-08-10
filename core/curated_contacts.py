@@ -134,7 +134,7 @@ CURATED_CONTACTS: list[dict] = [
     },
     {
         "company": "INFOGATE",
-        "email": "hr@infogate.net",
+        "email": "hr@infogate.com",
         "title": "Network Consultant",
         "location": "Beirut, Lebanon",
     },
@@ -304,7 +304,7 @@ CURATED_CONTACTS: list[dict] = [
     # Iraq
     {
         "company": "Zain Iraq",
-        "email": "careers@zain.com.iq",
+        "email": "careers@zain.com",
         "title": "Network Engineer",
         "location": "Baghdad, Iraq",
     },
@@ -399,7 +399,7 @@ CURATED_CONTACTS: list[dict] = [
     },
     {
         "company": "Khatib & Alami",
-        "email": "careers@khatibalam.com",
+        "email": "careers@khatibalami.com",
         "title": "IT Infrastructure Engineer",
         "location": "Beirut, Lebanon",
     },
@@ -618,7 +618,7 @@ CURATED_CONTACTS: list[dict] = [
     },
     {
         "company": "Sky UK",
-        "email": "careers@sky.uk",
+        "email": "careers@sky.com",
         "title": "Network Engineer",
         "location": "London, UK",
     },
@@ -822,7 +822,7 @@ CURATED_CONTACTS: list[dict] = [
     # ── EUROPE - Portugal ──
     {
         "company": "Altice Portugal",
-        "email": "careers@altice.pt",
+        "email": "careers@altice.net",
         "title": "Network Engineer",
         "location": "Lisbon, Portugal",
     },
@@ -884,7 +884,7 @@ CURATED_CONTACTS: list[dict] = [
     },
     {
         "company": "Google Singapore",
-        "email": "careers@google.com.sg",
+        "email": "careers@google.com",
         "title": "Network Engineer",
         "location": "Singapore",
     },

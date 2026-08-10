@@ -730,10 +730,10 @@ def _setup_campaign_and_user_details(
 
     from core.validators import clean_phone_number
     user_details = {
-        "name": user.get("name") or config.CANDIDATE_NAME,
-        "email": user.get("email") or config.CANDIDATE_EMAIL,
-        "phone": clean_phone_number(user.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009")),
-        "linkedin": config.CANDIDATE_LINKEDIN,
+        "name": user.get("name") or (getattr(config, "CANDIDATE_NAME", "Sam Salameh") if config else "Sam Salameh"),
+        "email": user.get("email") or (getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") if config else "sam.dev1@hotmail.com"),
+        "phone": clean_phone_number(user.get("phone") or (getattr(config, "CANDIDATE_PHONE", "+961 70 841 009") if config else "+961 70 841 009")),
+        "linkedin": (getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh") if config else "https://www.linkedin.com/in/sam-salameh"),
         "profession": profession,
         "skills": profile.get("skills") or "",
         "experience_years": profile.get("experience_years") or 5,

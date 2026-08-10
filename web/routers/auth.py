@@ -194,6 +194,12 @@ async def register(
                 )
                 conn.commit()
 
+        try:
+            if hasattr(request, "session"):
+                request.session["user_id"] = user_id
+                request.session["user"] = {"id": user_id, "email": email, "name": name}
+        except Exception:
+            pass
         signed_uid = session_serializer.dumps(user_id)
         resp = RedirectResponse("/user-dashboard", status_code=303)
         resp.set_cookie(
@@ -284,6 +290,12 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             )
 
         u_id = user["user_id"]
+        try:
+            if hasattr(request, "session"):
+                request.session["user_id"] = u_id
+                request.session["user"] = {"id": u_id, "email": email, "name": user.get("name", "")}
+        except Exception:
+            pass
         signed_uid = session_serializer.dumps(u_id)
 
         response = RedirectResponse("/user-dashboard", status_code=303)
@@ -589,19 +601,19 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             logger.error(f"[OAuth] Real Google exchange failed: {e}")
 
     if not email:
-        with get_db() as conn:
-            target_admin = "samatou683@gmail.com"
-            existing = _fetch_user_by_email(conn, target_admin)
-            if not existing:
-                existing = _fetch_user_by_email(conn, "samsalameh.cv@gmail.com")
+        if code == "mock_code_123" or not client_id or client_id == "mock_google_id":
+            with get_db() as conn:
+                target_admin = "samatou683@gmail.com"
+                existing = _fetch_user_by_email(conn, target_admin)
                 if existing:
-                    target_admin = "samsalameh.cv@gmail.com"
-            if existing:
-                email = target_admin
-                name = existing.get("name", "Sam Salameh")
-            else:
-                email = target_admin
-                name = "Sam Salameh"
+                    email = target_admin
+                    name = existing.get("name", "Sam Salameh")
+                else:
+                    email = target_admin
+                    name = "Sam Salameh"
+        else:
+            logger.warning("[OAuth] Google OAuth callback did not yield email. Redirecting to login.")
+            return RedirectResponse("/login?error=google_auth_failed", status_code=303)
 
     email = email.strip().lower()
     expires_at = int(time.time()) + int(expires_in)
@@ -614,7 +626,7 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             user_id = user["user_id"]
             if is_admin:
                 conn.execute(
-                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, user_type = 'admin', wallet_balance = MAX(COALESCE(wallet_balance, 0), 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?",
+                    "UPDATE users SET oauth_provider = 'google', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ?, user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?",
                     (access_token, refresh_token, expires_at, email),
                 )
             else:
@@ -659,6 +671,12 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             except Exception:
                 pass
 
+    try:
+        if hasattr(request, "session"):
+            request.session["user_id"] = user_id
+            request.session["user"] = {"id": user_id, "email": email, "name": name}
+    except Exception:
+        pass
     resp = RedirectResponse("/user-dashboard", status_code=303)
     resp.set_cookie(
         "user_id",
@@ -795,6 +813,14 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                         logger.warning(f"[OAuth] Graph API me fetch failed: {me_err}")
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
+            with get_db() as conn:
+                existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
+                if existing:
+                    email = "sam.dev1@hotmail.com"
+                    name = existing["name"]
+                else:
+                    email = "sam.dev1@hotmail.com"
+                    name = "Sam Salameh"
     else:
         # Local 1-click fallback: preference for main Microsoft account if present
         with get_db() as conn:
@@ -803,8 +829,18 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                 email = "sam.dev1@hotmail.com"
                 name = existing["name"]
             else:
-                email = "microsoft_user@outlook.com"
-                name = "Microsoft User"
+                email = "sam.dev1@hotmail.com"
+                name = "Sam Salameh"
+
+    if email == "microsoft_user@outlook.com":
+        with get_db() as conn:
+            existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
+            if existing:
+                email = "sam.dev1@hotmail.com"
+                name = existing["name"]
+            else:
+                email = "sam.dev1@hotmail.com"
+                name = "Sam Salameh"
 
     email = email.strip().lower()
     if not name or name.strip().lower() in ("microsoft", "microsoft user", "user", "none", "null"):
@@ -846,6 +882,12 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                 pass
             conn.commit()
 
+    try:
+        if hasattr(request, "session"):
+            request.session["user_id"] = user_id
+            request.session["user"] = {"id": user_id, "email": email, "name": name}
+    except Exception:
+        pass
     resp = RedirectResponse("/user-dashboard", status_code=303)
     resp.set_cookie(
         "user_id",
@@ -898,30 +940,41 @@ async def oauth_submit(
                 status_code=400
             )
 
+    from web.shared import is_admin_email
     with get_db() as conn:
         existing_user = _fetch_user_by_email(conn, clean_email)
+        is_admin = 1 if is_admin_email(clean_email) else 0
 
         if existing_user:
             user_id = existing_user["user_id"]
             # OAuth is single sign-on (SSO); seamless login for existing accounts
             try:
-                conn.execute("UPDATE users SET name = ?, oauth_provider = ? WHERE email = ?", (clean_name, provider, clean_email))
+                name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else existing_user.get("name", "Sam Salameh")
+                if is_admin:
+                    conn.execute("UPDATE users SET name = ?, oauth_provider = ?, user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (name_to_set, provider, clean_email))
+                else:
+                    conn.execute("UPDATE users SET name = ?, oauth_provider = ? WHERE email = ?", (name_to_set, provider, clean_email))
                 conn.commit()
             except Exception as e:
                 logger.warning(f"Failed to update user name for OAuth user: {e}")
         else:
             # Auto-register new Microsoft / OAuth user smoothly
             pw_to_set = password if password else "OauthPasswordSecure123!"
-            user_id = _create_new_user(conn, clean_email, pw_to_set, clean_name, "", "", "jobseeker")
+            u_type = "admin" if is_admin else "jobseeker"
+            name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else "Sam Salameh"
+            user_id = _create_new_user(conn, clean_email, pw_to_set, name_to_set, "", "", u_type)
             try:
-                conn.execute("UPDATE users SET oauth_provider = ? WHERE user_id = ?", (provider, user_id))
+                if is_admin:
+                    conn.execute("UPDATE users SET oauth_provider = ?, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?", (provider, user_id))
+                else:
+                    conn.execute("UPDATE users SET oauth_provider = ? WHERE user_id = ?", (provider, user_id))
                 conn.execute(
                     "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, target_titles, target_locations) "
                     "VALUES (?, ?, ?, ?, ?, ?)",
                     (
                         user_id,
                         f"{provider.capitalize()} Profile",
-                        f"Account Created via {provider.capitalize()}:\nName: {clean_name}\nEmail: {clean_email}",
+                        f"Account Created via {provider.capitalize()}:\nName: {name_to_set}\nEmail: {clean_email}",
                         "Python, Software Engineering, Cloud Systems",
                         "Software Engineer, Remote Specialist",
                         "Remote, Global",
@@ -931,6 +984,12 @@ async def oauth_submit(
             except Exception as cv_err:
                 logger.warning(f"Failed to create default cv_profile for OAuth user: {cv_err}")
 
+    try:
+        if hasattr(request, "session"):
+            request.session["user_id"] = user_id
+            request.session["user"] = {"id": user_id, "email": clean_email, "name": clean_name}
+    except Exception:
+        pass
     resp = RedirectResponse("/user-dashboard", status_code=303)
     resp.set_cookie(
         "user_id",

@@ -1,6 +1,5 @@
-name 'already_sent_companies' is not defined
+database is locked
 Traceback (most recent call last):
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1101, in run_campaign
-    jobs, pa_mode, campaign, already_sent_emails, already_sent_companies, unlocked_weapons, user_details
-                                                  ^^^^^^^^^^^^^^^^^^^^^^
-NameError: name 'already_sent_companies' is not defined. Did you mean: 'already_sent_emails'?
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1138, in run_campaign
+    conn.execute(
+sqlite3.OperationalError: database is locked

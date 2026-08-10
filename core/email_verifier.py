@@ -128,7 +128,10 @@ def check_domain_mx(domain: str) -> bool:
     has_mx = False
     try:
         import dns.resolver
-        answers = dns.resolver.resolve(domain, 'MX', lifetime=1.5)
+        res = dns.resolver.Resolver()
+        # High-performance, privacy-first DNS pool: Mullvad Primary -> Quad9 -> Cloudflare -> Google
+        res.nameservers = ['194.242.2.4', '194.242.2.5', '9.9.9.9', '1.1.1.1', '8.8.8.8']
+        answers = res.resolve(domain, 'MX', lifetime=1.5)
         if len(answers) > 0:
             has_mx = True
     except Exception:

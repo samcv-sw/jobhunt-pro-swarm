@@ -46,6 +46,7 @@ CLOUDFLARE_DOH_URL = os.getenv(
     "CLOUDFLARE_DOH_URL", "https://cloudflare-dns.com/dns-query"
 )
 GOOGLE_DOH_URL = os.getenv("GOOGLE_DOH_URL", "https://dns.google/resolve")
+MULLVAD_DOH_URL = os.getenv("MULLVAD_DOH_URL", "https://doh.mullvad.net/dns-query")
 
 
 # Suffixes to strip from company names before domain guessing
@@ -465,8 +466,40 @@ class EmailFinder:
     # ══════════════════════════════════════════════════════════════════════
 
     async def _resolve_mx_dns_over_https(self, domain: str) -> str | None:
-        """Query Cloudflare or Google DNS-over-HTTPS APIs for MX records."""
-        # 1. Cloudflare DoH
+        """Query Mullvad, Cloudflare, or Google DNS-over-HTTPS APIs for MX records (Mullvad Primary)."""
+        # 1. Mullvad DoH (PRIMARY)
+        try:
+            url = f"{MULLVAD_DOH_URL}?name={domain}&type=MX"
+            headers = {"Accept": "application/dns-json"}
+            await self._ensure_client()
+            response = await self._client.get(url, headers=headers, timeout=5.0)
+            if response.status_code == 200:
+                data = response.json()
+                answers = data.get("Answer", [])
+                if answers:
+                    mx_records = []
+                    for ans in answers:
+                        if ans.get("type") == 15:  # MX
+                            parts = ans.get("data", "").split()
+                            if len(parts) >= 2:
+                                try:
+                                    pref = int(parts[0])
+                                    host = parts[1].rstrip(".")
+                                    mx_records.append((pref, host))
+                                except ValueError:
+                                    pass
+                    if mx_records:
+                        mx_host = sorted(mx_records, key=lambda x: x[0])[0][1]
+                        logger.info(
+                            f"[EmailFinder] Resolved MX via Mullvad Extended DoH for {domain}: {mx_host}"
+                        )
+                        return mx_host
+        except Exception as e:
+            logger.debug(
+                f"[EmailFinder] Mullvad DoH lookup failed for {domain}: {e}"
+            )
+
+        # 2. Cloudflare DoH (SECONDARY FALLBACK)
         try:
             url = f"{CLOUDFLARE_DOH_URL}?name={domain}&type=MX"
             headers = {"Accept": "application/dns-json"}
