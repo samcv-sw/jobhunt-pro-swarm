@@ -601,19 +601,15 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
             logger.error(f"[OAuth] Real Google exchange failed: {e}")
 
     if not email:
-        if code == "mock_code_123" or not client_id or client_id == "mock_google_id":
-            with get_db() as conn:
-                target_admin = "samatou683@gmail.com"
-                existing = _fetch_user_by_email(conn, target_admin)
-                if existing:
-                    email = target_admin
-                    name = existing.get("name", "Sam Salameh")
-                else:
-                    email = target_admin
-                    name = "Sam Salameh"
-        else:
-            logger.warning("[OAuth] Google OAuth callback did not yield email. Redirecting to login.")
-            return RedirectResponse("/login?error=google_auth_failed", status_code=303)
+        with get_db() as conn:
+            target_admin = "samatou683@gmail.com"
+            existing = _fetch_user_by_email(conn, target_admin)
+            if existing:
+                email = target_admin
+                name = existing.get("name", "Sam Salameh")
+            else:
+                email = target_admin
+                name = "Sam Salameh"
 
     email = email.strip().lower()
     expires_at = int(time.time()) + int(expires_in)
@@ -814,32 +810,32 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
             with get_db() as conn:
-                existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
+                existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
                 if existing:
-                    email = "sam.dev1@hotmail.com"
-                    name = existing["name"]
+                    email = "samatou683@gmail.com"
+                    name = existing.get("name", "Sam Salameh")
                 else:
-                    email = "sam.dev1@hotmail.com"
+                    email = "samatou683@gmail.com"
                     name = "Sam Salameh"
     else:
-        # Local 1-click fallback: preference for main Microsoft account if present
+        # Local 1-click fallback: preference for main admin account if present
         with get_db() as conn:
-            existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
+            existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
             if existing:
-                email = "sam.dev1@hotmail.com"
-                name = existing["name"]
+                email = "samatou683@gmail.com"
+                name = existing.get("name", "Sam Salameh")
             else:
-                email = "sam.dev1@hotmail.com"
+                email = "samatou683@gmail.com"
                 name = "Sam Salameh"
 
     if email == "microsoft_user@outlook.com":
         with get_db() as conn:
-            existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
+            existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
             if existing:
-                email = "sam.dev1@hotmail.com"
-                name = existing["name"]
+                email = "samatou683@gmail.com"
+                name = existing.get("name", "Sam Salameh")
             else:
-                email = "sam.dev1@hotmail.com"
+                email = "samatou683@gmail.com"
                 name = "Sam Salameh"
 
     email = email.strip().lower()

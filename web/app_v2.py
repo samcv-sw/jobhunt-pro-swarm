@@ -4750,8 +4750,9 @@ def user_dashboard(request: Request):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         if not user_row:
             user_row = (
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT * FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
         if not user_row:
@@ -4987,8 +4988,9 @@ def settings_page(request: Request, success: str = None, error: str = None):
     with get_db() as conn:
         if not user_id:
             sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             )
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
@@ -4996,8 +4998,9 @@ def settings_page(request: Request, success: str = None, error: str = None):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         if not user_row:
             user_row = (
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT * FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
         if not user_row:
@@ -5019,8 +5022,9 @@ async def update_settings(
     if not user_id:
         with get_db() as conn:
             sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             )
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")

@@ -903,8 +903,9 @@ def _require_admin(request: Request):
     with get_db() as conn:
         if not user_id:
             sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             )
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
@@ -917,8 +918,9 @@ def _require_admin(request: Request):
         if not row:
             try:
                 row = (
-                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone()
+                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone()
                 )
             except Exception:
                 row = None
