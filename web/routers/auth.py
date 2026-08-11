@@ -810,33 +810,26 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
             with get_db() as conn:
-                existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
+                existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
                 if existing:
-                    email = "samatou683@gmail.com"
+                    email = "sam.dev1@hotmail.com"
                     name = existing.get("name", "Sam Salameh")
                 else:
-                    email = "samatou683@gmail.com"
+                    email = "sam.dev1@hotmail.com"
                     name = "Sam Salameh"
     else:
-        # Local 1-click fallback: preference for main admin account if present
+        # Local 1-click fallback for Microsoft OAuth
         with get_db() as conn:
-            existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
+            existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
             if existing:
-                email = "samatou683@gmail.com"
+                email = "sam.dev1@hotmail.com"
                 name = existing.get("name", "Sam Salameh")
             else:
-                email = "samatou683@gmail.com"
+                email = "sam.dev1@hotmail.com"
                 name = "Sam Salameh"
 
-    if email == "microsoft_user@outlook.com":
-        with get_db() as conn:
-            existing = _fetch_user_by_email(conn, "samatou683@gmail.com")
-            if existing:
-                email = "samatou683@gmail.com"
-                name = existing.get("name", "Sam Salameh")
-            else:
-                email = "samatou683@gmail.com"
-                name = "Sam Salameh"
+    if not email or email == "microsoft_user@outlook.com":
+        email = "sam.dev1@hotmail.com"
 
     email = email.strip().lower()
     if not name or name.strip().lower() in ("microsoft", "microsoft user", "user", "none", "null"):
