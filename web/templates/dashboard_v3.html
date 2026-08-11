@@ -24,7 +24,7 @@
   border: 1px solid rgba(0,240,255,0.18);
   border-radius: 16px;
   padding: 22px;
-  overflow: hidden;
+  overflow: visible !important;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .stat-card-premium::before {
@@ -45,6 +45,123 @@
   border-color: rgba(0,240,255,0.4);
 }
 .stat-counter { font-variant-numeric: tabular-nums; }
+
+/* Stat Card Tooltips & Explanation Popovers */
+.kpi-info-trigger {
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #38bdf8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  transition: all 0.25s ease;
+  margin-inline-start: 4px;
+  cursor: help;
+}
+
+.stat-card-premium:hover .kpi-info-trigger,
+.stat-card:hover .kpi-info-trigger {
+  background: rgba(0, 240, 255, 0.3);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+  transform: scale(1.15);
+}
+
+.kpi-tooltip-popover {
+  position: absolute;
+  inset-block-end: calc(100% + 14px);
+  inset-inline-start: 50%;
+  transform: translateX(-50%) translateY(10px) scale(0.96);
+  inline-size: 290px;
+  max-inline-size: 92vw;
+  background: rgba(10, 14, 29, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 240, 255, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
+  z-index: 999;
+  text-align: start;
+}
+
+.kpi-tooltip-popover::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgba(0, 240, 255, 0.5) transparent transparent transparent;
+}
+
+.stat-card-premium:hover .kpi-tooltip-popover,
+.stat-card:hover .kpi-tooltip-popover,
+.stat-card-premium:focus-within .kpi-tooltip-popover,
+.stat-card:focus-within .kpi-tooltip-popover,
+.kpi-tooltip-active .kpi-tooltip-popover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.kpi-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 8px;
+  padding-block-end: 8px;
+  border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kpi-tooltip-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kpi-tooltip-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.kpi-tooltip-body {
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.kpi-tooltip-footer {
+  margin-block-start: 10px;
+  padding-block-start: 8px;
+  border-block-start: 1px dashed rgba(0, 240, 255, 0.2);
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
 @keyframes fadeInUp {
   from { opacity:0; transform:translateY(16px); }
@@ -203,14 +320,33 @@
   <!-- KPI STATS GRID -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <!-- TARGET COMPANIES POOL -->
-    <div class="stat-card-premium reveal border border-cyan-500/30 bg-slate-900/60 shadow-[0_0_20px_rgba(0,240,255,0.15)]" style="animation-delay:0.1s;">
+    <div class="stat-card-premium reveal border border-cyan-500/30 bg-slate-900/60 shadow-[0_0_20px_rgba(0,240,255,0.15)] group relative" style="animation-delay:0.1s;" tabindex="0">
+      <!-- HOVER EXPLANATION TOOLTIP -->
+      <div class="kpi-tooltip-popover" dir="rtl">
+        <div class="kpi-tooltip-header">
+          <div class="kpi-tooltip-title">
+            <span>🏢 مجمّع الشركات المستهدفة</span>
+          </div>
+          <span class="kpi-tooltip-badge">تحديث مباشر 24/7</span>
+        </div>
+        <div class="kpi-tooltip-body">
+          إجمالي شركات التوظيف ومسؤولي الموارد البشرية (HRs) المعتمدين والمطابقين لمجالك المهني المستهدف في السعودية، الإمارات، قطر، باقي الخليج والعالمية.
+        </div>
+        <div class="kpi-tooltip-footer">
+          <span>✨ يتم تحديث المستهدفين تلقائياً لضمان أعلى وصول</span>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:12px;">
         <div style="inline-size:38px;block-size:38px;border-radius:10px;background:rgba(6,182,212,0.15);display:flex;align-items:center;justify-content:center;">
           <span style="font-size:18px;">🏢</span>
         </div>
-        <span class="flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span> 154 مستهدفة
-        </span>
+        <div class="flex items-center gap-1">
+          <span class="kpi-info-trigger" title="اطّلع على تفاصيل المؤشر">ⓘ</span>
+          <span class="flex items-center gap-1 text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping"></span> 154 مستهدفة
+          </span>
+        </div>
       </div>
       <div class="stat-counter flex items-baseline gap-2" style="font-size:34px;font-weight:900;color:#fff;line-height:1;margin-block-end:4px;">
         <span class="live-total-counter">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</span>
@@ -221,12 +357,31 @@
     </div>
 
     <!-- ACTIVE APPLICATIONS -->
-    <div class="stat-card-premium reveal" style="animation-delay:0.2s;">
+    <div class="stat-card-premium reveal group relative" style="animation-delay:0.2s;" tabindex="0">
+      <!-- HOVER EXPLANATION TOOLTIP -->
+      <div class="kpi-tooltip-popover" dir="rtl">
+        <div class="kpi-tooltip-header">
+          <div class="kpi-tooltip-title">
+            <span>🚀 إجمالي التقديمات الحية</span>
+          </div>
+          <span class="kpi-tooltip-badge" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.3);">إرسال آلي</span>
+        </div>
+        <div class="kpi-tooltip-body">
+          المجموع الكلي لطلبات التوظيف المباشرة، والسير الذاتية المخصصة ورسائل الخطاب المقدمة بنجاح إلى البريد الشخصي لمدرائ التوظيف وبوابات الشركة.
+        </div>
+        <div class="kpi-tooltip-footer" style="color:#818cf8;border-color:rgba(99,102,241,0.2);">
+          <span>⚡ شاملة البريد الإلكتروني والبوابات الرقمية</span>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:12px;">
         <div style="inline-size:38px;block-size:38px;border-radius:10px;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;">
           <i class="lucide-dir-aware" data-lucide="send" style="inline-size:18px;block-size:18px;color:#818cf8;"></i>
         </div>
-        <span style="font-size:14px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;">نشط 24/7</span>
+        <div class="flex items-center gap-1">
+          <span class="kpi-info-trigger" title="اطّلع على تفاصيل المؤشر">ⓘ</span>
+          <span style="font-size:14px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;">نشط 24/7</span>
+        </div>
       </div>
       <div class="stat-counter live-total-counter" style="font-size:34px;font-weight:900;color:#fff;line-height:1;margin-block-end:4px;">{{ stats.total_sent | default(stats.emails_sent | default(38)) }}</div>
       <div style="font-size:14px;color:#64748b;text-transform:uppercase;font-weight:600;">إجمالي التقديمات الحية</div>
@@ -234,12 +389,31 @@
     </div>
 
     <!-- MATCH RATE -->
-    <div class="stat-card-premium reveal" style="animation-delay:0.3s;">
+    <div class="stat-card-premium reveal group relative" style="animation-delay:0.3s;" tabindex="0">
+      <!-- HOVER EXPLANATION TOOLTIP -->
+      <div class="kpi-tooltip-popover" dir="rtl">
+        <div class="kpi-tooltip-header">
+          <div class="kpi-tooltip-title">
+            <span>🎯 معدل توافق الـ ATS</span>
+          </div>
+          <span class="kpi-tooltip-badge">درجة تطابق 96%</span>
+        </div>
+        <div class="kpi-tooltip-body">
+          نسبة التوافق التأهيلي المحسوبة بذكاء الخوارزميات بين سيرتك الذاتية ومتطلبات أصحاب العمل بالخليج لضمان اختراق فلاتر الـ ATS والحصول على المقابلات.
+        </div>
+        <div class="kpi-tooltip-footer" style="color:#34d399;border-color:rgba(52,211,153,0.2);">
+          <span>📈 تضمن أقصى أولوية في فرز سيرتك الذاتية</span>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:12px;">
         <div style="inline-size:38px;block-size:38px;border-radius:10px;background:rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;">
           <i data-lucide="check-circle" style="inline-size:18px;block-size:18px;color:#4ade80;"></i>
         </div>
-        <span style="font-size:14px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;">ممتاز</span>
+        <div class="flex items-center gap-1">
+          <span class="kpi-info-trigger" title="اطّلع على تفاصيل المؤشر">ⓘ</span>
+          <span style="font-size:14px;font-weight:700;color:#4ade80;background:rgba(74,222,128,0.1);padding:3px 8px;border-radius:20px;">ممتاز</span>
+        </div>
       </div>
       <div class="stat-counter" style="font-size:34px;font-weight:900;color:#fff;line-height:1;margin-block-end:4px;">96%</div>
       <div style="font-size:14px;color:#64748b;text-transform:uppercase;font-weight:600;">معدل توافق الـ ATS</div>
@@ -247,12 +421,31 @@
     </div>
 
     <!-- TIME SAVED -->
-    <div class="stat-card-premium reveal" style="animation-delay:0.4s;">
+    <div class="stat-card-premium reveal group relative" style="animation-delay:0.4s;" tabindex="0">
+      <!-- HOVER EXPLANATION TOOLTIP -->
+      <div class="kpi-tooltip-popover" dir="rtl">
+        <div class="kpi-tooltip-header">
+          <div class="kpi-tooltip-title">
+            <span>⏳ الوقت الموفر بالذكاء الاصطناعي</span>
+          </div>
+          <span class="kpi-tooltip-badge" style="background:rgba(245,158,11,0.15);color:#fbbf24;border-color:rgba(245,158,11,0.3);">أتمتة كاملة</span>
+        </div>
+        <div class="kpi-tooltip-body">
+          عدد ساعات العمل الفعلية المكافئة لجهدك اليدوي التي وفرها عليك الذكاء الاصطناعي في البحث والتخصيص والمتابعة الفورية مع الشركات.
+        </div>
+        <div class="kpi-tooltip-footer" style="color:#fbbf24;border-color:rgba(245,158,11,0.2);">
+          <span>💡 يوفر أكثر من 12 دقيقة لكل تقديم وظيفي</span>
+        </div>
+      </div>
+
       <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:12px;">
         <div style="inline-size:38px;block-size:38px;border-radius:10px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;">
           <i data-lucide="clock" style="inline-size:18px;block-size:18px;color:#fbbf24;"></i>
         </div>
-        <span style="font-size:14px;font-weight:700;color:#fbbf24;background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:20px;">أتمتة</span>
+        <div class="flex items-center gap-1">
+          <span class="kpi-info-trigger" title="اطّلع على تفاصيل المؤشر">ⓘ</span>
+          <span style="font-size:14px;font-weight:700;color:#fbbf24;background:rgba(245,158,11,0.1);padding:3px 8px;border-radius:20px;">أتمتة</span>
+        </div>
       </div>
       <div class="stat-counter" style="font-size:34px;font-weight:900;color:#fff;line-height:1;margin-block-end:4px;">
         {% set total_mins = (stats.total_sent | default(38)) * 12 %}
@@ -1719,4 +1912,29 @@ function handleAiWidgetAsk() {
   reply.innerHTML = '✨ <strong>المساعد الذكي:</strong> بناءً على ملفك الوظيفي، نوصي بفحص سيرتك الذاتية في <a href="/ats-studio" class="underline text-cyan-300 font-bold">استوديو ATS</a> وإطلاق <a href="/new-campaign" class="underline text-emerald-300 font-bold">حملة جديدة</a> للحصول على أعلى نسبة استجابة!';
   input.value = '';
 }
+
+// Mobile & Click Toggle for KPI Stat Card Tooltips
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.stat-card-premium, .stat-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const popover = card.querySelector('.kpi-tooltip-popover');
+      if (popover) {
+        const isActive = card.classList.contains('kpi-tooltip-active');
+        document.querySelectorAll('.stat-card-premium.kpi-tooltip-active, .stat-card.kpi-tooltip-active').forEach(c => {
+          c.classList.remove('kpi-tooltip-active');
+        });
+        if (!isActive) {
+          card.classList.add('kpi-tooltip-active');
+        }
+      }
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.stat-card-premium') && !e.target.closest('.stat-card')) {
+      document.querySelectorAll('.stat-card-premium.kpi-tooltip-active, .stat-card.kpi-tooltip-active').forEach(c => {
+        c.classList.remove('kpi-tooltip-active');
+      });
+    }
+  });
+});
 </script>
