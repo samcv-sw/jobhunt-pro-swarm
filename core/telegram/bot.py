@@ -96,6 +96,10 @@ def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
             r_fallback = _tg_requests.post(url, json=payload, timeout=10)
             if r_fallback.status_code == 200:
                 return True
+            logger.warning(
+                f"[send_telegram_message_sync] Fallback HTTP {r_fallback.status_code}: {r_fallback.text[:200]}"
+            )
+            return False
         logger.warning(
             f"[send_telegram_message_sync] HTTP {r.status_code}: {r.text[:200]}"
         )

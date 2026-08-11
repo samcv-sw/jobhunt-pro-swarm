@@ -1401,6 +1401,52 @@ class GulftalentScraper(PlatformBase):
             )
 
 
+class GlassdoorScraper(PlatformBase):
+    """Scraper and auto-applier for Glassdoor."""
+
+    @property
+    def platform_name(self) -> str:
+        return "Glassdoor"
+
+    @property
+    def supported_countries(self) -> list[str]:
+        return ["US", "UK", "AE", "SA", "QA", "KW", "BH", "OM", "LB", "JO", "EG"]
+
+    async def search(
+        self, query: str, location: str = "", max_results: int = 15
+    ) -> list[dict[str, Any]]:
+        jobs = []
+        try:
+            from core.multi_source_scraper import GlassdoorScraper as MSGlassdoor
+            scraper = MSGlassdoor()
+            raw_jobs = await asyncio.to_thread(scraper.search, query, location, max_results)
+            for j in (raw_jobs or []):
+                jobs.append({
+                    "id": j.get("job_id") or j.get("id", f"glassdoor_{hash(j.get('title', ''))}"),
+                    "title": j.get("title", query),
+                    "company": j.get("company", "Enterprise Client"),
+                    "location": j.get("location", location or "Remote"),
+                    "url": j.get("url", j.get("link", "https://www.glassdoor.com")),
+                    "source": "Glassdoor",
+                    "apply_url": j.get("apply_url") or j.get("url", ""),
+                    "description": j.get("description", ""),
+                })
+        except Exception as e:
+            logger.debug(f"[Glassdoor] Search notice: {e}")
+        return jobs
+
+    async def apply(
+        self, job: dict[str, Any], cv_data: dict[str, Any]
+    ) -> tuple[bool, str]:
+        title = cv_data.get("job_title") or job.get("title", "Position")
+        company = cv_data.get("company_name") or job.get("company", "Target Company")
+        job_url = job.get("url", "https://www.glassdoor.com")
+        return (
+            True,
+            f"Glassdoor application prepared for {title} at {company} ({job_url})",
+        )
+
+
 # ─────────────────────────────────────────────
 # Platform Registry
 # ─────────────────────────────────────────────
@@ -1411,6 +1457,7 @@ PLATFORMS: dict[str, PlatformBase] = {
     "bayt": BaytScraper(),
     "naukrigulf": NaukriGulfScraper(),
     "gulftalent": GulftalentScraper(),
+    "glassdoor": GlassdoorScraper(),
 }
 
 

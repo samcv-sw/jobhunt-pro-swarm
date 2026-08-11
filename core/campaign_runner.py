@@ -133,34 +133,37 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
     already_sent_emails = set()
     already_sent_companies = set()
 
-    # 1. Lifetime User-wide Email Dedup across ALL campaigns and history
+    # 1. User-wide Email Dedup across campaigns within 1-Year (365 Days) window
     for row in conn.execute(
         """SELECT DISTINCT LOWER(ce.email_address) as email
            FROM campaign_emails ce
            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-           WHERE c.user_id = ? AND ce.email_address IS NOT NULL AND ce.email_address != ''""",
+           WHERE c.user_id = ? AND ce.email_address IS NOT NULL AND ce.email_address != ''
+           AND (ce.sent_at >= datetime('now', '-365 days') OR ce.sent_at IS NULL OR ce.sent_at = '')""",
         (user_id,),
     ).fetchall():
         if row["email"]:
             already_sent_emails.add(row["email"].strip().lower())
 
-    # 2. Lifetime User-wide Company Dedup across ALL campaigns
+    # 2. User-wide Company Dedup across campaigns within 1-Year (365 Days) window
     for row in conn.execute(
         """SELECT DISTINCT LOWER(ce.company_name) as comp
            FROM campaign_emails ce
            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-           WHERE c.user_id = ? AND ce.company_name IS NOT NULL AND ce.company_name != ''""",
+           WHERE c.user_id = ? AND ce.company_name IS NOT NULL AND ce.company_name != ''
+           AND (ce.sent_at >= datetime('now', '-365 days') OR ce.sent_at IS NULL OR ce.sent_at = '')""",
         (user_id,),
     ).fetchall():
         if row["comp"]:
             already_sent_companies.add(row["comp"].strip().lower())
 
-    # 3. Multi-platform dispatches lifetime company dedup
+    # 3. Multi-platform dispatches company dedup (within 365 days)
     try:
         for row in conn.execute(
             """SELECT DISTINCT LOWER(company) as comp
                FROM multi_platform_apps
-               WHERE user_id = ? AND company IS NOT NULL AND company != ''""",
+               WHERE user_id = ? AND company IS NOT NULL AND company != ''
+               AND (applied_at >= datetime('now', '-365 days') OR applied_at IS NULL OR applied_at = '')""",
             (user_id,),
         ).fetchall():
             if row["comp"]:
@@ -168,12 +171,13 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
     except Exception:
         pass
 
-    # 4. Jobs table lifetime company dedup
+    # 4. Jobs table company dedup (within 365 days)
     try:
         for row in conn.execute(
             """SELECT DISTINCT LOWER(company) as comp
                FROM jobs
-               WHERE user_id = ? AND status = 'applied' AND company IS NOT NULL AND company != ''""",
+               WHERE user_id = ? AND status = 'applied' AND company IS NOT NULL AND company != ''
+               AND (updated_at >= datetime('now', '-365 days') OR created_at >= datetime('now', '-365 days') OR created_at IS NULL)""",
             (user_id,),
         ).fetchall():
             if row["comp"]:
@@ -182,7 +186,7 @@ def _load_dedup_sets(conn, campaign_id: str, user_id: str) -> tuple[set, set]:
         pass
 
     logger.info(
-        f"[CampaignRunner] STRICT PERMANENT LIFETIME DEDUP: {len(already_sent_emails)} emails & {len(already_sent_companies)} companies permanently excluded for user {user_id}"
+        f"[CampaignRunner] 1-YEAR (365-DAY) USER DEDUP: {len(already_sent_emails)} emails & {len(already_sent_companies)} companies currently active in 1-year window for user {user_id}"
     )
     return already_sent_emails, already_sent_companies
 

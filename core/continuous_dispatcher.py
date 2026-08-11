@@ -196,17 +196,98 @@ def _get_active_target_pool(conn, user_id):
                 "match_score": score
             })
 
-    # Process ENTERPRISE_TARGET_POOL
+    # Verified Real Domain Map for Enterprise Companies (No truncation, No fake domains)
+    REAL_COMPANY_DOMAINS = {
+        "Saudi Aramco": "aramco.com",
+        "Aramco Digital": "aramcodigital.com",
+        "ADNOC Digital": "adnoc.ae",
+        "NEOM Tech & Digital": "neom.com",
+        "Red Sea Global": "redseaglobal.com",
+        "Qiddiya Investment": "qiddiya.com",
+        "Diriyah Company": "diriyah.sa",
+        "ROSHN Group": "roshn.sa",
+        "PIF (Public Investment Fund)": "pif.gov.sa",
+        "Mubadala Investment": "mubadala.com",
+        "ADQ Holding": "adq.ae",
+        "Core42 (G42 Group)": "g42.ai",
+        "Presight AI": "presight.ai",
+        "Solutions by STC": "solutions.com.sa",
+        "SITE (Saudi Information Tech)": "site.sa",
+        "Elm Company": "elm.sa",
+        "Etisalat UAE (e&)": "eand.com",
+        "Du Telecom": "du.ae",
+        "STC (Saudi Telecom)": "stc.com.sa",
+        "Zain Group": "zain.com",
+        "Ooredoo Qatar": "ooredoo.qa",
+        "Omantel": "omantel.om",
+        "Batelco": "beyon.com",
+        "Emirates Group": "emirates.com",
+        "Qatar Airways Tech": "qatarairways.com.qa",
+        "flydubai": "flydubai.com",
+        "Air Arabia": "airarabia.com",
+        "DP World Digital": "dpworld.com",
+        "AD Ports Group": "adportsgroup.com",
+        "Agility Logistics": "agility.com",
+        "Aramex International": "aramex.com",
+        "Emirates NBD": "emiratesnbd.com",
+        "First Abu Dhabi Bank (FAB)": "bankfab.com",
+        "Abu Dhabi Commercial Bank (ADCB)": "adcb.com",
+        "Dubai Islamic Bank (DIB)": "dib.ae",
+        "Mashreq Bank Digital": "mashreqbank.com",
+        "Al Rajhi Bank Digital": "alrajhibank.com.sa",
+        "Saudi National Bank (SNB)": "snb.com.sa",
+        "Riyad Bank": "riyadbank.com",
+        "Kuwait Finance House (KFH)": "kfh.com",
+        "National Bank of Kuwait (NBK)": "nbk.com",
+        "Qatar National Bank (QNB)": "qnb.com",
+        "Bank Muscat": "bankmuscat.com",
+        "Bank ABC Bahrain": "bankabc.com",
+        "Arab Bank": "arabbank.com",
+        "Bank Audi": "bankaudi.com.lb",
+        "BLOM Bank": "blom-bank.com",
+        "Byblos Bank": "byblosbank.com",
+        "Majid Al Futtaim (MAF)": "majidalfuttaim.com",
+        "Chalhoub Group": "chalhoubgroup.com",
+        "Alshaya Group": "alshaya.com",
+        "Landmark Group": "landmarkgroup.com",
+        "Apparel Group": "apparelgroup.com",
+        "Al Tayer Group": "altayer.com",
+        "Al-Futtaim Group": "alfuttaim.com",
+        "Emaar Properties": "emaar.ae",
+        "Damac Properties": "damacproperties.com",
+        "Aldar Properties": "aldar.com",
+        "Lean Technologies": "leantech.me",
+        "Tamara Pay": "tamara.co",
+        "Tabby Pay": "tabby.ai",
+        "Careem Tech": "careem.com",
+        "Talabat Tech": "talabat.com",
+        "Noon.com": "noon.com",
+        "Property Finder": "propertyfinder.ae",
+        "Dubizzle Group": "dubizzle.com",
+        "Delivery Hero MENA": "deliveryhero.com",
+        "Kitopi Tech": "kitopi.com",
+        "Jahez": "jahez.net",
+        "HungerStation": "hungerstation.com",
+        "Mrsool": "mrsool.co",
+        "Salla E-Commerce": "salla.sa",
+        "Zid Platform": "zid.sa",
+        "Foodics": "foodics.com",
+        "Unifonic": "unifonic.com",
+        "Anghami": "anghami.com"
+    }
+
+    # Process ENTERPRISE_TARGET_POOL with real domain map or portal mode
     for et in ENTERPRISE_TARGET_POOL:
         comp = et.get("company")
         title = et.get("title", candidate_title)
         plat = et.get("platform", "Direct Enterprise Gateway")
         if comp:
-            domain = comp.lower().replace(" ", "").replace("&", "").replace("-", "")[:15]
+            real_dom = REAL_COMPANY_DOMAINS.get(comp)
+            target_email = f"careers@{real_dom}" if real_dom else ""
             candidate_contacts.append({
                 "company": comp,
                 "title": title,
-                "email": f"careers@{domain}.com",
+                "email": target_email,
                 "platform": plat,
                 "match_score": random.randint(94, 99)
             })
@@ -220,30 +301,29 @@ def _get_active_target_pool(conn, user_id):
         comp_name = target["company"].strip().lower()
         
         # Check blacklist
-        if any(kw in email or kw in comp_name for kw in EXCLUDED_KEYWORDS):
+        if any((email and kw in email) or kw in comp_name for kw in EXCLUDED_KEYWORDS):
             continue
 
-        exists = conn.execute(
-            "SELECT id FROM campaign_emails WHERE LOWER(email_address) = LOWER(?)",
-            (email,)
-        ).fetchone()
+        if email:
+            from core.email_verifier import is_deliverable_email
+            if not is_deliverable_email(email):
+                continue
+            exists = conn.execute(
+                "SELECT id FROM campaign_emails WHERE LOWER(email_address) = LOWER(?)",
+                (email,)
+            ).fetchone()
+            if not exists:
+                return target
+        else:
+            exists = conn.execute(
+                "SELECT id FROM multi_platform_apps WHERE LOWER(company) = LOWER(?)",
+                (comp_name,)
+            ).fetchone()
+            if not exists:
+                return target
 
-        if not exists:
-            return target
-
-    # Dynamic fallback target if all static targets were previously emailed for this user
-    rnd_suffix = uuid.uuid4().hex[:6]
-    platforms = ["LinkedIn Swarm", "Bayt Swarm", "GulfTalent Swarm", "Direct Corporate Gateway"]
-    plat = random.choice(platforms)
-    companies = ["Aramco Digital", "NEOM Smart Tech", "G42 Cloud", "ADNOC Systems", "Emirates Group IT", "Chalhoub Tech", "Lean FinTech", "Tamara Pay"]
-    comp = random.choice(companies)
-    return {
-        "company": f"{comp} ({rnd_suffix.upper()})",
-        "title": candidate_title,
-        "email": f"careers-{rnd_suffix}@{comp.lower().replace(' ', '')[:10]}.com",
-        "platform": plat,
-        "match_score": random.randint(96, 99)
-    }
+    # Clean fallback: Return a genuine unsent target or None (NEVER generate synthetic mock emails)
+    return None
 
 def dispatch_single_application():
     """Dispatch one verified enterprise job application and update database state."""

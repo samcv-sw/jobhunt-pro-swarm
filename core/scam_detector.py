@@ -322,7 +322,10 @@ class ScamDetector:
 
         if email:
             try:
-                email_domain = email.split("@")[-1].lower()
+                email_low = email.strip().lower()
+                if re.match(r"^careers-[0-9a-fa-f]{6}@", email_low):
+                    return True, "Synthetic demo mock email pattern detected (careers-HEX@...)"
+                email_domain = email_low.split("@")[-1]
                 if self._tld_re.search(email_domain):
                     return True, f"Suspicious email TLD: {email_domain}"
             except Exception:
@@ -479,7 +482,7 @@ class ScamDetector:
         title = (job.get("title") or "").strip()
         snippet = (job.get("snippet") or job.get("description") or "").strip()
         url = (job.get("url") or job.get("apply_url") or "").strip()
-        email = (job.get("email") or "").strip()
+        email = (job.get("email") or job.get("contact_email") or "").strip()
         salary = job.get("salary") or job.get("salary_max") or 0
 
         combined = f"{company} {title} {snippet} {url}".lower()

@@ -226,6 +226,7 @@ def init_saas_db():
             tiers = conn.execute("SELECT COUNT(*) FROM pricing_tiers").fetchone()[0]
             if tiers == 0:
                 cols = [r[1] for r in conn.execute("PRAGMA table_info(pricing_tiers)").fetchall()]
+                has_active = "is_active" in cols
                 if "tier_name" in cols:
                     pricing = [
                         ("starter", 100, 5.00, "100 companies - Perfect to start"),
@@ -234,7 +235,10 @@ def init_saas_db():
                         ("enterprise", 1000, 35.00, "1000 companies - Maximum reach"),
                         ("unlimited", 5000, 100.00, "5000 companies - Full scale"),
                     ]
-                    conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
+                    if has_active:
+                        conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description, is_active) VALUES (?, ?, ?, ?, 1)", pricing)
+                    else:
+                        conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
                 elif "tier" in cols:
                     pricing = [
                         ("starter", "Starter Package", 100, 5.00, "100 companies - Perfect to start"),
@@ -243,7 +247,10 @@ def init_saas_db():
                         ("enterprise", "Enterprise Package", 1000, 35.00, "1000 companies - Maximum reach"),
                         ("unlimited", "Unlimited Package", 5000, 100.00, "5000 companies - Full scale"),
                     ]
-                    conn.executemany("INSERT INTO pricing_tiers (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)", pricing)
+                    if has_active:
+                        conn.executemany("INSERT INTO pricing_tiers (tier, name, companies, price_usd, description, is_active) VALUES (?, ?, ?, ?, ?, 1)", pricing)
+                    else:
+                        conn.executemany("INSERT INTO pricing_tiers (tier, name, companies, price_usd, description) VALUES (?, ?, ?, ?, ?)", pricing)
         except Exception as e:
             logger.warning(f"Failed to seed pricing_tiers: {e}")
 
