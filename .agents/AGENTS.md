@@ -4,6 +4,10 @@
 1. **Never use placeholder code** (e.g., `// TODO: implement`). Always provide complete, copy-paste-ready file outputs.
 2. **Lazy Loading of Tools**: Use context efficiently. Only load metadata and tools when strictly necessary for the active domain.
 3. **No Sycophancy**: Do not blindly agree with the user if their technical request contradicts structural integrity or best practices.
+4. **Strict Dispatch & Email Quality Directives (PERMANENT RULE)**:
+   - **Zero Synthetic / Demo Emails**: Never generate or allow `careers-[HEX]@...` synthetic emails or truncated domain emails (`[:10]`, `[:15]`).
+   - **1-Year Cooldown Deduplication Window**: Deduplication across `campaign_emails`, `jobs`, and `multi_platform_apps` is enforced strictly per user (`user_id`) using a 365-day sliding window (`ce.sent_at >= datetime('now', '-365 days')`).
+   - **Mandatory Live MX & Deliverability Verification**: Every target email MUST pass `is_deliverable_email()` and `ScamDetector` DNS MX checks before selection or dispatch.
 
 ## Multi-Persona Evaluation Council
 For all complex code generation, especially regarding architecture and UI/UX:
