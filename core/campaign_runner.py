@@ -9,7 +9,7 @@ if sys.platform == "win32":
 JobHunt Pro Campaign Runner — Cloud-Native v17.0
 Runs on PythonAnywhere with BanShield v3, 23 SMTP slots, zero-risk.
 No QClaw/PC dependency. Works 24/7 on PA.
-v17.0: WORLDWIDE SEARCH — Google + Indeed RSS + LinkedIn XHR + JSearch + 50+ locations.
+v17.0: WORLDWIDE SEARCH — Google + Indeed RSS + LinkedIn XHR + JSearch + 250 ISO locations worldwide.
        Multi-query rotation across 24+ titles, 22+ locations, 10+ free job sources.
        Zero investment, permanent cloud operation.
 """

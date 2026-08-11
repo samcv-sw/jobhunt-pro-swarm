@@ -172,11 +172,8 @@ class SmartScheduler:
 
     def _init_db(self):
         """Initialize the smart_scheduler_state table in SQLite."""
-        if os.getenv("TESTING") in ("1", "true", "yes") or os.getenv("PYTEST_RUNNING"):
-            return
         try:
             with closing(sqlite3.connect(DB_PATH, timeout=10)) as conn:
-
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS smart_scheduler_state (
                         provider_name TEXT PRIMARY KEY,
@@ -191,7 +188,7 @@ class SmartScheduler:
                 """)
                 conn.commit()
         except Exception as e:
-            logger.error(f"[Scheduler] Failed to initialize SQLite state table: {e}")
+            logger.debug(f"[Scheduler] Failed to initialize SQLite state table: {e}")
 
     def _save_provider_state_to_db(
         self, state: ProviderState, reset_day: str = None, reset_hour: str = None

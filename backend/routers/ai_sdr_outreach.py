@@ -52,6 +52,13 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
     """
     if not req.candidate_name or not req.target_role:
         raise HTTPException(status_code=400, detail="Candidate name and target role are required.")
+
+    if req.channel == "email" and req.recruiter.email:
+        email = req.recruiter.email.strip().lower()
+        if "careers-" in email or "demo" in email or email.startswith("test@"):
+            raise HTTPException(status_code=400, detail="Synthetic/demo email targets are strictly prohibited.")
+        if "@" not in email or "." not in email.split("@")[-1]:
+            raise HTTPException(status_code=400, detail="Invalid target email domain provided.")
     
     seq_id = f"seq_{len(outreach_db) + 1}_{int(datetime.datetime.now().timestamp())}"
     achievements_str = " ".join(req.key_achievements) if req.key_achievements else "proven track record in engineering"

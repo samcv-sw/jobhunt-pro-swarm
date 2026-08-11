@@ -12,8 +12,6 @@ import logging
 import re
 
 import httpx
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 import config
 import core.semantic_cache as semantic_cache
@@ -349,6 +347,8 @@ class AITailor:
             try:
                 # Perform a fast TF-IDF cosine-similarity subset filter on resume highlight bullets
                 # to minimize token count and improve speed.
+                from sklearn.feature_extraction.text import TfidfVectorizer
+                from sklearn.metrics.pairwise import cosine_similarity
                 texts = [query] + list(highlights)
                 vectorizer = TfidfVectorizer().fit_transform(texts)
                 vectors = vectorizer.toarray()
@@ -1106,8 +1106,8 @@ Include a mix of:
                 + CANDIDATE_PROFILE["infrastructure"]
                 + CANDIDATE_PROFILE["certs"]
             ).lower()
-            job_text = (title + " " + description).lower()
-
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            from sklearn.metrics.pairwise import cosine_similarity
             vectorizer = TfidfVectorizer(stop_words="english")
             tfidf_matrix = vectorizer.fit_transform([candidate_text, job_text])
 

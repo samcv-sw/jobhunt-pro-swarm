@@ -2343,9 +2343,9 @@ def auto_seed_cloud_db(conn):
                 )
             else:
                 conn.execute(
-                    "INSERT INTO users (user_id, email, password_hash, name, phone, user_type, wallet_balance, tokens, api_key, created_at, is_active) "
-                    "VALUES (?, ?, 'oauth_authenticated_user', ?, '+961 70 841 009', 'admin', 10000.0, 999999, ?, ?, 1)",
-                    (user_id, email.lower(), name, f"key_{user_id}", now_str),
+                    "INSERT INTO users (id, user_id, email, password_hash, name, phone, user_type, wallet_balance, tokens, api_key, created_at, is_active) "
+                    "VALUES (?, ?, ?, 'oauth_authenticated_user', ?, '+961 70 841 009', 'admin', 10000.0, 999999, ?, ?, 1)",
+                    (user_id, user_id, email.lower(), name, f"key_{user_id}", now_str),
                 )
                 u_id = user_id
 

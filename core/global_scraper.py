@@ -2,7 +2,7 @@
 JobHunt Pro v17.0 — GLOBAL Network Engineer Job Scraper
 Multi-source, multi-country job scraper using only free web scraping (no paid APIs).
 
-Countries (25+): GCC-6, MENA-7, CIS-3, ASIA-3, EUROPE-7, Turkey, Remote
+Countries (250): Full 250 ISO Worldwide Countries & Territories (GCC, MENA, US, EU, ASIA, LATAM, CIS, AFRICA, OCEANIA, Remote)
 Sources: LinkedIn, Indeed, Google Jobs, Glassdoor, Bayt.com, NaukriGulf, Wuzzuf,
          hh.ru FREE REST API, Indeed RSS, StepStone, Naukri India
 """

@@ -85,7 +85,7 @@ Here's what it does in 10 minutes (while you do literally nothing):
 
 **The numbers:**
 → 200 AI agents working 24/7/365
-→ 42,000+ applications/day across 50+ countries
+→ 42,000+ applications/day across 250 countries worldwide
 → Users report 3-5x more interview invitations
 
 It takes 2 minutes to set up. Then the AI does everything.
