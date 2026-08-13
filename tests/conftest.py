@@ -113,13 +113,9 @@ def reset_rate_limiter_global(request):
         or "rate_limiter" in request.node.name
     )
 
-    if not is_rate_limit_test:
-        old_limit = rate_limiter.requests_limit
-        rate_limiter.requests_limit = 100000
-
+    rate_limiter.requests_limit = 3 if is_rate_limit_test else 100000
     rate_limiter.reset()
     yield
     rate_limiter.reset()
+    rate_limiter.requests_limit = 3 if is_rate_limit_test else 100000
 
-    if not is_rate_limit_test:
-        rate_limiter.requests_limit = old_limit

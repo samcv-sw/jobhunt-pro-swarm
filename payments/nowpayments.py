@@ -207,8 +207,14 @@ def create_crypto_invoice(
         logger.warning("NOWPayments API key not configured — falling back to manual addresses")
         return None
 
-    # Leave target_currency empty if not explicitly specified so NOWPayments presents all available active coins to the buyer
-    target_currency = pay_currency if pay_currency else ""
+    # Map currency aliases for NOWPayments API
+    curr = (pay_currency or "").lower().strip()
+    if curr in ("usdt", "usdttrc20", "usdt-trc20", "usdt (trc20)"):
+        target_currency = "usdttrc20"
+    elif curr in ("any", "other", "all"):
+        target_currency = ""
+    else:
+        target_currency = curr
 
     site_url = config.SITE_URL if (config.SITE_URL and config.SITE_URL.startswith("https://")) else "https://jhfguf.pythonanywhere.com"
     client = NOWPaymentsClient()

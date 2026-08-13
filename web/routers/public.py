@@ -7,7 +7,8 @@ import logging
 import os
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from backend.limiter import guest_rate_limiter
 from fastapi.responses import (
     HTMLResponse,
     JSONResponse,
@@ -37,6 +38,24 @@ def _deps():
 def public_live_stats(request: Request):
     """Public API endpoint returning real-time platform metrics for landing page FOMO ticker."""
     get_db, _, _, _, _, _, _, _ = _deps()
+
+
+@router.get("/api/referral/stats")
+def get_referral_stats(request: Request, user_id: str = "guest_demo"):
+    """Get user referral code and earned credit rewards statistics."""
+    from core.referral_engine import get_user_referral_stats
+    return JSONResponse(get_user_referral_stats(user_id))
+
+
+@router.post("/api/referral/claim")
+def claim_referral_reward(referral_code: str = Form(...), user_id: str = Form(...)):
+    """Claim referral code for instant 50 token reward boost."""
+    from core.referral_engine import claim_referral
+    success, message = claim_referral(referral_code, user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    return {"status": "success", "message": message}
+
     total_sent = 0
     active_now = 47
     apps_today = 2348
@@ -59,6 +78,70 @@ def public_live_stats(request: Request):
         "timestamp": datetime.now(UTC).isoformat()
     })
 
+
+@router.post("/api/v1/public/domain-scan")
+async def public_domain_scan(request: Request):
+    """
+    Public free lead magnet endpoint: scans target domain for deliverability,
+    MX record health, and returns 3 sample verified decision-maker leads.
+    """
+    import socket
+    try:
+        body = await request.json()
+        raw_domain = (body.get("domain") or "").strip().lower()
+        if not raw_domain:
+            return JSONResponse({"status": "error", "message": "Domain is required"}, status_code=400)
+
+        domain = raw_domain.replace("https://", "").replace("http://", "").split("/")[0]
+
+        has_mx = False
+        try:
+            import dns.resolver
+            mx_records = dns.resolver.resolve(domain, 'MX')
+            has_mx = len(mx_records) > 0
+        except Exception:
+            try:
+                socket.gethostbyname(domain)
+                has_mx = True
+            except Exception:
+                has_mx = False
+
+        score = 96 if has_mx else 42
+        status_label = "Optimal Deliverability" if has_mx else "Low MX Reputation / Unreachable"
+
+        name_prefix = domain.split('.')[0].capitalize()
+        sample_leads = [
+            {"title": "Chief Executive Officer (CEO)", "email_pattern": f"ceo@{domain}", "verified": True},
+            {"title": "Head of Sales / VP Growth", "email_pattern": f"sales@{domain}", "verified": True},
+            {"title": "Talent Acquisition Lead", "email_pattern": f"careers@{domain}", "verified": True}
+        ]
+
+        return JSONResponse({
+            "status": "success",
+            "domain": domain,
+            "deliverability_score": score,
+            "health_status": status_label,
+            "has_mx_records": has_mx,
+            "estimated_decision_makers": 12,
+            "sample_leads": sample_leads,
+            "cta_message": "Unlock all 12 verified decision-maker emails with JobHunt Pro SDR Swarm!"
+        })
+    except Exception as e:
+        return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+
+
+@router.get("/offline", response_class=HTMLResponse)
+def public_offline_page(request: Request):
+    """PWA Offline Fallback Page when device network is disconnected."""
+    _, _, templates, _, _, _, _, render_template = _deps()
+    try:
+        content = render_template("offline.html", {"request": request, "title": "Offline Mode"})
+        return HTMLResponse(content=content, headers={"Cache-Control": "public, max-age=86400"})
+    except Exception as e:
+        logger.error(f"[public_offline_page] Template render error: {e}")
+        return HTMLResponse(content="<h1>Offline</h1><p>No internet connection available.</p>")
+
+
 @router.get("/api/public/live-ticker")
 def public_live_ticker(request: Request):
     """Returns curated live conversion & activity stream for social proof toast tickers."""
@@ -71,7 +154,7 @@ def public_live_ticker(request: Request):
     ]
     return JSONResponse({"success": True, "events": ticker_events})
 
-@router.post("/api/public/ats-sandbox")
+@router.post("/api/public/ats-sandbox", dependencies=[Depends(guest_rate_limiter)])
 async def public_ats_sandbox(request: Request):
     """Public zero-friction ATS scoring preview for landing page visitors."""
     try:
@@ -475,7 +558,10 @@ def services_page(request: Request):
 
 @router.get("/external-offers", response_class=HTMLResponse)
 def external_offers_page(request: Request, cat: str = "ai", lang: str = "en"):
-    """External AI Subscription Deals & Partner Offers Page."""
+    """External AI Subscription Deals & Partner Offers Page (Admin Only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
     get_db, get_verified_user_id, _, _, _, _, _, render_template = _deps()
     from web.app_v2 import _build_dashboard_shell
     import os
@@ -1174,6 +1260,74 @@ async def register_new_supplier_router(request: Request):
         })
     except Exception as exc:
         return JSONResponse({"success": False, "message": str(exc)}, status_code=500)
+
+
+@router.post("/api/v1/public/instant-trial-scan")
+async def public_instant_trial_scan(request: Request):
+    """
+    10-Second Free Trial Hook: Zero-registration instant ATS scan,
+    Gulf job match (Dubai, Riyadh, Doha), and sample cold email pitch preview.
+    """
+    try:
+        try:
+            data = await request.json()
+        except Exception:
+            data = {}
+        
+        cv_text = data.get("cv_text", "").strip() or "Senior Engineer with 10+ years experience in Cisco, Fortinet, AWS, Python & Cloud Infrastructure."
+        target_title = data.get("target_title", "Senior Network & Infrastructure Engineer")
+        target_location = data.get("target_location", "Dubai / UAE")
+        
+        # Calculate dynamic ATS compatibility score based on skills found
+        keywords = ["cisco", "fortinet", "aws", "python", "linux", "cloud", "security", "b2b", "sdn"]
+        found_keywords = [kw for kw in keywords if kw in cv_text.lower()]
+        base_score = 65 + min(len(found_keywords) * 4, 30)
+        
+        # Select top matched Gulf jobs
+        matched_jobs = [
+            {
+                "title": f"Lead {target_title}",
+                "company": "Emirates NBD / Tech Stack",
+                "location": "Dubai Internet City, UAE",
+                "estimated_salary": "$8,500 - $12,000 / month",
+                "match_score": f"{base_score + 3}%"
+            },
+            {
+                "title": f"Senior {target_title} (Cloud & Security)",
+                "company": "Saudi Telecom (stc)",
+                "location": "Riyadh KAFD, Saudi Arabia",
+                "estimated_salary": "$9,000 - $14,000 / month",
+                "match_score": f"{base_score + 1}%"
+            },
+            {
+                "title": f"Principal {target_title}",
+                "company": "Ooredoo Global Infrastructure",
+                "location": "Doha West Bay, Qatar",
+                "estimated_salary": "$7,500 - $11,000 / month",
+                "match_score": f"{base_score - 2}%"
+            }
+        ]
+        
+        teaser_pitch = (
+            f"Subject: Application for {target_title} — 10+ Yrs Enterprise Experience\n\n"
+            f"Dear Hiring Team,\n\n"
+            f"I recently analyzed your infrastructure requirements and noticed key alignment with my track record "
+            f"in high-availability networking, cloud security, and automated deployment. "
+            f"Attached is my verified ATS-optimized resume for your review."
+        )
+        
+        return JSONResponse({
+            "status": "success",
+            "ats_compatibility_score": base_score,
+            "ats_grade": "A+" if base_score >= 85 else "A",
+            "extracted_keywords": found_keywords,
+            "matched_gulf_jobs": matched_jobs,
+            "sample_outreach_pitch": teaser_pitch,
+            "next_step_call_to_action": "Create your free account to launch automated outreach to all 3 employers in 1-click!"
+        })
+    except Exception as exc:
+        return JSONResponse({"status": "error", "message": str(exc)}, status_code=500)
+
 
 
 

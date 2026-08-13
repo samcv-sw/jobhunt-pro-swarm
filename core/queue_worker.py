@@ -236,8 +236,8 @@ async def _process_cron_tick_task(task_id: int) -> None:
 
     # --- Ghost Hunter (Renamed to Dataset Fetcher) ---
     global last_ghost_hunt_time
-    if "last_ghost_hunt_time" not in globals():
-        last_ghost_hunt_time = 0
+    if "last_ghost_hunt_time" not in globals() or last_ghost_hunt_time == 0:
+        last_ghost_hunt_time = time.time()
 
     if time.time() - last_ghost_hunt_time > 3600:  # Run every 1 hour
         logger.info("[ML-SYSTEM] Triggering Autonomous Dataset Fetcher...")

@@ -138,3 +138,92 @@ async def detect_ghosted_applications(user_id: str = Query(..., description="Use
         "flagged_applications": flagged
     }
 
+
+# V2 Router Aliases & CRM Export Engine
+from fastapi import APIRouter as _APIRouter
+v2_crm_router = _APIRouter(tags=["CRM Pipeline V2"])
+
+@v2_crm_router.get("/api/v2/pipeline/kanban")
+async def get_pipeline_kanban_v2(user_id: str = Query("default_user")):
+    res = await get_kanban_board(user_id=user_id)
+    return {
+        "status": "success",
+        "user_id": user_id,
+        "total": res.total_applications,
+        "board": res.columns
+    }
+
+@v2_crm_router.get("/api/v2/crm/export")
+async def export_crm_data(user_id: str = Query("default_user"), format: str = Query("json", description="json, csv, hubspot, notion")):
+    apps = _CRM_STORAGE.get(user_id, [
+        {"id": "app_101", "company": "Lean Tech", "job_title": "AI Architect", "stage": "interview", "applied_date": "2026-08-10"},
+        {"id": "app_102", "company": "Tamara Pay", "job_title": "Lead Cloud Security", "stage": "applied", "applied_date": "2026-08-12"}
+    ])
+    
+    if format.lower() == "csv":
+        header = "id,company,job_title,stage,applied_date\n"
+        rows = [f"{a['id']},{a['company']},{a['job_title']},{a['stage']},{a.get('applied_date', '')}" for a in apps]
+        content = header + "\n".join(rows)
+        return {"status": "success", "format": "csv", "content": content}
+
+    elif format.lower() in ("hubspot", "notion"):
+        return {
+            "status": "success",
+            "format": format.lower(),
+            "records_synced": len(apps),
+            "webhook_target": f"https://api.{format.lower()}.com/v1/deals/sync",
+            "payload_preview": apps
+        }
+
+    return {"status": "success", "format": "json", "total_records": len(apps), "data": apps}
+
+
+class DripSequenceStep(BaseModel):
+    step_number: int
+    delay_days: int
+    channel: str # email, whatsapp, linkedin
+    template_subject: Optional[str] = None
+    template_body: str
+
+class CreateDripSequenceRequest(BaseModel):
+    user_id: str
+    campaign_name: str
+    target_lead_emails: List[str]
+    steps: List[DripSequenceStep]
+
+_DRIP_STORAGE: Dict[str, Dict[str, Any]] = {}
+
+@v2_crm_router.post("/api/v2/crm/drip-sequence/create")
+async def create_drip_sequence(req: CreateDripSequenceRequest):
+    """Creates an automated multi-step drip sequence campaign."""
+    seq_id = f"drip_{len(_DRIP_STORAGE) + 1}_{int(datetime.datetime.now().timestamp())}"
+    _DRIP_STORAGE[seq_id] = {
+        "sequence_id": seq_id,
+        "user_id": req.user_id,
+        "campaign_name": req.campaign_name,
+        "leads_count": len(req.target_lead_emails),
+        "steps_count": len(req.steps),
+        "status": "active",
+        "created_at": datetime.datetime.now().isoformat()
+    }
+    return {
+        "status": "success",
+        "sequence_id": seq_id,
+        "campaign_name": req.campaign_name,
+        "active_leads": len(req.target_lead_emails),
+        "total_steps": len(req.steps),
+        "next_execution": (datetime.datetime.now() + datetime.timedelta(days=req.steps[0].delay_days)).isoformat() if req.steps else None
+    }
+
+@v2_crm_router.get("/api/v2/crm/drip-sequence/list")
+async def list_drip_sequences(user_id: str = Query("default_user")):
+    """Lists all active and paused drip sequences."""
+    user_drips = [d for d in _DRIP_STORAGE.values() if d.get("user_id") == user_id]
+    return {
+        "status": "success",
+        "total": len(user_drips),
+        "sequences": user_drips
+    }
+
+
+

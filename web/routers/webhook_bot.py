@@ -1,14 +1,29 @@
 import logging
 import re
+import time
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 
 from core.database import db
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Sliding-window rate limiting in memory per client IP
+_webhook_rate_limit_store: dict[str, list[float]] = {}
+
+def _is_rate_limited(client_ip: str, limit: int = 30, window_seconds: float = 60.0) -> bool:
+    now = time.time()
+    history = _webhook_rate_limit_store.get(client_ip, [])
+    history = [t for t in history if now - t < window_seconds]
+    if len(history) >= limit:
+        _webhook_rate_limit_store[client_ip] = history
+        return True
+    history.append(now)
+    _webhook_rate_limit_store[client_ip] = history
+    return False
 
 
 class WebhookPayload(BaseModel):
@@ -18,11 +33,17 @@ class WebhookPayload(BaseModel):
 
 
 @router.post("/api/v1/webhook/social")
-async def receive_social_message(payload: WebhookPayload):
+async def receive_social_message(payload: WebhookPayload, request: Request):
     """
     Receives forwarded job URLs from WhatsApp/Telegram.
     No need for the user to open the website.
     """
+    client_ip = request.client.host if request.client else "unknown"
+    if _is_rate_limited(client_ip):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded. Too many requests."
+        )
     # Extract URL from message
     url_pattern = re.compile(r"https?://[^\s]+")
     match = url_pattern.search(payload.message_text)

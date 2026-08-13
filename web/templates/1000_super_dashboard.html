@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Google Fonts: Cairo, Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --text-x-direction: -1; /* RTL default */
+            --font-family-arabic: 'Cairo', 'Tajawal', 'IBM Plex Arabic', sans-serif;
+            --color-bg: #090d16;
+            --color-card-bg: rgba(15, 23, 42, 0.75);
+            --color-border: rgba(255, 215, 0, 0.15);
+            --color-gold: #d4af37;
+            --color-gold-glow: rgba(212, 175, 55, 0.25);
+            --color-cyan: #00f2fe;
+            --color-emerald: #10b981;
+            --color-blue: #3b82f6;
+            --color-rose: #f43f5e;
+            --color-text-main: #f8fafc;
+            --color-text-sub: #94a3b8;
+            --radius-main: 16px;
+        }
+
+        html[dir="ltr"] {
+            --text-x-direction: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(212, 175, 55, 0.08) 0%, transparent 40%);
+            color: var(--color-text-main);
+            font-family: var(--font-family-arabic);
+            font-size: 16px;
+            line-height: 1.8;
+            min-block-size: 100vh;
+            padding-block-start: 24px;
+            padding-block-end: 40px;
+            padding-inline-start: 24px;
+            padding-inline-end: 24px;
+        }
+
+        .container {
+            max-inline-size: 1400px;
+            margin-inline: auto;
+        }
+
+        /* Glassmorphism Header */
+        .glass-header {
+            background: var(--color-card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-main);
+            padding-block: 20px;
+            padding-inline: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-block-end: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, var(--color-gold), #f39c12);
+            color: #000;
+            font-weight: 900;
+            font-size: 20px;
+            padding-block: 6px;
+            padding-inline: 14px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--color-gold-glow);
+        }
+
+        .title-group h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .title-group p {
+            font-size: 14px;
+            color: var(--color-text-sub);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-toggle-lang {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--color-border);
+            color: var(--color-gold);
+            padding-block: 8px;
+            padding-inline: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle-lang:hover {
+            background: rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 12px var(--color-gold-glow);
+        }
+
+        /* Top Metrics Bar */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-block-end: 32px;
+        }
+
+        .metric-card {
+            background: var(--color-card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-main);
+            padding-block: 20px;
+            padding-inline: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            inset-block-start: 0;
+            inset-inline-start: 0;
+            inline-size: 4px;
+            block-size: 100%;
+            background: var(--color-gold);
+        }
+
+        .metric-card.emerald::before { background: var(--color-emerald); }
+        .metric-card.cyan::before { background: var(--color-cyan); }
+        .metric-card.blue::before { background: var(--color-blue); }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--color-text-sub);
+            margin-block-end: 6px;
+        }
+
+        .metric-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .metric-tag {
+            display: inline-block;
+            margin-block-start: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            padding-block: 2px;
+            padding-inline: 8px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--color-emerald);
+        }
+
+        /* Dashboard Layout Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-inline-size: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-box {
+            background: var(--color-card-bg);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-main);
+            padding-block: 24px;
+            padding-inline: 28px;
+            margin-block-end: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-block-end: 20px;
+            border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+            padding-block-end: 14px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-gold);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-dir {
+            display: inline-block;
+            transform: scaleX(var(--text-x-direction));
+        }
+
+        /* Live SSE Feed Box */
+        .feed-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding-block: 16px;
+            padding-inline: 20px;
+            block-size: 260px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .feed-item {
+            padding-block: 8px;
+            border-block-end: 1px dashed rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .feed-item .time { color: var(--color-cyan); }
+        .feed-item .event { color: var(--color-emerald); font-weight: 600; }
+
+        /* Form Controls */
+        .form-group {
+            margin-block-end: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-block-end: 8px;
+            color: var(--color-text-main);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            inline-size: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            color: #ffffff;
+            padding-block: 12px;
+            padding-inline: 16px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--color-gold);
+            box-shadow: 0 0 10px var(--color-gold-glow);
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--color-gold), #b8860b);
+            color: #000;
+            font-weight: 800;
+            font-size: 16px;
+            padding-block: 12px;
+            padding-inline: 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            inline-size: 100%;
+            margin-block-start: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--color-gold-glow);
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Result Panel */
+        .result-panel {
+            margin-block-start: 16px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            padding-block: 16px;
+            padding-inline: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Glass Header -->
+        <header class="glass-header">
+            <div class="logo-box">
+                <div class="logo-badge">1000%</div>
+                <div class="title-group">
+                    <h1 id="txt-app-title">JobHunt Pro — لوحة القيادة الخارقة (Super Command Center)</h1>
+                    <p id="txt-app-subtitle">مساحة العمل: {{ current_tenant }} | نظام السوارم والمستشعر الذكي</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-toggle-lang" onclick="toggleLanguage()">LTR / RTL 🌐</button>
+            </div>
+        </header>
+
+        <!-- Metrics Grid Bar -->
+        <div class="metrics-grid">
+            <div class="metric-card gold">
+                <div class="metric-label" id="lbl-m1">معدل وصول الإيميلات (Deliverability)</div>
+                <div class="metric-val" id="val-m1">98.4%</div>
+                <div class="metric-tag">درجة A+ ممتازة</div>
+            </div>
+            <div class="metric-card emerald">
+                <div class="metric-label" id="lbl-m2">حماية عدم التكرار (365-Day Shield)</div>
+                <div class="metric-val" id="val-m2">نشط 100%</div>
+                <div class="metric-tag">0% حسابات وهمية</div>
+            </div>
+            <div class="metric-card cyan">
+                <div class="metric-label" id="lbl-m3">حملات السوارم النشطة (Active Swarms)</div>
+                <div class="metric-val" id="val-m3">{{ active_swarms }} وكلاء</div>
+                <div class="metric-tag">بث حي متواصل</div>
+            </div>
+            <div class="metric-card blue">
+                <div class="metric-label" id="lbl-m4">حالة النطاق الدومين (Domain Rep)</div>
+                <div class="metric-val" id="val-m4">آمن جداً</div>
+                <div class="metric-tag">SPF / DMARC مفعل</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Main Grid -->
+        <div class="dashboard-grid">
+            <!-- Left Column: AI Classifier & Domain Health & Webhooks -->
+            <div class="left-col">
+                <!-- 1. AI Response Sentiment Classifier -->
+                <div class="card-box">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dir">⚡</span>
+                            <span id="t-sent">محلل المشاعر والرد الآلي الذكي (AI Sentiment & Auto-Drafting)</span>
+                        </div>
+                    </div>
+                    <form onsubmit="event.preventDefault(); runSentimentAnalysis();">
+                        <div class="form-group">
+                            <label class="form-label" id="lbl-email">بريد العميل المستهدف:</label>
+                            <input type="email" class="form-input" id="inp-email" dir="auto" value="faisal.alotaibi@enterprise.sa" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" id="lbl-msg">نص رد العميل الوارد:</label>
+                            <textarea class="form-textarea" id="inp-msg" rows="3" dir="auto" required>أهلاً بك، نعم نحن مهتمون بتطوير النظام. هل يمكنك مشاركة رابط حجز موعد لتنسيق مكالمة؟</textarea>
+                        </div>
+                        <button type="submit" class="btn-cta" id="btn-analyze">تحليل المشاعر وإنشاء المسودة تلقائياً ✨</button>
+                    </form>
+                    <div class="result-panel" id="sentiment-result">
+                        <div style="font-weight: 700; color: var(--color-emerald);" id="res-sent-title">النتيجة: مهتم (Interested) - نسبة الثقة 96%</div>
+                        <div style="margin-block: 8px; font-size: 14px;" id="res-sent-action">الإجراء المقترح: إرسال رابط التقويم وحجز موعد.</div>
+                        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 14px; margin-block-start: 8px;" id="res-sent-draft">
+                            <strong>مسودة الرد التلقائية:</strong> "أهلاً أستاذ فيصل! يسعدنا جداً التواصل معكم. يمكنك اختيار الموعد المناسب لك عبر تقويمنا التفاعلي..."
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Domain Health Control Center -->
+                <div class="card-box">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dir">🛡️</span>
+                            <span id="t-dh">مركز فحص وصحة النطاق (Domain Health & DNS Inspector)</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <input type="text" class="form-input" id="inp-domain" dir="auto" value="jobhuntpro.io">
+                        <button class="btn-cta" style="inline-size: 180px; margin-block-start: 0;" onclick="checkDomainHealth()" id="btn-check-dh">فحص النطاق 🔍</button>
+                    </div>
+                    <div class="result-panel" id="dh-result" style="margin-block-start: 16px;">
+                        <div style="font-weight: 700; color: var(--color-gold);" id="dh-res-score">درجة وصول النطاق: 98% (Grade A+)</div>
+                        <div style="margin-block-start: 6px; font-size: 14px;" id="dh-res-details">سجلات SPF: صالحة | DMARC: نشط | MX: 3 سيرفرات نشطة.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Real-Time SSE Feed & Webhook Sync -->
+            <div class="right-col">
+                <!-- 3. Real-Time Live Feed -->
+                <div class="card-box">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dir">📡</span>
+                            <span id="t-live">البث الحي لسوارم الذكاء الاصطناعي (Live SSE)</span>
+                        </div>
+                    </div>
+                    <div class="feed-box" id="sse-feed-box">
+                        <div class="feed-item">
+                            <span class="time">01:20:10</span>
+                            <span class="event">تم الاتصال بخادم البث الحي</span>
+                        </div>
+                        <div class="feed-item">
+                            <span class="time">01:20:12</span>
+                            <span class="event">فحص MX لـ 14 إيميل جديد (100% Pass)</span>
+                        </div>
+                        <div class="feed-item">
+                            <span class="time">01:20:14</span>
+                            <span class="event">حماية 365-Day Deduplication نشطة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Outbound CRM Webhook Integration -->
+                <div class="card-box">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="icon-dir">🔗</span>
+                            <span id="t-wh">تكامل الـ CRM والـ Webhooks (HubSpot & Zapier)</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; color: var(--color-text-sub); margin-block-end: 12px;" id="txt-wh-desc">
+                        يتم مزامنة العملاء المهتمين تلقائياً مع نظام CRM الخاص بشركتك فور تصنيفهم.
+                    </div>
+                    <button class="btn-cta" onclick="testWebhookDispatch()" id="btn-wh-test">اختبار مزامنة Zapier / HubSpot 🚀</button>
+                    <div class="result-panel" id="wh-result">
+                        <div style="font-weight: 700; color: var(--color-emerald);" id="wh-res-title">تمت المزامنة بنجاح! (HTTP 200)</div>
+                        <div style="font-size: 13px; margin-block-start: 4px;" id="wh-res-details">تم إرسال بيانات العميل إلى Zapier Hub خلال 142ms.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleLanguage() {
+            const htmlEl = document.documentElement;
+            const currentDir = htmlEl.getAttribute('dir');
+            if (currentDir === 'rtl') {
+                htmlEl.setAttribute('dir', 'ltr');
+                htmlEl.setAttribute('lang', 'en');
+                document.getElementById('txt-app-title').innerText = "JobHunt Pro — 1000% Super Command Center";
+                document.getElementById('txt-app-subtitle').innerText = "Workspace: {{ current_tenant }} | AI SDR Swarm Engine";
+            } else {
+                htmlEl.setAttribute('dir', 'rtl');
+                htmlEl.setAttribute('lang', 'ar');
+                document.getElementById('txt-app-title').innerText = "JobHunt Pro — لوحة القيادة الخارقة (Super Command Center)";
+                document.getElementById('txt-app-subtitle').innerText = "مساحة العمل: {{ current_tenant }} | نظام السوارم والمستشعر الذكي";
+            }
+        }
+
+        async function runSentimentAnalysis() {
+            const email = document.getElementById('inp-email').value;
+            const text = document.getElementById('inp-msg').value;
+            try {
+                const res = await fetch('/api/v1/sdr-outreach/classify-response', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prospect_email: email, message_text: text })
+                });
+                const data = await res.json();
+                const resPanel = document.getElementById('sentiment-result');
+                resPanel.style.display = 'block';
+                document.getElementById('res-sent-title').innerText = `النتيجة: ${data.sentiment} - نسبة الثقة: ${Math.round(data.confidence * 100)}%`;
+                document.getElementById('res-sent-action').innerText = `الإجراء المقترح: ${data.suggested_action}`;
+                document.getElementById('res-sent-draft').innerHTML = `<strong>مسودة الرد التلقائية:</strong> "${data.automated_draft}"`;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function checkDomainHealth() {
+            const domain = document.getElementById('inp-domain').value;
+            try {
+                const res = await fetch(`/api/v1/domain-health/check?domain=${encodeURIComponent(domain)}`);
+                const data = await res.json();
+                const resPanel = document.getElementById('dh-result');
+                resPanel.style.display = 'block';
+                document.getElementById('dh-res-score').innerText = `درجة وصول النطاق: ${data.deliverability_score}% (Grade ${data.grade})`;
+                document.getElementById('dh-res-details').innerText = `سجلات SPF: ${data.checks.spf.status} | DMARC: ${data.checks.dmarc.status} | MX: ${data.checks.mx.count} سيرفرات active.`;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function testWebhookDispatch() {
+            try {
+                const res = await fetch('/api/v1/crm-webhooks/dispatch-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ webhook_id: 'wh_zapier_default' })
+                });
+                const data = await res.json();
+                const resPanel = document.getElementById('wh-result');
+                resPanel.style.display = 'block';
+                document.getElementById('wh-res-title').innerText = `تمت المزامنة بنجاح! (HTTP ${data.http_status})`;
+                document.getElementById('wh-res-details').innerText = `تم إرسال حدث ${data.dispatched_event} بنجاح إلى ${data.target_url} خلال ${data.response_time_ms}ms.`;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>

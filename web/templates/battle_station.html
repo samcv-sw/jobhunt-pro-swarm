@@ -48,7 +48,7 @@
     background: rgba(0, 240, 255, 0.08);
     border: 1px solid rgba(0, 240, 255, 0.3);
     color: #00f0ff;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
 }
@@ -62,7 +62,7 @@
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #cbd5e1;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.25s ease;
@@ -110,7 +110,7 @@
 .scan-tooltip-popover {
     position: absolute;
     bottom: calc(100% + 14px);
-    right: 50%;
+    inset-inline-end: 50%;
     transform: translateX(50%) translateY(-6px);
     background: #090f1d;
     border: 1px solid #00f0ff;
@@ -129,7 +129,7 @@
     content: '';
     position: absolute;
     top: 100%;
-    right: 50%;
+    inset-inline-end: 50%;
     transform: translateX(50%);
     border-width: 8px;
     border-style: solid;
@@ -150,7 +150,7 @@
 .stat-tooltip-popover {
     position: absolute;
     bottom: calc(100% + 12px);
-    right: 50%;
+    inset-inline-end: 50%;
     transform: translateX(50%) translateY(-6px);
     background: #090f1d;
     border: 1px solid #00f0ff;
@@ -169,7 +169,7 @@
     content: '';
     position: absolute;
     top: 100%;
-    right: 50%;
+    inset-inline-end: 50%;
     transform: translateX(50%);
     border-width: 7px;
     border-style: solid;
@@ -183,7 +183,7 @@
     pointer-events: auto;
 }
 .stat-tooltip-popover .pop-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     color: #00f0ff;
     margin-block-end: 4px;
@@ -259,7 +259,7 @@
 .bs-btn.amber:hover { background: rgba(245, 158, 11, 0.28); box-shadow: 0 8px 22px rgba(245, 158, 11, 0.3); }
 .bs-btn.cyan { border-color: rgba(6, 182, 212, 0.45); color: #22d3ee; background: rgba(6, 182, 212, 0.14); }
 .bs-btn.cyan:hover { background: rgba(6, 182, 212, 0.28); box-shadow: 0 8px 22px rgba(6, 182, 212, 0.3); }
-.bs-btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+.bs-btn-sm { padding: 6px 12px; font-size: 14px; border-radius: 8px; }
 
 .bs-cta { background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(139, 92, 246, 0.18)); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 22px; text-align: center; margin-block-end: 24px; box-shadow: 0 8px 28px rgba(59, 130, 246, 0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .bs-cta-title { font-size: 20px; font-weight: 800; color: #ffffff; margin-block-end: 6px; }
@@ -273,7 +273,7 @@
 .bs-camp-card:hover { border-color: rgba(0, 240, 255, 0.35); background: rgba(255, 255, 255, 0.06); }
 .bs-camp-top { display: flex; justify-content: space-between; align-items: center; margin-block-end: 14px; flex-wrap: wrap; gap: 10px; }
 .bs-camp-name { font-size: 16px; font-weight: 800; color: #ffffff; margin-inline-end: 10px; }
-.bs-camp-id { font-size: 13px; color: #94a3b8; font-family: monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+.bs-camp-id { font-size: 14px; color: #94a3b8; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
 .bs-dot { display: inline-block; inline-size: 10px; block-size: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
 .bs-dot.green { color: #4ade80; background: #4ade80; }
 .bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
@@ -318,7 +318,7 @@
     background: #0f172a;
     border: 2px solid #475569;
     color: #64748b;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -338,7 +338,7 @@
     box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
 }
 .bs-step-label {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     color: #94a3b8;
 }
@@ -385,10 +385,10 @@
 
 .bs-health-row { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.65) 100%); border: 1px solid rgba(0, 240, 255, 0.18); border-radius: 14px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); cursor: help; backdrop-filter: blur(12px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); }
 .bs-health-row:hover { border-color: rgba(0, 240, 255, 0.6); background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25); }
-.bs-health-row .stat-tooltip-popover { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: rgba(10, 16, 31, 0.97); border: 1px solid rgba(0, 240, 255, 0.5); border-radius: 14px; padding: 14px 16px; inline-size: 285px; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(0, 240, 255, 0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease; z-index: 99999; text-align: start; backdrop-filter: blur(20px); }
-.bs-health-row .stat-tooltip-popover::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 7px; border-style: solid; border-color: rgba(0, 240, 255, 0.5) transparent transparent transparent; }
+.bs-health-row .stat-tooltip-popover { position: absolute; bottom: calc(100% + 12px); inset-inline-start: 50%; transform: translateX(-50%) translateY(8px); background: rgba(10, 16, 31, 0.97); border: 1px solid rgba(0, 240, 255, 0.5); border-radius: 14px; padding: 14px 16px; inline-size: 285px; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(0, 240, 255, 0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease; z-index: 99999; text-align: start; backdrop-filter: blur(20px); }
+.bs-health-row .stat-tooltip-popover::after { content: ''; position: absolute; top: 100%; inset-inline-start: 50%; transform: translateX(-50%); border-width: 7px; border-style: solid; border-color: rgba(0, 240, 255, 0.5) transparent transparent transparent; }
 .bs-health-row:hover .stat-tooltip-popover { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-.bs-info-badge { font-size: 11px; font-weight: 800; color: rgba(0, 240, 255, 0.8); background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 50%; inline-size: 18px; block-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 6px; transition: all 0.2s ease; }
+.bs-info-badge { font-size: 14px; font-weight: 800; color: rgba(0, 240, 255, 0.8); background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 50%; inline-size: 18px; block-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 6px; transition: all 0.2s ease; }
 .bs-health-row:hover .bs-info-badge { background: rgba(0, 240, 255, 0.25); color: #ffffff; box-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
 .bs-health-label { font-size: 13.5px; color: #f1f5f9; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .bs-health-val { font-size: 16px; font-weight: 900; padding: 3px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); font-variant-numeric: tabular-nums; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
@@ -414,7 +414,7 @@
     border: 1px solid rgba(0, 240, 255, 0.25);
     border-radius: 12px;
     padding: 14px;
-    font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', 'Fira Code', 'Courier New', monospace;
     font-size: 12.5px;
     color: #00f0ff;
     max-block-size: 260px;
@@ -458,7 +458,7 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #94a3b8;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 8px;
@@ -498,7 +498,7 @@
     background: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     padding: 1px 6px;
-    font-size: 11px;
+    font-size: 14px;
 }
 .bs-copy-btn {
     background: rgba(255, 255, 255, 0.06);
@@ -506,7 +506,7 @@
     color: #94a3b8;
     border-radius: 6px;
     padding: 2px 7px;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -537,8 +537,8 @@
     margin-block-end: 10px;
 }
 .bs-cmd-tag {
-    font-family: monospace;
-    font-size: 12px;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;
+    font-size: 14px;
     font-weight: 800;
     color: #00f0ff;
     background: rgba(0, 240, 255, 0.1);
@@ -547,7 +547,7 @@
     border: 1px solid rgba(0, 240, 255, 0.3);
 }
 .bs-cmd-status {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 10px;
@@ -605,12 +605,12 @@
     </div>
     
     <div class="bs-scan-target-box" onclick="this.classList.toggle('active-mobile')" style="position: relative; text-align: center; background: rgba(0,0,0,.4); padding: 12px 22px; border-radius: 14px; border: 1px solid rgba(0,240,255,.25); min-inline-size: 250px; cursor: help;">
-      <div style="font-size: 13px; color: #60a5fa; font-weight: 800; text-transform: uppercase; margin-block-end: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div style="font-size: 14px; color: #60a5fa; font-weight: 800; text-transform: uppercase; margin-block-end: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
         <span>الفحص التلقائي القادم</span>
-        <span style="font-size: 12px; background: rgba(96,165,250,0.2); padding: 1px 6px; border-radius: 20px; color: #60a5fa;">ℹ️</span>
+        <span style="font-size: 14px; background: rgba(96,165,250,0.2); padding: 1px 6px; border-radius: 20px; color: #60a5fa;">ℹ️</span>
       </div>
-      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family: 'Consolas', monospace; line-height: 1;">01:15</div>
-      <div id="autopilot-status" style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-block-start: 6px;">جاري الفحص التلقائي...</div>
+      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', monospace; line-height: 1;">01:15</div>
+      <div id="autopilot-status" style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-block-start: 6px;">جاري الفحص التلقائي...</div>
       
       <!-- Speed selector buttons -->
       <div style="display: flex; gap: 6px; margin-block-start: 10px; justify-content: center; flex-wrap: wrap;">
@@ -831,7 +831,7 @@
     <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
       <input type="text" id="bsSearchInput" onkeyup="filterCampaigns()" placeholder="🔍 بحث عن اسم أو معرف الحملة..." dir="auto" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 14px; color: #fff; font-size: 13.5px; outline: none; min-inline-size: 200px;" dir="auto">
       
-      <select id="bsSortSelect" onchange="sortCampaigns()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 13px; font-weight:700; outline: none; cursor:pointer;">
+      <select id="bsSortSelect" onchange="sortCampaigns()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 14px; font-weight:700; outline: none; cursor:pointer;">
         <option value="newest">🗓️ الأحدث أولاً</option>
         <option value="progress">📊 نسبة الإنجاز الأعلى</option>
         <option value="sent">📨 الأكثر إرسالاً</option>
@@ -1504,78 +1504,93 @@ function startAutopilot() {
   if (autopilotTimer) clearInterval(autopilotTimer);
 
   let targetTime = getNextScanTarget();
+  let isTickRunning = false;
 
-  autopilotTimer = setInterval(async () => {
+  autopilotTimer = setInterval(() => {
     const now = Date.now();
     let remainingMs = targetTime - now;
 
     if (remainingMs <= 0) {
-      clearInterval(autopilotTimer);
-      countdownEl.textContent = "00:00";
-      countdownEl.style.color = "#fbbf24";
-      statusEl.textContent = "🚀 جاري فحص الوظائف ونشر التقديم التلقائي...";
-      statusEl.style.color = "#fbbf24";
-      appendTerminalLog('AUTOPILOT', 'Scheduled interval triggered. Initiating cloud-tick...');
-      
       targetTime = resetNextScanTarget(AUTOPILOT_CYCLE_MS);
+      remainingMs = targetTime - now;
 
-      try {
-        const res = await fetch('/api/v2/cloud-tick', {
+      if (!isTickRunning) {
+        isTickRunning = true;
+        if (statusEl) {
+          statusEl.textContent = "🚀 جاري فحص الوظائف ونشر التقديم التلقائي...";
+          statusEl.style.color = "#fbbf24";
+        }
+        appendTerminalLog('AUTOPILOT', 'Scheduled interval triggered. Initiating cloud-tick...');
+
+        fetch('/api/v2/cloud-tick', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ company_limit: 3, max_campaigns: 3 })
+        }).then(res => {
+          if (res.ok) {
+            bsShowToast('🚀 تم إرسال فحص الذكاء الاصطناعي في الخلفية!', 'success');
+            appendTerminalLog('SUCCESS', 'Autopilot iteration completed successfully.');
+          }
+        }).catch(err => {
+          console.error(err);
+        }).finally(() => {
+          isTickRunning = false;
+          if (statusEl) {
+            statusEl.textContent = "جاري الفحص التلقائي عن فرص عمل جديدة...";
+            statusEl.style.color = "#94a3b8";
+          }
+          if (countdownEl) countdownEl.style.color = "#00f0ff";
+          refreshLiveMetrics();
+          startLivePolling(10);
         });
-        
-        if (res.ok) {
-          bsShowToast('🚀 تم إرسال فحص الذكاء الاصطناعي في الخلفية!', 'success');
-          appendTerminalLog('SUCCESS', 'Autopilot iteration completed successfully.');
-          statusEl.textContent = "🔍 سرب الذكاء الاصطناعي يعمل في الخلفية ويبحث عن فرص جديدة...";
-          statusEl.style.color = "#4ade80";
-          countdownEl.style.color = "#00f0ff";
-          
-          startAutopilot();
-          startLivePolling(15);
-        } else {
-          throw new Error(`HTTP Error ${res.status}`);
-        }
-      } catch (err) {
-        console.error(err);
-        appendTerminalLog('ERROR', 'Autopilot tick retry initiated.');
-        statusEl.textContent = "❌ انتهت مهلة الفحص أو فشل. جاري إعادة المحاولة...";
-        statusEl.style.color = "#ef4444";
-        countdownEl.style.color = "#ef4444";
-        setTimeout(() => {
-          resetNextScanTarget(30000);
-          startAutopilot();
-        }, 3000);
       }
-    } else {
-      const totalSecs = Math.ceil(remainingMs / 1000);
-      const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
-      const secs = (totalSecs % 60).toString().padStart(2, '0');
-      countdownEl.textContent = `${mins}:${secs}`;
-      statusEl.textContent = "جاري الفحص التلقائي عن فرص عمل جديدة...";
-      statusEl.style.color = "#94a3b8";
-      countdownEl.style.color = "#00f0ff";
     }
+
+    const totalSecs = Math.max(0, Math.ceil(remainingMs / 1000));
+    const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const secs = (totalSecs % 60).toString().padStart(2, '0');
+    countdownEl.textContent = `${mins}:${secs}`;
   }, 1000);
 }
 
-function startLivePolling(maxPolls = 10) {
-  let count = 0;
+function animateNumberChange(el, newVal) {
+  if (!el || newVal === undefined || newVal === null) return;
+  var curText = el.innerText || '';
+  var curVal = curText.replace(/[\u0660-\u0669]/g, function (c) { return c.charCodeAt(0) - 0x0660; }).replace(/[^\d]/g, '');
+  var numVal = Number(newVal);
+  if (isNaN(numVal)) {
+    if (el.textContent !== String(newVal)) el.textContent = newVal;
+    return;
+  }
+  if (curVal !== String(numVal)) {
+    el.textContent = numVal.toLocaleString('en-US');
+    el.style.transition = 'all 0.3s ease';
+    el.style.color = '#00f0ff';
+    el.style.textShadow = '0 0 16px rgba(0,240,255,0.8)';
+    el.style.transform = 'scale(1.12)';
+    setTimeout(function() {
+      el.style.color = '';
+      el.style.textShadow = '';
+      el.style.transform = '';
+    }, 800);
+  }
+}
+
+let _isRefreshInFlight = false;
+
+function startLivePolling() {
   if (livePollTimer) clearInterval(livePollTimer);
+  refreshLiveMetrics();
   livePollTimer = setInterval(async () => {
-    count++;
     await refreshLiveMetrics();
-    if (count >= maxPolls) {
-      clearInterval(livePollTimer);
-    }
-  }, 3000);
+  }, 4000);
 }
 
 async function refreshLiveMetrics() {
+  if (_isRefreshInFlight) return;
+  _isRefreshInFlight = true;
   try {
-    const res = await fetch('/api/campaigns/live-status');
+    const res = await fetch('/api/campaigns/live-status?_t=' + Date.now(), { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (data.success || data.status === 'success') {
@@ -1584,13 +1599,13 @@ async function refreshLiveMetrics() {
         const runEl = document.querySelector('[data-stat="running"]');
         const rateEl = document.querySelector('[data-stat="response_rate"]');
 
-        if (sentEl && data.total_sent !== undefined) sentEl.textContent = data.total_sent;
-        if (respEl && data.total_responses !== undefined) respEl.textContent = data.total_responses;
+        if (sentEl && data.total_sent !== undefined) animateNumberChange(sentEl, data.total_sent);
+        if (respEl && data.total_responses !== undefined) animateNumberChange(respEl, data.total_responses);
         if (runEl) runEl.textContent = "∞ Elastic";
 
         if (data.total_sent > 0 && rateEl && data.total_responses !== undefined) {
           const rate = ((data.total_responses / data.total_sent) * 100).toFixed(1);
-          rateEl.textContent = rate + '%';
+          animateNumberChange(rateEl, rate + '%');
         }
 
         updateTelemetryChart(data.total_sent, data.total_responses);
@@ -1649,6 +1664,8 @@ async function refreshLiveMetrics() {
     }
   } catch (e) {
     console.debug('Live status refresh skipped:', e);
+  } finally {
+    _isRefreshInFlight = false;
   }
 }
 
@@ -1926,23 +1943,23 @@ function saveCustomSkill(e) {
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-block-end: 20px;">
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(0,240,255,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #00f0ff; margin-block-end: 4px;">🔍 Scout Agent (الاستكشاف)</div>
-        <div style="font-size: 12px; color: #94a3b8;">يبحث عن الشواغر الوظيفية ويستخرج عناوين ومسؤولي التوظيف.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 نشط ويفحص التحديثات</div>
+        <div style="font-size: 14px; color: #94a3b8;">يبحث عن الشواغر الوظيفية ويستخرج عناوين ومسؤولي التوظيف.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 نشط ويفحص التحديثات</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(168,85,247,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #c084fc; margin-block-end: 4px;">✍️ Tailor Agent (تخصيص السيرة)</div>
-        <div style="font-size: 12px; color: #94a3b8;">يصيغ الرسائل التنافسية ويفصل السيرة لتقليص نسبة الرفض.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 جاهز للصياغة الذكية</div>
+        <div style="font-size: 14px; color: #94a3b8;">يصيغ الرسائل التنافسية ويفصل السيرة لتقليص نسبة الرفض.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 جاهز للصياغة الذكية</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #4ade80; margin-block-end: 4px;">📨 Outreach Agent (الإرسال)</div>
-        <div style="font-size: 12px; color: #94a3b8;">يفحص صحة البريد الإلكتروني ويجري الإرسال المباشر.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 متصل بخادم SMTP</div>
+        <div style="font-size: 14px; color: #94a3b8;">يفحص صحة البريد الإلكتروني ويجري الإرسال المباشر.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 متصل بخادم SMTP</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #fbbf24; margin-block-end: 4px;">🛡️ Audit Agent (التدقيق والتتبع)</div>
-        <div style="font-size: 12px; color: #94a3b8;">يسجل فتح الرسائل، التفاعل، ويحدث إحصائيات المحطة.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 يراقب التفاعل حيّاً</div>
+        <div style="font-size: 14px; color: #94a3b8;">يسجل فتح الرسائل، التفاعل، ويحدث إحصائيات المحطة.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 يراقب التفاعل حيّاً</div>
       </div>
     </div>
 
@@ -1974,11 +1991,11 @@ function saveCustomSkill(e) {
     <ul id="learnRulesList" style="list-style: none; padding: 0; margin: 0; max-block-size: 180px; overflow-y: auto;">
       <li style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-block-end: 6px; display: flex; justify-content: space-between; align-items: center; color: #e2e8f0; font-size: 13.5px;">
         <span>🧠 استخدام الخصائص المنطقية CSS Logical Properties في جميع الواجهات</span>
-        <span style="color:#4ade80; font-size:12px; font-weight:700;">مثبت</span>
+        <span style="color:#4ade80; font-size: 14px; font-weight:700;">مثبت</span>
       </li>
       <li style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-block-end: 6px; display: flex; justify-content: space-between; align-items: center; color: #e2e8f0; font-size: 13.5px;">
         <span>🧠 عدم استخدام الأكواد المؤقتة (No Placeholders) والإرسال المكتمل دائماً</span>
-        <span style="color:#4ade80; font-size:12px; font-weight:700;">مثبت</span>
+        <span style="color:#4ade80; font-size: 14px; font-weight:700;">مثبت</span>
       </li>
     </ul>
 

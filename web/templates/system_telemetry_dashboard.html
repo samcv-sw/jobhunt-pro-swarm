@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title or "JobHunt Pro - Real-Time Telemetry Dashboard" }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: rgba(18, 26, 43, 0.85);
+      --border-glow: rgba(59, 130, 246, 0.3);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-green: #10b981;
+      --accent-gold: #fbbf24;
+      --accent-blue: #3b82f6;
+      --accent-red: #ef4444;
+      --text-x-direction: -1;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Cairo', 'IBM Plex Arabic', sans-serif;
+      min-block-size: 100vh;
+      padding-inline: 1.5rem;
+      padding-block: 2rem;
+      line-height: 1.6;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-block-end: 2rem;
+      padding-block-end: 1rem;
+      border-block-end: 1px solid var(--border-glow);
+    }
+
+    .header-title h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-gold), #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding-inline: 0.75rem;
+      padding-block: 0.35rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .badge-live .pulse-dot {
+      inline-size: 8px;
+      block-size: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-block-end: 2rem;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-blue);
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-block-end: 0.5rem;
+    }
+
+    .metric-value {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .metric-sub {
+      font-size: 0.825rem;
+      color: var(--accent-green);
+      margin-block-start: 0.25rem;
+    }
+
+    .telemetry-log {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .telemetry-log h3 {
+      margin-block-end: 1rem;
+      font-size: 1.1rem;
+      color: var(--accent-gold);
+    }
+
+    pre {
+      background: #060911;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #34d399;
+      overflow-x: auto;
+      direction: ltr;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">
+    <div class="header-title">
+      <h1>JobHunt Pro — Real-Time Telemetry</h1>
+      <p>نظام مراقبة الأداء الحركي، نسبة الكاش، ودرع حماية الإيميلات</p>
+    </div>
+    <div class="badge-live">
+      <span class="pulse-dot"></span>
+      <span>مباشر (Live)</span>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">زمن الاستجابة (Latency)</div>
+      <div class="metric-value" id="val-latency">3.8 ms</div>
+      <div class="metric-sub">⚡ استجابة فائقة السرعة</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">نسبة نجاح الكاش (Hit Ratio)</div>
+      <div class="metric-value" id="val-hitratio">100%</div>
+      <div class="metric-sub" id="val-cacheitems">0 عنصر نشط بالأقراص</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">درع حماية الإيميلات (Shield)</div>
+      <div class="metric-value" id="val-shield">365 يوم</div>
+      <div class="metric-sub" id="val-sent365">0 إيميل موثوق مرسل</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">حالة المراقبة ذاتية العلاج</div>
+      <div class="metric-value" id="val-healing" style="color: var(--accent-green); font-size: 1.75rem;">نشط وفعال</div>
+      <div class="metric-sub">Auto-Heal Active</div>
+    </div>
+  </div>
+
+  <div class="telemetry-log">
+    <h3>سجل الـ Telemetry الحقيقي (Raw JSON Feed)</h3>
+    <pre id="raw-json">جاري التحميل...</pre>
+  </div>
+
+  <script>
+    async function fetchTelemetry() {
+      try {
+        const res = await fetch('/api/system/health-telemetry');
+        const data = await res.json();
+        
+        document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
+        
+        if (data.system_latency_ms) {
+          document.getElementById('val-latency').textContent = data.system_latency_ms + ' ms';
+        }
+        if (data.cache_telemetry) {
+          document.getElementById('val-hitratio').textContent = data.cache_telemetry.hit_ratio_pct + '%';
+          document.getElementById('val-cacheitems').textContent = data.cache_telemetry.active_items + ' عنصر نشط بالكاش';
+        }
+        if (data.email_shield) {
+          document.getElementById('val-shield').textContent = data.email_shield.cooldown_window;
+          document.getElementById('val-sent365').textContent = data.email_shield.sent_365d_count + ' إيميل موثوق في 365 يوم';
+        }
+      } catch (err) {
+        console.error('Failed to fetch telemetry:', err);
+      }
+    }
+
+    fetchTelemetry();
+    setInterval(fetchTelemetry, 3000);
+  </script>
+</body>
+</html>

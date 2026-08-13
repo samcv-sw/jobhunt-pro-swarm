@@ -102,3 +102,59 @@ def get_viral_hook_card(tool: str = "ats_score", user_id: str = "guest", score: 
     from core.viral_engine import generate_social_hook_card
     return {"status": "success", "card": generate_social_hook_card(tool=tool, user_id=user_id, score=score)}
 
+
+class ShareEventRequest(BaseModel):
+    user_id: str = Field(...)
+    platform: str = Field("linkedin", description="linkedin, twitter, or whatsapp")
+    tool: str = Field("ats_score", description="ats_score, salary_offer, cover_letter")
+
+
+@router.post("/trigger-share")
+def trigger_social_share_event(req: ShareEventRequest) -> Dict[str, Any]:
+    """Awards +25 AI bonus credits when a user shares their viral proof card on social media."""
+    current_credits = USER_CREDITS_DB.get(req.user_id, 20)
+    new_credits = current_credits + 25
+    USER_CREDITS_DB[req.user_id] = new_credits
+
+    share_url = f"https://jobhuntpro.app/signup?ref=JHP-{req.user_id[:6].upper()}&utm_source={req.platform}"
+
+    return {
+        "status": "success",
+        "user_id": req.user_id,
+        "platform": req.platform,
+        "bonus_credits_awarded": 25,
+        "new_total_credits": new_credits,
+        "share_url": share_url,
+        "message": f"Awesome! +25 AI Credits added to your account for sharing on {req.platform.title()}! 🚀"
+    }
+
+
+@router.get("/share-card-svg/{tool}")
+def get_share_card_svg(tool: str, score: int = 98, user_name: str = "Candidate"):
+    """Serves high-converting dynamic SVG banner card for LinkedIn / Twitter sharing."""
+    from fastapi.responses import Response
+
+    svg_content = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+        <defs>
+            <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0b0f19"/>
+                <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+            <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+            </linearGradient>
+        </defs>
+        <rect width="1200" height="630" fill="url(#bg)"/>
+        <circle cx="1000" cy="100" r="300" fill="#38bdf8" opacity="0.05"/>
+        <text x="80" y="120" font-family="'Cairo', sans-serif" font-size="28" font-weight="bold" fill="#10b981">🚀 JOBHUNT PRO — VERIFIED AI MATCH SCORE</text>
+        <text x="80" y="240" font-family="'Inter', sans-serif" font-size="72" font-weight="800" fill="#ffffff">{score}% ATS Resume Score</text>
+        <text x="80" y="320" font-family="'Inter', sans-serif" font-size="32" fill="#94a3b8">Tailored for Top GCC &amp; Global Tech Companies</text>
+        <rect x="80" y="420" width="400" height="70" rx="12" fill="url(#accent)"/>
+        <text x="280" y="465" font-family="'Inter', sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Verify &amp; Apply with AI</text>
+        <text x="1120" y="570" font-family="'Inter', sans-serif" font-size="22" fill="#64748b" text-anchor="end">jobhuntpro.app</text>
+    </svg>"""
+
+    return Response(content=svg_content, media_type="image/svg+xml")
+
+

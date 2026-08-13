@@ -82,9 +82,34 @@ export default function Dashboard() {
     systemLoad: 12.4,
   });
 
-  // Prevent hydration mismatch by only rendering dynamic values after mount
+  // Prevent hydration mismatch and connect to live SSE event feed
   useEffect(() => {
     setIsMounted(true);
+
+    if (typeof window !== "undefined" && "EventSource" in window) {
+      const eventSource = new EventSource("/api/v1/sse/live-feed");
+      
+      eventSource.addEventListener("heartbeat", (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload && payload.metrics) {
+            setStats(prev => ({
+              ...prev,
+              totalScrapes: payload.metrics.leads_processed_today || prev.totalScrapes,
+              successRate: payload.metrics.conversion_rate_percent || prev.successRate,
+              activeScrapers: payload.metrics.active_swarms || prev.activeScrapers,
+              systemLoad: payload.metrics.system_load_percent || prev.systemLoad,
+            }));
+          }
+        } catch {
+          // Silent fallback to standard state
+        }
+      });
+
+      return () => {
+        eventSource.close();
+      };
+    }
   }, []);
 
   // Load from Browser WebAssembly SQLite DB if available

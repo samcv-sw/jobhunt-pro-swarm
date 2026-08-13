@@ -7,10 +7,14 @@ from core.pg_sqlite_shim import connect, get_backend
 
 logger = logging.getLogger(__name__)
 _sqlite_dequeue_lock = threading.Lock()
+_job_queue_checked = False
 
 
 def _ensure_job_queue_columns(conn):
     """Ensures that the job_queue table exists and has all necessary columns for core.job_queue functionality."""
+    global _job_queue_checked
+    if _job_queue_checked:
+        return
     try:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS job_queue (
@@ -44,6 +48,7 @@ def _ensure_job_queue_columns(conn):
             if col not in cols:
                 with contextlib.suppress(Exception):
                     conn.execute(f"ALTER TABLE job_queue ADD COLUMN {col} {typ}")
+        _job_queue_checked = True
     except Exception as e:
         logger.debug(f"Ensuring job_queue columns ignored/handled: {e}")
 

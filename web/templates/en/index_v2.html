@@ -686,6 +686,73 @@
      <div class="label">User Rating</div>
     </div>
    </div>
+
+   <!-- Live AI SDR Sandbox Demo Widget -->
+   <div id="live-sdr-sandbox" style="margin-block-start:40px; background:rgba(15,23,42,0.75); border:1px solid rgba(56,189,248,0.3); border-radius:16px; padding:24px; text-align:start; backdrop-filter:blur(12px); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-block-end:16px;">
+     <div>
+      <h3 style="margin:0; font-size:18px; color:#f8fafc; display:flex; align-items:center; gap:8px;">
+       <span>⚡</span> Live AI SDR Sandbox Demo
+      </h3>
+      <p style="margin:4px 0 0 0; font-size:13px; color:#94a3b8;">Try our real-time job scraper & AI outreach generator instantly (No Sign-up Required)</p>
+     </div>
+     <span style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">GCC & Global Live Mode</span>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-block-end:16px;">
+     <input type="text" id="demo-job-title" placeholder="Target Job Title (e.g. Network Engineer)" value="Network Engineer" dir="auto" style="flex:1; min-inline-size:200px; padding:10px 14px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff; font-size:14px; outline:none;" />
+     <input type="text" id="demo-location" placeholder="City / Country (e.g. Riyadh, UAE)" value="Riyadh, Saudi Arabia" dir="auto" style="flex:1; min-inline-size:200px; padding:10px 14px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#fff; font-size:14px; outline:none;" />
+     <button onclick="runLiveSdrDemo()" style="padding:10px 20px; background:linear-gradient(135deg,#38bdf8,#818cf8); border:none; border-radius:8px; color:#fff; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.2s ease;">Scrape & Generate AI Outreach</button>
+    </div>
+
+    <div id="demo-results-container" style="display:none; background:#020617; border:1px solid #1e293b; border-radius:12px; padding:16px;">
+     <div id="demo-results-list"></div>
+    </div>
+   </div>
+
+   <script>
+   async function runLiveSdrDemo() {
+     const title = document.getElementById('demo-job-title').value || 'Network Engineer';
+     const location = document.getElementById('demo-location').value || 'Riyadh';
+     const container = document.getElementById('demo-results-container');
+     const list = document.getElementById('demo-results-list');
+     container.style.display = 'block';
+     list.innerHTML = '<div style="color:#94a3b8; font-size:14px; text-align:center; padding:12px;">🔍 Live scanning hiring databases and generating AI intent hooks...</div>';
+
+     try {
+       const resp = await fetch('/api/v1/sdr/demo-sandbox', {
+         method: 'POST',
+         headers: {'Content-Type': 'application/json'},
+         body: JSON.stringify({job_title: title, location: location})
+       });
+       const data = await resp.json();
+       if (data.status === 'success') {
+         let html = '<div style="margin-block-end:12px; color:#38bdf8; font-weight:600; font-size:14px;">✅ Found ' + data.total_matched_leads + ' High-Intent Matched Openings:</div>';
+         data.leads.forEach(lead => {
+           html += `
+             <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:12px; margin-block-end:10px;">
+               <div style="display:flex; justify-content:space-between; align-items:center;">
+                 <span style="font-weight:700; color:#f8fafc; font-size:15px;">${lead.company}</span>
+                 <span style="background:rgba(34,197,94,0.15); color:#22c55e; padding:2px 8px; border-radius:12px; font-size:12px;">Intent Score: ${lead.intent_score}%</span>
+               </div>
+               <div style="color:#94a3b8; font-size:13px; margin:4px 0;">📍 ${lead.location} | 💰 ${lead.salary}</div>
+               <div style="margin-block-start:8px; background:#020617; border-inline-start:3px solid #38bdf8; padding:8px 12px; font-size:12px; color:#cbd5e1;">
+                 <strong>AI Outreach Subject:</strong> ${lead.outreach_subject}<br/>
+                 <strong>Hook:</strong> <em>"${lead.outreach_hook}"</em>
+               </div>
+             </div>
+           `;
+         });
+         html += '<div style="text-align:center; margin-block-start:12px;"><a href="/register" class="btn btn-primary" style="display:inline-block; padding:8px 18px; font-size:13px;">🚀 Launch Automated Swarm for My Profile</a></div>';
+         list.innerHTML = html;
+       } else {
+         list.innerHTML = '<div style="color:#ef4444;">Error fetching demo. Please try again.</div>';
+       }
+     } catch (e) {
+       list.innerHTML = '<div style="color:#ef4444;">Connection error. Please try again.</div>';
+     }
+   }
+   </script>
   </div>
  </section>
 

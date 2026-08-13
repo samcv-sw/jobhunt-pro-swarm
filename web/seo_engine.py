@@ -46,7 +46,31 @@ class SEOEngine:
             }
             schema["jobLocation"] = {
                 "@type": "Place",
-                "address": extra_data.get("location", "Remote")
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": extra_data.get("location", "Remote")
+                }
+            }
+            if extra_data.get("salary"):
+                schema["baseSalary"] = {
+                    "@type": "MonetaryAmount",
+                    "currency": extra_data.get("currency", "USD"),
+                    "value": {
+                        "@type": "QuantitativeValue",
+                        "value": extra_data.get("salary"),
+                        "unitText": "YEAR"
+                    }
+                }
+            schema["employmentType"] = extra_data.get("employment_type", "FULL_TIME")
+
+        elif page_type == "software_application":
+            schema["@type"] = "SoftwareApplication"
+            schema["applicationCategory"] = "BusinessApplication"
+            schema["operatingSystem"] = "All"
+            schema["offers"] = {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
             }
 
         elif page_type == "faq" and extra_data and "faqs" in extra_data:

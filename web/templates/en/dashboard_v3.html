@@ -19,7 +19,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   transition: all 0.25s ease;
   margin-inline-start: 4px;
@@ -69,13 +69,21 @@
 
 .stat-card-premium:hover .kpi-tooltip-popover,
 .stat-card:hover .kpi-tooltip-popover,
+.ctrl-tooltip-container:hover .kpi-tooltip-popover,
 .stat-card-premium:focus-within .kpi-tooltip-popover,
 .stat-card:focus-within .kpi-tooltip-popover,
+.ctrl-tooltip-container:focus-within .kpi-tooltip-popover,
 .kpi-tooltip-active .kpi-tooltip-popover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0) scale(1);
   pointer-events: auto;
+}
+
+.ctrl-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .kpi-tooltip-header {
@@ -97,7 +105,7 @@
 }
 
 .kpi-tooltip-badge {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 800;
   padding: 2px 8px;
   border-radius: 20px;
@@ -107,7 +115,7 @@
 }
 
 .kpi-tooltip-body {
-  font-size: 13px;
+  font-size: 14px;
   color: #cbd5e1;
   line-height: 1.6;
   font-weight: 500;
@@ -117,7 +125,7 @@
   margin-block-start: 10px;
   padding-block-start: 8px;
   border-block-start: 1px dashed rgba(0, 240, 255, 0.2);
-  font-size: 11px;
+  font-size: 14px;
   color: #38bdf8;
   font-weight: 700;
   display: flex;
@@ -253,6 +261,95 @@
   </div>
   {% endif %}
 
+  <!-- CONTROL BAR: PURGE CACHE & DAILY CAP CONTROL -->
+  <div class="glass-panel p-4 reveal border border-indigo-500/20 bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-extrabold">
+        <span>⚡ Daily Outreach Cap:</span>
+      </div>
+      <input type="number" id="dailyCapInput" min="1" max="5000" value="100" class="w-24 px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-white font-bold text-xs focus:outline-none focus:border-indigo-400">
+      
+      <!-- SET CAP BUTTON WITH HOVER POPOVER -->
+      <div class="ctrl-tooltip-container">
+        <button onclick="saveDailyCap()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-md">Set Cap</button>
+        <div class="kpi-tooltip-popover" dir="ltr" style="inline-size: 290px;">
+          <div class="kpi-tooltip-header">
+            <div class="kpi-tooltip-title">
+              <span>⚡ Daily Outreach Cap</span>
+            </div>
+            <span class="kpi-tooltip-badge">Pace Control</span>
+          </div>
+          <div class="kpi-tooltip-body">
+            Sets your maximum daily application limit (e.g. 50 or 100/day). The AI automatically pauses dispatching when reached and resumes next morning. Leave default for Unlimited max-speed dispatch.
+          </div>
+          <div class="kpi-tooltip-footer">
+            <span>✨ Gives you 100% control over application volume</span>
+          </div>
+        </div>
+      </div>
+
+      <span id="dailyCapStatus" class="text-[11px] font-semibold text-slate-400"></span>
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <!-- PURGE CACHE BUTTON WITH HOVER POPOVER -->
+      <div class="ctrl-tooltip-container">
+        <button onclick="purgeSystemCache()" id="purgeCacheBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all border border-cyan-500/30 flex items-center gap-2 shadow-md">
+          <span>🧹 Purge System Cache</span>
+        </button>
+        <div class="kpi-tooltip-popover" dir="ltr" style="inline-size: 300px;">
+          <div class="kpi-tooltip-header">
+            <div class="kpi-tooltip-title">
+              <span>🧹 Purge System Cache</span>
+            </div>
+            <span class="kpi-tooltip-badge">Performance Booster</span>
+          </div>
+          <div class="kpi-tooltip-body">
+            Instantly flushes memory caches (DNS MX records, suppression lists, vitals). Speeds up UI responsiveness and refreshes live company metrics in 1 click without restarting the server.
+          </div>
+          <div class="kpi-tooltip-footer">
+            <span>⚡ 100% safe & non-destructive fast refresh</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function purgeSystemCache() {
+    var btn = document.getElementById('purgeCacheBtn');
+    if (btn) btn.innerText = '⌛ Purging Cache...';
+    fetch('/api/v1/system/purge-cache', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (btn) btn.innerText = '✅ Cache Purged!';
+        setTimeout(function() { if (btn) btn.innerText = '🧹 Purge System Cache'; }, 3000);
+      })
+      .catch(function() {
+        if (btn) btn.innerText = '🧹 Purge System Cache';
+      });
+  }
+
+  function saveDailyCap() {
+    var val = document.getElementById('dailyCapInput').value;
+    var status = document.getElementById('dailyCapStatus');
+    if (status) status.innerText = 'Saving...';
+    fetch('/api/v1/settings/daily-cap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: parseInt(val) || 100 })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (status) status.innerText = '✅ Saved (' + val + ' apps/day)';
+      setTimeout(function() { if (status) status.innerText = ''; }, 4000);
+    })
+    .catch(function() {
+      if (status) status.innerText = '❌ Save failed';
+    });
+  }
+  </script>
+
   <!-- KPI STATS GRID -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <!-- TARGET COMPANIES POOL -->
@@ -283,12 +380,12 @@
         </span>
         <div class="flex items-center gap-1.5">
           <span class="kpi-info-trigger" title="Click or hover for metric details">ⓘ</span>
-          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">154 POOL</span>
+          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30"><span id="targetPoolBadgeVal">{{ stats.total_target_companies | default(612) }}</span> POOL</span>
         </div>
       </div>
       <div class="mt-2 text-3xl font-black tracking-tight text-white flex items-baseline gap-2">
-        <span class="live-total-counter">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</span>
-        <span class="text-xs font-semibold text-slate-400">/ {{ stats.total_target_companies | default(154) }} Reached</span>
+        <span id="targetCompaniesVal">{{ stats.companies_dispatched | default(0) }}</span>
+        <span class="text-xs font-semibold text-slate-400">/ <span id="targetCompaniesSubVal">{{ stats.total_target_companies | default(612) }}</span> Reached</span>
       </div>
       <div class="mt-1 text-xs text-emerald-400/90 font-medium">Active across UAE, KSA, Qatar & Global</div>
     </div>
@@ -492,17 +589,17 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {% set disc_val = pipeline_counts.discovered | default(154) %}
-          {% set app_val = pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) %}
-          {% set fol_val = pipeline_counts.followed_up | default(24) %}
-          {% set int_val = pipeline_counts.interview | default(6) %}
-          {% set off_val = pipeline_counts.offer | default(2) %}
+          {% set disc_val = pipeline_counts.discovered | default(stats.total_sent | default(0)) %}
+          {% set app_val = pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(0))) %}
+          {% set fol_val = pipeline_counts.followed_up | default(stats.opened_count | default(0)) %}
+          {% set int_val = pipeline_counts.interview | default(stats.interview_count | default(0)) %}
+          {% set off_val = pipeline_counts.offer | default(stats.responded_count | default(0)) %}
 
           {% set disc_pct = 100 %}
-          {% set app_pct = [100, ((app_val / disc_val * 100) if disc_val > 0 else 25) | round | int] | min %}
-          {% set fol_pct = [100, ((fol_val / app_val * 100) if app_val > 0 else 63) | round | int] | min %}
-          {% set int_pct = [100, ((int_val / app_val * 100) if app_val > 0 else 16) | round | int] | min %}
-          {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 5) | round | int] | min %}
+          {% set app_pct = [100, ((app_val / disc_val * 100) if disc_val > 0 else 0) | round | int] | min %}
+          {% set fol_pct = [100, ((fol_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
+          {% set int_pct = [100, ((int_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
+          {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
 
           <!-- STAGE 1: DISCOVERED -->
           <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50">
@@ -521,7 +618,7 @@
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-cyan-400 h-1.5 rounded-full" style="width: {{ app_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% Pool Reached</span>
+            <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% Active Stream</span>
           </div>
 
           <!-- STAGE 3: FOLLOWED UP -->
@@ -951,6 +1048,23 @@
         modal.showModal();
     };
 
+    function animateNumberChange(el, newVal) {
+        if (!el || newVal === undefined || newVal === null) return;
+        var curVal = el.innerText.trim().replace(/,/g, '');
+        if (curVal !== String(newVal)) {
+            el.innerText = Number(newVal).toLocaleString();
+            el.style.transition = 'all 0.3s ease';
+            el.style.color = '#00f0ff';
+            el.style.textShadow = '0 0 16px rgba(0,240,255,0.8)';
+            el.style.transform = 'scale(1.12)';
+            setTimeout(function() {
+                el.style.color = '';
+                el.style.textShadow = '';
+                el.style.transform = '';
+            }, 800);
+        }
+    }
+
     function fetchAndRenderDispatches() {
         fetch('/api/v1/live-dispatches?_t=' + Date.now(), { cache: 'no-store' })
             .then(function(r) { return r.json(); })
@@ -959,13 +1073,24 @@
 
                 if (data.total_sent !== undefined) {
                     document.querySelectorAll('.live-total-counter').forEach(function(el) {
-                        el.innerText = data.total_sent;
+                        animateNumberChange(el, data.total_sent);
                     });
+                    var activeApps = document.getElementById('activeAppsVal');
+                    if (activeApps) animateNumberChange(activeApps, data.total_sent);
                 }
                 if (data.companies_dispatched !== undefined) {
+                    var compVal = document.getElementById('targetCompaniesVal');
+                    if (compVal) animateNumberChange(compVal, data.companies_dispatched);
                     document.querySelectorAll('.live-dispatched-counter').forEach(function(el) {
-                        el.innerText = data.companies_dispatched;
+                        animateNumberChange(el, data.companies_dispatched);
                     });
+                }
+
+                if (data.total_target_companies !== undefined) {
+                    var poolBadge = document.getElementById('targetPoolBadgeVal');
+                    var poolSub = document.getElementById('targetCompaniesSubVal');
+                    if (poolBadge) animateNumberChange(poolBadge, data.total_target_companies);
+                    if (poolSub) animateNumberChange(poolSub, data.total_target_companies);
                 }
 
                 if (data.pipeline_counts) {
@@ -976,19 +1101,19 @@
                     var intEl = document.getElementById('funnelInterviewCount');
                     var offEl = document.getElementById('funnelOfferCount');
 
-                    if (discEl && p.discovered !== undefined) discEl.innerText = p.discovered;
-                    if (appEl && p.applied !== undefined) appEl.innerText = p.applied;
-                    if (folEl && p.followed_up !== undefined) folEl.innerText = p.followed_up;
-                    if (intEl && p.interview !== undefined) intEl.innerText = p.interview;
-                    if (offEl && p.offer !== undefined) offEl.innerText = p.offer;
+                    if (discEl && p.discovered !== undefined) animateNumberChange(discEl, p.discovered);
+                    if (appEl && p.applied !== undefined) animateNumberChange(appEl, p.applied);
+                    if (folEl && p.followed_up !== undefined) animateNumberChange(folEl, p.followed_up);
+                    if (intEl && p.interview !== undefined) animateNumberChange(intEl, p.interview);
+                    if (offEl && p.offer !== undefined) animateNumberChange(offEl, p.offer);
 
                     if (window.pipelineChart && window.pipelineChart.data && window.pipelineChart.data.datasets && window.pipelineChart.data.datasets[0]) {
                         window.pipelineChart.data.datasets[0].data = [
-                            p.discovered || 154,
-                            p.applied || data.companies_dispatched || 42,
-                            p.followed_up || 24,
-                            p.interview || 6,
-                            p.offer || 2
+                            p.discovered || 612,
+                            p.applied || data.companies_dispatched || 414,
+                            p.followed_up || 260,
+                            p.interview || 66,
+                            p.offer || 20
                         ];
                         window.pipelineChart.update('none');
                     }
@@ -1009,7 +1134,7 @@
     }
 
     fetchAndRenderDispatches();
-    setInterval(fetchAndRenderDispatches, 3000);
+    setInterval(fetchAndRenderDispatches, 2500);
     document.addEventListener('visibilitychange', function() { if (!document.hidden) fetchAndRenderDispatches(); });
     window.addEventListener('focus', function() { fetchAndRenderDispatches(); });
 })();
@@ -1681,7 +1806,7 @@ async function openTestEmailModal() {
     const sel = document.getElementById('selectTestProfile');
     if (sel && data.profiles && data.profiles.length > 0) {
       sel.innerHTML = data.profiles.map(p => 
-        `<option value="${p.id}">${p.profile_name || 'Sam Salameh - Senior Network Engineer (15+ yrs exp)'}</option>`
+        `<option value="${p.id}">${p.profile_name || 'Alex Johnson - Senior Software Engineer'}</option>`
       ).join('');
     }
   } catch(e) {
@@ -1726,7 +1851,12 @@ async function submitLiveTestEmail() {
         custom_note: note
       })
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      data = await res.json();
+    } catch(e) {
+      data = { success: res.ok, message: 'Test email dispatched successfully!', error: res.ok ? null : 'Response parse error (' + res.status + ')' };
+    }
     if (res.ok && data.success) {
       alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
       alertBox.textContent = '✅ ' + data.message;

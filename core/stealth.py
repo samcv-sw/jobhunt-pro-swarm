@@ -300,7 +300,7 @@ class StealthScraper:
         data = f"{time.time()}{random.random()}"
         return hashlib.md5(data.encode()).hexdigest()[:16]
 
-    def get_async_client(self, timeout: float = 30.0, follow_redirects: bool = True):
+    def get_async_client(self, timeout: float = 6.0, follow_redirects: bool = True):
         """
         [NEW TIER 1 STEALTH] Returns an AsyncSession that natively spoofs TLS and HTTP/2.
         If curl_cffi is missing, it falls back to httpx (not recommended).
@@ -320,8 +320,8 @@ class StealthScraper:
                 proxies=proxies,
             )
         else:
-            logger.warning(
-                "[STEALTH] curl_cffi is missing! Falling back to raw httpx. Cloudflare may block you."
+            logger.debug(
+                "[STEALTH] curl_cffi is missing! Falling back to raw httpx."
             )
             client_kwargs = {"timeout": timeout, "follow_redirects": follow_redirects}
             if proxy:
@@ -332,7 +332,7 @@ class StealthScraper:
                     client_kwargs["proxies"] = proxy
             return httpx.AsyncClient(**client_kwargs)
 
-    def get_sync_client(self, timeout: float = 30.0, follow_redirects: bool = True):
+    def get_sync_client(self, timeout: float = 6.0, follow_redirects: bool = True):
         """Synchronous version of Tier 1 stealth client."""
         proxy = self.get_random_proxy()
         proxies = {"http": proxy, "https": proxy} if proxy else None

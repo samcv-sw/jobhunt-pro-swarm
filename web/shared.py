@@ -54,17 +54,17 @@ def _patched_tr(*args, **kwargs):
     if not request and isinstance(context, dict):
         request = context.get("request")
 
-    lang = "ar"
+    lang = "en"
     if request and hasattr(request, "query_params"):
         try:
-            lang = request.query_params.get("lang") or getattr(request.state, "lang", None) or getattr(request.state, "locale", None) or (request.cookies.get("lang") if hasattr(request, "cookies") else None) or "ar"
+            lang = request.query_params.get("lang") or getattr(request.state, "lang", None) or getattr(request.state, "locale", None) or (request.cookies.get("lang") if hasattr(request, "cookies") else None) or "en"
         except Exception:
-            lang = "ar"
+            lang = "en"
 
-    clean_lang = str(lang).split('-')[0].lower() if lang else "ar"
+    clean_lang = str(lang).split('-')[0].lower() if lang else "en"
     if not clean_lang.isalpha() or len(clean_lang) > 10:
-        lang = "ar"
-        clean_lang = "ar"
+        lang = "en"
+        clean_lang = "en"
 
     if request and hasattr(request, "state"):
         try:
@@ -290,19 +290,109 @@ def _verify_api_key(api_key: str):
         return None
 
 
-def get_unified_dispatches_count(conn) -> int:
-    """Return single source of truth for total live job applications dispatched."""
-    email_cnt = 0
-    mpa_cnt = 0
+SAM_USER_IDS = ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')
+
+def get_unified_dispatches_count(conn, user_id=None) -> int:
+    """Return single source of truth for total job application emails sent to companies."""
     try:
-        email_cnt = (conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone() or [0])[0] or 0
+        if user_id:
+            query = """
+                SELECT COUNT(*) FROM campaign_emails ce 
+                LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+                WHERE c.user_id = ? OR ce.campaign_id IN (SELECT campaign_id FROM campaigns WHERE user_id = ?)
+            """
+            res = conn.execute(query, (user_id, user_id)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()
+        return res[0] if res else 0
     except Exception:
-        pass
+        return 0
+
+def get_unified_companies_count(conn, user_id=None) -> int:
+    """Return single source of truth for total unique target companies emailed for a user."""
     try:
-        mpa_cnt = (conn.execute("SELECT COUNT(*) FROM multi_platform_apps").fetchone() or [0])[0] or 0
+        if user_id:
+            query = """
+                SELECT COUNT(DISTINCT LOWER(TRIM(ce.company_name))) 
+                FROM campaign_emails ce 
+                LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+                WHERE (c.user_id = ? OR ce.campaign_id IN (SELECT campaign_id FROM campaigns WHERE user_id = ?))
+                AND ce.company_name IS NOT NULL AND ce.company_name != ''
+            """
+            res = conn.execute(query, (user_id, user_id)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(DISTINCT LOWER(TRIM(company_name))) FROM campaign_emails WHERE company_name IS NOT NULL AND company_name != ''").fetchone()
+        return res[0] if res else 0
     except Exception:
-        pass
-    real_cnt = email_cnt + mpa_cnt
-    return max(real_cnt, 874)
+        return 0
+
+def get_unified_opened_count(conn, user_id=None) -> int:
+    """Return single source of truth for total opened email applications."""
+    try:
+        if user_id:
+            query = """
+                SELECT COUNT(*) FROM campaign_emails ce
+                JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                WHERE c.user_id = ?
+                AND (ce.opened_at IS NOT NULL OR ce.status IN ('opened', 'read'))
+            """
+            res = conn.execute(query, (user_id,)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL OR status IN ('opened', 'read')").fetchone()
+        return res[0] if res else 0
+    except Exception:
+        return 0
+
+def get_unified_responded_count(conn, user_id=None) -> int:
+    """Return single source of truth for total recruiter responses."""
+    try:
+        if user_id:
+            query = """
+                SELECT COUNT(*) FROM campaign_emails ce
+                JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                WHERE c.user_id = ?
+                AND (ce.responded_at IS NOT NULL OR ce.status IN ('responded', 'replied'))
+            """
+            res = conn.execute(query, (user_id,)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL OR status IN ('responded', 'replied')").fetchone()
+        return res[0] if res else 0
+    except Exception:
+        return 0
+
+def get_unified_bounced_count(conn, user_id=None) -> int:
+    """Return single source of truth for failed/bounced applications."""
+    try:
+        if user_id:
+            query = """
+                SELECT COUNT(*) FROM campaign_emails ce
+                JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                WHERE c.user_id = ?
+                AND ce.status IN ('bounced', 'failed', 'rejected')
+            """
+            res = conn.execute(query, (user_id,)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status IN ('bounced', 'failed', 'rejected')").fetchone()
+        return res[0] if res else 0
+    except Exception:
+        return 0
+
+def get_unified_interview_count(conn, user_id=None) -> int:
+    """Return single source of truth for interview stage applications."""
+    try:
+        if user_id:
+            query = """
+                SELECT COUNT(*) FROM campaign_emails ce
+                LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                WHERE (c.user_id = ? OR ce.campaign_id IN (SELECT campaign_id FROM campaigns WHERE user_id = ?))
+                AND (ce.status = 'interview' OR ce.pipeline_stage = 'interview')
+            """
+            res = conn.execute(query, (user_id, user_id)).fetchone()
+            return res[0] if res else 0
+        res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status = 'interview' OR pipeline_stage = 'interview'").fetchone()
+        return res[0] if res else 0
+    except Exception:
+        return 0
+
 
 

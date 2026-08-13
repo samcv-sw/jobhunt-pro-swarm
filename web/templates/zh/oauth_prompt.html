@@ -196,16 +196,16 @@
       <p class="picker-subtitle">to continue to JobHunt Pro via {{ 'Microsoft' if provider == 'microsoft' else 'Google' }}</p>
 
       <div class="accounts-list">
-        <!-- Account Option 1: samatou683 -->
+        <!-- Account Option 1: Demo Candidate -->
         <form action="/auth/oauth-submit" method="POST" style="margin:0;">
           <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
-          <input type="hidden" name="name" value="Sam Salameh"/ dir="auto">
-          <input type="hidden" name="email" value="{{ 'sam.dev1@hotmail.com' if provider == 'microsoft' else (default_email or 'samatou683@gmail.com') }}"/ dir="auto">
+          <input type="hidden" name="name" value="{{ default_name or 'Candidate User' }}"/ dir="auto">
+          <input type="hidden" name="email" value="{{ default_email or 'candidate@example.com' }}"/ dir="auto">
           <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle sam">S</div>
+            <div class="avatar-circle sam">C</div>
             <div class="account-info">
-              <span class="account-name">Sam Salameh</span>
-              <span class="account-email">{{ 'sam.dev1@hotmail.com' if provider == 'microsoft' else (default_email or 'samatou683@gmail.com') }}</span>
+              <span class="account-name">{{ default_name or 'Candidate User' }}</span>
+              <span class="account-email">{{ default_email or 'candidate@example.com' }}</span>
             </div>
           </button>
         </form>

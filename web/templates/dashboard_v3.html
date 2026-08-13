@@ -107,13 +107,21 @@
 
 .stat-card-premium:hover .kpi-tooltip-popover,
 .stat-card:hover .kpi-tooltip-popover,
+.ctrl-tooltip-container:hover .kpi-tooltip-popover,
 .stat-card-premium:focus-within .kpi-tooltip-popover,
 .stat-card:focus-within .kpi-tooltip-popover,
+.ctrl-tooltip-container:focus-within .kpi-tooltip-popover,
 .kpi-tooltip-active .kpi-tooltip-popover {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0) scale(1);
   pointer-events: auto;
+}
+
+.ctrl-tooltip-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .kpi-tooltip-header {
@@ -317,6 +325,95 @@
 </div>
   {% endif %}
 
+  <!-- شريط التحكم: تحديد السقف اليومي وتفريغ الكاش -->
+  <div class="glass-panel p-4 reveal border border-indigo-500/20 bg-slate-900/50 flex flex-col md:flex-row items-center justify-between gap-4 mb-4" dir="rtl">
+    <div class="flex items-center gap-3 w-full md:w-auto">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-black">
+        <span>⚡ السقف اليومي للتقديم:</span>
+      </div>
+      <input type="number" id="arDailyCapInput" min="1" max="5000" value="100" class="w-24 px-3 py-1.5 rounded-lg bg-slate-800 border border-white/10 text-white font-bold text-xs focus:outline-none focus:border-indigo-400">
+      
+      <!-- زر حفظ السقف مع نافذة الشرح عند التمرير -->
+      <div class="ctrl-tooltip-container">
+        <button onclick="saveArDailyCap()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-md">حفظ السقف</button>
+        <div class="kpi-tooltip-popover" dir="rtl" style="inline-size: 290px;">
+          <div class="kpi-tooltip-header">
+            <div class="kpi-tooltip-title">
+              <span>⚡ السقف اليومي للتقديم</span>
+            </div>
+            <span class="kpi-tooltip-badge">توزيع السرعة</span>
+          </div>
+          <div class="kpi-tooltip-body">
+            يحدد الحد الأقصى للتقديمات اليومية (مثلاً 50 أو 100 تقديم/يوم). يتوقف الذكاء الاصطناعي عند الوصول للعدد المستهدف ويستأنف في الصباح التالي. اتركه افتراضياً للتقديم المفتوح لأقصى سرعة.
+          </div>
+          <div class="kpi-tooltip-footer">
+            <span>✨ يمنحك تحكماً كاملاً 100% بحجم التقديم اليومي</span>
+          </div>
+        </div>
+      </div>
+
+      <span id="arDailyCapStatus" class="text-[11px] font-semibold text-slate-400 ms-2"></span>
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <!-- زر تفريغ الكاش مع نافذة الشرح عند التمرير -->
+      <div class="ctrl-tooltip-container">
+        <button onclick="purgeArSystemCache()" id="arPurgeCacheBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all border border-cyan-500/30 flex items-center gap-2 shadow-md">
+          <span>🧹 تفريغ الذاكرة المؤقتة (Cache Purge)</span>
+        </button>
+        <div class="kpi-tooltip-popover" dir="rtl" style="inline-size: 300px;">
+          <div class="kpi-tooltip-header">
+            <div class="kpi-tooltip-title">
+              <span>🧹 تفريغ الذاكرة المؤقتة</span>
+            </div>
+            <span class="kpi-tooltip-badge">تسريع الأداء</span>
+          </div>
+          <div class="kpi-tooltip-body">
+            يقوم فوراً بتفريغ الذاكرة المؤقتة للمخاطبات وسجلات الـ MX المخبأة. يُسرّع استجابة اللوحة ويُحدّث مؤشرات الأداء بضغطة واحدة دون الحاجة لإعادة تشغيل السيرفر.
+          </div>
+          <div class="kpi-tooltip-footer">
+            <span>⚡ تحديث سريع وآمن 100% بدون أي فقدان للبيانات</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function purgeArSystemCache() {
+    var btn = document.getElementById('arPurgeCacheBtn');
+    if (btn) btn.innerText = '⌛ جاري تفريغ الذاكرة...';
+    fetch('/api/v1/system/purge-cache', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (btn) btn.innerText = '✅ تم تفريغ الذاكرة بنجاح!';
+        setTimeout(function() { if (btn) btn.innerText = '🧹 تفريغ الذاكرة المؤقتة (Cache Purge)'; }, 3000);
+      })
+      .catch(function() {
+        if (btn) btn.innerText = '🧹 تفريغ الذاكرة المؤقتة (Cache Purge)';
+      });
+  }
+
+  function saveArDailyCap() {
+    var val = document.getElementById('arDailyCapInput').value;
+    var status = document.getElementById('arDailyCapStatus');
+    if (status) status.innerText = 'جاري الحفظ...';
+    fetch('/api/v1/settings/daily-cap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: parseInt(val) || 100 })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (status) status.innerText = '✅ تم الحفظ (' + val + ' تقديم/يوم)';
+      setTimeout(function() { if (status) status.innerText = ''; }, 4000);
+    })
+    .catch(function() {
+      if (status) status.innerText = '❌ فشل الحفظ';
+    });
+  }
+  </script>
+
   <!-- KPI STATS GRID -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <!-- TARGET COMPANIES POOL -->
@@ -349,7 +446,7 @@
         </div>
       </div>
       <div class="stat-counter flex items-baseline gap-2" style="font-size:34px;font-weight:900;color:#fff;line-height:1;margin-block-end:4px;">
-        <span class="live-total-counter">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</span>
+        <span class="live-dispatched-counter">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</span>
         <span style="font-size:14px;color:#94a3b8;font-weight:600;">/ {{ stats.total_target_companies | default(154) }} شركة</span>
       </div>
       <div style="font-size:14px;color:#64748b;text-transform:uppercase;font-weight:700;">الشركات المستهدفة حياً</div>
@@ -592,7 +689,7 @@
       <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
         <div class="bg-cyan-400 h-1.5 rounded-full" style="width: {{ app_pct }}%; max-width: 100%;"></div>
       </div>
-      <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% نسبة الوصول</span>
+      <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% تدفق تقديم نشط 24/7</span>
     </div>
 
     <!-- STAGE 3: FOLLOWED UP -->

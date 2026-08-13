@@ -83,3 +83,41 @@ async def list_enterprise_tenants():
         "count": len(unique_tenants),
         "tenants": unique_tenants
     }
+
+
+class InviteTeamMemberRequest(BaseModel):
+    tenant_id: str
+    admin_user_id: str
+    member_email: str
+    role: str = Field("sdr_agent", description="admin, sdr_agent, manager")
+    allocated_credits: int = Field(500, ge=50)
+
+
+WORKSPACES_MEMBERS = {}
+
+@router.post("/api/tenants/members/invite")
+async def invite_workspace_team_member(req: InviteTeamMemberRequest):
+    """
+    Invites a team member to an agency workspace and allocates a shared AI credit pool.
+    """
+    members = WORKSPACES_MEMBERS.setdefault(req.tenant_id, [])
+    member_id = f"member_{uuid.uuid4().hex[:8]}"
+    
+    new_member = {
+        "member_id": member_id,
+        "email": req.member_email,
+        "role": req.role,
+        "allocated_credits": req.allocated_credits,
+        "invited_by": req.admin_user_id,
+        "status": "active"
+    }
+    members.append(new_member)
+    
+    return {
+        "status": "success",
+        "tenant_id": req.tenant_id,
+        "invited_member": new_member,
+        "total_workspace_members": len(members),
+        "message": f"Successfully invited {req.member_email} with role '{req.role}' and {req.allocated_credits} credits."
+    }
+

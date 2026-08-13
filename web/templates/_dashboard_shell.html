@@ -35,10 +35,10 @@
       </div>
       <div style="margin-block-start:12px;padding:12px;border-radius:12px;background:linear-gradient(135deg, rgba(6,182,212,0.15), rgba(15,23,42,0.6));border:1px solid rgba(6,182,212,0.3);box-shadow:0 4px 12px rgba(6,182,212,0.1);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-block-end:4px;">
-          <span style="font-size:12px;font-weight:800;color:#38bdf8;font-family: 'Cairo', 'Tajawal', sans-serif;">⚡ المحرك الآلي الذكي</span>
+          <span style="font-size: 14px;font-weight:800;color:#38bdf8;font-family: 'Cairo', 'Tajawal', sans-serif;">⚡ المحرك الآلي الذكي</span>
           <span style="display:inline-block;inline-size:8px;block-size:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#cbd5e1;">
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size: 14px;color:#cbd5e1;">
           <span style="color:#94a3b8;font-family: 'Cairo', 'Tajawal', sans-serif;">وضع التشغيل المستمر:</span>
           <span style="color:#34d399;font-weight:700;font-family: 'Cairo', 'Tajawal', sans-serif;">نشط ومفعّل ⚡</span>
         </div>
@@ -47,18 +47,18 @@
 
     <!-- Nav Items -->
     <nav class="sidebar-nav" style="flex:1;overflow-y:auto;padding:10px 10px 8px;">
-      <div class="sb-section-label">الرئيسية</div>
-      <a href="/user-dashboard" class="sb-link {{ 'sb-active' if active_page == 'dashboard' else '' }}"><i data-lucide="layout-dashboard" class="sb-icon"></i><span>لوحة القيادة</span></a>
-      <a href="/upload-cv" class="sb-link {{ 'sb-active' if active_page == 'upload-cv' else '' }}"><i data-lucide="file-text" class="sb-icon"></i><span>رفع السيرة الذاتية</span></a>
-      <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>مقياس ATS</span></a>
-      <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>تخصيص السيرة الذاتية</span></a>
+      <div class="sb-section-label">{{ 'Main' if lang == 'en' else 'الرئيسية' }}</div>
+      <a href="/user-dashboard" class="sb-link {{ 'sb-active' if active_page == 'dashboard' else '' }}"><i data-lucide="layout-dashboard" class="sb-icon"></i><span>{{ 'Dashboard' if lang == 'en' else 'لوحة القيادة' }}</span></a>
+      <a href="/upload-cv" class="sb-link {{ 'sb-active' if active_page == 'upload-cv' else '' }}"><i data-lucide="file-text" class="sb-icon"></i><span>{{ 'Upload CV' if lang == 'en' else 'رفع السيرة الذاتية' }}</span></a>
+      <a href="/ats-scorer" class="sb-link {{ 'sb-active' if active_page == 'ats-scorer' else '' }}"><i data-lucide="target" class="sb-icon"></i><span>{{ 'ATS Scorer & Optimizer' if lang == 'en' else 'مقياس ATS' }}</span></a>
+      <a href="/resume-tailor" class="sb-link {{ 'sb-active' if active_page == 'resume-tailor' else '' }}" style="{{ '' if active_page == 'resume-tailor' else 'color:#a78bfa;' }}"><i data-lucide="wand-2" class="sb-icon"></i><span>{{ 'Tailor Resume' if lang == 'en' else 'تخصيص السيرة الذاتية' }}</span></a>
       <a href="/zero-unemployment" id="btnZeroUnemploymentAi" onclick="return (window.openZeroModalFast ? window.openZeroModalFast(event) : true);" class="sb-link {{ 'sb-active' if active_page == 'zero-unemployment' else '' }}" style="color:#00f0ff; font-weight:800; background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.25); border-radius:10px; margin-block:4px; cursor:pointer;"><i data-lucide="lightbulb" class="sb-icon" style="color:#fbbf24;"></i><span style="color:#00f0ff; font-weight:800;">0% Unemployment AI</span></a>
 
       <div class="sb-section-label" style="color:#00f0ff;font-weight:800;">🚀 أدوات الذكاء الخارقة</div>
       <a href="/interview-copilot" class="sb-link {{ 'sb-active' if active_page == 'interview-copilot' else '' }}" style="color:#c4b5fd;font-weight:700;"><i data-lucide="mic" class="sb-icon"></i><span>مساعد المقابلات (AI Copilot)</span></a>
       <a href="/salary-negotiator" class="sb-link {{ 'sb-active' if active_page == 'salary-negotiator' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="dollar-sign" class="sb-icon"></i><span>حاسبة الراتب والتفاوض</span></a>
 
-      {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
       <div class="sb-section-label" style="color:#ec4899;font-weight:800;display:flex;align-items:center;justify-content:space-between;">
         <span>🔥 عروض واشتراكات الذكاء والمواقع</span>
         <span style="font-size: 14px;background:rgba(236,72,153,0.2);color:#f472b6;padding:2px 6px;border-radius:4px;border:1px solid rgba(236,72,153,0.4);">عروض</span>
@@ -94,7 +94,7 @@
       <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
 
       <div class="sb-section-label">النظام</div>
-      {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
       <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
       {% endif %}
       <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>
@@ -568,5 +568,87 @@ document.addEventListener('keydown', e => {
     }
   }
 });
+</script>
+
+<!-- GLOBAL CYBERPUNK GLASSMORPHISM TOAST & ALERT OVERRIDE ENGINE -->
+<script>
+window.showCyberToast = function(msg, type = 'success') {
+  if (!msg) return;
+  let container = document.getElementById('cyber-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'cyber-toast-container';
+    container.style.cssText = `
+      position: fixed;
+      top: 24px;
+      inset-inline-end: 24px;
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 440px;
+      width: calc(100vw - 48px);
+    `;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const isErr = type === 'error' || type === 'danger' || String(msg).includes('❌') || String(msg).includes('Error') || String(msg).includes('خطأ');
+  const isWarn = type === 'warning' || type === 'warn' || String(msg).includes('⚠️') || String(msg).includes('تنبيه');
+  
+  const borderColor = isErr ? 'rgba(239, 68, 68, 0.5)' : (isWarn ? 'rgba(245, 158, 11, 0.5)' : 'rgba(34, 197, 94, 0.5)');
+  const glowColor = isErr ? 'rgba(239, 68, 68, 0.25)' : (isWarn ? 'rgba(245, 158, 11, 0.25)' : 'rgba(34, 197, 94, 0.25)');
+  const textColor = isErr ? '#fca5a5' : (isWarn ? '#fcd34d' : '#4ade80');
+  const icon = isErr ? '🚨' : (isWarn ? '⚠️' : '✨');
+
+  toast.style.cssText = `
+    background: rgba(15, 23, 42, 0.94);
+    border: 1px solid ${borderColor};
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: #f8fafc;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px ${glowColor};
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: auto;
+  `;
+
+  const cleanMsg = String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  toast.innerHTML = `<span style="font-size:18px;">${icon}</span><span style="flex:1; line-height:1.5; color:${textColor};">${cleanMsg}</span><div id="toast-bar" style="position:absolute; bottom:0; inset-inline-start:0; height:3px; background:${textColor}; width:100%; transition: width 3.5s linear;"></div>`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) scale(1)';
+    const bar = toast.querySelector('#toast-bar');
+    if (bar) requestAnimationFrame(() => { bar.style.width = '0%'; });
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px) scale(0.95)';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 350);
+  }, 3500);
+};
+
+window.alert = function(msg) {
+  if (window.showCyberToast) {
+    window.showCyberToast(msg);
+  }
+};
 </script>
 {% endblock %}

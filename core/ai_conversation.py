@@ -20,7 +20,10 @@ import re
 from collections import defaultdict
 from datetime import datetime
 
-import httpx
+try:
+    import httpx
+except ImportError:
+    httpx = None
 
 logger = logging.getLogger(__name__)
 
@@ -146,7 +149,7 @@ class AIConversationEngine:
         self.conversation_started: dict[str, datetime] = {}
         self.last_message_at: dict[str, datetime] = {}
 
-    def _get_client(self) -> httpx.Client:
+    def _get_client(self) -> "httpx.Client":
         import httpx
         if self._client is None or self._client.is_closed:
             self._client = httpx.Client(timeout=15.0)

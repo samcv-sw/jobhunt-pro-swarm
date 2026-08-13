@@ -220,6 +220,25 @@ class TenantManager:
             conn.close()
 
     @staticmethod
+    def check_single_candidate_lock(conn, user_id: str, plan_tier: str = "starter") -> tuple[bool, str]:
+        """
+        Anti-Abuse Rule: Enforce 1 Candidate CV Profile per individual subscription account.
+        Prevents reselling/account sharing abuse across different identities.
+        """
+        if plan_tier and str(plan_tier).lower() in ("agency", "b2b", "enterprise", "unlimited_agency"):
+            return True, "Agency tier active: multi-candidate CV profiles permitted."
+
+        count_row = conn.execute(
+            "SELECT COUNT(*) FROM cv_profiles WHERE user_id = ?", (user_id,)
+        ).fetchone()
+        count = count_row[0] if count_row else 0
+
+        if count >= 1:
+            return False, "Single Candidate Lock Active: Individual subscriptions are locked to 1 candidate profile. Please upgrade to Agency Tier for multi-candidate support."
+
+        return True, "Profile creation permitted."
+
+    @staticmethod
     def _generate_cv_text(
         name: str,
         profession: str,

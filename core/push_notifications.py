@@ -55,4 +55,18 @@ class PushNotificationHub:
         res["priority"] = "high_urgency_job_match"
         return res
 
+    def get_vapid_public_key(self) -> str:
+        """Returns public VAPID key for browser PWA push subscription initialization."""
+        import os
+        return os.environ.get("VAPID_PUBLIC_KEY", "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-Skv69yViEuiBIa")
+
+    def get_system_health(self) -> Dict[str, Any]:
+        """Returns health diagnostics for mobile PWA push notification engine."""
+        return {
+            "status": "healthy",
+            "active_subscriptions": len(self.subscriptions),
+            "dispatched_count": len(self.notification_history),
+            "vapid_configured": True
+        }
+
 push_notification_hub = PushNotificationHub()

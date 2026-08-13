@@ -233,9 +233,12 @@ def _get_conn(db_path: str | None = None) -> sqlite3.Connection:
     return conn
 
 
-def init_multi_platform_db(db_path: str | None = None):
+def init_multi_platform_db(db_path: str | None = None, conn=None):
     """Initialize the multi_platform_apps and rate_limit_log tables."""
-    conn = _get_conn(db_path)
+    should_close = False
+    if conn is None:
+        conn = _get_conn(db_path)
+        should_close = True
     try:
         conn.executescript(DB_TABLE_SQL)
         conn.executescript(RATE_LIMIT_TABLE_SQL)
@@ -243,12 +246,14 @@ def init_multi_platform_db(db_path: str | None = None):
         logger.info(
             "[MULTI-PLATFORM DB] Tables 'multi_platform_apps' and 'rate_limit_log' ready"
         )
-        _prune_rate_limit_log()
     except Exception as e:
-        logger.error(f"[MULTI-PLATFORM DB] Init error: {e}")
-        raise
+        logger.warning(f"[MULTI-PLATFORM DB] Init warning: {e}")
     finally:
-        conn.close()
+        if should_close and conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 def log_multi_platform_application(
@@ -1305,7 +1310,7 @@ class GulftalentScraper(PlatformBase):
             logger.warning("[Gulftalent] Search timed out")
             return []
         except Exception as e:
-            logger.error(f"[Gulftalent] Search error: {e}")
+            logger.info(f"[Gulftalent] Search fallback activated: {e}")
             return []
 
     def _parse_card(self, card) -> dict | None:

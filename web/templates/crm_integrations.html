@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise CRM Integrations — JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --card-bg: rgba(22, 30, 49, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-gold: #d4af37;
+            --accent-cyan: #00f2fe;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            margin: 0;
+            padding-block-start: 2rem;
+            padding-block-end: 2rem;
+            padding-inline-start: 1.5rem;
+            padding-inline-end: 1.5rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-inline-size: 1100px;
+            margin-inline-start: auto;
+            margin-inline-end: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-block-end: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-block-end: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-gold);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-block-end: 1rem;
+        }
+
+        .badge {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--accent-gold);
+            padding-block: 0.25rem;
+            padding-inline: 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+        }
+
+        label {
+            display: block;
+            margin-block-start: 1rem;
+            margin-block-end: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input {
+            inline-size: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding-block: 0.75rem;
+            padding-inline: 0.75rem;
+            border-radius: 8px;
+            dir: auto;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            margin-block-start: 1.25rem;
+            inline-size: 100%;
+            padding-block: 0.75rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ربط أنظمة CRM والويب هوك (Enterprise Integration)</h1>
+            <p style="color: var(--text-muted);">مزامنة بيانات العملاء المستهدفين (B2B Leads) تلقائياً مع منصات المبيعات العالمية</p>
+        </div>
+
+        <div class="grid">
+            <!-- HubSpot -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>HubSpot CRM</h3>
+                    <span class="badge">جاهز للربط</span>
+                </div>
+                <label>مفتاح HubSpot API Key / Bearer Token</label>
+                <input type="password" id="hubspot_key" placeholder="pat-na1-xxxx-xxxx">
+                <button class="btn" onclick="exportLead('hubspot')">مزامنة اختبارية</button>
+            </div>
+
+            <!-- Pipedrive -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Pipedrive</h3>
+                    <span class="badge">جاهز للربط</span>
+                </div>
+                <label>مفتاح Pipedrive API Token</label>
+                <input type="password" id="pipedrive_token" placeholder="api_token_here">
+                <button class="btn" onclick="exportLead('pipedrive')">مزامنة اختبارية</button>
+            </div>
+
+            <!-- Outbound Webhook -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Outbound Webhook (HMAC)</h3>
+                    <span class="badge">تشفير SHA256</span>
+                </div>
+                <label>رابط الـ Webhook URL (Zapier / Custom API)</label>
+                <input type="url" id="webhook_url" placeholder="https://api.yourdomain.com/webhooks/leads">
+                <label>مفتاح التوقيع السرّي (Signing Secret)</label>
+                <input type="password" id="webhook_secret" placeholder="whsec_xxxx">
+                <button class="btn" onclick="exportLead('webhook')">إرسال حدث إختباري</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function exportLead(provider) {
+            let payload = {
+                provider: provider,
+                lead: {
+                    name: "سارة الأحمد",
+                    email: "sara.alahmad@example-gcc.com",
+                    company: "GCC Tech Solutions",
+                    title: "Head of Talent Acquisition"
+                }
+            };
+            if (provider === 'hubspot') payload.api_key = document.getElementById('hubspot_key').value;
+            if (provider === 'pipedrive') payload.api_key = document.getElementById('pipedrive_token').value;
+            if (provider === 'webhook') {
+                payload.webhook_url = document.getElementById('webhook_url').value;
+                payload.secret = document.getElementById('webhook_secret').value;
+            }
+
+            try {
+                let res = await fetch('/crm/export', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                let data = await res.json();
+                if (res.ok) {
+                    alert('تمت المزامنة بنجاح! 🚀');
+                } else {
+                    alert('خطأ: ' + (data.detail || 'فشلت عملية المزامنة'));
+                }
+            } catch (err) {
+                alert('فشل الاتصال بالخادم');
+            }
+        }
+    </script>
+</body>
+</html>

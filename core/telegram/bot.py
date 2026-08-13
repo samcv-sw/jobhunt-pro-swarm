@@ -69,18 +69,21 @@ import contextlib
 import requests as _tg_requests
 
 
+import time
+
+_TG_SYNC_COOLDOWN_UNTIL = 0
+
+
 def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
     """Send a Telegram message synchronously using requests.
 
     Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from environment.
     Returns True on success, False on failure.
     """
+    global _TG_SYNC_COOLDOWN_UNTIL
     token = os.getenv("TELEGRAM_BOT_TOKEN", "")
     chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
-    if not token or not chat_id:
-        logger.warning(
-            "[send_telegram_message_sync] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID"
-        )
+    if not token or not chat_id or time.time() < _TG_SYNC_COOLDOWN_UNTIL:
         return False
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
@@ -90,6 +93,15 @@ def send_telegram_message_sync(text: str, parse_mode: str = "Markdown") -> bool:
         r = _tg_requests.post(url, json=payload, timeout=10)
         if r.status_code == 200:
             return True
+        if r.status_code == 429:
+            try:
+                data = r.json()
+                retry_after = data.get("parameters", {}).get("retry_after", 300)
+                _TG_SYNC_COOLDOWN_UNTIL = time.time() + retry_after
+                logger.warning(f"[send_telegram_message_sync] 429 Rate limit hit. Cooldown active for {retry_after}s.")
+            except Exception:
+                _TG_SYNC_COOLDOWN_UNTIL = time.time() + 300
+            return False
         if r.status_code == 400 and parse_mode:
             # Fallback to plain text if Markdown/HTML parsing failed
             payload.pop("parse_mode", None)

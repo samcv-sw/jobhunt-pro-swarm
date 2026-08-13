@@ -11,7 +11,8 @@ services:
     container_name: jobhunt-app-prod
     restart: always
     env_file:
-      - .env.cloud
+      - .env
+
     environment:
       - CLOUD_MODE=true
     ports:

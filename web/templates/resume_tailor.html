@@ -198,7 +198,7 @@
   margin-block-end: 6px;
 }
 .change-card .change-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #94a3b8;
 }
@@ -334,16 +334,16 @@
 </style>
 
 <div class="tailor-scale">
-  <h1>🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي (AI Resume Tailor)</h1>
-  <p class="subtitle">قم بلصق سيرتك الذاتية والوصف الوظيفي المستهدف — سيقوم الذكاء الاصطناعي بتخصيص السيرة الذاتية وتوليد رسالة التغطية وأسئلة المقابلة وسيناريو مفاوضة الراتب.</p>
+  <h1>{{ '🤖 AI Resume Tailor' if lang == 'en' else ('🤖 AI 简历定制' if lang == 'zh' else '🤖 تخصيص السيرة الذاتية بالذكاء الاصطناعي (AI Resume Tailor)') }}</h1>
+  <p class="subtitle">{{ 'Paste your base resume and target job description — AI will tailor your CV, cover letter, interview questions, and salary negotiation script.' if lang == 'en' else ('قم بلصق سيرتك الذاتية والوصف الوظيفي المستهدف — سيقوم الذكاء الاصطناعي بتخصيص السيرة الذاتية وتوليد رسالة التغطية وأسئلة المقابلة وسيناريو مفاوضة الراتب.') }}</p>
 
   <div class="tailor-container">
     <!-- Left: Base Resume -->
     <div class="tailor-panel">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
         <h3 style="margin:0;">📄 سيرتك الذاتية الأساسية</h3>
-        <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
-          📥 تحميل بياناتي الحقيقية
+        <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size: 14px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
+          📥 تحميل سيرة نموذجية (Demo Profile)
         </button>
       </div>
       <div class="file-drop" id="resume-drop" onclick="document.getElementById('cv-file-input').click()">
@@ -357,7 +357,7 @@
     <div class="tailor-panel">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
         <h3 style="margin:0;">🎯 الوصف الوظيفي المستهدف</h3>
-        <select id="preset-job-select" onchange="loadPresetJobDescription(this.value)" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:5px 10px; border-radius:8px; cursor:pointer; font-weight:700;" dir="auto">
+        <select id="preset-job-select" onchange="loadPresetJobDescription(this.value)" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size: 14px; padding:5px 10px; border-radius:8px; cursor:pointer; font-weight:700;" dir="auto">
           <option value="" selected disabled>⚡ اختر وصف وظيفي نموذجي...</option>
           <option value="network_eng">🌐 Senior Network Engineer (Cisco / Fortinet)</option>
           <option value="cloud_sys">☁️ Cloud & Systems Administrator (AWS / Linux)</option>
@@ -384,8 +384,8 @@
     </label>
     <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
       <div style="display:flex; align-items:center; gap:6px;">
-        <span style="font-size:13px; color:#94a3b8; font-weight:600;">🎭 نبرة السيرة:</span>
-        <select id="tailor-tone" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size:13px;" dir="auto">
+        <span style="font-size: 14px; color:#94a3b8; font-weight:600;">🎭 نبرة السيرة:</span>
+        <select id="tailor-tone" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size: 14px;" dir="auto">
           <option value="executive" selected>👑 قيادي وتنفيذي (Executive)</option>
           <option value="modern_tech">⚡ تقني تكنولوجي (Modern Tech)</option>
           <option value="gcc_gulf">🌴 الخليج العربي (GCC Gulf Focus)</option>
@@ -393,8 +393,8 @@
         </select>
       </div>
       <div style="display:flex; align-items:center; gap:6px;">
-        <span style="font-size:13px; color:#94a3b8; font-weight:600;">🌍 السوق المستهدف:</span>
-        <select id="tailor-region" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size:13px;" dir="auto">
+        <span style="font-size: 14px; color:#94a3b8; font-weight:600;">🌍 السوق المستهدف:</span>
+        <select id="tailor-region" style="padding:6px 10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#f1f5f9; font-size: 14px;" dir="auto">
           <option value="global" selected>🌐 عالمي / Remote</option>
           <option value="gcc">🇸🇦 🇦🇪 دول الخليج (GCC)</option>
           <option value="north_america">🇺🇸 🇨🇦 أمريكا الشمالية</option>
@@ -430,7 +430,7 @@
     <div id="ats-health-audit-card" style="margin-block-end:24px; background:rgba(15,23,42,0.65); border:1px solid rgba(59,130,246,0.3); border-radius:16px; padding:20px; backdrop-filter:blur(16px);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:14px; flex-wrap:wrap; gap:10px;">
         <h4 style="color:#60a5fa; font-size:16px; font-weight:700; margin:0;">📊 تدقيق وصحة معايير ATS الفنية (ATS Health Score Audit):</h4>
-        <span style="font-size:13px; color:#4ade80; background:rgba(34,197,94,0.15); padding:4px 12px; border-radius:20px; border:1px solid rgba(34,197,94,0.3); font-weight:700;">✅ متوافق 100% مع أنظمة التوظيف الآلية</span>
+        <span style="font-size: 14px; color:#4ade80; background:rgba(34,197,94,0.15); padding:4px 12px; border-radius:20px; border:1px solid rgba(34,197,94,0.3); font-weight:700;">✅ متوافق 100% مع أنظمة التوظيف الآلية</span>
       </div>
       <div id="ats-health-bars" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;"></div>
     </div>
@@ -456,26 +456,26 @@
         <div>
           <h3>✨ سيرتك الذاتية المخصصة للوظيفة</h3>
           <div style="display:flex; gap:6px; margin-block-start:8px; align-items:center;">
-            <span style="font-size:13px; color:#94a3b8;">🌍 اختيار اللغة:</span>
-            <button type="button" onclick="switchCvLang('en')" id="lang-en-btn" class="btn btn-sm" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇬🇧 English</button>
-            <button type="button" onclick="switchCvLang('ar')" id="lang-ar-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇸🇦 العربية</button>
-            <button type="button" onclick="switchCvLang('fr')" id="lang-fr-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size:13px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇫🇷 Français</button>
+            <span style="font-size: 14px; color:#94a3b8;">🌍 اختيار اللغة:</span>
+            <button type="button" onclick="switchCvLang('en')" id="lang-en-btn" class="btn btn-sm" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; font-size: 14px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇬🇧 English</button>
+            <button type="button" onclick="switchCvLang('ar')" id="lang-ar-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size: 14px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇸🇦 العربية</button>
+            <button type="button" onclick="switchCvLang('fr')" id="lang-fr-btn" class="btn btn-sm" style="background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1); font-size: 14px; padding:3px 10px; border-radius:6px; font-weight:700; cursor:pointer;">🇫🇷 Français</button>
           </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <a href="/auto-applier" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; font-size:13px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; text-decoration:none; box-shadow:0 4px 12px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px;">
+          <a href="/auto-applier" target="_blank" class="btn btn-sm" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; font-size: 14px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; text-decoration:none; box-shadow:0 4px 12px rgba(16,185,129,0.3); display:inline-flex; align-items:center; gap:6px;">
             🚀 التقديم الفوري بهذه السيرة
           </a>
-          <button type="button" onclick="generatePersonalPortfolioWebpage()" class="btn btn-sm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#fff; font-size:13px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(236,72,153,0.3);">
+          <button type="button" onclick="generatePersonalPortfolioWebpage()" class="btn btn-sm" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#fff; font-size: 14px; padding:6px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(236,72,153,0.3);">
             🌐 موقع بورتفوليو ويب
           </button>
-          <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+          <button type="button" onclick="downloadTailoredDocx()" class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
             📄 تنزيل Word (.docx)
           </button>
-          <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
+          <button type="button" onclick="downloadTailoredPdf()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:700;">
             📥 تنزيل PDF
           </button>
-          <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(tailoredText)">📋 نسخ النص</button>
+          <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(tailoredText, this)">📋 نسخ النص</button>
         </div>
       </div>
       <div class="tailor-output-body" id="tailored-output" dir="auto"></div>
@@ -491,7 +491,7 @@
     <div class="tailor-output-panel" id="panel-cover-letter" style="display:none;">
       <div class="tailor-output-header">
         <h3>✉️ رسالة التغطية المخصصة (Cover Letter)</h3>
-        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(coverLetterText)">📋 نسخ رسالة التغطية</button>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(coverLetterText, this)">📋 نسخ رسالة التغطية</button>
       </div>
       <div class="tailor-output-body" id="cover-letter-output" dir="auto"></div>
     </div>
@@ -501,7 +501,7 @@
       <div class="tailor-output-header">
         <div>
           <h3>🎤 أسئلة المقابلة والإجابات النموذجية (STAR Method Copilot)</h3>
-          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
+          <p style="color:#94a3b8; font-size: 14px; margin-block-start:4px; margin-block-end:0;">أسئلة متوقعة لهذه الوظيفة محدودة بخبرتك الحقيقية بطريقة Situation, Task, Action, Result.</p>
         </div>
       </div>
       <div id="interview-qa-list" style="padding:20px;"></div>
@@ -512,9 +512,9 @@
       <div class="tailor-output-header">
         <div>
           <h3>🗣️ الخطاب الترويجي الشفهي (30-Second Elevator Pitch)</h3>
-          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الشفهي المختصر عند سؤالك "Tell me about yourself" في المكالمة الأولى.</p>
+          <p style="color:#94a3b8; font-size: 14px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الشفهي المختصر عند سؤالك "Tell me about yourself" في المكالمة الأولى.</p>
         </div>
-        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(elevatorPitchText)">📋 نسخ الخطاب الترويجي</button>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(elevatorPitchText, this)">📋 نسخ الخطاب الترويجي</button>
       </div>
       <div class="tailor-output-body" id="pitch-output" dir="auto" style="margin:20px; background:rgba(0,0,0,0.35); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:18px;"></div>
     </div>
@@ -528,7 +528,7 @@
         <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
             <h4 style="color:#38bdf8; font-size:15px; font-weight:700; margin:0;">📧 Cold Email لمسؤول التوظيف</h4>
-            <button type="button" onclick="copyToClipboardText(coldEmailText)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ الإيميل</button>
+            <button type="button" onclick="copyToClipboardText(coldEmailText, this)" class="btn btn-sm" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size: 14px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ الإيميل</button>
           </div>
           <div id="outreach-email-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
         </div>
@@ -536,7 +536,7 @@
         <div style="background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
             <h4 style="color:#818cf8; font-size:15px; font-weight:700; margin:0;">💼 LinkedIn InMail Message</h4>
-            <button type="button" onclick="copyToClipboardText(inmailText)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size:13px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
+            <button type="button" onclick="copyToClipboardText(inmailText, this)" class="btn btn-sm" style="background:rgba(129,140,248,0.15); color:#818cf8; border:1px solid rgba(129,140,248,0.3); font-size: 14px; padding:4px 12px; border-radius:6px; cursor:pointer;">📋 نسخ رسالة LinkedIn</button>
           </div>
           <div id="outreach-inmail-output" style="white-space:pre-wrap; color:#e2e8f0; font-size:14px; background:rgba(0,0,0,0.3); padding:14px; border-radius:10px; line-height:1.7;" dir="auto"></div>
         </div>
@@ -548,9 +548,9 @@
       <div class="tailor-output-header">
         <div>
           <h3>💰 كود وسيناريو مفاوضة الراتب (Counter-Offer Script)</h3>
-          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الاحترافي لمفاوضة العرض المالي وزيادة الراتب بنسبة 15% إلى 30%.</p>
+          <p style="color:#94a3b8; font-size: 14px; margin-block-start:4px; margin-block-end:0;">استخدم هذا النص الاحترافي لمفاوضة العرض المالي وزيادة الراتب بنسبة 15% إلى 30%.</p>
         </div>
-        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(counterOfferText)">📋 نسخ سيناريو التفاوض</button>
+        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); font-size: 14px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600;" onclick="copyToClipboardText(counterOfferText, this)">📋 نسخ سيناريو التفاوض</button>
       </div>
       <div class="tailor-output-body" id="negotiate-output" dir="auto"></div>
     </div>
@@ -560,7 +560,7 @@
       <div class="tailor-output-header">
         <div>
           <h3>🚩 تدقيق وتدقيق ثغرات السيرة (CV Red Flag Audit)</h3>
-          <p style="color:#94a3b8; font-size:13px; margin-block-start:4px; margin-block-end:0;">نقاط ضعف أو تحذيرات قد تلاحظها أنظمة التوظيف ومسؤولو التوظيف وكيفية علاجها فوراً.</p>
+          <p style="color:#94a3b8; font-size: 14px; margin-block-start:4px; margin-block-end:0;">نقاط ضعف أو تحذيرات قد تلاحظها أنظمة التوظيف ومسؤولو التوظيف وكيفية علاجها فوراً.</p>
         </div>
       </div>
       <div id="redflags-list" style="padding:20px; display:flex; flex-direction:column; gap:16px;"></div>
@@ -700,7 +700,7 @@ function displayResults(data) {
   if (auditContainer) {
     auditContainer.innerHTML = `
       <div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+        <div style="display:flex; justify-content:space-between; font-size: 14px; color:#cbd5e1; margin-block-end:4px;">
           <span>تنظيم وتنسيق ATS (Formatting)</span>
           <strong style="color:#60a5fa;">${atsAudit.formatting_score || 98}%</strong>
         </div>
@@ -709,7 +709,7 @@ function displayResults(data) {
         </div>
       </div>
       <div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+        <div style="display:flex; justify-content:space-between; font-size: 14px; color:#cbd5e1; margin-block-end:4px;">
           <span>الأفعال القوية والتنفيذية (Action Verbs)</span>
           <strong style="color:#34d399;">${atsAudit.action_verbs_score || 95}%</strong>
         </div>
@@ -718,7 +718,7 @@ function displayResults(data) {
         </div>
       </div>
       <div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+        <div style="display:flex; justify-content:space-between; font-size: 14px; color:#cbd5e1; margin-block-end:4px;">
           <span>قياس النتائج والإنجازات (Quantified Metrics)</span>
           <strong style="color:#fbbf24;">${atsAudit.quantified_metrics_score || 92}%</strong>
         </div>
@@ -727,7 +727,7 @@ function displayResults(data) {
         </div>
       </div>
       <div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color:#cbd5e1; margin-block-end:4px;">
+        <div style="display:flex; justify-content:space-between; font-size: 14px; color:#cbd5e1; margin-block-end:4px;">
           <span>سلامة بيانات التواصل (Contact Integrity)</span>
           <strong style="color:#a78bfa;">${atsAudit.contact_integrity_score || 100}%</strong>
         </div>
@@ -767,23 +767,23 @@ function displayResults(data) {
   const kwSection = document.getElementById('keywords-section');
   if ((data.matched_keywords && data.matched_keywords.length > 0) || (data.missing_keywords && data.missing_keywords.length > 0)) {
     kwSection.style.display = 'block';
-    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">✓ ${escapeHtmlStr(k)}</span>`).join(' ');
-    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 12px; border-radius:16px; font-size:13px; margin:3px; display:inline-block;">+ ${escapeHtmlStr(k)}</span>`).join(' ');
+    let matchedHtml = (data.matched_keywords || []).map(k => `<span class="kw-added" style="background:rgba(34,197,94,0.15); color:#4ade80; border:1px solid rgba(34,197,94,0.3); padding:4px 12px; border-radius:16px; font-size: 14px; margin:3px; display:inline-block;">✓ ${escapeHtmlStr(k)}</span>`).join(' ');
+    let missingHtml = (data.missing_keywords || []).map(k => `<span class="kw-removed" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 12px; border-radius:16px; font-size: 14px; margin:3px; display:inline-block;">+ ${escapeHtmlStr(k)}</span>`).join(' ');
 
     kwSection.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:12px;">
         <h4 style="color:#f1f5f9; font-size:15px; font-weight:700; margin:0;">🔑 تحليل الكلمات المفتاحية الذكي (Matched vs Missing):</h4>
-        <button type="button" onclick="injectMissingKeywords()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size:13px; padding:6px 14px; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
+        <button type="button" onclick="injectMissingKeywords()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-size: 14px; padding:6px 14px; border:none; border-radius:8px; font-weight:800; cursor:pointer;">
           ⚡ دمج المهارات الناقصة فوراً في النص
         </button>
       </div>
       <div>
-        <div style="color:#4ade80; font-size:13px; font-weight:600; margin-block-end:6px;">🟢 مهارات متوفرة بالسيرة (${(data.matched_keywords||[]).length}):</div>
-        <div>${matchedHtml || '<span style="color:#94a3b8; font-size:13px;">--</span>'}</div>
+        <div style="color:#4ade80; font-size: 14px; font-weight:600; margin-block-end:6px;">🟢 مهارات متوفرة بالسيرة (${(data.matched_keywords||[]).length}):</div>
+        <div>${matchedHtml || '<span style="color:#94a3b8; font-size: 14px;">--</span>'}</div>
       </div>
       <div style="margin-block-start:12px;">
-        <div style="color:#fbbf24; font-size:13px; font-weight:600; margin-block-end:6px;">🟡 مهارات مطلوبة بالوظيفة (${(data.missing_keywords||[]).length}):</div>
-        <div>${missingHtml || '<span style="color:#94a3b8; font-size:13px;">جميع الكلمات المفتاحية متوفرة!</span>'}</div>
+        <div style="color:#fbbf24; font-size: 14px; font-weight:600; margin-block-end:6px;">🟡 مهارات مطلوبة بالوظيفة (${(data.missing_keywords||[]).length}):</div>
+        <div>${missingHtml || '<span style="color:#94a3b8; font-size: 14px;">جميع الكلمات المفتاحية متوفرة!</span>'}</div>
       </div>
     `;
   } else {
@@ -803,9 +803,9 @@ function displayResults(data) {
   if (bulletImpacts && bulletImpacts.length > 0) {
     impactContainer.innerHTML = bulletImpacts.map(b => `
       <div style="background:rgba(0,0,0,0.4); border-inline-start:4px solid #f59e0b; padding:12px 14px; border-radius:8px;">
-        <div style="color:#f43f5e; font-size:13px; text-decoration:line-through; margin-block-end:4px;">❌ قبل: ${escapeHtmlStr(b.original)}</div>
+        <div style="color:#f43f5e; font-size: 14px; text-decoration:line-through; margin-block-end:4px;">❌ قبل: ${escapeHtmlStr(b.original)}</div>
         <div style="color:#34d399; font-size:14px; font-weight:600;">✅ بعد التحسين: ${escapeHtmlStr(b.enhanced)}</div>
-        <span style="display:inline-block; margin-block-start:6px; font-size:12px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtmlStr(b.impact)}</span>
+        <span style="display:inline-block; margin-block-start:6px; font-size: 14px; background:rgba(245,158,11,0.2); color:#fbbf24; padding:2px 8px; border-radius:10px; font-weight:700;">${escapeHtmlStr(b.impact)}</span>
       </div>
     `).join('');
   } else {
@@ -854,7 +854,7 @@ function displayResults(data) {
         return `
           <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
-              <span style="font-size:12px; font-weight:800; color:${riskColor}; background:${riskBg}; border:1px solid ${riskBorder}; padding:4px 12px; border-radius:16px;">${escapeHtmlStr(rf.risk || 'NOTICE')}</span>
+              <span style="font-size: 14px; font-weight:800; color:${riskColor}; background:${riskBg}; border:1px solid ${riskBorder}; padding:4px 12px; border-radius:16px;">${escapeHtmlStr(rf.risk || 'NOTICE')}</span>
             </div>
             <div style="color:#e2e8f0; font-size:15px; font-weight:700; margin-block-end:8px;">⚠️ الملاحظة/التحذير: ${escapeHtmlStr(rf.flag)}</div>
             <div style="color:#34d399; font-size:14px; background:rgba(34,197,94,0.1); border-inline-start:4px solid #10b981; padding:10px 14px; border-radius:8px; line-height:1.6;">
@@ -944,13 +944,93 @@ function injectMissingKeywords() {
   document.getElementById('tailored-output').textContent = tailoredText;
   document.getElementById('diff-tailored').textContent = tailoredText;
 
-  alert('⚡ تم دمج المهارات التالية بنجاح في نص السيرة الذاتية:\n' + currentMissingKeywords.join(', '));
+  showCyberToast('⚡ تم دمج المهارات المستهدفة بنجاح في نص السيرة الذاتية!', 'success');
 }
 
-function copyToClipboardText(text) {
+function showCyberToast(msg, type = 'success') {
+  let container = document.getElementById('cyber-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'cyber-toast-container';
+    container.style.cssText = `
+      position: fixed;
+      top: 24px;
+      inset-inline-end: 24px;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 420px;
+      width: calc(100vw - 48px);
+    `;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const isSuccess = type === 'success';
+  const borderColor = isSuccess ? 'rgba(34, 197, 94, 0.5)' : 'rgba(59, 130, 246, 0.5)';
+  const glowColor = isSuccess ? 'rgba(34, 197, 94, 0.25)' : 'rgba(59, 130, 246, 0.25)';
+  const textColor = isSuccess ? '#4ade80' : '#60a5fa';
+  const icon = isSuccess ? '✨' : 'ℹ️';
+
+  toast.style.cssText = `
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid ${borderColor};
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: #f8fafc;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px ${glowColor};
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: auto;
+  `;
+
+  toast.innerHTML = `<span style="font-size:18px;">${icon}</span><span style="flex:1; line-height:1.5; color:${textColor};">${escapeHtmlStr(msg)}</span>`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) scale(1)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px) scale(0.95)';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 350);
+  }, 3200);
+}
+
+function copyToClipboardText(text, btnEl) {
   if (!text) return;
+
+  const currentBtn = btnEl || (window.event ? window.event.currentTarget : null);
+  let originalHtml = '';
+  if (currentBtn) {
+    originalHtml = currentBtn.innerHTML;
+    currentBtn.style.transition = 'all 0.25s ease';
+    currentBtn.style.background = 'rgba(34, 197, 94, 0.25)';
+    currentBtn.style.borderColor = '#22c55e';
+    currentBtn.style.color = '#4ade80';
+    currentBtn.style.boxShadow = '0 0 15px rgba(34, 197, 94, 0.3)';
+    currentBtn.innerHTML = originalHtml.includes('نسخ') ? '✅ تم النسخ!' : '✅ Copied!';
+  }
+
+  const successMsg = 'تم نسخ النص بنجاح للحافظة!';
+
   navigator.clipboard.writeText(text).then(() => {
-    alert('✅ تم نسخ النص بنجاح للحافظة!');
+    showCyberToast(successMsg, 'success');
   }).catch(e => {
     const ta = document.createElement('textarea');
     ta.value = text;
@@ -958,7 +1038,17 @@ function copyToClipboardText(text) {
     ta.select();
     document.execCommand('copy');
     document.body.removeChild(ta);
-    alert('✅ تم نسخ النص بالحافظة!');
+    showCyberToast(successMsg, 'success');
+  }).finally(() => {
+    if (currentBtn) {
+      setTimeout(() => {
+        currentBtn.style.background = '';
+        currentBtn.style.borderColor = '';
+        currentBtn.style.color = '';
+        currentBtn.style.boxShadow = '';
+        currentBtn.innerHTML = originalHtml;
+      }, 2200);
+    }
   });
 }
 
@@ -971,7 +1061,7 @@ function generatePersonalPortfolioWebpage() {
     <html lang="ar" dir="rtl">
     <head>
       <meta charset="UTF-8">
-      <title>Sam Salameh — Executive Digital Portfolio</title>
+      <title>Executive Digital Portfolio</title>
       <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
       <style>
         body { background:#0f172a; color:#f8fafc; font-family: 'Cairo', 'Inter', sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
@@ -988,7 +1078,7 @@ function generatePersonalPortfolioWebpage() {
       <div class="card">
         <div class="header">
           <div class="title">
-            <h1>سام سلامة (Sam Salameh)</h1>
+            <h1>{{ user.name if user and user.name else "Executive Digital Candidate" }}</h1>
             <p>Senior Network & Infrastructure Security Engineer</p>
           </div>
           <div class="badge">🌐 Verified AI Tailored Profile</div>
@@ -1007,7 +1097,7 @@ function downloadTailoredDocx() {
     showError('لا توجد سيرة ذاتية مخصصة لتنزيلها.');
     return;
   }
-  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family: Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
+  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
   const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1027,10 +1117,10 @@ function downloadTailoredPdf() {
     <html>
     <head>
       <meta charset="utf-8">
-      <title>Tailored Resume - Sam Salameh</title>
+      <title>Tailored Resume</title>
       <style>
         body { font-family: 'Cairo', 'Inter', Arial, sans-serif; line-height: 1.6; font-size: 11pt; padding: 25px; color: #111; }
-        pre { white-space: pre-wrap; font-family: inherit; margin: 0; }
+        pre { white-space: pre-wrap; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; margin: 0; }
       </style>
     </head>
     <body>
@@ -1047,50 +1137,52 @@ function downloadTailoredPdf() {
   printWin.document.close();
 }
 
-function loadRealCandidateData() {
-  const realCv = `Senior Network Engineer SAM SALAMEH
+async function loadRealCandidateData() {
+  try {
+    const res = await fetch('/api/v1/user/profile');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.cv_text) {
+        document.getElementById('tailor-resume').value = data.cv_text;
+        showCyberToast('✅ تم تحميل بيانات سيرتك الذاتية من حسابك بنجاح!', 'success');
+        return;
+      }
+    }
+  } catch(e) {}
+
+  const demoCv = `ALEX JOHNSON
+Senior Network & Cloud Infrastructure Engineer
 ====================================================================
 📋 Executive Summary
-Accomplished Network Engineer with 15+ years of progressive experience designing, implementing, configuring, and troubleshooting enterprise-grade networking infrastructure. Proven expertise in managing complex network environments, optimizing performance, and ensuring high availability across diverse platforms including Cisco, MikroTik, Ubiquiti, and Fortinet. Strong background in fiber optic installations, VPN configurations, firewall management, and traffic analysis.
+Accomplished Senior Network Engineer with 15+ years of progressive experience designing, implementing, configuring, and troubleshooting enterprise-grade networking infrastructure. Proven expertise in managing complex network environments, optimizing performance, and ensuring high availability across diverse platforms including Cisco, MikroTik, Ubiquiti, and Fortinet.
 
 📞 CONTACT
-📱 +961 70 841 009
-✉️ sam.dev1@hotmail.com
-📍 Beirut, Lebanon
-🔗 linkedin.com/in/sam-salameh
+📱 +1 (555) 019-2831
+✉️ alex.johnson.demo@example.com
+📍 Dubai, UAE
+🔗 linkedin.com/in/alex-johnson-demo
 
 🎓 EDUCATION
-B3 - Information Technology | Dekwene Technical School (2016)
+B.S. Information Technology & Computer Networks (2016)
 
 💡 CORE SKILLS
 Network Design, Cisco IOS, MikroTik RouterOS, Ubiquiti UniFi, Fortinet, Fiber Optic, Firewalls & VPN, Traffic Analysis, BGP, OSPF
 
 💼 Professional Experience
-Freelance Network Engineer 📍 Freelance, Beirut (2023 - Present)
-• Providing comprehensive network engineering services to enterprise businesses, ISPs, and educational institutions.
-• Designed and deployed enterprise-grade networks for 20+ clients
-• Implemented secure VPN solutions and firewall configurations
-• Conducted network audits and performance optimization
+Senior Network Consultant 📍 Global Tech Solutions (2021 - Present)
+• Designing and deploying enterprise-grade networks for 20+ multinational clients.
+• Implemented secure VPN solutions and high-availability firewall configurations.
 
-Network Management Consultant 📍 Freelance, Beirut (2021 - 2023)
-• Consulted with organizations on network infrastructure planning, security implementations, and technology upgrades.
-• Implemented advanced routing protocols (OSPF, BGP, EIGRP)
-• Configured and maintained enterprise firewalls and security systems
-
-Networking Technician 📍 Professional Network, Beirut (2010 - 2023)
-• Provided comprehensive networking support including installation, configuration, and troubleshooting of network equipment.
-• Installed and configured routers, switches, and wireless access points
-• Performed fiber optic cable installations and terminations (Wireshark, PRTG, Nagios, SolarWinds)
-
-🌍 LANGUAGES
-English (Fluent), Arabic (Native), French (Intermediate)`;
-  document.getElementById('tailor-resume').value = realCv;
+Network Infrastructure Specialist 📍 Enterprise Networks Inc (2014 - 2021)
+• Configured and maintained enterprise firewalls, BGP routing, and SD-WAN architectures.`;
+  document.getElementById('tailor-resume').value = demoCv;
+  showCyberToast('📋 تم تحميل سيرة ذاتية نموذجية للاختبار!', 'info');
 }
 
 async function importUrlToTailor() {
   const urlInput = document.getElementById('tailor-import-url').value.trim();
   if (!urlInput) {
-    alert('يرجى وضع رابط الوظيفة أولاً.');
+    showCyberToast('يرجى وضع رابط الوظيفة أولاً.', 'info');
     return;
   }
   const btn = document.getElementById('btn-import-tailor');

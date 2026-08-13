@@ -7,7 +7,7 @@ import os
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Request, Form, BackgroundTasks
+from fastapi import APIRouter, Request, Form, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
@@ -19,11 +19,10 @@ def _require_admin_or_fallback(request: Request):
     with get_db() as conn:
         if not user_id:
             sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
+                conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' ORDER BY id DESC LIMIT 1").fetchone()
             )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_c79c498bf9314555")
     return user_id
 
 def _deps():
@@ -300,12 +299,7 @@ def admin_panel(request: Request):
     from web.app_v2 import require_admin
     admin_user_id = require_admin(request)
     if not admin_user_id:
-        with get_db() as conn:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone()
-            )
-            admin_user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+        return RedirectResponse("/user-dashboard", status_code=303)
     try:
         from payments import get_payment_stats
     except Exception:
@@ -385,7 +379,7 @@ def admin_panel(request: Request):
         )
         is_en = request and (request.query_params.get("lang") == "en" or getattr(request.state, "lang", None) == "en" or request.cookies.get("lang") == "en")
         title = "Admin Panel" if is_en else "لوحة الإدارة"
-        admin_user_dict = {"name": "Sam Salameh", "email": "sam.dev1@hotmail.com", "wallet_balance": 10000.0, "is_admin": True}
+        admin_user_dict = {"name": "Sam Salameh", "email": "samatou683@gmail.com", "wallet_balance": 10000.0, "is_admin": True}
         return HTMLResponse(_build_dashboard_shell(admin_user_dict, admin_user_id, content_html, title, "admin", request=request))
 
 
@@ -900,30 +894,14 @@ def _require_admin(request: Request):
     """Raise 403 if request is not from an admin user."""
     from web.shared import get_db, get_verified_user_id, is_admin_email
     user_id = get_verified_user_id(request)
-    with get_db() as conn:
-        if not user_id:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
-            )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+    if not user_id:
+        raise HTTPException(status_code=403, detail="Admin privileges required")
 
+    with get_db() as conn:
         try:
             row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         except Exception:
             row = None
-
-        if not row:
-            try:
-                row = (
-                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                    conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone()
-                )
-            except Exception:
-                row = None
 
         user_dict = dict(row) if row else {}
         email = (user_dict.get("email") or "").strip().lower()
@@ -932,7 +910,9 @@ def _require_admin(request: Request):
 
         if is_admin_email(email) or user_type == "admin" or is_admin_val:
             return user_id
-    return user_id
+
+    raise HTTPException(status_code=403, detail="Admin privileges required")
+
 
 
 @router.get("/api/admin/ai-cache/stats")

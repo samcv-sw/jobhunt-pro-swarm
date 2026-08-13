@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice SDR Swarm | JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --card-bg: rgba(18, 24, 38, 0.75);
+            --border-color: rgba(0, 242, 254, 0.2);
+            --accent-cyan: #00f2fe;
+            --accent-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-x-direction: -1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-main);
+            min-block-size: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-container {
+            max-inline-size: 1200px;
+            margin-inline: auto;
+            padding-inline: 1.5rem;
+            padding-block: 2rem;
+            inline-size: 100%;
+            box-sizing: border-box;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-block-end: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-block-end: 2rem;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-block-end: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .waveform-box {
+            block-size: 120px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-block: 1rem;
+        }
+
+        .wave-bar {
+            inline-size: 6px;
+            block-size: 20%;
+            background: var(--accent-cyan);
+            border-radius: 3px;
+            animation: pulseWave 1.2s infinite ease-in-out alternate;
+        }
+
+        .wave-bar:nth-child(2) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.6s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes pulseWave {
+            0% { block-size: 15%; opacity: 0.4; }
+            100% { block-size: 85%; opacity: 1; filter: drop-shadow(0 0 8px var(--accent-cyan)); }
+        }
+
+        .btn-call {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            padding-block: 0.75rem;
+            padding-inline: 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            inline-size: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-call:hover {
+            transform: translateY(-2px);
+        }
+
+        .form-input {
+            inline-size: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            margin-block-end: 1rem;
+            box-sizing: border-box;
+        }
+
+        .transcript-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            max-block-size: 200px;
+            overflow-y: auto;
+        }
+
+        .speaker-ai { color: var(--accent-cyan); font-weight: 700; }
+        .speaker-lead { color: #f59e0b; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1 class="header-title">🎙️ AI Voice SDR Agent Swarm</h1>
+        <p class="subtitle">نظام الاتصالات الصوتية الذكية المباشرة للعملاء المحتملين باللغة العربية والإنجليزية</p>
+
+        <div class="grid-layout">
+            <!-- Initiate Call Panel -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">إطلاق اتصال جديد (Initiate Call)</h2>
+                </div>
+                <form onsubmit="event.preventDefault(); initiateCall();">
+                    <label style="display:block; margin-block-end:0.4rem;">اسم العميل:</label>
+                    <input type="text" id="leadName" class="form-input" value="أحمد العتيبي" dir="auto" required>
+
+                    <label style="display:block; margin-block-end:0.4rem;">اسم الشركة:</label>
+                    <input type="text" id="companyName" class="form-input" value="شركة الخليج للحلول" dir="auto" required>
+
+                    <label style="display:block; margin-block-end:0.4rem;">رقم الهاتف:</label>
+                    <input type="tel" id="phoneNumber" class="form-input" value="+966500000000" dir="ltr" required>
+
+                    <label style="display:block; margin-block-end:0.4rem;">اللهجة / اللغة:</label>
+                    <select id="languageSelect" class="form-input">
+                        <option value="ar-GCC">العربية (خليجي - Gulf Arabic)</option>
+                        <option value="ar-LEV">العربية (شامي - Levantine)</option>
+                        <option value="en-US">English (US Executive)</option>
+                    </select>
+
+                    <button type="submit" class="btn-call">بدء الاتصال الفوري 📞</button>
+                </form>
+            </div>
+
+            <!-- Live Stream & Waveform -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">البث المباشر والتحليل الصوتي</h2>
+                    <span style="color: var(--accent-green); font-weight:700;">LIVE</span>
+                </div>
+                <div class="waveform-box">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+                <div class="transcript-box" id="transcriptBox">
+                    <p><span class="speaker-ai">AI SDR:</span> مرحباً أحمد، معك مساعد Sales من JobHunt Pro بالنسبة للتوسع بـ شركة الخليج للحلول.</p>
+                    <p><span class="speaker-lead">العميل:</span> أهلاً وسهلاً، نعم مهتمين نعرف تفاصيل الأتمتة.</p>
+                    <p><span class="speaker-ai">AI SDR:</span> ممتاز! تم إرسال العرض التجريبي إلى بريدكم مباشرة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function initiateCall() {
+            const name = document.getElementById('leadName').value;
+            const company = document.getElementById('companyName').value;
+            const phone = document.getElementById('phoneNumber').value;
+            const lang = document.getElementById('languageSelect').value;
+
+            const res = await fetch('/api/voice-sdr/call', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lead_name: name,
+                    company_name: company,
+                    phone_number: phone,
+                    language: lang
+                })
+            });
+            const data = await res.json();
+            alert('تم إطلاق الاتصال بنجاح! ID: ' + data.call_id);
+        }
+    </script>
+</body>
+</html>

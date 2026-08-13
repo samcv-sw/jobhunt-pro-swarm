@@ -24,6 +24,34 @@ if __name__ == '__main__':
     print(" 🩺 Health Check:   http://127.0.0.1:8000/api/v2/health", flush=True)
     print("====================================================================", flush=True)
 
+    import threading
+    import webbrowser
+    import socket
+
+    _browser_opened = False
+
+    def _open_browser_auto():
+        global _browser_opened
+        if _browser_opened:
+            return
+        import time
+        for _ in range(40):
+            time.sleep(0.3)
+            try:
+                with socket.create_connection(("127.0.0.1", 8000), timeout=0.5):
+                    break
+            except Exception:
+                continue
+        time.sleep(0.5)
+        if not _browser_opened:
+            _browser_opened = True
+            try:
+                webbrowser.open_new_tab('http://127.0.0.1:8000/user-dashboard')
+            except Exception:
+                pass
+
+    threading.Thread(target=_open_browser_auto, daemon=True).start()
+
     import uvicorn
-    uvicorn.run("web.app_v2:app", host="127.0.0.1", port=8000, log_level="info", reload=False)
+    uvicorn.run("web.app_v2:app", host="127.0.0.1", port=8000, log_level="warning", access_log=False, timeout_keep_alive=30, reload=False)
 

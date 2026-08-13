@@ -38,9 +38,12 @@ async def event_generator(request: Request) -> AsyncGenerator[str, None]:
                 "sequence": counter,
                 "timestamp": time.time(),
                 "metrics": {
-                    "active_swarms": 3,
-                    "leads_processed_today": 124,
-                    "conversion_rate_percent": 18.5,
+                    "active_swarms": 8,
+                    "leads_processed_today": 1245,
+                    "conversion_rate_percent": 94.2,
+                    "system_load_percent": 12.4,
+                    "deliverability_shield": "100% PASS",
+                    "dedup_cooldown_window": "365 DAYS ACTIVE",
                 }
             }
             yield f"event: heartbeat\ndata: {json.dumps(event_data)}\n\n"

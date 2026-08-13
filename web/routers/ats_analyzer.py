@@ -73,13 +73,33 @@ def calculate_ats_score(req: ATSAnalysisRequest) -> Dict[str, Any]:
     }
 
 
-@router.post("/preview-pdf")
-def generate_ats_pdf_preview(req: ATSAnalysisRequest) -> Dict[str, Any]:
-    """Generates structured payload for split-screen live PDF resume preview."""
-    score_data = calculate_ats_score(req)
     return {
         "status": "success",
         "pdf_title": "ATS_Optimized_Resume.pdf",
         "preview_html": f"<div class='ats-preview'><h1>Optimized Resume</h1><p>ATS Score: <strong>{score_data['overall_score']}/100</strong></p></div>",
         "ats_metrics": score_data
     }
+
+
+class ATSTailorRequest(BaseModel):
+    candidate_title: str = "Senior Engineer"
+    candidate_summary: str = ""
+    job_title: str = "Target Position"
+    job_description: str = ""
+
+
+@router.post("/tailor")
+def tailor_resume_summary(req: ATSTailorRequest) -> Dict[str, Any]:
+    """Generates an optimized professional summary tailored specifically for the target job."""
+    from core.ats_tailor import ATSResumeTailor
+    tailored_text = ATSResumeTailor.generate_tailored_summary(
+        candidate_title=req.candidate_title,
+        candidate_summary=req.candidate_summary,
+        job_title=req.job_title,
+        job_description=req.job_description
+    )
+    return {
+        "status": "success",
+        "tailored_summary": tailored_text
+    }
+

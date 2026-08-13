@@ -23,10 +23,10 @@ else:
 
 IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHERE_DOMAIN") or ""
 
-CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "JobHunt Pro Team")
+CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Alex Johnson")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
-SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "jobhuntpro.app@zohomail.com")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "candidate.demo@example.com")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jobhuntpro.app")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
@@ -36,9 +36,9 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "487d1da1-69fb-4a84-8446-227973d977df")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 SECRET_KEY = os.getenv("SECRET_KEY") or "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2831")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
-CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/sam-salameh"
+CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/alex-johnson-demo"
 YEARS_EXPERIENCE = 15
 
 SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint", "sd-wan", "sase", "ztna", "zero trust", "sdn", "network automation", "netdevops", "nfv", "vxlan", "evpn", "segment routing", "ipv6", "multicast", "qos", "load balancing", "f5", "nginx", "docker", "kubernetes", "istio", "prometheus", "grafana", "elk stack", "splunk", "servicenow", "itil", "iso 27001", "nist", "gdpr compliance", "business continuity", "disaster recovery", "sd-wan orchestration", "silver peak", "vmware nsx", "cisco aci", "meraki", "aruba", "ruckus", "extremenetworks", "riverbed", "blue coat", "zscaler", "cloudflare", "akamai"]

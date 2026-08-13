@@ -1,0 +1,22 @@
+{
+    admin off
+    auto_https off
+}
+
+:80 {
+    encode gzip zstd
+
+    # Health Check Endpoint
+    handle /health {
+        respond "OK - JobHunt Pro Edge Region me-south-1" 200
+    }
+
+    # Geo Load Balancing & Reverse Proxy
+    handle {
+        reverse_proxy jobhunt_api_node1:8000 {
+            health_check /health
+            health_interval 5s
+            health_timeout 2s
+        }
+    }
+}

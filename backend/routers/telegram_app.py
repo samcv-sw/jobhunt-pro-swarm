@@ -143,3 +143,45 @@ async def create_checkout_invoice(body: CheckoutRequest) -> dict[str, Any]:
         "currency": "USDT",
         "user_id": body.userId,
     }
+
+
+class OmnichannelReplyPayload(BaseModel):
+    user_id: str
+    channel: str  # "email", "linkedin", "whatsapp"
+    sender_name: str
+    sender_contact: str
+    message_text: str
+    company_name: str | None = None
+
+
+@router.post("/tma/omnichannel-reply", response_model=dict[str, Any])
+async def sync_omnichannel_lead_reply(body: OmnichannelReplyPayload) -> dict[str, Any]:
+    """
+    Receives incoming replies across LinkedIn, Cold Email, or WhatsApp and formats an instant
+    Telegram alert notification with AI SDR smart reply suggestions.
+    """
+    company = body.company_name or "Target Company"
+    snippet = body.message_text[:120] + ("..." if len(body.message_text) > 120 else "")
+
+    # Generate 2 context-aware AI SDR quick-reply suggestion chips
+    ai_suggestions = [
+        f"Thanks {body.sender_name}! I'd love to schedule a brief 10-min call this week regarding the position at {company}.",
+        f"Hi {body.sender_name}, attached is my updated portfolio for {company}. Let me know your availability!"
+    ]
+
+    telegram_alert_text = (
+        f"🚨 <b>New Lead Reply Received via {body.channel.upper()}</b>\n\n"
+        f"<b>From:</b> {body.sender_name} ({body.sender_contact})\n"
+        f"<b>Company:</b> {company}\n\n"
+        f"💬 <i>\"{snippet}\"</i>"
+    )
+
+    return {
+        "status": "success",
+        "lead_synced": True,
+        "channel": body.channel,
+        "telegram_alert_html": telegram_alert_text,
+        "ai_reply_suggestions": ai_suggestions,
+        "action_required": "high_priority"
+    }
+

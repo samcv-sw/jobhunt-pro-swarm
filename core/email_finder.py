@@ -913,9 +913,14 @@ class EmailFinder:
                 )
                 return domain
 
-        # Strategy B: Pattern guessing (always used, even in fast mode)
+        # Strategy B: Pattern guessing (check MX validity if fast mode)
         domain = self._guess_domain(company)
         if domain:
+            if fast:
+                mx = await self._get_mx_host(domain)
+                if not mx:
+                    logger.debug(f"[EmailFinder] Guessed domain {domain} has no MX, skipping pattern guess for {company}")
+                    return None
             self._domain_cache[cache_key] = domain
             logger.info(
                 f"[EmailFinder] Domain resolved via pattern: {company} → {domain}"

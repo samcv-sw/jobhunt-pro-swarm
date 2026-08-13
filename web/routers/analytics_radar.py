@@ -22,12 +22,19 @@ async def get_analytics_radar_page(request: Request):
         "active_page": "analytics_radar"
     })
 
+_radar_metrics_cache = {"timestamp": 0, "data": None}
+_CACHE_TTL_SECONDS = 5
+
 @router.get("/api/admin/radar-metrics")
 async def get_radar_metrics():
-    """Retrieve real-time financial, credit, and user metrics."""
-    return {
+    """Retrieve real-time financial, credit, and user metrics with fast TTL caching."""
+    now = time.time()
+    if _radar_metrics_cache["data"] and (now - _radar_metrics_cache["timestamp"] < _CACHE_TTL_SECONDS):
+        return _radar_metrics_cache["data"]
+
+    metrics_data = {
         "status": "success",
-        "timestamp": int(time.time()),
+        "timestamp": int(now),
         "mrr": {
             "current_usd": 14850,
             "growth_rate": "+24.8%",
@@ -52,3 +59,6 @@ async def get_radar_metrics():
             {"event": "🌐 Live Web Portfolio Generated", "user": "Rania F.", "time": "8 mins ago"}
         ]
     }
+    _radar_metrics_cache["timestamp"] = now
+    _radar_metrics_cache["data"] = metrics_data
+    return metrics_data

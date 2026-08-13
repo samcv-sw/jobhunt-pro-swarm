@@ -663,49 +663,76 @@
       const select = document.getElementById('profileSelect');
       const profileId = select.value;
       if (!profileId) {
-          alert("الرجاء تحديد سيرة ذاتية لحذفها أولاً.");
+          showCyberAlert({
+              title: "تحديد السيرة الذاتية مطلوب",
+              message: "الرجاء تحديد سيرة ذاتية لحذفها من القائمة المنسدلة أولاً.",
+              type: "warning",
+              okText: "فهمت"
+          });
           return;
       }
-      if (!confirm("هل أنت متأكد أنك تريد حذف هذه السيرة الذاتية؟ لا يمكن التراجع عن هذا الإجراء.")) return;
       
-      const btn = btnEl || (typeof event !== 'undefined' ? event.currentTarget : null);
-      let originalHtml = "";
-      if (btn) {
-          originalHtml = btn.innerHTML;
-          btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
-          if(typeof lucide !== 'undefined') lucide.createIcons();
-          btn.disabled = true;
-      }
-
-      fetch('/api/v1/delete-cv-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile_id: parseInt(profileId) || profileId })
-      })
-      .then(r => r.json())
-      .then(data => {
-          if (data.success) {
-              if (select.selectedIndex >= 0) {
-                  select.options[select.selectedIndex].remove();
-              }
-              if (select.options.length > 0) {
-                  select.selectedIndex = 0;
-              }
-              alert("تم حذف السيرة الذاتية بنجاح.");
-          } else {
-              alert("فشل في حذف السيرة الذاتية: " + (data.message || "خطأ غير معروف"));
-          }
-      })
-      .catch(e => {
-          console.error("Delete profile error:", e);
-          alert("حدث خطأ أثناء حذف السيرة الذاتية.");
-      })
-      .finally(() => {
+      showCyberConfirm({
+          title: "حذف السيرة الذاتية",
+          message: "هل أنت متأكد من حذف هذه السيرة الذاتية نهائياً؟ لا يمكن التراجع عن هذا الإجراء.",
+          type: "danger",
+          confirmText: "تأكيد الحذف",
+          cancelText: "إلغاء"
+      }, function() {
+          const btn = btnEl || (typeof event !== 'undefined' ? event.currentTarget : null);
+          let originalHtml = "";
           if (btn) {
-              btn.innerHTML = originalHtml;
+              originalHtml = btn.innerHTML;
+              btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
               if(typeof lucide !== 'undefined') lucide.createIcons();
-              btn.disabled = false;
+              btn.disabled = true;
           }
+
+          fetch('/api/v1/delete-cv-profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ profile_id: parseInt(profileId) || profileId })
+          })
+          .then(r => r.json())
+          .then(data => {
+              if (data.success) {
+                  if (select.selectedIndex >= 0) {
+                      select.options[select.selectedIndex].remove();
+                  }
+                  if (select.options.length > 0) {
+                      select.selectedIndex = 0;
+                  }
+                  showCyberAlert({
+                      title: "تم الحذف بنجاح",
+                      message: "تم حذف السيرة الذاتية المحددة بنجاح.",
+                      type: "success",
+                      okText: "تم"
+                  });
+              } else {
+                  showCyberAlert({
+                      title: "تعذر الحذف",
+                      message: "فشل في حذف السيرة الذاتية: " + (data.message || "خطأ غير معروف"),
+                      type: "error",
+                      okText: "إغلاق"
+                  });
+              }
+          })
+          .catch(e => {
+              console.error("Delete profile error:", e);
+              showCyberAlert({
+                  title: "خطأ بالاتصال",
+                  message: "حدث خطأ أثناء حذف السيرة الذاتية. يرجى إعادة المحاولة.",
+                  type: "error",
+                  okText: "إغلاق"
+              });
+          })
+          .finally(() => {
+              if (btn) {
+                  btn.innerHTML = originalHtml;
+                  if(typeof lucide !== 'undefined') lucide.createIcons();
+                  btn.disabled = false;
+              }
+          });
       });
   }
 
@@ -1373,4 +1400,146 @@ window.submitQuickCv = async function() {
     if (btn) btn.innerText = '✨ حفظ واختيار';
   }
 };
+</script>
+
+<!-- Custom Arabic Cyberpunk Glassmorphism Modal Dialog -->
+<div id="cyberModal" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md transition-all duration-300 opacity-0">
+  <div class="relative w-full max-w-md bg-slate-900/95 border border-slate-700/80 shadow-[0_0_50px_rgba(0,240,255,0.15)] rounded-2xl p-6 overflow-hidden transform scale-95 transition-all duration-300" id="cyberModalBox">
+    <!-- Top Decorative Gradient Line -->
+    <div id="cyberModalBar" class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-rose-500"></div>
+    
+    <div class="flex items-start gap-4">
+      <div id="cyberModalIconBg" class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 shrink-0 shadow-inner">
+        <i id="cyberModalIcon" data-lucide="trash-2" class="w-6 h-6"></i>
+      </div>
+      <div class="flex-1 min-w-0 pt-0.5">
+        <h3 id="cyberModalTitle" class="text-base font-black text-white tracking-wide mb-1" dir="auto">تأكيد الإجراء</h3>
+        <p id="cyberModalMessage" class="text-xs text-slate-300 leading-relaxed font-medium" dir="auto">هل أنت متأكد من الاستمرار؟</p>
+      </div>
+    </div>
+    
+    <div class="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-slate-800/80">
+      <button id="cyberModalCancelBtn" type="button" onclick="closeCyberModal(false)" class="px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-800/80 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white transition-all cursor-pointer">
+        إلغاء
+      </button>
+      <button id="cyberModalConfirmBtn" type="button" onclick="closeCyberModal(true)" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-xs font-extrabold text-white shadow-lg shadow-red-950/50 hover:from-red-500 hover:to-rose-500 transition-all cursor-pointer">
+        تأكيد
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentModalCallback = null;
+
+function showCyberConfirm({ title, message, type = 'danger', confirmText = 'تأكيد الحذف', cancelText = 'إلغاء' }, onConfirm) {
+  const modal = document.getElementById('cyberModal');
+  const modalBox = document.getElementById('cyberModalBox');
+  const titleEl = document.getElementById('cyberModalTitle');
+  const msgEl = document.getElementById('cyberModalMessage');
+  const iconBg = document.getElementById('cyberModalIconBg');
+  const iconEl = document.getElementById('cyberModalIcon');
+  const cancelBtn = document.getElementById('cyberModalCancelBtn');
+  const confirmBtn = document.getElementById('cyberModalConfirmBtn');
+
+  if (!modal) {
+    if (confirm(message)) onConfirm();
+    return;
+  }
+
+  titleEl.innerText = title || "تأكيد الإجراء";
+  msgEl.innerText = message || "";
+  cancelBtn.innerText = cancelText;
+  confirmBtn.innerText = confirmText;
+  cancelBtn.style.display = 'inline-block';
+
+  if (type === 'danger') {
+    iconBg.className = "p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'trash-2');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-xs font-extrabold text-white shadow-lg shadow-red-950/50 hover:from-red-500 hover:to-rose-500 transition-all cursor-pointer";
+  } else if (type === 'warning') {
+    iconBg.className = "p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'alert-triangle');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-xs font-extrabold text-white shadow-lg shadow-amber-950/50 hover:from-amber-500 hover:to-orange-500 transition-all cursor-pointer";
+  } else {
+    iconBg.className = "p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'check-circle');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-xs font-extrabold text-white shadow-lg shadow-cyan-950/50 hover:from-cyan-500 hover:to-indigo-500 transition-all cursor-pointer";
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  currentModalCallback = onConfirm;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    modalBox.classList.remove('scale-95');
+    modalBox.classList.add('scale-100');
+  }, 10);
+}
+
+function showCyberAlert({ title, message, type = 'info', okText = 'موافق' }) {
+  const modal = document.getElementById('cyberModal');
+  const modalBox = document.getElementById('cyberModalBox');
+  const titleEl = document.getElementById('cyberModalTitle');
+  const msgEl = document.getElementById('cyberModalMessage');
+  const iconBg = document.getElementById('cyberModalIconBg');
+  const iconEl = document.getElementById('cyberModalIcon');
+  const cancelBtn = document.getElementById('cyberModalCancelBtn');
+  const confirmBtn = document.getElementById('cyberModalConfirmBtn');
+
+  if (!modal) {
+    alert(message);
+    return;
+  }
+
+  titleEl.innerText = title || "تنبيه";
+  msgEl.innerText = message || "";
+  confirmBtn.innerText = okText;
+  cancelBtn.style.display = 'none';
+
+  if (type === 'success') {
+    iconBg.className = "p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'check-circle-2');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-xs font-extrabold text-white shadow-lg shadow-emerald-950/50 hover:from-emerald-500 hover:to-teal-500 transition-all cursor-pointer";
+  } else if (type === 'error' || type === 'danger') {
+    iconBg.className = "p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'x-circle');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-xs font-extrabold text-white shadow-lg shadow-red-950/50 hover:from-red-500 hover:to-rose-500 transition-all cursor-pointer";
+  } else {
+    iconBg.className = "p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 shrink-0 shadow-inner";
+    iconEl.setAttribute('data-lucide', 'info');
+    confirmBtn.className = "px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 text-xs font-extrabold text-white shadow-lg shadow-cyan-950/50 hover:from-cyan-500 hover:to-indigo-500 transition-all cursor-pointer";
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  currentModalCallback = null;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    modalBox.classList.remove('scale-95');
+    modalBox.classList.add('scale-100');
+  }, 10);
+}
+
+function closeCyberModal(confirmed) {
+  const modal = document.getElementById('cyberModal');
+  const modalBox = document.getElementById('cyberModalBox');
+  if (!modal) return;
+  modal.classList.add('opacity-0');
+  modalBox.classList.remove('scale-100');
+  modalBox.classList.add('scale-95');
+  setTimeout(() => {
+    modal.classList.remove('flex');
+    modal.classList.add('hidden');
+    if (confirmed && currentModalCallback) {
+      const cb = currentModalCallback;
+      currentModalCallback = null;
+      cb();
+    }
+  }, 250);
+}
 </script>

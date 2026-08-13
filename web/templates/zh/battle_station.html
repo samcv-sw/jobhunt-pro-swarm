@@ -48,7 +48,7 @@
     background: rgba(0, 240, 255, 0.08);
     border: 1px solid rgba(0, 240, 255, 0.3);
     color: #00f0ff;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
 }
@@ -62,11 +62,11 @@
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #cbd5e1;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.25s ease;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
 }
 .bs-sound-btn:hover, .bs-sound-btn.active {
     background: rgba(168, 85, 247, 0.18);
@@ -110,7 +110,7 @@
 .scan-tooltip-popover {
     position: absolute;
     bottom: calc(100% + 14px);
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translateX(-50%) translateY(-6px);
     background: #090f1d;
     border: 1px solid #00f0ff;
@@ -129,7 +129,7 @@
     content: '';
     position: absolute;
     top: 100%;
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translateX(-50%);
     border-width: 8px;
     border-style: solid;
@@ -150,7 +150,7 @@
 .stat-tooltip-popover {
     position: absolute;
     bottom: calc(100% + 12px);
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translateX(-50%) translateY(-6px);
     background: #090f1d;
     border: 1px solid #00f0ff;
@@ -169,7 +169,7 @@
     content: '';
     position: absolute;
     top: 100%;
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translateX(-50%);
     border-width: 7px;
     border-style: solid;
@@ -183,7 +183,7 @@
     pointer-events: auto;
 }
 .stat-tooltip-popover .pop-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 800;
     color: #00f0ff;
     margin-block-end: 4px;
@@ -244,7 +244,7 @@
 
 .bs-actions { display: flex; gap: 10px; margin-block-end: 24px; flex-wrap: wrap; }
 .bs-btn {
-    padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif;
+    padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
     border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.07); color: #ffffff;
     cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
@@ -259,7 +259,7 @@
 .bs-btn.amber:hover { background: rgba(245, 158, 11, 0.28); box-shadow: 0 8px 22px rgba(245, 158, 11, 0.3); }
 .bs-btn.cyan { border-color: rgba(6, 182, 212, 0.45); color: #22d3ee; background: rgba(6, 182, 212, 0.14); }
 .bs-btn.cyan:hover { background: rgba(6, 182, 212, 0.28); box-shadow: 0 8px 22px rgba(6, 182, 212, 0.3); }
-.bs-btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+.bs-btn-sm { padding: 6px 12px; font-size: 14px; border-radius: 8px; }
 
 .bs-cta { background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(139, 92, 246, 0.18)); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 16px; padding: 22px; text-align: center; margin-block-end: 24px; box-shadow: 0 8px 28px rgba(59, 130, 246, 0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 .bs-cta-title { font-size: 20px; font-weight: 800; color: #ffffff; margin-block-end: 6px; }
@@ -273,7 +273,7 @@
 .bs-camp-card:hover { border-color: rgba(0, 240, 255, 0.35); background: rgba(255, 255, 255, 0.06); }
 .bs-camp-top { display: flex; justify-content: space-between; align-items: center; margin-block-end: 14px; flex-wrap: wrap; gap: 10px; }
 .bs-camp-name { font-size: 16px; font-weight: 800; color: #ffffff; margin-inline-end: 10px; }
-.bs-camp-id { font-size: 13px; color: #94a3b8; font-family: monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+.bs-camp-id { font-size: 14px; color: #94a3b8; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
 .bs-dot { display: inline-block; inline-size: 10px; block-size: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
 .bs-dot.green { color: #4ade80; background: #4ade80; }
 .bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
@@ -318,7 +318,7 @@
     background: #0f172a;
     border: 2px solid #475569;
     color: #64748b;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -338,7 +338,7 @@
     box-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
 }
 .bs-step-label {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     color: #94a3b8;
 }
@@ -385,10 +385,10 @@
 
 .bs-health-row { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.65) 100%); border: 1px solid rgba(0, 240, 255, 0.18); border-radius: 14px; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); cursor: help; backdrop-filter: blur(12px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25); }
 .bs-health-row:hover { border-color: rgba(0, 240, 255, 0.6); background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25); }
-.bs-health-row .stat-tooltip-popover { position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(8px); background: rgba(10, 16, 31, 0.97); border: 1px solid rgba(0, 240, 255, 0.5); border-radius: 14px; padding: 14px 16px; inline-size: 285px; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(0, 240, 255, 0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease; z-index: 99999; text-align: start; backdrop-filter: blur(20px); }
-.bs-health-row .stat-tooltip-popover::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 7px; border-style: solid; border-color: rgba(0, 240, 255, 0.5) transparent transparent transparent; }
+.bs-health-row .stat-tooltip-popover { position: absolute; bottom: calc(100% + 12px); inset-inline-start: 50%; transform: translateX(-50%) translateY(8px); background: rgba(10, 16, 31, 0.97); border: 1px solid rgba(0, 240, 255, 0.5); border-radius: 14px; padding: 14px 16px; inline-size: 285px; box-shadow: 0 16px 40px rgba(0,0,0,0.85), 0 0 25px rgba(0, 240, 255, 0.25); pointer-events: none; opacity: 0; visibility: hidden; transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease; z-index: 99999; text-align: start; backdrop-filter: blur(20px); }
+.bs-health-row .stat-tooltip-popover::after { content: ''; position: absolute; top: 100%; inset-inline-start: 50%; transform: translateX(-50%); border-width: 7px; border-style: solid; border-color: rgba(0, 240, 255, 0.5) transparent transparent transparent; }
 .bs-health-row:hover .stat-tooltip-popover { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-.bs-info-badge { font-size: 11px; font-weight: 800; color: rgba(0, 240, 255, 0.8); background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 50%; inline-size: 18px; block-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 6px; transition: all 0.2s ease; }
+.bs-info-badge { font-size: 14px; font-weight: 800; color: rgba(0, 240, 255, 0.8); background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 50%; inline-size: 18px; block-size: 18px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: 6px; transition: all 0.2s ease; }
 .bs-health-row:hover .bs-info-badge { background: rgba(0, 240, 255, 0.25); color: #ffffff; box-shadow: 0 0 8px rgba(0, 240, 255, 0.5); }
 .bs-health-label { font-size: 13.5px; color: #f1f5f9; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .bs-health-val { font-size: 16px; font-weight: 900; padding: 3px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); font-variant-numeric: tabular-nums; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
@@ -414,7 +414,7 @@
     border: 1px solid rgba(0, 240, 255, 0.25);
     border-radius: 12px;
     padding: 14px;
-    font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', 'Fira Code', 'Courier New', monospace;
     font-size: 12.5px;
     color: #00f0ff;
     max-block-size: 260px;
@@ -458,13 +458,13 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.15);
     color: #94a3b8;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 700;
     padding: 4px 10px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
 }
 .bs-speed-btn:hover, .bs-speed-btn.active {
     background: rgba(0, 240, 255, 0.18);
@@ -482,7 +482,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -498,7 +498,7 @@
     background: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
     padding: 1px 6px;
-    font-size: 11px;
+    font-size: 14px;
 }
 .bs-copy-btn {
     background: rgba(255, 255, 255, 0.06);
@@ -506,7 +506,7 @@
     color: #94a3b8;
     border-radius: 6px;
     padding: 2px 7px;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -537,8 +537,8 @@
     margin-block-end: 10px;
 }
 .bs-cmd-tag {
-    font-family: monospace;
-    font-size: 12px;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;
+    font-size: 14px;
     font-weight: 800;
     color: #00f0ff;
     background: rgba(0, 240, 255, 0.1);
@@ -547,7 +547,7 @@
     border: 1px solid rgba(0, 240, 255, 0.3);
 }
 .bs-cmd-status {
-    font-size: 11px;
+    font-size: 14px;
     font-weight: 700;
     padding: 2px 8px;
     border-radius: 10px;
@@ -605,12 +605,12 @@
     </div>
     
     <div class="bs-scan-target-box" onclick="this.classList.toggle('active-mobile')" style="position: relative; text-align: center; background: rgba(0,0,0,.4); padding: 12px 22px; border-radius: 14px; border: 1px solid rgba(0,240,255,.25); min-inline-size: 250px; cursor: help;">
-      <div style="font-size: 13px; color: #60a5fa; font-weight: 800; text-transform: uppercase; margin-block-end: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <div style="font-size: 14px; color: #60a5fa; font-weight: 800; text-transform: uppercase; margin-block-end: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
         <span>Next Auto-Scan Target</span>
-        <span style="font-size: 12px; background: rgba(96,165,250,0.2); padding: 1px 6px; border-radius: 20px; color: #60a5fa;">ℹ️</span>
+        <span style="font-size: 14px; background: rgba(96,165,250,0.2); padding: 1px 6px; border-radius: 20px; color: #60a5fa;">ℹ️</span>
       </div>
-      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family: 'Consolas', monospace; line-height: 1;">01:15</div>
-      <div id="autopilot-status" style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-block-start: 6px;">Scanning targets...</div>
+      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', monospace; line-height: 1;">01:15</div>
+      <div id="autopilot-status" style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-block-start: 6px;">Scanning targets...</div>
       
       <!-- Speed selector buttons -->
       <div style="display: flex; gap: 6px; margin-block-start: 10px; justify-content: center; flex-wrap: wrap;">
@@ -831,7 +831,7 @@
     <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
       <input type="text" id="bsSearchInput" onkeyup="filter投递活动()" placeholder="🔍 Search campaign ID..." dir="auto" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 14px; color: #fff; font-size: 13.5px; outline: none; min-inline-size: 200px;" dir="auto">
       
-      <select id="bsSortSelect" onchange="sort投递活动()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 13px; font-weight:700; outline: none; cursor:pointer;">
+      <select id="bsSortSelect" onchange="sort投递活动()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 14px; font-weight:700; outline: none; cursor:pointer;">
         <option value="newest">🗓️ Newest First</option>
         <option value="progress">📊 Highest Progress</option>
         <option value="sent">📨 Most Sent</option>
@@ -1072,7 +1072,7 @@
 
 <!-- ═══════════════ QUICK EDIT PROFILE MODAL ═══════════════ -->
 <div id="quickEditModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #00f0ff; margin: 0; display: flex; align-items: center; gap: 10px;">
         ✏️ Edit Target Profile & Stack
@@ -1503,60 +1503,52 @@ function startAutopilot() {
   if (autopilotTimer) clearInterval(autopilotTimer);
 
   let targetTime = getNextScanTarget();
+  let isTickRunning = false;
 
-  autopilotTimer = setInterval(async () => {
-    const now = 日期.now();
+  autopilotTimer = setInterval(() => {
+    const now = Date.now();
     let remainingMs = targetTime - now;
 
     if (remainingMs <= 0) {
-      clearInterval(autopilotTimer);
-      countdownEl.textContent = "00:00";
-      countdownEl.style.color = "#fbbf24";
-      statusEl.textContent = "🚀 Scanning jobs and auto-dispatching...";
-      statusEl.style.color = "#fbbf24";
-      appendTerminalLog('AUTOPILOT', 'Scheduled interval triggered. Initiating cloud-tick...');
-      
       targetTime = resetNextScanTarget(AUTOPILOT_CYCLE_MS);
+      remainingMs = targetTime - now;
 
-      try {
-        const res = await fetch('/api/v2/cloud-tick', {
+      if (!isTickRunning) {
+        isTickRunning = true;
+        if (statusEl) {
+          statusEl.textContent = "🚀 Scanning jobs and auto-dispatching...";
+          statusEl.style.color = "#fbbf24";
+        }
+        appendTerminalLog('AUTOPILOT', 'Scheduled interval triggered. Initiating cloud-tick...');
+
+        fetch('/api/v2/cloud-tick', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ company_limit: 3, max_campaigns: 3 })
+        }).then(res => {
+          if (res.ok) {
+            bsShowToast('🚀 AI scan dispatched in background!', 'success');
+            appendTerminalLog('SUCCESS', 'Autopilot iteration completed successfully.');
+          }
+        }).catch(err => {
+          console.error(err);
+        }).finally(() => {
+          isTickRunning = false;
+          if (statusEl) {
+            statusEl.textContent = "Auto-scanning for job matches...";
+            statusEl.style.color = "#94a3b8";
+          }
+          if (countdownEl) countdownEl.style.color = "#00f0ff";
+          refreshLiveMetrics();
+          startLivePolling(10);
         });
-        
-        if (res.ok) {
-          bsShowToast('🚀 AI scan dispatched in background!', 'success');
-          appendTerminalLog('SUCCESS', 'Autopilot iteration completed successfully.');
-          statusEl.textContent = "🔍 AI swarm scanning background opportunities...";
-          statusEl.style.color = "#4ade80";
-          countdownEl.style.color = "#00f0ff";
-          
-          startAutopilot();
-          startLivePolling(15);
-        } else {
-          throw new Error(`HTTP Error ${res.status}`);
-        }
-      } catch (err) {
-        console.error(err);
-        appendTerminalLog('ERROR', 'Autopilot tick retry initiated.');
-        statusEl.textContent = "❌ Scan timed out or failed. Retrying...";
-        statusEl.style.color = "#ef4444";
-        countdownEl.style.color = "#ef4444";
-        setTimeout(() => {
-          resetNextScanTarget(30000);
-          startAutopilot();
-        }, 3000);
       }
-    } else {
-      const totalSecs = Math.ceil(remainingMs / 1000);
-      const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
-      const secs = (totalSecs % 60).toString().padStart(2, '0');
-      countdownEl.textContent = `${mins}:${secs}`;
-      statusEl.textContent = "Auto-scanning for job matches...";
-      statusEl.style.color = "#94a3b8";
-      countdownEl.style.color = "#00f0ff";
     }
+
+    const totalSecs = Math.max(0, Math.ceil(remainingMs / 1000));
+    const mins = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const secs = (totalSecs % 60).toString().padStart(2, '0');
+    countdownEl.textContent = `${mins}:${secs}`;
   }, 1000);
 }
 
@@ -1854,7 +1846,7 @@ function saveCustomSkill(e) {
 
 <!-- /goal Modal -->
 <div id="goalModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(34, 197, 94, 0.4); box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(34, 197, 94, 0.4); box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #4ade80; margin: 0; display: flex; align-items: center; gap: 10px;">
         🎯 /goal — Autonomous Goal Engine
@@ -1880,7 +1872,7 @@ function saveCustomSkill(e) {
 
 <!-- /grill-me Modal -->
 <div id="grillModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 40px rgba(6, 182, 212, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 40px rgba(6, 182, 212, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #22d3ee; margin: 0; display: flex; align-items: center; gap: 10px;">
         🔥 /grill-me — Strategy Grill & Alignment
@@ -1914,7 +1906,7 @@ function saveCustomSkill(e) {
 
 <!-- /teamwork-preview Modal -->
 <div id="teamworkModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 0 40px rgba(168, 85, 247, 0.25); border-radius: 18px; max-width: 620px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 0 40px rgba(168, 85, 247, 0.25); border-radius: 18px; max-width: 620px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #c084fc; margin: 0; display: flex; align-items: center; gap: 10px;">
         👥 /teamwork-preview — Multi-Agent Swarm
@@ -1925,23 +1917,23 @@ function saveCustomSkill(e) {
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-block-end: 20px;">
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(0,240,255,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #00f0ff; margin-block-end: 4px;">🔍 Scout Agent</div>
-        <div style="font-size: 12px; color: #94a3b8;">Scours job boards & identifies target recruiter emails.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Active & Monitoring</div>
+        <div style="font-size: 14px; color: #94a3b8;">Scours job boards & identifies target recruiter emails.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Active & Monitoring</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(168,85,247,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #c084fc; margin-block-end: 4px;">✍️ Resume Tailor Agent</div>
-        <div style="font-size: 12px; color: #94a3b8;">Crafts pitch letters & tailors resume highlights per job.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Ready for Synthesis</div>
+        <div style="font-size: 14px; color: #94a3b8;">Crafts pitch letters & tailors resume highlights per job.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Ready for Synthesis</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #4ade80; margin-block-end: 4px;">📨 Outreach Dispatcher</div>
-        <div style="font-size: 12px; color: #94a3b8;">Verifies SMTP deliverability & dispatches cold emails.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 SMTP Server Connected</div>
+        <div style="font-size: 14px; color: #94a3b8;">Verifies SMTP deliverability & dispatches cold emails.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 SMTP Server Connected</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #fbbf24; margin-block-end: 4px;">🛡️ Telemetry & Audit Agent</div>
-        <div style="font-size: 12px; color: #94a3b8;">Tracks open rates, response telemetry, & logs events.</div>
-        <div style="font-size: 11px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Tracking Engagements</div>
+        <div style="font-size: 14px; color: #94a3b8;">Tracks open rates, response telemetry, & logs events.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 Tracking Engagements</div>
       </div>
     </div>
 
@@ -1953,7 +1945,7 @@ function saveCustomSkill(e) {
 
 <!-- /learn Modal -->
 <div id="learnModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 40px rgba(245, 158, 11, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 40px rgba(245, 158, 11, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #fbbf24; margin: 0; display: flex; align-items: center; gap: 10px;">
         🧠 /learn — Agent Learning & Rule Matrix
@@ -1973,11 +1965,11 @@ function saveCustomSkill(e) {
     <ul id="learnRulesList" style="list-style: none; padding: 0; margin: 0; max-block-size: 180px; overflow-y: auto;">
       <li style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-block-end: 6px; display: flex; justify-content: space-between; align-items: center; color: #e2e8f0; font-size: 13.5px;">
         <span>🧠 Enforce CSS Logical Properties across all layouts</span>
-        <span style="color:#4ade80; font-size:12px; font-weight:700;">Pinned</span>
+        <span style="color:#4ade80; font-size: 14px; font-weight:700;">Pinned</span>
       </li>
       <li style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); margin-block-end: 6px; display: flex; justify-content: space-between; align-items: center; color: #e2e8f0; font-size: 13.5px;">
         <span>🧠 Zero placeholder code guarantee on all outputs</span>
-        <span style="color:#4ade80; font-size:12px; font-weight:700;">Pinned</span>
+        <span style="color:#4ade80; font-size: 14px; font-weight:700;">Pinned</span>
       </li>
     </ul>
 
@@ -1989,7 +1981,7 @@ function saveCustomSkill(e) {
 
 <!-- /workflow-skill-creator Modal -->
 <div id="skillCreatorModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.4); box-shadow: 0 0 40px rgba(0, 240, 255, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Inter', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.4); box-shadow: 0 0 40px rgba(0, 240, 255, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #00f0ff; margin: 0; display: flex; align-items: center; gap: 10px;">
         🛠️ /workflow-skill-creator — Custom Skill Creator

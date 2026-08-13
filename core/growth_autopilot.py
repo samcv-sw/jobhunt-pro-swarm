@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 
 # Track last execution to prevent flooding the queue
 _last_run = {
-    "seo": None,
-    "b2b": None,
-    "social": None,
-    "viral_video": None,
-    "influencer": None,
+    "seo": datetime.now(),
+    "b2b": datetime.now(),
+    "social": datetime.now(),
+    "viral_video": datetime.now(),
+    "influencer": datetime.now(),
 }
 
 

@@ -1,5 +1,8 @@
 database is locked
 Traceback (most recent call last):
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1138, in run_campaign
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1110, in run_campaign
+    sent_count, failed_count, yield_result = await _send_campaign_emails(
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 972, in _send_campaign_emails
     conn.execute(
 sqlite3.OperationalError: database is locked

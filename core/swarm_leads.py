@@ -23,8 +23,13 @@ USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0"
 ]
 
+_swarm_leads_db_initialized = False
+
 def init_db():
     """Ensure harvested_leads table exists."""
+    global _swarm_leads_db_initialized
+    if _swarm_leads_db_initialized:
+        return
     try:
         with connect() as conn:
             conn.execute("""
@@ -41,6 +46,7 @@ def init_db():
                 )
             """)
             conn.commit()
+            _swarm_leads_db_initialized = True
             logger.info("[SWARM LEADS] Database initialized successfully.")
     except Exception as e:
         logger.error(f"[SWARM LEADS] DB init error: {e}", exc_info=True)
@@ -488,5 +494,4 @@ def trigger_outreach_for_leads(lead_ids: list[int], campaign_name: str) -> dict:
         logger.error(f"[SWARM LEADS] Outreach trigger failed: {e}", exc_info=True)
         return {"status": "error", "error": str(e)}
 
-# Auto-initialize DB tables on startup import
-init_db()
+# DB initialization is called on demand by function invocations

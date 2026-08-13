@@ -401,13 +401,13 @@
         <button onclick="closePreviewModal(); document.getElementById('btnLaunch').click();" class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-xs font-black transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] flex items-center gap-1.5 cursor-pointer">
           <i data-lucide="sparkles" class="w-4 h-4"></i> Launch Campaign Now
         </button>
-      </div>
     </div>
   </div>
 </div>
+</div>
 
 <form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto">
-  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length  dir="auto"> 0 else '' }}" dir="auto">
+  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length > 0 else '' }}" dir="auto">
   <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
   <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
   <input type="hidden" name="target_locations" id="hiddenTargetLocations" value="Lebanon, UAE, Remote" dir="auto">
@@ -2049,15 +2049,15 @@ function autoFillProfile(p, filename) {
       p.skills = p.skills.split(',').map(s => s.trim()).filter(Boolean);
     }
 
-    const nameVal = p.full_name || p.name || p.candidate_name || 'Sam Salameh';
+    const nameVal = p.full_name || p.name || p.candidate_name || 'Alex Johnson';
     if (document.getElementById('fullNameInput')) document.getElementById('fullNameInput').value = nameVal;
     if (document.getElementById('hiddenProfileName')) document.getElementById('hiddenProfileName').value = nameVal;
     if (document.getElementById('paperFullName')) document.getElementById('paperFullName').textContent = nameVal;
 
-    const emailVal = p.email || 'sam.dev1@hotmail.com';
+    const emailVal = p.email || 'candidate.demo@example.com';
     if (document.getElementById('emailInput')) document.getElementById('emailInput').value = emailVal;
 
-    const phoneVal = cleanPhoneNumber(p.phone || '+961 70 841 009');
+    const phoneVal = cleanPhoneNumber(p.phone || '+1 (555) 019-2831');
     if (document.getElementById('phoneInput')) document.getElementById('phoneInput').value = phoneVal;
 
     const locVal = p.location || 'Beirut, Lebanon';
@@ -2178,9 +2178,9 @@ async function triggerAIAutoFill(e) {
       if (data.profiles && data.profiles.length > 0) {
         const prof = data.profiles[0];
         autoFillProfile({
-          full_name: prof.profile_name || 'Sam Salameh',
-          email: prof.email || 'sam.dev1@hotmail.com',
-          phone: prof.phone || '+961 70 841 009',
+          full_name: prof.profile_name || 'Alex Johnson',
+          email: prof.email || 'candidate.demo@example.com',
+          phone: prof.phone || '+1 (555) 019-2831',
           location: prof.target_locations || 'Beirut, Lebanon',
           target_titles: prof.target_titles || 'Senior Network Engineer',
           skills: prof.skills || 'Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls'

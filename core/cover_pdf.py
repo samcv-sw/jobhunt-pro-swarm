@@ -11,10 +11,10 @@ from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
 
-CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "JobHunt Pro Team")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
-CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "www.linkedin.com/in/sam-salameh")
+CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Alex Johnson")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "candidate.demo@example.com")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2831")
+CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "www.linkedin.com/in/alex-johnson-demo")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
 CV_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 

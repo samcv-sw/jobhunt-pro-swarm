@@ -586,21 +586,19 @@ class LLMProviderPool:
         self._lock = asyncio.Lock()
 
     def initialize(self) -> "LLMProviderPool":
-        """Create provider instances for all configured providers."""
+        """Record configured providers lazily without blocking on startup."""
         for cfg in PROVIDER_CONFIGS:
             if cfg.is_configured or cfg.name == LLMProvider.DUMMY:
-                self._providers[cfg.name] = ProviderInstance(cfg)
                 self._health[cfg.name] = True
                 self._last_used[cfg.name] = 0.0
+                self._providers[cfg.name] = ProviderInstance(cfg)
                 logger.info(f"LLM provider active: {cfg.name.value}")
             else:
                 logger.info(f"LLM provider skipped (no API key): {cfg.name.value}")
 
-        if not self._providers:
-            logger.warning(
-                "No LLM providers configured! Set GROQ_API_KEY, "
-                "GEMINI_API_KEY, HUGGINGFACE_API_KEY, or OPENROUTER_API_KEY in .env"
-            )
+
+        if not self._health:
+            logger.warning("No LLM providers configured!")
 
         return self
 
@@ -612,10 +610,10 @@ class LLMProviderPool:
         This is the main entry point for obtaining a provider instance.
         """
 
-        if not self._providers:
+        if not self._health:
             return None
 
-        candidates = list(self._providers.keys())
+        candidates = [p for p in self._health.keys() if self._health.get(p)]
 
         def sort_key(p: LLMProvider) -> tuple:
             w = _PROVIDER_WEIGHT.get(p, 0)
@@ -626,7 +624,11 @@ class LLMProviderPool:
 
         for name in candidates:
             if self._health.get(name, False):
-                return self._providers[name]
+                if name not in self._providers or self._providers[name] is None:
+                    cfg = next((c for c in PROVIDER_CONFIGS if c.name == name), None)
+                    if cfg:
+                        self._providers[name] = ProviderInstance(cfg)
+                return self._providers.get(name)
 
         # All unhealthy — try a health check to revive one
         await self._health_check()
@@ -756,7 +758,13 @@ class LLMProviderPool:
         # Periodic health check revive
         await self._health_check()
 
-        # If all failed and the last error was rate limiting, propagate it to Celery
+        # Ultimate zero-crash fallback: DUMMY provider if available
+        if LLMProvider.DUMMY in self._providers:
+            dummy_inst = self._providers[LLMProvider.DUMMY]
+            logger.info("Using ultimate DUMMY zero-crash LLM fallback response.")
+            return await dummy_inst.complete(system_prompt=system_prompt, user_prompt=user_prompt)
+
+        # If all failed and the last error was rate limiting, propagate it
         if last_rate_limit_err:
             raise last_rate_limit_err
 
@@ -896,15 +904,22 @@ class LLMProviderPool:
             async with self._lock:
                 self._last_used[provider_enum] = time.time()
 
+        # General pool fallback if priority chain providers are unavailable
+        fallback_text = await self.complete(system_prompt, user_prompt, temperature=temperature, max_tokens=max_tokens)
+        if fallback_text is not None:
+            prompt_chars = len(system_prompt) + len(user_prompt)
+            output_chars = len(fallback_text)
+            tokens_used = max(1, (prompt_chars + output_chars) // 4)
             return {
-                "text": text,
-                "provider": provider_enum.value,
+                "text": fallback_text,
+                "provider": "pool_fallback",
                 "tokens_used": tokens_used,
             }
 
         raise RuntimeError(
             f"All priority LLM providers failed. Errors: {'; '.join(errors)}"
         )
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

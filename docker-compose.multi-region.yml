@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # ═══ GEOGRAPHIC EDGE LOAD BALANCER & REVERSE PROXY ═══
+  caddy-edge:
+    image: caddy:2-alpine
+    container_name: jobhunt-caddy-edge
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app-primary-us
+      - app-secondary-eu
+    networks:
+      - global-mesh
+
+  # ═══ PRIMARY APP CLUSTER (US EAST / MENA) ═══
+  app-primary-us:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobhunt-app-primary
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - REGION=us-east-1
+      - DATABASE_URL=postgresql://jobhunt:sovereign_pass@db-primary:5432/jobhunt_db
+      - REDIS_URL=redis://redis-cluster-master:6379/0
+      - PA_API_TOKEN=${PA_API_TOKEN}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - global-mesh
+
+  # ═══ SECONDARY APP CLUSTER (EU WEST / GULF HIGH-AVAILABILITY) ═══
+  app-secondary-eu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobhunt-app-secondary
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - REGION=eu-west-1
+      - DATABASE_URL=postgresql://jobhunt:sovereign_pass@db-primary:5432/jobhunt_db
+      - REDIS_URL=redis://redis-cluster-master:6379/0
+      - PA_API_TOKEN=${PA_API_TOKEN}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - global-mesh
+
+  # ═══ HIGH-THROUGHPUT REDIS CLUSTER ═══
+  redis-cluster-master:
+    image: redis:7-alpine
+    container_name: jobhunt-redis-master
+    command: redis-server --appendonly yes --requirepass sovereign_redis_pass
+    volumes:
+      - redis_data:/data
+    expose:
+      - "6379"
+    networks:
+      - global-mesh
+
+networks:
+  global-mesh:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+  redis_data:

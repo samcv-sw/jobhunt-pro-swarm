@@ -161,3 +161,28 @@ async def websocket_war_room(websocket: WebSocket):
     except WebSocketDisconnect:
         pass
 
+
+@router.websocket("/sdr-progress/{campaign_id}")
+async def websocket_sdr_progress(websocket: WebSocket, campaign_id: str):
+    """
+    Live streaming WebSocket endpoint for real-time SDR lead scraping and outreach progress.
+    """
+    await manager.connect(f"sdr_{campaign_id}", websocket)
+    try:
+        await websocket.send_json({
+            "event": "sdr_connected",
+            "campaign_id": campaign_id,
+            "status": "active",
+            "message": f"Real-time SDR Broadcast stream active for campaign {campaign_id}"
+        })
+        while True:
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_json({"event": "pong"})
+    except WebSocketDisconnect:
+        manager.disconnect(f"sdr_{campaign_id}", websocket)
+    except Exception as e:
+        logger.error(f"SDR WebSocket error for campaign {campaign_id}: {e}")
+        manager.disconnect(f"sdr_{campaign_id}", websocket)
+
+

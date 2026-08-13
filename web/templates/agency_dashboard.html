@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunt Pro — لوحة تحكم الوكالات والشركات (Agency Portal)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070a11;
+            --card-bg: rgba(18, 26, 43, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --primary-accent: #00f2fe;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 2rem;
+            background: rgba(10, 14, 23, 0.9);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary-accent);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin-inline: auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-block-start: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(16px);
+        }
+
+        .stat-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-block-start: 0.5rem;
+            color: var(--primary-accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="brand">🚀 Agency White-Label Portal</div>
+        <div>
+            <span style="color: var(--text-muted);">نطاق الوكالة:</span> 
+            <strong style="color: #fff;">leads.growthagency.com</strong>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📊 لوحة إدارة عملاء الوكالة (Multi-Client Dashboard)</h2>
+        <div class="grid">
+            <div class="card">
+                <div style="color: var(--text-muted);">العملاء النشطون</div>
+                <div class="stat-val">12 شركة</div>
+            </div>
+            <div class="card">
+                <div style="color: var(--text-muted);">المقاعد المتاحة</div>
+                <div class="stat-val">25 مقعد</div>
+            </div>
+            <div class="card">
+                <div style="color: var(--text-muted);">إجمالي الحملات النشطة</div>
+                <div class="stat-val">48 حملة</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

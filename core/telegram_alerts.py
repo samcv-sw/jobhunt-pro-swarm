@@ -17,13 +17,19 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 
 
+import time
+
+_TELEGRAM_COOLDOWN_UNTIL = 0
+
+
 def _is_configured() -> bool:
     return bool(TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)
 
 
 def _send_message(text: str, parse_mode: str = "HTML") -> bool:
     """Send a message to Telegram via HTTP. Returns True on success."""
-    if not _is_configured():
+    global _TELEGRAM_COOLDOWN_UNTIL
+    if not _is_configured() or time.time() < _TELEGRAM_COOLDOWN_UNTIL:
         return False
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
@@ -39,6 +45,15 @@ def _send_message(text: str, parse_mode: str = "HTML") -> bool:
         r = requests.post(url, json=payload, timeout=10)
         if r.status_code == 200:
             return True
+        if r.status_code == 429:
+            try:
+                data = r.json()
+                retry_after = data.get("parameters", {}).get("retry_after", 300)
+                _TELEGRAM_COOLDOWN_UNTIL = time.time() + retry_after
+                logger.warning(f"Telegram API 429 rate limit hit. Cooldown active for {retry_after}s.")
+            except Exception:
+                _TELEGRAM_COOLDOWN_UNTIL = time.time() + 300
+            return False
         logger.warning(f"Telegram send failed: HTTP {r.status_code} — {r.text[:200]}")
         return False
     except Exception as e:

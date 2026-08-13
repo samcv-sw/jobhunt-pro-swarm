@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from backend.auth import _IS_TESTING
 from backend.database import async_session
+from sqlalchemy import text as _text
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +108,7 @@ async def brevo_bounce_webhook(request: Request) -> dict:
         if not isinstance(events, list):
             events = [events]
         processed = 0
-        from sqlalchemy import text as _text
+        from core.email_verifier import suppress_bounced_email
 
         db_updates = []
         for event in events:
@@ -116,6 +117,7 @@ async def brevo_bounce_webhook(request: Request) -> dict:
             if email and event_type in ("hard_bounce", "soft_bounce", "spam", "unsubscribe"):
                 logger.warning(f"[Brevo Webhook] {event_type} for {email}")
                 db_updates.append(email)
+                suppress_bounced_email(email, f"brevo_{event_type}")
                 processed += 1
 
         if db_updates:
@@ -128,9 +130,17 @@ async def brevo_bounce_webhook(request: Request) -> dict:
                     await session.commit()
                 except Exception as db_err:
                     await session.rollback()
-                    logger.error(f"[Brevo Webhook] Database error: {db_err}")
-                    await log_to_dlq(events, db_err, "brevo")
-                    raise
+                    if "no such column: email_bounced" in str(db_err).lower():
+                        try:
+                            await session.execute(_text("ALTER TABLE users ADD COLUMN email_bounced INTEGER DEFAULT 0"))
+                            await session.execute(_text(query), params)
+                            await session.commit()
+                        except Exception as alter_err:
+                            await session.rollback()
+                            logger.warning(f"[Brevo Webhook] Column auto-add failed gracefully: {alter_err}")
+                    else:
+                        logger.error(f"[Brevo Webhook] Database error: {db_err}")
+                        await log_to_dlq(events, db_err, "brevo")
         return {"status": "ok", "processed": processed}
     except Exception as e:
         logger.error(f"Brevo webhook error: {e}")
@@ -146,6 +156,7 @@ async def sendgrid_bounce_webhook(request: Request) -> dict:
             events = [events]
         processed = 0
         from sqlalchemy import text as _text
+        from core.email_verifier import suppress_bounced_email
 
         db_updates = []
         for event in events:
@@ -154,6 +165,7 @@ async def sendgrid_bounce_webhook(request: Request) -> dict:
             if email and event_type in ("bounce", "spamreport", "unsubscribe", "group_unsubscribe"):
                 logger.warning(f"[SendGrid Webhook] {event_type} for {email}")
                 db_updates.append(email)
+                suppress_bounced_email(email, f"sendgrid_{event_type}")
                 processed += 1
 
         if db_updates:
@@ -166,9 +178,17 @@ async def sendgrid_bounce_webhook(request: Request) -> dict:
                     await session.commit()
                 except Exception as db_err:
                     await session.rollback()
-                    logger.error(f"[SendGrid Webhook] Database error: {db_err}")
-                    await log_to_dlq(events, db_err, "sendgrid")
-                    raise
+                    if "no such column: email_bounced" in str(db_err).lower():
+                        try:
+                            await session.execute(_text("ALTER TABLE users ADD COLUMN email_bounced INTEGER DEFAULT 0"))
+                            await session.execute(_text(query), params)
+                            await session.commit()
+                        except Exception as alter_err:
+                            await session.rollback()
+                            logger.warning(f"[SendGrid Webhook] Column auto-add failed gracefully: {alter_err}")
+                    else:
+                        logger.error(f"[SendGrid Webhook] Database error: {db_err}")
+                        await log_to_dlq(events, db_err, "sendgrid")
         return {"status": "ok", "processed": processed}
     except Exception as e:
         logger.error(f"SendGrid webhook error: {e}")

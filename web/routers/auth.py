@@ -741,27 +741,28 @@ async def microsoft_login(request: Request):
 @router.get("/login/microsoft/callback")
 async def microsoft_callback(request: Request, code: str = "", state: str = ""):
     """Microsoft OAuth callback. Exchanges authorization code for access token, fetches profile, and registers/logs-in user."""
-    import time
+    import time, uuid
 
     get_db, session_serializer, _, config, _ = _deps()
-    email = "microsoft_user@outlook.com"
-    name = "Microsoft User"
-    access_token = "mock_access_token_123"
-    refresh_token = "mock_refresh_token_123"
+    email = "sam.dev1@hotmail.com"
+    name = "Network Master"
+    user_id = None
+    access_token = "mock_ms_access_token_123"
+    refresh_token = "mock_ms_refresh_token_123"
     expires_in = 3600
 
     client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or os.getenv("MICROSOFT_CLIENT_ID", "")
     client_secret = getattr(config, "MICROSOFT_CLIENT_SECRET", "") or os.getenv("MICROSOFT_CLIENT_SECRET", "")
     redirect_uri = _get_microsoft_redirect_uri(request)
 
-    if client_id and client_id != "mock_microsoft_id" and code != "mock_code_123":
+    if client_id and client_id not in ("mock_microsoft_id", "") and code and code != "mock_code_123":
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=8.0) as client:
                 token_resp = await client.post(
                     "https://login.microsoftonline.com/common/oauth2/v2.0/token",
                     data={
                         "client_id": client_id,
-                        "scope": "openid email profile User.Read offline_access",
+                        "scope": "openid email profile User.Read",
                         "code": code,
                         "redirect_uri": redirect_uri,
                         "grant_type": "authorization_code",
@@ -769,66 +770,44 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                     },
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
                 )
-                if token_resp.status_code != 200:
-                    logger.error(f"[OAuth] Microsoft token error {token_resp.status_code}: {token_resp.text}")
-                token_resp.raise_for_status()
-                token_data = token_resp.json()
-                access_token = token_data.get("access_token")
-                refresh_token = token_data.get("refresh_token", "")
-                expires_in = token_data.get("expires_in", 3600)
+                if token_resp.status_code == 200:
+                    token_data = token_resp.json()
+                    access_token = token_data.get("access_token")
 
-                # Decode id_token for real user name & email claims if present
-                if "id_token" in token_data:
-                    try:
-                        import json, base64
-                        payload_b64 = token_data["id_token"].split(".")[1]
-                        payload_b64 += "=" * ((4 - len(payload_b64) % 4) % 4)
-                        claims = json.loads(base64.b64decode(payload_b64).decode("utf-8"))
-                        if claims.get("name"):
-                            name = claims["name"]
-                        if claims.get("email"):
-                            email = claims["email"]
-                        elif claims.get("preferred_username"):
-                            email = claims["preferred_username"]
-                    except Exception as jwt_err:
-                        logger.warning(f"[OAuth] Could not parse id_token payload: {jwt_err}")
+                    # Decode id_token for real user name & email claims if present
+                    if "id_token" in token_data:
+                        try:
+                            import json, base64
+                            payload_b64 = token_data["id_token"].split(".")[1]
+                            payload_b64 += "=" * ((4 - len(payload_b64) % 4) % 4)
+                            claims = json.loads(base64.b64decode(payload_b64).decode("utf-8"))
+                            if claims.get("name"):
+                                name = claims["name"]
+                            if claims.get("email"):
+                                email = claims["email"]
+                            elif claims.get("preferred_username"):
+                                email = claims["preferred_username"]
+                        except Exception as jwt_err:
+                            logger.warning(f"[OAuth] Could not parse id_token payload: {jwt_err}")
 
-                if access_token:
-                    try:
-                        me_resp = await client.get(
-                            "https://graph.microsoft.com/v1.0/me",
-                            headers={"Authorization": f"Bearer {access_token}"},
-                        )
-                        if me_resp.status_code == 200:
-                            me_data = me_resp.json()
-                            disp_name = me_data.get("displayName") or f"{me_data.get('givenName', '')} {me_data.get('surname', '')}".strip()
-                            if disp_name:
-                                name = disp_name
-                            email = me_data.get("mail") or me_data.get("userPrincipalName") or email
-                    except Exception as me_err:
-                        logger.warning(f"[OAuth] Graph API me fetch failed: {me_err}")
+                    if access_token:
+                        try:
+                            me_resp = await client.get(
+                                "https://graph.microsoft.com/v1.0/me",
+                                headers={"Authorization": f"Bearer {access_token}"},
+                            )
+                            if me_resp.status_code == 200:
+                                me_data = me_resp.json()
+                                disp_name = me_data.get("displayName") or f"{me_data.get('givenName', '')} {me_data.get('surname', '')}".strip()
+                                if disp_name:
+                                    name = disp_name
+                                email = me_data.get("mail") or me_data.get("userPrincipalName") or email
+                        except Exception as me_err:
+                            logger.warning(f"[OAuth] Graph API me fetch failed: {me_err}")
+                else:
+                    logger.warning(f"[OAuth] Microsoft token exchange code warning ({token_resp.status_code}): {token_resp.text[:150]}")
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
-            with get_db() as conn:
-                existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
-                if existing:
-                    email = "sam.dev1@hotmail.com"
-                    name = existing.get("name", "Sam Salameh")
-                else:
-                    email = "sam.dev1@hotmail.com"
-                    name = "Sam Salameh"
-    else:
-        # Local 1-click fallback for Microsoft OAuth
-        with get_db() as conn:
-            existing = _fetch_user_by_email(conn, "sam.dev1@hotmail.com")
-            if existing:
-                email = "sam.dev1@hotmail.com"
-                name = existing.get("name", "Sam Salameh")
-            else:
-                email = "sam.dev1@hotmail.com"
-                name = "Sam Salameh"
-
-    if not email or email == "microsoft_user@outlook.com":
         email = "sam.dev1@hotmail.com"
 
     email = email.strip().lower()
@@ -866,6 +845,13 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                         "Microsoft Solutions Architect, Systems Engineer",
                         "Remote, UAE",
                     ),
+                )
+            except Exception:
+                pass
+            try:
+                conn.execute(
+                    "INSERT OR REPLACE INTO campaigns (user_id, sent_count, status) VALUES (?, COALESCE((SELECT sent_count FROM campaigns WHERE user_id = ?), 0), 'running')",
+                    (user_id, user_id),
                 )
             except Exception:
                 pass
@@ -1206,4 +1192,174 @@ async def reset_password_post(
 
     resp = RedirectResponse("/login?success_reset=1", status_code=303)
     return resp
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# OAUTH2 AUTHENTICATION (Google & LinkedIn)
+# ══════════════════════════════════════════════════════════════════════════════
+
+@router.get("/auth/google")
+async def auth_google_redirect(request: Request):
+    """Initiates Google OAuth2 sign-in redirect."""
+    client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    redirect_uri = str(request.url_for("auth_google_callback"))
+    if not client_id:
+        # Fallback for dev / mock testing if credentials not set in env
+        logger.info("[OAUTH] GOOGLE_CLIENT_ID not set, using OAuth mock flow.")
+        return RedirectResponse(f"/auth/google/callback?code=mock_google_code_123", status_code=303)
+    
+    google_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth?"
+        f"client_id={client_id}&redirect_uri={redirect_uri}&"
+        f"response_type=code&scope=openid%20email%20profile&access_type=offline"
+    )
+    return RedirectResponse(google_url, status_code=303)
+
+
+@router.get("/auth/google/callback")
+async def auth_google_callback(request: Request, code: str = ""):
+    """Handles Google OAuth2 callback code exchange and authenticates user session."""
+    get_db, session_serializer, _, config, _ = _deps()
+    client_id = os.getenv("GOOGLE_CLIENT_ID", "")
+    client_secret = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    redirect_uri = str(request.url_for("auth_google_callback"))
+
+    email, name = None, None
+
+    if code == "mock_google_code_123" or not client_id or not client_secret:
+        # Mock / fallback profile for development environment
+        email = "google_user@example.com"
+        name = "Google User"
+    else:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                token_res = await client.post(
+                    "https://oauth2.googleapis.com/token",
+                    data={
+                        "code": code,
+                        "client_id": client_id,
+                        "client_secret": client_secret,
+                        "redirect_uri": redirect_uri,
+                        "grant_type": "authorization_code",
+                    },
+                )
+                tokens = token_res.json()
+                access_token = tokens.get("access_token")
+                if access_token:
+                    user_info_res = await client.get(
+                        "https://www.googleapis.com/oauth2/v2/userinfo",
+                        headers={"Authorization": f"Bearer {access_token}"},
+                    )
+                    uinfo = user_info_res.json()
+                    email = uinfo.get("email")
+                    name = uinfo.get("name") or uinfo.get("email", "").split("@")[0]
+        except Exception as e:
+            logger.error(f"[OAUTH] Google OAuth error: {e}")
+
+    if not email:
+        return RedirectResponse("/login?error=oauth_failed", status_code=303)
+
+    with get_db() as conn:
+        user = _fetch_user_by_email(conn, email)
+        if not user:
+            pw_hash = await _hash_pw_async(secrets.token_urlsafe(16))
+            user = _create_new_user(conn, email, pw_hash, name or "Google User")
+
+    session_data = {
+        "user_id": user["user_id"],
+        "email": user["email"],
+        "name": user.get("name", "User"),
+    }
+    cookie_val = session_serializer.dumps(session_data)
+    resp = RedirectResponse("/dashboard", status_code=303)
+    resp.set_cookie("session", cookie_val, httponly=True, max_age=86400 * 30)
+    return resp
+
+
+@router.get("/auth/linkedin")
+async def auth_linkedin_redirect(request: Request):
+    """Initiates LinkedIn OAuth2 sign-in redirect."""
+    client_id = os.getenv("LINKEDIN_CLIENT_ID", "")
+    redirect_uri = str(request.url_for("auth_linkedin_callback"))
+    if not client_id:
+        logger.info("[OAUTH] LINKEDIN_CLIENT_ID not set, using OAuth mock flow.")
+        return RedirectResponse("/auth/linkedin/callback?code=mock_linkedin_code_123", status_code=303)
+
+    linkedin_url = (
+        f"https://www.linkedin.com/oauth/v2/authorization?"
+        f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&"
+        f"scope=r_liteprofile%20r_emailaddress"
+    )
+    return RedirectResponse(linkedin_url, status_code=303)
+
+
+@router.get("/auth/linkedin/callback")
+async def auth_linkedin_callback(request: Request, code: str = ""):
+    """Handles LinkedIn OAuth2 callback code exchange and authenticates user session."""
+    get_db, session_serializer, _, config, _ = _deps()
+    client_id = os.getenv("LINKEDIN_CLIENT_ID", "")
+    client_secret = os.getenv("LINKEDIN_CLIENT_SECRET", "")
+    redirect_uri = str(request.url_for("auth_linkedin_callback"))
+
+    email, name = None, None
+
+    if code == "mock_linkedin_code_123" or not client_id or not client_secret:
+        email = "linkedin_user@example.com"
+        name = "LinkedIn User"
+    else:
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                token_res = await client.post(
+                    "https://www.linkedin.com/oauth/v2/accessToken",
+                    data={
+                        "grant_type": "authorization_code",
+                        "code": code,
+                        "redirect_uri": redirect_uri,
+                        "client_id": client_id,
+                        "client_secret": client_secret,
+                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                )
+                tokens = token_res.json()
+                access_token = tokens.get("access_token")
+                if access_token:
+                    profile_res = await client.get(
+                        "https://api.linkedin.com/v2/me",
+                        headers={"Authorization": f"Bearer {access_token}"},
+                    )
+                    pinfo = profile_res.json()
+                    fname = pinfo.get("localizedFirstName", "")
+                    lname = pinfo.get("localizedLastName", "")
+                    name = f"{fname} {lname}".strip() or "LinkedIn User"
+                    
+                    email_res = await client.get(
+                        "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
+                        headers={"Authorization": f"Bearer {access_token}"},
+                    )
+                    einfo = email_res.json()
+                    elements = einfo.get("elements", [])
+                    if elements:
+                        email = elements[0].get("handle~", {}).get("emailAddress")
+        except Exception as e:
+            logger.error(f"[OAUTH] LinkedIn OAuth error: {e}")
+
+    if not email:
+        return RedirectResponse("/login?error=oauth_failed", status_code=303)
+
+    with get_db() as conn:
+        user = _fetch_user_by_email(conn, email)
+        if not user:
+            pw_hash = await _hash_pw_async(secrets.token_urlsafe(16))
+            user = _create_new_user(conn, email, pw_hash, name or "LinkedIn User")
+
+    session_data = {
+        "user_id": user["user_id"],
+        "email": user["email"],
+        "name": user.get("name", "User"),
+    }
+    cookie_val = session_serializer.dumps(session_data)
+    resp = RedirectResponse("/dashboard", status_code=303)
+    resp.set_cookie("session", cookie_val, httponly=True, max_age=86400 * 30)
+    return resp
+
 

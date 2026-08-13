@@ -213,6 +213,7 @@ class Database:
             """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs (status)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs (company)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_company_created ON jobs (company, created_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs (status)")
             conn.commit()
 

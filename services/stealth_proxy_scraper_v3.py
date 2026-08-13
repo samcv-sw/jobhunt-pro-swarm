@@ -35,7 +35,9 @@ class StealthProxyScraper:
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
-            "Upgrade-Insecure-Requests": "1"
+            "Upgrade-Insecure-Requests": "1",
+            "X-JA3-Fingerprint": "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0",
+            "X-JA4-Fingerprint": "t13d151600_8daaf6152771_b8867a627a83"
         }
 
     def scrape_target(self, target_url: str, job_query: str = "Software Engineer") -> Dict[str, Any]:

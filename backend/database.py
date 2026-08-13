@@ -172,6 +172,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         dbapi_connection, SQLite3Connection
     ):
         cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA busy_timeout=30000")
         cursor.execute("PRAGMA foreign_keys=ON")
         is_pa_or_nfs = bool(
             os.environ.get("PYTHONANYWHERE_SITE")
@@ -187,7 +188,6 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
             cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.execute("PRAGMA cache_size=-64000")
         cursor.execute("PRAGMA temp_store=MEMORY")
-        cursor.execute("PRAGMA busy_timeout=10000")
         cursor.close()
 
 

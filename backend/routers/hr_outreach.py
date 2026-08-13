@@ -31,6 +31,19 @@ class OutreachCampaignResponse(BaseModel):
 @router.post("/generate-campaign", response_model=OutreachCampaignResponse)
 async def generate_outreach_campaign(req: OutreachCampaignRequest):
     """Generates personalized cold email outreach with dynamic follow-up sequence."""
+    if req.hr_email:
+        email = req.hr_email.strip().lower()
+        if "careers-" in email or "demo" in email or email.startswith("test@"):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="Synthetic/demo email targets are strictly prohibited.")
+        try:
+            from core.email_verifier import is_deliverable_email
+            if not is_deliverable_email(email):
+                from fastapi import HTTPException
+                raise HTTPException(status_code=400, detail=f"Target email '{email}' failed live MX/DNS deliverability checks.")
+        except ImportError:
+            pass
+
     subject = f"Application / Experienced {req.target_role} — {req.candidate_name}"
     body_html = f"""
     <div dir="ltr" style="font-family: Arial, sans-serif; color: #111; line-height: 1.6;">

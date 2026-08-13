@@ -119,11 +119,11 @@
     <div>
       <h1 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
         <i class="w-8 h-8 text-cyan-400" data-lucide="target"></i>
-        <span>مقياس ATS | JobHunt Pro</span>
+        <span>{{ 'ATS Scorer & Optimizer' if lang == 'en' else ('ATS 优化工作室' if lang == 'zh' else 'مقياس ATS') }} | JobHunt Pro</span>
         <span class="px-2.5 py-0.5 text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full shrink-0">V 1</span>
       </h1>
       <p class="text-sm text-slate-300 mt-1.5 leading-relaxed font-medium">
-        حلّل وسرّع قبول سيرتك الذاتية مقابل متطلبات الوظائف باحترافية باستخدام الذكاء الاصطناعي وخوارزميات الفحص الإلكتروني (ATS).
+        {{ 'Analyze and optimize your CV against job requirements with AI and ATS algorithms.' if lang == 'en' else ('使用 AI 和 ATS 算法根据职位要求分析并优化您的简历。' if lang == 'zh' else 'حلّل وسرّع قبول سيرتك الذاتية مقابل متطلبات الوظائف باحترافية باستخدام الذكاء الاصطناعي وخوارزميات الفحص الإلكتروني (ATS).') }}
       </p>
     </div>
   </div>

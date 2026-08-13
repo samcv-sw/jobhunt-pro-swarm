@@ -76,3 +76,34 @@ async def broadcast_job_alert(payload: Dict[str, Any], background_tasks: Backgro
         "message": "Job alert broadcast queued successfully."
     }
 
+@router.post("/alert-event")
+async def trigger_telegram_event_alert(payload: Dict[str, Any], background_tasks: BackgroundTasks):
+    """Triggers instant notification for interview schedule or TON payment confirmation."""
+    chat_id = payload.get("chat_id")
+    event_type = payload.get("event_type", "interview_scheduled")
+    details = payload.get("details", {})
+    if not chat_id:
+        raise HTTPException(status_code=400, detail="chat_id is required.")
+
+    if event_type == "interview_scheduled":
+        msg = (
+            f"🎉 <b>INTERVIEW INVITATION RECEIVED!</b>\n\n"
+            f"🏢 <b>Company:</b> {details.get('company', 'Partner Agency')}\n"
+            f"📅 <b>Date & Time:</b> {details.get('scheduled_at', 'Tomorrow at 10:00 AM')}\n"
+            f"👤 <b>Interviewer:</b> {details.get('interviewer', 'Hiring Manager')}\n\n"
+            f"🚀 <i>Your AI Video Copilot is ready to assist you live!</i>"
+        )
+    elif event_type == "web3_payment_confirmed":
+        msg = (
+            f"💎 <b>TON / CRYPTO PAYMENT CONFIRMED!</b>\n\n"
+            f"⚡ <b>Tokens Added:</b> +{details.get('tokens', 500)} AI Credits\n"
+            f"🔗 <b>TX Hash:</b> <code>{details.get('tx_hash', 'tx_ton_confirmed')}</code>\n\n"
+            f"Thank you for upgrading with JobHunt Pro SaaS!"
+        )
+    else:
+        msg = f"📢 <b>NOTIFICATION:</b> {event_type.upper()}\n{details.get('text', '')}"
+
+    background_tasks.add_task(dispatch_telegram_message, str(chat_id), msg)
+    return {"status": "success", "event_type": event_type, "chat_id": chat_id}
+
+

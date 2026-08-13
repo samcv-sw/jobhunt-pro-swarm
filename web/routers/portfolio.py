@@ -48,14 +48,21 @@ async def get_live_portfolio(request: Request, slug: str = Path(...)):
     return templates.TemplateResponse(request, "portfolio_template.html", {
         "title": f"{portfolio_data['full_name']} | Portfolio",
         "p": portfolio_data,
-        "slug": slug
+        "slug": slug,
+        "viral_badge": {
+            "text": "⚡ Built with JobHunt Pro — Land your GCC tech job 5x faster",
+            "referral_url": "https://jobhunt-pro.com/?ref=portfolio_viral_badge",
+            "html": '<div class="viral-footer-badge" style="text-align:center; padding:12px; margin-top:20px; font-size:13px; color:#888; border-top:1px solid rgba(255,255,255,0.1);"><a href="https://jobhunt-pro.com/?ref=portfolio_viral_badge" target="_blank" style="color:#00e5ff; text-decoration:none; font-weight:600;">⚡ Built with JobHunt Pro</a> — Land your GCC tech job 5x faster</div>'
+        }
     })
 
 @router.post("/api/portfolio/generate")
 async def generate_portfolio(request: Request):
-    """Generate dynamic cloud slug link for user resume."""
+    """Generate dynamic cloud slug link for user resume with viral growth badge."""
     return {
         "status": "success",
         "portfolio_url": "/portfolio/sami-elhassan",
-        "message": "تم إنشاء موقع السيرة الذاتية التفاعلي بنجاح وهو متاح أونلاين الآن!"
+        "viral_referral_link": "https://jobhunt-pro.com/?ref=portfolio_viral_badge",
+        "message": "تم إنشاء موقع السيرة الذاتية التفاعلي بنجاح وهو متاح أونلاين الآن مع شارة الانتشار الفيروسي!"
     }
+

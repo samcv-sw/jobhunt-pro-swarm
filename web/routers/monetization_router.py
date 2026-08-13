@@ -121,3 +121,26 @@ def get_crypto_pricing_tiers():
             {"id": "crypto_unlimited_month", "price_usdt": 15.0, "price_ton": 2.5, "tokens": 1000, "name": "Monthly Unlimited Pass"}
         ]
     }
+
+
+# V2 Credit Pack Top-Up Route
+class CreditPackCheckoutRequest(BaseModel):
+    pack_type: str = Field("pack_10", description="pack_10 ($10 / 150 AI Credits) or pack_25 ($25 / 500 AI Credits)")
+    user_id: Optional[str] = "default_user"
+
+@router.post("/api/v2/billing/credit-pack/checkout")
+def checkout_credit_pack_v2(req: CreditPackCheckoutRequest):
+    price_map = {
+        "pack_10": {"price_usd": 10.0, "credits": 150, "name": "$10 AI Credit Pack"},
+        "pack_25": {"price_usd": 25.0, "credits": 500, "name": "$25 AI Credit Pack"}
+    }
+    pack = price_map.get(req.pack_type, price_map["pack_10"])
+    return {
+        "status": "success",
+        "user_id": req.user_id,
+        "pack_type": req.pack_type,
+        "pack_details": pack,
+        "checkout_session_url": f"https://checkout.stripe.com/pay/{req.pack_type}_{req.user_id[:6]}",
+        "message": f"Credit top-up initialized for {pack['name']}."
+    }
+

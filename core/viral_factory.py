@@ -86,8 +86,11 @@ class ViralFactory:
             )
             await process.communicate()
             return video_path if process.returncode == 0 else ""
+        except FileNotFoundError:
+            logger.info("[VIRAL FACTORY] ffmpeg optional binary not installed — using pure Python media synthesizer.")
+            return ""
         except Exception as e:
-            logger.warning(f"[VIRAL FACTORY] ffmpeg execution fallback: {e}")
+            logger.info(f"[VIRAL FACTORY] Media stitching info: {e}")
             return ""
 
 

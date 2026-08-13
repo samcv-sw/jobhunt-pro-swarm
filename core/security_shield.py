@@ -45,7 +45,11 @@ class SecurityShieldMiddleware(BaseHTTPMiddleware):
         if os.getenv("TESTING") == "1" or os.getenv("PYTEST_RUNNING") == "1":
             return await call_next(request)
 
-        client_ip = request.client.host if request.client else "127.0.0.1"
+        client_ip = (
+            request.headers.get("CF-Connecting-IP")
+            or (request.headers.get("X-Forwarded-For").split(",")[0].strip() if request.headers.get("X-Forwarded-For") else None)
+            or (request.client.host if request.client else "127.0.0.1")
+        )
         path = request.url.path.lower()
 
 

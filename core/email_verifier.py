@@ -90,6 +90,7 @@ def suppress_bounced_email(email: str, reason: str = "bounce"):
     try:
         from web.shared import get_db
         with get_db() as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS suppressed_emails (email TEXT PRIMARY KEY, reason TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)")
             conn.execute(
                 "INSERT OR IGNORE INTO suppressed_emails (email, reason) VALUES (?, ?)",
                 (clean_email, reason)
@@ -120,7 +121,21 @@ def check_domain_mx(domain: str) -> bool:
         return False
         
     # 3. Fast domain MX / DNS check (known major domains bypass network lookup)
-    major_domains = {"gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com", "aol.com", "protonmail.com", "apexrecruitment.ae"}
+    major_domains = {
+        "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com", "aol.com", "protonmail.com", "apexrecruitment.ae",
+        "oracle.com", "microsoft.com", "cisco.com", "paloaltonetworks.com", "fortinet.com", "ibm.com", "sap.com", "vmware.com",
+        "dell.com", "salesforce.com", "amazon.com", "google.com", "huawei.com", "siemens.com", "se.com", "abb.com", "honeywell.com",
+        "slb.com", "bakerhughes.com", "halliburton.com", "parsons.com", "jacobs.com", "aecom.com", "wsp.com", "atkinsrealis.com",
+        "mottmac.com", "egis-group.com", "dar.com", "keoic.com", "hillintl.com", "turnerandtownsend.com", "alvarezandmarsal.com",
+        "oliverwyman.com", "kearney.com", "rolandberger.com", "gartner.com", "idc.com", "aramco.com", "neom.com", "pif.gov.sa",
+        "tascoutsourcing.com", "blackpearl.com", "bayt.com", "gulftalent.com", "dubizzle.com", "chalhoub.com", "anghami.com", 
+        "careem.com", "noon.com", "talabat.com", "toters.com", "ogero.gov.lb", "alfa.com.lb", "touch.com.lb", "cedarcom.net", 
+        "softflow.io", "elementn.com", "itworksme.com", "nartechnologies.com", "maliagroup.com", "procomlb.com", "stc.com.sa", 
+        "etisalat.ae", "du.ae", "zain.com", "mobily.com.sa", "ooredoo.qa", "mrsool.co", "salla.sa", "zid.sa", "foodics.com", 
+        "unifonic.com", "lean.me", "tamara.co", "tabby.ai", "propertyfinder.ae", "kitopi.com", "jahez.net", "hungerstation.com", 
+        "adnoc.ae", "sabic.com", "dewa.gov.ae", "enoc.com", "qatarairways.com.qa", "emirates.com", "etihad.ae", "flydubai.com", 
+        "saudia.com", "airarabia.com", "al-futtaim.com", "emaar.com", "damacproperties.com", "aldar.com"
+    }
     if domain in major_domains:
         _MX_CACHE[domain] = True
         return True
@@ -135,9 +150,16 @@ def check_domain_mx(domain: str) -> bool:
         if len(answers) > 0:
             has_mx = True
     except Exception:
+        # Fallback to DNS-over-HTTPS (DoH) via Cloudflare
         try:
-            socket.gethostbyname(domain)
-            has_mx = True
+            req = urllib.request.Request(
+                f"https://cloudflare-dns.com/dns-query?name={domain}&type=MX",
+                headers={"Accept": "application/dns-json"}
+            )
+            with urllib.request.urlopen(req, timeout=2.0) as response:
+                data = json.loads(response.read().decode())
+                if data.get("Status") == 0 and "Answer" in data and len(data["Answer"]) > 0:
+                    has_mx = True
         except Exception:
             has_mx = False
 
@@ -170,7 +192,13 @@ def verify_email_deliverability(email: str) -> Tuple[bool, str]:
     local_part, domain = clean_email.rsplit("@", 1)
     
     # 3. Check suspicious local parts
-    if local_part in SUSPICIOUS_LOCAL_PARTS or local_part.startswith("lead.hr") or "dummy" in local_part:
+    if (
+        local_part in SUSPICIOUS_LOCAL_PARTS
+        or local_part.startswith("lead.hr")
+        or "dummy" in local_part
+        or re.search(r"^careers-[0-9a-fA-F]{4,16}$", local_part)
+        or re.search(r"^test[0-9a-fA-F]{4,}$", local_part)
+    ):
         return False, f"Synthetic/suspicious local part ({local_part})"
         
     # 4. Check domain typos
@@ -197,3 +225,35 @@ def is_deliverable_email(email: str) -> bool:
     """Boolean helper for quick deliverability filtering."""
     valid, _ = verify_email_deliverability(email)
     return valid
+
+
+def check_365_cooldown_dedup(user_id: str, email: str) -> Tuple[bool, str]:
+    """
+    1-Year Cooldown Deduplication Window (PERMANENT RULE).
+    Verifies if target email has been contacted by user within 365 days.
+    Returns (is_allowed: bool, reason: str).
+    """
+    if not email or not isinstance(email, str):
+        return False, "Invalid target email"
+        
+    clean_email = email.lower().strip()
+    
+    try:
+        from web.shared import get_db
+        with get_db() as conn:
+            # Check campaign_emails sent within 365 days
+            row = conn.execute("""
+                SELECT ce.sent_at FROM campaign_emails ce 
+                JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+                WHERE c.user_id = ? AND LOWER(ce.email_address) = ? 
+                AND ce.sent_at >= datetime('now', '-365 days')
+                LIMIT 1
+            """, (str(user_id), clean_email)).fetchone()
+            
+            if row:
+                return False, f"Target email '{clean_email}' was already contacted within 365 days (on {row[0]})"
+    except Exception as exc:
+        logger.warning(f"[EmailVerifier] 365-day cooldown check failed silently: {exc}")
+        
+    return True, "Cooldown check passed"
+

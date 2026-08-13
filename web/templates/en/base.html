@@ -57,13 +57,13 @@
     
     <!-- Auto-Reconnect WebSocket Logic with HUD -->
     <script>
+        let currentReconnectDelay = 1000;
         function connectWebSocket() {
             if (window.location.pathname !== "/dashboard") return;
             
             const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
             const wsUrl = `${protocol}//${window.location.host}/ws/live`;
             let ws = new WebSocket(wsUrl);
-            let reconnectDelay = 1000; // Exponential backoff starting at 1s
             const hudStatus = document.getElementById('uplink-status');
             const hudText = document.getElementById('uplink-text');
 
@@ -75,7 +75,7 @@
                     hudText.innerText = 'UPLINK: SECURE';
                     hudText.className = 'badge-pill bp-green';
                 }
-                reconnectDelay = 1000;
+                currentReconnectDelay = 1000;
             };
 
             ws.onmessage = function(event) {
@@ -91,15 +91,16 @@
                     hudText.innerText = 'UPLINK SEVERED: RECONNECTING...';
                     hudText.className = 'badge-pill bp-red';
                 }
-                console.log(`Socket is closed. Reconnecting in ${reconnectDelay}ms...`, e.reason);
+                const delay = currentReconnectDelay;
+                currentReconnectDelay = Math.min(currentReconnectDelay * 1.5, 30000);
+                console.log(`Socket is closed. Reconnecting in ${delay}ms...`, e.reason);
                 setTimeout(function() {
-                    reconnectDelay = Math.min(reconnectDelay * 2, 10000); // Max wait 10s
                     connectWebSocket();
-                }, reconnectDelay);
+                }, delay);
             };
 
             ws.onerror = function(err) {
-                console.error("Socket encountered error: ", err.message, "Closing socket");
+                console.error("Socket encountered error: ", err);
                 ws.close();
             };
         }

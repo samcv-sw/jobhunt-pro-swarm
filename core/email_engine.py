@@ -1525,9 +1525,18 @@ class EmailEngine:
             return await self._dry_run_send(provider, msg)
 
         to_email = msg.get("To", "").strip().lower()
-        if to_email and _is_suppressed(to_email):
-            logger.info(f"[EmailEngine] ⛔ Suppressed address: {to_email}. Skipping.")
-            return False, f"suppressed:{to_email}"
+        if to_email:
+            if _is_suppressed(to_email):
+                logger.info(f"[EmailEngine] ⛔ Suppressed address: {to_email}. Skipping.")
+                return False, f"suppressed:{to_email}"
+            try:
+                from core.email_verifier import verify_email_deliverability
+                is_valid, reason = verify_email_deliverability(to_email)
+                if not is_valid:
+                    logger.warning(f"[Anti-Bounce Shield] ⛔ Undeliverable address {to_email}: {reason}")
+                    return False, f"undeliverable:{reason}"
+            except Exception as ver_ex:
+                logger.debug(f"[EmailEngine] Deliverability check skipped: {ver_ex}")
 
         from core.email_warmup import warmup
         if not warmup.can_send(provider):
@@ -1796,12 +1805,12 @@ class EmailEngine:
                 with sqlite3.connect(DB_PATH, timeout=5) as db_conn:
                     if uid:
                         existing = db_conn.execute(
-                            """SELECT 1 FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND LOWER(ce.email_address) = LOWER(?) LIMIT 1""",
+                            """SELECT 1 FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND LOWER(ce.email_address) = LOWER(?) AND ce.sent_at >= datetime('now', '-365 days') LIMIT 1""",
                             (uid, to_email.strip())
                         ).fetchone()
                     else:
                         existing = db_conn.execute(
-                            """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) LIMIT 1""",
+                            """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) AND sent_at >= datetime('now', '-365 days') LIMIT 1""",
                             (to_email.strip(),)
                         ).fetchone()
                     
@@ -2065,7 +2074,7 @@ position at <strong>{company}</strong>, submitted on {original_date}.</p>
             try:
                 conn.executemany(
                     """
-                    INSERT INTO campaign_emails
+                    INSERT OR IGNORE INTO campaign_emails
                     (campaign_id, company_name, job_title, email_address, status, tracking_id, sent_at, message_id)
                     VALUES (?, ?, ?, ?, 'sent', ?, CURRENT_TIMESTAMP, ?)
                 """,

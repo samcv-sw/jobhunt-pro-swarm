@@ -143,4 +143,8 @@ else:
     RATE_LIMIT_WINDOW = 60
 
 rate_limiter = RateLimiter(requests_limit=RATE_LIMIT_REQUESTS, window_seconds=RATE_LIMIT_WINDOW)
+guest_rate_limiter = RateLimiter(
+    requests_limit=10 if ("pytest" not in sys.modules and os.getenv("TESTING") != "true") else 100,
+    window_seconds=60,
+)
 

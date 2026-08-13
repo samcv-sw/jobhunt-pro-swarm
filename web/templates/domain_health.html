@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliverability Health Center — JobHunt Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --card-bg: rgba(22, 30, 49, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            margin: 0;
+            padding-block: 2rem;
+            padding-inline: 1.5rem;
+        }
+
+        .container {
+            max-inline-size: 900px;
+            margin-inline: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-block-end: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--accent-green);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-block-end: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-block-end: 1.5rem;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+
+        button {
+            background: var(--accent-green);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .score-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+        }
+
+        .score-val {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>مركز صحة النطاق وقابلية التسليم (Deliverability Health Center)</h1>
+            <p style="color: var(--text-muted);">فحص سجلات MX / SPF / DMARC وجدولة الإحماء التدريجي لضمان عدم حظر النطاق</p>
+        </div>
+
+        <div class="card">
+            <div class="input-group">
+                <input type="text" id="domain_input" placeholder="أدخل اسم النطاق e.g. company.com" dir="ltr">
+                <button onclick="auditDomain()">فحص النطاق الآن</button>
+            </div>
+
+            <div class="score-box" id="result_box" style="display: none;">
+                <div>
+                    <h3 id="res_domain" style="margin: 0;">-</h3>
+                    <p id="res_status" style="margin: 0; color: var(--text-muted);">-</p>
+                </div>
+                <div class="score-val" id="res_score">--</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function auditDomain() {
+            let domain = document.getElementById('domain_input').value;
+            if (!domain) return alert('يرجى إدخال اسم النطاق');
+
+            try {
+                let res = await fetch('/domain-health/audit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain: domain, current_day: 5})
+                });
+                let data = await res.json();
+                if (data.success) {
+                    document.getElementById('result_box').style.display = 'flex';
+                    document.getElementById('res_domain').innerText = data.domain;
+                    document.getElementById('res_status').innerText = 'الحالة: ' + data.status + ' | حد الإرسال اليومي الموصى به: ' + data.warmup_schedule.recommended_daily_limit + ' رسالة/يوم';
+                    document.getElementById('res_score').innerText = data.health_score + '%';
+                }
+            } catch(e) {
+                alert('حدث خطأ أثناء الفحص');
+            }
+        }
+    </script>
+</body>
+</html>

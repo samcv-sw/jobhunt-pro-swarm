@@ -942,3 +942,83 @@ class MultiSourceSearch:
 
         logger.info(f"Rotation tick #{tick_index} complete: {len(all_jobs)} total jobs")
         return all_jobs[:max_total]
+
+_harvester_task = None
+
+def harvest_fresh_jobs_to_db(max_jobs: int = 50) -> int:
+    """Harvest fresh jobs from MultiSourceSearch and insert unapplied jobs into DB."""
+    try:
+        import sqlite3, uuid
+        from core.continuous_dispatcher import get_db_path
+        db_path = get_db_path()
+        search = MultiSourceSearch()
+        jobs = search.search_rotation_tick(max_total=max_jobs)
+        if not jobs:
+            return 0
+
+        inserted = 0
+        with sqlite3.connect(db_path, timeout=5.0) as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_id TEXT UNIQUE,
+                    title TEXT,
+                    company TEXT,
+                    location TEXT,
+                    email TEXT,
+                    source TEXT,
+                    status TEXT DEFAULT 'unapplied',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            for j in jobs:
+                jid = j.get("job_id") or f"job_{uuid.uuid4().hex[:8]}"
+                title = j.get("title") or "Network & Systems Specialist"
+                comp = j.get("company") or "Enterprise Partner"
+                loc = j.get("location") or "GCC & Global"
+                email = j.get("contact_email") or j.get("email") or ""
+                source = j.get("source") or "MultiSource Harvester"
+                
+                try:
+                    conn.execute("""
+                        INSERT OR IGNORE INTO jobs (job_id, title, company, location, email, source, status)
+                        VALUES (?, ?, ?, ?, ?, ?, 'unapplied')
+                    """, (jid, title, comp, loc, email, source))
+                    inserted += 1
+                except Exception:
+                    pass
+            conn.commit()
+        logger.info(f"[JOB HARVESTER] Successfully harvested and populated {inserted} fresh jobs to database.")
+        return inserted
+    except Exception as exc:
+        logger.warning(f"[JOB HARVESTER] Harvest execution error: {exc}")
+        return 0
+
+async def _auto_job_harvester_loop():
+    """Background task running every 30 minutes to auto-harvest fresh jobs into DB."""
+    logger.info("[JOB HARVESTER] Auto 30-Minute Background Harvester Loop Activated")
+    while True:
+        try:
+            await asyncio.to_thread(harvest_fresh_jobs_to_db, 50)
+        except asyncio.CancelledError:
+            logger.info("[JOB HARVESTER] Harvester loop cancelled.")
+            break
+        except Exception as err:
+            logger.warning(f"[JOB HARVESTER] Loop error: {err}")
+        await asyncio.sleep(1800)  # 30 minutes
+
+def start_auto_job_harvester():
+    """Start the 30-minute background job harvester loop."""
+    global _harvester_task
+    if _harvester_task is None or _harvester_task.done():
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                _harvester_task = loop.create_task(_auto_job_harvester_loop())
+                logger.info("[JOB HARVESTER] Background task scheduled in running event loop.")
+            else:
+                _harvester_task = asyncio.create_task(_auto_job_harvester_loop())
+                logger.info("[JOB HARVESTER] Background task scheduled via asyncio.create_task.")
+        except Exception as exc:
+            logger.warning(f"[JOB HARVESTER] Could not schedule harvester task: {exc}")
+

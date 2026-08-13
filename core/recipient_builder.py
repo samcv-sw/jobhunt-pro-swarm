@@ -447,12 +447,15 @@ def validate_list(file_path: str) -> dict:
 def _is_valid_email(email: str) -> bool:
     if not email or "@" not in email:
         return False
-    email = email.strip().lower()
-    if len(email) > 254:
-        return False
-    if not re.match(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", email):
-        return False
-    # Block disposable domains
-    blocked = {"tempmail", "guerrillamail", "10minutemail", "mailinator", "throwaway"}
-    domain = email.split("@")[1]
-    return not any(b in domain for b in blocked)
+    try:
+        from core.email_verifier import is_deliverable_email
+        return is_deliverable_email(email)
+    except Exception:
+        clean_email = email.strip().lower()
+        if len(clean_email) > 254:
+            return False
+        if not re.match(r"^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$", clean_email):
+            return False
+        blocked = {"tempmail", "guerrillamail", "10minutemail", "mailinator", "throwaway"}
+        domain = clean_email.split("@")[1]
+        return not any(b in domain for b in blocked)

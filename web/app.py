@@ -264,7 +264,7 @@ def init_saas_db():
             except Exception as e:
                 err_msg = str(e).lower()
                 if "already exists" in err_msg or "duplicate column" in err_msg:
-                    logger.info(f"Column {col} already exists in cv_profiles (handled gracefully)")
+                    logger.debug(f"Column {col} already exists in cv_profiles (handled gracefully)")
                 else:
                     logger.error(f"Error adding {col} to cv_profiles: {e}", exc_info=True)
 

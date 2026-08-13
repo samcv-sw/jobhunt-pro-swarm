@@ -368,7 +368,9 @@ def api_b2b_recruiter_stats(request: Request):
     import sqlite3
     from fastapi.responses import JSONResponse
     get_db_fn, get_verified_user_id_fn, _, _, _, _, _, _, _ = _deps()
-    user_id = get_verified_user_id_fn(request) or "user_1b73747a6e9a41d6"
+    user_id = get_verified_user_id_fn(request)
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
     
     try:
         conn = get_db_fn()
@@ -417,7 +419,9 @@ def api_b2b_recruiter_generate_leads(request: Request):
     import random
     from fastapi.responses import JSONResponse
     get_db_fn, get_verified_user_id_fn, _, _, _, _, _, _, _ = _deps()
-    user_id = get_verified_user_id_fn(request) or "user_1b73747a6e9a41d6"
+    user_id = get_verified_user_id_fn(request)
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
 
     pool = [
         ("Nour Al-Sayed", "Senior Talent Partner", "Etisalat UAE", "careers@etisalat.ae"),
@@ -442,7 +446,7 @@ def api_b2b_recruiter_generate_leads(request: Request):
         conn.close()
         return JSONResponse({
             "status": "success",
-            "message": f"🤖 تم إطلاق السوارم وتوليد {len(selected)} مسؤولي توظيف وHeadhunters جدد بنجاح!",
+            "message": "🤖 تم إطلاق السوارم وتوليد مسؤولي توظيف وHeadhunters جدد بنجاح!",
             "generated_count": len(selected)
         })
     except Exception as e:
@@ -455,7 +459,9 @@ def api_b2b_recruiter_contact_lead(request: Request, lead_id: int = Form(...)):
     """Trigger direct outreach email to selected headhunter/recruiter."""
     from fastapi.responses import JSONResponse
     get_db_fn, get_verified_user_id_fn, _, _, _, _, _, _, _ = _deps()
-    user_id = get_verified_user_id_fn(request) or "user_1b73747a6e9a41d6"
+    user_id = get_verified_user_id_fn(request)
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
     try:
         conn = get_db_fn()
         conn.execute("UPDATE recruiter_leads SET status = 'contacted' WHERE id = ? AND user_id = ?", (lead_id, user_id))
@@ -481,7 +487,9 @@ def api_b2b_recruiter_add_lead(
     """Manually add a recruiter lead to the swarm pipeline."""
     from fastapi.responses import JSONResponse
     get_db_fn, get_verified_user_id_fn, _, _, _, _, _, _, _ = _deps()
-    user_id = get_verified_user_id_fn(request) or "user_1b73747a6e9a41d6"
+    user_id = get_verified_user_id_fn(request)
+    if not user_id:
+        return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
     try:
         conn = get_db_fn()
         conn.execute("""

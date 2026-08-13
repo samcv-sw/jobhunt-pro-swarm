@@ -15,10 +15,10 @@ def emperor_dashboard_page(request: Request):
         return RedirectResponse(url="/login", status_code=303)
 
     with get_db() as conn:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR LOWER(email) = 'sam.dev1@hotmail.com'", (user_id,)).fetchone()
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         if not user_row:
             user_row = conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone()
-        user = dict(user_row) if user_row else {"user_id": user_id, "name": "Sam Salameh", "email": "sam.dev1@hotmail.com", "user_type": "admin", "wallet_balance": 10000.0}
+        user = dict(user_row) if user_row else {"user_id": user_id, "name": "Sam Salameh", "email": "samatou683@gmail.com", "user_type": "admin", "wallet_balance": 10000.0}
 
         total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
         total_leads = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]

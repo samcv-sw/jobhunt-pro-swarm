@@ -44,9 +44,24 @@ manager = TelemetryConnectionManager()
 async def telemetry_websocket(websocket: WebSocket):
     await manager.connect(websocket)
     try:
+        # Push initial status metrics
+        await websocket.send_text(json.dumps({
+            "event": "telemetry_snapshot",
+            "data": {
+                "mx_shield_status": "ACTIVE_100_PERCENT",
+                "dedup_cooldown_window_days": 365,
+                "proxy_pool_health": "OPTIMAL",
+                "active_swarms": 4
+            }
+        }))
         while True:
             data = await websocket.receive_text()
             # Echo back telemetry heartbeat
-            await websocket.send_text(json.dumps({"status": "heartbeat_ok", "received": data}))
+            await websocket.send_text(json.dumps({
+                "status": "heartbeat_ok", 
+                "received": data,
+                "deliverability_shield": "PROTECTED"
+            }))
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+

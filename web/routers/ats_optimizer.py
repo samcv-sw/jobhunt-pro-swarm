@@ -31,8 +31,18 @@ async def get_ats_studio_page(request: Request):
         if not user:
             user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
 
+        lang = (
+            getattr(request.state, "locale", None) or
+            request.query_params.get("lang") or
+            request.cookies.get("lang") or
+            request.cookies.get("jobhunt_lang") or
+            request.cookies.get("preferred_lang") or
+            "en"
+        )
+        clean_lang = str(lang).split("-")[0].lower()
+        title = "ATS Optimization Studio | JobHunt Pro" if clean_lang == "en" else ("ATS 优化工作室 | JobHunt Pro" if clean_lang == "zh" else "مقياس ATS | JobHunt Pro")
         content = render_template("ats_scorer.html", request=request, user=user, active_page="ats-scorer")
-        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, "مقياس ATS | JobHunt Pro", "ats-scorer", request=request))
+        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, title, "ats-scorer", request=request))
     except Exception as e:
         return templates.TemplateResponse(request, "ats_scorer.html", {
             "title": "ATS Optimization Studio | JobHunt Pro",
@@ -55,8 +65,18 @@ async def get_resume_tailor_page(request: Request):
         if not user:
             user = {"name": "Guest Candidate", "wallet_balance": 0.0, "is_guest": True}
 
+        lang = (
+            getattr(request.state, "locale", None) or
+            request.query_params.get("lang") or
+            request.cookies.get("lang") or
+            request.cookies.get("jobhunt_lang") or
+            request.cookies.get("preferred_lang") or
+            "en"
+        )
+        clean_lang = str(lang).split("-")[0].lower()
+        title = "AI Resume Tailor | JobHunt Pro" if clean_lang == "en" else ("AI 简历定制 | JobHunt Pro" if clean_lang == "zh" else "تخصيص السيرة الذاتية | JobHunt Pro")
         content = render_template("resume_tailor.html", request=request, user=user, active_page="resume-tailor")
-        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, "تخصيص السيرة الذاتية | JobHunt Pro", "resume-tailor", request=request))
+        return HTMLResponse(_build_dashboard_shell(user, user_id or "guest", content, title, "resume-tailor", request=request))
     except Exception as e:
         return templates.TemplateResponse(request, "resume_tailor.html", {
             "title": "AI Resume Tailor | JobHunt Pro",

@@ -4,42 +4,45 @@ Swarm architecture: 200 virtual agents, multi-provider LLM & email pools.
 Multi-market: MENA (Lebanon/UAE/KSA/Qatar/Kuwait) + Russia/CIS (hh.ru API).
 """
 
-from core.agent_pool import (
-    AGENT_DISTRIBUTION,
-    AgentPool,
-    AgentStats,
-    AgentType,
-    VirtualAgent,
-)
-from core.ai_conversation import AIConversationEngine, get_engine
-from core.ats_matcher import (
-    ATSMatcher,
-    analyze_with_groq,
-    analyze_with_groq_async,
-    full_ats_analysis,
-)
-from core.email_rotator_pool import EmailAccount, EmailRotatorPool, EmailSenderClient
-from core.hhru_scraper import (
-    HHRU_AREA_MAP,
-    resolve_area_id,
-    resolve_area_ids,
-    search_hhru,
-    search_hhru_sync,
-)
-from core.llm_provider_pool import (
-    PROVIDER_CONFIGS,
-    LLMProvider,
-    LLMProviderPool,
-    ProviderInstance,
-)
-from core.resume_optimizer import (
-    ATSOptimizationResult,
-    ResumeOptimizer,
-    generate_ats_resume,
-    optimize_resume,
-    parse_job_keywords,
-)
-from core.swarm_master import SwarmMaster
+try:
+    from core.agent_pool import (
+        AGENT_DISTRIBUTION,
+        AgentPool,
+        AgentStats,
+        AgentType,
+        VirtualAgent,
+    )
+    from core.ai_conversation import AIConversationEngine, get_engine
+    from core.ats_matcher import (
+        ATSMatcher,
+        analyze_with_groq,
+        analyze_with_groq_async,
+        full_ats_analysis,
+    )
+    from core.email_rotator_pool import EmailAccount, EmailRotatorPool, EmailSenderClient
+    from core.hhru_scraper import (
+        HHRU_AREA_MAP,
+        resolve_area_id,
+        resolve_area_ids,
+        search_hhru,
+        search_hhru_sync,
+    )
+    from core.llm_provider_pool import (
+        PROVIDER_CONFIGS,
+        LLMProvider,
+        LLMProviderPool,
+        ProviderInstance,
+    )
+    from core.resume_optimizer import (
+        ATSOptimizationResult,
+        ResumeOptimizer,
+        generate_ats_resume,
+        optimize_resume,
+        parse_job_keywords,
+    )
+    from core.swarm_master import SwarmMaster
+except Exception:
+    pass
 
 __all__ = [
     # Agent Pool

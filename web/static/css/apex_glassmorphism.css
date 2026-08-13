@@ -1,0 +1,117 @@
+/* Apex Glassmorphism & Cyberpunk RTL Design System */
+:root {
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-blur: blur(16px);
+  --accent-gold: #f59e0b;
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --text-x-direction: 1;
+  
+  /* Font Family Stack for Gulf Arabic & LTR */
+  --font-family-arabic: 'Cairo', 'IBM Plex Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+[dir="rtl"] {
+  --text-x-direction: -1;
+}
+
+body {
+  font-family: var(--font-family-arabic);
+  min-font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Glass Card Component */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Logical Properties & RTL helpers */
+.m-inline-start { margin-inline-start: 1rem; }
+.m-inline-end { margin-inline-end: 1rem; }
+.p-inline-start { padding-inline-start: 1rem; }
+.p-inline-end { padding-inline-end: 1rem; }
+
+/* Flip directional icons automatically in RTL */
+.flip-rtl {
+  transform: scaleX(var(--text-x-direction));
+}
+
+/* Dynamic Ambient Glow */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  animation: apexGlowPulseGold 3s infinite ease-in-out;
+}
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  animation: apexGlowPulseCyan 3s infinite ease-in-out;
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  animation: apexGlowPulseEmerald 3s infinite ease-in-out;
+}
+
+/* GPU Accelerated Keyframes */
+@keyframes apexGlowPulseGold {
+  0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); transform: translateZ(0); }
+  50% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.55); transform: translateZ(0); }
+}
+
+@keyframes apexGlowPulseCyan {
+  0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); transform: translateZ(0); }
+  50% { box-shadow: 0 0 28px rgba(6, 182, 212, 0.55); transform: translateZ(0); }
+}
+
+@keyframes apexGlowPulseEmerald {
+  0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); transform: translateZ(0); }
+  50% { box-shadow: 0 0 28px rgba(16, 185, 129, 0.55); transform: translateZ(0); }
+}
+
+.badge-pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline-start: 0.75rem;
+  padding-inline-end: 0.75rem;
+  padding-block-start: 0.25rem;
+  padding-block-end: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--accent-emerald);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-pulse::before {
+  content: '';
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: 50%;
+  background-color: var(--accent-emerald);
+  box-shadow: 0 0 8px var(--accent-emerald);
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+

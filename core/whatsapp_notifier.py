@@ -125,7 +125,28 @@ def notify_application(company: str, position: str, status: str = "sent") -> boo
     return True
 
 
+def notify_lead_converted(company: str, lead_email: str, status: str, notes: str = "") -> str:
+    """Send an instant lead conversion notification via Telegram + WhatsApp deep link."""
+    company_esc = html.escape(company)
+    email_esc = html.escape(lead_email)
+    status_esc = html.escape(status)
+    notes_esc = html.escape(notes[:200]) if notes else "Lead interacted with campaign."
+
+    wa_link = generate_wa_me_link(message=f"Follow up with lead: {lead_email} from {company}")
+    msg = (
+        f"🔥 *INSTANT LEAD ALERT!*\n"
+        f"🏢 *Company:* {company_esc}\n"
+        f"📧 *Contact:* {email_esc}\n"
+        f"📌 *Status:* {status_esc}\n"
+        f"📝 *Details:* {notes_esc}\n\n"
+        f"📱 [Instant WhatsApp Follow-up]({wa_link})"
+    )
+    _send_telegram(msg)
+    return msg
+
+
 if __name__ == "__main__":
     logger.debug(f"Contact URL: {get_whatsapp_contact_url()}")
     logger.debug(f"Link: {generate_wa_me_link(message='Hi JobHunt Pro Team!')}")
     notify_application_submitted("Test Corp", "Network Engineer")
+

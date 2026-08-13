@@ -1,14 +1,16 @@
-const CACHE_NAME = 'jobhunt-pro-v3-dynamic';
-const OFFLINE_URL = '/offline.html';
+const CACHE_NAME = 'jobhunt-pro-v5-enterprise';
+const OFFLINE_URL = '/static/offline.html';
 const STATIC_ASSETS = [
   '/',
   '/en/',
+  '/dashboard',
   OFFLINE_URL,
   '/static/css/index.css',
   '/static/css/cyberpunk.css',
   '/static/js/cyberpunk.js',
   '/static/manifest.json',
-  '/static/favicon.png'
+  '/static/favicon.png',
+  'https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
@@ -34,32 +36,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
+  if (request.mode === 'navigate' || (request.headers.get('accept') && request.headers.get('accept').includes('text/html'))) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return caches.match(OFFLINE_URL).then((offlineRes) => {
+          if (offlineRes) return offlineRes;
+          return caches.match('/').then((rootRes) => {
+            return rootRes || new Response('<h1>Offline — JobHunt Pro</h1><p>Network connection unavailable.</p>', {
+              headers: { 'Content-Type': 'text/html' }
+            });
+          });
+        });
+      })
+    );
+    return;
+  }
   if (request.url.includes('/api/') || request.url.includes('/ws/')) {
     event.respondWith(fetch(request));
-    return;
-  }
-  if (!request.url.startsWith(self.location.origin)) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        const fetchPromise = fetch(request).then((networkResponse) => {
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse.clone()));
-          return networkResponse;
-        }).catch(() => cachedResponse);
-        return cachedResponse || fetchPromise;
-      })
-    );
-    return;
-  }
-  if (request.headers.get('accept').includes('text/html')) {
-    event.respondWith(
-      fetch(request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        return response;
-      }).catch(() => {
-        return caches.match(request).then((cached) => cached || caches.match(OFFLINE_URL));
-      })
-    );
     return;
   }
   event.respondWith(
@@ -73,3 +66,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+

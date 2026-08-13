@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  caddy_edge_proxy:
+    image: caddy:2-alpine
+    container_name: jobhunt_edge_proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.edge:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - edge_net
+
+  jobhunt_api_node1:
+    build:
+      context: ..
+      dockerfile: Dockerfile.cloud
+    container_name: jobhunt_api_edge1
+    restart: always
+    environment:
+      - NODE_REGION=me-south-1
+      - FORCE_SQLITE=1
+    networks:
+      - edge_net
+
+  redis_edge_cache:
+    image: redis:7-alpine
+    container_name: redis_edge_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - edge_net
+
+networks:
+  edge_net:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

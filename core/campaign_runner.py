@@ -685,7 +685,7 @@ def _setup_campaign_and_user_details(
 
     # If profile is null but user exists, attempt fallback
     if not row["p_id"]:
-        logger.warning(
+        logger.debug(
             f"[CampaignRunner] Profile {campaign['profile_id']} not found. Falling back to latest profile."
         )
         fallback = conn.execute(
@@ -969,21 +969,30 @@ async def _send_campaign_emails(
                             f"[CampaignRunner] Failed to record failure to anti_ban: {ex}"
                         )
 
-        conn.execute(
-            "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
-            (sent_count, campaign["campaign_id"]),
-        )
-        conn.commit()
-        real = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
-            (campaign["campaign_id"],),
-        ).fetchone()[0]
-        if real != sent_count:
-            conn.execute(
-                "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
-                (real, campaign["campaign_id"]),
-            )
-            conn.commit()
+        for _attempt in range(5):
+            try:
+                conn.execute(
+                    "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
+                    (sent_count, campaign["campaign_id"]),
+                )
+                conn.commit()
+                real = conn.execute(
+                    "SELECT COUNT(*) FROM campaign_emails WHERE campaign_id=? AND status='sent'",
+                    (campaign["campaign_id"],),
+                ).fetchone()[0]
+                if real != sent_count:
+                    conn.execute(
+                        "UPDATE campaigns SET sent_count=? WHERE campaign_id=?",
+                        (real, campaign["campaign_id"]),
+                    )
+                    conn.commit()
+                break
+            except Exception as _lock_err:
+                if "locked" in str(_lock_err).lower() and _attempt < 4:
+                    await asyncio.sleep(0.5)
+                else:
+                    logger.warning(f"[CampaignRunner] DB update warning: {_lock_err}")
+                    break
 
         logger.info(
             f"[CampaignRunner] ⚡ Batch complete in {time.time() - start_time - elapsed:.1f}s: {batch_sent} sent, {batch_failed} failed"

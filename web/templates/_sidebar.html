@@ -245,11 +245,11 @@
     </div>
   </div>
   <nav class="nav">
-    <div class="nav-section-label">الرئيسية</div>
-    <a href="/user-dashboard" {{ 'class=active' if active_page == 'dashboard' else '' }}><span class="nav-icon">📊</span>لوحة القيادة</a>
-    <a href="/upload-cv" {{ 'class=active' if active_page == 'upload-cv' else '' }}><span class="nav-icon">📄</span>رفع السيرة الذاتية</a>
-    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>مقياس ATS</a>
-    <a href="/resume-tailor" {{ 'class=active' if active_page == 'resume-tailor' else '' }} style="color:{{ '#f0c040' if active_page == 'resume-tailor' else '#a78bfa' }};"><span class="nav-icon">✨</span>تخصيص السيرة الذاتية</a>
+    <div class="nav-section-label">{{ 'Main' if lang == 'en' else 'الرئيسية' }}</div>
+    <a href="/user-dashboard" {{ 'class=active' if active_page == 'dashboard' else '' }}><span class="nav-icon">📊</span>{{ 'Dashboard' if lang == 'en' else 'لوحة القيادة' }}</a>
+    <a href="/upload-cv" {{ 'class=active' if active_page == 'upload-cv' else '' }}><span class="nav-icon">📄</span>{{ 'Upload CV' if lang == 'en' else 'رفع السيرة الذاتية' }}</a>
+    <a href="/ats-scorer" {{ 'class=active' if active_page == 'ats-scorer' else '' }}><span class="nav-icon">🎯</span>{{ 'ATS Scorer' if lang == 'en' else 'مقياس ATS' }}</a>
+    <a href="/resume-tailor" {{ 'class=active' if active_page == 'resume-tailor' else '' }} style="color:{{ '#f0c040' if active_page == 'resume-tailor' else '#a78bfa' }};"><span class="nav-icon">✨</span>{{ 'Tailor Resume' if lang == 'en' else 'تخصيص السيرة الذاتية' }}</a>
     <a href="/zero-unemployment" onclick="return (window.openZeroModalFast ? window.openZeroModalFast(event) : true);" style="color:#00f0ff; font-weight:800;"><span class="nav-icon">💡</span>0% Unemployment AI</a>
 
     <div class="nav-section-label" style="color:#00f0ff;">🚀 أدوات الذكاء الخارقة</div>

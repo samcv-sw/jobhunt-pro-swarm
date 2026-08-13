@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="{{ lang or 'en' }}" dir="{{ dir or 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title or 'WebRTC Real-Time AI Video & Emotion Interviewer — JobHunt Pro' }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #080c14;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --gold-accent: #f59e0b;
+            --emerald-green: #10b981;
+            --neon-blue: #3b82f6;
+            --border-glow: rgba(59, 130, 246, 0.3);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-arabic: 'Cairo', 'Tajawal', sans-serif;
+            --font-latin: 'Inter', sans-serif;
+            --text-x-direction: 1;
+        }
+
+        [dir="rtl"] {
+            --text-x-direction: -1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-arabic);
+            min-block-size: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.7;
+        }
+
+        header {
+            padding-inline-start: 2rem;
+            padding-inline-end: 2rem;
+            padding-block-start: 1.25rem;
+            padding-block-end: 1.25rem;
+            background: rgba(8, 12, 20, 0.85);
+            backdrop-filter: blur(16px);
+            border-block-end: 1px solid var(--border-glow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-badge {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--gold-accent);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .main-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            max-inline-size: 1600px;
+            margin-inline-start: auto;
+            margin-inline-end: auto;
+            inline-size: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .video-stage {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-block-size: 540px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .video-canvas-container {
+            position: relative;
+            inline-size: 100%;
+            block-size: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video, canvas {
+            inline-size: 100%;
+            block-size: 100%;
+            object-fit: cover;
+            border-radius: 0.75rem;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            inset-block-start: 1.25rem;
+            inset-inline-start: 1.25rem;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-glow);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .hud-metric {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hud-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .hud-metric-value {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--emerald-green);
+        }
+
+        .telemetry-sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glow);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .widget-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--gold-accent);
+            border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+            padding-block-end: 0.75rem;
+        }
+
+        .btn-cta {
+            background: linear-gradient(135deg, var(--emerald-green), #059669);
+            color: #ffffff;
+            border: none;
+            padding: 0.9rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .icon-dir {
+            display: inline-block;
+            transform: scaleX(var(--text-x-direction));
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand-badge">
+            <span class="icon-dir">🎙️</span> JobHunt Pro — WebRTC Real-Time AI Interviewer
+        </div>
+        <div>
+            <button class="btn-cta" onclick="startWebRTCInterviewSession()">
+                <span class="icon-dir">▶</span> Start AI Video Session
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <section class="video-stage">
+            <div class="hud-overlay">
+                <div class="hud-metric">
+                    <span class="hud-metric-label">AI Recruiter</span>
+                    <span class="hud-metric-value" style="color: var(--gold-accent);">Dr. Sarah (Neural v4)</span>
+                </div>
+                <div class="hud-metric">
+                    <span class="hud-metric-label">Confidence Score</span>
+                    <span class="hud-metric-value" id="hudConfidence">94.8%</span>
+                </div>
+                <div class="hud-metric">
+                    <span class="hud-metric-label">Emotion Telemetry</span>
+                    <span class="hud-metric-value" id="hudEmotion">CONFIDENT_ENGAGED</span>
+                </div>
+            </div>
+
+            <div class="video-canvas-container">
+                <canvas id="videoFeedCanvas"></canvas>
+            </div>
+        </section>
+
+        <aside class="telemetry-sidebar">
+            <h2 class="widget-title">Real-Time Behavioral Analytics</h2>
+            
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Eye Contact Stability</label>
+                <div style="inline-size: 100%; block-size: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-block-start: 0.25rem;">
+                    <div style="inline-size: 92%; block-size: 100%; background: var(--emerald-green); border-radius: 4px;"></div>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Vocal Pitch & Clarity</label>
+                <div style="inline-size: 100%; block-size: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-block-start: 0.25rem;">
+                    <div style="inline-size: 96%; block-size: 100%; background: var(--neon-blue); border-radius: 4px;"></div>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 0.85rem; color: var(--text-muted);">Posture & Micro-expressions</label>
+                <div style="inline-size: 100%; block-size: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-block-start: 0.25rem;">
+                    <div style="inline-size: 89%; block-size: 100%; background: var(--gold-accent); border-radius: 4px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-block-start: auto; border-block-start: 1px solid rgba(255,255,255,0.1); padding-block-start: 1rem;">
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    <span class="icon-dir">🔒</span> Encrypted Peer-to-Peer WebRTC Channel (Latency &lt; 150ms).
+                </p>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        async function startWebRTCInterviewSession() {
+            try {
+                const response = await fetch('/api/v2/webrtc/signal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'offer',
+                        sdp: 'v=0\r\no=- 12345 2 IN IP4 127.0.0.1\r\n'
+                    })
+                });
+                const data = await response.json();
+                if (data.status === 'connected') {
+                    alert('WebRTC Session Connected with AI Recruiter!');
+                }
+            } catch (err) {
+                console.error('WebRTC Session error:', err);
+            }
+        }
+    </script>
+</body>
+</html>

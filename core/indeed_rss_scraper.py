@@ -44,11 +44,17 @@ class IndeedRSSScraper:
         "default": "",
     }
 
-    def __init__(self, timeout: int = 20):
+    def __init__(self, timeout: int = 15):
+        try:
+            from curl_cffi import requests as cffi_requests
+            self._cffi = cffi_requests
+        except ImportError:
+            self._cffi = None
         self._session = httpx.Client(timeout=timeout, follow_redirects=True)
         self._headers = {
-            "User-Agent": "Mozilla/5.0 (compatible; JobHuntBot/1.0)",
-            "Accept": "application/rss+xml, application/xml, text/xml",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
         }
 
     def search(self, query: str, location: str = "", limit: int = 20) -> list[dict]:
@@ -66,7 +72,10 @@ class IndeedRSSScraper:
                 url = f"{INDEED_BASE_URL}/rss?{urlencode(params)}"
                 logger.info(f"[IndeedRSS] Fetching: {url}")
 
-                resp = self._session.get(url, headers=self._headers)
+                if getattr(self, "_cffi", None):
+                    resp = self._cffi.get(url, headers=self._headers, impersonate="chrome120", timeout=12)
+                else:
+                    resp = self._session.get(url, headers=self._headers)
                 if resp.status_code != 200:
                     logger.debug(f"[IndeedRSS] status {resp.status_code}")
                     if loc_try:

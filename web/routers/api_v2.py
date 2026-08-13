@@ -107,6 +107,8 @@ async def _execute_tick_in_bg(company_limit: int):
 @router.post("/api/v2/cloud-tick")
 async def cloud_tick_endpoint(request: Request):
     """Multi-tenant cloud tick - dispatches campaigns asynchronously in background task."""
+    from web.app_v2 import verify_system_key
+    verify_system_key(request)
     global _tick_cache_lock, _tick_cache
     if _tick_cache_lock is None:
         _tick_cache_lock = asyncio.Lock()

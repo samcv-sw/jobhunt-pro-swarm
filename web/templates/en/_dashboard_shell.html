@@ -8,7 +8,7 @@
         <div class="p-5 border-b border-white/10 space-y-3">
             <div class="flex items-center justify-between">
                 <h2 class="text-xs font-bold text-slate-400 tracking-wider uppercase">Command Center</h2>
-                <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">v17.4 PRO</span>
+                <span class="px-2 py-0.5 text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full">v1 PRO</span>
             </div>
             <div class="p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 via-indigo-950/40 to-slate-900 border border-cyan-500/30 backdrop-blur-md shadow-lg shadow-cyan-500/10">
                 <div class="flex items-center justify-between mb-1">
@@ -62,7 +62,7 @@
                 <span class="text-sm font-bold">AI Salary Negotiator</span>
             </a>
 
-            {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
             <!-- SERVICES & OFFERS SECTION (ADMIN ONLY) -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-extrabold text-pink-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Services & Offers</span>
@@ -169,7 +169,7 @@
 
             <!-- SYSTEM SECTION -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">System</div>
-            {% if is_admin or (user and (user.is_admin or user.email in ['sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
             <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-red-400 hover:bg-red-500/10">
                 <i data-lucide="shield-alert" class="w-4 h-4"></i>
                 <span class="text-sm font-semibold">Admin Panel</span>
@@ -214,9 +214,9 @@
             <!-- Quick Stats/Actions -->
             <div class="flex items-center gap-3">
                 <div class="px-4 py-2 bg-slate-900 border border-white/10 rounded-lg flex items-center gap-2">
-                    <i data-lucide="coins" class="w-4 h-4 text-gold-400"></i>
+                    <i data-lucide="coins" class="w-4 h-4 text-amber-400"></i>
                     <span class="text-sm font-mono text-white">${{ "%.2f"|format(user.wallet_balance or 0) }}</span>
-                    <a href="/wallet" class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs transition-colors">Add Funds</a>
+                    <a href="/wallet" class="ms-2 px-2 py-0.5 bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded text-xs font-bold transition-colors">Add Funds</a>
                 </div>
                 <a href="/new-campaign" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-indigo-500/25 flex items-center gap-2 text-sm font-bold transition-all">
                     <i data-lucide="rocket" class="w-4 h-4 lucide-dir-aware"></i>
@@ -465,5 +465,83 @@ function applyZeroIdeaToCv(title, skills, presetKey) {
     window.location.href = '/upload-cv?title=' + encodeURIComponent(title) + '&skills=' + encodeURIComponent(skills);
   }
 }
+</script>
+
+<!-- GLOBAL CYBERPUNK GLASSMORPHISM TOAST & ALERT OVERRIDE ENGINE -->
+<script>
+window.showCyberToast = function(msg, type = 'success') {
+  if (!msg) return;
+  let container = document.getElementById('cyber-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'cyber-toast-container';
+    container.style.cssText = `
+      position: fixed;
+      top: 24px;
+      inset-inline-end: 24px;
+      z-index: 9999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 440px;
+      width: calc(100vw - 48px);
+    `;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const isErr = type === 'error' || type === 'danger' || String(msg).includes('❌') || String(msg).includes('Error') || String(msg).includes('Failed');
+  const isWarn = type === 'warning' || type === 'warn' || String(msg).includes('⚠️') || String(msg).includes('Warning');
+  
+  const borderColor = isErr ? 'rgba(239, 68, 68, 0.5)' : (isWarn ? 'rgba(245, 158, 11, 0.5)' : 'rgba(34, 197, 94, 0.5)');
+  const glowColor = isErr ? 'rgba(239, 68, 68, 0.25)' : (isWarn ? 'rgba(245, 158, 11, 0.25)' : 'rgba(34, 197, 94, 0.25)');
+  const textColor = isErr ? '#fca5a5' : (isWarn ? '#fcd34d' : '#4ade80');
+  const icon = isErr ? '🚨' : (isWarn ? '⚠️' : '✨');
+
+  toast.style.cssText = `
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid ${borderColor};
+    border-radius: 14px;
+    padding: 14px 18px;
+    color: #f8fafc;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px ${glowColor};
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: auto;
+  `;
+
+  const cleanMsg = String(msg).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  toast.innerHTML = `<span style="font-size:18px;">${icon}</span><span style="flex:1; line-height:1.5; color:${textColor};">${cleanMsg}</span>`;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) scale(1)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px) scale(0.95)';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 350);
+  }, 3500);
+};
+
+window.alert = function(msg) {
+  if (window.showCyberToast) {
+    window.showCyberToast(msg);
+  }
+};
 </script>
 {% endblock %}
