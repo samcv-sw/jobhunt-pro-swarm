@@ -85,19 +85,6 @@ class LazyASGIApp:
                     from web.app_v2 import app
                     from a2wsgi import ASGIMiddleware
                     
-                    # Register custom error logging middleware
-                    @app.middleware("http")
-                    async def log_errors_middleware(request, call_next):
-                        try:
-                            return await call_next(request)
-                        except Exception as e:
-                            import traceback
-                            try:
-                                with open('/home/JHFGUF/jobhunt/web/db_unlock_log.txt', 'a') as f:
-                                    f.write(f"MIDDLEWARE ERROR on {request.url.path}: {e}\n{traceback.format_exc()}\n")
-                            except Exception: pass
-                            raise
-                    
                     try:
                         self.wsgi_app = ASGIMiddleware(app, send_queue_size=20)
                     except TypeError:
