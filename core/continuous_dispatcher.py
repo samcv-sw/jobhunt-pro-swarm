@@ -566,7 +566,6 @@ def _get_active_target_pool(conn, user_id):
             if comp_name.lower() in sent_comps_set:
                 continue
 
-            from core.email_verifier import is_deliverable_email, check_365_cooldown_dedup
             if not is_deliverable_email(comp_email):
                 continue
 
