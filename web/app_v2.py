@@ -13368,10 +13368,14 @@ import asyncio
 import json
 
 @app.get("/api/v2/live-analytics-stream")
-async def api_live_analytics_stream(request: Request):
-    """Server-Sent Events (SSE) live analytics and deliverability events stream."""
+async def api_live_analytics_stream(request: Request, limit: int = 0):
+    """Server-Sent Events (SSE) live analytics and deliverability events stream.
+
+    Pass ?limit=N to end the stream after N events (used by tests / health checks).
+    """
     async def event_generator():
         try:
+            counter = 0
             while True:
                 if await request.is_disconnected():
                     break
@@ -13383,7 +13387,10 @@ async def api_live_analytics_stream(request: Request):
                     "status": "HEALTHY"
                 }
                 yield f"data: {json.dumps(payload)}\n\n"
-                await asyncio.sleep(5)
+                counter += 1
+                if limit and counter >= limit:
+                    break
+                await asyncio.sleep(5 if not limit else 0.1)
         except asyncio.CancelledError:
             pass
 

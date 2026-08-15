@@ -75,12 +75,18 @@ def init(data_dir=None):
     global _active_accounts
 
     # Try to revive any dead accounts first (non-forced)
-    try:
-        revived = try_revive_dead_accounts(force=False)
-        if revived > 0:
-            logger.info(f"[HOTMAIL-POOL] Revived {revived} accounts on startup")
-    except Exception:
-        pass
+    # FIX(100%): never block import/startup on network I/O -- run revival in a daemon thread
+    def _revive_async():
+        try:
+            revived = try_revive_dead_accounts(force=False)
+            if revived > 0:
+                logger.info(f"[HOTMAIL-POOL] Revived {revived} accounts on startup")
+        except Exception:
+            pass
+
+    import threading as _threading
+    _t = _threading.Thread(target=_revive_async, daemon=True, name="hotmail-revive")
+    _t.start()
 
     pool = load_pool()
 
@@ -451,7 +457,7 @@ def try_revive_dead_accounts(force: bool = False) -> int:
                         "refresh_token": acct["refresh"],
                         "scope": "https://graph.microsoft.com/Mail.Send offline_access",
                     },
-                    timeout=10,
+                    timeout=(3.05, 10),  # hard 3s connect timeout so TLS blackholes can't hang the pool
                 )
 
                 if resp.status_code == 200:

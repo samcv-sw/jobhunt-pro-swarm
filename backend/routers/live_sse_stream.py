@@ -17,8 +17,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["RealTime SSE"])
 
 
-async def event_generator(request: Request) -> AsyncGenerator[str, None]:
-    """Generates server-sent events for real-time dashboard feeds."""
+async def event_generator(request: Request, limit: int = 0) -> AsyncGenerator[str, None]:
+    """Generates server-sent events for real-time dashboard feeds.
+
+    limit > 0 makes the stream finite (used by tests / health checks);
+    limit = 0 (default) streams forever until the client disconnects.
+    """
     try:
         # Initial connection event
         yield f"event: connect\ndata: {json.dumps({'status': 'connected', 'timestamp': time.time()})}\n\n"
@@ -30,7 +34,7 @@ async def event_generator(request: Request) -> AsyncGenerator[str, None]:
                 logger.info("SSE client disconnected")
                 break
                 
-            await asyncio.sleep(5.0)
+            await asyncio.sleep(0.1 if limit else 5.0)
             counter += 1
             
             # Periodic heartbeat and live update telemetry
@@ -47,16 +51,23 @@ async def event_generator(request: Request) -> AsyncGenerator[str, None]:
                 }
             }
             yield f"event: heartbeat\ndata: {json.dumps(event_data)}\n\n"
+
+            if limit and counter >= limit:
+                yield f"event: done\ndata: {json.dumps({'status': 'complete', 'events': counter})}\n\n"
+                break
             
     except asyncio.CancelledError:
         logger.info("SSE stream cancelled")
 
 
 @router.get("/api/v1/sse/live-feed")
-async def live_feed(request: Request) -> StreamingResponse:
-    """Stream real-time updates and campaign telemetry to the dashboard via SSE."""
+async def live_feed(request: Request, limit: int = 0) -> StreamingResponse:
+    """Stream real-time updates and campaign telemetry to the dashboard via SSE.
+
+    Pass ?limit=N to end the stream after N heartbeat events (used by tests).
+    """
     return StreamingResponse(
-        event_generator(request),
+        event_generator(request, limit=limit),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache, no-transform",

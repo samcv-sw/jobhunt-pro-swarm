@@ -17,7 +17,7 @@ from redis.asyncio import Redis
 from redis.cluster import RedisCluster
 
 
-class RedisClu sterCache:
+class RedisClusterCache:
     """
     Multi-tier Redis caching
     - Primary: Redis Cluster for distributed cache
@@ -274,7 +274,7 @@ class RedisClu sterCache:
 
 
 # Global instance
-redis_cache = RedisCl usterCache(
+redis_cache = RedisClusterCache(
     redis_url="redis://localhost:6379",  # Default, override in production
     enable_cluster=False,  # Set to True for production Redis Cluster
     default_ttl=3600
