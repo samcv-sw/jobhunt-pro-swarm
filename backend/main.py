@@ -599,6 +599,8 @@ from backend.routers.gcc_compensation_radar_router import router as gcc_compensa
 from backend.routers.ai_video_pitch_router import router as ai_video_pitch_router
 from backend.routers.interview_arena_router import router as interview_arena_router
 from backend.routers.headhunter_dossier_router import router as headhunter_dossier_router
+from backend.routers.security_shield_router import router as security_shield_router
+from backend.routers.monetization_engine_router import router as monetization_engine_router
 
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
@@ -615,6 +617,8 @@ app.include_router(gcc_compensation_radar_router)
 app.include_router(ai_video_pitch_router)
 app.include_router(interview_arena_router)
 app.include_router(headhunter_dossier_router)
+app.include_router(security_shield_router)
+app.include_router(monetization_engine_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router

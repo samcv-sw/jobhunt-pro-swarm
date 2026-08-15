@@ -12339,6 +12339,18 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load headhunter_dossier_router: {_e}")
 
+try:
+    from backend.routers.security_shield_router import router as security_shield_router
+    app.include_router(security_shield_router)
+except Exception as _e:
+    logger.warning(f"Could not load security_shield_router: {_e}")
+
+try:
+    from backend.routers.monetization_engine_router import router as monetization_engine_router
+    app.include_router(monetization_engine_router)
+except Exception as _e:
+    logger.warning(f"Could not load monetization_engine_router: {_e}")
+
 
 @app.get("/ats-score", response_class=HTMLResponse)
 @app.get("/free-ats-score", response_class=HTMLResponse)
