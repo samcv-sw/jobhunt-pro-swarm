@@ -12273,6 +12273,18 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load linkedin_magnet_router: {_e}")
 
+try:
+    from backend.routers.multimodal_vision_router import router as multimodal_vision_router
+    app.include_router(multimodal_vision_router)
+except Exception as _e:
+    logger.warning(f"Could not load multimodal_vision_router: {_e}")
+
+try:
+    from backend.routers.social_growth_engine import router as social_growth_engine_router
+    app.include_router(social_growth_engine_router)
+except Exception as _e:
+    logger.warning(f"Could not load social_growth_engine_router: {_e}")
+
 
 @app.get("/ats-score", response_class=HTMLResponse)
 @app.get("/free-ats-score", response_class=HTMLResponse)

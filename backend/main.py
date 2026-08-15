@@ -588,10 +588,15 @@ from backend.routers.gulf_compensation import router as gulf_compensation_router
 from backend.routers.pseo_jobs import router as pseo_jobs_router
 from backend.routers.microsite_builder import router as microsite_builder_router
 
+from backend.routers.multimodal_vision_router import router as multimodal_vision_router
+from backend.routers.social_growth_engine import router as social_growth_engine_router
+
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
 app.include_router(pseo_jobs_router)
 app.include_router(microsite_builder_router)
+app.include_router(multimodal_vision_router)
+app.include_router(social_growth_engine_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router
