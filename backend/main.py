@@ -594,6 +594,11 @@ from backend.routers.gcc_interviewer_router import router as gcc_interviewer_rou
 from backend.routers.voice_to_cv_router import router as voice_to_cv_router
 from backend.routers.whitelabel_multi_tenant_router import router as whitelabel_multi_tenant_router
 from backend.routers.zatca_invoice_router import router as zatca_invoice_router
+from backend.routers.whatsapp_concierge_router import router as whatsapp_concierge_router
+from backend.routers.gcc_compensation_radar_router import router as gcc_compensation_radar_router
+from backend.routers.ai_video_pitch_router import router as ai_video_pitch_router
+from backend.routers.interview_arena_router import router as interview_arena_router
+from backend.routers.headhunter_dossier_router import router as headhunter_dossier_router
 
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
@@ -605,6 +610,11 @@ app.include_router(gcc_interviewer_router)
 app.include_router(voice_to_cv_router)
 app.include_router(whitelabel_multi_tenant_router)
 app.include_router(zatca_invoice_router)
+app.include_router(whatsapp_concierge_router)
+app.include_router(gcc_compensation_radar_router)
+app.include_router(ai_video_pitch_router)
+app.include_router(interview_arena_router)
+app.include_router(headhunter_dossier_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router

@@ -12309,6 +12309,36 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load zatca_invoice_router: {_e}")
 
+try:
+    from backend.routers.whatsapp_concierge_router import router as whatsapp_concierge_router
+    app.include_router(whatsapp_concierge_router)
+except Exception as _e:
+    logger.warning(f"Could not load whatsapp_concierge_router: {_e}")
+
+try:
+    from backend.routers.gcc_compensation_radar_router import router as gcc_compensation_radar_router
+    app.include_router(gcc_compensation_radar_router)
+except Exception as _e:
+    logger.warning(f"Could not load gcc_compensation_radar_router: {_e}")
+
+try:
+    from backend.routers.ai_video_pitch_router import router as ai_video_pitch_router
+    app.include_router(ai_video_pitch_router)
+except Exception as _e:
+    logger.warning(f"Could not load ai_video_pitch_router: {_e}")
+
+try:
+    from backend.routers.interview_arena_router import router as interview_arena_router
+    app.include_router(interview_arena_router)
+except Exception as _e:
+    logger.warning(f"Could not load interview_arena_router: {_e}")
+
+try:
+    from backend.routers.headhunter_dossier_router import router as headhunter_dossier_router
+    app.include_router(headhunter_dossier_router)
+except Exception as _e:
+    logger.warning(f"Could not load headhunter_dossier_router: {_e}")
+
 
 @app.get("/ats-score", response_class=HTMLResponse)
 @app.get("/free-ats-score", response_class=HTMLResponse)
