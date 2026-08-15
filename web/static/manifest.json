@@ -1,22 +1,19 @@
 {
-  "name": "JobHunt Pro - Enterprise SaaS Platform",
+  "name": "JobHunt Pro — Sovereign Career Swarm",
   "short_name": "JobHunt Pro",
-  "description": "Autonomous B2B Lead Generation Swarm, AI SDR Outreach & Resume Optimization Platform",
-  "start_url": "/",
+  "start_url": "/user-dashboard",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "orientation": "any",
-  "dir": "auto",
-  "lang": "ar",
+  "background_color": "#070712",
+  "theme_color": "#00f0ff",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/static/images/logo192.png",
+      "src": "/static/img/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo512.png",
+      "src": "/static/img/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -12351,6 +12351,12 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load monetization_engine_router: {_e}")
 
+try:
+    from backend.routers.contract_analyzer_router import router as contract_analyzer_router
+    app.include_router(contract_analyzer_router)
+except Exception as _e:
+    logger.warning(f"Could not load contract_analyzer_router: {_e}")
+
 
 @app.get("/ats-score", response_class=HTMLResponse)
 @app.get("/free-ats-score", response_class=HTMLResponse)

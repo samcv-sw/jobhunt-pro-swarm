@@ -601,6 +601,7 @@ from backend.routers.interview_arena_router import router as interview_arena_rou
 from backend.routers.headhunter_dossier_router import router as headhunter_dossier_router
 from backend.routers.security_shield_router import router as security_shield_router
 from backend.routers.monetization_engine_router import router as monetization_engine_router
+from backend.routers.contract_analyzer_router import router as contract_analyzer_router
 
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
@@ -619,6 +620,7 @@ app.include_router(interview_arena_router)
 app.include_router(headhunter_dossier_router)
 app.include_router(security_shield_router)
 app.include_router(monetization_engine_router)
+app.include_router(contract_analyzer_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router

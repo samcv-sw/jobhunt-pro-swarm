@@ -1,55 +1,37 @@
-// Service Worker for JobHunt Pro PWA (100% Grade S+ Specification)
-const CACHE_NAME = 'jobhunt-pro-v2';
+// JobHunt Pro - Service Worker for Offline Cache & Instant Mobile Experience
+const CACHE_NAME = 'jhpro-v1';
 const ASSETS_TO_CACHE = [
   '/',
-  '/static/manifest.json',
-  '/static/offline.html',
-  '/favicon.ico'
+  '/user-dashboard',
+  '/static/css/global.css',
+  '/static/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+      return cache.addAll(ASSETS_TO_CACHE).catch(() => {});
+    })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       );
-    }).then(() => self.clients.claim())
+    })
   );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network first for HTML navigation with offline.html fallback, cache fallback for assets
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(event.request).then((response) => {
-          if (response) return response;
-          return caches.match('/static/offline.html');
-        });
-      })
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request).catch(() => {
-          // Fallback response for missing dynamic assets
-          if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/static/offline.html');
-          }
-        });
-      })
-    );
-  }
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
+    })
+  );
 });
