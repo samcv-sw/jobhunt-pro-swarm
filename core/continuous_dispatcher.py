@@ -566,6 +566,17 @@ def _get_active_target_pool(conn, user_id):
             if comp_name.lower() in sent_comps_set:
                 continue
 
+            from core.email_verifier import is_deliverable_email, check_365_cooldown_dedup
+            if not is_deliverable_email(comp_email):
+                continue
+
+            allowed, _ = check_365_cooldown_dedup(user_id=user_id, email=comp_email)
+            if not allowed:
+                sent_emails_set.add(comp_email)
+                continue
+
+            user_session_claimed.add(comp_email)
+            user_session_comps.add(comp_name.lower())
             return {
                 "company": comp_name,
                 "title": r["title"] or candidate_title,

@@ -85,6 +85,17 @@ class B2BGrowthSwarmEngine:
                 "error": "Strict policy: Synthetic emails are forbidden."
             }
 
+        try:
+            from core.email_verifier import is_deliverable_email
+            if not is_deliverable_email(prospect_email):
+                return {
+                    "prospect_email": prospect_email,
+                    "status": "rejected_undeliverable_email",
+                    "error": "Strict policy: Target email failed live MX/deliverability checks."
+                }
+        except Exception:
+            pass
+
         sequence = []
         for template in self.EMAIL_SEQUENCES:
             body_rendered = template["body"].replace("{{first_name}}", contact_name).replace("{{company_name}}", company_name)

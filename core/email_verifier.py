@@ -81,6 +81,44 @@ MAJOR_ENTERPRISE_DOMAINS = {
 }
 
 
+from contextlib import contextmanager
+
+@contextmanager
+def _get_db_context(db_path: Optional[str] = None):
+    if db_path:
+        import sqlite3
+        conn = sqlite3.connect(db_path, timeout=5.0)
+        try:
+            yield conn
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+    else:
+        try:
+            from web.shared import get_db
+            with get_db() as conn:
+                yield conn
+        except Exception:
+            import sqlite3
+            db_file = os.environ.get("DB_PATH", "data/jobs.db")
+            db_dir = os.path.dirname(db_file)
+            if db_dir and not os.path.exists(db_dir):
+                try:
+                    os.makedirs(db_dir, exist_ok=True)
+                except Exception:
+                    pass
+            conn = sqlite3.connect(db_file, timeout=5.0)
+            try:
+                yield conn
+            finally:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+
+
 def _init_tables_and_cache():
     """Ensure persistent DB tables exist and load active caches."""
     global _CACHE_INITIALIZED, _SUPPRESSED_EMAILS, _MX_CACHE
@@ -93,8 +131,7 @@ def _init_tables_and_cache():
         _MX_CACHE[d] = {"has_mx": True, "timestamp": now + MX_CACHE_TTL_SECONDS}
 
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS suppressed_emails (
                     email TEXT PRIMARY KEY,
@@ -140,8 +177,7 @@ def suppress_bounced_email(email: str, reason: str = "bounce"):
     _SUPPRESSED_EMAILS.add(clean_email)
     
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             conn.execute("CREATE TABLE IF NOT EXISTS suppressed_emails (email TEXT PRIMARY KEY, reason TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)")
             conn.execute(
                 "INSERT OR IGNORE INTO suppressed_emails (email, reason) VALUES (?, ?)",
@@ -246,8 +282,7 @@ def check_domain_mx(domain: str) -> bool:
 
     # 4. Check Persistent DB Cache
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             row = conn.execute(
                 "SELECT has_mx, updated_at FROM domain_mx_cache WHERE domain = ?", (domain,)
             ).fetchone()
@@ -272,8 +307,7 @@ def check_domain_mx(domain: str) -> bool:
     
     # Persist in DB cache
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             conn.execute("""
                 INSERT INTO domain_mx_cache (domain, has_mx, updated_at)
                 VALUES (?, ?, ?)
@@ -321,8 +355,7 @@ async def async_check_domain_mx(domain: str) -> bool:
         
     # 4. DB Cache
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             row = conn.execute(
                 "SELECT has_mx, updated_at FROM domain_mx_cache WHERE domain = ?", (domain,)
             ).fetchone()
@@ -353,8 +386,7 @@ async def async_check_domain_mx(domain: str) -> bool:
     
     # Persist in DB cache
     try:
-        from web.shared import get_db
-        with get_db() as conn:
+        with _get_db_context() as conn:
             conn.execute("""
                 INSERT INTO domain_mx_cache (domain, has_mx, updated_at)
                 VALUES (?, ?, ?)
@@ -396,8 +428,9 @@ def verify_email_deliverability(email: str) -> Tuple[bool, str]:
         local_part in SUSPICIOUS_LOCAL_PARTS
         or local_part.startswith("lead.hr")
         or "dummy" in local_part
-        or re.search(r"^careers-(?:hub-)?[0-9a-fA-F]{2,32}$", local_part)
-        or re.search(r"^test[0-9a-fA-F]{4,}$", local_part)
+        or re.search(r"^(?:careers|job|applicant|lead|contact|outreach)(?:-hub|-apply|-desk)?-[0-9a-fA-F]{2,32}$", local_part)
+        or re.search(r"^(?:test|demo|sample|fake|placeholder)[0-9a-fA-F]*$", local_part)
+        or re.search(r"^[0-9a-fA-F]{10,}$", local_part)
     ):
         return False, f"Synthetic/suspicious local part ({local_part})"
         
@@ -447,8 +480,9 @@ async def async_verify_email_deliverability(email: str) -> Tuple[bool, str]:
         local_part in SUSPICIOUS_LOCAL_PARTS
         or local_part.startswith("lead.hr")
         or "dummy" in local_part
-        or re.search(r"^careers-(?:hub-)?[0-9a-fA-F]{2,32}$", local_part)
-        or re.search(r"^test[0-9a-fA-F]{4,}$", local_part)
+        or re.search(r"^(?:careers|job|applicant|lead|contact|outreach)(?:-hub|-apply|-desk)?-[0-9a-fA-F]{2,32}$", local_part)
+        or re.search(r"^(?:test|demo|sample|fake|placeholder)[0-9a-fA-F]*$", local_part)
+        or re.search(r"^[0-9a-fA-F]{10,}$", local_part)
     ):
         return False, f"Synthetic/suspicious local part ({local_part})"
         
@@ -643,17 +677,8 @@ def check_365_cooldown_dedup(user_id: Any, email: str, db_path: Optional[str] = 
         return True, "Cooldown check passed"
 
     try:
-        if db_path:
-            import sqlite3
-            conn = sqlite3.connect(db_path, timeout=5.0)
-            try:
-                return _check_conn(conn)
-            finally:
-                conn.close()
-        else:
-            from web.shared import get_db
-            with get_db() as conn:
-                return _check_conn(conn)
+        with _get_db_context(db_path) as conn:
+            return _check_conn(conn)
     except Exception as exc:
         logger.warning(f"[EmailVerifier] 365-day cooldown check failed: {exc}")
         

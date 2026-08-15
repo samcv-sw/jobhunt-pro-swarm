@@ -1102,6 +1102,13 @@ async def api_send_test_email(request: Request):
     if not recipient_email or "@" not in recipient_email:
         return JSONResponse({"success": False, "error": "الرجاء أدخل بريد إلكتروني صحيح / Please enter a valid recipient email address."}, status_code=400)
 
+    try:
+        from core.email_verifier import is_deliverable_email
+        if not is_deliverable_email(recipient_email.strip()):
+            return JSONResponse({"success": False, "error": "البريد الإلكتروني المدخل غير صالح أو فشل في فحص الـ MX المباشر / Invalid target email (failed live MX/DNS verification)."}, status_code=400)
+    except Exception as v_err:
+        logger.debug(f"[send_test_email] Deliverability check bypass notice: {v_err}")
+
     if not user_id:
         return JSONResponse({"success": False, "error": "Unauthorized"}, status_code=401)
 

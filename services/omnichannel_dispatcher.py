@@ -22,7 +22,7 @@ class OmnichannelDispatcherSwarm:
         """
         Permanent Rule Compliance:
         1. No synthetic emails (careers-[HEX]@..., synthetic domains, truncated domain strings like [:10]).
-        2. Must contain valid @ and TLD structure.
+        2. Must pass live MX & syntax verification via is_deliverable_email.
         """
         if not email or "@" not in email:
             return False
@@ -33,15 +33,15 @@ class OmnichannelDispatcherSwarm:
         if "careers-" in email_lower or "demo-" in email_lower or "test-" in email_lower or "synthetic" in email_lower:
             return False
             
-        parts = email_lower.split("@")
-        if len(parts) != 2:
-            return False
-            
-        domain = parts[1]
-        if "." not in domain or len(domain) < 4:
-            return False
-
-        return True
+        try:
+            from core.email_verifier import is_deliverable_email
+            return is_deliverable_email(email_lower)
+        except Exception:
+            parts = email_lower.split("@")
+            if len(parts) != 2:
+                return False
+            domain = parts[1]
+            return "." in domain and len(domain) >= 4
 
     def prepare_omnichannel_payload(
         self,

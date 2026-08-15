@@ -11,7 +11,6 @@ import random
 import logging
 from collections import defaultdict, deque
 from typing import Dict, Tuple, Optional, Any, List
-import httpx
 
 logger = logging.getLogger("DeliverabilityShield")
 
@@ -218,7 +217,7 @@ def is_deliverable_email(email: str) -> bool:
         return False
     if re.search(r'^[0-9a-f]{10,}@', email_clean):  # Pure hex hashes as user local-part
         return False
-    if re.search(r'^(?:demo|sample|fake|test|synthetic|placeholder)@', email_clean):
+    if re.search(r'^(?:demo|sample|fake|test|synthetic|placeholder)[0-9a-fA-F]*@', email_clean):
         return False
 
     # 3. Extract and validate user and domain
@@ -300,6 +299,7 @@ async def check_domain_dns_health(domain: str) -> Dict[str, Any]:
     }
 
     try:
+        import httpx
         async with httpx.AsyncClient(timeout=4.0) as client:
             # Query MX
             mx_resp = await client.get(

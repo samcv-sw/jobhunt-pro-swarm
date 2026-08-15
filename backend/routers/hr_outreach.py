@@ -37,10 +37,14 @@ async def generate_outreach_campaign(req: OutreachCampaignRequest):
             from fastapi import HTTPException
             raise HTTPException(status_code=400, detail="Synthetic/demo email targets are strictly prohibited.")
         try:
-            from core.email_verifier import is_deliverable_email
+            from core.email_verifier import is_deliverable_email, check_365_cooldown_dedup
             if not is_deliverable_email(email):
                 from fastapi import HTTPException
                 raise HTTPException(status_code=400, detail=f"Target email '{email}' failed live MX/DNS deliverability checks.")
+            allowed, reason = check_365_cooldown_dedup(user_id=req.user_id, email=email)
+            if not allowed:
+                from fastapi import HTTPException
+                raise HTTPException(status_code=400, detail=reason)
         except ImportError:
             pass
 
