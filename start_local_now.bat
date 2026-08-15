@@ -49,12 +49,12 @@ set "PY_EXE=python"
 echo ====================================================================
 echo   STARTING JOBHUNT PRO LOCAL SOVEREIGN ENGINE (24/7 AI SWARM)
 echo ====================================================================
-echo [*] Working Folder  : %ROOT_DIR%
+echo [*] Working Folder  : !ROOT_DIR!
 echo [*] Python Runtime  : !PY_EXE!
 echo [*] Admin Privilege: samatou683@gmail.com
 echo.
 
-"!PY_EXE!" "%ROOT_DIR%run_local_server.py"
+"!PY_EXE!" "!ROOT_DIR!run_local_server.py"
 
 if errorlevel 1 (
     echo.
