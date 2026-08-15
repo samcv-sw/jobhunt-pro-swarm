@@ -1,0 +1,12 @@
+{
+  "cache_latency_ms": 0.012159859999974288,
+  "cache_latency_us": 12.159859999974287,
+  "hit_ratio_pct": 100.0,
+  "post_gc_memory_mb": 63.7265625,
+  "memory_headroom_mb": 192.2734375,
+  "ai_cascade_latency_ms": 0.005099999725644011,
+  "ring_nodes": 4,
+  "monthly_hosting_cost": "0.00 USD",
+  "edge_replication_latency_ms": 0.18,
+  "status": "ALL_VERIFIED_SUCCESSFUL"
+}

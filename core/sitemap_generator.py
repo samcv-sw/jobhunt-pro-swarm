@@ -53,7 +53,7 @@ def generate_sitemap_xml(
             loc_elem.text = f"{base_url.rstrip('/')}/blog/{slug}"
             lastmod_elem = ET.SubElement(url_elem, "lastmod")
             lastmod_elem.text = now_iso
-            changefreq_elem = ET.SubElement(url_elem, "weekly")
+            changefreq_elem = ET.SubElement(url_elem, "changefreq")
             changefreq_elem.text = "weekly"
             priority_elem = ET.SubElement(url_elem, "priority")
             priority_elem.text = "0.7"

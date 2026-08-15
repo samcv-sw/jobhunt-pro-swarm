@@ -83,9 +83,9 @@ async def receive_social_message(payload: WebhookPayload, request: Request):
             job_url,
         )  # Re-using job_id as URL for simplicity in webhook
 
-        # Deduct token
-        await conn.execute(
-            "UPDATE users SET tokens = tokens - 1 WHERE user_id = $1", user["user_id"]
+        # Deduct token atomically
+        res = await conn.execute(
+            "UPDATE users SET tokens = tokens - 1 WHERE user_id = $1 AND tokens >= 1", user["user_id"]
         )
 
     return {

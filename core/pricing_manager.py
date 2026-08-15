@@ -1,6 +1,6 @@
 """
 pricing_manager.py - Clean pricing configuration for JobHunt Pro v2
-4 tiers: Free ($0), Basic ($5), Pro ($15), Enterprise ($50)
+4 tiers: Starter ($9), Basic ($19), Pro ($49), Enterprise/B2B ($149)
 All payment buttons link to /register or /wallet for crypto payments.
 """
 
@@ -12,53 +12,54 @@ logger = logging.getLogger(__name__)
 
 PRICING_TIERS = [
     {
-        "tier": "free",
+        "tier": "starter",
         "name": "Starter",
-        "companies": 10,
-        "price_usd": 2,
-        "original_price": 4,
-        "description": "10 companies - Start your campaign",
+        "companies": 25,
+        "price_usd": 9,
+        "original_price": 18,
+        "description": "25 companies - Kickstart your campaign",
         "features": [
-            "10 company applications",
-            "AI cover letters",
+            "25 company applications",
+            "AI tailored cover letters (Gemini + Groq)",
+            "Live MX deliverability verification",
             "Basic email tracking",
             "Community support",
         ],
         "popular": False,
-        "button_text": "Get Started – $2",
+        "button_text": "Get Started – $9",
         "button_class": "btn-secondary",
         "highlight": False,
         "badge": "",
-        "per_company": "$0.20",
+        "per_company": "$0.36",
     },
     {
         "tier": "basic",
         "name": "Basic",
         "companies": 100,
-        "price_usd": 5,
-        "original_price": 10,
-        "description": "100 companies - Perfect to start",
+        "price_usd": 19,
+        "original_price": 38,
+        "description": "100 companies - Perfect for active seekers",
         "features": [
             "100 company applications",
-            "AI cover letters (Gemini + Groq)",
+            "AI tailored cover letters & CV tailoring",
             "Email tracking with open/click stats",
             "Follow-up automation (7 + 14 days)",
-            "Basic analytics dashboard",
+            "Conversion analytics dashboard",
             "Email support",
         ],
         "popular": True,
-        "button_text": "Get Basic – $5",
+        "button_text": "Get Basic – $19",
         "button_class": "btn-primary",
         "highlight": True,
         "badge": "BEST VALUE",
-        "per_company": "$0.05",
+        "per_company": "$0.19",
     },
     {
         "tier": "pro",
         "name": "Pro",
         "companies": 500,
-        "price_usd": 15,
-        "original_price": 30,
+        "price_usd": 49,
+        "original_price": 98,
         "description": "500 companies - For serious job seekers",
         "features": [
             "500 company applications",
@@ -70,34 +71,38 @@ PRICING_TIERS = [
             "Priority support",
         ],
         "popular": False,
-        "button_text": "Get Pro – $15",
+        "button_text": "Get Pro – $49",
         "button_class": "btn-secondary",
         "highlight": False,
-        "badge": "",
-        "per_company": "$0.03",
+        "badge": "POPULAR",
+        "per_company": "$0.098",
     },
     {
         "tier": "enterprise",
-        "name": "Enterprise",
-        "companies": 2000,
-        "price_usd": 50,
-        "original_price": 100,
-        "description": "2,000 companies - Maximum reach",
+        "name": "Enterprise / B2B SDR Swarm",
+        "companies": 2500,
+        "price_usd": 149,
+        "original_price": 299,
+        "description": "2,500 leads - Autonomous AI SDR Outreach Swarm & Team CRM",
+        "conversion_headline": "سرب B2B SDR الأوتوماتيكي للوصول الفوري إلى 2,500 صانع قرار ومدير تنفيذي في الخليج",
         "features": [
-            "2,000 company applications",
-            "Everything in Pro",
+            "2,500 company / lead applications",
+            "Autonomous AI SDR cold outreach swarm",
+            "Live MX verification & 365d deduplication",
+            "Full CRM & webhook integration",
             "Custom AI model training",
             "Dedicated account manager",
-            "SLA guarantee",
-            "White-label option",
-            "Full API access",
+            "SLA guarantee & full REST API access",
         ],
+        "preview_hook": "/api/v2/b2b-leads/sample",
+        "deliverability_guarantee": "100% Live MX Verified (0% Bounce SLA)",
+        "supported_payment_methods": ["mada", "apple_pay", "visa_mastercard", "usdt_trc20", "usdt_bep20", "crypto_btc_eth_sol"],
         "popular": False,
-        "button_text": "Get Enterprise – $50",
+        "button_text": "Get Enterprise – $149",
         "button_class": "btn-magenta",
         "highlight": False,
-        "badge": "PREMIUM",
-        "per_company": "$0.025",
+        "badge": "B2B & ENTERPRISE",
+        "per_company": "$0.059",
     },
 ]
 
@@ -402,8 +407,13 @@ def get_all_pricing() -> dict[str, Any]:
 
 def get_tier_by_name(tier_name: str) -> dict[str, Any] | None:
     """Get tier details by name."""
+    if not tier_name or not isinstance(tier_name, str):
+        return None
+    t_clean = tier_name.strip().lower()
+    if t_clean in ("free", "starter"):
+        return PRICING_TIERS[0]
     for t in PRICING_TIERS:
-        if t["tier"] == tier_name:
+        if t["tier"].lower() == t_clean or t["name"].lower() == t_clean:
             return t
     return None
 
@@ -447,6 +457,34 @@ PPP_DISCOUNTS = {
     "KE": 0.40,  # Kenya: 40% PPP discount
 }
 
+GCC_CURRENCIES: dict[str, dict[str, Any]] = {
+    "SAR": {"rate": 3.75, "symbol": "ر.س", "symbol_en": "SAR", "name": "Saudi Riyal", "decimals": 0},
+    "AED": {"rate": 3.6725, "symbol": "د.إ", "symbol_en": "AED", "name": "UAE Dirham", "decimals": 0},
+    "QAR": {"rate": 3.64, "symbol": "ر.ق", "symbol_en": "QAR", "name": "Qatari Riyal", "decimals": 0},
+    "KWD": {"rate": 0.308, "symbol": "د.ك", "symbol_en": "KWD", "name": "Kuwaiti Dinar", "decimals": 2},
+    "BHD": {"rate": 0.376, "symbol": "د.ب", "symbol_en": "BHD", "name": "Bahraini Dinar", "decimals": 2},
+    "OMR": {"rate": 0.385, "symbol": "ر.ع", "symbol_en": "OMR", "name": "Omani Rial", "decimals": 2},
+    "USD": {"rate": 1.0, "symbol": "$", "symbol_en": "USD", "name": "US Dollar", "decimals": 0},
+    "EUR": {"rate": 0.92, "symbol": "€", "symbol_en": "EUR", "name": "Euro", "decimals": 0},
+    "GBP": {"rate": 0.79, "symbol": "£", "symbol_en": "GBP", "name": "British Pound", "decimals": 0},
+}
+
+COUNTRY_TO_CURRENCY: dict[str, str] = {
+    "SA": "SAR",
+    "AE": "AED",
+    "QA": "QAR",
+    "KW": "KWD",
+    "BH": "BHD",
+    "OM": "OMR",
+    "GB": "GBP",
+    "US": "USD",
+    "DE": "EUR",
+    "FR": "EUR",
+    "IT": "EUR",
+    "ES": "EUR",
+    "NL": "EUR",
+}
+
 def get_ppp_adjusted_pricing(country_code: str = "US") -> dict[str, Any]:
     """Calculate location-adjusted pricing based on country PPP multiplier."""
     c_code = (country_code or "US").upper().strip()
@@ -470,4 +508,118 @@ def get_ppp_adjusted_pricing(country_code: str = "US") -> dict[str, Any]:
         "discount_percentage": int(discount_rate * 100),
         "tiers": adjusted_tiers,
     }
+
+
+def get_gcc_localized_pricing(country_code: str = "AE", preferred_currency: str | None = None) -> dict[str, Any]:
+    """
+    Returns pricing converted to local GCC/international currency with formatted labels in Arabic & English.
+    """
+    c_code = (country_code or "AE").upper().strip()
+    currency_code = preferred_currency.upper().strip() if preferred_currency else COUNTRY_TO_CURRENCY.get(c_code, "USD")
+    
+    currency_meta = GCC_CURRENCIES.get(currency_code, GCC_CURRENCIES["USD"])
+    rate = currency_meta["rate"]
+    symbol_ar = currency_meta["symbol"]
+    symbol_en = currency_meta["symbol_en"]
+    decimals = currency_meta["decimals"]
+
+    localized_tiers = []
+    for tier in PRICING_TIERS:
+        usd_price = tier["price_usd"]
+        converted_raw = usd_price * rate
+        converted_price = round(converted_raw, decimals) if decimals > 0 else int(round(converted_raw))
+        
+        orig_raw = tier.get("original_price", usd_price * 2) * rate
+        converted_orig = round(orig_raw, decimals) if decimals > 0 else int(round(orig_raw))
+
+        localized_tiers.append({
+            **tier,
+            "currency": currency_code,
+            "currency_symbol_ar": symbol_ar,
+            "currency_symbol_en": symbol_en,
+            "converted_price": converted_price,
+            "converted_original_price": converted_orig,
+            "price_formatted_ar": f"{converted_price} {symbol_ar}",
+            "price_formatted_en": f"{symbol_en} {converted_price}" if symbol_en != "$" else f"${converted_price}",
+            "button_text_ar": f"اشترك الآن – {converted_price} {symbol_ar}",
+            "button_text_en": f"Get {tier['name']} – {symbol_en} {converted_price}",
+        })
+
+    return {
+        "success": True,
+        "country_code": c_code,
+        "currency": currency_code,
+        "currency_name": currency_meta["name"],
+        "exchange_rate_vs_usd": rate,
+        "tiers": localized_tiers,
+    }
+
+
+def calculate_job_search_roi(
+    target_monthly_salary_usd: float = 4000.0,
+    manual_hours_per_week: float = 10.0,
+    selected_tier: str = "pro"
+) -> dict[str, Any]:
+    """
+    Calculates estimated time saved, financial value of time, and acceleration ROI multiplier.
+    Helps prospective job seekers see the high ROI of using JobHunt Pro.
+    """
+    tier_info = get_tier_by_name(selected_tier) or PRICING_TIERS[2]  # Default Pro
+    tier_cost = tier_info["price_usd"]
+
+    # Target hourly rate assuming 160 hours/month
+    hourly_rate = max(round(target_monthly_salary_usd / 160.0, 2), 10.0)
+    
+    # Monthly manual search time
+    monthly_manual_hours = manual_hours_per_week * 4.2
+    
+    # JobHunt Pro automates ~92% of the search & dispatch time
+    hours_saved_monthly = round(monthly_manual_hours * 0.92, 1)
+    value_of_saved_time = round(hours_saved_monthly * hourly_rate, 2)
+    
+    # Standard manual search duration (average 16 weeks / 4 months) vs automated (approx 4-6 weeks)
+    time_to_hire_acceleration_weeks = 8  # Saves 2 full months on average
+    accelerated_earnings = round((time_to_hire_acceleration_weeks / 4.0) * target_monthly_salary_usd, 2)
+    
+    total_financial_benefit = round(value_of_saved_time + accelerated_earnings, 2)
+    roi_multiplier = round(total_financial_benefit / max(tier_cost, 1.0), 1)
+
+    return {
+        "tier": tier_info["tier"],
+        "tier_name": tier_info["name"],
+        "tier_cost_usd": tier_cost,
+        "target_monthly_salary_usd": target_monthly_salary_usd,
+        "hourly_value_usd": hourly_rate,
+        "hours_saved_monthly": hours_saved_monthly,
+        "monthly_time_value_saved_usd": value_of_saved_time,
+        "time_to_hire_acceleration_weeks": time_to_hire_acceleration_weeks,
+        "accelerated_career_earnings_usd": accelerated_earnings,
+        "total_financial_benefit_usd": total_financial_benefit,
+        "roi_multiplier": roi_multiplier,
+        "roi_headline": f"توفير {hours_saved_monthly} ساعة شهرياً وعائد استثماري يفوق {roi_multiplier}x ضعف التكلفة",
+    }
+
+
+def get_b2b_sdr_swarm_tier() -> dict[str, Any]:
+    """Retrieve full configuration and conversion parameters for the B2B SDR Swarm tier ($149)."""
+    return PRICING_TIERS[3]
+
+
+def get_lead_magnet_config() -> dict[str, Any]:
+    """Configuration for Free ATS Resume Scanner lead magnet & interactive preview widget."""
+    return {
+        "scanner_title_ar": "مقياس فحص السيرة الذاتية الذكي ATS مجاناً",
+        "scanner_title_en": "Free AI ATS Resume & Career Gap Scanner",
+        "badge": "100% Free • No Signup Required",
+        "instant_scan_endpoint": "/api/v2/public/ats-instant-score",
+        "preview_leads_endpoint": "/api/v2/b2b-leads/sample",
+        "upsell_tiers": {
+            "micro_service": {"name": "ATS Keyword Injection", "price_usd": 5, "checkout_url": "/checkout_v3?service=cv-keyword&amount=5"},
+            "basic_seeker": {"name": "Basic 100 Companies + AI CV Polish", "price_usd": 19, "checkout_url": "/checkout_v3?plan=basic&amount=19"},
+            "b2b_sdr_swarm": {"name": "B2B SDR Swarm (2,500 Leads)", "price_usd": 149, "checkout_url": "/checkout_v3?plan=enterprise&amount=149", "crypto_url": "/wallet?deposit=149&plan=enterprise"},
+        },
+        "supported_gateways": ["mada", "apple_pay", "visa_mastercard", "usdt_trc20", "crypto_btc_eth_sol"]
+    }
+
+
 

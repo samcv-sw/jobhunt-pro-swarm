@@ -1,36 +1,45 @@
-# BRIEFING — 2026-07-14T08:18:00Z
+# BRIEFING — 2026-08-14T12:37:30Z
 
 ## Mission
-Audit security middleware (JWT authentication, CORS matching, and rate limiting) in backend/ and identify vulnerabilities/issues.
+Investigate Milestone M1 Feature 3 (Multi-region keepalive sentinels): Cloudflare worker cron keepalive, GitHub Actions keepalive workflows, cloud_keepalive_247.py script, multi-region endpoints, fallback logic, timeout settings, headers/probe tokens, and test coverage.
 
 ## 🔒 My Identity
-- Archetype: explorer
-- Roles: Teamwork explorer, security auditor
+- Archetype: Explorer
+- Roles: Read-only investigator, Codebase explorer, System analyzer
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_3
-- Original parent: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Milestone: M1 Security Audit
+- Original parent: 41011934-7311-4236-891c-edf1863f8340
+- Milestone: M1 (Feature 3: Multi-region keepalive sentinels)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- Verify alignment with API contracts
+- Read-only investigation — do NOT implement / modify application source code directly
+- Adhere strictly to 5-component handoff format in handoff.md
+- Use send_message to report to parent (41011934-7311-4236-891c-edf1863f8340)
 
 ## Current Parent
-- Conversation ID: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Updated: 2026-07-14T08:18:00Z
+- Conversation ID: 41011934-7311-4236-891c-edf1863f8340
+- Updated: 2026-08-14T12:37:30Z
 
 ## Investigation State
-- **Explored paths**: backend/auth.py, backend/main.py, backend/limiter.py, backend/websocket.py, tests/test_cors_validation.py, tests/test_hardening_v2.py, tests/test_security_hardening.py
+- **Explored paths**:
+  - `cloudflare/keepalive_cron/` (`wrangler.toml`, `src/index.js`), `cloudflare/keep_alive.js`, `cloudflare/uptime_pinger.js`, `cloudflare/wrangler.toml`, `cloudflare/worker.js`
+  - `.github/workflows/` (`cloud_keepalive_247.yml`, `keepalive.yml`, `keep_alive.yml`, `keepalive_ultra_247.yml`, `cloud_eternity_loop.yml`, `cloud_keepalive_and_swarm.yml`, `render-fallback.yml`, `smart-tick.yml`, `cloud_247_automation.yml`)
+  - `scripts/` (`cloud_keepalive_247.py`, `cloud_keepalive.py`, `cron_keepalive.py`)
+  - `backend/routers/health.py`, `web/app_v2.py`
+  - `tests/` (`test_m1_health.py`, `test_m1_health_failures.py`, `test_deep_health.py`, `test_health_monitor.py`)
 - **Key findings**:
-  1. Rate limiting in `backend/limiter.py` blindly trusts `X-Forwarded-For` and `X-Real-IP` without checking trusted proxies, enabling rate-limit bypass.
-  2. CORS allows the public suffix domain `https://*.pages.dev` with credentials, enabling cross-origin attacks from any Cloudflare Pages subdomain.
-  3. CORS wildcard regex validation allows TLD-level wildcards (e.g. `*.com`), allowing any `.com` domain.
-  4. WebSocket endpoint (`/ws/war-room`) bypasses the brute force lockout check in `backend/auth.py` by decoding the JWT directly.
-  5. The brute force protection state in `backend/auth.py` has no IP cleanup, causing a memory leak under scanner/brute-force traffic.
-- **Unexplored areas**: None (audit of specified security middleware is complete).
+  - `cloudflare/keepalive_cron/wrangler.toml` configured for 5-min (`*/5 * * * *`) instead of 4-min (`*/4 * * * *`).
+  - `cloudflare/keepalive_cron/src/index.js` pings root `/` instead of `/ping`, missing timeout and fallback endpoints.
+  - `scripts/cloud_keepalive_247.py` defaults to 300s interval and `/api/health` single target.
+  - Test gaps: No unit tests covering `scripts/cloud_keepalive_247.py` and `scripts/cron_keepalive.py`.
+- **Unexplored areas**: None for Feature 3 scope.
 
 ## Key Decisions Made
-- Audit focused strictly on identifying design and implementation flaws in security middleware.
-- Determined that the vulnerabilities are primarily logic-based in IP parsing, wildcard CORS verification, and lockout coverage.
+- Fully documented all multi-region keepalive sentinels, endpoints, fallback architectures, timeouts, headers, and test coverage.
+- Formulated concrete implementation blueprints for Cloudflare Worker 4-min cron, Python scripts, and new test suite `tests/test_keepalive_sentinels.py`.
 
 ## Artifact Index
-- None
+- DISPATCH.md — Incoming message log
+- progress.md — Heartbeat and step checklist
+- BRIEFING.md — Persistent working memory
+- analysis.md — Full comprehensive investigation report
+- handoff.md — Standard 5-component handoff report

@@ -287,7 +287,7 @@ def convert_sql(query: str) -> str:
         return ""
     if "sqlite_master" in sql.lower():
         sql = re.sub(
-            r"\bselect\s+name\s+from\s+sqlite_master\s+where\s+type\s*=\s*'table'\b",
+            r"\bselect\s+name\s+from\s+sqlite_master\s+where\s+type\s*=\s*['\"]table['\"]",
             "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
             sql,
             flags=re.IGNORECASE,
@@ -792,6 +792,11 @@ class SqliteConnectionWrapper:
 
         return query
 
+    def backup(self, target: Any, **kwargs: Any) -> Any:
+        """Delegate native SQLite backup to underlying sqlite3.Connection."""
+        target_conn = target.conn if isinstance(target, SqliteConnectionWrapper) else target
+        return self.conn.backup(target_conn, **kwargs)
+
     def execute(
         self,
         query: str,
@@ -857,6 +862,10 @@ class SqliteConnectionWrapper:
 
 
 def should_use_pg(db_path: str | Any | None) -> bool:
+    # FORCE_PG=1 bypasses all checks and forces PostgreSQL mode
+    if os.getenv("FORCE_PG") == "1":
+        return True
+
     # If running inside unit tests/pytest, do NOT use PostgreSQL to keep tests isolated
     import sys
 
@@ -866,9 +875,6 @@ def should_use_pg(db_path: str | Any | None) -> bool:
         or any("pytest" in arg or "unittest" in arg for arg in sys.argv)
     ):
         return False
-    # FORCE_PG=1 bypasses all checks and forces PostgreSQL mode
-    if os.getenv("FORCE_PG") == "1":
-        return True
     if not db_path:
         return True
     db_path_str = str(db_path).lower()
@@ -880,8 +886,13 @@ def should_use_pg(db_path: str | Any | None) -> bool:
         return False
     if "temp" in db_path_str:
         return False
+    has_pg_url = bool(
+        (os.getenv("POSTGRES_URL") and not os.getenv("POSTGRES_URL", "").startswith("sqlite"))
+        or (os.getenv("DATABASE_URL") and not os.getenv("DATABASE_URL", "").startswith("sqlite"))
+        or (os.getenv("NEON_URL") and not os.getenv("NEON_URL", "").startswith("sqlite"))
+    )
     if db_path_str.endswith(".db") or db_path_str.endswith(".sqlite") or db_path_str.endswith(".sqlite3") or "jobhunt_saas_v2" in db_path_str:
-        if os.getenv("FORCE_PG") != "1":
+        if not has_pg_url and os.getenv("FORCE_PG") != "1":
             return False
     main_db_indicators = [
         "saas",

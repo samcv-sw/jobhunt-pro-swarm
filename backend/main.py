@@ -500,8 +500,14 @@ app.include_router(edge_cache_router)
 from backend.routers.singularity_suite import router as singularity_suite_router
 app.include_router(singularity_suite_router)
 
+from backend.routers.growth_master_suite import router as growth_master_suite_router
+app.include_router(growth_master_suite_router)
+
 from backend.routers.closed_loop_router import router as closed_loop_router
 app.include_router(closed_loop_router)
+
+from backend.routers.viral_ats_scanner import router as viral_ats_scanner_router
+app.include_router(viral_ats_scanner_router)
 
 
 from backend.routers.voice_interview import router as voice_interview_router
@@ -570,6 +576,22 @@ from backend.routers.hris_integrations import router as hris_integrations_router
 app.include_router(whatsapp_sdr_router)
 app.include_router(viral_engine_router)
 app.include_router(hris_integrations_router)
+
+from backend.routers.domain_sentinel import router as domain_sentinel_router
+app.include_router(domain_sentinel_router)
+
+from backend.routers.viral_ats_scorecard import router as viral_ats_scorecard_router
+app.include_router(viral_ats_scorecard_router)
+
+from backend.routers.linkedin_magnet import router as linkedin_magnet_router
+from backend.routers.gulf_compensation import router as gulf_compensation_router
+from backend.routers.pseo_jobs import router as pseo_jobs_router
+from backend.routers.microsite_builder import router as microsite_builder_router
+
+app.include_router(linkedin_magnet_router)
+app.include_router(gulf_compensation_router)
+app.include_router(pseo_jobs_router)
+app.include_router(microsite_builder_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router
@@ -752,6 +774,29 @@ app.include_router(p2p_fabric_router)
 app.include_router(omni_yield_router)
 app.include_router(knowledge_graph_router)
 app.include_router(cloud_edge_router)
+
+# Master 1000x Gamechanger Upgrade Suite ($0 Cloud Swarm & Autonomous Growth Engine)
+from backend.routers.stealth_harvester_matrix import router as stealth_harvester_matrix_router
+from backend.routers.edge_mesh_v2 import router as edge_mesh_v2_router
+from backend.routers.deliverability_v4 import router as deliverability_v4_router
+from backend.routers.ats_heatmap_v2 import router as ats_heatmap_v2_router
+from backend.routers.webrtc_interview_copilot_router import router as webrtc_interview_copilot_router
+from backend.routers.recruiter_roi_arbitrage import router as recruiter_roi_arbitrage_router
+from web.routers.ats_optimizer import router as web_ats_optimizer_router
+from web.routers.public import router as web_public_router
+from web.routers.en import router as web_en_router
+
+app.include_router(stealth_harvester_matrix_router)
+app.include_router(edge_mesh_v2_router)
+app.include_router(deliverability_v4_router)
+app.include_router(ats_heatmap_v2_router)
+app.include_router(webrtc_interview_copilot_router)
+app.include_router(recruiter_roi_arbitrage_router)
+app.include_router(web_ats_optimizer_router)
+app.include_router(web_public_router)
+app.include_router(web_en_router)
+
+
 
 
 

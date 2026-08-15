@@ -325,6 +325,8 @@ class AegisShieldMiddleware:
                 del _blackhole[client_ip]
 
         # ── 1.5 USER-AGENT VALIDATION ────────────────────────────────────────
+        path = request.url.path
+        is_keepalive = path in ("/ping", "/healthz", "/api/ping", "/health", "/api/v1/health")
         user_agent = request.headers.get("user-agent", "").lower()
         is_tool_ua = (
             not user_agent
@@ -333,7 +335,7 @@ class AegisShieldMiddleware:
             or "urllib" in user_agent
             or "bot" in user_agent
         )
-        if is_tool_ua and client_ip not in ("127.0.0.1", "localhost", "testserver"):
+        if is_tool_ua and client_ip not in ("127.0.0.1", "localhost", "testserver", "testclient", "unknown") and not is_keepalive:
             logger.warning(f"[AEGIS WAF] Bad UA from {client_ip}: '{user_agent}'")
             await _reject("Forbidden", 403)
             return
@@ -358,7 +360,6 @@ class AegisShieldMiddleware:
                 return
 
         # ── 3. PROBE PATH DETECTION ──────────────────────────────────────────
-        path = request.url.path
         if PROBE_PATH_RE.search(path):
             _blackhole[client_ip] = now + PROBE_BLACKHOLE_DURATION
             await _reject("Forbidden.", 403)
@@ -371,7 +372,8 @@ class AegisShieldMiddleware:
             await _reject("Bad Request.", 400)
             return
 
-        if os.getenv("PYTEST_CURRENT_TEST") or client_ip in ("127.0.0.1", "localhost", "::1"):
+        # ── 5. DISTRIBUTED TOKEN BUCKET RATE LIMITER ─────────────────────────
+        if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING") == "1" or is_keepalive or client_ip in ("127.0.0.1", "localhost", "::1", "testclient", "testserver", "unknown"):
             allowed_req, remaining, retry_after = True, 1000, 0
         else:
             allowed_req, remaining, retry_after = await asyncio.to_thread(_redis.token_bucket_check, client_ip)

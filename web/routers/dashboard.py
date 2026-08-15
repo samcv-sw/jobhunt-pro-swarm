@@ -68,7 +68,7 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
     FROM campaign_emails ce 
     JOIN campaigns c ON ce.campaign_id = c.campaign_id 
     WHERE c.user_id = ?
-    ORDER BY ce.sent_at DESC
+    ORDER BY ce.id DESC
     LIMIT 30
     """
     try:
@@ -205,11 +205,20 @@ def api_live_dispatches_router(request: Request):
         conn = get_db()
         if not user_id:
             sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
+                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_c79c498bf9314555")
+
+        # Trigger real-time autonomous application dispatch for candidate user
+        try:
+            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
+            start_continuous_dispatcher()
+            dispatch_single_application(user_id=user_id)
+        except Exception as d_exc:
+            logger.debug(f"[LiveDispatches] Auto-dispatch pulse: {d_exc}")
 
         data = _get_dashboard_live_dispatches_data(conn, user_id)
         res = JSONResponse(data)
@@ -530,6 +539,15 @@ def battle_station_page(request: Request):
         conn = get_db()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         u = dict(user_row) if user_row else {}
+
+        # Trigger real-time autonomous application dispatch for candidate user
+        try:
+            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
+            start_continuous_dispatcher()
+            dispatch_single_application(user_id=user_id)
+        except Exception as d_exc:
+            logger.debug(f"[BattleStation] Auto-dispatch pulse: {d_exc}")
+
         campaigns_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC", (user_id,)).fetchall()
         campaigns = [dict(r) for r in campaigns_rows] if campaigns_rows else []
 

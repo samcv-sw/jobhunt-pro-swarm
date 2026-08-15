@@ -74,3 +74,43 @@ async def initiate_voice_outreach_call(req: VoiceOutreachRequest):
         }
     }
 
+
+class PersonaSessionRequest(BaseModel):
+    persona_id: str = "saudi_executive"
+    candidate_role: str = "Lead Software Engineer"
+    experience_level: str = "Senior"
+
+
+class STARAnswerEvaluationRequest(BaseModel):
+    persona_id: str = "saudi_executive"
+    candidate_answer: str
+
+
+@router.get("/personas")
+async def list_interview_personas():
+    """Retrieve all available recruiter and executive personas for voice mock interviews."""
+    from core.realtime_voice_copilot import realtime_voice_copilot
+    return {"status": "success", "personas": realtime_voice_copilot.get_personas()}
+
+
+@router.post("/persona/start-session")
+async def start_persona_voice_session(req: PersonaSessionRequest):
+    """Start an interactive mock interview session with a specific Gulf/Global executive persona."""
+    from core.realtime_voice_copilot import realtime_voice_copilot
+    return realtime_voice_copilot.start_persona_session(
+        persona_id=req.persona_id,
+        candidate_role=req.candidate_role,
+        experience_level=req.experience_level
+    )
+
+
+@router.post("/persona/evaluate-answer")
+async def evaluate_star_interview_answer(req: STARAnswerEvaluationRequest):
+    """Evaluate candidate's response using the STAR behavioral framework and generate real-time feedback."""
+    from core.realtime_voice_copilot import realtime_voice_copilot
+    return realtime_voice_copilot.evaluate_star_answer(
+        candidate_answer=req.candidate_answer,
+        persona_id=req.persona_id
+    )
+
+

@@ -19,7 +19,7 @@
         body {
             background: var(--bg-primary);
             color: var(--text-main);
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Tajawal', sans-serif;
             margin: 0;
             padding-block-start: 2rem;
             padding-block-end: 2rem;
@@ -136,7 +136,7 @@
                     <span class="badge">جاهز للربط</span>
                 </div>
                 <label>مفتاح HubSpot API Key / Bearer Token</label>
-                <input type="password" id="hubspot_key" placeholder="pat-na1-xxxx-xxxx">
+                <input type="password" id="hubspot_key" placeholder="pat-na1-xxxx-xxxx" dir="auto">
                 <button class="btn" onclick="exportLead('hubspot')">مزامنة اختبارية</button>
             </div>
 
@@ -147,7 +147,7 @@
                     <span class="badge">جاهز للربط</span>
                 </div>
                 <label>مفتاح Pipedrive API Token</label>
-                <input type="password" id="pipedrive_token" placeholder="api_token_here">
+                <input type="password" id="pipedrive_token" placeholder="api_token_here" dir="auto">
                 <button class="btn" onclick="exportLead('pipedrive')">مزامنة اختبارية</button>
             </div>
 
@@ -158,9 +158,9 @@
                     <span class="badge">تشفير SHA256</span>
                 </div>
                 <label>رابط الـ Webhook URL (Zapier / Custom API)</label>
-                <input type="url" id="webhook_url" placeholder="https://api.yourdomain.com/webhooks/leads">
+                <input type="url" id="webhook_url" placeholder="https://api.yourdomain.com/webhooks/leads" dir="auto">
                 <label>مفتاح التوقيع السرّي (Signing Secret)</label>
-                <input type="password" id="webhook_secret" placeholder="whsec_xxxx">
+                <input type="password" id="webhook_secret" placeholder="whsec_xxxx" dir="auto">
                 <button class="btn" onclick="exportLead('webhook')">إرسال حدث إختباري</button>
             </div>
         </div>

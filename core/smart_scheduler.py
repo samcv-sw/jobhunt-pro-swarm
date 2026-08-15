@@ -15,6 +15,7 @@ if os.getenv("FORCE_PG") == "1" or os.getenv("CLOUD_MODE") == "true":
 else:
     import sqlite3
 import pathlib
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import UTC, datetime, timedelta
 
 logger = logging.getLogger(__name__)
@@ -116,19 +117,25 @@ class SmartScheduler:
     PROVIDER_CONFIGS = [
         # Hotmail OAuth2 Pool — 1000 accounts × 50/day = 50,000 capacity
         {"name": "hotmail_pool", "daily_limit": 25000, "hourly_limit": 2500},
-        # Gmail accounts — only those with valid credentials (verified working)
-        # WORKING: GMAIL1, GMAIL4, GMAIL6, GMAIL8, GMAIL9, GMAIL10, GMAIL12, GMAIL14
-        # FAILED (535): GMAIL3, GMAIL5, GMAIL7, GMAIL13, GMAIL15
-        # EMPTY: GMAIL2, GMAIL11
+        # Gmail & Outlook App Passwords Pool (15 accounts x 100/day)
         {"name": "gmail1", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail2", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail3", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail4", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail5", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail6", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail7", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail8", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail9", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail10", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail11", "daily_limit": 100, "hourly_limit": 15},
         {"name": "gmail12", "daily_limit": 100, "hourly_limit": 15},
+        {"name": "gmail13", "daily_limit": 100, "hourly_limit": 15},
         {"name": "acct14", "daily_limit": 100, "hourly_limit": 15},
-        # Multi-provider free tier stack (loaded from config.EMAIL_PROVIDERS if creds exist)
+        {"name": "acct15", "daily_limit": 100, "hourly_limit": 15},
+        # Multi-provider free tier & HTTP REST API cascade (Resend -> Brevo -> SendGrid)
+        {"name": "resend", "daily_limit": 100, "hourly_limit": 20},
+        {"name": "brevo", "daily_limit": 300, "hourly_limit": 50},
         {"name": "sendgrid1", "daily_limit": 100, "hourly_limit": 15},
         {"name": "mailjet1", "daily_limit": 200, "hourly_limit": 20},
         {"name": "mailgun1", "daily_limit": 100, "hourly_limit": 15},
@@ -137,8 +144,6 @@ class SmartScheduler:
         {"name": "outlook2", "daily_limit": 300, "hourly_limit": 30},
         {"name": "yahoo1", "daily_limit": 500, "hourly_limit": 50},
         {"name": "yandex1", "daily_limit": 500, "hourly_limit": 50},
-        # Brevo API — 250/day
-        {"name": "brevo", "daily_limit": 250, "hourly_limit": 50},
     ]
 
     def __init__(self, tz_offset: int | None = None):
@@ -165,9 +170,11 @@ class SmartScheduler:
         self._active_providers = set()  # Providers with valid credentials
         self._init_providers()
 
-    def register_provider(self, name: str):
+    def register_provider(self, name: str, daily_limit: int = 100, hourly_limit: int = 15):
         """Register a provider as having valid credentials."""
         self._active_providers.add(name)
+        if name not in self.providers:
+            self.providers[name] = ProviderState(name=name, daily_limit=daily_limit, hourly_limit=hourly_limit)
         logger.info(f"Provider registered: {name}")
 
     def _init_db(self):
@@ -398,17 +405,29 @@ class SmartScheduler:
 
         r = random.random() * total_weight
         cumulative = 0
+        selected = available[-1][0]
         for name, weight in available:
             cumulative += weight
             if r <= cumulative:
-                if name == self.last_provider:
-                    others = [(n, w) for n, w in available if n != name]
-                    if others:
-                        return random.choice(others)[0]
-                self.last_provider = name
-                return name
+                selected = name
+                break
 
-        return available[-1][0]
+        # For low-capacity accounts (<=100 limit), if picked consecutively and multiple alternatives exist,
+        # jitter away to avoid bursting a single mailbox, while preserving capacity dominance for pools.
+        if selected == self.last_provider and selected != "hotmail_pool" and len(available) > 2:
+            others = [(n, w) for n, w in available if n != selected]
+            if others:
+                other_total = sum(w for _, w in others)
+                sub_r = random.random() * other_total
+                sub_cum = 0
+                for n, w in others:
+                    sub_cum += w
+                    if sub_r <= sub_cum:
+                        selected = n
+                        break
+
+        self.last_provider = selected
+        return selected
 
     def calculate_delay(self) -> float:
         """Calculate delay — MAXIMUM THROUGHPUT MODE: zero delay."""
@@ -574,6 +593,79 @@ class SmartScheduler:
         else:
             return 100
 
+    @staticmethod
+    def get_optimal_dispatch_timestamp(target_region: str = "uae") -> Dict[str, Any]:
+        """
+        Chronos Golden Inbox Hour Dispatch Oracle.
+        Calculates the exact minute to dispatch an outreach email so it arrives at 9:07 AM - 9:23 AM
+        in the hiring manager's local timezone (Riyadh, Dubai, London, New York, Singapore, etc.).
+        """
+        timezone_offsets = {
+            "uae": 4,        # GST (UTC+4)
+            "dubai": 4,
+            "abu_dhabi": 4,
+            "ksa": 3,        # AST (UTC+3)
+            "saudi": 3,
+            "riyadh": 3,
+            "qatar": 3,
+            "kuwait": 3,
+            "lebanon": 3,    # EEST / UTC+3
+            "egypt": 2,      # EET (UTC+2)
+            "uk": 0,         # GMT/BST
+            "london": 0,
+            "europe": 1,     # CET
+            "germany": 1,
+            "us_east": -5,   # EST
+            "new_york": -5,
+            "us_west": -8,   # PST
+            "california": -8,
+            "singapore": 8,  # SGT (UTC+8)
+        }
+        offset_hours = timezone_offsets.get(target_region.lower(), 4)
+        now_utc = datetime.now(UTC)
+        target_local_now = now_utc + timedelta(hours=offset_hours)
+
+        # Golden Window: 9:07 AM to 9:25 AM local time
+        golden_minute = random.randint(7, 25)
+        golden_second = random.randint(10, 50)
+        
+        # Build candidate target time for today
+        target_today = target_local_now.replace(hour=9, minute=golden_minute, second=golden_second, microsecond=0)
+
+        # If 9:30 AM already passed today in target timezone or today is weekend, schedule for next business day
+        is_weekend = target_local_now.weekday() in [4, 5] if offset_hours in [3, 4] else target_local_now.weekday() in [5, 6]
+        
+        if target_local_now > target_today or is_weekend:
+            days_ahead = 1
+            if is_weekend:
+                # For GCC (Sun-Thu work week): if Fri(4) or Sat(5), advance to Sun(6)
+                if offset_hours in [3, 4]:
+                    days_ahead = (6 - target_local_now.weekday()) % 7
+                    if days_ahead == 0:
+                        days_ahead = 1
+                else:
+                    # For Western (Mon-Fri): if Sat(5) or Sun(6), advance to Mon(0)
+                    days_ahead = (7 - target_local_now.weekday()) % 7
+                    if days_ahead == 0:
+                        days_ahead = 1
+            target_scheduled = target_today + timedelta(days=days_ahead)
+        else:
+            target_scheduled = target_today
+
+        # Convert back to UTC timestamp
+        scheduled_utc = target_scheduled - timedelta(hours=offset_hours)
+        delay_seconds = max(0.0, (scheduled_utc - now_utc).total_seconds())
+
+        return {
+            "target_region": target_region,
+            "target_timezone_utc_offset": f"+{offset_hours}" if offset_hours >= 0 else f"{offset_hours}",
+            "golden_inbox_time_local": target_scheduled.strftime("%Y-%m-%d %H:%M:%S"),
+            "dispatch_utc_time": scheduled_utc.strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "delay_seconds": round(delay_seconds, 1),
+            "is_immediate": delay_seconds < 120,
+            "strategy": "TOP_OF_INBOX_MORNING_FIRST_PASS"
+        }
+
 
 # Detect dynamic timezone offset from environment, default to Lebanon (UTC+3) for cloud deployments
 try:
@@ -583,3 +675,4 @@ try:
 except ValueError:
     _tz_offset = 3
 scheduler = SmartScheduler(tz_offset=_tz_offset)
+

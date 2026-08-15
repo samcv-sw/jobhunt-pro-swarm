@@ -32,6 +32,20 @@ def get_plans() -> List[Dict[str, Any]]:
             "features": ["Unlimited Applications", "Voice AI Interviewer", "Chrome Extension V2", "Lead Swarm Integration"]
         },
         {
+            "id": "b2b_sdr_swarm",
+            "name": "B2B SDR Swarm (2,500 Leads)",
+            "price_usd": 149.00,
+            "crypto_eth": "0.048 ETH",
+            "crypto_usdt": "149 USDT",
+            "features": [
+                "2,500 Direct Lead Outreach Applications",
+                "Autonomous AI SDR Cold Outreach Swarm",
+                "100% Live MX Verification & 365d Deduplication",
+                "Full CRM & Webhook Integration",
+                "Dedicated Account Manager & 0% Bounce SLA"
+            ]
+        },
+        {
             "id": "agency_god",
             "name": "Agency White-Label Empire",
             "price_usd": 299.00,
@@ -304,6 +318,33 @@ def generate_usage_upgrade_offer(req: UsageTriggerRequest) -> Dict[str, Any]:
             "expires_in_hours": 48
         } if trigger_upgrade else None
     }
+
+
+class GCCCheckoutRequest(BaseModel):
+    plan_id: str = "starter_god"
+    country_code: str = "SA"
+    payment_method: str = "mada"
+    user_email: str = "user@jobhuntpro.io"
+
+
+@router.get("/geo-pricing")
+def get_geo_localized_pricing(plan_id: str = "starter_god", country_code: str = "SA") -> Dict[str, Any]:
+    """Retrieve localized currency pricing with Purchasing Power Parity (PPP) adjustments."""
+    from core.gcc_unified_checkout import gcc_unified_checkout
+    return gcc_unified_checkout.calculate_localized_pricing(plan_id=plan_id, country_code=country_code)
+
+
+@router.post("/checkout/gcc-unified")
+def create_gcc_unified_checkout(req: GCCCheckoutRequest) -> Dict[str, Any]:
+    """Create unified GCC / MENA checkout session with Mada, Apple Pay, Tap, or Moyasar."""
+    from core.gcc_unified_checkout import gcc_unified_checkout
+    return gcc_unified_checkout.generate_gcc_checkout_session(
+        plan_id=req.plan_id,
+        country_code=req.country_code,
+        payment_method=req.payment_method,
+        user_email=req.user_email
+    )
+
 
 
 

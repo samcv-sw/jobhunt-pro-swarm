@@ -6,8 +6,9 @@
 3. **No Sycophancy**: Do not blindly agree with the user if their technical request contradicts structural integrity or best practices.
 4. **Strict Dispatch & Email Quality Directives (PERMANENT RULE)**:
    - **Zero Synthetic / Demo Emails**: Never generate or allow `careers-[HEX]@...` synthetic emails or truncated domain emails (`[:10]`, `[:15]`).
-   - **1-Year Cooldown Deduplication Window**: Deduplication across `campaign_emails`, `jobs`, and `multi_platform_apps` is enforced strictly per user (`user_id`) using a 365-day sliding window (`ce.sent_at >= datetime('now', '-365 days')`).
+   - **1-Year Cooldown Deduplication Window**: Deduplication across `campaign_emails`, `jobs`, and `multi_platform_apps` is enforced strictly per user (`user_id`) using a 365-day sliding window (`ce.sent_at >= datetime('now', '-365 days')`). Never scan `campaign_emails` globally without a `user_id` predicate.
    - **Mandatory Live MX & Deliverability Verification**: Every target email MUST pass `is_deliverable_email()` and `ScamDetector` DNS MX checks before selection or dispatch.
+   - **Instant Live Auto-Dispatch Pulse**: Visiting `/user-dashboard`, `/sent-emails`, or `/battle-station` MUST trigger an active single-dispatch pulse (`dispatch_single_application(user_id=user_id)`) to ensure candidate metrics and logs update dynamically in real time.
 
 ## Multi-Persona Evaluation Council
 For all complex code generation, especially regarding architecture and UI/UX:

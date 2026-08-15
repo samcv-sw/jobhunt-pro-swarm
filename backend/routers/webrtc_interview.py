@@ -17,12 +17,15 @@ templates = Jinja2Templates(directory="web/templates")
 @router.get("/webrtc-interview", response_class=HTMLResponse)
 async def get_webrtc_interview_page(request: Request):
     """Renders the WebRTC AI Video & Emotion Interview Hub template."""
-    return templates.TemplateResponse("webrtc_interview.html", {
-        "request": request,
-        "page_title": "WebRTC AI Video & Emotion Interviewer — JobHunt Pro",
-        "lang": "en",
-        "dir": "ltr"
-    })
+    return templates.TemplateResponse(
+        request=request,
+        name="webrtc_interview.html",
+        context={
+            "page_title": "WebRTC AI Video & Emotion Interviewer — JobHunt Pro",
+            "lang": "en",
+            "dir": "ltr"
+        }
+    )
 
 @router.post("/api/v2/webrtc/signal")
 async def handle_webrtc_signaling(payload: Dict[str, Any] = Body(...)):

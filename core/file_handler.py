@@ -6,7 +6,8 @@
 import os
 import logging
 import mimetypes
-from typing import Optional, BinaryIO, Tuple
+import io
+from typing import Optional, BinaryIO, Tuple, Union, Any
 from pathlib import Path
 from datetime import datetime
 import hashlib
@@ -132,7 +133,7 @@ class FileValidator:
 
 
 class FileStorage:
-    """Handle file storage operations."""
+    """Handle file storage operations with Cloudflare R2 integration and local fallback."""
     
     config = FileUploadConfig()
     
@@ -146,39 +147,78 @@ class FileStorage:
     
     @staticmethod
     def save_file(
-        file_content: BinaryIO,
+        file_content: Any,
         original_filename: str,
         subfolder: str = "general",
     ) -> Tuple[bool, Optional[str], Optional[str]]:
-        """Save file to storage."""
+        """Save file to storage (Cloudflare R2 if configured, otherwise local disk)."""
         try:
             # Generate unique filename
             filename = FileStorage.generate_filename(original_filename)
             
-            # Create subfolder if needed
+            # Read content bytes
+            if hasattr(file_content, "read"):
+                content = file_content.read()
+            elif isinstance(file_content, (bytes, bytearray)):
+                content = bytes(file_content)
+            elif isinstance(file_content, str):
+                content = file_content.encode("utf-8")
+            else:
+                content = b""
+            
+            # Determine MIME type
+            mime_type = mimetypes.guess_type(original_filename)[0] or "application/octet-stream"
+
+            # Check if Cloudflare R2 is configured
+            if os.getenv("R2_ACCOUNT_ID"):
+                try:
+                    from core.storage import storage_manager
+                    if storage_manager.is_configured:
+                        object_key = f"{subfolder}/{filename}"
+                        r2_url = storage_manager.upload_file(
+                            file_content=content,
+                            object_name=object_key,
+                            content_type=mime_type,
+                        )
+                        if r2_url:
+                            logger.info(f"File saved to Cloudflare R2: {r2_url}")
+                            return True, r2_url, None
+                except Exception as r2_exc:
+                    logger.warning(f"R2 upload failed ({r2_exc}), falling back to local disk storage.")
+
+            # Local disk fallback
             folder = Path(FileStorage.config.UPLOADS_DIR) / subfolder
             folder.mkdir(parents=True, exist_ok=True)
             
-            # Save file
             file_path = folder / filename
-            
             with open(file_path, "wb") as f:
-                f.write(file_content.read())
+                f.write(content)
             
-            # Return relative path
             relative_path = f"{subfolder}/{filename}"
-            logger.info(f"File saved: {relative_path}")
-            
+            logger.info(f"File saved to local disk: {relative_path}")
             return True, relative_path, None
-        
+
         except Exception as e:
             logger.error(f"Failed to save file: {e}")
             return False, None, str(e)
     
     @staticmethod
     def get_file(file_path: str) -> Optional[BinaryIO]:
-        """Retrieve file from storage."""
+        """Retrieve file from storage (local disk or Cloudflare R2)."""
         try:
+            # If path is an R2 URL or key and R2 is configured
+            if (file_path.startswith("http://") or file_path.startswith("https://")) and "r2.cloudflarestorage.com" in file_path:
+                try:
+                    from core.storage import storage_manager
+                    parts = file_path.split("r2.cloudflarestorage.com/")
+                    if len(parts) > 1:
+                        object_name = parts[1]
+                        data = storage_manager.download_file(object_name)
+                        if data:
+                            return io.BytesIO(data)
+                except Exception as r2_err:
+                    logger.warning(f"Failed to fetch from R2 URL: {r2_err}")
+
             full_path = Path(FileStorage.config.UPLOADS_DIR) / file_path
             
             # Security: Prevent path traversal
@@ -189,6 +229,16 @@ class FileStorage:
             if full_path.exists():
                 return open(full_path, "rb")
             
+            # Fallback to R2 by object key
+            if os.getenv("R2_ACCOUNT_ID"):
+                try:
+                    from core.storage import storage_manager
+                    data = storage_manager.download_file(file_path)
+                    if data:
+                        return io.BytesIO(data)
+                except Exception as r2_err:
+                    logger.warning(f"Failed to fetch from R2 key: {r2_err}")
+
             return None
         
         except Exception as e:
@@ -199,6 +249,16 @@ class FileStorage:
     def delete_file(file_path: str) -> bool:
         """Delete file from storage."""
         try:
+            # If path is an R2 URL or R2 is active
+            if (file_path.startswith("http://") or file_path.startswith("https://")) and "r2.cloudflarestorage.com" in file_path:
+                try:
+                    from core.storage import storage_manager
+                    parts = file_path.split("r2.cloudflarestorage.com/")
+                    if len(parts) > 1:
+                        return storage_manager.delete_file(parts[1])
+                except Exception as e:
+                    logger.warning(f"Failed to delete from R2: {e}")
+
             full_path = Path(FileStorage.config.UPLOADS_DIR) / file_path
             
             # Security: Prevent path traversal
@@ -208,9 +268,16 @@ class FileStorage:
             
             if full_path.exists():
                 full_path.unlink()
-                logger.info(f"File deleted: {file_path}")
+                logger.info(f"File deleted from local disk: {file_path}")
                 return True
             
+            if os.getenv("R2_ACCOUNT_ID"):
+                try:
+                    from core.storage import storage_manager
+                    return storage_manager.delete_file(file_path)
+                except Exception as e:
+                    logger.warning(f"Failed to delete key from R2: {e}")
+
             return False
         
         except Exception as e:
@@ -222,12 +289,22 @@ class FileStorage:
         """Get file size in bytes."""
         try:
             full_path = Path(FileStorage.config.UPLOADS_DIR) / file_path
-            
             if full_path.exists():
                 return full_path.stat().st_size
             
+            # Check R2 if configured
+            if os.getenv("R2_ACCOUNT_ID"):
+                try:
+                    from core.storage import storage_manager
+                    obj_name = file_path
+                    if "r2.cloudflarestorage.com/" in file_path:
+                        obj_name = file_path.split("r2.cloudflarestorage.com/")[1]
+                    data = storage_manager.download_file(obj_name)
+                    if data:
+                        return len(data)
+                except Exception:
+                    pass
             return None
-        
         except Exception as e:
             logger.error(f"Failed to get file size: {e}")
             return None

@@ -52,6 +52,13 @@ if __name__ == '__main__':
 
     threading.Thread(target=_open_browser_auto, daemon=True).start()
 
+    try:
+        from core.continuous_dispatcher import start_continuous_dispatcher
+        start_continuous_dispatcher()
+    except Exception as exc:
+        print(f"Dispatcher kickoff notice: {exc}", flush=True)
+
     import uvicorn
     uvicorn.run("web.app_v2:app", host="127.0.0.1", port=8000, log_level="warning", access_log=False, timeout_keep_alive=30, reload=False)
+
 

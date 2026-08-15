@@ -125,7 +125,7 @@
         <!-- LANGUAGE & FONT CONTROLS -->
         <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-white/10">
           <span class="text-xs text-slate-400 font-bold ms-1">اللغة:</span>
-          <select id="langSelect" class="bg-slate-900 border border-white/15 text-xs text-white rounded-lg px-2 py-1 focus:outline-none">
+          <select id="langSelect" class="bg-slate-900 border border-white/15 text-xs text-white rounded-lg px-2 py-1 focus:outline-none" dir="auto">
             <option value="auto">تلقائي (Auto)</option>
             <option value="ar">العربية (Arabic)</option>
             <option value="en">English</option>
@@ -174,7 +174,7 @@
 
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1.5">مستوى الخبرة</label>
-            <select id="expLevel" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all">
+            <select id="expLevel" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all" dir="auto">
               <option value="Senior" selected>Senior (خبير متقدم)</option>
               <option value="Lead">Lead / Architect (قائد معمارية)</option>
               <option value="Mid">Mid-Level (متوسط)</option>
@@ -190,7 +190,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1.5">نوع المقابلة</label>
-            <select id="interviewType" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none">
+            <select id="interviewType" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none" dir="auto">
               <option value="">تلقائي (Auto Detect)</option>
               <option value="system_design">System Design (تصميم معمارية)</option>
               <option value="leadership_conflict">Leadership & Conflict (قيادة وتنازع)</option>
@@ -289,7 +289,7 @@
         </button>
 
         <!-- Speed Selector -->
-        <select id="scrollSpeedSelect" onchange="updateScrollSpeed()" class="bg-slate-900 text-xs text-purple-200 border border-purple-500/40 rounded-lg px-2 py-1 focus:outline-none">
+        <select id="scrollSpeedSelect" onchange="updateScrollSpeed()" class="bg-slate-900 text-xs text-purple-200 border border-purple-500/40 rounded-lg px-2 py-1 focus:outline-none" dir="auto">
           <option value="60">سرعة 0.5x</option>
           <option value="40" selected>سرعة 1.0x</option>
           <option value="25">سرعة 1.5x</option>

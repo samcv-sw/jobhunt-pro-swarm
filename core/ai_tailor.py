@@ -985,9 +985,7 @@ Include a mix of:
         self, prompt: str, model: str, max_tokens: int, temperature: float
     ) -> str | None:
         """Call Groq API with a specific model.
-        Handles TPD (tokens-per-day) exhaustion gracefully: if the 429 error
-        mentions TPD, skip retry immediately since the limit won't reset for hours.
-        Otherwise, retry once after a brief wait.
+        Fails over instantly (<100ms) on rate limits (429) or token quotas.
         """
         url = "https://api.groq.com/openai/v1/chat/completions"
         headers = {
@@ -1007,7 +1005,7 @@ Include a mix of:
             "max_tokens": max_tokens,
         }
 
-        async with httpx.AsyncClient(timeout=45) as client:
+        async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.post(url, headers=headers, json=payload)
             if resp.status_code == 200:
                 data = resp.json()
@@ -1015,53 +1013,19 @@ Include a mix of:
                 return content.strip() if content else None
             elif resp.status_code == 429:
                 error_text = resp.text.lower()
-                # TPD = Tokens Per Day exhausted — no point retrying until next day
-                if "tpd" in error_text or "tokens per day" in error_text:
-                    logger.warning(
-                        f"[AI-BACKOFF] Groq {model} TPD exhausted. Skipping immediately."
-                    )
-                    raise Exception(f"Groq {model} TPD exhausted — {error_text[:100]}")
-
-                # Check if Retry-After header is present (respect upstream hint)
-                retry_after_header = resp.headers.get(
-                    "retry-after"
-                ) or resp.headers.get("x-ratelimit-reset-requests")
-                if retry_after_header:
-                    try:
-                        wait_secs = float(retry_after_header)
-                        import random
-
-                        jitter = random.uniform(0, wait_secs * 0.15)  # 15% jitter
-                        logger.warning(
-                            f"[AI-BACKOFF] Groq rate limited on {model}. Respecting Retry-After: {wait_secs:.1f}s + {jitter:.2f}s jitter"
-                        )
-                        await asyncio.sleep(wait_secs + jitter)
-                    except (ValueError, TypeError):
-                        await self._exponential_backoff_with_jitter(
-                            0
-                        )  # fallback: attempt=0
-                else:
-                    # No header hint — use exponential backoff (attempt=0 = ~2-4s first retry)
-                    logger.warning(
-                        f"[AI-BACKOFF] Groq rate limited on {model}. Using exponential backoff."
-                    )
-                    await self._exponential_backoff_with_jitter(0)
-
-                # Retry once after the calculated wait
-                resp = await client.post(url, headers=headers, json=payload)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    content = data["choices"][0]["message"]["content"]
-                    return content.strip() if content else None
+                logger.warning(
+                    f"[AITailor] Groq {model} 429 rate limited: {error_text[:100]}. Instant fallback..."
+                )
+                return None
             raise Exception(
                 f"Groq {model} error: {resp.status_code} — {resp.text[:200]}"
             )
 
     async def _call_gemini(self, prompt: str, max_tokens: int = 1000) -> str | None:
-        """Fallback: call Gemini API."""
+        """Fallback: call Gemini 2.0 API."""
         model = "gemini-2.0-flash"
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={self.gemini_key}"
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=8.0) as client:
             resp = await client.post(
                 url,
                 json={
@@ -1106,6 +1070,7 @@ Include a mix of:
                 + CANDIDATE_PROFILE["infrastructure"]
                 + CANDIDATE_PROFILE["certs"]
             ).lower()
+            job_text = f"{title} {description}".lower()
             from sklearn.feature_extraction.text import TfidfVectorizer
             from sklearn.metrics.pairwise import cosine_similarity
             vectorizer = TfidfVectorizer(stop_words="english")

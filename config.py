@@ -5,7 +5,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
-os.environ["FORCE_SQLITE"] = "1"
+# Unblock PostgreSQL mode if DATABASE_URL or POSTGRES_URL is configured, else fallback to SQLite
+os.environ.setdefault("FORCE_SQLITE", "0")
 
 
 # Database Engine strictly enforces PostgreSQL

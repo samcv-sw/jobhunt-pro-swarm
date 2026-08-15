@@ -4,7 +4,7 @@
 
 <style>
   .admin-dashboard-wrap {
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
     color: #f8fafc;
     padding-bottom: 40px;
   }
@@ -303,7 +303,7 @@
   .pill-slate { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
 
   .code-chip {
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'SFMono-Regular', Consolas, monospace;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'SFMono-Regular', Consolas, monospace;
     font-weight: 700;
     color: #c4b5fd;
     background: #1e1b4b;
@@ -625,7 +625,7 @@
                 {% endif %}
               </td>
               <td style="color:#94a3b8;">{{ r.used_by or '—' }}</td>
-              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
+              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
               <td>
                 <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete code {{ r.code }}?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-code'; const i=document.createElement('input'); i.name='code'; i.value='{{ r.code }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
               </td>
@@ -686,7 +686,7 @@
                   <span class="status-pill pill-rose">🔴 Disabled</span>
                 {% endif %}
               </td>
-              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (u.created_at or '')[:10] }}</td>
+              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (u.created_at or '')[:10] }}</td>
               <td style="display:flex; gap:6px; align-items:center;">
                 <button type="button" class="btn-sm-action {% if u.is_active %}btn-rose{% else %}btn-emerald{% endif %}" style="padding:5px 10px; border-radius:6px; border:none; cursor:pointer;" onclick="const f=document.createElement('form'); f.method='POST'; f.action='/admin/toggle-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit();">
                   {% if u.is_active %}Disable{% else %}Enable{% endif %}
@@ -730,7 +730,7 @@
             {% for c in campaigns %}
             <tr>
               <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')" dir="auto"></td>
-              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#c4b5fd;">{{ c.campaign_id[:20] }}...</td>
+              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#c4b5fd;">{{ c.campaign_id[:20] }}...</td>
               <td>{{ c.email or c.user_id[:12] }}</td>
               <td>
                 <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
@@ -739,7 +739,7 @@
               </td>
               <td style="font-weight:700;">{{ c.total_companies }}</td>
               <td style="color:#34d399; font-weight:700;">{{ c.sent_count }}</td>
-              <td style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (c.created_at or '')[:16] }}</td>
+              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (c.created_at or '')[:16] }}</td>
               <td>
                 <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete this campaign permanently?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-campaign'; const i=document.createElement('input'); i.name='campaign_id'; i.value='{{ c.campaign_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
               </td>

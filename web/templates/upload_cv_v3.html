@@ -14,7 +14,7 @@
   color: #0a0a14;
   border: none;
   border-radius: 12px;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
@@ -35,7 +35,7 @@
   color: #00f0ff;
   border: 1px solid #00f0ff;
   border-radius: 12px;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -123,14 +123,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs">
       <div>
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">2. مقاس الورق:</label>
-        <select id="pdfPaperSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none">
+        <select id="pdfPaperSize" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none" dir="auto">
           <option value="A4">Standard A4 (210 x 297 mm)</option>
           <option value="Letter">US Letter (8.5 x 11 in)</option>
         </select>
       </div>
       <div>
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">3. نمط طباعة الخلفية والألوان:</label>
-        <select id="pdfBgMode" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none">
+        <select id="pdfBgMode" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white outline-none" dir="auto">
           <option value="full">تصدير بكافة الألوان والخلفيات كاملة</option>
           <option value="mono">وضع التوفير الأبيض والأسود (Ink-Saver)</option>
         </select>

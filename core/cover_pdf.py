@@ -176,8 +176,66 @@ def generate_cover_pdf(
         pdf.output(filepath)
         size = os.path.getsize(filepath)
         logger.info(f"Successfully generated cover letter PDF: {filepath} ({size} bytes)")
+
+        # Sync to Cloudflare R2 persistent storage if configured
+        if os.getenv("R2_ACCOUNT_ID"):
+            try:
+                from core.storage import storage_manager
+                if storage_manager.is_configured:
+                    with open(filepath, "rb") as f:
+                        r2_url = storage_manager.upload_file(
+                            file_content=f.read(),
+                            object_name=f"cover_letters/{filename}",
+                            content_type="application/pdf",
+                        )
+                    if r2_url:
+                        logger.info(f"Cover letter synced to R2 persistent storage: {r2_url}")
+            except Exception as r2_err:
+                logger.warning(f"Failed to sync cover letter to R2: {r2_err}")
+
         return filepath
     except Exception as e:
         logger.error("Failed to generate cover letter PDF for company %s: %s", company, e)
         raise RuntimeError(f"Could not generate PDF: {e}") from e
+
+
+def generate_and_upload_cover_pdf(
+    company: str,
+    title: str,
+    body_text: str = None,
+    hidden_keywords: str = None,
+    prompt_injection: str = None,
+) -> dict:
+    """Generate cover letter PDF and persist to both disk and Cloudflare R2 if configured."""
+    filepath = generate_cover_pdf(
+        company=company,
+        title=title,
+        body_text=body_text,
+        hidden_keywords=hidden_keywords,
+        prompt_injection=prompt_injection,
+    )
+    filename = os.path.basename(filepath)
+    storage_url = filepath
+
+    if os.getenv("R2_ACCOUNT_ID"):
+        try:
+            from core.storage import storage_manager
+            if storage_manager.is_configured:
+                with open(filepath, "rb") as f:
+                    r2_url = storage_manager.upload_file(
+                        file_content=f.read(),
+                        object_name=f"cover_letters/{filename}",
+                        content_type="application/pdf",
+                    )
+                if r2_url:
+                    storage_url = r2_url
+        except Exception as e:
+            logger.warning(f"R2 upload in generate_and_upload_cover_pdf failed: {e}")
+
+    return {
+        "filepath": filepath,
+        "filename": filename,
+        "storage_url": storage_url,
+    }
+
 

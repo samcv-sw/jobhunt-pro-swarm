@@ -1,6 +1,6 @@
 """
 JobHunt Pro — NOWPayments Payment Gateway v2
-Handles: invoice creation, IPN verification, crypto deposits
+Handles: invoice creation, IPN verification, multi-chain crypto deposits ($0 merchant fees)
 """
 import hashlib
 import hmac
@@ -14,21 +14,26 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://api.nowpayments.io/v1"
 
 class NOWPaymentsGateway:
-    """Full NOWPayments integration for JobHunt Pro."""
+    """Full NOWPayments integration for JobHunt Pro with Multi-Chain Sovereign Wallet Support."""
 
     def __init__(self):
         self.api_key = os.getenv("NOWPAYMENTS_API_KEY", "VA1FDVQ-JBJ41KM-QN6MVGF-TTR80X4")
         self.ipn_secret = os.getenv("NOWPAYMENTS_IPN_SECRET", "OE+zU1NbfNNlySwH3zrUthqQWZtGqrJa")
-        # Fallback direct crypto addresses
+        # Direct sovereign crypto addresses (non-custodial, $0 merchant fee)
         self.wallets = {
             "btc": os.getenv("CRYPTO_BTC_ADDRESS", "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
             "eth": os.getenv("CRYPTO_ETH_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
             "usdt": os.getenv("CRYPTO_USDT_ADDRESS", "0xc303249a1992405ac2879f97fa8fec34c72be2f8"),
+            "usdt_trc20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TYDzsYUEpvnYmQk4zGP9sWWcTEd3ZiPULj")),
+            "usdt_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
+            "usdc_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
+            "ton": os.getenv("CRYPTO_TON_ADDRESS", "EQB_k02mK3m1UoG7zW9T0z2_Z9nK3m1UoG7zW9T0z2_Z9nK3"),
             "ltc": os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
         }
 
     def create_invoice(self, price_amount: float = 29.0,
                        price_currency: str = "usd",
+                       pay_currency: str = "",
                        order_id: str = None,
                        user_email: str = "") -> dict:
         """
@@ -46,14 +51,16 @@ class NOWPaymentsGateway:
                 "price_currency": price_currency,
                 "order_id": order_id,
                 "order_description": f"JobHunt Pro — Lifetime Access (${price_amount})",
-                "ipn_callback_url": "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/webhook/nowpayments",
+                "ipn_callback_url": "https://jhfguf.pythonanywhere.com/api/v2/nowpayments-ipn",
                 "success_url": "https://jhfguf.pythonanywhere.com/payment/success",
                 "cancel_url": "https://jhfguf.pythonanywhere.com/payment/cancel",
                 "is_fixed_rate": True,
                 "is_fee_paid_by_user": True,
             }
+            if pay_currency:
+                payload["pay_currency"] = pay_currency.lower()
             if user_email:
-                payload["payout_address"] = self.wallets.get("usdt", "")
+                payload["payout_address"] = self.wallets.get("usdt_trc20") or self.wallets.get("usdt", "")
 
             data = json.dumps(payload).encode()
             req = urllib.request.Request(
@@ -83,12 +90,12 @@ class NOWPaymentsGateway:
             "invoice_url": None,
             "method": "direct_crypto",
             "wallets": self.wallets,
-            "note": "Send exact amount to one of the addresses above"
+            "note": "Send exact amount to one of the sovereign non-custodial addresses above ($0 merchant fees)"
         }
 
     def verify_ipn(self, body: str, signature: str) -> bool:
         """
-        Verify NOWPayments IPN signature.
+        Verify NOWPayments IPN signature using canonical JSON sorting.
         Returns True if valid.
         """
         if not signature or not body:
@@ -97,15 +104,15 @@ class NOWPaymentsGateway:
             body_dict = json.loads(body)
             sorted_keys = sorted(body_dict.keys())
             sorted_body = {k: body_dict[k] for k in sorted_keys}
-            message = json.dumps(sorted_body, separators=(",", ":"))
+            message = json.dumps(sorted_body, separators=(",", ":"), sort_keys=True)
 
             computed = hmac.new(
-                self.ipn_secret.encode(),
-                message.encode(),
+                self.ipn_secret.encode("utf-8"),
+                message.encode("utf-8"),
                 hashlib.sha512
             ).hexdigest()
 
-            return hmac.compare_digest(computed, signature)
+            return hmac.compare_digest(computed.lower(), signature.lower())
         except Exception as e:
             logger.error(f"IPN verify: {e}")
             return False
@@ -130,9 +137,8 @@ class NOWPaymentsGateway:
             "action": "none"
         }
 
-        if status == "finished":
+        if status in ("finished", "confirmed"):
             result["action"] = "activate_user"
-            # Extract user info from order_id
             parts = order_id.split("_")
             if len(parts) >= 2:
                 result["user_identifier"] = parts[0]
@@ -141,18 +147,21 @@ class NOWPaymentsGateway:
             result["action"] = "partial_credit"
             result["credits"] = max(1, int(float(amount) / 29 * 50))
         elif status in ("expired", "cancelled"):
-            result["action"] = "none"  # Order expired, no action
+            result["action"] = "none"
 
         return result
 
     def get_payment_addresses(self) -> dict:
-        """Return available deposit addresses (fallback when NOWPayments down)."""
+        """Return available sovereign deposit addresses for $0 merchant fees."""
         return {
             "btc": self.wallets["btc"],
             "eth": self.wallets["eth"],
-            "usdt_erc20": self.wallets["usdt"],
+            "usdt_trc20": self.wallets["usdt_trc20"],
+            "usdt_polygon": self.wallets["usdt_polygon"],
+            "usdc_polygon": self.wallets["usdc_polygon"],
+            "ton": self.wallets["ton"],
             "ltc": self.wallets["ltc"],
-            "message": "Send exact amount to any address above. Auto-crediting within 1-12 hours."
+            "message": "Send exact amount to any sovereign non-custodial address above ($0 merchant fees)."
         }
 
 
@@ -160,9 +169,9 @@ class NOWPaymentsGateway:
 gateway = NOWPaymentsGateway()
 
 
-def create_payment(amount: float = 29.0, email: str = "") -> dict:
+def create_payment(amount: float = 29.0, email: str = "", pay_currency: str = "") -> dict:
     """Public convenience function."""
-    return gateway.create_invoice(price_amount=amount, user_email=email)
+    return gateway.create_invoice(price_amount=amount, user_email=email, pay_currency=pay_currency)
 
 
 def get_addresses() -> dict:

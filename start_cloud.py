@@ -194,7 +194,7 @@ def launch_services():
                 target_url = f"http://{ping_host}:{PORT}"
             if not target_url.startswith("http"):
                 target_url = "https://" + target_url
-            target_url = target_url.rstrip("/") + "/api/v1/health"
+            target_url = target_url.rstrip("/") + "/ping"
 
             logger.info(f"Keep-Alive ping daemon started targeting: {target_url}")
 
@@ -217,8 +217,8 @@ def launch_services():
                     logger.error(f"Keep-Alive ping check: ERROR: {e}")
 
                 try:
-                    # Ping every 10 minutes (600 seconds)
-                    time.sleep(600)
+                    # Ping every 4 minutes (240 seconds)
+                    time.sleep(240)
                 except (KeyboardInterrupt, SystemExit):
                     return
         except (KeyboardInterrupt, SystemExit):
@@ -252,94 +252,154 @@ def launch_services():
             # Explicitly run garbage collector in parent supervisor process
             gc.collect()
 
-            # Fetch psutil from sys.modules so unit tests can inject mocks via patch.dict
-            psutil = sys.modules.get("psutil")
-
-            total_rss = 0
-            if psutil:
-                try:
-                    # Get parent process RSS
-                    total_rss += psutil.Process(os.getpid()).memory_info().rss
-                except Exception:
-                    pass
-
-            for name, service in list(running_services.items()):
-                p = service["proc"]
-                exit_code = p.poll()
-                if exit_code is not None:
-                    logger.error(
-                        f"Service '{name}' (PID {p.pid}) exited with code {exit_code}! Restarting..."
-                    )
-                    new_proc = subprocess.Popen(service["cmd"])
-                    service["proc"] = new_proc
-                    continue
-
-                if psutil:
-                    try:
-                        proc_info = psutil.Process(p.pid)
-                        rss = proc_info.memory_info().rss
-                        # Sum up all spawned child processes
-                        for child in proc_info.children(recursive=True):
-                            rss += child.memory_info().rss
-
-                        total_rss += rss
-                        logger.debug(f"Service '{name}' (PID {p.pid}) memory usage: {rss / (1024*1024):.1f}MB")
-
-                        # If service memory exceeds limits, terminate it (the loop will auto-restart it on next tick)
-                        if rss > service["limit"]:
-                            logger.warning(
-                                f"Service '{name}' (PID {p.pid}) RSS ({rss / (1024*1024):.1f}MB) exceeded "
-                                f"limit of {service['limit'] / (1024*1024):.1f}MB! Recycling service..."
-                            )
-                            p.terminate()
-                            try:
-                                p.wait(timeout=5)
-                            except subprocess.TimeoutExpired:
-                                p.kill()
-                                p.wait()
-
-                    except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                        logger.warning(f"Failed to query memory for service '{name}': {e}")
-
-            # If the total container footprint exceeds 450MB, force recycle the largest worker process to prevent OOM
-            if psutil and total_rss > 450 * 1024 * 1024:
-                logger.warning(
-                    f"Global container footprint ({total_rss / (1024*1024):.1f}MB) approaching 512MB threshold! "
-                    f"Identifying largest consumer to recycle..."
-                )
-                max_service_name = None
-                max_service_rss = 0
-                for name, service in running_services.items():
-                    p = service["proc"]
-                    if p.poll() is None:
-                        try:
-                            proc_info = psutil.Process(p.pid)
-                            rss = proc_info.memory_info().rss
-                            for child in proc_info.children(recursive=True):
-                                rss += child.memory_info().rss
-                            if rss > max_service_rss:
-                                max_service_rss = rss
-                                max_service_name = name
-                        except Exception:
-                            pass
-
-                if max_service_name:
-                    logger.warning(
-                        f"Recycling largest consumer '{max_service_name}' ({max_service_rss / (1024*1024):.1f}MB) "
-                        f"to prevent global OOM."
-                    )
-                    running_services[max_service_name]["proc"].terminate()
-                    try:
-                        running_services[max_service_name]["proc"].wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        running_services[max_service_name]["proc"].kill()
-                        running_services[max_service_name]["proc"].wait()
+            # Modular memory evaluation and enforcement
+            evaluate_memory_and_enforce(running_services)
 
             # Sleep at the end of the loop (tests intercept this to control loop tick count)
             time.sleep(5)
 
     except KeyboardInterrupt:
         logger.info("Supervisor loop interrupted. Exiting launch_services().")
+
+
+def get_process_tree_rss(pid: int, psutil_mod=None) -> int:
+    """Calculate total RSS in bytes for a PID and all its recursive children."""
+    if psutil_mod is None:
+        psutil_mod = sys.modules.get("psutil")
+    if not psutil_mod or not pid:
+        return 0
+
+    total = 0
+    try:
+        proc = psutil_mod.Process(pid)
+        total += proc.memory_info().rss
+        for child in proc.children(recursive=True):
+            try:
+                total += child.memory_info().rss
+            except (getattr(psutil_mod, "NoSuchProcess", Exception),
+                    getattr(psutil_mod, "AccessDenied", Exception),
+                    getattr(psutil_mod, "ZombieProcess", Exception),
+                    AttributeError, ProcessLookupError):
+                pass
+    except (getattr(psutil_mod, "NoSuchProcess", Exception),
+            getattr(psutil_mod, "AccessDenied", Exception),
+            getattr(psutil_mod, "ZombieProcess", Exception),
+            AttributeError, ProcessLookupError):
+        pass
+    return total
+
+
+def terminate_and_recycle(service_name: str, service: dict, timeout: float = 5.0) -> bool:
+    """Gracefully terminate a process with SIGKILL fallback, and restart it."""
+    proc = service.get("proc")
+    if not proc:
+        return False
+
+    try:
+        proc.terminate()
+        try:
+            proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+    except (OSError, ProcessLookupError):
+        pass
+
+    # Immediately respawn worker to eliminate downtime window
+    if "cmd" in service:
+        service["proc"] = subprocess.Popen(service["cmd"])
+        return True
+    return False
+
+
+def evaluate_memory_and_enforce(
+    running_services: dict,
+    psutil_mod=None,
+    global_limit_bytes: int = 450 * 1024 * 1024,
+    supervisor_pid: int = None
+) -> dict:
+    """
+    Evaluate RSS for supervisor and all services.
+    Enforces per-service limits (Tier 1) and global container ceiling (Tier 2).
+    Returns telemetry dictionary detailing actions taken.
+    """
+    if psutil_mod is None:
+        psutil_mod = sys.modules.get("psutil")
+    if not psutil_mod:
+        return {"status": "psutil_missing", "total_rss_bytes": 0, "service_rss_map": {}, "recycled": []}
+
+    recycled = []
+    total_rss = 0
+
+    # Supervisor PID memory
+    sup_pid = supervisor_pid or os.getpid()
+    try:
+        sup_rss = psutil_mod.Process(sup_pid).memory_info().rss
+        if isinstance(sup_rss, (int, float)):
+            total_rss += int(sup_rss)
+    except Exception:
+        pass
+
+    service_rss_map = {}
+
+    # Check each service
+    for name, service in list(running_services.items()):
+        p = service.get("proc")
+        if not p:
+            continue
+
+        if p.poll() is not None:
+            # Service died or exited, auto-restart
+            if "cmd" in service:
+                logger.error(f"Service '{name}' (PID {getattr(p, 'pid', 'unknown')}) exited! Restarting...")
+                service["proc"] = subprocess.Popen(service["cmd"])
+            continue
+
+        rss = get_process_tree_rss(p.pid, psutil_mod)
+        if not isinstance(rss, (int, float)):
+            rss = 0
+        service_rss_map[name] = rss
+        total_rss += int(rss)
+
+        # Tier 1: Per-service limit check
+        limit = service.get("limit", float("inf"))
+        if rss > limit:
+            logger.warning(
+                f"Service '{name}' (PID {p.pid}) RSS ({rss / (1024*1024):.1f}MB) exceeded "
+                f"limit of {limit / (1024*1024):.1f}MB! Recycling service..."
+            )
+            terminate_and_recycle(name, service)
+            recycled.append({"service": name, "reason": "per_service_limit", "rss": rss})
+
+    # Tier 2: Global 450MB container ceiling check
+    # Only trigger if no service was already recycled in Tier 1 (avoiding double-recycle)
+    if not recycled and total_rss > global_limit_bytes:
+        logger.warning(
+            f"Global container footprint ({total_rss / (1024*1024):.1f}MB) exceeding "
+            f"450MB ceiling ({global_limit_bytes / (1024*1024):.1f}MB)! Identifying largest consumer..."
+        )
+        max_service_name = None
+        max_service_rss = 0
+        for name, rss in service_rss_map.items():
+            p = running_services[name].get("proc")
+            if p and p.poll() is None and rss > max_service_rss:
+                max_service_rss = rss
+                max_service_name = name
+
+        if max_service_name:
+            logger.warning(
+                f"Recycling largest consumer '{max_service_name}' ({max_service_rss / (1024*1024):.1f}MB) "
+                f"to prevent global OOM."
+            )
+            terminate_and_recycle(max_service_name, running_services[max_service_name])
+            recycled.append({"service": max_service_name, "reason": "global_ceiling_breach", "rss": max_service_rss})
+
+    return {
+        "status": "ok",
+        "total_rss_bytes": total_rss,
+        "service_rss_map": service_rss_map,
+        "recycled": recycled
+    }
 
 def startup_self_test() -> bool:
     """

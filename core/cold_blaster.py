@@ -356,11 +356,19 @@ def send_blast(
         recipients, max_sends, test_mode, today
     )
 
-    # ANTI-BOUNCE SHIELD: Filter recipient list
-    from core.email_verifier import is_deliverable_email
-    clean_recipients = [r for r in recipients if r.get("email") and is_deliverable_email(r.get("email"))]
+    # ANTI-BOUNCE SHIELD & 365-DAY COOLDOWN DEDUPLICATION: Filter recipient list
+    from core.email_verifier import is_deliverable_email, check_365_cooldown_dedup
+    clean_recipients = []
+    for r in recipients:
+        email = r.get("email")
+        if not email or not is_deliverable_email(email):
+            continue
+        uid = r.get("user_id")
+        allowed, _ = check_365_cooldown_dedup(user_id=uid, email=email)
+        if allowed:
+            clean_recipients.append(r)
     if len(clean_recipients) < len(recipients):
-        logger.info(f"[Anti-Bounce Shield] Filtered out {len(recipients) - len(clean_recipients)} undeliverable recipients from blast list.")
+        logger.info(f"[Anti-Bounce Shield] Filtered out {len(recipients) - len(clean_recipients)} undeliverable/cooldown recipients from blast list.")
     recipients = clean_recipients
 
     if max_sends <= 0:

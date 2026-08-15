@@ -24,10 +24,54 @@ class ReferralClaimRequest(BaseModel):
     user_id: str
 
 PLANS = {
-    "pro_monthly": {"name": "Pro Monthly", "price_usd": 19.99, "price_ton": 3.2, "tokens": 500},
-    "pro_annual": {"name": "Pro Annual (Best Value)", "price_usd": 149.99, "price_ton": 24.0, "tokens": 6000},
-    "credit_pack_100": {"name": "100 AI Credit Top-Up", "price_usd": 9.99, "price_ton": 1.6, "tokens": 100}
+    "pro_monthly": {"name": "Pro Monthly", "price_usd": 19.99, "price_ton": 3.2, "tokens": 500, "description": "Standard AI Auto-Apply & Cold Outreach for active job hunters"},
+    "pro_annual": {"name": "Pro Annual (Best Value)", "price_usd": 149.99, "price_ton": 24.0, "tokens": 6000, "description": "Full Year access with priority AI token allocation and ATS optimizer"},
+    "credit_pack_100": {"name": "100 AI Credit Top-Up", "price_usd": 9.99, "price_ton": 1.6, "tokens": 100, "description": "Quick credit boost for instant campaign burst"},
+    "vip_concierge_dfy": {"name": "VIP Executive Done-For-You (DFY)", "price_usd": 299.99, "price_ton": 48.0, "tokens": 2500, "description": "Fully managed bespoke executive campaign, 1-on-1 ATS rewrite, and direct recruiter outreach"},
+    "b2b_agency_pro": {"name": "B2B Agency & Headhunter Pro", "price_usd": 199.99, "price_ton": 32.0, "tokens": 10000, "description": "Multi-candidate workspace for staffing agencies and executive headhunters"},
+    "b2b_enterprise_whitelabel": {"name": "Enterprise White-Label License", "price_usd": 999.99, "price_ton": 160.0, "tokens": 50000, "description": "Custom branded portal, dedicated SMTP warm-up pool, and API access"}
 }
+
+class ROICalculatorRequest(BaseModel):
+    current_salary_usd: float = Field(default=60000.0, description="Current annual salary in USD")
+    target_salary_usd: float = Field(default=90000.0, description="Desired annual salary in USD")
+    hours_applying_per_week: float = Field(default=12.0, description="Hours spent per week manually applying")
+    plan_id: Optional[str] = "pro_annual"
+
+@router.post("/roi-calculator")
+def calculate_jobhunt_roi(req: ROICalculatorRequest):
+    """
+    Calculates estimated ROI, time saved, and salary uplift for candidates and agencies.
+    """
+    plan = PLANS.get(req.plan_id, PLANS["pro_annual"])
+    plan_cost = plan["price_usd"]
+    
+    annual_salary_uplift = max(0.0, req.target_salary_usd - req.current_salary_usd)
+    hours_saved_annual = round(req.hours_applying_per_week * 52 * 0.85, 1)  # 85% time saved via autonomous swarm
+    hourly_rate = req.current_salary_usd / 2080.0 if req.current_salary_usd > 0 else 25.0
+    time_value_saved_usd = round(hours_saved_annual * hourly_rate, 2)
+    
+    total_value_generated = annual_salary_uplift + time_value_saved_usd
+    roi_multiple = round(total_value_generated / max(1.0, plan_cost), 1)
+    
+    # Days to break even once placed
+    payback_days = round((plan_cost / max(1.0, (annual_salary_uplift / 365.0))) if annual_salary_uplift > 0 else 1.0, 1)
+    
+    return {
+        "status": "success",
+        "plan_selected": plan["name"],
+        "plan_cost_usd": plan_cost,
+        "metrics": {
+            "annual_salary_uplift_usd": annual_salary_uplift,
+            "hours_saved_annually": hours_saved_annual,
+            "time_value_saved_usd": time_value_saved_usd,
+            "total_estimated_value_usd": total_value_generated,
+            "net_roi_multiple": f"{roi_multiple}x",
+            "estimated_interviews_per_month": "6 - 14 verified interviews",
+            "payback_period_days": f"{payback_days} days"
+        },
+        "recommendation": "VIP Concierge (DFY)" if req.target_salary_usd >= 100000 else "Pro Annual (Best Value)"
+    }
 
 @router.post("/create-checkout")
 def create_checkout_session(req: CheckoutSessionRequest):
@@ -83,22 +127,26 @@ def verify_ton_invoice(invoice_id: str):
 @router.post("/referral/claim")
 def claim_referral_reward(req: ReferralClaimRequest):
     """Claims referral tokens for both referrer and newly joined user."""
+    from core.referral_engine import claim_referral
+    success, msg = claim_referral(req.referral_code, req.user_id)
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
     return {
         "status": "success",
         "tokens_added": 50,
-        "new_balance": 150,
-        "message": "Referral code redeemed successfully! 50 AI bonus credits added."
+        "message": msg
     }
 
 @router.get("/referral/link/{user_id}")
 def get_referral_link(user_id: str):
-    """Generates unique user referral link."""
+    """Generates unique user referral link and fetches stats."""
+    from core.referral_engine import get_user_referral_stats
+    stats = get_user_referral_stats(user_id)
     return {
         "status": "success",
-        "referral_code": f"REF-{user_id[:6].upper()}",
-        "referral_url": f"https://jobhunt-pro.com/signup?ref=REF-{user_id[:6].upper()}",
-        "reward_per_invite": "50 AI Credits"
+        "stats": stats
     }
+
 
 @router.get("/ab-test/variant")
 def get_landing_ab_variant(user_ip: Optional[str] = "127.0.0.1"):

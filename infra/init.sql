@@ -128,6 +128,20 @@ CREATE TABLE IF NOT EXISTS wallet_transactions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_wallet_tx_user ON wallet_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_hash ON wallet_transactions(tx_hash);
+
+CREATE TABLE IF NOT EXISTS crypto_processed_txs (
+    id SERIAL PRIMARY KEY,
+    tx_hash VARCHAR(255) UNIQUE NOT NULL,
+    network VARCHAR(50) NOT NULL,
+    amount_usd DECIMAL(10,2) NOT NULL,
+    recipient VARCHAR(255) NOT NULL,
+    user_id VARCHAR(64),
+    order_id VARCHAR(64),
+    confirmations INTEGER DEFAULT 12,
+    verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_crypto_tx_hash ON crypto_processed_txs(tx_hash);
 
 CREATE TABLE IF NOT EXISTS redeem_codes (
     id SERIAL PRIMARY KEY,

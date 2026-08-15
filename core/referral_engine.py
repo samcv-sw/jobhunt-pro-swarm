@@ -19,7 +19,7 @@ def get_db_connection(db_path: str = "data/jobhunt_saas_v2.db") -> sqlite3.Conne
 
 
 def init_referral_db(db_path: str = "data/jobhunt_saas_v2.db"):
-    """Ensure referral table exists in database."""
+    """Ensure referral table exists in database with all required columns."""
     with get_db_connection(db_path) as conn:
         conn.execute("""
             CREATE TABLE IF NOT EXISTS referrals (
@@ -27,13 +27,33 @@ def init_referral_db(db_path: str = "data/jobhunt_saas_v2.db"):
                 referral_code TEXT UNIQUE NOT NULL,
                 referrer_user_id TEXT NOT NULL,
                 referred_user_id TEXT UNIQUE,
-                status TEXT DEFAULT 'pending', -- pending, completed, claimed
+                status TEXT DEFAULT 'pending',
                 tokens_awarded INTEGER DEFAULT 50,
                 created_at TEXT DEFAULT (datetime('now')),
                 claimed_at TEXT
             )
         """)
+        # Auto-migrate table if older schema exists
+        cursor = conn.execute("PRAGMA table_info(referrals)")
+        cols = {c[1] for c in cursor.fetchall()}
+        required_cols = {
+            "referral_code": "TEXT",
+            "referrer_user_id": "TEXT",
+            "referred_user_id": "TEXT",
+            "status": "TEXT DEFAULT 'pending'",
+            "tokens_awarded": "INTEGER DEFAULT 50",
+            "created_at": "TEXT",
+            "claimed_at": "TEXT"
+        }
+        for col, col_type in required_cols.items():
+            if col not in cols:
+                try:
+                    conn.execute(f"ALTER TABLE referrals ADD COLUMN {col} {col_type}")
+                except Exception as e:
+                    logger.debug(f"Referral column {col} migration notice: {e}")
         conn.commit()
+
+
 
 
 def generate_referral_code(user_id: str, db_path: str = "data/jobhunt_saas_v2.db") -> str:
@@ -41,8 +61,17 @@ def generate_referral_code(user_id: str, db_path: str = "data/jobhunt_saas_v2.db
     init_referral_db(db_path)
     user_id_str = str(user_id)
     with get_db_connection(db_path) as conn:
+        cursor = conn.execute("PRAGMA table_info(referrals)")
+        cols = {c[1] for c in cursor.fetchall()}
+        
+        id_col = "referrer_user_id" if "referrer_user_id" in cols else "referrer_id"
+        ref_user_col = "referred_user_id" if "referred_user_id" in cols else "referred_id"
+        
         row = conn.execute(
-            "SELECT referral_code FROM referrals WHERE referrer_user_id = ? AND referred_user_id IS NULL",
+            f"SELECT referral_code FROM referrals WHERE ({id_col} = ? OR referrer_user_id = ?) AND ({ref_user_col} IS NULL OR referred_user_id IS NULL)",
+            (user_id_str, user_id_str)
+        ).fetchone() if "referrer_user_id" in cols and id_col != "referrer_user_id" else conn.execute(
+            f"SELECT referral_code FROM referrals WHERE {id_col} = ? AND ({ref_user_col} IS NULL)",
             (user_id_str,)
         ).fetchone()
 
@@ -51,12 +80,26 @@ def generate_referral_code(user_id: str, db_path: str = "data/jobhunt_saas_v2.db
 
         short_id = str(uuid.uuid4())[:8].upper()
         code = f"JOBHUNT-{short_id}"
-        conn.execute(
-            "INSERT INTO referrals (referral_code, referrer_user_id, status, tokens_awarded) VALUES (?, ?, 'pending', 50)",
-            (code, user_id_str)
-        )
+        
+        insert_cols = ["referral_code", "status", "tokens_awarded"]
+        insert_vals = [code, "pending", 50]
+        
+        if "referrer_user_id" in cols:
+            insert_cols.append("referrer_user_id")
+            insert_vals.append(user_id_str)
+        if "referrer_id" in cols:
+            insert_cols.append("referrer_id")
+            insert_vals.append(user_id_str)
+        if "referred_id" in cols:
+            insert_cols.append("referred_id")
+            insert_vals.append("")
+            
+        placeholders = ", ".join(["?"] * len(insert_vals))
+        col_names = ", ".join(insert_cols)
+        conn.execute(f"INSERT INTO referrals ({col_names}) VALUES ({placeholders})", tuple(insert_vals))
         conn.commit()
         return code
+
 
 
 def claim_referral(referral_code: str, referred_user_id: str, reward_tokens: int = 50, db_path: str = "data/jobhunt_saas_v2.db") -> Tuple[bool, str]:
@@ -69,27 +112,44 @@ def claim_referral(referral_code: str, referred_user_id: str, reward_tokens: int
         return False, "Invalid referral code."
 
     with get_db_connection(db_path) as conn:
+        cursor = conn.execute("PRAGMA table_info(referrals)")
+        cols = {c[1] for c in cursor.fetchall()}
+        id_col = "referrer_user_id" if "referrer_user_id" in cols else "referrer_id"
+
         row = conn.execute(
-            "SELECT id, referrer_user_id, status FROM referrals WHERE referral_code = ? AND referred_user_id IS NULL",
+            "SELECT * FROM referrals WHERE referral_code = ? AND (status = 'pending' OR status IS NULL)",
             (ref_code,)
         ).fetchone()
 
         if not row:
             return False, "Referral code not found or already claimed."
 
-        referrer_id = row["referrer_user_id"]
+        referrer_id = row[id_col] if id_col in row.keys() else row["referrer_user_id"]
         if referrer_id == referred_id_str:
             return False, "Cannot claim your own referral code."
 
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Update referral record
-        conn.execute(
-            "UPDATE referrals SET referred_user_id = ?, status = 'completed', claimed_at = ? WHERE id = ?",
-            (referred_id_str, now_str, row["id"])
+        update_clauses = ["status = 'completed'", "claimed_at = ?"]
+        update_params = [now_str]
+        if "referred_user_id" in cols:
+            update_clauses.append("referred_user_id = ?")
+            update_params.append(referred_id_str)
+        if "referred_id" in cols:
+            update_clauses.append("referred_id = ?")
+            update_params.append(referred_id_str)
+            
+        update_params.append(row["id"])
+        set_str = ", ".join(update_clauses)
+        cursor = conn.execute(
+            f"UPDATE referrals SET {set_str} WHERE id = ? AND (status = 'pending' OR status IS NULL)",
+            tuple(update_params)
         )
+        if cursor.rowcount == 0:
+            return False, "Referral code not found or already claimed."
 
-        # Award tokens to referrer and referred user (if users table has tokens column)
+        # Award tokens to referrer and referred user
         try:
             conn.execute("UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE id = ?", (reward_tokens, referrer_id))
             conn.execute("UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE id = ?", (reward_tokens, referred_id_str))
@@ -105,13 +165,17 @@ def get_user_referral_stats(user_id: str, db_path: str = "data/jobhunt_saas_v2.d
     init_referral_db(db_path)
     user_id_str = str(user_id)
     with get_db_connection(db_path) as conn:
+        cursor = conn.execute("PRAGMA table_info(referrals)")
+        cols = {c[1] for c in cursor.fetchall()}
+        id_col = "referrer_user_id" if "referrer_user_id" in cols else "referrer_id"
+        
         row = conn.execute(
-            """
+            f"""
             SELECT 
                 COUNT(CASE WHEN status = 'completed' THEN 1 END) as total_referrals,
                 COALESCE(SUM(CASE WHEN status = 'completed' THEN tokens_awarded ELSE 0 END), 0) as total_tokens_earned
             FROM referrals
-            WHERE referrer_user_id = ?
+            WHERE {id_col} = ?
             """,
             (user_id_str,)
         ).fetchone()
@@ -126,3 +190,4 @@ def get_user_referral_stats(user_id: str, db_path: str = "data/jobhunt_saas_v2.d
             "total_tokens_earned": row["total_tokens_earned"] if row else 0,
             "reward_per_referral": 50
         }
+

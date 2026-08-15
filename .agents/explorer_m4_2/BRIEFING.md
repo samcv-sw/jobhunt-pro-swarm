@@ -1,34 +1,44 @@
-# BRIEFING — 2026-07-12T20:53:20Z
+# BRIEFING — 2026-08-14T12:38:40Z
 
 ## Mission
-Explore and analyze the codebase to design the Cloudflare health-check-based DNS failover solution (IMP-128) for JobHunt Pro.
+Investigate atomic wallet balance management (Feature 17) and localized GCC fiat checkout with Mada/KNET/Apple Pay/Tamara/Tabby and SAR/AED pricing (Feature 18).
 
 ## 🔒 My Identity
-- Archetype: Teamwork explorer
-- Roles: Read-only investigation: analyze problems, synthesize findings, produce structured reports
-- Working directory: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2
-- Original parent: 4c2670f0-c5a8-4926-8b41-00ecf8d7e934
-- Milestone: IMP-128 Design Phase
+- Archetype: Explorer
+- Roles: Read-only investigation, code analysis, gap identification, implementation planning
+- Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2
+- Original parent: 1a88d940-650d-405f-a7dd-88b2f8b9a304
+- Milestone: M4 (Iteration 1)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement (do NOT write production code/tests).
-- CODE_ONLY network mode. No external web access.
-- Write report to C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2\handoff.md.
+- Read-only investigation — do NOT modify application source code
+- Only write metadata/reports in our assigned folder `.agents/explorer_m4_2/`
+- Adhere to token economy and architectural rules in AGENTS.md
 
 ## Current Parent
-- Conversation ID: 4c2670f0-c5a8-4926-8b41-00ecf8d7e934
-- Updated: 2026-07-12T20:53:20Z
+- Conversation ID: 1a88d940-650d-405f-a7dd-88b2f8b9a304
+- Updated: 2026-08-14T12:38:40Z
 
 ## Investigation State
-- **Explored paths**: `backend/main.py`, `tests/test_health_monitor.py`, `cloudflare/wrangler.toml`, `cloudflare/DEPLOY_GUIDE.md`, `infrastructure/deploy_eu_cloud.sh`
-- **Key findings**: Found endpoints `/health`, `/healthz`, and `/api/v1/health/detailed` in `backend/main.py`. Recommended pointing Cloudflare monitor to lightweight `/healthz` instead of `/api/v1/health/detailed` to avoid exhausting Neon DB and Upstash Redis limits.
-- **Unexplored areas**: None.
+- **Explored paths**:
+  - `web/shared.py`, `web/app_v2.py`, `backend/models.py`, `infra/init.sql`
+  - `core/gcc_billing.py`, `core/gcc_unified_checkout.py`, `core/pricing_manager.py`
+  - `web/routers/payments.py`, `web/routers/gcc_billing_router.py`, `web/routers/gcc_ultra_suite.py`
+  - `web/templates/checkout_v3.html`, `web/templates/crypto_checkout_modal.html`
+  - `tests/test_gcc_billing.py`, `tests/test_gcc_and_roi_calculator.py`
+- **Key findings**:
+  - `update_wallet` in `web/shared.py` does not record `tx_hash` or check idempotency.
+  - Several router endpoints use unconstrained `UPDATE` statements vulnerable to race conditions / negative balances.
+  - `core/gcc_unified_checkout.py` supports Mada, Apple Pay, KNET, Tap, and Moyasar, but lacks Tamara & Tabby BNPL 4-installment split configurations.
+  - Missing unified REST endpoints for GCC checkout sessions (`/api/v2/checkout/gcc-session`) and webhooks (`/api/v2/checkout/gcc-webhook`).
+- **Unexplored areas**: None for Features 17 and 18. Full action plan documented.
 
 ## Key Decisions Made
-- Designed idempotent python CLI tool using `httpx.Client` for Cloudflare Load Balancing Monitor, Pool, and Load Balancer provisioning.
-- Designed unit test suite using `pytest` and mock-based assertions.
+- Formulated polymorphic `update_wallet` and `deduct_wallet` design guaranteeing 100% backward compatibility, idempotency check on `tx_hash`, and negative-balance guard (`WHERE wallet_balance >= ?`).
+- Defined Tamara/Tabby BNPL installment calculation model and session generation blueprint.
+- Outlined comprehensive test suite (`tests/test_wallet_and_gcc_checkout.py`) to validate all edge cases.
 
 ## Artifact Index
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2\ORIGINAL_REQUEST.md — Store the original user request and timestamp.
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2\progress.md — Track progress on tasks.
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_2\handoff.md — Detailed design proposal report.
+- DISPATCH.md — Dispatch history
+- BRIEFING.md — Persistent working memory
+- handoff.md — Complete 5-component handoff report

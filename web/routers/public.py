@@ -17,6 +17,8 @@ from fastapi.responses import (
     Response,
 )
 
+import config
+
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["public"])
 
@@ -128,6 +130,150 @@ async def public_domain_scan(request: Request):
         })
     except Exception as e:
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+
+
+@router.get("/free-ats-score", response_class=HTMLResponse)
+@router.get("/ats-optimizer", response_class=HTMLResponse)
+def free_ats_score_page(request: Request, lang: str = "ar"):
+    """Viral interactive Free ATS Resume Scorecard and lead magnet landing page."""
+    _, _, templates, _, _, _, _, render_template = _deps()
+    try:
+        req_lang = (
+            request.query_params.get("lang") or
+            request.cookies.get("lang") or
+            request.cookies.get("jobhunt_lang") or
+            request.cookies.get("preferred_lang") or
+            getattr(request.state, "locale", None) or
+            lang or
+            "ar"
+        )
+        clean_lang = str(req_lang).split("-")[0].lower()
+        if clean_lang not in ["ar", "en", "zh"]:
+            clean_lang = "ar"
+        content = render_template("free_ats_lead_magnet.html", request=request, lang=clean_lang)
+        return HTMLResponse(content=content)
+    except Exception as e:
+        logger.error(f"[free_ats_score_page] Render error: {e}")
+        return HTMLResponse(content=f"<h1>Free ATS Scorecard</h1><p>{e}</p>")
+
+
+@router.post("/api/v2/public/ats-instant-score")
+async def public_ats_instant_score(request: Request):
+    """
+    Public AI ATS Scoring & Gap Extraction endpoint with interactive preview hooks.
+    Computes keyword relevancy, action verb strength, Gulf ATS compliance, recruiter perspective,
+    and returns high-converting upsell links (Basic $19, Micro $5, B2B SDR Swarm $149).
+    """
+    try:
+        body = await request.json()
+        job_title = (body.get("job_title") or "").strip()
+        cv_text = (body.get("cv_text") or "").strip()
+
+        if not job_title or not cv_text:
+            return JSONResponse({"status": "error", "message": "job_title and cv_text are required"}, status_code=400)
+
+        # Quantitative heuristic & keyword density scoring
+        cv_len = len(cv_text)
+        word_count = len(cv_text.split())
+        title_lower = job_title.lower()
+        cv_lower = cv_text.lower()
+
+        # Domain-tailored high-impact keyword dictionaries
+        role_keyword_matrix = {
+            "software": ["FastAPI", "PostgreSQL", "Docker", "Kubernetes", "Microservices", "CI/CD", "Cloud Architecture", "System Design", "Redis", "REST API"],
+            "engineer": ["System Architecture", "Scalability", "Unit Testing", "Cloud Infrastructure", "Optimization", "Database Design", "Agile"],
+            "marketing": ["Performance Marketing", "ROAS", "Growth Hacking", "SEO/SEM", "Conversion Optimization", "Omnichannel", "Meta Ads", "Analytics"],
+            "sales": ["B2B Enterprise Sales", "Pipeline Growth", "Account Management", "CRM Salesforce", "Lead Generation", "Contract Negotiation", "Revenue Quota"],
+            "hr": ["Talent Acquisition", "ATS Sourcing", "Employee Retention", "Labor Law Compliance", "KPI Management", "Executive Onboarding"],
+            "finance": ["Financial Modeling", "Budget Forecasting", "P&L Management", "Audit & Compliance", "IFRS Standards", "Cost Optimization"],
+            "manager": ["Team Leadership", "P&L Management", "Strategic Planning", "Stakeholder Engagement", "KPI Delivery", "Agile Operations"]
+        }
+
+        # Select relevant power keywords for the role
+        target_power_keywords = []
+        for key, kw_list in role_keyword_matrix.items():
+            if key in title_lower:
+                target_power_keywords.extend(kw_list)
+        if not target_power_keywords:
+            target_power_keywords = ["Project Management", "Strategic Execution", "Cross-Functional Leadership", "Process Optimization", "KPI Tracking", "Budget Management"]
+
+        # Deduplicate keywords
+        target_power_keywords = list(dict.fromkeys(target_power_keywords))
+
+        detected_keywords = [kw for kw in target_power_keywords if kw.lower() in cv_lower]
+        missing_keywords = [kw for kw in target_power_keywords if kw.lower() not in cv_lower]
+
+        # Check keywords presence from title
+        keywords_matched = sum(1 for w in title_lower.split() if w in cv_lower)
+        keywords_total = max(1, len(title_lower.split()))
+        keyword_ratio = min(1.0, (keywords_matched / keywords_total) * 0.6 + (len(detected_keywords) / max(1, len(target_power_keywords))) * 0.4)
+
+        # High impact action verbs
+        action_verbs = ["led", "managed", "built", "designed", "increased", "reduced", "delivered", "optimized", "spearheaded", "engineered", "قيادة", "إدارة", "تطوير", "تحقيق", "زيادة", "إنجاز", "تنفيذ"]
+        verbs_count = sum(1 for v in action_verbs if v in cv_lower)
+        verb_score = min(98, max(45, verbs_count * 12 + 40))
+
+        # Gulf relevant metrics
+        gulf_terms = ["saudi", "riyadh", "dubai", "uae", "gulf", "gcc", "aramco", "vision 2030", "السعودية", "الرياض", "دبي", "الإمارات", "الخليج", "رؤية 2030"]
+        gulf_count = sum(1 for g in gulf_terms if g in cv_lower)
+        gulf_score = min(96, max(50, gulf_count * 15 + 45))
+
+        # Composite ATS score calculation
+        base_score = int((keyword_ratio * 40) + (min(100, (word_count / 280) * 30)) + (verb_score * 0.15) + (gulf_score * 0.15))
+        final_score = min(96, max(42, base_score))
+
+        if final_score >= 82:
+            verdict = "سيرة ذاتية قوية ومتوافقة بشكل ممتاز مع فلاتر ATS الخليجية"
+            gaps = "تم رصد توافق تقني عالٍ، مع إمكانية تحسين طفيفة في النسب المئوية للإنجازات المحققة (KPIs)."
+        elif final_score >= 65:
+            verdict = "سيرة ذاتية مقبولة ولكن معرضة لفرز تنافسي ضعيف لدى مسؤولي التوظيف"
+            gaps = f"ينقص السيرة الذاتية بعض الكلمات المفتاحية الأساسية لمسمى '{job_title}' مثل: {', '.join(missing_keywords[:4])}."
+        else:
+            verdict = "تحذير: نسبة استبعاد تفوق 85% لدى أنظمة الفرز التلقائي (High ATS Risk)"
+            gaps = f"السيرة الذاتية تفتقر للمصطلحات التقنية وصيغ أفعال الإنجاز الكمية. كلمات مفقودة حرجة: {', '.join(missing_keywords[:5])}."
+
+        # Dispatch real-time lead capture notification via Telegram ($0 cost)
+        try:
+            from core.telegram_alerts import alert_lead_captured
+            alert_lead_captured(
+                source="Free ATS Instant Score",
+                role=job_title,
+                score=final_score,
+                gulf_score=gulf_score,
+                notes=verdict,
+            )
+        except Exception as alert_err:
+            logger.debug(f"[public_ats_instant_score] Lead alert dispatch skipped: {alert_err}")
+
+        return JSONResponse({
+            "status": "success",
+            "score": final_score,
+            "keywords_score": int(min(98, max(35, keyword_ratio * 100))),
+            "verbs_score": verb_score,
+            "gulf_score": gulf_score,
+            "verdict": verdict,
+            "gaps": gaps,
+            "detected_keywords": detected_keywords,
+            "missing_keywords": missing_keywords,
+            "recruiter_view": {
+                "screening_verdict": "Pass Screening" if final_score >= 75 else "Review / Reject",
+                "estimated_read_seconds": 6,
+                "gulf_market_fit": "High" if gulf_score >= 70 else "Needs Regional Alignment",
+                "recommended_action": "Bypass ATS via Direct B2B AI SDR Swarm outreach to verified hiring managers"
+            },
+            "upsells": {
+                "basic_plan_usd": 19,
+                "keyword_injection_usd": 5,
+                "b2b_sdr_swarm_usd": 149,
+                "checkout_url": f"/checkout_v3?plan=basic&amount=19&role={job_title}",
+                "b2b_checkout_url": f"/checkout_v3?plan=enterprise&amount=149&role={job_title}",
+                "crypto_checkout_url": f"/wallet?deposit=149&plan=enterprise"
+            }
+        })
+    except Exception as e:
+        logger.error(f"[public_ats_instant_score] Error: {e}")
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
 
 
 @router.get("/offline", response_class=HTMLResponse)
@@ -323,6 +469,16 @@ def pricing(request: Request):
             {"name": "LinkedIn Profile Optimizer", "desc": "AI-enhanced LinkedIn presence", "price": 3.99},
             {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
         ]
+        req_lang = (
+            request.query_params.get("lang") or
+            request.cookies.get("lang") or
+            request.cookies.get("jobhunt_lang") or
+            "ar"
+        )
+        clean_lang = str(req_lang).split("-")[0].lower()
+        if clean_lang not in ["ar", "en", "zh"]:
+            clean_lang = "ar"
+
         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
 
         pricing_content = render_template("pricing_v3.html", request=request,
@@ -330,8 +486,11 @@ def pricing(request: Request):
                                           flash_discount=flash_discount,
                                           flash_sale=flash_sale_info,
                                           is_logged_in=bool(user_id),
+                                          lang=clean_lang,
                                           VERSION=config.VERSION)
-        html = _public_shell(pricing_content, "Pricing - JobHunt Pro", "JobHunt Pro pricing plans.", request=request)
+        title = "Pricing | JobHunt Pro" if clean_lang == "en" else "الأسعار | JobHunt Pro"
+        desc = "JobHunt Pro pricing plans — one-time payment with no subscriptions." if clean_lang == "en" else "خطط أسعار JobHunt Pro — دفع لمرة واحدة بدون اشتراكات."
+        html = _public_shell(pricing_content, title, desc, request=request, lang=clean_lang)
         response = HTMLResponse(content=html)
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Pragma"] = "no-cache"
@@ -402,6 +561,23 @@ def trust_page(request: Request):
 def roast_page(request: Request):
     get_db, _, templates, config, _, _, _, _ = _deps()
     return templates.TemplateResponse(request, "roast.html", {"VERSION": config.VERSION})
+
+@router.get("/share-card-svg/{tool}")
+def public_share_card_svg(tool: str, score: int = 98, user_name: str = "Candidate"):
+    """Public top-level alias for dynamic SVG share scorecards."""
+    from web.routers.viral_acquisition import get_share_card_svg
+    return get_share_card_svg(tool=tool, score=score, user_name=user_name)
+
+@router.post("/trigger-share")
+async def public_trigger_share(request: Request):
+    """Public top-level alias for social share credit rewards."""
+    from web.routers.viral_acquisition import trigger_social_share_event, ShareEventRequest
+    try:
+        body = await request.json()
+        req = ShareEventRequest(**body)
+        return trigger_social_share_event(req)
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 @router.get("/employers", response_class=HTMLResponse)
 def employers_page(request: Request):
@@ -525,13 +701,25 @@ def contact_page(request: Request):
 
 @router.post("/contact")
 def contact_submit(request: Request, name: str = Form(""), email: str = Form(""), message: str = Form(""), subject: str = Form("")):
-    """Handle contact form submission and deliver notification to jobhuntpro.app@zohomail.com."""
+    """Handle contact form submission and deliver notification to jobhuntpro.app@zohomail.com and Telegram."""
     try:
         from fastapi.responses import RedirectResponse
         from core.email_engine import send_email_notification
         target_email = getattr(config, "SUPPORT_EMAIL", "jobhuntpro.app@zohomail.com")
         body = f"New Contact Form Submission:\n\nName: {name}\nSender Email: {email}\nSubject: {subject}\n\nMessage:\n{message}"
         send_email_notification(to_email=target_email, subject=f"📩 Contact Form: {subject or 'New Inquiry'}", body=body)
+
+        # Dispatch real-time lead capture notification via Telegram ($0 cost)
+        try:
+            from core.telegram_alerts import alert_lead_captured
+            alert_lead_captured(
+                source="Contact Form Inquiry",
+                name=name,
+                email=email,
+                notes=f"Subject: {subject} | {message[:200]}" if (subject or message) else "No message provided",
+            )
+        except Exception as alert_err:
+            logger.debug(f"[contact_submit] Lead alert dispatch skipped: {alert_err}")
     except Exception as exc:
         logger.error(f"Contact submit error: {exc}")
     return RedirectResponse("/contact?msg=Thank+you!+Your+message+has+been+sent.", status_code=303)

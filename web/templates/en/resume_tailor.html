@@ -13,7 +13,7 @@
   max-inline-size: 1400px;
   margin-block: 0;
   margin-inline: auto;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
 }
 .tailor-scale h1 {
   font-size: 26px;
@@ -68,7 +68,7 @@
   border-radius: 12px;
   padding: 14px;
   color: #f1f5f9;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
   font-size: 14px;
   line-height: 1.7;
   resize: vertical;
@@ -228,7 +228,7 @@
   border-radius: 10px;
   background: transparent;
   color: #94a3b8;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -278,7 +278,7 @@
   line-height: 1.8;
   white-space: pre-wrap;
   color: #e2e8f0;
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', monospace;
 }
 
 /* Diff View */
@@ -843,7 +843,7 @@ function showCyberToast(msg, type = 'success') {
     border-radius: 14px;
     padding: 14px 18px;
     color: #f8fafc;
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, sans-serif;
     font-size: 14px;
     font-weight: 700;
     backdrop-filter: blur(16px);
@@ -927,7 +927,7 @@ function generatePersonalPortfolioWebpage() {
       <title>Executive Digital Portfolio</title>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
       <style>
-        body { background:#0f172a; color:#f8fafc; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
+        body { background:#0f172a; color:#f8fafc; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif; margin:0; padding:40px 20px; display:flex; justify-content:center; }
         .card { background:rgba(30,41,59,0.95); border:1px solid rgba(245,158,11,0.3); border-radius:24px; max-width:850px; width:100%; padding:40px; box-shadow:0 20px 50px rgba(0,0,0,0.5); }
         .header { border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:20px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; }
         .title h1 { margin:0; color:#fbbf24; font-size:2rem; }
@@ -960,7 +960,7 @@ function downloadTailoredDocx() {
     showError('No tailored resume to download.');
     return;
   }
-  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
+  const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tailored Resume</title></head><body style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, Arial, sans-serif; line-height: 1.6; font-size: 11pt; color: #000000;"><pre style="white-space: pre-wrap; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;">${escapeHtmlStr(text)}</pre></body></html>`;
   const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -982,8 +982,8 @@ function downloadTailoredPdf() {
       <meta charset="utf-8">
       <title>Tailored Resume</title>
       <style>
-        body { font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', Arial, sans-serif; line-height: 1.6; font-size: 11pt; padding: 25px; color: #111; }
-        pre { white-space: pre-wrap; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; margin: 0; }
+        body { font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', Arial, sans-serif; line-height: 1.6; font-size: 11pt; padding: 25px; color: #111; }
+        pre { white-space: pre-wrap; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; margin: 0; }
       </style>
     </head>
     <body>

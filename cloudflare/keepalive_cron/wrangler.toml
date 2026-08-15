@@ -1,10 +1,13 @@
 name = "jobhunt-pro-keepalive"
 main = "src/index.js"
-compatibility_date = "2024-01-01"
+compatibility_date = "2026-01-01"
 
 [vars]
-APP_URL = "https://jobhunt-pro.onrender.com/"
-ENGINE_URL = "https://jobhunt-pro-engine.onrender.com/"
+PRIMARY_URL = "https://jobhunt-pro.onrender.com/ping"
+BACKEND_URL = "https://jhfguf.pythonanywhere.com/ping"
+KOYEB_URL = "https://jobhunt-pro-koyeb.koyeb.app/ping"
+APP_URL = "https://jobhunt-pro.onrender.com/ping"
+ENGINE_URL = "https://jobhunt-pro-engine.onrender.com/ping"
 
 [triggers]
-crons = ["*/5 * * * *"]
+crons = ["*/4 * * * *"]

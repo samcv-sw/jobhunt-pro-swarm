@@ -85,12 +85,22 @@ def _patched_tr(*args, **kwargs):
                 base_name = base_name[len(prefix):]
                 break
 
-        if (template_dir / clean_lang / base_name).exists():
-            name = f"{clean_lang}/{base_name}"
-        elif (template_dir / "en" / base_name).exists():
-            name = f"en/{base_name}"
+        if clean_lang == "ar":
+            if (template_dir / "ar" / base_name).exists():
+                name = f"ar/{base_name}"
+            elif (template_dir / base_name).exists():
+                name = base_name
+            elif (template_dir / "en" / base_name).exists():
+                name = f"en/{base_name}"
+            else:
+                name = base_name
         else:
-            name = base_name
+            if (template_dir / clean_lang / base_name).exists():
+                name = f"{clean_lang}/{base_name}"
+            elif (template_dir / "en" / base_name).exists():
+                name = f"en/{base_name}"
+            else:
+                name = base_name
 
     if request:
         return _orig_tr(request=request, name=name, context=context, **kwargs)
@@ -204,35 +214,148 @@ def is_admin_email(email: str) -> bool:
                 admins.add(item.strip().lower())
     return e in admins
 
-def update_wallet(conn, user_id, delta, desc, txn_type="adjustment"):
-    """Atomic wallet credit."""
-    try:
-        conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (delta, user_id))
-        row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if row:
-            bal = row[0] if not hasattr(row, "__getitem__") else row["wallet_balance"]
-            conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-                         (user_id, txn_type, delta, bal, desc))
-            return bal
-    except Exception as e:
-        logger.error(f"[WALLET] update failed: {e}")
-    return None
+def update_wallet(*args, **kwargs):
+    """
+    Atomic wallet balance increment with idempotency and ledger audit logging.
+    
+    Supports both:
+    1. Connection-passed style:
+       update_wallet(conn, user_id, delta, desc, txn_type="adjustment", tx_id=None) -> float | None
+    2. Managed/keyword style:
+       update_wallet(user_id="...", amount=10.0, description="...", tx_id="...") -> dict
+    """
+    # Check if first argument is a DB connection
+    if args and hasattr(args[0], "execute"):
+        conn = args[0]
+        user_id = str(args[1]) if len(args) > 1 else str(kwargs.get("user_id", ""))
+        delta = float(args[2]) if len(args) > 2 else float(kwargs.get("amount", kwargs.get("delta", 0.0)))
+        desc = str(args[3]) if len(args) > 3 else str(kwargs.get("description", kwargs.get("desc", "")))
+        txn_type = str(args[4]) if len(args) > 4 else str(kwargs.get("txn_type", "adjustment"))
+        tx_id = args[5] if len(args) > 5 else kwargs.get("tx_id", kwargs.get("tx_hash", None))
 
-def deduct_wallet(conn, user_id, amount, desc, txn_type="deduction") -> bool:
-    """Atomic wallet debit with balance check."""
+        try:
+            # Idempotency check on tx_id/tx_hash
+            if tx_id:
+                existing = conn.execute(
+                    "SELECT balance_after FROM wallet_transactions WHERE tx_hash = ?",
+                    (str(tx_id),)
+                ).fetchone()
+                if existing:
+                    bal = existing[0] if not hasattr(existing, "__getitem__") else existing["balance_after"]
+                    logger.info(f"[WALLET] Duplicate tx {tx_id} skipped for user {user_id}, balance: {bal}")
+                    return bal
+
+            conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (delta, user_id))
+            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            if row:
+                bal = row[0] if not hasattr(row, "__getitem__") else row["wallet_balance"]
+                conn.execute(
+                    "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description, tx_hash) VALUES (?, ?, ?, ?, ?, ?)",
+                    (user_id, txn_type, delta, bal, desc, str(tx_id) if tx_id else None)
+                )
+                return bal
+        except Exception as e:
+            logger.error(f"[WALLET] update failed: {e}")
+        return None
+
+    # Managed mode (opens own connection transaction)
+    user_id = str(kwargs.get("user_id", args[0] if args else ""))
+    amount = float(kwargs.get("amount", kwargs.get("delta", args[1] if len(args) > 1 else 0.0)))
+    desc = str(kwargs.get("description", kwargs.get("desc", args[2] if len(args) > 2 else "")))
+    tx_id = kwargs.get("tx_id", kwargs.get("tx_hash", args[3] if len(args) > 3 else None))
+    txn_type = str(kwargs.get("txn_type", "adjustment"))
+
     try:
-        cur = conn.execute("UPDATE users SET wallet_balance = wallet_balance - ? WHERE user_id = ? AND wallet_balance >= ?",
-                           (amount, user_id, amount))
-        if getattr(cur, "rowcount", 0) == 0:
-            return False
-        row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        bal = row[0] if row and not hasattr(row, "__getitem__") else (row["wallet_balance"] if row else 0.0)
-        conn.execute("INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?, ?, ?, ?, ?)",
-                     (user_id, txn_type, -amount, bal, desc))
-        return True
+        with get_db() as conn:
+            # Idempotency check
+            if tx_id:
+                existing = conn.execute(
+                    "SELECT balance_after FROM wallet_transactions WHERE tx_hash = ?",
+                    (str(tx_id),)
+                ).fetchone()
+                if existing:
+                    bal = existing[0] if not hasattr(existing, "__getitem__") else existing["balance_after"]
+                    return {"success": True, "duplicate": True, "user_id": user_id, "amount": amount, "new_balance": bal, "tx_id": tx_id}
+
+            conn.execute("UPDATE users SET wallet_balance = wallet_balance + ? WHERE user_id = ?", (amount, user_id))
+            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            bal = (row[0] if not hasattr(row, "__getitem__") else row["wallet_balance"]) if row else 0.0
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description, tx_hash) VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, txn_type, amount, bal, desc, str(tx_id) if tx_id else None)
+            )
+            conn.commit()
+            return {"success": True, "duplicate": False, "user_id": user_id, "amount": amount, "new_balance": bal, "tx_id": tx_id}
     except Exception as e:
-        logger.error(f"[WALLET] deduct failed: {e}")
-    return False
+        logger.error(f"[WALLET] managed update failed: {e}")
+        return {"success": False, "error": str(e)}
+
+
+def deduct_wallet(*args, **kwargs):
+    """
+    Atomic wallet balance debit with conditional balance check (preventing balance < 0)
+    and ledger audit logging.
+    
+    Supports both:
+    1. Connection-passed style:
+       deduct_wallet(conn, user_id, amount, desc, txn_type="deduction", tx_id=None) -> bool
+    2. Managed/keyword style:
+       deduct_wallet(user_id="...", amount=10.0, description="...", tx_id="...") -> dict
+    """
+    # Connection-passed mode
+    if args and hasattr(args[0], "execute"):
+        conn = args[0]
+        user_id = str(args[1]) if len(args) > 1 else str(kwargs.get("user_id", ""))
+        amount = float(args[2]) if len(args) > 2 else float(kwargs.get("amount", 0.0))
+        desc = str(args[3]) if len(args) > 3 else str(kwargs.get("description", kwargs.get("desc", "")))
+        txn_type = str(args[4]) if len(args) > 4 else str(kwargs.get("txn_type", "deduction"))
+        tx_id = args[5] if len(args) > 5 else kwargs.get("tx_id", kwargs.get("tx_hash", None))
+
+        try:
+            cur = conn.execute(
+                "UPDATE users SET wallet_balance = wallet_balance - ? WHERE user_id = ? AND wallet_balance >= ?",
+                (amount, user_id, amount)
+            )
+            if getattr(cur, "rowcount", 0) == 0:
+                logger.warning(f"[WALLET] Insufficient funds for user {user_id} attempting to deduct {amount}")
+                return False
+            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            bal = row[0] if row and not hasattr(row, "__getitem__") else (row["wallet_balance"] if row else 0.0)
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description, tx_hash) VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, txn_type, -amount, bal, desc, str(tx_id) if tx_id else None)
+            )
+            return True
+        except Exception as e:
+            logger.error(f"[WALLET] deduct failed: {e}")
+            return False
+
+    # Managed mode
+    user_id = str(kwargs.get("user_id", args[0] if args else ""))
+    amount = float(kwargs.get("amount", args[1] if len(args) > 1 else 0.0))
+    desc = str(kwargs.get("description", kwargs.get("desc", args[2] if len(args) > 2 else "")))
+    tx_id = kwargs.get("tx_id", kwargs.get("tx_hash", args[3] if len(args) > 3 else None))
+    txn_type = str(kwargs.get("txn_type", "deduction"))
+
+    try:
+        with get_db() as conn:
+            cur = conn.execute(
+                "UPDATE users SET wallet_balance = wallet_balance - ? WHERE user_id = ? AND wallet_balance >= ?",
+                (amount, user_id, amount)
+            )
+            if getattr(cur, "rowcount", 0) == 0:
+                return {"success": False, "error": "insufficient_funds"}
+            row = conn.execute("SELECT wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+            bal = (row[0] if not hasattr(row, "__getitem__") else row["wallet_balance"]) if row else 0.0
+            conn.execute(
+                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description, tx_hash) VALUES (?, ?, ?, ?, ?, ?)",
+                (user_id, txn_type, -amount, bal, desc, str(tx_id) if tx_id else None)
+            )
+            conn.commit()
+            return {"success": True, "user_id": user_id, "deducted": amount, "new_balance": bal, "tx_id": tx_id}
+    except Exception as e:
+        logger.error(f"[WALLET] managed deduct failed: {e}")
+        return {"success": False, "error": str(e)}
 
 def _check_rate_limit(store: dict, ip: str, max_count: int, window_seconds: int = 3600) -> bool:
     """IP rate limiter. Returns True=allowed, False=blocked."""

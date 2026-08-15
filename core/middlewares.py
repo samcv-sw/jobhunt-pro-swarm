@@ -15,6 +15,13 @@ class PanicModeMiddleware:
         from starlette.responses import HTMLResponse
 
         request = Request(scope)
+        path = request.url.path
+
+        # Zero-DB fast bypass for health & keepalive sentinels
+        if path in ("/ping", "/healthz", "/api/ping", "/api/health"):
+            await self.app(scope, receive, send)
+            return
+
         try:
             from core.pg_sqlite_shim import get_db
 
@@ -25,7 +32,6 @@ class PanicModeMiddleware:
             conn.close()
 
             if row and row["value"].lower() == "true":
-                path = request.url.path
                 # Allow static assets and admin routes through
                 if not (path.startswith("/admin") or path.startswith("/static/")):
                     # Decoy server response

@@ -167,3 +167,23 @@ def get_warmup_status(domain: str = "jobhunt-pro.com"):
     })
     return {"status": "success", "domain": clean_domain, "telemetry": state}
 
+
+class SpamScanRequest(BaseModel):
+    subject: Optional[str] = Field(default="", description="Email subject line")
+    body: str = Field(..., description="Email body content to analyze")
+
+
+@router.post("/scan-spam")
+def scan_email_spam_triggers(req: SpamScanRequest):
+    """Scans outreach copy and subject lines for Arabic/English spam triggers,
+    delivering instant deliverability scoring and smart synonym replacements.
+    """
+    from core.spam_cleaner import analyze_content_deliverability
+    combined_content = f"{req.subject}\n{req.body}" if req.subject else req.body
+    analysis = analyze_content_deliverability(combined_content)
+    return {
+        "status": "success",
+        "analysis": analysis
+    }
+
+

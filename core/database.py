@@ -135,8 +135,10 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         else:
             cursor.execute("PRAGMA journal_mode=WAL")
             cursor.execute("PRAGMA synchronous=NORMAL")
-        cursor.execute("PRAGMA cache_size=-2000")
+        cursor.execute("PRAGMA cache_size=-64000")  # 64MB Cache
         cursor.execute("PRAGMA temp_store=MEMORY")
+        cursor.execute("PRAGMA mmap_size=268435456")  # 256MB Memory Mapped I/O
+        cursor.execute("PRAGMA busy_timeout=30000")  # 30s lock tolerance
         cursor.close()
 
 AsyncSessionLocal = sessionmaker(
@@ -215,7 +217,12 @@ class Database:
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs (company)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_company_created ON jobs (company, created_at)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs (status)")
+            conn.execute("CREATE TABLE IF NOT EXISTS campaign_emails (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, recipient TEXT, subject TEXT, body TEXT, status TEXT, sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, campaign_id TEXT, responded_at TIMESTAMP)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_campaign_emails_dedup_365 ON campaign_emails (recipient, sent_at, user_id)")
+            conn.execute("CREATE TABLE IF NOT EXISTS cv_profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, profile_name TEXT, cv_text TEXT, target_titles TEXT, target_locations TEXT, min_local_salary REAL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_cv_profiles_user_id ON cv_profiles (user_id)")
             conn.commit()
+
 
     async def close(self) -> None:
         """No-op for connection pool closing."""

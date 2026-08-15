@@ -1,18 +1,18 @@
-<!-- Instant AI ATS Audit Floating Widget (China High-Velocity Growth Hack & Micro-Interaction) -->
+<!-- Instant AI ATS CV Audit Floating Widget (Saudi Vision 2030 & UAE D33 Sub-2s Engine) -->
 <style>
   .ats-growth-widget-container {
     position: fixed;
     inset-inline-end: 1.5rem;
     inset-block-end: 1.5rem;
     z-index: 9999;
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
     direction: inherit;
   }
 
   .ats-widget-badge {
     background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    border: 1px solid rgba(234, 179, 8, 0.4);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(234, 179, 8, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(16, 185, 129, 0.2);
     border-radius: 9999px;
     padding-inline: 1.25rem;
     padding-block: 0.75rem;
@@ -26,8 +26,8 @@
 
   .ats-widget-badge:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.6), 0 0 25px rgba(234, 179, 8, 0.4);
-    border-color: rgba(234, 179, 8, 0.8);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.6), 0 0 25px rgba(16, 185, 129, 0.4);
+    border-color: rgba(16, 185, 129, 0.8);
   }
 
   .ats-widget-pulse {
@@ -36,10 +36,10 @@
     background-color: #10b981;
     border-radius: 50%;
     box-shadow: 0 0 8px #10b981;
-    animation: pulse 2s infinite;
+    animation: atsPulse 2s infinite;
   }
 
-  @keyframes pulse {
+  @keyframes atsPulse {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
@@ -50,24 +50,27 @@
     position: fixed;
     inset-inline-end: 1.5rem;
     inset-block-end: 5.5rem;
-    inline-size: 380px;
+    inline-size: 420px;
     max-inline-size: calc(100vw - 3rem);
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(16px);
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(18px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 1.25rem;
     padding: 1.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
     z-index: 9999;
     color: #f8fafc;
+    box-sizing: border-box;
+    max-block-size: 85vh;
+    overflow-y: auto;
   }
 
   .ats-widget-modal.active {
     display: block;
-    animation: slideUp 0.3s ease-out;
+    animation: atsSlideUp 0.3s ease-out;
   }
 
-  @keyframes slideUp {
+  @keyframes atsSlideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
@@ -77,56 +80,99 @@
     justify-content: space-between;
     align-items: center;
     margin-block-end: 1rem;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.1);
+    padding-block-end: 0.75rem;
   }
 
   .ats-widget-title {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #e2e8f0;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #34d399;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .ats-widget-close {
     background: none;
     border: none;
     color: #94a3b8;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     cursor: pointer;
     padding: 0.25rem;
+    line-height: 1;
   }
 
   .ats-widget-close:hover { color: #f8fafc; }
 
-  .ats-widget-input {
+  .ats-widget-input, .ats-widget-textarea, .ats-widget-select {
     inline-size: 100%;
-    background: rgba(30, 41, 59, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.5rem;
     padding-inline: 0.75rem;
     padding-block: 0.6rem;
     color: #f8fafc;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     margin-block-end: 0.75rem;
-    box-sizing: border-block;
+    font-family:inherit;
+    box-sizing: border-box;
+  }
+
+  .ats-widget-textarea {
+    min-block-size: 90px;
+    resize: vertical;
   }
 
   .ats-widget-btn {
     inline-size: 100%;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: #ffffff;
-    font-weight: 600;
+    font-weight: 700;
     border: none;
     border-radius: 0.5rem;
     padding-block: 0.75rem;
     cursor: pointer;
-    transition: background 0.2s ease;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    font-family:inherit;
   }
 
   .ats-widget-btn:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
   }
 
-  /* Honeypot field - visually hidden from human users */
+  /* Score Meters Grid */
+  .ats-scores-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-block: 1rem;
+    text-align: center;
+  }
+
+  .ats-score-box {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    padding: 8px 4px;
+  }
+
+  .ats-score-num {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #34d399;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
+  }
+
+  .ats-score-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-block-start: 2px;
+  }
+
   .hp-field-stealth {
     display: none !important;
     visibility: hidden !important;
@@ -138,30 +184,70 @@
 <div class="ats-growth-widget-container">
   <div class="ats-widget-badge" id="atsGrowthBadge" onclick="toggleAtsWidget()">
     <div class="ats-widget-pulse"></div>
-    <span style="font-size: 0.95rem; font-weight: 600;">⚡ فحص ATS السريع (Instant AI Match)</span>
+    <span style="font-size: 0.92rem; font-weight: 700;">⚡ فحص الـ ATS الخليجي (رؤية 2030 & D33)</span>
   </div>
 
   <div class="ats-widget-modal" id="atsGrowthModal">
     <div class="ats-widget-header">
-      <h4 class="ats-widget-title">⚡ فحص التوافق الذكي (AI ATS Audit)</h4>
-      <button class="ats-widget-close" onclick="toggleAtsWidget()">&times;</button>
+      <h4 class="ats-widget-title">
+        <span>⚡ الفاحص الذكي للسيرة الذاتية (Instant CV Audit)</span>
+      </h4>
+      <button class="ats-widget-close" onclick="toggleAtsWidget()" aria-label="Close">&times;</button>
     </div>
     
     <form id="atsGrowthForm" onsubmit="handleAtsWidgetSubmit(event)">
-      <!-- Zero-Trust Honeypot Decoy Fields for Anti-Bot Protection -->
+      <!-- Zero-Trust Honeypot Decoy Fields -->
       <input type="text" name="website_url_hp" class="hp-field-stealth" tabindex="-1" autocomplete="off" dir="auto">
       <input type="text" name="phone_confirm_hp" class="hp-field-stealth" tabindex="-1" autocomplete="off" dir="auto">
       
-      <label style="font-size: 0.85rem; color: #94a3b8; display: block; margin-block-end: 0.35rem;">
-        أدخل المسمى الوظيفي أو النص لتقييم الفرصة:
+      <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-block-end: 0.25rem;">
+        السوق المستهدف:
       </label>
-      <input type="text" name="job_title" class="ats-widget-input" dir="auto" placeholder="مثال: Senior Full Stack Developer in Dubai" required dir="auto">
+      <select name="market_focus" id="atsMarketFocus" class="ats-widget-select" dir="auto">
+        <option value="all">🌐 السوق الخليجي الموحد (GCC Unified)</option>
+        <option value="saudi">🇸🇦 رؤية السعودية 2030 (نيوم، التوطين، سدايا)</option>
+        <option value="uae">🇦🇪 أجندة دبي D33 (المناطق الحرة، الاقتصاد الرقمي)</option>
+      </select>
+
+      <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-block-end: 0.25rem;">
+        المسمى الوظيفي المستهدف:
+      </label>
+      <input type="text" name="job_title" id="atsJobTitle" class="ats-widget-input" dir="auto" placeholder="مثال: Senior Project Manager / المهندس المعماري">
+
+      <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-block-end: 0.25rem;">
+        الصق نص سيرتك الذاتية (أو فقرة الخبرات):
+      </label>
+      <textarea name="cv_text" id="atsCvText" class="ats-widget-textarea" dir="auto" placeholder="الصق نص السيرة الذاتية هنا للتحليل الفوري خلال أقل من ثانية..." required></textarea>
       
-      <button type="submit" class="ats-widget-btn">تحليل وتوليد التقرير 🚀</button>
+      <button type="submit" id="atsSubmitBtn" class="ats-widget-btn">⚡ فحص فوري خلال &lt;2 ثانية</button>
     </form>
     
-    <div id="atsGrowthResult" style="display: none; margin-block-start: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 0.5rem; font-size: 0.85rem; color: #6ee7b7;">
-      ✅ تم الفحص بنجاح! نسبة التطابق المبدئية 94%. جارٍ تجهيز ملفك الكامل...
+    <div id="atsGrowthResult" style="display: none; margin-block-start: 1rem;">
+      <div class="ats-scores-grid">
+        <div class="ats-score-box">
+          <div class="ats-score-num" id="resOverallScore">0%</div>
+          <div class="ats-score-lbl">التطابق العام</div>
+        </div>
+        <div class="ats-score-box">
+          <div class="ats-score-num" style="color: #60a5fa;" id="resSaudiScore">0%</div>
+          <div class="ats-score-lbl">رؤية 2030 🇸🇦</div>
+        </div>
+        <div class="ats-score-box">
+          <div class="ats-score-num" style="color: #c084fc;" id="resUaeScore">0%</div>
+          <div class="ats-score-lbl">أجندة D33 🇦🇪</div>
+        </div>
+      </div>
+
+      <div id="resReadinessBadge" style="padding: 6px 10px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; margin-block-end: 8px; text-align: center;"></div>
+
+      <div style="font-size: 0.78rem; color: #cbd5e1; margin-block-end: 8px;" id="resRecText"></div>
+
+      <div id="resKeywordsBox" style="display: flex; flex-wrap: wrap; gap: 4px; margin-block-end: 10px;"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: #64748b; border-block-start: 1px solid rgba(255,255,255,0.06); padding-block-start: 6px;">
+        <span id="resLatency">⚡ وقت الاستجابة: 0ms</span>
+        <a href="/pricing" style="color: #34d399; font-weight: 700; text-decoration: none;">🚀 حسّن سيرتك تلقائياً →</a>
+      </div>
     </div>
   </div>
 </div>
@@ -169,15 +255,83 @@
 <script>
   function toggleAtsWidget() {
     const modal = document.getElementById('atsGrowthModal');
-    modal.classList.toggle('active');
+    if (modal) {
+      modal.classList.toggle('active');
+    }
   }
 
-  function handleAtsWidgetSubmit(event) {
+  async function handleAtsWidgetSubmit(event) {
     event.preventDefault();
+    const btn = document.getElementById('atsSubmitBtn');
     const resultDiv = document.getElementById('atsGrowthResult');
-    resultDiv.style.display = 'block';
-    setTimeout(() => {
-      toggleAtsWidget();
-    }, 2500);
+    const form = document.getElementById('atsGrowthForm');
+
+    const cvText = document.getElementById('atsCvText').value;
+    const jobTitle = document.getElementById('atsJobTitle').value;
+    const marketFocus = document.getElementById('atsMarketFocus').value;
+
+    if (!cvText || cvText.trim().length < 15) {
+      alert('يرجى لصق نص كافٍ من السيرة الذاتية لإتمام الفحص.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '⏳ جارٍ التحليل الفوري...';
+
+    try {
+      const resp = await fetch('/api/v1/cv-audit/instant-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cv_text: cvText,
+          job_title: jobTitle,
+          market_focus: marketFocus
+        })
+      });
+
+      const data = await resp.json();
+      if (data.overall_score !== undefined) {
+        document.getElementById('resOverallScore').textContent = data.overall_score + '%';
+        document.getElementById('resSaudiScore').textContent = (data.saudi_vision_2030 ? data.saudi_vision_2030.score : 0) + '%';
+        document.getElementById('resUaeScore').textContent = (data.uae_d33 ? data.uae_d33.score : 0) + '%';
+
+        const badge = document.getElementById('resReadinessBadge');
+        if (data.readiness_level) {
+          badge.textContent = data.readiness_level.label_ar;
+          badge.style.backgroundColor = (data.readiness_level.color || '#10b981') + '22';
+          badge.style.color = data.readiness_level.color || '#10b981';
+          badge.style.border = '1px solid ' + (data.readiness_level.color || '#10b981') + '44';
+        }
+
+        const recEl = document.getElementById('resRecText');
+        if (data.recommendations_ar && data.recommendations_ar.length > 0) {
+          recEl.textContent = '💡 ' + data.recommendations_ar[0];
+        }
+
+        const kwBox = document.getElementById('resKeywordsBox');
+        kwBox.innerHTML = '';
+        if (data.suggested_keywords) {
+          data.suggested_keywords.slice(0, 5).forEach(kw => {
+            const span = document.createElement('span');
+            span.style.fontSize = '0.72rem';
+            span.style.padding = '2px 6px';
+            span.style.borderRadius = '4px';
+            span.style.background = 'rgba(59, 130, 246, 0.2)';
+            span.style.color = '#93c5fd';
+            span.textContent = '+' + kw;
+            kwBox.appendChild(span);
+          });
+        }
+
+        document.getElementById('resLatency').textContent = '⚡ زمن الفحص: ' + data.execution_time_ms + 'ms' + (data.cached ? ' (L1 Cache)' : '');
+        resultDiv.style.display = 'block';
+      }
+    } catch (err) {
+      console.error('ATS audit error:', err);
+      alert('حدث خطأ أثناء إجراء الفحص الفوري.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚡ فحص فوري خلال <2 ثانية';
+    }
   }
 </script>

@@ -1,0 +1,46 @@
+name: "24/7 Zero-Cost Cloud Swarm & Edge Keep-Alive"
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent cold boots across free tier cloud providers
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'Specific deployment endpoint to ping'
+        required: false
+        default: ''
+
+jobs:
+  keep-alive-matrix:
+    name: "Heartbeat Sentinel (${{ matrix.region }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        region: [ "us-east", "eu-central", "ap-southeast" ]
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Execute Multi-Zone Keep-Alive Ping"
+        run: |
+          echo "🚀 Dispatching 24/7 Sentinel Heartbeat from region: ${{ matrix.region }}"
+          
+          # Endpoints list (Configurable via repository secrets or public webhooks)
+          TARGETS=(
+            "${{ secrets.PRIMARY_APP_URL }}"
+            "${{ secrets.API_BACKEND_URL }}"
+            "${{ secrets.TELEGRAM_WEBHOOK_URL }}"
+            "${{ github.event.inputs.target_url }}"
+          )
+          
+          for target in "${TARGETS[@]}"; do
+            if [ -n "$target" ]; then
+              echo "Pinging: $target"
+              curl -s -m 15 -A "JobHuntPro-KeepAlive-Sentinel/2.0 (${{ matrix.region }})" "$target/health" || \
+              curl -s -m 15 -A "JobHuntPro-KeepAlive-Sentinel/2.0 (${{ matrix.region }})" "$target" || true
+            fi
+          done
+          
+          echo "✅ Heartbeat cycle completed with zero cost."

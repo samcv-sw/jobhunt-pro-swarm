@@ -228,7 +228,7 @@ def check_ats_resume(resume_text: str, target_role: str = "general") -> dict:
         "formatting": round(format_score),
     }
 
-    # 5. Recommendations
+    # 5. Recommendations & Direct Upsell Offers
     if results["overall_score"] < 40:
         results["recommendations"].append(
             "⚠️ Your resume needs significant improvement for ATS systems"
@@ -246,8 +246,25 @@ def check_ats_resume(resume_text: str, target_role: str = "general") -> dict:
     if missing_sections:
         results["recommendations"].append(f"Add: {', '.join(missing_sections)}")
 
+    results["upsell_offers"] = [
+        {
+            "tier_id": "quick-strike",
+            "name": "⚡ Quick Strike ($5)",
+            "price_usd": 5,
+            "description": "ATS Dominator + Penetration Letter to fix all keyword gaps instantly",
+            "cta_url": f"{SITE_URL}/checkout?service=quick-strike"
+        },
+        {
+            "tier_id": "basic",
+            "name": "🦅 Basic Pro Hunter ($19)",
+            "price_usd": 19,
+            "description": "100 Verified Company Applications + Live MX Shield + Follow-up sequence",
+            "cta_url": f"{SITE_URL}/checkout?tier=basic"
+        }
+    ]
+
     results["recommendations"].append(
-        f"💡 Use JobHunt Pro to auto-apply with a perfectly optimized resume → {SITE_URL}"
+        f"💡 Upgrade to Quick Strike ($5) or Basic ($19) to auto-fix and apply → {SITE_URL}/pricing"
     )
 
     # Track usage

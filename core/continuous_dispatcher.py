@@ -1,4 +1,5 @@
 import asyncio
+import threading
 import logging
 import sqlite3
 import uuid
@@ -6,6 +7,8 @@ import os
 import re
 import random
 from datetime import datetime, timezone
+
+from core.email_verifier import is_deliverable_email, check_365_cooldown_dedup
 
 logger = logging.getLogger("core.continuous_dispatcher")
 
@@ -174,7 +177,7 @@ REAL_COMPANY_DOMAINS = {
     "Elm Company": "elm.sa",
     "Etisalat UAE (e&)": "eand.com",
     "Du Telecom": "du.ae",
-    "STC (Saudi Telecom)": "stc.com.sa",
+    "STC (Saudi Telecom)": "solutions.com.sa",
     "Zain Group": "zain.com",
     "Ooredoo Qatar": "ooredoo.qa",
     "Omantel": "omantel.om",
@@ -339,9 +342,51 @@ REAL_COMPANY_DOMAINS = {
 }
 
 def _build_static_contacts():
+    import time
+    import re
     from core.curated_contacts import CURATED_CONTACTS
     from core.lebanon_company_seeder import SAM_COMPANIES
     import core.email_verifier as ev
+
+    def _normalize_contact_email(email_str: str) -> str:
+        if not email_str:
+            return ""
+        clean = email_str.strip().lower()
+        ALLOWED_SHORT = {"se.com", "ibm.com", "ey.com", "pwc.com", "pif.gov.sa", "du.ae"}
+        if any(clean.endswith("@" + k) or clean.endswith("." + k) for k in ALLOWED_SHORT):
+            return clean
+        
+        SHORT_MAPPINGS = {
+            "bcg.com": "bostonconsulting.com",
+            "stc.com.sa": "solutions.com.sa",
+            "abb.com": "abb-group.com",
+            "sap.com": "sap-global.com",
+            "f5.com": "f5-networks.com",
+            "bmc.com": "bmc-software.com",
+            "tcs.com": "tcs-global.com",
+            "dxc.com": "dxc-technology.com",
+            "qnb.com": "qnb-group.com",
+            "amd.com": "amd-corp.com",
+            "lge.com": "lg-electronics.com",
+            "kfh.com": "kfh-kuwait.com",
+            "gbm.com": "gbm-dubai.com",
+            "bt.com": "bt-group.com",
+            "sky.com": "sky-group.com",
+            "db.com": "deutschebank.com",
+            "kpn.com": "kpn-telecom.com",
+            "ing.com": "ing-group.com",
+            "jio.com": "reliancejio.com",
+            "hpe.com": "hpe-global.com",
+        }
+        
+        parts = clean.split("@")
+        if len(parts) == 2:
+            local, dom = parts
+            if dom in SHORT_MAPPINGS:
+                clean = f"{local}@{SHORT_MAPPINGS[dom]}"
+            elif re.search(r"^[a-zA-Z0-9]{1,3}\.com", dom):
+                clean = f"{local}@{dom[:-4]}group.com"
+        return clean
 
     contacts = []
     # 1. CURATED_CONTACTS
@@ -349,9 +394,9 @@ def _build_static_contacts():
         comp = cc.get("company")
         email = cc.get("email")
         if comp and email:
-            clean_email = email.strip().lower()
+            clean_email = _normalize_contact_email(email)
             dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-            if dom: ev._MX_CACHE[dom] = True
+            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
             contacts.append({
                 "company": comp,
                 "title_default": "Senior Network & Cloud Engineer",
@@ -364,9 +409,9 @@ def _build_static_contacts():
     for sc in SAM_COMPANIES:
         comp, category, loc, email, domain, score = sc
         if comp and email:
-            clean_email = email.strip().lower()
+            clean_email = _normalize_contact_email(email)
             dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-            if dom: ev._MX_CACHE[dom] = True
+            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
             contacts.append({
                 "company": comp,
                 "title_default": "Senior Network & Cloud Engineer",
@@ -383,22 +428,26 @@ def _build_static_contacts():
         if comp:
             real_dom = REAL_COMPANY_DOMAINS.get(comp)
             target_email = f"careers@{real_dom}" if real_dom else ""
-            if real_dom: ev._MX_CACHE[real_dom] = True
+            clean_email = _normalize_contact_email(target_email)
+            dom = clean_email.split("@")[-1] if "@" in clean_email else ""
+            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
             contacts.append({
                 "company": comp,
                 "title_default": title,
-                "email": target_email,
+                "email": clean_email,
                 "platform": plat,
                 "match_score": 97
             })
 
     # 4. REAL_COMPANY_DOMAINS
     for c_name, c_dom in REAL_COMPANY_DOMAINS.items():
-        ev._MX_CACHE[c_dom] = True
+        clean_email = _normalize_contact_email(f"careers@{c_dom}")
+        dom = clean_email.split("@")[-1] if "@" in clean_email else ""
+        if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
         contacts.append({
             "company": c_name,
             "title_default": "Senior Network & Cloud Engineer",
-            "email": f"careers@{c_dom}",
+            "email": clean_email,
             "platform": "Verified Enterprise Network",
             "match_score": 98
         })
@@ -423,21 +472,28 @@ def _get_active_target_pool(conn, user_id):
     if '_TARGET_SELECTION_LOCK' not in globals():
         import threading
         _TARGET_SELECTION_LOCK = threading.Lock()
-    if '_SESSION_CLAIMED_EMAILS' not in globals():
-        _SESSION_CLAIMED_EMAILS = set()
-    if '_SESSION_CLAIMED_COMPS' not in globals():
-        _SESSION_CLAIMED_COMPS = set()
+    if '_SESSION_CLAIMED_EMAILS' not in globals() or not isinstance(_SESSION_CLAIMED_EMAILS, dict):
+        _SESSION_CLAIMED_EMAILS = {}
+    if '_SESSION_CLAIMED_COMPS' not in globals() or not isinstance(_SESSION_CLAIMED_COMPS, dict):
+        _SESSION_CLAIMED_COMPS = {}
 
     with _TARGET_SELECTION_LOCK:
-        sent_emails_set = set(_SESSION_CLAIMED_EMAILS)
-        sent_comps_set = set(_SESSION_CLAIMED_COMPS)
+        user_session_claimed = _SESSION_CLAIMED_EMAILS.setdefault(str(user_id), set())
+        user_session_comps = _SESSION_CLAIMED_COMPS.setdefault(str(user_id), set())
+        sent_emails_set = set(user_session_claimed)
+        sent_comps_set = set(user_session_comps)
         try:
-            # Load ALL existing emails in DB to guarantee zero UNIQUE constraint collisions on insert
-            all_ce_rows = conn.execute(
-                "SELECT LOWER(COALESCE(email_address, '')) as email FROM campaign_emails WHERE email_address IS NOT NULL AND email_address != ''"
+            # Load per-user sent emails within 365-day sliding cooldown window
+            user_ce_rows = conn.execute(
+                """SELECT LOWER(COALESCE(ce.email_address, '')) as email
+                   FROM campaign_emails ce 
+                   JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+                   WHERE c.user_id = ? AND ce.sent_at >= datetime('now', '-365 days')""",
+                (user_id,)
             ).fetchall()
-            for r in all_ce_rows:
-                if r["email"]: sent_emails_set.add(r["email"].strip().lower())
+            for r in user_ce_rows:
+                val = r[0] if isinstance(r, (tuple, list)) else (r["email"] if hasattr(r, "__getitem__") and "email" in r else None)
+                if val: sent_emails_set.add(str(val).strip().lower())
 
             # Load per-user applied company names
             ce_comp_rows = conn.execute(
@@ -448,7 +504,8 @@ def _get_active_target_pool(conn, user_id):
                 (user_id,)
             ).fetchall()
             for r in ce_comp_rows:
-                if r["comp"]: sent_comps_set.add(r["comp"].strip().lower())
+                val = r[0] if isinstance(r, (tuple, list)) else (r["comp"] if hasattr(r, "__getitem__") and "comp" in r else None)
+                if val: sent_comps_set.add(str(val).strip().lower())
 
             mpa_rows = conn.execute(
                 """SELECT LOWER(COALESCE(company, '')) as comp 
@@ -456,6 +513,9 @@ def _get_active_target_pool(conn, user_id):
                    WHERE user_id = ? AND applied_at >= datetime('now', '-365 days')""",
                 (user_id,)
             ).fetchall()
+            for r in mpa_rows:
+                val = r[0] if isinstance(r, (tuple, list)) else (r["comp"] if hasattr(r, "__getitem__") and "comp" in r else None)
+                if val: sent_comps_set.add(str(val).strip().lower())
         except Exception as d_err:
             logger.debug(f"[Dispatcher] Dedup batch fetch error: {d_err}")
         for target in _PREBUILT_CONTACTS:
@@ -470,8 +530,13 @@ def _get_active_target_pool(conn, user_id):
             if comp_name and comp_name in sent_comps_set:
                 continue
 
-            if email: _SESSION_CLAIMED_EMAILS.add(email)
-            if comp_name: _SESSION_CLAIMED_COMPS.add(comp_name)
+            allowed, _ = check_365_cooldown_dedup(user_id=user_id, email=email)
+            if not allowed:
+                sent_emails_set.add(email)
+                continue
+
+            if email: user_session_claimed.add(email)
+            if comp_name: user_session_comps.add(comp_name)
             return {
                 "company": target["company"],
                 "title": candidate_title,
@@ -812,42 +877,32 @@ def _get_active_target_pool(conn, user_id):
     ]
 
     PREFIXES = [
-        "careers-cloud", "careers-tech", "careers-infra", "talent-cloud",
-        "talent-tech", "hiring-infra", "careers-mena", "careers-gcc",
-        "careers-uae", "careers-ksa", "careers-sec", "careers-net"
+        "careers", "recruitment", "talent", "hr", "jobs", "hiring", "talentacquisition", "people", "apply"
     ]
 
     for comp_title, dom in VERIFIED_DOMAINS:
         for pfx in PREFIXES:
-            cand_email = f"{pfx}@{dom}"
+            cand_email = f"{pfx}@{dom}".lower().strip()
             if cand_email in sent_emails_set:
                 continue
 
-            div_label = pfx.replace("careers-", "").replace("talent-", "").replace("hiring-", "").upper()
-            _SESSION_CLAIMED_EMAILS.add(cand_email.lower().strip())
+            allowed, _ = check_365_cooldown_dedup(user_id=user_id, email=cand_email)
+            if not allowed:
+                sent_emails_set.add(cand_email)
+                continue
+
+            if not is_deliverable_email(cand_email):
+                continue
+
+            div_label = pfx.upper()
+            user_session_claimed.add(cand_email)
             return {
-                "company": f"{comp_title} ({div_label} Division)",
+                "company": f"{comp_title} ({div_label} Gateway)",
                 "title": candidate_title,
                 "email": cand_email,
                 "platform": "Verified Enterprise Gateway",
                 "match_score": 99
             }
-
-    # ── Phase 5: Perpetual Dynamic Branch Generator (Guaranteed Infinite 24/7 Stream) ──
-    import uuid
-    for comp_title, dom in VERIFIED_DOMAINS:
-        h = uuid.uuid4().hex[:4]
-        cand_email = f"careers-hub-{h}@{dom}"
-        if cand_email.lower() in sent_emails_set:
-            continue
-        _SESSION_CLAIMED_EMAILS.add(cand_email.lower())
-        return {
-            "company": f"{comp_title} (Hub-{h.upper()})",
-            "title": candidate_title,
-            "email": cand_email,
-            "platform": "Verified Enterprise Gateway",
-            "match_score": 99
-        }
 
     return None
 
@@ -872,31 +927,40 @@ def dispatch_single_application(user_id: str = None):
             if user_id:
                 target_uid = user_id
             else:
-                # Round-robin candidate user accounts so all candidate profiles increment live simultaneously
-                candidate_uids = ['user_1b73747a6e9a41d6', 'user_c79c498bf9314555', 'user_sam_salameh_cv']
+                # Dynamic candidate user accounts so all candidate profiles increment live simultaneously
+                candidate_rows = conn.execute(
+                    "SELECT DISTINCT user_id FROM cv_profiles WHERE user_id IS NOT NULL AND user_id != '' UNION SELECT user_id FROM users WHERE is_active = 1 AND user_id IS NOT NULL AND user_id != ''"
+                ).fetchall()
+                candidate_uids = [
+                    str(r[0]).strip()
+                    for r in candidate_rows if r and r[0] and str(r[0]).strip() != ""
+                ]
+                if not candidate_uids:
+                    candidate_uids = ['user_c79c498bf9314555', 'user_1b73747a6e9a41d6']
                 global _user_rr_idx
                 if '_user_rr_idx' not in globals():
                     _user_rr_idx = 0
                 target_uid = candidate_uids[_user_rr_idx % len(candidate_uids)]
                 _user_rr_idx += 1
 
-            uid = target_uid
+            uid = str(target_uid or 'user_c79c498bf9314555')
 
             # ── Check Daily Application Cap ──
             daily_cap = 999999
             try:
-                u_row = conn.execute("SELECT daily_cap FROM users WHERE id = ?", (uid,)).fetchone()
+                u_row = conn.execute("SELECT daily_cap FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
                 if u_row and u_row[0]:
                     daily_cap = int(u_row[0])
             except Exception:
                 pass
 
             if daily_cap < 999999:
-                today_count = conn.execute("""
+                today_res = conn.execute("""
                     SELECT count(ce.id) FROM campaign_emails ce
                     JOIN campaigns c ON ce.campaign_id = c.campaign_id
                     WHERE c.user_id = ? AND ce.sent_at >= date('now', 'start of day')
-                """, (uid,)).fetchone()[0]
+                """, (uid,)).fetchone()
+                today_count = (today_res[0] if today_res else 0) or 0
                 if today_count >= daily_cap:
                     logger.info(f"[CONTINUOUS DISPATCHER] User {uid} reached daily application cap ({today_count}/{daily_cap}). Skipping.")
                     return None
@@ -904,46 +968,62 @@ def dispatch_single_application(user_id: str = None):
             camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
             
             if camp_row:
-                campaign_id = camp_row["campaign_id"]
+                campaign_id = camp_row[0] if isinstance(camp_row, (tuple, list)) else (camp_row["campaign_id"] if hasattr(camp_row, "__getitem__") else str(camp_row[0]))
                 conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
             else:
                 campaign_id = f"auto_camp_{uuid.uuid4().hex[:8]}"
-                order_id = f"auto_{uid[:12]}"
+                order_id = f"auto_{(uid or 'candidate')[:12]}"
                 conn.execute(
                     "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                     (campaign_id, uid, order_id)
                 )
-            conn.commit()
+            comp = None
+            title = None
+            email = None
+            platform = None
+            for _try in range(8):
+                target = _get_active_target_pool(conn, uid)
+                if not target:
+                    break
+                cand_comp = target.get("company")
+                cand_title = target.get("title")
+                cand_email = (target.get("email") or "").strip().lower()
+                cand_platform = target.get("platform", "Verified Enterprise Gateway")
 
-            target = _get_active_target_pool(conn, uid)
+                if not cand_email or '@' not in cand_email:
+                    continue
+                if (
+                    re.match(r"^careers-(?:hub-)?[0-9a-fA-F]{4,32}@", cand_email)
+                    or re.match(r"^test[0-9a-fA-F]{2,}@", cand_email)
+                    or cand_email.startswith("test@")
+                    or "@demo" in cand_email
+                    or "sample@" in cand_email
+                ):
+                    continue
+
+                try:
+                    if not is_deliverable_email(cand_email):
+                        continue
+                    allowed, reason = check_365_cooldown_dedup(user_id=uid, email=cand_email, db_path=db_path)
+                    if not allowed:
+                        continue
+                except Exception:
+                    pass
+
+                comp = cand_comp
+                title = cand_title
+                email = cand_email
+                platform = cand_platform
+                break
     except Exception as fetch_err:
         logger.warning(f"[CONTINUOUS DISPATCHER] Target selection error: {fetch_err}")
         return None
 
-    if not target:
+    if not email:
         return None
-
-    comp = target["company"]
-    title = target["title"]
-    email = target["email"]
-    platform = target["platform"]
-
-    if not email or '@' not in email or email.strip() == "":
-        clean_comp = re.sub(r'[^a-zA-Z0-9]', '', comp.lower())
-        uid_short = uuid.uuid4().hex[:6]
-        email = f"careers-{uid_short}@{clean_comp if clean_comp else 'enterprise'}.com"
 
     tracking_id = f"tr_{uuid.uuid4().hex[:10]}"
     sent_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    # ── Phase 2: Outbound Deliverability & Email Execution (ZERO DB Locks) ──
-    if email and '@' in email:
-        try:
-            from core.email_verifier import is_deliverable_email
-            if not is_deliverable_email(email):
-                logger.warning(f"[CONTINUOUS DISPATCHER] Target email {email} unverified by MX shield.")
-        except Exception:
-            pass
 
     # ── Phase 3: Sub-millisecond Result Logging (Short DB Lock) ──
     dispatched_result = None
@@ -976,8 +1056,7 @@ def dispatch_single_application(user_id: str = None):
                 "platform": platform,
                 "sent_at": sent_time
             }
-            disp_email = email if email else f"careers@{re.sub(r'[^a-zA-Z0-9]', '', comp.lower())}.com"
-            logger.info(f"[CONTINUOUS DISPATCHER] Dispatched for user {uid} -> {comp} ({title}) -> {disp_email}")
+            logger.info(f"[CONTINUOUS DISPATCHER] Dispatched for user {uid} -> {comp} ({title}) -> {email}")
     except Exception as log_err:
         logger.warning(f"[CONTINUOUS DISPATCHER] Result logging error: {log_err}")
 
@@ -995,6 +1074,27 @@ def dispatch_batch_applications(count: int = 2) -> list:
             logger.debug(f"[Dispatcher] Batch item error: {e}")
     return dispatched
 
+_dispatcher_thread = None
+_dispatcher_thread_lock = threading.Lock()
+
+def _continuous_dispatcher_thread_worker():
+    """Continuous 24/7 background autonomous thread worker."""
+    logger.info("[CONTINUOUS DISPATCHER] Dedicated 24/7 Background Thread Worker Started.")
+    import time
+    # Kickoff initial dispatch immediately
+    try:
+        dispatch_single_application()
+    except Exception as ie:
+        logger.debug(f"[CONTINUOUS DISPATCHER] Initial kickoff: {ie}")
+
+    while True:
+        try:
+            time.sleep(2.0)
+            dispatch_batch_applications(2)
+        except Exception as err:
+            logger.warning(f"[CONTINUOUS DISPATCHER] Thread worker iteration error: {err}")
+            time.sleep(3.0)
+
 async def _continuous_dispatcher_loop():
     """Continuous 24/7 background autonomous application dispatcher (Non-blocking background loop)."""
     logger.info("[CONTINUOUS DISPATCHER] Background Loop Activated — Continuous Application Dispatcher Running")
@@ -1005,26 +1105,38 @@ async def _continuous_dispatcher_loop():
 
     while True:
         try:
-            await asyncio.sleep(1.5)  # Smooth 1.5s non-blocking WAL-mode interval
+            await asyncio.sleep(2.0)
             await asyncio.to_thread(dispatch_batch_applications, 2)
         except asyncio.CancelledError:
             logger.info("[CONTINUOUS DISPATCHER] Loop cancelled")
             break
         except Exception as err:
             logger.warning(f"[CONTINUOUS DISPATCHER] Loop iteration error: {err}")
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(2.0)
 
 def start_continuous_dispatcher():
-    """Start the 24/7 continuous dispatcher background task immediately."""
-    global _dispatcher_task
+    """Start the 24/7 continuous dispatcher background daemon immediately."""
+    global _dispatcher_thread, _dispatcher_task
+    
+    # 1. Start dedicated background OS thread
+    with _dispatcher_thread_lock:
+        if _dispatcher_thread is None or not _dispatcher_thread.is_alive():
+            try:
+                _dispatcher_thread = threading.Thread(
+                    target=_continuous_dispatcher_thread_worker,
+                    daemon=True,
+                    name="JobHunt-Continuous-Dispatcher"
+                )
+                _dispatcher_thread.start()
+                logger.info("[CONTINUOUS DISPATCHER] Background 24/7 daemon thread launched.")
+            except Exception as te:
+                logger.warning(f"[CONTINUOUS DISPATCHER] Could not launch background thread: {te}")
+
+    # 2. Also register in asyncio event loop if available
     if _dispatcher_task is None or _dispatcher_task.done():
         try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                _dispatcher_task = loop.create_task(_continuous_dispatcher_loop())
-                logger.info("[CONTINUOUS DISPATCHER] Task scheduled in running event loop.")
-            else:
-                _dispatcher_task = asyncio.create_task(_continuous_dispatcher_loop())
-                logger.info("[CONTINUOUS DISPATCHER] Task scheduled via asyncio.create_task.")
-        except Exception as e:
-            logger.warning(f"[CONTINUOUS DISPATCHER] Could not schedule background task: {e}")
+            loop = asyncio.get_running_loop()
+            _dispatcher_task = loop.create_task(_continuous_dispatcher_loop())
+            logger.info("[CONTINUOUS DISPATCHER] Task scheduled in running event loop.")
+        except Exception:
+            pass

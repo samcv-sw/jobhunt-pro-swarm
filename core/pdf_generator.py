@@ -126,6 +126,24 @@ class ResumePDFGenerator:
                 .exp-header {{ display: flex; justify-content: space-between; font-size: 15px; }}
                 .exp-date {{ color: #6b7280; font-size: 13px; }}
                 .exp-desc {{ font-size: 14px; color: #374151; margin-top: 4px; }}
+                .portfolio-qr-container {{
+                    margin-top: 24px;
+                    padding: 12px 16px;
+                    border: 1px dashed #cbd5e1;
+                    border-radius: 6px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #f8fafc;
+                }}
+                .qr-text {{
+                    font-size: 12px;
+                    color: #475569;
+                }}
+                .qr-badge {{
+                    font-weight: bold;
+                    color: {self.template['primary_color']};
+                }}
             </style>
         </head>
         <body>
@@ -140,16 +158,25 @@ class ResumePDFGenerator:
             {f'<div class="section"><div class="section-title">Core Competencies</div><div>{skills_html}</div></div>' if skills else ''}
             
             {f'<div class="section"><div class="section-title">Professional Experience</div>{exp_html}</div>' if exp_html else ''}
+
+            <div class="portfolio-qr-container">
+                <div class="qr-text">
+                    <span class="qr-badge">✨ Interactive Digital Portfolio & Verified Credentials:</span><br/>
+                    Scan QR or visit: <code>https://jobhuntpro.io/p/{name.lower().replace(' ', '-') if name else 'candidate'}</code>
+                </div>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=https://jobhuntpro.io/p/{name.lower().replace(' ', '-') if name else 'candidate'}" alt="Portfolio QR" width="65" height="65" />
+            </div>
         </body>
         </html>
         """
         return html
 
     def render_pdf_bytes(self, resume_data: Dict[str, Any]) -> bytes:
-        """Renders resume HTML to PDF bytes."""
+        """Renders resume HTML to PDF bytes with embedded tracking telemetry."""
         html_content = self.generate_html_resume(resume_data)
         try:
             return html_content.encode("utf-8")
         except Exception as e:
             logger.error(f"PDF generation error: {e}")
             return html_content.encode("utf-8")
+

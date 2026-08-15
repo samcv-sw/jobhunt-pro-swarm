@@ -114,7 +114,7 @@
 .form-group { margin-block-end:16px; }
 .form-group.full { grid-column:1/-1; }
 .form-group label { display:block; margin-block-end:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
-.form-group input, .form-group textarea, .form-group select { inline-size:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; transition:border .2s; }
+.form-group input, .form-group textarea, .form-group select { inline-size:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; transition:border .2s; }
 .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--purple); }
 .form-group textarea { min-block-size:120px; resize:vertical; }
 .form-group .helper { font-size:.72em; color:#64748b; margin-block-start:4px; }
@@ -699,7 +699,7 @@
         <label>💰 Salary & Pay Rate <span style="font-size:.75em;color:var(--green);">(+3x applicants!)</span> <span class="tip-badge">ℹ️<span class="tip-box">Disclosing salary increases qualified candidate responses by 300%.</span></span></label>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <input dir="auto" type="text" id="salary" placeholder="e.g. 2,500 - 3,500" style="flex:2; min-width:140px;" dir="auto">
-          <select id="salary_currency" style="flex:1; min-width:110px;">
+          <select id="salary_currency" style="flex:1; min-width:110px;" dir="auto">
             <option value="USD" selected>USD ($)</option>
             <option value="EUR">EUR (€)</option>
             <option value="GBP">GBP (£)</option>
@@ -710,7 +710,7 @@
             <option value="QAR">QAR (ر.ق)</option>
             <option value="KWD">KWD (د.ك)</option>
           </select>
-          <select id="pay_frequency" style="flex:1; min-width:110px;">
+          <select id="pay_frequency" style="flex:1; min-width:110px;" dir="auto">
             <option value="monthly" selected>Per Month</option>
             <option value="yearly">Per Year</option>
             <option value="hourly">Per Hour</option>
@@ -2352,7 +2352,7 @@ function openDnaFitModal() {
       </div>
       <div style="margin-block-end:15px;">
         <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">公司 Culture Model:</label>
-        <select id="dna_culture" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+        <select id="dna_culture" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;" dir="auto">
           <option value="High-Growth Startup">🚀 High-Growth Startup</option>
           <option value="Enterprise Corporate">🏢 Enterprise Corporate Leadership</option>
           <option value="Remote-First Global">🌐 Remote-First Global Distributed Team</option>
@@ -2461,7 +2461,7 @@ function openContractGenModal() {
       
       <button onclick="generateRealContract()" style="width:100%; padding:12px; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; border-radius:10px; color:#000; font-weight:800; cursor:pointer; font-size:0.95em; transition:all;">📄 Draft Legal Contract Live</button>
       
-      <textarea id="contractOut" style="width:100%; height:180px; margin-top:15px; background:#1e293b; border:1px solid rgba(245,158,11,0.3); border-radius:10px; color:#e2e8f0; font-size:0.82em; padding:12px; display:none; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; line-height:1.5;" dir="auto"></textarea>
+      <textarea id="contractOut" style="width:100%; height:180px; margin-top:15px; background:#1e293b; border:1px solid rgba(245,158,11,0.3); border-radius:10px; color:#e2e8f0; font-size:0.82em; padding:12px; display:none; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; line-height:1.5;" dir="auto"></textarea>
       
       <div id="contract操作" style="display:none; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
         <button onclick="copyContractText()" style="padding:10px; background:#22c55e; border:none; border-radius:8px; color:#000; font-weight:800; cursor:pointer; font-size:0.85em;">📋 Copy Contract Text</button>
@@ -2532,7 +2532,7 @@ function openRelocationSimModal() {
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-block-end:15px;">
         <div>
           <label style="display:block; font-size:0.75em; color:#94a3b8; margin-bottom:4px;">Target Destination Country:</label>
-          <select id="r_country" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;">
+          <select id="r_country" style="width:100%; padding:10px; border-radius:8px; border:1px solid #334155; background:#1e293b; color:#fff; font-size:0.9em;" dir="auto">
             ${countryOpts}
           </select>
         </div>

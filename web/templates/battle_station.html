@@ -66,7 +66,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.25s ease;
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
 }
 .bs-sound-btn:hover, .bs-sound-btn.active {
     background: rgba(168, 85, 247, 0.18);
@@ -117,13 +117,13 @@
     box-shadow: 0 16px 50px rgba(0, 0, 0, 0.95), 0 0 25px rgba(0, 240, 255, 0.35);
     border-radius: 16px;
     padding: 18px 20px;
-    width: 350px;
+    inline-size: 350px;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s ease, transform 0.25s ease;
     z-index: 999999;
     pointer-events: none;
-    text-align: right;
+    text-align: start;
 }
 .scan-tooltip-popover::after {
     content: '';
@@ -157,13 +157,13 @@
     box-shadow: 0 16px 45px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 240, 255, 0.3);
     border-radius: 14px;
     padding: 12px 16px;
-    width: 250px;
+    inline-size: 250px;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.25s ease, transform 0.25s ease;
     z-index: 999999;
     pointer-events: none;
-    text-align: right;
+    text-align: start;
 }
 .stat-tooltip-popover::after {
     content: '';
@@ -244,7 +244,7 @@
 
 .bs-actions { display: flex; gap: 10px; margin-block-end: 24px; flex-wrap: wrap; }
 .bs-btn {
-    padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    padding: 10px 18px; border-radius: 12px; font-size: 14px; font-weight: 700; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
     border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.07); color: #ffffff;
     cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
@@ -273,7 +273,7 @@
 .bs-camp-card:hover { border-color: rgba(0, 240, 255, 0.35); background: rgba(255, 255, 255, 0.06); }
 .bs-camp-top { display: flex; justify-content: space-between; align-items: center; margin-block-end: 14px; flex-wrap: wrap; gap: 10px; }
 .bs-camp-name { font-size: 16px; font-weight: 800; color: #ffffff; margin-inline-end: 10px; }
-.bs-camp-id { font-size: 14px; color: #94a3b8; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
+.bs-camp-id { font-size: 14px; color: #94a3b8; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; background: rgba(0, 0, 0, 0.4); padding: 4px 8px; border-radius: 6px; font-weight: 600; }
 .bs-dot { display: inline-block; inline-size: 10px; block-size: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
 .bs-dot.green { color: #4ade80; background: #4ade80; }
 .bs-dot.yellow { color: #fbbf24; background: #fbbf24; }
@@ -414,7 +414,7 @@
     border: 1px solid rgba(0, 240, 255, 0.25);
     border-radius: 12px;
     padding: 14px;
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', 'Fira Code', 'Courier New', monospace;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', 'Fira Code', 'Courier New', monospace;
     font-size: 12.5px;
     color: #00f0ff;
     max-block-size: 260px;
@@ -464,7 +464,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Cairo', sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
 }
 .bs-speed-btn:hover, .bs-speed-btn.active {
     background: rgba(0, 240, 255, 0.18);
@@ -482,7 +482,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Cairo', sans-serif;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -537,7 +537,7 @@
     margin-block-end: 10px;
 }
 .bs-cmd-tag {
-    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;
+    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;
     font-size: 14px;
     font-weight: 800;
     color: #00f0ff;
@@ -609,7 +609,7 @@
         <span>الفحص التلقائي القادم</span>
         <span style="font-size: 14px; background: rgba(96,165,250,0.2); padding: 1px 6px; border-radius: 20px; color: #60a5fa;">ℹ️</span>
       </div>
-      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', monospace; line-height: 1;">01:15</div>
+      <div id="autopilot-countdown" style="font-size: 32px; font-weight: 900; color: #00f0ff; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Consolas', monospace; line-height: 1;">01:15</div>
       <div id="autopilot-status" style="font-size: 14px; color: #94a3b8; font-weight: 600; margin-block-start: 6px;">جاري الفحص التلقائي...</div>
       
       <!-- Speed selector buttons -->
@@ -625,7 +625,7 @@
         <div style="font-size: 14px; font-weight: 800; color: #00f0ff; margin-block-end: 8px; border-block-end: 1px solid rgba(0,240,255,0.2); padding-block-end: 6px; display: flex; align-items: center; gap: 8px;">
           <span>🤖</span> <span>كيف يعمل الفحص والتقديم التلقائي؟</span>
         </div>
-        <div style="font-size: 12.5px; color: #cbd5e1; line-height: 1.6; text-align: right;">
+        <div style="font-size: 12.5px; color: #cbd5e1; line-height: 1.6; text-align: start;">
           <p style="margin-block-end: 6px;">• <strong>عند انتهاء العداد (00:00):</strong> يطلق السيرفر السحابي دورة فحص ومطابقة ذكية كلياً للبحث عن أي وظائف جديدة متوافقة مع سيرتك الذاتية.</p>
           <p style="margin-block-end: 6px;">• <strong>التقديم الآلي المباشر:</strong> يقوم البوت التلقائي بتخصيص السيرة الذاتية ورسالة التغطية الموجهة وإرسال التقديم للشركة فوراً في الخلفية.</p>
           <p style="margin-block-end: 6px;">• <strong>أزرار السرعة (15ث - 5د):</strong> تتيح لك اختيار وتحديد الفاصل الزمني للتقديم المباشر تلقائياً.</p>
@@ -831,7 +831,7 @@
     <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
       <input type="text" id="bsSearchInput" onkeyup="filterCampaigns()" placeholder="🔍 بحث عن اسم أو معرف الحملة..." dir="auto" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 14px; color: #fff; font-size: 13.5px; outline: none; min-inline-size: 200px;" dir="auto">
       
-      <select id="bsSortSelect" onchange="sortCampaigns()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 14px; font-weight:700; outline: none; cursor:pointer;">
+      <select id="bsSortSelect" onchange="sortCampaigns()" style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 7px 12px; color: #00f0ff; font-size: 14px; font-weight:700; outline: none; cursor:pointer;" dir="auto">
         <option value="newest">🗓️ الأحدث أولاً</option>
         <option value="progress">📊 نسبة الإنجاز الأعلى</option>
         <option value="sent">📨 الأكثر إرسالاً</option>
@@ -1072,7 +1072,7 @@
 
 <!-- ═══════════════ QUICK EDIT PROFILE MODAL ═══════════════ -->
 <div id="quickEditModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.35); box-shadow: 0 0 40px rgba(0, 240, 255, 0.2); border-radius: 18px; max-inline-size: 560px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #00f0ff; margin: 0; display: flex; align-items: center; gap: 10px;">
         ✏️ تعديل الملف الوظيفي والمهارات المستهدفة
@@ -1872,7 +1872,7 @@ function saveCustomSkill(e) {
 
 <!-- /goal Modal -->
 <div id="goalModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(34, 197, 94, 0.4); box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(34, 197, 94, 0.4); box-shadow: 0 0 40px rgba(34, 197, 94, 0.25); border-radius: 18px; max-inline-size: 520px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #4ade80; margin: 0; display: flex; align-items: center; gap: 10px;">
         🎯 /goal — محرك تحقيق الأهداف الذاتي
@@ -1898,7 +1898,7 @@ function saveCustomSkill(e) {
 
 <!-- /grill-me Modal -->
 <div id="grillModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 40px rgba(6, 182, 212, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 0 40px rgba(6, 182, 212, 0.25); border-radius: 18px; max-inline-size: 560px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #22d3ee; margin: 0; display: flex; align-items: center; gap: 10px;">
         🔥 /grill-me — جلسة استجواب وتدقيق الاستراتيجية
@@ -1912,7 +1912,7 @@ function saveCustomSkill(e) {
       </div>
       <div style="margin-block-end: 16px;">
         <label style="display: block; font-size: 14px; color: #cbd5e1; font-weight: 700; margin-block-end: 6px;">🏡 تفضيل طبيعة العمل (Remote / Hybrid / On-site):</label>
-        <select id="grillRemote" style="inline-size: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 11px; color: #fff; font-size: 14px;">
+        <select id="grillRemote" style="inline-size: 100%; background: #1e293b; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 11px; color: #fff; font-size: 14px;" dir="auto">
           <option value="Flexible / All">مرن (Remote أو Hybrid أو On-site)</option>
           <option value="Remote Only">عن بُعد فقط (Remote Only)</option>
           <option value="Hybrid / Onsite">مكتبي / هجين (Hybrid / On-site)</option>
@@ -1932,7 +1932,7 @@ function saveCustomSkill(e) {
 
 <!-- /teamwork-preview Modal -->
 <div id="teamworkModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 0 40px rgba(168, 85, 247, 0.25); border-radius: 18px; max-width: 620px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.4); box-shadow: 0 0 40px rgba(168, 85, 247, 0.25); border-radius: 18px; max-inline-size: 620px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #c084fc; margin: 0; display: flex; align-items: center; gap: 10px;">
         👥 /teamwork-preview — أسطول الوكلاء المتعددين
@@ -1971,7 +1971,7 @@ function saveCustomSkill(e) {
 
 <!-- /learn Modal -->
 <div id="learnModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 40px rgba(245, 158, 11, 0.25); border-radius: 18px; max-width: 560px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 0 40px rgba(245, 158, 11, 0.25); border-radius: 18px; max-inline-size: 560px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #fbbf24; margin: 0; display: flex; align-items: center; gap: 10px;">
         🧠 /learn — نظام التعلم وتحديث القواعد
@@ -2007,7 +2007,7 @@ function saveCustomSkill(e) {
 
 <!-- /workflow-skill-creator Modal -->
 <div id="skillCreatorModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 99999; justify-content: center; align-items: center; padding: 20px;">
-  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.4); box-shadow: 0 0 40px rgba(0, 240, 255, 0.25); border-radius: 18px; max-width: 520px; width: 100%; padding: 26px; color: #e2e8f0; font-family: 'Cairo', sans-serif;">
+  <div style="background: #0f172a; border: 1px solid rgba(0, 240, 255, 0.4); box-shadow: 0 0 40px rgba(0, 240, 255, 0.25); border-radius: 18px; max-inline-size: 520px; inline-size: 100%; padding: 26px; color: #e2e8f0; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; border-block-end: 1px solid rgba(255, 255, 255, 0.1); padding-block-end: 14px;">
       <h3 style="font-size: 19px; font-weight: 800; color: #00f0ff; margin: 0; display: flex; align-items: center; gap: 10px;">
         🛠️ /workflow-skill-creator — منشئ مهارات سير العمل

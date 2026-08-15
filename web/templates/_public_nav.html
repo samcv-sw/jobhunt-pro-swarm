@@ -3,12 +3,12 @@
 <nav class="nav" id="nav" style="box-sizing:border-box;height:54px;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;overflow:visible;">
 
 {% if lang == 'en' %}
-<a class="nav-logo" href="/?lang=en" style="font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#f0c040 0%,#00d4aa 50%,#8b5cf6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
-  JobHunt Pro <span class="badge" style="font-size: 14px;font-weight:700;background:rgba(240,192,64,0.12);color:#f0c040;padding:2px 8px;border-radius:20px;border:none;-webkit-text-fill-color:#f0c040;white-space:nowrap;flex-shrink:0;">V 1</span>
+<a class="nav-logo" href="/?lang=en" style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#0080ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
+  JobHunt Pro <span class="badge" style="font-size: 11px;font-weight:700;background:rgba(0,240,255,0.08);color:#00f0ff;padding:2px 6px;border-radius:4px;border:1px solid rgba(0,240,255,0.4);-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">V 1</span>
 </a>
 {% else %}
-<a class="nav-logo" href="/?lang=ar" style="font-family:'Cairo','Inter',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#f0c040 0%,#00d4aa 50%,#8b5cf6 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
-  جوبهانت برو <span class="badge" style="font-size: 14px;font-weight:700;background:rgba(240,192,64,0.12);color:#f0c040;padding:2px 8px;border-radius:20px;border:none;-webkit-text-fill-color:#f0c040;white-space:nowrap;flex-shrink:0;">V 1</span>
+<a class="nav-logo" href="/?lang=ar" style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal','Tajawal',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#0080ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
+  جوبهانت برو <span class="badge" style="font-size: 11px;font-weight:700;background:rgba(0,240,255,0.08);color:#00f0ff;padding:2px 6px;border-radius:4px;border:1px solid rgba(0,240,255,0.4);-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">V 1</span>
 </a>
 {% endif %}
 
@@ -18,10 +18,12 @@
   <span style="inline-size:22px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;display:block;"></span>
 </div>
 
-<div class="nav-links" id="navLinks" style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;">
+<div class="nav-links" id="navLinks" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;">
 
 {% if lang == 'en' %}
   <a href="/?lang=en" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Home</a>
+  <a href="/ats-optimizer?lang=en" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 12px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;border:1px solid rgba(0,240,255,0.45);background:rgba(0,240,255,0.08);box-shadow:0 0 10px rgba(0,240,255,0.15);">Free ATS Audit</a>
+  <a href="/roast?lang=en" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Roast CV 🔥</a>
   <a href="/services?lang=en" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Services</a>
   <a href="/pricing?lang=en" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Pricing</a>
   <a href="/blog?lang=en" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Blog</a>
@@ -33,11 +35,13 @@
     <a class="cta" href="/logout?lang=en" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Log Out</a>
   {% else %}
     <a href="/login?lang=en" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Login</a>
-    <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Start Free →</a>
+    <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#00f0ff,#00a0cc);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 0 15px rgba(0,240,255,0.4);">Start Free →</a>
   {% endif %}
 
 {% elif lang == 'zh' %}
   <a href="/?lang=zh" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">首页</a>
+  <a href="/ats-optimizer?lang=zh" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">ATS 免费评分</a>
+  <a href="/roast?lang=zh" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">简历点评 🔥</a>
   <a href="/services?lang=zh" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">服务</a>
   <a href="/pricing?lang=zh" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">价格</a>
   <a href="/blog?lang=zh" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">博客</a>
@@ -54,6 +58,8 @@
 
 {% else %}
   <a href="/?lang=ar" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الرئيسية</a>
+  <a href="/ats-optimizer?lang=ar" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">فحص ATS مجاني</a>
+  <a href="/roast?lang=ar" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">تقييم السيرة 🔥</a>
   <a href="/services?lang=ar" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الخدمات</a>
   <a href="/pricing?lang=ar" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسعار</a>
   <a href="/blog?lang=ar" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">المدونة</a>

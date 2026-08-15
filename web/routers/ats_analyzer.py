@@ -73,6 +73,10 @@ def calculate_ats_score(req: ATSAnalysisRequest) -> Dict[str, Any]:
     }
 
 
+@router.post("/preview-pdf")
+def generate_ats_pdf_preview(req: ATSAnalysisRequest) -> Dict[str, Any]:
+    """Generates preview metadata and HTML scorecard for ATS optimized resume export."""
+    score_data = calculate_ats_score(req)
     return {
         "status": "success",
         "pdf_title": "ATS_Optimized_Resume.pdf",
@@ -102,4 +106,53 @@ def tailor_resume_summary(req: ATSTailorRequest) -> Dict[str, Any]:
         "status": "success",
         "tailored_summary": tailored_text
     }
+
+
+class FreeAuditRequest(BaseModel):
+    resume_text: str = Field(..., description="Resume content to analyze")
+    target_role: str = Field(default="general", description="Target role or domain")
+
+
+@router.post("/free-audit")
+def run_free_ats_audit(req: FreeAuditRequest) -> Dict[str, Any]:
+    """Instant Free ATS CV Score Lead Magnet with actionable gap analysis and upsell CTA."""
+    if not req.resume_text.strip():
+        raise HTTPException(status_code=400, detail="Resume text cannot be empty.")
+    
+    from core.free_tools import check_ats_resume
+    audit_data = check_ats_resume(req.resume_text, target_role=req.target_role)
+    
+    return {
+        "status": "success",
+        "lead_magnet": "JobHunt Pro Free ATS Audit",
+        "data": audit_data
+    }
+
+
+@router.get("/upsell-packages")
+def get_upsell_packages() -> Dict[str, Any]:
+    """Fetch active micro-services and bouquet packages for checkout conversion."""
+    from core.pricing_manager import BOUQUET_PACKAGES, PRICING_TIERS
+    return {
+        "status": "success",
+        "starter_packages": [
+            {
+                "id": "quick-strike",
+                "name": "⚡ Quick Strike",
+                "price": 5,
+                "badge": "BEST VALUE FOR CV FIX",
+                "description": "ATS Dominator + Penetration Letter"
+            },
+            {
+                "id": "basic",
+                "name": "🦅 Basic Hunter",
+                "price": 19,
+                "badge": "MOST POPULAR",
+                "description": "100 Verified Applications + Live MX Shield"
+            }
+        ],
+        "all_bouquets": BOUQUET_PACKAGES,
+        "all_tiers": PRICING_TIERS
+    }
+
 

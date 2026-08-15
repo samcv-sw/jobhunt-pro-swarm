@@ -16,6 +16,31 @@ router = APIRouter(tags=["ATS Visual Optimizer"])
 templates_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
 templates = Jinja2Templates(directory=templates_dir)
 
+@router.get("/ats-optimizer", response_class=HTMLResponse)
+async def get_ats_optimizer_public_page(request: Request, lang: str = "ar"):
+    """Render the public Free ATS Lead Magnet & Optimizer page with bilingual support."""
+    try:
+        from web.app_v2 import render_template
+        req_lang = (
+            request.query_params.get("lang") or
+            request.cookies.get("lang") or
+            request.cookies.get("jobhunt_lang") or
+            request.cookies.get("preferred_lang") or
+            getattr(request.state, "locale", None) or
+            lang or
+            "ar"
+        )
+        clean_lang = str(req_lang).split("-")[0].lower()
+        if clean_lang not in ["ar", "en", "zh"]:
+            clean_lang = "ar"
+        content = render_template("free_ats_lead_magnet.html", request=request, lang=clean_lang)
+        return HTMLResponse(content=content)
+    except Exception as e:
+        return templates.TemplateResponse(request, "free_ats_lead_magnet.html", {
+            "lang": lang,
+            "title": "Free ATS Optimizer | JobHunt Pro"
+        })
+
 @router.get("/ats-studio", response_class=HTMLResponse)
 @router.get("/ats-scorer", response_class=HTMLResponse)
 async def get_ats_studio_page(request: Request):

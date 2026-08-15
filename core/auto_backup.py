@@ -31,11 +31,12 @@ import time as _time
 from datetime import UTC, datetime
 from pathlib import Path
 
-import core.pg_sqlite_shim as sqlite3
-
 # ── Project root ────────────────────────────────────────────
 ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT_DIR))
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+import core.pg_sqlite_shim as sqlite3
 
 # ── Ensure dirs exist ───────────────────────────────────────
 for _d in ["data", "logs"]:
@@ -44,11 +45,16 @@ for _d in ["data", "logs"]:
 
 # ── Logging ─────────────────────────────────────────────────
 LOG_FILE = ROOT_DIR / "logs" / "backup.log"
+_stream_handler = logging.StreamHandler(sys.stdout)
+if hasattr(sys.stdout, "reconfigure"):
+    with contextlib.suppress(Exception):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - BACKUP - %(levelname)s - %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout),
+        _stream_handler,
         logging.FileHandler(str(LOG_FILE), encoding="utf-8"),
     ],
 )
@@ -58,13 +64,17 @@ logger = logging.getLogger("auto_backup")
 BACKUP_DIR = ROOT_DIR / "data" / "backups"
 MAX_BACKUPS = 5
 DB_NAME = "jobhunt_saas_v2.db"
-DB_PATH = ROOT_DIR / DB_NAME
-
-# Fallback: check data/ subdirectory
-if not DB_PATH.exists():
-    alt = ROOT_DIR / "data" / DB_NAME
-    if alt.exists():
-        DB_PATH = alt
+_env_db = os.getenv("DB_PATH", "").strip()
+if _env_db and Path(_env_db).exists():
+    DB_PATH = Path(_env_db)
+elif (ROOT_DIR / DB_NAME).exists():
+    DB_PATH = ROOT_DIR / DB_NAME
+elif (ROOT_DIR / "data" / DB_NAME).exists():
+    DB_PATH = ROOT_DIR / "data" / DB_NAME
+elif (ROOT_DIR / "data" / "jobhunt_local.db").exists():
+    DB_PATH = ROOT_DIR / "data" / "jobhunt_local.db"
+else:
+    DB_PATH = ROOT_DIR / "data" / DB_NAME
 
 
 def _load_env():
@@ -364,15 +374,18 @@ if __name__ == "__main__":
             path = backup_database()
             if path:
                 _rotate_backups()
-                logger.debug(f"Local backup: {path}")
+                logger.info(f"Local backup complete: {path}")
+            else:
+                logger.error("Local backup creation failed")
+                sys.exit(1)
         else:
             result = run_backup()
             if result["success"]:
-                logger.debug(f"✅ Backup complete: {result['backup_path']}")
-                logger.debug(
-                    f"   Telegram: {'sent' if result['telegram_sent'] else 'skipped'}"
+                logger.info(f"Backup complete: {Path(result['backup_path']).name}")
+                logger.info(
+                    f"Telegram off-site sync: {'sent' if result['telegram_sent'] else 'skipped (token not configured)'}"
                 )
-                logger.debug(f"   Duration: {result['duration_s']}s")
+                logger.info(f"Duration: {result['duration_s']}s")
             else:
-                logger.debug(f"❌ Backup failed: {result.get('error', 'unknown')}")
+                logger.error(f"Backup failed: {result.get('error', 'unknown')}")
                 sys.exit(1)

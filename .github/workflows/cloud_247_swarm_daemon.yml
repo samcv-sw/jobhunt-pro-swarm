@@ -1,0 +1,68 @@
+name: Cloud 24/7 Swarm Daemon & Keep-Alive
+
+on:
+  schedule:
+    # Run every 30 minutes 24/7 to prevent Render/Fly.io free tier idle sleep and trigger lead hunting
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive_and_swarm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Essential Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx aiohttp pydantic python-dotenv
+
+      - name: Execute 24/7 Keep-Alive & Health Ping
+        env:
+          APP_PUBLIC_URL: ${{ secrets.APP_PUBLIC_URL }}
+          API_HEALTH_TOKEN: ${{ secrets.PA_API_TOKEN }}
+        run: |
+          python -c "
+          import os, sys, httpx
+          target_url = os.environ.get('APP_PUBLIC_URL', 'http://localhost:8000')
+          if target_url and target_url != 'http://localhost:8000':
+              print(f'Pinging keep-alive target: {target_url}/health')
+              try:
+                  res = httpx.get(f'{target_url}/health', timeout=15.0)
+                  print(f'Health ping response: {res.status_code} - {res.text[:100]}')
+              except Exception as e:
+                  print(f'Warning: Keep-alive ping error: {e}')
+          else:
+              print('Local test mode: Ping simulated successfully.')
+          "
+
+      - name: Run Autonomous Lead Radar & Queue Processor
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python -c "
+          import asyncio
+          from core.cloud_self_healer import CloudSelfHealer
+          from agents.autonomous_lead_radar import AutonomousLeadRadar
+
+          async def main():
+              print('Initializing 24/7 Autonomous Lead Swarm...')
+              healer = CloudSelfHealer()
+              status = await healer.check_system_health()
+              print(f'System Health Status: {status}')
+              
+              radar = AutonomousLeadRadar()
+              leads = await radar.scan_and_rank_opportunities(limit=10)
+              print(f'Successfully harvested and ranked {len(leads)} fresh high-intent leads.')
+
+          asyncio.run(main())
+          "

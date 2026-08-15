@@ -142,5 +142,100 @@ class EpsilonHyperPersonalizer:
             "tone": ind_info["tone"]
         }
 
+    REGIONAL_PSYCHOMETRICS: Dict[str, Dict[str, str]] = {
+        "gulf": {
+            "tone_description": "High executive respect, formal Arabic/English greetings, corporate authority",
+            "salutation_ar": "سعادة الأستاذ / الأستاذة المحترمين",
+            "closing_ar": "مع خالص التقدير والاحترام لجهودكم المتميزة،",
+            "value_emphasis": "strategic alignment with Vision 2030 / UAE digital economy, enterprise stability, and regional market leadership",
+        },
+        "us": {
+            "tone_description": "Direct, fast-paced, high ROI, measurable metric orientation",
+            "salutation_ar": "تحياتي،",
+            "closing_ar": "تحياتي الحارة،",
+            "value_emphasis": "3x engineering velocity, immediate bottom-line revenue impact, and scalable infrastructure",
+        },
+        "europe": {
+            "tone_description": "Methodical, structured, process-oriented, compliance & quality driven",
+            "salutation_ar": "حضرة الزملاء الأعزاء،",
+            "closing_ar": "وتفضلوا بقبول فائق الاحترام،",
+            "value_emphasis": "robust architecture, zero technical debt, ISO/GDPR compliant standards, and long-term sustainability",
+        },
+    }
+
+    def inject_portfolio_evidence(
+        self,
+        key_skills: List[str],
+        github_url: str = "https://github.com/samde",
+        portfolio_url: str = "https://jobhuntpro.io/portfolio/sam",
+    ) -> str:
+        """
+        Dynamically constructs verified code/project snippets tailored to target tech requirements.
+        """
+        if not key_skills:
+            return f"Explore verified production repositories & live architecture benchmarks at {github_url}."
+
+        top_skill = key_skills[0]
+        return (
+            f"Here is a direct demonstration of production-grade {top_skill} systems: {github_url} "
+            f"and interactive benchmark case studies: {portfolio_url}."
+        )
+
+    def generate_multilingual_pitch(
+        self,
+        candidate_name: str,
+        target_role: str,
+        company_name: str,
+        language: str = "ar",
+        region: str = "gulf",
+        key_skills: Optional[List[str]] = None,
+    ) -> Dict[str, str]:
+        """
+        Generates flawless Arabic, English, or French executive SDR pitches aligned with regional psychometrics.
+        """
+        skills = key_skills or ["FastAPI", "Python", "Cloud Architecture"]
+        skills_str = "، ".join(skills[:3]) if language == "ar" else ", ".join(skills[:3])
+        portfolio_text = self.inject_portfolio_evidence(skills)
+
+        if language == "ar":
+            subject = f"طلب انضمام مهني متميز • {target_role} — {candidate_name}"
+            body = (
+                f"{self.REGIONAL_PSYCHOMETRICS.get(region, self.REGIONAL_PSYCHOMETRICS['gulf'])['salutation_ar']} لدى {company_name}،\n\n"
+                f"يطيب لي التواصل معكم انطلاقاً من متابعتي لنجاحاتكم ومشاريعكم الرائدة. "
+                f"أتقدم إليكم كـ {target_role} متخصص في بناء وتطوير الأنظمة عالية الكفاءة ({skills_str}).\n\n"
+                f"أمتلك سجلاً حافلاً في قيادة المشاريع التقنية والارتقاء بالأداء ومواءمة الأهداف الإستراتيجية. "
+                f"يسعدني مشاركتكم نماذج حية من الأعمال والمشاريع البرمجية عبر الرابط: {portfolio_text}\n\n"
+                f"أتطلع بكل سرور لفرصة حوار موجز لبحث آفاق التعاون وتقديم قيمة مضافة فورية لفريقكم الموقر.\n\n"
+                f"{self.REGIONAL_PSYCHOMETRICS.get(region, self.REGIONAL_PSYCHOMETRICS['gulf'])['closing_ar']}\n"
+                f"{candidate_name}"
+            )
+        elif language == "fr":
+            subject = f"Candidature spontanée : {target_role} — {candidate_name}"
+            body = (
+                f"Madame, Monsieur,\n\n"
+                f"Fort d'une solide expertise en ingénierie logicielle et architecture système ({skills_str}), "
+                f"je me permets de vous soumettre ma candidature pour le poste de {target_role} au sein de {company_name}.\n\n"
+                f"Démonstrations techniques et projets : {portfolio_text}\n\n"
+                f"Je reste à votre entière disposition pour convenir d'un échange.\n\n"
+                f"Cordialement,\n{candidate_name}"
+            )
+        else:
+            subject = f"Introduction: {target_role} Application — {candidate_name}"
+            body = (
+                f"Hello {company_name} Talent Team,\n\n"
+                f"I am reaching out regarding technical opportunities for {target_role}. "
+                f"With deep expertise in {skills_str}, I specialize in building resilient, high-throughput architectures.\n\n"
+                f"Code demonstrations & benchmarks: {portfolio_text}\n\n"
+                f"Looking forward to connecting briefly.\n\n"
+                f"Best regards,\n{candidate_name}"
+            )
+
+        return {
+            "subject": subject,
+            "body": body,
+            "language": language,
+            "region": region,
+        }
+
 # Global Instance
 epsilon_personalizer = EpsilonHyperPersonalizer()

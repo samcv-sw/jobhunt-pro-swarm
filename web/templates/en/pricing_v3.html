@@ -20,25 +20,27 @@
 <style>
 /* ═══ APEX GLASSMORPHISM CYBERPUNK PRICING OVERHAUL ═══ */
 :root {
-  --font-mono: 'Space Grotesk', 'Inter', sans-serif !important;
+  --font-mono: 'Space Grotesk', 'Inter', system-ui, sans-serif !important;
 }
 
 .pricing-hero-v3 {
   text-align: center;
-  padding: 60px 20px 40px;
+  padding: 10px 20px 30px;
   position: relative;
   z-index: 10;
+  max-inline-size: 1100px;
+  margin-inline: auto;
 }
 
 .pricing-hero-v3 h1 {
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
-  font-size: 46px !important;
+  font-family:'Space Grotesk', 'Inter', system-ui, sans-serif !important;
+  font-size: 42px !important;
   font-weight: 900 !important;
   background: linear-gradient(135deg, #00f0ff 0%, #7000ff 50%, #ff007f 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
-  margin-block-end: 16px !important;
+  margin-block-end: 14px !important;
 }
 
 .pricing-hero-v3 .subtitle {
@@ -163,7 +165,7 @@
 }
 
 .companies-v3 {
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
   font-size: 38px !important;
   font-weight: 900 !important;
   line-height: 1.1 !important;
@@ -180,7 +182,7 @@
 }
 
 .price-v3 {
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
   font-size: 36px !important;
   font-weight: 900 !important;
   color: #00f0ff !important;
@@ -290,7 +292,7 @@
 }
 
 .bulk-qty-display {
-  font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
   font-size: 48px !important;
   font-weight: 900 !important;
   color: #00f0ff !important;
@@ -427,18 +429,19 @@
         <div>
           <div class="tier-name-v3">STARTER</div>
           <h3>Starter Plan</h3>
-          <div class="companies-v3">10 <span>companies</span></div>
-          <div class="price-v3">$2</div>
-          <div class="original-price-v3">Was $4</div>
-          <div class="per-v3">$0.20 / company</div>
+          <div class="companies-v3">25 <span>companies</span></div>
+          <div class="price-v3">$9</div>
+          <div class="original-price-v3">Was $18</div>
+          <div class="per-v3">$0.36 / company</div>
           <ul>
-            <li>10 automated applications</li>
-            <li>AI-tailored cover letters</li>
+            <li>25 automated job applications</li>
+            <li>AI-tailored cover letters (Gemini + Groq)</li>
+            <li>Live MX email deliverability verification</li>
             <li>Email open & click tracking</li>
-            <li>Community support access</li>
+            <li>Fast community & email support</li>
           </ul>
         </div>
-        <a class="btn btn-starter" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Starter — $2</a>
+        <a class="btn btn-starter" href="javascript:void(0)" onclick="openCryptoCheckoutModal(9.0, 'Starter Plan')">Get Starter — $9 ⚡</a>
       </div>
 
       <!-- Basic Tier (Best Value) -->
@@ -448,19 +451,19 @@
           <div class="tier-name-v3">BASIC</div>
           <h3>Basic Plan</h3>
           <div class="companies-v3">100 <span>companies</span></div>
-          <div class="price-v3">$5</div>
-          <div class="original-price-v3">Was $10</div>
-          <div class="per-v3">$0.05 / company</div>
+          <div class="price-v3">$19</div>
+          <div class="original-price-v3">Was $38</div>
+          <div class="per-v3">$0.19 / company</div>
           <ul>
             <li>100 automated applications</li>
-            <li>AI cover letters (Gemini + Groq)</li>
-            <li>Live open & click tracking</li>
-            <li>Auto follow-up (7 + 14 days)</li>
-            <li>Real-time analytics dashboard</li>
-            <li>Direct email support</li>
+            <li>AI-tailored CVs & cover letters</li>
+            <li>Live open & click tracking stats</li>
+            <li>Auto follow-up sequences (7 + 14 days)</li>
+            <li>Conversion analytics dashboard</li>
+            <li>Direct priority email support</li>
           </ul>
         </div>
-        <a class="btn btn-basic" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Basic — $5</a>
+        <a class="btn btn-basic" href="javascript:void(0)" onclick="openCryptoCheckoutModal(19.0, 'Basic Plan')">Get Basic — $19 🚀</a>
       </div>
 
       <!-- Pro Tier (High Impact) -->
@@ -470,47 +473,49 @@
           <div class="tier-name-v3">PRO</div>
           <h3>Pro Plan</h3>
           <div class="companies-v3">500 <span>companies</span></div>
-          <div class="price-v3">$15</div>
-          <div class="original-price-v3">Was $30</div>
-          <div class="per-v3">$0.03 / company</div>
+          <div class="price-v3">$49</div>
+          <div class="original-price-v3">Was $98</div>
+          <div class="per-v3">$0.098 / company</div>
           <ul>
             <li>500 automated applications</li>
             <li>All Basic Plan features included</li>
             <li>200 automated Swarm agents</li>
-            <li>20 email providers for max inbox delivery</li>
+            <li>20 email providers for 99% inbox delivery</li>
             <li>Deep company research before applying</li>
-            <li>Strategic analytics dashboard</li>
-            <li>Priority VIP support</li>
+            <li>Strategic analytics & CRM dashboard</li>
+            <li>24/7 Priority VIP support</li>
           </ul>
         </div>
-        <a class="btn btn-pro" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Pro — $15</a>
+        <a class="btn btn-pro" href="javascript:void(0)" onclick="openCryptoCheckoutModal(49.0, 'Pro Plan')">Get Pro — $49 💎</a>
       </div>
 
-      <!-- Enterprise Tier -->
+      <!-- Enterprise / B2B SDR Tier -->
       <div class="pricing-card-v3">
-        <div class="badge-v3 gold">👑 EXECUTIVE & CORPORATE</div>
+        <div class="badge-v3 gold">👑 B2B & RECRUITER SUITE</div>
         <div>
-          <div class="tier-name-v3">ENTERPRISE</div>
-          <h3>Enterprise Plan</h3>
-          <div class="companies-v3">2,000 <span>companies</span></div>
-          <div class="price-v3">$50</div>
-          <div class="original-price-v3">Was $100</div>
-          <div class="per-v3">$0.025 / company</div>
+          <div class="tier-name-v3">ENTERPRISE / B2B</div>
+          <h3>Agency & Recruiter Suite</h3>
+          <div class="companies-v3">2,500 <span>leads / companies</span></div>
+          <div class="price-v3">$149</div>
+          <div class="original-price-v3">Was $299</div>
+          <div class="per-v3">$0.059 / lead</div>
           <ul>
-            <li>2,000 automated applications</li>
-            <li>All Pro Plan features included</li>
-            <li>Custom AI model trained on your CV</li>
-            <li>Dedicated personal account manager</li>
-            <li>SLA performance guarantee</li>
-            <li>Full White-Label option</li>
-            <li>Full system API access</li>
+            <li>2,500 company / lead applications</li>
+            <li>Autonomous AI SDR cold outreach swarm</li>
+            <li>Live MX verification & 365d deduplication</li>
+            <li>Full CRM & webhook integration</li>
+            <li>Custom AI model fine-tuning</li>
+            <li>Dedicated account manager & SLA guarantee</li>
+            <li>Full REST API access</li>
           </ul>
         </div>
-        <a class="btn btn-enterprise" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Enterprise — $50</a>
+        <a class="btn btn-enterprise" href="javascript:void(0)" onclick="openCryptoCheckoutModal(149.0, 'Enterprise B2B Plan')">Get Enterprise — $149 🏢</a>
       </div>
 
     </div>
   </section>
+
+  {% include "crypto_checkout_modal.html" %}
 
   <!-- Interactive ROI Calculator -->
   <section class="pricing-section-v3" style="padding-top: 0;">
@@ -621,7 +626,7 @@
   <div class="services-cta-banner">
     <h3>🎁 Looking for specialized micro-services?</h3>
     <p>We offer 100 on-demand micro-services including CV tailoring, LinkedIn overhaul, direct recruiter emails, and visa mobility starting at just $2.</p>
-    <a href="/services?lang=en">Browse 100 Micro-Services Catalog ←</a>
+    <a href="/services?lang=en">Browse 100 Micro-Services Catalog →</a>
   </div>
 
   <!-- Crypto & Social Proof -->

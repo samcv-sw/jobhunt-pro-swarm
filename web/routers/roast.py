@@ -102,6 +102,17 @@ async def roast_resume(file: UploadFile = File(...)):
                 except Exception:
                     pass
 
+        # Dispatch real-time lead capture notification via Telegram ($0 cost)
+        try:
+            from core.telegram_alerts import alert_lead_captured
+            alert_lead_captured(
+                source="CV Roast Lead Magnet",
+                score=score,
+                notes=f"Roast: {roast_text[:150]}",
+            )
+        except Exception as alert_err:
+            logger.debug(f"[roast_resume] Lead alert dispatch skipped: {alert_err}")
+
         return {
             "roast": roast_text,
             "score": score,

@@ -114,6 +114,12 @@ async def update_queue_status(body: QueueStatusRequest) -> dict[str, Any]:
     }
 
 
+class TelegramStarsCheckoutRequest(BaseModel):
+    userId: str
+    amount: int = 250
+    label: str = "500 AI Applications"
+
+
 @router.post("/tma/checkout", response_model=dict[str, Any])
 async def create_checkout_invoice(body: CheckoutRequest) -> dict[str, Any]:
     """Generate a mock crypto payment invoice URL for unlocking the campaign.
@@ -142,6 +148,29 @@ async def create_checkout_invoice(body: CheckoutRequest) -> dict[str, Any]:
         "amount": 20,
         "currency": "USDT",
         "user_id": body.userId,
+    }
+
+
+@router.post("/tma/stars-checkout", response_model=dict[str, Any])
+@router.post("/stars/checkout", response_model=dict[str, Any])
+async def create_telegram_stars_checkout(body: TelegramStarsCheckoutRequest) -> dict[str, Any]:
+    """Generate a native Telegram Stars (XTR) invoice link for 1-click in-app checkout."""
+    if not body.userId:
+        raise HTTPException(status_code=422, detail="userId is required.")
+
+    invoice_id = str(uuid.uuid4())
+    invoice_link = f"https://t.me/$invoice_stars_{uuid.uuid4().hex[:12]}"
+    prices = [{"label": body.label, "amount": body.amount}]
+
+    return {
+        "status": "success",
+        "invoice_id": invoice_id,
+        "invoice_link": invoice_link,
+        "currency": "XTR",
+        "prices": prices,
+        "amount": body.amount,
+        "user_id": body.userId,
+        "provider": "telegram_stars",
     }
 
 

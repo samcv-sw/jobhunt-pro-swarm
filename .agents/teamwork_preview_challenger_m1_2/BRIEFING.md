@@ -1,43 +1,42 @@
-# BRIEFING — 2026-07-22T12:43:51+03:00
+# BRIEFING — 2026-08-14T17:00:25+03:00
 
 ## Mission
-Empirically verify `/health` and `/ping` endpoints under simulated database timeout or missing connection string. Verify that `/health` returns status degraded within 3.0s max timeout without hanging, crashing, or throwing unhandled exceptions.
+Empirical stress-testing of Milestone 1 / R1 & R2: zero-DB keepalive sentinels (/healthz, /ping), DB failover resilience, latency SLA (<5ms P50), zero DB connection count on ping, thread-safe multi-tenant isolation, and benchmark suites.
 
 ## 🔒 My Identity
-- Archetype: empirical challenger
+- Archetype: EMPIRICAL CHALLENGER
 - Roles: critic, specialist
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_challenger_m1_2
-- Original parent: 406220be-1f6c-42b2-a120-82564783a9e5
-- Milestone: Database Timeout & Health Check Verification
-- Instance: 1 of 1
+- Original parent: cca25b34-4df7-46bc-9327-ca6ecbaac4b7
+- Milestone: Milestone 1 / R1 & R2
+- Instance: 2 of 2
 
 ## 🔒 Key Constraints
-- Review-only — do NOT modify implementation code.
-- Write report to handoff.md in working directory and notify parent via send_message.
-- Rely on empirical evidence/tests.
+- Review-only — do NOT modify implementation code directly
+- Empirical verification: write and run tests, benchmarks, generators, oracles
+- Never trust claims without running verification code
+- Target SLA: <5ms P50 latency for /healthz, 0 DB connection during sentinel pings, thread-safe multi-tenant isolation
 
 ## Current Parent
-- Conversation ID: 406220be-1f6c-42b2-a120-82564783a9e5
-- Updated: 2026-07-22T12:43:51+03:00
+- Conversation ID: cca25b34-4df7-46bc-9327-ca6ecbaac4b7
+- Updated: 2026-08-14T17:00:25+03:00
 
 ## Review Scope
-- **Files to review**: `PROJECT.md`, backend/web router files containing `/health` and `/ping` endpoints, database connection/healthcheck logic.
-- **Interface contracts**: PROJECT.md
-- **Review criteria**: DB timeout handling, `/health` response under missing DB / DB timeout (status degraded, max 3.0s timeout, no hang/crash/unhandled exception), `/ping` response.
-
-## Key Decisions Made
-- Will write reproduction & test scripts in local working directory `.agents/teamwork_preview_challenger_m1_2/` to test `/health` and `/ping` endpoints empirically.
+- **Files to review**: `web/app_v2.py`, `backend/main.py`, `core/pg_sqlite_shim.py`, `tests/standalone_adversarial_p1_p4_benchmark.py`, `tests/test_multi_tenant.py`, `tests/test_gcc_billing.py`
+- **Interface contracts**: `PROJECT.md`, `ORIGINAL_REQUEST.md` (Milestone 1 / R1 & R2)
+- **Review criteria**: Zero DB connect on `/healthz` and `/ping`, <5ms P50 latency, DB failover handling, multi-tenant thread safety, benchmark pass rate.
 
 ## Attack Surface
-- **Hypotheses tested**: 
-  - DB timeout causes `/health` endpoint to hang > 3.0s or crash (TBD)
-  - Missing DB connection string causes `/health` endpoint to crash or throw 500 unhandled exception (TBD)
-  - `/ping` endpoint behavior when DB is down or unreachable (TBD)
-- **Vulnerabilities found**: TBD
-- **Untested angles**: TBD
+- **Hypotheses tested**: [TBD]
+- **Vulnerabilities found**: [TBD]
+- **Untested angles**: [TBD]
 
 ## Loaded Skills
-- None.
+- None required
+
+## Key Decisions Made
+- Initialized challenger workspace and planning empirical test suite.
 
 ## Artifact Index
-- `.agents/teamwork_preview_challenger_m1_2/handoff.md` — Formal verification handoff report.
+- `.agents/teamwork_preview_challenger_m1_2/progress.md` — Liveness and progress tracking
+- `.agents/teamwork_preview_challenger_m1_2/handoff.md` — Final adversarial challenge report

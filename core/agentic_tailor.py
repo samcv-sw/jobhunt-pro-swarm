@@ -24,21 +24,39 @@ class AgenticTailor:
         job_description: str,
         job_title: str = "",
         user_id: str = None,
-        company: str = None
+        company: str = None,
+        regional_tone: str = "standard"
     ) -> Dict[str, Any]:
         """
         Iteratively generates and refines a cover letter using feedback from the ATS Scorer.
+        Supports regional corporate tones: 'gulf_saudi_formal', 'uae_dubai_high_impact', 'global_remote_direct'.
         Returns a dict conforming to {"subject": "...", "body": "..."}.
         """
-        logger.info("Starting Agentic ATS Self-Critiquing loop...")
+        logger.info(f"Starting Agentic ATS Self-Critiquing loop with tone: {regional_tone}...")
         
+        tone_instructions = ""
+        if regional_tone == "gulf_saudi_formal":
+            tone_instructions = (
+                "\nRegional Tone Directive: Tailor specifically for the Saudi Arabia & Gulf executive market. "
+                "Use respectful, dignified phrasing, emphasizing loyalty, strategic value, leadership, and alignment with modern regional growth (Vision 2030)."
+            )
+        elif regional_tone == "uae_dubai_high_impact":
+            tone_instructions = (
+                "\nRegional Tone Directive: Tailor for the fast-paced UAE/Dubai corporate ecosystem. "
+                "Keep sentences punchy, lead with quantified ROI/KPI achievements, and showcase high-energy commercial drive."
+            )
+        elif regional_tone == "global_remote_direct":
+            tone_instructions = (
+                "\nRegional Tone Directive: High-impact global remote style. Focus on asynchronous autonomy, direct problem solving, and zero fluff."
+            )
+
         # Initial prompt to generate the cover letter in JSON format
-        system_prompt = """You are an expert recruiter. Write a persuasive, concise cover letter.
+        system_prompt = f"""You are an expert executive recruiter and copywriter. Write a persuasive, concise cover letter.{tone_instructions}
         Output valid JSON ONLY with this exact schema:
-        {
+        {{
             "subject": "Compelling subject line for the email",
             "body": "The full text of the cover letter, using proper paragraph breaks (\\n\\n)"
-        }"""
+        }}"""
 
         user_prompt = f"""
         Job Description:
@@ -82,9 +100,7 @@ class AgenticTailor:
             audit_result = await score_resume(
                 resume_text=current_data["body"],
                 job_description=job_description,
-                job_title=job_title,
-                user_id=user_id,
-                company=company
+                job_title=job_title
             )
             
             score = audit_result.get("overall_score", 0)

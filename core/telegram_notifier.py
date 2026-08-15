@@ -74,6 +74,26 @@ class TelegramNotifier:
             set()
         )  # application IDs we already sent follow-up for
 
+    def send_instant_job_alert(
+        self,
+        job_title: str,
+        company: str,
+        location: str,
+        match_score: float,
+        apply_url: str,
+    ) -> bool:
+        """Sends rich Telegram alert for high-match jobs (95%+) with 1-click apply action."""
+        msg = (
+            f"⚡ *New High-Match Job Detected ({match_score}%)* ⚡\n\n"
+            f"🏢 *Company:* {company}\n"
+            f"💼 *Role:* {job_title}\n"
+            f"📍 *Location:* {location}\n"
+            f"🎯 *Match Quality:* {match_score}%\n\n"
+            f"👉 [1-Click Apply / Dispatch Proposal]({apply_url})\n\n"
+            f"_Zero-Cost Autonomous Hunter Swarm active_"
+        )
+        return self._send_alert(msg)
+
     # ── Lifecycle ─────────────────────────────────────────────────
 
     def start(self):
@@ -414,12 +434,23 @@ class TelegramNotifier:
             f"_Powered by JobHunt Pro 24/7 AI Engine_"
         )
 
-    def _send_alert(self, message: str):
-        """Send alert via the async callback (runs in new event loop)."""
+    def _send_alert(self, message: str) -> bool:
+        """Send alert via callback (supports both sync and async callbacks)."""
+        import inspect
         try:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.send_callback(message))
-            loop.close()
+            if inspect.iscoroutinefunction(self.send_callback):
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                loop.run_until_complete(self.send_callback(message))
+                loop.close()
+            else:
+                res = self.send_callback(message)
+                if inspect.isawaitable(res):
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(res)
+                    loop.close()
+            return True
         except Exception as e:
             logger.error(f"[Notifier] Send failed: {e}")
+            return False

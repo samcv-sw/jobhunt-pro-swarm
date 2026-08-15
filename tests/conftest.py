@@ -72,7 +72,7 @@ def setup_test_database_session():
     import sqlite3
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("PRAGMA busy_timeout=5000;")
+    conn.execute("PRAGMA busy_timeout=10000;")
     conn.commit()
     try:
 
@@ -113,9 +113,13 @@ def reset_rate_limiter_global(request):
         or "rate_limiter" in request.node.name
     )
 
+    from backend.auth import reset_auth_rate_limiter
+    reset_auth_rate_limiter()
+
     rate_limiter.requests_limit = 3 if is_rate_limit_test else 100000
     rate_limiter.reset()
     yield
     rate_limiter.reset()
+    reset_auth_rate_limiter()
     rate_limiter.requests_limit = 3 if is_rate_limit_test else 100000
 

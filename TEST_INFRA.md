@@ -1,46 +1,45 @@
-# E2E Test Infrastructure — JobHunt Pro
+# E2E Test Infra: JobHunt Pro SaaS
 
-This document describes the End-to-End (E2E) testing framework, testing philosophy, feature inventory, test architecture, and coverage thresholds for JobHunt Pro SaaS.
+## Test Philosophy
+- **Requirement-Driven & Opaque-Box**: Tests exercise the full system from external API, CLI, and HTTP interfaces without assuming internal implementation details.
+- **Methodology**: 4-Tier Progressive Testing (Tier 1: Feature Isolation, Tier 2: Boundary & Corner Cases, Tier 3: Pairwise Combinations, Tier 4: Real-World Workloads) followed by Tier 5 Adversarial Coverage Hardening.
 
-## 1. Testing Philosophy
-Our testing strategy ensures maximum reliability, performance, and security of JobHunt Pro's core workflows by organizing tests across four distinct, progressive execution tiers. We focus on:
-- **Local-First Reliability & Compatibility**: Ensuring SQLite operates correctly as a local fallback and translates queries transparently to PostgreSQL using the DB shim (`core/pg_sqlite_shim.py`), maintaining state integrity under connection dropouts.
-- **Asynchronous Flow Integrity**: Verifying that backend operations (FastAPI app and Celery worker layer) route async tasks without blocking the web server's main event loop.
-- **Arabic & RTL Readability Compliance**: Validating Arabic typography hierarchy (font-sizes >= 14px, line-height 1.6-2.0, no letter-spacing) and forms/inputs behavior (dynamic RTL mirroring, `dir="auto"`) across templates and Next.js frontend pages.
-- **Adversarial & Security Hardening**: Validating access control, WAF rule matching, CORS origins, JWT rotation rules, rate limiters, and endpoint bypasses.
+## Feature Inventory & Test Matrix
+| # | Feature | Requirement Source | Tier 1 (≥5) | Tier 2 (≥5) | Tier 3 (Pairwise) |
+|---|---------|-------------------|:-----------:|:-----------:|:-----------------:|
+| F1 | Zero-DB Fast Health Probe (`/healthz`, `/ping`) | ORIGINAL_REQUEST §R1 | 5 | 5 | ✓ |
+| F2 | Neon PgBouncer & SQLite Auto-Fallback | ORIGINAL_REQUEST §R1 | 5 | 5 | ✓ |
+| F3 | Live MX DNS & DoH Email Verification | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F4 | 365-Day Sliding Cooldown Deduplication | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F5 | Anti-Synthetic Email & ScamDetector | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F6 | 17-Provider LLM Arbitrage & Semantic Cache | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F7 | Recursive Spintax & Jaccard Diversity | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F8 | Viral ATS Roast & Golden Ticket Loops | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F9 | Telegram Stars & Mini App Checkout | ORIGINAL_REQUEST §R2 | 5 | 5 | ✓ |
+| F10 | B2B SDR Lead Swarm & Discovery | ORIGINAL_REQUEST §R3 | 5 | 5 | ✓ |
+| F11 | Multi-Tenant Recruiter Isolation & Tiers | ORIGINAL_REQUEST §R3 | 5 | 5 | ✓ |
+| F12 | Multi-Gateway (Mada, Apple Pay, USDT, L402) | ORIGINAL_REQUEST §R3 | 5 | 5 | ✓ |
 
-## 2. Feature Inventory
-The test suite validates the following core features of the JobHunt Pro SaaS:
-- **Local Database & Shim**: WAL-mode validation, foreign key constraints, connection checkout loop, connection recycling (280s age threshold), and pre-ping query (`SELECT 1`).
-- **Sync Worker Pipeline**: Unsynced outbox tracking, remote Postgres push, reconnection stress under connection dropouts, and Celery task routing.
-- **Stealth Scrapers & Reliability**: Stealth scrape flat maps, proxy verification, caching, and fallback execution between `nodriver`, `camoufox`, and default scrapers.
-- **Security & Aegis/Banshield Hardening**: WAF hacker probe blocking, access control on sensitive system endpoints, CORS origin checks, JWT rotation, and daily token cap limits.
-- **AI Engines & Resume/Cover Letter Generators**: Parsing job keywords, LLM providers pool fallback mechanisms, cover letter customization, and ATS matching scoring (including Arabic-specific matching).
-- **Celery Tasks**: Asynchronous Celery task execution, non-blocking FastAPI loops, routing tasks to designated queues (`scraping`, `ai_inference`, `email_sender`), and exponential backoff configuration.
-- **User Interface & RTL Layout**: Validation of Arabic fonts (`Cairo`, `Tajawal`), RTL page mirroring logic, and input-level directionality.
+## Test Architecture
+- **Test Runner**: Pytest (`pytest -q --tb=short`).
+- **Test Invocations**:
+  - Full Test Suite: `pytest -q --tb=short` (2,026 tests)
+  - Core Milestone Verification: `pytest tests/test_b2b_recruiter_swarm.py tests/test_scam_detector.py tests/test_multi_tenant.py tests/test_gcc_billing.py tests/test_x402_lightning_protocol.py tests/test_telegram_miniapp.py tests/test_spintax_engine.py -q`
+  - Adversarial Benchmarks: `python tests/stress_deliverability_suite.py` & `python tests/standalone_adversarial_p1_p4_benchmark.py`
+- **Pass/Fail Semantics**: 100% exit code 0, 0 unhandled exceptions, zero integrity violations.
 
-## 3. Test Architecture
-The test suite runs on `pytest` using various plugins for async operations, property-based testing, and performance testing:
-- **Test Runner Configuration (`pytest.ini`)**:
-  ```ini
-  [pytest]
-  testpaths = tests
-  norecursedirs = _backups .git .github scratch
-  python_files = test_*.py
-  pythonpath = .
-  ```
-- **Active Pytest Plugins**:
-  - `anyio` and `asyncio`: Manage asynchronous testing hooks and fixture loop scopes.
-  - `hypothesis`: Enables property-based/generative stress testing for edge cases.
-  - `locust`: Supports load testing.
-  - `Faker`: Generates mock profile data.
-  - `logfire` & `langsmith`: Distributed tracing and LLM evaluation monitoring.
-  - `mock`: Direct unit level patching.
+## Real-World Application Scenarios (Tier 4)
+| # | Scenario | Features Exercised | Complexity |
+|---|----------|--------------------|------------|
+| 1 | Full Recruiter Cold Outreach Campaign: Lead extraction -> Live MX filter -> 365-day dedup check -> Spintax generation -> Dispatch | F3, F4, F5, F7, F10, F11 | High |
+| 2 | High-Concurrency Health Sentinel & Failover: 100 concurrent pings during database failover simulation | F1, F2 | Medium |
+| 3 | Viral Lead-to-Customer Funnel: Free ATS Resume Roast -> Lead capture alert -> Telegram Mini App checkout (Stars / USDT) -> Token credit | F8, F9, F12 | High |
+| 4 | Multi-Tenant Enterprise Whitelabel & Seat Provisioning: Subdomain creation -> Custom branding -> Member RBAC -> Campaign execution | F10, F11 | High |
+| 5 | GCC Cross-Border Payment & ZATCA Invoicing: Mada / Apple Pay checkout -> Webhook verification -> ZATCA QR invoice generation -> Instant activation | F12 | Medium |
 
-## 4. Coverage Thresholds
-We mandate the following operational and coverage rules:
-- **Tiered Flow Coverage**: 100% pass rate across all 626 test cases covering Tiers 1 to 4.
-- **Event Loop Responsiveness**: Less than 30ms latency under high task-dispatch rates.
-- **Memory Allocation Limits**: Celery worker recycling (`worker_max_tasks_per_child=10`) and supervisor-enforced memory limits (Celery < 180MB, DB Sync < 80MB, Uvicorn < 220MB) to prevent container OOMs.
-- **Arabic Typography Rules**: Zero violations of minimum font size (14px) and line height (1.6-2.0) guidelines on Arabic template tags.
-- **Database Resilience**: Reconnection attempt intervals and dead-letter queue (DLQ) poison pill non-blocking behavior.
+## Coverage Thresholds
+- Tier 1: ≥ 60 test cases (≥5 per feature across 12 features)
+- Tier 2: ≥ 60 test cases (boundary limits, malformed emails, offline DNS, invalid tokens)
+- Tier 3: ≥ 25 pairwise combination test cases
+- Tier 4: ≥ 5 end-to-end real-world workload scenarios
+- Tier 5: White-box adversarial stress tests & zero-gap coverage hardening

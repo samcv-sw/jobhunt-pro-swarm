@@ -323,7 +323,10 @@ class ScamDetector:
         if email:
             try:
                 email_low = email.strip().lower()
-                if re.match(r"^careers-[0-9a-fa-f]{6}@", email_low):
+                if (
+                    re.match(r"^careers-(?:hub-)?[0-9a-fA-F]{2,32}@", email_low)
+                    or re.match(r"^test[0-9a-fA-F]{4,}@", email_low)
+                ):
                     return True, "Synthetic demo mock email pattern detected (careers-HEX@...)"
                 email_domain = email_low.split("@")[-1]
                 if self._tld_re.search(email_domain):
@@ -577,6 +580,94 @@ class ScamDetector:
 
         return False, ""
 
+    def scan_text(self, text: str) -> tuple[bool, list[str]]:
+        """
+        Scan a raw text block (job description, company info, snippet, etc.)
+        against all precompiled scam company patterns, scam title keywords, and high-risk flags.
+
+        Returns:
+            (is_suspicious: bool, flags: list[str])
+        """
+        if not text or not isinstance(text, str):
+            return False, []
+
+        clean_text = text.lower()
+        flags = []
+
+        # Check company/scam category patterns
+        for category, pattern in self._compiled_company_regex.items():
+            if pattern.search(text) or pattern.search(clean_text):
+                flags.append(f"Scam detected: {category} pattern")
+
+        # Check scam title keywords
+        if self._compiled_titles_regex.search(text) or self._compiled_titles_regex.search(clean_text):
+            flags.append("Scam title keyword detected")
+
+        # Check chat platform & upfront fee flags
+        is_chat_flag, chat_reason = self._check_chat_platforms_and_flags(clean_text)
+        if is_chat_flag:
+            flags.append(chat_reason)
+
+        return len(flags) > 0, list(dict.fromkeys(flags))
+
+    def analyze_job(self, job: dict[str, Any]) -> tuple[bool, float, list[str]]:
+        """
+        Comprehensive standard evaluator analyzing job dictionary metadata and description
+        against 300+ fraud patterns, suspicious TLDs, synthetic email signatures, and salary anomalies.
+
+        Args:
+            job: Dictionary containing job metadata (title, company, description/snippet,
+                 url/apply_url, email/contact_email, salary/salary_max).
+
+        Returns:
+            (is_scam: bool, score: float, flags: list[str])
+            - is_scam: True if scam/fraudulent indicators detected, False if legitimate/clean.
+            - score: Legitimacy score from 0.0 (scam) to 1.0 (clean).
+            - flags: List of specific matched violation reasons or empty list if clean.
+        """
+        if not job or not isinstance(job, dict):
+            return False, 1.0, []
+
+        flags: list[str] = []
+
+        company = (job.get("company") or "").strip()
+        title = (job.get("title") or "").strip()
+        snippet = (job.get("snippet") or job.get("description") or "").strip()
+        url = (job.get("url") or job.get("apply_url") or "").strip()
+        email = (job.get("email") or job.get("contact_email") or "").strip()
+        salary = job.get("salary") or job.get("salary_max") or 0
+
+        combined = f"{company} {title} {snippet} {url}".lower()
+
+        # 1. Check company and text against patterns
+        for category, pattern in self._compiled_company_regex.items():
+            if pattern.search(company) or pattern.search(combined):
+                flags.append(f"Scam detected: {category} pattern")
+
+        # 2. Check title keywords
+        if self._compiled_titles_regex.search(title) or self._compiled_titles_regex.search(combined):
+            flags.append("Scam title keyword detected")
+
+        # 3. Check suspicious TLDs and synthetic emails
+        is_scam_tld, tld_reason = self._check_tlds_and_emails(url, email)
+        if is_scam_tld:
+            flags.append(tld_reason)
+
+        # 4. Salary sanity check
+        is_scam_sal, sal_reason = self._check_salary_sanity(salary, combined)
+        if is_scam_sal:
+            flags.append(sal_reason)
+
+        # 5. Chat platforms & fraud flags
+        is_scam_chat, chat_reason = self._check_chat_platforms_and_flags(combined.lower())
+        if is_scam_chat:
+            flags.append(chat_reason)
+
+        is_scam = len(flags) > 0
+        score = 0.0 if is_scam else 1.0
+
+        return is_scam, score, list(dict.fromkeys(flags))
+
     def should_send(self, job: dict[str, Any]) -> tuple[bool, str]:
         """Alias: inverse of is_scam. Returns (safe_to_send, reason_if_not)."""
         scam, reason = self.is_scam(job)
@@ -604,6 +695,16 @@ def get_scam_detector() -> ScamDetector:
 def is_scam_job(job: dict[str, Any]) -> tuple[bool, str]:
     """Convenience function."""
     return get_scam_detector().is_scam(job)
+
+
+def analyze_job(job: dict[str, Any]) -> tuple[bool, float, list[str]]:
+    """Standardized module-level helper evaluating a job dictionary."""
+    return get_scam_detector().analyze_job(job)
+
+
+def scan_text(text: str) -> tuple[bool, list[str]]:
+    """Standardized module-level helper scanning a text block for scam patterns."""
+    return get_scam_detector().scan_text(text)
 
 
 def get_email_footer() -> str:

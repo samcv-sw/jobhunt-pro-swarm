@@ -1,0 +1,32 @@
+name: 24/7 Sovereign Automation & KeepAlive
+
+on:
+  schedule:
+    # Run every 4 hours automatically using free GitHub Actions runner minutes (2,000 mins/mo)
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+jobs:
+  cloud_health_and_warmup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Base Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx pydantic pyyaml
+
+      - name: Ping KeepAlive Endpoint
+        run: |
+          python scripts/cloud_keepalive_247.py --url "${{ secrets.APP_PRODUCTION_URL || 'https://httpbin.org/status/200' }}" --dry-run
+
+      - name: Verify Deliverability & Zero-Cost Manifest
+        run: |
+          python scripts/zero_cost_cloud_deploy.py --check-env

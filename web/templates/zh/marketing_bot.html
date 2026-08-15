@@ -23,7 +23,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Tajawal', sans-serif;
         }
 
         body {
@@ -185,7 +185,7 @@
                 <form onsubmit="launchCampaign(event)">
                     <div class="form-group">
                         <label>منصة الاستهداف 首页</label>
-                        <select id="targetPlatform">
+                        <select id="targetPlatform" dir="auto">
                             <option value="linkedin">LinkedIn (شبكات المحترفين)</option>
                             <option value="telegram">Telegram (مجموعات الوظائف)</option>
                             <option value="twitter">X / Twitter (مجتمع التقنية)</option>
@@ -200,7 +200,7 @@
 
                     <div class="form-group">
                         <label>نوع العرض الاستقطابي (Hook Offer)</label>
-                        <select id="offerType">
+                        <select id="offerType" dir="auto">
                             <option value="free_cv_roast">تحليل وفحص الـ CV مجاناً (Free CV Roast)</option>
                             <option value="50_percent_discount">خصم 50% على باقة التقديم التلقائي</option>
                             <option value="free_ai_credits">100 رصيد AI مجاني عند التسجيل</option>

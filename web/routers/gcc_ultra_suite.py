@@ -160,3 +160,57 @@ def trigger_whatsapp_alert_endpoint(req: WhatsAppAlertTriggerRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class GCCATSLocalizationRequest(BaseModel):
+    resume_text: str = Field(..., description="Full candidate resume text or extracted bio")
+    target_country: str = Field(default="KSA", description="KSA, UAE, Qatar, Kuwait, Bahrain, Oman")
+    is_national: bool = Field(default=False, description="Whether the candidate is a GCC citizen/national")
+
+@router.post("/ats/localization-benchmark", response_model=Dict[str, Any])
+def benchmark_gcc_ats_localization(req: GCCATSLocalizationRequest):
+    """
+    Evaluates resume optimization score against Gulf region standards (Vision 2030, Nitaqat, Emiratisation Nafis, DIFC compliance).
+    """
+    try:
+        text = req.resume_text.lower()
+        country = req.target_country.upper()
+        
+        # Country specific keywords
+        keywords_map = {
+            "KSA": ["vision 2030", "riyadh", "pif", "sdaia", "zatca", "saudization", "nitaqat", "aramco", "neom", "giga projects"],
+            "UAE": ["dubai", "abu dhabi", "difc", "adgm", "nafis", "emiratisation", "golden visa", "dsoa", "mohre"],
+            "QATAR": ["doha", "qatar national vision", "qfc", "qatar airways", "qapco", "ict qatar"],
+            "KUWAIT": ["kuwait city", "vision 2035", "koc", "knpc", "kuwaitization"],
+            "BAHRAIN": ["manama", "tamkeen", "bahrain vision 2030", "edb"],
+            "OMAN": ["muscat", "oman vision 2040", "omanisation", "pdo"]
+        }
+        
+        target_kws = keywords_map.get(country, keywords_map["KSA"])
+        matched_kws = [kw for kw in target_kws if kw in text]
+        
+        base_score = 60.0
+        kw_bonus = min(30.0, len(matched_kws) * 7.5)
+        national_bonus = 10.0 if req.is_national else 5.0
+        
+        final_score = min(100.0, round(base_score + kw_bonus + national_bonus, 1))
+        
+        recommendations = []
+        if len(matched_kws) < 3:
+            recommendations.append(f"Add key GCC/regional growth terms such as: {', '.join(target_kws[:4])}")
+        if "visa" not in text and not req.is_national:
+            recommendations.append("Explicitly mention your residency status (e.g., Transferable Iqama, Golden Visa, or Immediate Availability)")
+        if "driving license" not in text:
+            recommendations.append("Include GCC/Local Valid Driving License if applicable (high priority for Gulf recruiters)")
+            
+        return {
+            "status": "success",
+            "target_country": country,
+            "gcc_localization_score": final_score,
+            "score_grade": "A+ Elite" if final_score >= 85 else ("B+ Competitive" if final_score >= 70 else "Needs Optimization"),
+            "matched_regional_keywords": matched_kws,
+            "actionable_recommendations": recommendations,
+            "tawteen_priority_tier": "High Priority (National Candidate)" if req.is_national else "Tier 1 Qualified Expat"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+

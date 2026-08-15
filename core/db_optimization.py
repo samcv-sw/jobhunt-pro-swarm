@@ -6,7 +6,7 @@
 import functools
 import logging
 import time
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -219,3 +219,28 @@ def analyze_table(conn, table: str) -> dict:
     except Exception as e:
         logger.error(f"Could not analyze table {table}: {e}")
         return {}
+
+
+def tune_sqlite_performance(conn) -> Dict[str, Any]:
+    """
+    Applies high-throughput PRAGMA tuning (WAL, MMAP, In-Memory temp store, 64MB Cache)
+    to achieve sub-millisecond query execution on SQLite/Cloud-Edge instances.
+    """
+    applied = {}
+    try:
+        cur = conn.cursor()
+        cur.execute("PRAGMA journal_mode = WAL;")
+        applied["journal_mode"] = cur.fetchone()[0]
+        cur.execute("PRAGMA synchronous = NORMAL;")
+        applied["synchronous"] = "NORMAL"
+        cur.execute("PRAGMA mmap_size = 268435456;")
+        applied["mmap_size"] = 268435456
+        cur.execute("PRAGMA temp_store = MEMORY;")
+        applied["temp_store"] = "MEMORY"
+        cur.execute("PRAGMA cache_size = -64000;")
+        applied["cache_size"] = -64000
+        logger.info(f"SQLite performance tuning applied: {applied}")
+    except Exception as e:
+        logger.warning(f"Error applying SQLite performance tuning: {e}")
+    return applied
+

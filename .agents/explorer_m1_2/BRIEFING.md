@@ -1,54 +1,42 @@
-# BRIEFING — 2026-07-14T11:20:00+03:00
+# BRIEFING — 2026-08-14T12:36:25Z
 
 ## Mission
-Audit backend database connection pooling and SQLite fallback logic.
+Investigate Feature 2 (Container RSS memory supervisor in start_cloud.py and related modules) for Milestone M1, analyze current implementation, test coverage, gaps, edge cases, and provide concrete implementation recommendations.
 
 ## 🔒 My Identity
-- Archetype: explorer_m1_2
-- Roles: Teamwork explorer, auditor
+- Archetype: Explorer
+- Roles: Investigation, Analysis, Synthesis, Handoff
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2
-- Original parent: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Milestone: m1
+- Original parent: 41011934-7311-4236-891c-edf1863f8340
+- Milestone: M1 (Feature 2: Container RSS memory supervisor)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- Network mode: CODE_ONLY
+- Read-only investigation — do NOT implement directly
+- Must check start_cloud.py and all process tree / RSS memory supervision mechanisms (<450MB ceiling, GC triggering, recycling)
+- Must inspect tests/ for memory supervisor coverage and identify gaps
+- Must produce analysis.md and handoff.md and notify parent sub_orch_m1_1
 
 ## Current Parent
-- Conversation ID: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Updated: 2026-07-14T11:20:00+03:00
+- Conversation ID: 41011934-7311-4236-891c-edf1863f8340
+- Updated: 2026-08-14T12:36:25Z
 
 ## Investigation State
-- **Explored paths**:
-  - `config.py` — Config variables loading.
-  - `.env` — Master environment variables.
-  - `backend/database.py` — SQLAlchemy DB backend + Neon pooling settings.
-  - `core/database.py` — Legacy DB manager + dependency session generator.
-  - `core/async_db.py` — Asyncpg-based APEX MATRIX pool manager.
-  - `core/pg_sqlite_shim.py` — Custom psycopg2/sqlite3 compatibility wrapper.
-  - `backend/sync_worker.py` — Outbox background sync daemon.
-  - `core/job_queue.py` — SQLite/PostgreSQL task queue coordinator.
-  - `web/shared.py` — Shared web DB connections.
-  - `tests/e2e/test_database.py` — Database integration test suite.
-  - `tests/test_pg_shim.py` — PG/SQLite shim test suite.
+- **Explored paths**: `start_cloud.py`, `core/auto_heal.py`, `core/self_healing_supervisor.py`, `cloud_worker_daemon.py`, `Dockerfile.cloud`, `backend/routers/health.py`, `tests/` directory
 - **Key findings**:
-  1. Safe SQLite fallback missing in `core/database.py` (crashes on import if `DATABASE_URL` is empty).
-  2. Database connection limit limits exceeded for Neon Free Tier due to `core/database.py` (allows 10 conns) and `core/async_db.py` (allows 20 conns).
-  3. PgBouncer statement cache not disabled in `core/async_db.py`.
-  4. Redundant database engine created in `web/shared.py`.
-  5. FastAPI dependency generator yield retry logic bug in `core/database.py`.
-  6. Cursor resource leaks in `core/pg_sqlite_shim.py`.
-  7. Missing statement timeout on persistent cloud connection in `backend/sync_worker.py`.
-  8. Suboptimal 30s cold-start delays in `backend/sync_worker.py`.
-- **Unexplored areas**: None. Audit is comprehensive.
+  - `start_cloud.py` contains basic logic for process tree RSS calculation, per-service limits (Celery 180MB, Sync 80MB, Uvicorn 220MB), and global 450MB container ceiling targeting the largest consumer.
+  - GC tuning `gc.set_threshold(50, 5, 5)` and explicit `gc.collect()` exist.
+  - Zero test coverage exists in `tests/` for `start_cloud.py` or the memory supervisor.
+  - Implementation is tightly coupled inside `launch_services()` while loop, causing testing difficulties and race condition edge cases (`NoSuchProcess` in child traversal, double recycling in single tick).
+  - Concrete modular refactoring and full unit test suite design created.
+- **Unexplored areas**: None for Feature 2 scope.
 
 ## Key Decisions Made
-- Audited the entire database architecture and verified findings using static code analysis and local test execution.
-- Created `proposed_fixes.patch` containing precise diff patches for implementation.
+- Authored comprehensive `analysis.md` and standard 5-component `handoff.md`.
+- Formulated test plan and modular function designs for implementers.
 
 ## Artifact Index
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\ORIGINAL_REQUEST.md — Original request description
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\BRIEFING.md — Context and status briefing
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\progress.md — Heartbeat progress tracking
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\proposed_fixes.patch — Diff patch proposals for the database logic
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\handoff.md — Final structured report
+- `DISPATCH.md` — Incoming dispatch instructions
+- `BRIEFING.md` — Situational awareness working memory
+- `progress.md` — Heartbeat progress
+- `analysis.md` — Technical analysis report with code walkthrough and recommendations
+- `handoff.md` — Standard 5-component handoff report

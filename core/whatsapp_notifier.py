@@ -145,8 +145,44 @@ def notify_lead_converted(company: str, lead_email: str, status: str, notes: str
     return msg
 
 
+def notify_recruiter_opened_cv(company: str, candidate_name: str, location: str = "GCC") -> str:
+    """Send an instant alert to candidate when a recruiter opens their CV / application."""
+    company_esc = html.escape(company)
+    cand_esc = html.escape(candidate_name)
+    loc_esc = html.escape(location)
+
+    msg = (
+        f"👀 <b>RECRUITER VIEWED YOUR CV!</b>\n"
+        f"🏢 <b>Company:</b> {company_esc} ({loc_esc})\n"
+        f"👤 <b>Candidate:</b> {cand_esc}\n"
+        f"⏱ <b>Timestamp:</b> Just now\n\n"
+        f"💡 Tip: Prepare for potential phone/email outreach!"
+    )
+    _send_telegram(msg)
+    return msg
+
+
+def generate_whatsapp_checkout_link(
+    package_id: str,
+    package_name: str,
+    price_usd: float,
+    customer_phone: str = None,
+    sales_phone: str = None,
+    payment_method: str = "Whish Money / USDT / Card"
+) -> str:
+    """Generate 1-click WhatsApp order link for MENA/Lebanon users with pre-filled cart info."""
+    message = (
+        f"Hello JobHunt Pro! I want to order:\n"
+        f"📦 Package: {package_name} (${price_usd})\n"
+        f"💳 Payment Method: {payment_method}\n"
+        f"Please send payment instructions and activate my access."
+    )
+    return generate_wa_me_link(phone=sales_phone, message=message)
+
+
 if __name__ == "__main__":
     logger.debug(f"Contact URL: {get_whatsapp_contact_url()}")
     logger.debug(f"Link: {generate_wa_me_link(message='Hi JobHunt Pro Team!')}")
     notify_application_submitted("Test Corp", "Network Engineer")
+
 

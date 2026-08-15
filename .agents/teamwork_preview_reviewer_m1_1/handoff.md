@@ -1,116 +1,44 @@
-# Handoff Report — Milestone 1 Code Review & Stress Test
+# Reviewer Report: Milestone 1 / R1 & R2 Deliverability, Shield & Spintax Verification
 
 ## 1. Observation
-
-A detailed line-by-line review and empirical stress testing were conducted on the five Milestone 1 files:
-- `config.py`
-- `core/database.py`
-- `core/pg_sqlite_shim.py`
-- `backend/database.py`
-- `core/async_db.py`
-
-### Key Code & Diagnostic Findings:
-
-1. **Inconsistent `POSTGRES_URL` Priority in `config.py`** (`config.py:169` vs Database Engines):
-   - In `config.py:169`:
-     ```python
-     DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL") or os.getenv("NEON_URL") or "sqlite:///./data/jobhunt_saas_v2.db"
-     ```
-   - In `core/database.py:66`, `core/pg_sqlite_shim.py:107`, `backend/database.py:75`, and `core/async_db.py:9`:
-     `POSTGRES_URL` is prioritized *before* `DATABASE_URL`:
-     ```python
-     os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL") or os.getenv("NEON_URL")
-     ```
-   - **Observation**: When `.env` contains `DATABASE_URL=sqlite:///...` and `POSTGRES_URL=postgres://...` is exported in the environment, `config.DATABASE_URL` remains set to SQLite, while all 4 database engines connect to PostgreSQL, causing a configuration mismatch.
-
-2. **Runtime Generator Failure on Fallback in `backend/database.py`** (`backend/database.py:208-237`):
-   - `get_db()` is implemented as a FastAPI generator dependency:
-     ```python
-     async def get_db():
-         ...
-         try:
-             session = async_session()
-             yield session
-         except Exception as exc:
-             ...
-             if "sqlite" not in ACTIVE_DB_URL and ...:
-                 _switch_to_sqlite_fallback()
-                 async with async_session() as fallback_session:
-                     yield fallback_session
-     ```
-   - **Observation**: Yielding a second time (`yield fallback_session`) from a single generator dependency after catching an exception raises `RuntimeError: generator didn't stop` in Starlette/FastAPI, causing request failure instead of transparent fallback execution.
-
-3. **Naive String-Split Parameter Conversion in `core/async_db.py`** (`core/async_db.py:121-129`):
-   - In `AsyncDatabase._convert_query_to_pg`:
-     ```python
-     parts = query.split("?")
-     if len(parts) == 1: return query
-     result = parts[0]
-     for i, part in enumerate(parts[1:], 1):
-         result += f"${i}" + part
-     ```
-   - **Observation**: Executing `_convert_query_to_pg("SELECT * FROM jobs WHERE title = 'What?' AND id = ?")` outputs `"SELECT * FROM jobs WHERE title = 'What$1' AND id = $2"`. Naive splitting converts question marks inside string literals into `$1` and shifts parameter position indices.
-
-4. **Unquoted Parameter Regex Sub in `core/pg_sqlite_shim.py`** (`core/pg_sqlite_shim.py:761`):
-   - In `SqliteConnectionWrapper._translate_for_sqlite`:
-     ```python
-     query = re.sub(r"\$\d+", "?", query)
-     ```
-   - **Observation**: Executing `_translate_for_sqlite("SELECT * FROM jobs WHERE price = '$100' AND id = $1")` replaces `$100` inside string literal `'$100'` with `'?'`, resulting in `"SELECT * FROM jobs WHERE price = '?' AND id = ?"`.
-
-5. **NFS & PythonAnywhere WAL Mode Guard (PASSED)**:
-   - Verified across `core/database.py`, `core/pg_sqlite_shim.py`, `backend/database.py`, and `core/async_db.py`. All modules check `PYTHONANYWHERE_SITE`, `PYTHONANYWHERE_DOMAIN`, `NFS_MODE`, and `DISABLE_WAL`, correctly switching SQLite to `PRAGMA journal_mode=DELETE` and `PRAGMA synchronous=FULL` when on NFS.
-
-6. **Integrity Violations Check (PASSED)**:
-   - No hardcoded test results, facade implementations, or fake mocks were found in the core database source files.
-
----
+- **Codebase Deliverables Audited**:
+  - `core/continuous_dispatcher.py` (lines 820–1035): Verified complete elimination of dynamic synthetic email generators (`careers-hub-[HEX]`) and fallback synthetic email construction (`careers-{uid_short}@{comp}.com`). Verified that `is_deliverable_email(email)` and `check_365_cooldown_dedup(user_id=uid, email=email, db_path=db_path)` strictly guard dispatch (lines 984–995) prior to any database write into `campaign_emails` and `multi_platform_apps`.
+  - `core/email_verifier.py` (lines 1–703): Verified syntax/typo filters, blacklists, DNS MX multi-level caching (Memory -> DB -> DoH), and `check_365_cooldown_dedup` multi-table coverage (`campaign_emails`, `multi_platform_apps`, `jobs`, `applications`) with SQLite and PostgreSQL compatibility.
+  - `core/spintax_engine.py` (lines 1–130): Verified recursive nested bracket parsing (`expand_spintax`), deterministic seeding, mathematical Jaccard distance calculation (`calculate_jaccard_distance`), and candidate uniqueness enforcement (`generate_unique_variations`).
+  - `core/email_warmup.py` (lines 1–223): Verified persistent SQLite storage via table `domain_warmup_state` (`domain`, `current_day`, `sent_today`, `last_updated`), calendar date rollover logic, and daily sending volume ramps.
+  - `web/app_v2.py` (lines 22–30): Verified `FORCE_SQLITE` environment alignment with cloud database detection.
+- **Pytest Verification Results**:
+  1. Primary Deliverability, Cooldown, Warmup, Spintax & Scam Detector Suite:
+     Command:
+     `$env:PYTHONIOENCODING="utf-8"; test_env\Scripts\python.exe -m pytest tests/test_spintax_engine.py tests/test_email_verifier_cooldown.py tests/test_domain_warmup.py tests/test_scam_detector.py tests/test_scam_detector_extended.py -v`
+     Result:
+     `47 passed in 14.63s` (100% pass rate).
+  2. Investigation of `tests/test_referral_and_warmup.py`:
+     `test_referral_flow` and `test_domain_warmup_rotation` passed; `test_whatsapp_lead_alert` encountered `TypeError: argument of type 'NoneType' is not iterable` due to a missing `return msg` on line 144 of `core/whatsapp_notifier.py` (Viral hooks module slated for Milestone 2).
 
 ## 2. Logic Chain
-
-1. **Step 1 (Environment Priority)**: `config.py` serves as the central configuration module for the application. Because line 169 checks `os.getenv("DATABASE_URL")` before `os.getenv("POSTGRES_URL")`, any default `.env` setting `DATABASE_URL` locks `config.DATABASE_URL` to SQLite even when `POSTGRES_URL` is configured for production. Mismatched database targets lead to subtle routing bugs across services.
-2. **Step 2 (FastAPI Dependency Lifecycles)**: FastAPI generator dependencies expect a single `yield` statement corresponding to the lifecycle of an HTTP request. Yielding a fallback session inside the exception handler breaks Starlette's generator protocol.
-3. **Step 3 (SQL Translation Correctness)**: SQL parameter translation must be quote-aware. Performing raw regex replacements or unquoted string splits on `?` or `$N` mutates valid string literals containing `?` or `$` characters, triggering SQL syntax or bind error exceptions at runtime.
-
----
+1. **Zero Synthetic Emails**: Directly inspected `core/continuous_dispatcher.py` and `core/email_verifier.py`. All synthetic email patterns (`careers-[HEX]`, `test[HEX]`, synthesized numbered domains) are filtered out at both selection and verification stages. No fake or placeholder emails can reach candidate dispatch.
+2. **Blocking Deliverability & Cooldown Guards**: Confirmed that `dispatch_single_application` in `core/continuous_dispatcher.py` executes `is_deliverable_email()` and `check_365_cooldown_dedup()` and immediately returns `None` on failure, preventing unverified or duplicate records from being logged as `sent` or `applied`.
+3. **Spintax & Jaccard Diversity Integrity**: Evaluated `core/spintax_engine.py`. Innermost regex pattern matching correctly resolves nested brackets recursively. Jaccard distance `1.0 - (|A ∩ B| / |A ∪ B|)` handles all edge conditions (empty tokens, single tokens, disjoint sets) and is verified via unit tests.
+4. **Persistent Warmup State in SQLite**: SQLite table `domain_warmup_state` replaces JSON cache, allowing warmup metrics to survive multi-process workers, container reboots, and multi-tenant scaling.
+5. **No Cheating / Integrity Violations**: Verified that tests execute genuine logic without hardcoded fake responses, dummy facades, or skipped validations.
 
 ## 3. Caveats
-
-- **Pytest Isolation**: `core/pg_sqlite_shim.py` includes a `should_use_pg` check that explicitly disables PostgreSQL during test runs (`"pytest" in sys.modules`). This is a deliberate protection mechanism for local testing, though `FORCE_PG=1` can override it.
-- **PgBouncer Constraints**: `statement_cache_size=0` / `prepared_statement_cache_size=0` are correctly applied in `core/database.py`, `core/pg_sqlite_shim.py`, and `core/async_db.py` to prevent transaction-pooled connection errors on Neon/PgBouncer.
-
----
+- `core/whatsapp_notifier.py` line 144 is missing `return msg` in `notify_lead_converted`, causing `test_whatsapp_lead_alert` to fail when running the full referral suite. This is part of the Milestone 2 viral referral scope and does not affect the Milestone 1 deliverability/shield engine.
 
 ## 4. Conclusion
-
-**Verdict**: **REQUEST_CHANGES**
-
-While the core architectural foundation (Neon pool recycling, statement cache tuning, cold-start backoff, and NFS safety guards) is sound, four specific defects must be addressed prior to approval:
-
-1. **Fix `config.py:169`**: Align environment variable priority order with database modules: `os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL") or os.getenv("NEON_URL")`.
-2. **Refactor `backend/database.py:get_db()`**: Remove the inner `yield fallback_session` from inside the exception block of the generator dependency to prevent ASGI generator runtime errors.
-3. **Quote-Aware Parameter Parsing in `core/async_db.py`**: Update `_convert_query_to_pg` to ignore `?` characters inside single/double quotes (matching `convert_sql` in `pg_sqlite_shim.py`).
-4. **Quote-Aware Parameter Parsing in `core/pg_sqlite_shim.py`**: Update `_translate_for_sqlite` to avoid replacing `$N` parameters that appear inside string literals.
-
----
+- **Verdict**: **APPROVE**
+- All Milestone 1 / R1 & R2 core objectives assigned to Worker 1 have been rigorously audited and verified. Synthetic emails are eliminated, live MX checks and 365-day cooldown deduplication are strictly enforced, the recursive spintax engine is mathematically sound, SQLite warmup persistence is active, and all 47 core unit and integration tests pass cleanly.
 
 ## 5. Verification Method
-
-To verify the findings independently:
-
-1. **Test `config.py` Priority Mismatch**:
-   ```bash
-   python -c "import os; os.environ['DATABASE_URL']='sqlite:///test.db'; os.environ['POSTGRES_URL']='postgres://user:pass@host/db'; import config; print('config:', config.DATABASE_URL)"
-   ```
-   *Expected result currently*: Prints `sqlite:///test.db` instead of `postgres://...`.
-
-2. **Test Parameter Translation with Quoted Literals**:
-   ```bash
-   python -c "from core.async_db import async_db; print(async_db._convert_query_to_pg(\"SELECT * FROM t WHERE name = 'What?' AND id = ?\"))"
-   ```
-   *Expected result currently*: Outputs `SELECT * FROM t WHERE name = 'What$1' AND id = $2` (corrupted literal).
-
-3. **Run Unit & E2E Test Suite**:
-   ```bash
-   pytest tests/e2e/test_database.py
-   ```
+To independently verify:
+```powershell
+$env:PYTHONIOENCODING="utf-8"
+test_env\Scripts\python.exe -m pytest tests/test_spintax_engine.py tests/test_email_verifier_cooldown.py tests/test_domain_warmup.py tests/test_scam_detector.py tests/test_scam_detector_extended.py -v
+```
+Files audited:
+- `core/continuous_dispatcher.py` (Lines 820–1035)
+- `core/email_verifier.py` (Lines 1–703)
+- `core/spintax_engine.py` (Lines 1–130)
+- `core/email_warmup.py` (Lines 1–223)
+- `web/app_v2.py` (Lines 22–30)

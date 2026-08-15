@@ -1,38 +1,41 @@
-# BRIEFING — 2026-07-12T20:53:00Z
+# BRIEFING — 2026-08-14T12:38:00Z
 
 ## Mission
-Explore and analyze the codebase to design the Cloudflare health-check-based DNS failover solution (IMP-128) for JobHunt Pro.
+Investigate codebase for M4 Features 14, 15, 16 (Crypto Invoicing, On-chain double-spend/replay verification with RPC & 12+ confirmations, HMAC SHA-512 IPN webhook security) and produce a comprehensive Worker implementation handoff.
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: Read-only investigator, analyzer
-- Working directory: C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_1
-- Original parent: 4c2670f0-c5a8-4926-8b41-00ecf8d7e934
-- Milestone: Cloudflare DNS Failover (IMP-128)
+- Roles: read-only investigation, codebase analysis, architectural gap analysis, synthesis
+- Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_1
+- Original parent: 1a88d940-650d-405f-a7dd-88b2f8b9a304
+- Milestone: M4 (Iteration 1)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement (do NOT modify any production source code)
-- Output report must be written to C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_1\handoff.md
-- CODE_ONLY network mode (no external websites/services)
+- Read-only investigation — do NOT implement directly
+- Strictly follow token economy guidelines
+- Output comprehensive 5-component handoff report
 
 ## Current Parent
-- Conversation ID: 4c2670f0-c5a8-4926-8b41-00ecf8d7e934
-- Updated: 2026-07-12T20:53:00Z
+- Conversation ID: 1a88d940-650d-405f-a7dd-88b2f8b9a304
+- Updated: 2026-08-14T12:38:00Z
 
 ## Investigation State
 - **Explored paths**:
-  - `backend/main.py`: Checked health check implementation (`/health`, `/healthz`, `/api/v1/health`, `/api/v1/health/detailed`).
-  - `cloudflare/worker.js`: Checked routing and Cloudflare Worker health endpoints (`/api/cloud-health`, `/health`, and proxy routing `/_/pa/*`).
-  - `infra/k8s_terraform/main.tf`: Examined infrastructure configuration.
+  - `payments/nowpayments.py`, `payments/gateway.py`, `payments/__init__.py`
+  - `web/routers/payments.py`, `web/app_v2.py`, `web/shared.py`, `web/templates/wallet.html`
+  - `core/stripe_crypto.py`, `core/gcc_billing.py`, `infra/init.sql`, `config.py`
+  - `olympus_webhook/src/index.js`, `cloudflare/payment_queue_worker.js`
 - **Key findings**:
-  1. `/api/v1/health/detailed` is unsuitable because it returns HTTP 200 OK on degradation, exposing us to silent failures, and it contains high-latency, flaky third-party API dependencies (SMTP, Groq API).
-  2. The Cloudflare Worker routes only specific endpoints and proxies `/_/pa/*` to PythonAnywhere. Unknown endpoints yield HTTP 404, preventing Cloudflare health checks from reaching the backend if pointed at worker endpoints unless proxying is modified or custom hosts are targeted directly.
-  3. Proper active-passive failover requires Account-level Monitors and Pools, and Zone-level Load Balancers configured with `steering_policy = "off"`.
-- **Unexplored areas**: None.
+  - Feature 14: Multi-chain support for USDT/USDC across TRC20, Polygon, TON with $0 merchant fees is partially mocked/stubbed and missing explicit multi-chain currency mapping & sovereign wallet fallbacks.
+  - Feature 15: `payments/crypto_verifier.py` (`OnChainVerifier`) is missing. Existing `core/stripe_crypto.py` contains stubs without real TronGrid/Polygon/TON RPC queries, 12+ confirmations check, recipient address check, or replay cache.
+  - Feature 16: `payments/nowpayments.py` HMAC SHA-512 signature computation uses `json.dumps(ipn_data, sort_keys=True)` instead of canonical compact JSON (`separators=(',', ':')`), and `process_ipn_callback` returns 1 boolean while `web/routers/payments.py` unpacks 3 values (`success, order_id, amount_usd`), which causes a runtime crash on IPN callback.
+- **Unexplored areas**: None for Features 14, 15, 16.
 
 ## Key Decisions Made
-- Recommend creating a dedicated `/api/v1/health/failover` endpoint in `backend/main.py` that checks the database and returns HTTP 500/503 on failure, excluding SMTP/Groq API checks.
-- Recommend setting up two separate Cloudflare Pools (Primary and Failover) to enable true active-passive failover.
+- Outlined complete architectural specification for `payments/crypto_verifier.py`, `payments/nowpayments.py`, `payments/gateway.py`, `web/routers/payments.py`, `config.py`, and `infra/init.sql`.
 
 ## Artifact Index
-- C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_1\handoff.md — Main analysis and design report
+- DISPATCH.md — incoming dispatch records
+- BRIEFING.md — situational awareness
+- progress.md — liveness heartbeat
+- handoff.md — final analysis report

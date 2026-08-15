@@ -1,116 +1,161 @@
-# Handoff Report — Cloudflare Health-Check DNS Failover Design (IMP-128)
+# Explorer Handoff Report: Milestone M4 — Features 19 & 20
+
+**Date**: 2026-08-14  
+**Explorer Agent ID**: `explorer_m4_3`  
+**Parent Conversation ID**: `1a88d940-650d-405f-a7dd-88b2f8b9a304`  
+**Scope**: Features 19 (Free Sub-2s ATS CV Audit Widget with Saudi Vision 2030 & UAE D33 Criteria) and 20 (Arabic / RTL Cultural Ergonomics & CSS Logical Properties Compliance).
+
+---
 
 ## 1. Observation
 
-During our exploration of the codebase, we observed the following files and structural configurations:
+Direct code examination and scans across the codebase revealed the following exact observations:
 
-1. **Lightweight Health Check Endpoint**:
-   In `backend/main.py`, lines 457–460:
-   ```python
-   @app.get("/healthz")
-   async def healthz(request: Request = None) -> dict[str, str]:
-       """Lightweight Render health check endpoint."""
-       return {"status": "ok"}
-   ```
-   We also observed a deep health check endpoint at `backend/main.py` lines 487–492:
-   ```python
-   @app.get("/api/v1/health/detailed")
-   @cache(expire=15)
-   async def health_detailed(request: Request = None) -> dict[str, Any]:
-       """Detailed health check: reports DB, Redis, SMTP, and Groq API status."""
-       import time
-       result: dict[str, Any] = {"status": "ok", "components": {}}
-   ```
+### Feature 19: ATS CV Audit Widget & GCC Scoring Criteria
+1. **Lack of Saudi Vision 2030 & UAE D33 Scoring**:
+   - `core/ats_scorer.py` (lines 51-64, 97-172): Scores resumes using generic ATS weights (skills 40%, experience 30%, keyword density 15%, education 10%, format 5%) or basic fallback keywords (`stop_words`). Zero mention of Saudi Vision 2030, Giga-projects (NEOM, Red Sea, Diriyah, Qiddiya, Roshn), Saudization/Nitaqat, SDAIA/SAMA/SCE certifications, or UAE D33 Dubai Economic Agenda pillars.
+   - `core/ats_matcher.py` (lines 27-42): Contains a standard `TECH_TAXONOMY` but no regional GCC/KSA/UAE taxonomies.
+   - `backend/main.py` (lines 800-910): The public endpoint `/api/v1/ats-score` contains duplicated logic (lines 809-848 duplicated verbatim at 851-890) and calculates an un-cached generic string intersection without GCC vision scoring.
+2. **Sub-2s Latency Bottlenecks & Missing L1 Cache**:
+   - `core/ats_scorer.py` (lines 175-264) attempts network calls to Groq (`llama-3.3-70b-versatile`) which take 1.5s to 4s+ on cold invocations, with no in-memory fast-hash L1 cache (e.g. SHA-256 hash of resume + role). Under network latency or rate limiting, sub-2s SLA cannot be met without a dedicated fast deterministic NLP path.
+3. **Inoperable Static Widget Mockup**:
+   - `web/templates/components/instant_ats_widget.html`:
+     - Line 110: Contains invalid CSS `box-sizing: border-block;` (should be `border-box`).
+     - Line 158: Duplicate attribute `dir="auto" placeholder="..." required dir="auto"`.
+     - Lines 175-182: Form submit does not call any API; it merely runs a `setTimeout` returning a hardcoded text string (`✅ تم الفحص بنجاح! نسبة التطابق المبدئية 94%...`).
+     - The widget is completely disconnected from any backend scoring router and is not included in `web/templates/_public_shell.html` or active landing pages (`index_v3.html`).
 
-2. **Frontend Backend URL Setting**:
-   In `deploy/cloudflare-pages.toml`, lines 37–38:
-   ```toml
-   # Point to your Koyeb backend URL (set this as a Pages secret too)
-   NEXT_PUBLIC_API_URL  = "https://your-app.koyeb.app"
-   ```
+---
 
-3. **Backend Deployments & Guides**:
-   In `deploy/DEPLOYMENT_GUIDE.md`, lines 49–54:
-   ```markdown
-   ## Step 2 — Backend API: Koyeb (FREE, 24/7 always-on)
-   
-   1. Sign up at **https://koyeb.com**
-   2. Create a new **Service → Docker** service
-   3. Connect your GitHub repo OR push the image manually
-   4. Set the **Dockerfile path** to: `deploy/Dockerfile.koyeb`
-   ```
-   And on lines 98–101:
-   ```markdown
-   4. Add **Environment Variables**:
-      - `NEXT_PUBLIC_API_URL` = `https://your-app.koyeb.app`
-      - `NODE_VERSION` = `20`
-   ```
-
-4. **Multi-Backend Keepalive Lists**:
-   In `cloudflare/worker.js`, lines 393–398:
-   ```javascript
-       const BACKENDS = [
-         env.PA_BASE || "https://jhfguf.pythonanywhere.com",
-         "https://jobhunt-pro.fly.dev",
-         "https://jobhunt-pro.zeabur.app",
-         "https://jobhunt-pro.onrender.com"
-       ];
-   ```
-
-5. **Existing Infrastructure**:
-   We found a main Terraform configuration file in `infra/k8s_terraform/main.tf` which configures AWS EKS, Multi-AZ RDS Postgres, and Redis.
+### Feature 20: Arabic / RTL Cultural Ergonomics & CSS Logical Properties
+1. **Script Limitations in `rtl_enforcer.py`**:
+   - `rtl_enforcer.py` (lines 4-25, 67-73):
+     - Uses rigid regex `r'(<input[^>]*)(?<!dir="auto")(?<!dir=\'auto\')>'` which adds duplicate `dir="auto"` when attributes are reordered or rerun.
+     - Misses `<select>` elements which require `dir="auto"`.
+     - Lacks CLI argument support (`--scan`, `--fix`, `--check`).
+     - Lacks Windows stdout encoding handling (`cp1252`), leading to `UnicodeEncodeError` when Arabic text is output.
+2. **Physical Property Violations in Templates**:
+   - Grep search across `web/templates/` revealed multiple occurrences of physical alignment:
+     - `web/templates/en/admin.html:259`: `text-align: left;`
+     - `web/templates/en/battle_station.html:126, 166, 628`: `text-align: left;`
+     - `web/templates/en/login.html:115`, `web/templates/en/login_v2.html:115`: `text-align: left;`
+     - `web/templates/en/pricing_v3.html:205, 348`: `text-align: left !important;`
+     - `web/templates/pricing_v3.html:363`: `text-align: left !important;`
+     - `web/templates/system_telemetry_dashboard.html:153`: `text-align: left;`
+     - `web/templates/zh/*.html`: Multiple `text-align: left;` occurrences.
+   - Missing `dir="auto"` attributes in certain password/number inputs (e.g. `checkout_v3.html:535`, `crm_integrations.html:139-163`, `dashboard_v3.html:334`).
+3. **Absence of RTL & ATS Pytest Suites**:
+   - `tests/` contains 69 test files but lacks dedicated tests for `test_ats_cv_audit.py` (sub-2s benchmark, Vision 2030, D33) and `test_rtl_compliance.py` (CSS logical properties, `dir="auto"`, Cairo/Tajawal font stacks).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Host Configuration & Dynamic Routing**:
-   The current frontend configuration in `deploy/cloudflare-pages.toml` and `deploy/DEPLOYMENT_GUIDE.md` specifies a direct API URL endpoint (`https://your-app.koyeb.app` or similar direct service URL). This setup bypasses traffic routing proxies and binds frontend builds to a single region/provider, offering zero automatic failover.
-   *Resolution*: Introducing a custom API subdomain (e.g. `api.jobhuntpro.link`) resolved through a Cloudflare Load Balancer allows us to decouple frontend build configuration from backend service changes.
-
-2. **Mitigating DNS Propagation Delays**:
-   Client-side DNS failover using traditional DNS record sets (like Round Robin or simple record replacement) suffers from long DNS propagation delays. This is due to client OS, browser, and local ISP caching of the DNS Time-to-Live (TTL).
-   *Resolution*: By deploying the Cloudflare Load Balancer with the Proxy feature enabled (`proxied = true`), clients only resolve DNS to Cloudflare’s stable Anycast IPs. The actual routing decision between the Primary Pool (Koyeb) and the Backup Pool (Fly.dev/Render) is made dynamically by Cloudflare’s Edge router upon request arrival. This bypasses client-side cache restrictions, reducing failover time from hours to seconds (limited only by the monitor interval and retry configuration).
-
-3. **Monitor Optimization**:
-   Cloudflare health checks probe the backend at regular intervals. A deep probe like `/api/v1/health/detailed` hits PostgreSQL, Redis, SMTP, and Groq APIs, which introduces significant load when queried by multiple Cloudflare Anycast edge locations.
-   *Resolution*: The lightweight `/healthz` endpoint (returning a raw HTTP `200 OK` and `{"status": "ok"}`) is chosen. This provides an efficient, low-overhead check that verifies the HTTP listener and ASGI event loop are running without overloading back-end resources.
-
-4. **Priority-Based Failover**:
-   Because the system is designed to run primarily on a fast, free-tier primary cloud node (Koyeb) and fall back to secondary free-tier runtimes (Fly.dev, Zeabur, or Render) only if the primary fails, we require an active-passive setup rather than active-active load sharing.
-   *Resolution*: Setting the Load Balancer `steering_policy = "off"` forces the Cloudflare Edge to strictly respect the ordering of pools in `default_pool_ids`. All traffic will route to the first healthy pool (Primary) and fail over to the next (Backup) only if the first is marked unhealthy.
+1. **Sub-2s Guarantee & Dual-Tier Scoring**:
+   - To achieve guaranteed sub-2s execution regardless of external LLM API availability or rate limits, the audit engine must execute a deterministic, multi-pillar n-gram & regex scoring engine in < 50ms.
+   - An in-memory SHA-256 L1 cache (`lru_cache` or thread-safe dict with TTL) allows instant (< 5ms) responses for repeated audits.
+   - Optional deep LLM enrichment can be dispatched asynchronously without blocking the user-facing response.
+2. **GCC Strategic Alignment (Vision 2030 & D33)**:
+   - Resumes targeting the GCC market are screened by regional recruiters for specific strategic criteria.
+   - **Saudi Vision 2030 Pillars**:
+     - *Pillar 1 (Vibrant Society & Localization)*: Saudization / Nitaqat compliance, Arabic/English bilingualism, local residency/labor market familiarity.
+     - *Pillar 2 (Thriving Economy & Giga-Projects)*: Megaprojects (NEOM, Red Sea Global, Qiddiya, Diriyah, Roshn, New Murabba, Soudah), AI/Data (SDAIA), Cloud regions (AWS/Azure/GCP KSA), FinTech (SAMA), Renewable Energy (Saudi Green Initiative, ACWA Power).
+     - *Pillar 3 (Ambitious Nation & Standards)*: Recognized certifications (PMP, SCE, SOCPA, CISSP, CIPD, CIPA) and quantifiable SAR impact metrics.
+   - **UAE D33 (Dubai Economic Agenda) Pillars**:
+     - *Pillar 1 (Doubling Economy & Global City)*: Foreign trade scaling, logistics, cross-border operations, Dubai Silk Road.
+     - *Pillar 2 (Digital Economy Hub)*: AI & Robotics Blueprint, Web3, FinTech Hive / VARA, Green Economy / Net Zero 2050.
+     - *Pillar 3 (Global Talent & Free Zones)*: Golden Visa readiness, multinational governance, Free Zone operations (DIFC, ADGM, DMCC, DIC).
+3. **Idempotent RTL Enforcement**:
+   - `rtl_enforcer.py` must use strict regex tokenization that checks if `dir="auto"` is already present anywhere in the tag (`(?![^>]*\bdir=)`).
+   - Must convert `text-align: left/right` to `text-align: start/end` and `float: left/right` to `float: inline-start/inline-end`.
+   - Must provide a `--check` flag so CI test suites can assert zero violations across all 200+ templates and CSS files.
 
 ---
 
 ## 3. Caveats
 
-1. **D1 Sync Coordination**:
-   This failover solution handles API routing. It assumes both primary and backup environments are connected to the same shared or replicated database (such as the Turso serverless SQLite database, as detailed in `deploy/DEPLOYMENT_GUIDE.md` step 1). If independent local databases are used in each region without replication, failover will result in split-brain data inconsistency.
-2. **Subscription Requirements**:
-   Cloudflare Load Balancing is a paid add-on on Cloudflare Free/Pro plans (starts at $5/month for 2 origins). If the project must strictly cost $0, this feature will require manual DNS failover scripts via the Cloudflare DNS API rather than declarative Terraform Load Balancers.
-3. **Session Cache Invalidation**:
-   If Redis or temporary session stores are region-locked and not replicated globally, client sessions will be terminated during a failover event, requiring users to log back in.
+- **External LLM Dependency**: Groq API keys may experience rate limits or network latency. The deterministic local NLP path in `core/gcc_vision_scorer.py` must be 100% standalone and capable of providing rich, accurate scores in < 50ms without external network requests.
+- **File Parsing**: When users upload binary PDF or DOCX files to the widget, lightweight text extraction (via `pypdf`, `pdfplumber`, or regex stream) must execute within 200ms to stay well below the 2000ms SLA limit.
+- **LTR Code Blocks**: Syntax-highlighted code editors, telemetry terminals, and crypto wallet addresses must retain explicit `dir="ltr"` / `text-align: left` where left-to-right is required by technical standards, without breaking RTL page ergonomics.
 
 ---
 
-## 4. Conclusion
+## 4. Conclusion & Concrete Implementation Strategy for Worker
 
-The Cloudflare health-check-based DNS failover solution (IMP-128) can be fully implemented using a declarative Terraform layout. 
-By utilizing `cloudflare_load_balancer`, `cloudflare_load_balancer_pool`, and `cloudflare_load_balancer_monitor` resources with the Edge Proxy enabled, the solution ensures zero-downtime routing with minimal failover latency (~60–120s depending on interval).
+The Worker should implement the solution across the following 5 concrete steps:
 
-We have authored and saved two proposed configuration files in the agent directory that can be moved to the workspace production paths when ready for implementation:
-- **Terraform Template**: `.agents/explorer_m4_3/proposed_dns_failover.tf`
-- **Operations & Operator Guide**: `.agents/explorer_m4_3/proposed_DNS_FAILOVER.md` (which includes the step-by-step verification checklist and emergency runbook).
+### Step 1: Create `core/gcc_vision_scorer.py`
+Implement a high-speed, deterministic GCC Vision 2030 & UAE D33 CV scoring engine with:
+- **Taxonomies**:
+  - `SAUDI_VISION_2030_TAXONOMY`: Keywords for Saudization, Giga-projects (NEOM, Red Sea, Diriyah, Qiddiya, Roshn, New Murabba), Government/Entities (SDAIA, SAMA, PIF, Monsha'at), Certifications (SCE, SOCPA, PMP, CISSP, CIPA), and Renewable/Industrial domains.
+  - `UAE_D33_TAXONOMY`: Keywords for D33, Dubai AI Blueprint, FinTech/VARA, DIFC/ADGM/DMCC, Golden Visa, Cross-Border Trade, Net Zero 2050.
+- **Scoring Logic**:
+  - `score_cv_instant(cv_text: str, target_role: str = "", market_focus: str = "all") -> Dict[str, Any]`
+  - Calculates: `overall_score`, `vision_2030_score`, `uae_d33_score`, `pillar_breakdown` (with 3 Vision 2030 sub-scores and 3 D33 sub-scores), `matched_gcc_keywords`, `missing_gcc_keywords`, `market_readiness_level`, `actionable_recommendations` (in Arabic and English).
+- **L1 In-Memory Fast-Hash Cache**:
+  - SHA-256 hashing of `(cv_text.strip(), target_role.strip(), market_focus)` with thread-safe eviction.
+  - Latency: < 5ms for cached audits, < 50ms for cold NLP scoring.
+
+### Step 2: Create Web Router `web/routers/ats_audit_widget.py`
+Implement the public API router:
+- `POST /api/v1/cv-audit/instant-score`:
+  - Accepts JSON payload (`cv_text`, `job_title`, `market_focus`, honeypot fields `website_url_hp`, `phone_confirm_hp`).
+  - Honeypot check: Rejects bots with 400 if honeypots are filled.
+  - Returns complete Vision 2030 + D33 audit breakdown and latency metadata (`execution_time_ms`).
+- `GET /api/v1/cv-audit/gcc-pillars`:
+  - Returns reference metadata of strategic GCC pillars.
+- Register router in `web/app_v2.py` and `backend/main.py`.
+
+### Step 3: Upgrade UI Widget `web/templates/components/instant_ats_widget.html`
+- Transform the widget from a static mock into a fully functional, reactive micro-interaction component.
+- Features:
+  - Floating badge with pulse glow in bottom-start/bottom-end.
+  - Modal with CV Textarea + File Upload (.pdf, .docx, .txt).
+  - Market selector: "رؤية السعودية 2030", "أجندة دبي D33", "سوق الخليج المشترك".
+  - Real-time animated circular progress meters for Overall Score, Vision 2030, and D33.
+  - Strengths list, Missing GCC Keywords badges, and 1-Click CTA to optimize CV.
+  - Zero-Trust honeypot inputs with `dir="auto"`.
+  - Include the widget in `web/templates/_public_shell.html` and `web/templates/index_v3.html`.
+
+### Step 4: Upgrade `rtl_enforcer.py` and Fix Template Violations
+- Refactor `rtl_enforcer.py` to support:
+  - Safe, non-duplicating `dir="auto"` insertion for `<input>`, `<textarea>`, `<select>`.
+  - Full CSS Logical Properties translation: `margin-left/right` -> `margin-inline-start/end`, `padding-left/right` -> `padding-inline-start/end`, `text-align: left/right` -> `text-align: start/end`, `float: left/right` -> `float: inline-start/inline-end`, `left/right:` -> `inset-inline-start/end:`.
+  - CLI modes: `--scan`, `--fix`, `--check`.
+  - UTF-8 safe stdout printing on Windows.
+- Run `python rtl_enforcer.py --fix` across `web/templates` and `web/static/css`.
+- Fix physical `text-align: left` instances in templates (`web/templates/pricing_v3.html`, `web/templates/en/battle_station.html`, etc.).
+
+### Step 5: Implement Test Suites
+Create comprehensive tests:
+- `tests/test_ats_cv_audit.py`:
+  - Verify Sub-2s SLA (latency < 2000ms, typical < 100ms).
+  - Verify Saudi Vision 2030 scoring with Giga-project keywords and Saudization.
+  - Verify UAE D33 scoring with Free Zones and Digital Economy keywords.
+  - Verify SHA-256 L1 cache hits and performance (< 15ms).
+  - Verify honeypot bot trap rejection.
+- `tests/test_rtl_compliance.py`:
+  - Run `rtl_enforcer.py --check` and assert zero physical property violations.
+  - Verify all form inputs have `dir="auto"`.
+  - Verify Arabic font stack (`Cairo`, `IBM Plex Arabic`, `Tajawal`) and line-height.
 
 ---
 
 ## 5. Verification Method
 
-To verify the proposed design files:
-1. Inspect the Terraform template at `.agents/explorer_m4_3/proposed_dns_failover.tf` and verify that the resources (`cloudflare_load_balancer_monitor`, `cloudflare_load_balancer_pool`, `cloudflare_load_balancer`) use standard Cloudflare Provider v4 syntax and variables.
-2. Inspect the operator guide at `.agents/explorer_m4_3/proposed_DNS_FAILOVER.md` to ensure it matches the infrastructure architecture of the codebase and provides a detailed manual verification checklist.
-3. To validate that the template contains no syntax issues, run:
-   ```powershell
-   terraform -chdir="C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m4_3" fmt -check
-   ```
-   (Alternatively, check the code structure manually).
+Independent verification can be executed via the following concrete commands:
+
+```bash
+# 1. Run the ATS CV Audit & Sub-2s Latency Benchmark Suite
+.venv\Scripts\activate
+pytest tests/test_ats_cv_audit.py -v -s
+
+# 2. Run the RTL & CSS Logical Properties Compliance Suite
+pytest tests/test_rtl_compliance.py -v -s
+
+# 3. Verify rtl_enforcer CLI directly in check mode
+python rtl_enforcer.py --check
+
+# 4. Run the entire test suite to ensure zero regressions
+pytest
+```

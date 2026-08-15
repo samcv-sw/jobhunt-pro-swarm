@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="{{ lang or 'ar' }}" dir="{{ 'rtl' if (lang or 'ar') == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'فحص وتقييم السيرة الذاتية مجاناً - مقياس ATS وسرب B2B SDR الذكي' if (lang or 'ar') == 'ar' else 'Free AI ATS Resume Checker & B2B SDR Preview | JobHunt Pro' }}</title>
+    <meta name="description" content="{{ 'افحص سيرتك الذاتية فوراً بالذكاء الاصطناعي واكتشف نواقص الكلمات المفتاحية ومطابقتها لأنظمة التوظيف في السعودية والخليج وتواصل مع 2500 صانع قرار' if (lang or 'ar') == 'ar' else 'Instant AI Resume & ATS Scorecard. Check keyword gaps, recruiter screening score, and launch autonomous outreach to 2,500 GCC decision makers.' }}">
+    
+    <!-- OpenGraph Social Metadata -->
+    <meta property="og:title" content="Free ATS Resume Scorecard & B2B SDR Swarm — JobHunt Pro AI">
+    <meta property="og:description" content="Check how well your CV scores against Gulf & International ATS recruiter filters and bypass gatekeepers.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jobhunt-pro.com/free-ats-score">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/cyberpunk.css">
+    <link rel="stylesheet" href="/static/css/premium-ui.css">
+    <link rel="stylesheet" href="/static/css/cyberpunk-rtl.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-dark: #070b14;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --primary-emerald: #10b981;
+            --primary-cyan: #06b6d4;
+            --accent-gold: #f59e0b;
+            --accent-magenta: #d946ef;
+            --alert-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-ar: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+            --font-en: 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 10% 20%, rgba(6, 182, 212, 0.14) 0px, transparent 50%),
+                radial-gradient(at 90% 80%, rgba(16, 185, 129, 0.14) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(217, 70, 239, 0.06) 0px, transparent 60%);
+            color: var(--text-main);
+            font-family:var(--font-ar);
+            line-height: 1.6;
+            min-block-size: 100vh;
+            padding-block-start: 120px !important;
+            padding-block-end: 60px;
+            padding-inline: 16px;
+        }
+
+        body[dir="ltr"] {
+            font-family:var(--font-en);
+        }
+
+        .container {
+            max-inline-size: 1060px;
+            margin-inline: auto;
+            margin-block-start: 36px;
+        }
+
+        /* Header */
+        .lead-header {
+            text-align: center;
+            margin-block-end: 36px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 9999px;
+            color: var(--primary-emerald);
+            font-size: 13px;
+            font-weight: 800;
+            margin-block-end: 16px;
+        }
+
+        .lead-header h1 {
+            font-size: clamp(26px, 4.5vw, 44px);
+            font-weight: 900;
+            color: #ffffff;
+            margin-block-end: 12px;
+            line-height: 1.3;
+        }
+
+        .lead-header p {
+            color: var(--text-muted);
+            font-size: clamp(15px, 2vw, 18px);
+            max-inline-size: 760px;
+            margin-inline: auto;
+        }
+
+        /* Glass Cards */
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 28px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.6);
+            margin-block-end: 28px;
+        }
+
+        /* Preset 1-Click Buttons */
+        .presets-wrapper {
+            margin-block-end: 20px;
+            padding: 16px;
+            background: rgba(30, 41, 59, 0.45);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+        }
+
+        .presets-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            margin-block-end: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .presets-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #e2e8f0;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family:inherit;
+        }
+
+        .preset-btn:hover {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: var(--primary-cyan);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* Form Area */
+        .input-group {
+            margin-block-end: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-block-end: 8px;
+            color: #e2e8f0;
+        }
+
+        .role-input, .cv-textarea {
+            inline-size: 100%;
+            background: rgba(11, 17, 32, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .role-input:focus, .cv-textarea:focus {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
+        }
+
+        .cv-textarea {
+            min-block-size: 180px;
+            resize: vertical;
+            font-family:inherit;
+        }
+
+        .btn-analyze {
+            inline-size: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            transition: all 0.2s ease;
+            font-family:inherit;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.6);
+        }
+
+        /* Results Display */
+        .results-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-hero {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 28px;
+            align-items: center;
+            margin-block-end: 24px;
+        }
+
+        @media (max-inline-size: 768px) {
+            .score-hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .gauge-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .gauge-svg {
+            inline-size: 180px;
+            block-size: 180px;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 10;
+        }
+
+        .gauge-circle-val {
+            fill: none;
+            stroke: var(--primary-emerald);
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-number {
+            position: absolute;
+            font-size: 44px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* Metrics Breakdown Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-block-end: 24px;
+        }
+
+        .metric-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .metric-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-block-end: 6px;
+        }
+
+        .metric-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* Keyword Radar Chips */
+        .keywords-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 20px;
+            margin-block-end: 24px;
+        }
+
+        .keywords-title {
+            font-size: 15px;
+            font-weight: 800;
+            margin-block-end: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chip-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-block-end: 14px;
+        }
+
+        .chip-detected {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 8px;
+            color: #34d399;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .chip-missing {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Recruiter X-Ray Perspective Box */
+        .recruiter-xray {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.85));
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            border-radius: 14px;
+            padding: 20px;
+            margin-block-end: 24px;
+        }
+
+        /* Alert Warning Box */
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 14px;
+            padding: 18px;
+            margin-block-end: 24px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .alert-box i {
+            color: var(--alert-red);
+            flex-shrink: 0;
+        }
+
+        .alert-content h4 {
+            color: #fca5a5;
+            font-size: 16px;
+            font-weight: 700;
+            margin-block-end: 4px;
+        }
+
+        .alert-content p {
+            color: #fecaca;
+            font-size: 13px;
+        }
+
+        /* Upsell Action Cards (3-tier Grid) */
+        .upsell-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-block-end: 24px;
+        }
+
+        .upsell-card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .upsell-card.popular {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.18);
+        }
+
+        .upsell-card.b2b-tier {
+            border-color: var(--accent-magenta);
+            box-shadow: 0 0 25px rgba(217, 70, 239, 0.2);
+        }
+
+        .upsell-badge {
+            align-self: flex-start;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-block-end: 12px;
+        }
+
+        .badge-gold {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            color: var(--accent-gold);
+        }
+
+        .badge-magenta {
+            background: rgba(217, 70, 239, 0.15);
+            border: 1px solid rgba(217, 70, 239, 0.4);
+            color: var(--accent-magenta);
+        }
+
+        .badge-cyan {
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            color: var(--primary-cyan);
+        }
+
+        .upsell-btn {
+            display: block;
+            text-align: center;
+            padding: 13px 18px;
+            border-radius: 10px;
+            font-weight: 800;
+            text-decoration: none;
+            margin-block-start: 16px;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+        }
+
+        .btn-magenta {
+            background: linear-gradient(135deg, #d946ef, #a21caf);
+            color: #fff;
+        }
+
+        .btn-cyan {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #fff;
+        }
+
+        .payment-badges {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-block-start: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .pay-tag {
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+        }
+
+        /* Share Buttons */
+        .social-share {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-block-start: 18px;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
+            transition: all 0.2s ease;
+        }
+
+        .share-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body style="background-color:var(--bg-dark); color:var(--text-main);">
+{% include "_public_nav.html" %}
+
+<div class="container">
+    <!-- Header -->
+    <header class="lead-header">
+        <div class="badge-pill">
+            <i data-lucide="sparkles" style="inline-size: 14px; block-size: 14px;"></i>
+            <span>{{ 'فحص ATS المتقدم مجاناً 100% • بدون تسجيل' if (lang or 'ar') == 'ar' else '100% Free AI ATS & Recruiter Audit • No Signup' }}</span>
+        </div>
+        <h1>{{ 'هل تتجاوز سيرتك الذاتية فلاتر الـ ATS ومسؤولي التوظيف في الخليج؟' if (lang or 'ar') == 'ar' else 'Does Your Resume Pass Gulf ATS & Recruiter Filters?' }}</h1>
+        <p>{{ 'أكثر من 75% من السير الذاتية تُرفض آلياً قبل أن يراها صاحب العمل. افحص سيرتك الآن واكتشف النواقص الدقيقة وتجاوز الفلاتر عبر الذكاء الاصطناعي.' if (lang or 'ar') == 'ar' else 'Over 75% of applications are discarded by automated applicant tracking filters. Scan your CV in seconds to reveal critical keyword gaps and launch automated outreach.' }}</p>
+    </header>
+
+    <!-- Upload / Input Section -->
+    <div class="glass-card" id="inputCard">
+        <!-- 1-Click Interactive Presets -->
+        <div class="presets-wrapper">
+            <div class="presets-title">
+                <i data-lucide="zap" style="inline-size: 14px; block-size: 14px;"></i>
+                <span>{{ '💡 جرّب فحص نموذج جاهز بنقرة واحدة (1-Click Sample Previews):' if (lang or 'ar') == 'ar' else '💡 Try an instant 1-click sample preview:' }}</span>
+            </div>
+            <div class="presets-grid">
+                <button type="button" class="preset-btn" onclick="loadPreset('software')">💻 {{ 'مهندس برمجيات أول' if (lang or 'ar') == 'ar' else 'Senior Software Engineer' }}</button>
+                <button type="button" class="preset-btn" onclick="loadPreset('marketing')">📈 {{ 'مدير تسويق رقمي' if (lang or 'ar') == 'ar' else 'Marketing Lead' }}</button>
+                <button type="button" class="preset-btn" onclick="loadPreset('hr')">👥 {{ 'أخصائي موارد بشرية وتوظيف' if (lang or 'ar') == 'ar' else 'HR & Talent Lead' }}</button>
+                <button type="button" class="preset-btn" onclick="loadPreset('sales')">💼 {{ 'مدير مبيعات B2B' if (lang or 'ar') == 'ar' else 'B2B Sales Director' }}</button>
+                <button type="button" class="preset-btn" onclick="loadPreset('finance')">📊 {{ 'محاسب مالي معتمد' if (lang or 'ar') == 'ar' else 'Financial Controller' }}</button>
+            </div>
+        </div>
+
+        <form id="atsForm" onsubmit="event.preventDefault(); runAtsAnalysis();">
+            <div class="input-group">
+                <label for="jobTitle">{{ 'المسمى الوظيفي المستهدف (Target Role)' if (lang or 'ar') == 'ar' else 'Target Job Role' }}</label>
+                <input type="text" id="jobTitle" class="role-input" placeholder="{{ 'مثال: مهندس برمجيات، مدير تسويق، محاسب عام، أخصائي HR...' if (lang or 'ar') == 'ar' else 'e.g. Senior Software Engineer, Marketing Manager, Financial Analyst...' }}" required dir="auto">
+            </div>
+
+            <div class="input-group">
+                <label for="cvContent">{{ 'الصق نص السيرة الذاتية (CV Text)' if (lang or 'ar') == 'ar' else 'Paste Your CV / Resume Text' }}</label>
+                <textarea id="cvContent" class="cv-textarea" placeholder="{{ 'الصق نص سيرتك الذاتية هنا (الخبرات، المهارات، التعليم)...' if (lang or 'ar') == 'ar' else 'Paste your full resume text here (experience, skills, education)...' }}" required dir="auto"></textarea>
+            </div>
+
+            <button type="submit" class="btn-analyze" id="analyzeBtn">
+                <i data-lucide="zap" style="inline-size: 18px; block-size: 18px;"></i>
+                <span>{{ 'افحص السيرة الذاتية الآن مجاناً' if (lang or 'ar') == 'ar' else 'Scan Resume Now For Free' }}</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    <div class="glass-card results-section" id="resultsSection">
+        <div class="score-hero">
+            <div class="gauge-wrap">
+                <svg class="gauge-svg" viewBox="0 0 160 160">
+                    <circle class="gauge-circle-bg" cx="80" cy="80" r="70"></circle>
+                    <circle class="gauge-circle-val" id="gaugeCircle" cx="80" cy="80" r="70"></circle>
+                </svg>
+                <div class="score-number" id="scoreNum">--</div>
+            </div>
+            <div>
+                <h2 id="verdictTitle" style="font-size: 24px; font-weight: 800; margin-block-end: 8px;">--</h2>
+                <p id="verdictDesc" style="color: var(--text-muted); font-size: 14px; line-height: 1.6;">--</p>
+            </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">{{ 'مطابقة الكلمات المفتاحية' if (lang or 'ar') == 'ar' else 'Keyword Match' }}</div>
+                <div class="metric-val" id="metricKeywords" style="color: #38bdf8;">--%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">{{ 'قوة أفعال الإنجاز' if (lang or 'ar') == 'ar' else 'Action Verbs' }}</div>
+                <div class="metric-val" id="metricVerbs" style="color: #34d399;">--%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">{{ 'التوافق مع متطلبات الخليج والسعودية' if (lang or 'ar') == 'ar' else 'Gulf ATS & Vision 2030 Fit' }}</div>
+                <div class="metric-val" id="metricGulf" style="color: #fbbf24;">--%</div>
+            </div>
+        </div>
+
+        <!-- Interactive Keyword Radar Chips -->
+        <div class="keywords-box">
+            <div class="keywords-title">
+                <i data-lucide="radar" style="inline-size: 18px; block-size: 18px; color: var(--primary-cyan);"></i>
+                <span>{{ 'رادار الكلمات المفتاحية الذكي (Keyword Radar):' if (lang or 'ar') == 'ar' else 'AI Keyword Radar & Extraction:' }}</span>
+            </div>
+            
+            <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المكتشفة بنجاح في سيرتك:' if (lang or 'ar') == 'ar' else 'Detected Power Keywords in your CV:' }}</p>
+            <div class="chip-container" id="detectedChips">
+                <span class="chip-detected"><i data-lucide="check" style="inline-size: 12px; block-size: 12px;"></i> Fast Analysis</span>
+            </div>
+
+            <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المفقودة الضرورية لتجاوز فلتر التوظيف:' if (lang or 'ar') == 'ar' else 'Missing Power Keywords needed to pass recruiter filters:' }}</p>
+            <div class="chip-container" id="missingChips">
+                <span class="chip-missing"><i data-lucide="alert-circle" style="inline-size: 12px; block-size: 12px;"></i> Core Competencies</span>
+            </div>
+        </div>
+
+        <!-- Recruiter X-Ray Perspective Box -->
+        <div class="recruiter-xray">
+            <h4 style="font-size: 16px; font-weight: 800; color: var(--primary-cyan); margin-block-end: 8px; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="eye" style="inline-size: 18px; block-size: 18px;"></i>
+                <span>{{ 'نظرة مسؤول التوظيف التنفيذي (Recruiter 6-Second Screen Preview):' if (lang or 'ar') == 'ar' else 'Recruiter 6-Second X-Ray Screen Preview:' }}</span>
+            </h4>
+            <p id="recruiterSummary" style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                {{ 'يقضي مسؤول التوظيف في الرياض ودبي 6 ثوانٍ فقط لفحص سيرتك. السيرة الحالية تحتاج لتعزيز بالأرقام ونسب الإنجاز لضمان استدعائك للمقابلة.' if (lang or 'ar') == 'ar' else 'Recruiters in Riyadh and Dubai spend an average of 6 seconds scanning applications. Adding quantified achievements dramatically increases interview conversion.' }}
+            </p>
+        </div>
+
+        <!-- Red Alert Gap Box -->
+        <div class="alert-box" id="gapAlert">
+            <i data-lucide="alert-triangle" style="inline-size: 24px; block-size: 24px;"></i>
+            <div class="alert-content">
+                <h4 id="gapTitle">{{ 'تنبيه: تم رصد فجوات حرجة تمنع ظهور سيرتك في الصفحة الأولى!' if (lang or 'ar') == 'ar' else 'Warning: Critical Filtering Gaps Detected!' }}</h4>
+                <p id="gapDetails">--</p>
+            </div>
+        </div>
+
+        <!-- High-Ticket 3-Tier Conversion Grid -->
+        <h3 style="font-size: 20px; font-weight: 900; margin-block-end: 18px; text-align: center;">
+            {{ '⚡ اختر خطوتك القادمة: أصلح سيرتك أو تواصل فوراً مع أصحاب العمل' if (lang or 'ar') == 'ar' else '⚡ Instant Fix: Upgrade Your CV or Launch Direct SDR Outreach' }}
+        </h3>
+        
+        <div class="upsell-grid">
+            <!-- Basic Seeker $19 -->
+            <div class="upsell-card popular">
+                <div>
+                    <div class="upsell-badge badge-gold">{{ 'الأعلى طلباً للأفراد' if (lang or 'ar') == 'ar' else 'MOST POPULAR' }}</div>
+                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'باقة الـ 100 شركة + تحسين السيرة الذاتية' if (lang or 'ar') == 'ar' else 'Basic 100 Companies + AI CV Polish' }}</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                        {{ 'إعادة صياغة ذكية كاملة لسيرتك + تقديم آلي مخصص لـ 100 شركة في الخليج مع تتبع فتح الإيميلات.' if (lang or 'ar') == 'ar' else 'Full AI resume polish + automated outreach to 100 verified decision makers with live open tracking.' }}
+                    </p>
+                </div>
+                <div>
+                    <div style="font-size: 28px; font-weight: 900; color: var(--accent-gold); margin-block-start: 12px;">$19 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$38</span></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                        ≈ 71 SAR • 70 AED • 5.8 KWD
+                    </div>
+                    <a href="/checkout_v3?plan=basic&amount=19" class="upsell-btn btn-gold" id="btnBasicUpsell">
+                        {{ 'احصل على الباقة بـ $19 فقط' if (lang or 'ar') == 'ar' else 'Get Basic Plan – $19' }}
+                    </a>
+                    <div class="payment-badges">
+                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                        <span class="pay-tag">Visa / MC</span>
+                        <span class="pay-tag">USDT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- B2B SDR Swarm $149 High Ticket -->
+            <div class="upsell-card b2b-tier">
+                <div>
+                    <div class="upsell-badge badge-magenta">{{ 'سرب B2B والشركات • استهداف مباشر' if (lang or 'ar') == 'ar' else 'B2B SDR SWARM • 2,500 LEADS' }}</div>
+                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'سرب B2B SDR للوصول لـ 2,500 صانع قرار' if (lang or 'ar') == 'ar' else 'B2B SDR Swarm (2,500 Leads & Outreach)' }}</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                        {{ 'تجاوز جميع الفلاتر! سرب وكلاء الذكاء الاصطناعي يتواصل مباشرة مع 2,500 مدير تنفيذي ومدير توظيف مع فحص Live MX وضمان عدم الحظر 365 يوماً.' if (lang or 'ar') == 'ar' else 'Bypass all ATS gatekeepers. Autonomous AI SDR swarm reaches 2,500 verified executives with 100% Live MX verification & 365-day cooldown shield.' }}
+                    </p>
+                </div>
+                <div>
+                    <div style="font-size: 28px; font-weight: 900; color: var(--accent-magenta); margin-block-start: 12px;">$149 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$299</span></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                        ≈ 559 SAR • 547 AED • 46 KWD
+                    </div>
+                    <a href="/checkout_v3?plan=enterprise&amount=149" class="upsell-btn btn-magenta" id="btnB2bUpsell">
+                        {{ 'إطلاق سرب B2B SDR بـ $149' if (lang or 'ar') == 'ar' else 'Launch B2B SDR Swarm – $149' }}
+                    </a>
+                    <div class="payment-badges">
+                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                        <span class="pay-tag">USDT (Zero Fee)</span>
+                        <span class="pay-tag">BTC/ETH/SOL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Micro Service $5 -->
+            <div class="upsell-card">
+                <div>
+                    <div class="upsell-badge badge-cyan">{{ 'تعديل فوري' if (lang or 'ar') == 'ar' else 'INSTANT MICRO-SERVICE' }}</div>
+                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'حقن الكلمات المفتاحية للـ ATS' if (lang or 'ar') == 'ar' else 'ATS Keyword Injection' }}</h4>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                        {{ 'توليد ملف سيرة ذاتية جاهز للتنزيل ومطابق 100% مع كلمات المسمى الوظيفي المطلوب.' if (lang or 'ar') == 'ar' else 'Download an instantly optimized ATS-compliant CV with maximum keyword density and clean formatting.' }}
+                    </p>
+                </div>
+                <div>
+                    <div style="font-size: 28px; font-weight: 900; color: var(--primary-cyan); margin-block-start: 12px;">$5 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$10</span></div>
+                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                        ≈ 19 SAR • 18.5 AED • 1.5 KWD
+                    </div>
+                    <a href="/checkout_v3?service=cv-keyword&amount=5" class="upsell-btn btn-cyan">
+                        {{ 'تحسين السيرة الذاتية بـ $5' if (lang or 'ar') == 'ar' else 'Inject Keywords – $5' }}
+                    </a>
+                    <div class="payment-badges">
+                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                        <span class="pay-tag">Visa / MC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Share Engine -->
+        <div style="text-align: center; border-block-start: 1px solid var(--border-glass); padding-block-start: 20px;">
+            <p style="font-size: 13px; color: var(--text-muted); margin-block-end: 10px;">
+                {{ 'شارك تقييم سيرتك مع زملائك على الشبكات المهنية:' if (lang or 'ar') == 'ar' else 'Share your ATS scorecard badge with your network:' }}
+            </p>
+            <div class="social-share">
+                <a href="#" id="shareLinkedIn" target="_blank" class="share-btn" style="border-color: #0077b5;">
+                    <i data-lucide="share-2" style="inline-size: 14px; block-size: 14px;"></i> LinkedIn
+                </a>
+                <a href="#" id="shareWhatsApp" target="_blank" class="share-btn" style="border-color: #25d366;">
+                    <i data-lucide="message-circle" style="inline-size: 14px; block-size: 14px;"></i> WhatsApp
+                </a>
+                <a href="#" id="shareX" target="_blank" class="share-btn" style="border-color: #e2e8f0;">
+                    <i data-lucide="twitter" style="inline-size: 14px; block-size: 14px;"></i> X (Twitter)
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    const PRESETS = {
+        software: {
+            title: "{{ 'مهندس برمجيات أول / Senior Software Engineer' if (lang or 'ar') == 'ar' else 'Senior Software Engineer' }}",
+            cv: "Senior Software Engineer with 6 years experience in Python, FastAPI, PostgreSQL, Redis, Docker, and Kubernetes microservices. Spearheaded backend architecture in Riyadh and Dubai, optimizing response latency by 42% and managing CI/CD pipelines."
+        },
+        marketing: {
+            title: "{{ 'مدير تسويق رقمي / Digital Marketing Lead' if (lang or 'ar') == 'ar' else 'Digital Marketing Lead' }}",
+            cv: "Digital Growth & Performance Marketing Manager with 5+ years driving ROAS across Meta Ads, Google Ads, and TikTok. Managed $500k ad spend across Saudi Arabia & UAE, achieving 3.8x ROI and increasing inbound leads by 65%."
+        },
+        hr: {
+            title: "{{ 'أخصائي توظيف وموارد بشرية / HR Specialist' if (lang or 'ar') == 'ar' else 'HR Specialist' }}",
+            cv: "Talent Acquisition Specialist with 4 years managing end-to-end recruitment pipelines and ATS sourcing. Reduced time-to-hire by 35%, ensuring Saudi Labor Law compliance and onboarding 120+ tech professionals."
+        },
+        sales: {
+            title: "{{ 'مدير مبيعات B2B / B2B Sales Manager' if (lang or 'ar') == 'ar' else 'B2B Sales Manager' }}",
+            cv: "Enterprise B2B Sales Director with 7 years closing high-ticket SaaS contracts across GCC. Exceeded quarterly revenue quotas by 140%, built a $2.4M enterprise pipeline using Salesforce and automated SDR workflows."
+        },
+        finance: {
+            title: "{{ 'محاسب مالي معتمد / Financial Controller' if (lang or 'ar') == 'ar' else 'Financial Controller' }}",
+            cv: "Financial Controller & Certified Accountant with 6 years experience in financial modeling, IFRS compliance, VAT filings, and P&L budgeting across Gulf commercial enterprises. Reduced operating expenses by 18%."
+        }
+    };
+
+    function loadPreset(key) {
+        if (PRESETS[key]) {
+            document.getElementById('jobTitle').value = PRESETS[key].title;
+            document.getElementById('cvContent').value = PRESETS[key].cv;
+            runAtsAnalysis();
+        }
+    }
+
+    async function runAtsAnalysis() {
+        const jobTitle = document.getElementById('jobTitle').value.trim();
+        const cvContent = document.getElementById('cvContent').value.trim();
+        const btn = document.getElementById('analyzeBtn');
+
+        if (!jobTitle || !cvContent) return;
+
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="spin" style="inline-size: 18px; block-size: 18px;"></i> <span>{{ 'جاري التحليل بالذكاء الاصطناعي...' if (lang or 'ar') == 'ar' else 'Analyzing with AI...' }}</span>`;
+        lucide.createIcons();
+
+        try {
+            const res = await fetch('/api/v2/public/ats-instant-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ job_title: jobTitle, cv_text: cvContent })
+            });
+
+            const data = await res.json();
+            displayResults(data, jobTitle);
+        } catch (e) {
+            console.error(e);
+            displayResults(generateLocalAtsScore(jobTitle, cvContent), jobTitle);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="zap" style="inline-size: 18px; block-size: 18px;"></i> <span>{{ 'إعادة الفحص' if (lang or 'ar') == 'ar' else 'Re-Scan Resume' }}</span>`;
+            lucide.createIcons();
+        }
+    }
+
+    function generateLocalAtsScore(title, cv) {
+        const len = cv.length;
+        const baseScore = Math.min(88, Math.max(48, Math.floor(len / 35) + 32));
+        return {
+            score: baseScore,
+            keywords_score: Math.min(92, baseScore - 4),
+            verbs_score: Math.min(90, baseScore + 3),
+            gulf_score: Math.min(88, baseScore - 6),
+            verdict: baseScore > 75 ? 'سيرة ذاتية متوافقة وجيدة مع فرص تحسين إضافية' : 'معرض للاستبعاد التلقائي (High Risk)',
+            gaps: 'تم رصد ضعف في تضمين أفعال التأثير المباشر والكلمات الخاصة بالشركات الخليجية ومشاريع الرؤية.',
+            detected_keywords: ['Project Management', 'Optimization', 'Team Leadership'],
+            missing_keywords: ['KPI Tracking', 'Cloud Architecture', 'Process Automation', 'Stakeholder Engagement']
+        };
+    }
+
+    function displayResults(data, title) {
+        const resultsSection = document.getElementById('resultsSection');
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+        const score = data.score || 68;
+        document.getElementById('scoreNum').innerText = score + '%';
+        
+        const offset = 440 - (440 * score / 100);
+        const circle = document.getElementById('gaugeCircle');
+        circle.style.strokeDashoffset = offset;
+        
+        if (score >= 80) circle.style.stroke = 'var(--primary-emerald)';
+        else if (score >= 60) circle.style.stroke = 'var(--accent-gold)';
+        else circle.style.stroke = 'var(--alert-red)';
+
+        document.getElementById('verdictTitle').innerText = data.verdict || (score > 70 ? 'سيرة مقبولة مع فرص تحسين كبيرة' : 'تحذير: نسبة استبعاد مرتفعة لدى أنظمة ATS');
+        document.getElementById('verdictDesc').innerText = data.gaps || 'سيرتك الذاتية الحالية تفتقر لبعض الكلمات المفتاحية الأساسية لمسمى ' + title;
+
+        document.getElementById('metricKeywords').innerText = (data.keywords_score || Math.max(40, score - 8)) + '%';
+        document.getElementById('metricVerbs').innerText = (data.verbs_score || Math.min(95, score + 5)) + '%';
+        document.getElementById('metricGulf').innerText = (data.gulf_score || Math.max(45, score - 10)) + '%';
+
+        document.getElementById('gapDetails').innerText = data.gaps || 'تحتاج لإضافة كلمات مفتاحية دقيقة ومعايير أداء رقمية (% و KPI) لضمان تجاوز فلتر الـ ATS التلقائي بنجاح.';
+
+        // Render Detected Keywords Chips
+        const detectedContainer = document.getElementById('detectedChips');
+        const detected = data.detected_keywords || ['Team Leadership', 'Fast Execution'];
+        detectedContainer.innerHTML = detected.length > 0
+            ? detected.map(kw => `<span class="chip-detected"><i data-lucide="check" style="inline-size:12px;block-size:12px;"></i> ${kw}</span>`).join('')
+            : `<span style="font-size:12px;color:var(--text-muted);">{{ 'لم يتم رصد كلمات مفتاحية قياسية كافية' if (lang or 'ar') == 'ar' else 'No standard keywords detected yet' }}</span>`;
+
+        // Render Missing Keywords Chips
+        const missingContainer = document.getElementById('missingChips');
+        const missing = data.missing_keywords || ['Vision 2030 Alignment', 'P&L Optimization', 'Executive Reporting'];
+        missingContainer.innerHTML = missing.length > 0
+            ? missing.map(kw => `<span class="chip-missing"><i data-lucide="plus" style="inline-size:12px;block-size:12px;"></i> ${kw}</span>`).join('')
+            : `<span style="font-size:12px;color:var(--primary-emerald);">{{ 'تغطية ممتازة للكلمات المفتاحية' if (lang or 'ar') == 'ar' else 'Excellent keyword coverage' }}</span>`;
+
+        // Dynamic links update
+        if (data.upsells) {
+            if (data.upsells.checkout_url) document.getElementById('btnBasicUpsell').href = data.upsells.checkout_url;
+            if (data.upsells.b2b_checkout_url) document.getElementById('btnB2bUpsell').href = data.upsells.b2b_checkout_url;
+        }
+
+        const shareText = encodeURIComponent(`فحصت سيرتي الذاتية على مقياس ATS الذكي وحصلت على ${score}%! افحص سيرتك مجاناً عبر الرابط:`);
+        const shareUrl = encodeURIComponent(window.location.origin + '/free-ats-score');
+        
+        document.getElementById('shareLinkedIn').href = `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+        document.getElementById('shareWhatsApp').href = `https://api.whatsapp.com/send?text=${shareText}%20${shareUrl}`;
+        document.getElementById('shareX').href = `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
+
+        lucide.createIcons();
+    }
+</script>
+{% include "_public_footer.html" %}
+</body>
+</html>

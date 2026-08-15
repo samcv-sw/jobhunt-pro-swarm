@@ -211,7 +211,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم المخصص *</label>
-                    <select id="offerCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                    <select id="offerCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto">
                         <option value="ai" {{ 'selected' if selected_cat == 'ai' }}>🤖 خدمات واشتراكات الذكاء الاصطناعي (AI Deals)</option>
                         <option value="software" {{ 'selected' if selected_cat == 'software' }}>🔑 مفاتيح وتراخيص البرامج الأصلي (Software Keys)</option>
                         <option value="promos" {{ 'selected' if selected_cat == 'promos' }}>🎁 عروض وكوبونات المواقع الشريكة (Promos)</option>
@@ -971,7 +971,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1.5">المنصة / الخدمة المطلوبة</label>
-                        <select id="otpTargetService" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-cyan-400 focus:outline-none">
+                        <select id="otpTargetService" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-cyan-400 focus:outline-none" dir="auto">
                             <option value="openai">🤖 OpenAI & ChatGPT (GPT-5.5 / Sora)</option>
                             <option value="claude">🎭 Anthropic Claude Pro</option>
                             <option value="telegram">📲 Telegram (تليجرام بريميوم)</option>
@@ -1082,7 +1082,7 @@
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <div class="relative flex-1">
                     <input type="text" id="domainSearchInput" placeholder="أدخل اسم النطاق المطلوب (مثال: my-ai-app)..." class="w-full ps-4 pe-24 py-3 rounded-xl bg-slate-900 border border-white/10 text-white font-mono text-xs focus:border-amber-400 focus:outline-none" dir="ltr" dir="auto">
-                    <select id="domainSearchTldSelect" class="absolute inset-y-1 end-1.5 my-auto px-2 py-1 rounded-lg bg-slate-950 border border-white/10 text-amber-300 font-mono text-xs font-bold focus:outline-none">
+                    <select id="domainSearchTldSelect" class="absolute inset-y-1 end-1.5 my-auto px-2 py-1 rounded-lg bg-slate-950 border border-white/10 text-amber-300 font-mono text-xs font-bold focus:outline-none" dir="auto">
                         <option value=".com">.com</option>
                         <option value=".ai">.ai</option>
                         <option value=".io">.io</option>
@@ -1433,7 +1433,7 @@
                         <label for="type_select_{{ offer.id }}" class="text-[11px] text-slate-300 font-bold flex items-center gap-1">
                             <span>📦 اختر نوع الحساب / طريقة التفعيل:</span>
                         </label>
-                        <select id="type_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-200 font-sans text-xs focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 cursor-pointer transition-all">
+                        <select id="type_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-200 font-sans text-xs focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 cursor-pointer transition-all" dir="auto">
                             {% if offer.account_types %}
                                 {% for acc_type in offer.account_types %}
                                 <option value="{{ acc_type.id }}" data-price="{{ acc_type.price }}" data-supplier="{{ acc_type.supplier_name }}" data-supplier-url="{{ acc_type.supplier_url }}" {% if loop.first %}selected{% endif %}>
@@ -1462,7 +1462,7 @@
                                 ${{ "%.2f"|format(offer.price) }}
                             </span>
                         </div>
-                        <select id="duration_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-pink-500/40 text-white font-mono text-xs focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/20 cursor-pointer transition-all">
+                        <select id="duration_select_{{ offer.id }}" onchange="updateOfferPriceDisplay('{{ offer.id }}', {{ offer.price }})" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-pink-500/40 text-white font-mono text-xs focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-500/20 cursor-pointer transition-all" dir="auto">
                             <option value="7_days">⚡ تجربة 7 أيام (${{ "%.2f"|format(offer.price * 0.4) }})</option>
                             <option value="14_days">⚡ تجربة 14 يوماً (${{ "%.2f"|format(offer.price * 0.65) }})</option>
                             <option value="1_month" selected>🚀 شهر كامل - 1 Month (${{ "%.2f"|format(offer.price) }})</option>
@@ -1527,7 +1527,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-300 mb-1.5">القسم المخصص *</label>
-                        <select id="editOfferCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                        <select id="editOfferCategory" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto">
                             <option value="ai">🤖 خدمات واشتراكات الذكاء الاصطناعي (AI Deals)</option>
                             <option value="software">🔑 مفاتيح وتراخيص البرامج الأصلي (Software Keys)</option>
                             <option value="promos">🎁 عروض وكوبونات المواقع الشريكة (Promos)</option>
@@ -2828,7 +2828,7 @@ async function topupWalletDemo() {
 
             <div>
                 <label class="block text-xs font-bold text-slate-300 mb-2">2. ما هي ميزانيتك الشهرية المستهدفة؟</label>
-                <select id="wizardBudgetSelect" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none">
+                <select id="wizardBudgetSelect" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white text-xs focus:border-pink-500 focus:outline-none" dir="auto">
                     <option value="under_10">أقل من $10 شهرياً (اقتصادي)</option>
                     <option value="under_15" selected>بين $10 و $15 شهرياً (متوازن)</option>
                     <option value="unlimited">بدون حد أقصى (أعلى أداء VIP)</option>

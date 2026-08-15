@@ -13,14 +13,14 @@ router = APIRouter(prefix="/en", tags=["en"])
 
 
 def _deps():
-    from web.shared import config, get_db, get_verified_user_id, templates
-    return get_db, get_verified_user_id, templates, config
+    from web.shared import config, get_db, get_verified_user_id, templates, _public_shell, render_template
+    return get_db, get_verified_user_id, templates, config, _public_shell, render_template
 
 
 # ── Home (English landing page) ──────────────────────────────────────────────
 @router.get("/", response_class=HTMLResponse)
 def en_home(request: Request):
-    _, get_verified_user_id, templates, config = _deps()
+    _, get_verified_user_id, templates, config, _, _ = _deps()
     user_id = get_verified_user_id(request)
     return templates.TemplateResponse(request, "en/index_v4.html", {
         "VERSION": config.VERSION,
@@ -31,7 +31,7 @@ def en_home(request: Request):
 # ── Pricing ───────────────────────────────────────────────────────────────────
 @router.get("/pricing", response_class=HTMLResponse)
 def en_pricing(request: Request):
-    get_db, get_verified_user_id, templates, config = _deps()
+    get_db, get_verified_user_id, templates, config, _public_shell, render_template = _deps()
     try:
         from web.app_v2 import get_all_pricing
         pricing_data = get_all_pricing()
@@ -45,13 +45,17 @@ def en_pricing(request: Request):
             {"name": "Cover Letter Generator", "desc": "Custom cover letters per job", "price": 2.99},
         ]
         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
-        return templates.TemplateResponse(request, "en/pricing_v3.html", {
-            "pricing": pricing_dict,
-            "flash_discount": 0,
-            "flash_sale": None,
-            "is_logged_in": bool(user_id),
-            "VERSION": config.VERSION,
-        })
+        pricing_content = render_template("en/pricing_v3.html", request=request,
+                                          pricing=pricing_dict,
+                                          flash_discount=0,
+                                          flash_sale=None,
+                                          is_logged_in=bool(user_id),
+                                          lang="en",
+                                          VERSION=config.VERSION)
+        html = _public_shell(pricing_content, "Pricing - JobHunt Pro", "JobHunt Pro pricing plans.", request=request, lang="en")
+        response = HTMLResponse(content=html)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        return response
     except Exception as e:
         logger.error(f"EN Pricing page error: {e}", exc_info=True)
         return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)

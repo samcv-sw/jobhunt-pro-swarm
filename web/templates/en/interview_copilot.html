@@ -123,7 +123,7 @@
         <!-- LANGUAGE & FONT CONTROLS -->
         <div class="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-white/10">
           <span class="text-xs text-slate-400 font-bold ms-1">Lang:</span>
-          <select id="langSelectEn" class="bg-slate-900 border border-white/15 text-xs text-white rounded-lg px-2 py-1 focus:outline-none">
+          <select id="langSelectEn" class="bg-slate-900 border border-white/15 text-xs text-white rounded-lg px-2 py-1 focus:outline-none" dir="auto">
             <option value="en">English</option>
             <option value="ar">Arabic (العربية)</option>
             <option value="auto">Auto-detect</option>
@@ -172,7 +172,7 @@
 
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1.5">Experience Level</label>
-            <select id="expLevelEn" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all">
+            <select id="expLevelEn" class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:ring-2 focus:ring-purple-500/20 focus:outline-none transition-all" dir="auto">
               <option value="Senior" selected>Senior</option>
               <option value="Lead">Lead / Architect</option>
               <option value="Mid">Mid-Level</option>
@@ -188,7 +188,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-300 mb-1.5">Interview Type</label>
-            <select id="interviewTypeEn" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none">
+            <select id="interviewTypeEn" class="w-full px-3 py-2 rounded-xl bg-slate-900/90 border border-white/15 text-white text-xs focus:border-purple-400 focus:outline-none" dir="auto">
               <option value="">Auto Detect</option>
               <option value="system_design">System Design</option>
               <option value="leadership_conflict">Leadership & Conflict</option>
@@ -280,7 +280,7 @@
           <i data-lucide="flip-horizontal" class="w-3.5 h-3.5"></i>
           <span>Mirror 🪞</span>
         </button>
-        <select id="scrollSpeedSelectEn" onchange="updateScrollSpeedEn()" class="bg-slate-900 text-xs text-purple-200 border border-purple-500/40 rounded-lg px-2 py-1 focus:outline-none">
+        <select id="scrollSpeedSelectEn" onchange="updateScrollSpeedEn()" class="bg-slate-900 text-xs text-purple-200 border border-purple-500/40 rounded-lg px-2 py-1 focus:outline-none" dir="auto">
           <option value="60">0.5x Speed</option>
           <option value="40" selected>1.0x Speed</option>
           <option value="25">1.5x Speed</option>

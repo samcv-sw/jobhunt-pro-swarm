@@ -1796,29 +1796,17 @@ class EmailEngine:
         if not valid:
             return False, f"invalid: {reason}"
 
-        # Real-time Atomic Database Check: Ensure candidate user has NEVER sent to this recipient email before
+        # Real-time Atomic Database Check: Ensure candidate user has NEVER sent to this recipient email within 365 days
         if to_email and "@" in to_email:
             try:
-                import core.pg_sqlite_shim as sqlite3
-                from config import DB_PATH
+                from core.email_verifier import check_365_cooldown_dedup
                 uid = user_details.get("user_id") if user_details else None
-                with sqlite3.connect(DB_PATH, timeout=5) as db_conn:
-                    if uid:
-                        existing = db_conn.execute(
-                            """SELECT 1 FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND LOWER(ce.email_address) = LOWER(?) AND ce.sent_at >= datetime('now', '-365 days') LIMIT 1""",
-                            (uid, to_email.strip())
-                        ).fetchone()
-                    else:
-                        existing = db_conn.execute(
-                            """SELECT 1 FROM campaign_emails WHERE LOWER(email_address) = LOWER(?) AND sent_at >= datetime('now', '-365 days') LIMIT 1""",
-                            (to_email.strip(),)
-                        ).fetchone()
-                    
-                    if existing:
-                        logger.warning(f"[EmailEngine] 🚫 ATOMIC DB CHECK BLOCKED duplicate send to: {to_email}")
-                        return False, "duplicate_already_sent"
+                allowed, reason = check_365_cooldown_dedup(user_id=uid, email=to_email.strip())
+                if not allowed:
+                    logger.warning(f"[EmailEngine] 🚫 ATOMIC 365-DAY COOLDOWN BLOCKED send to {to_email}: {reason}")
+                    return False, "duplicate_already_sent"
             except Exception as e:
-                logger.warning(f"[EmailEngine] Atomic DB check warning: {e}")
+                logger.warning(f"[EmailEngine] Atomic 365-day cooldown check warning: {e}")
 
         provider = await self.scheduler.wait_for_send_slot()
         tracking_id = str(uuid.uuid4())[:12]
@@ -2973,3 +2961,23 @@ def send_email_via_sendpulse(
 
 
 anti_ghosting = AntiGhostingEngine()
+
+
+def send_email_notification(to_email: str, subject: str, body: str) -> bool:
+    """Send admin / system notification email via configured SMTP/HTTP providers."""
+    try:
+        if not to_email:
+            return False
+        if getattr(config, "BREVO_API_KEY", ""):
+            return send_email_via_brevo_http(to_email=to_email, subject=subject, body=body)
+        elif getattr(config, "SENDPULSE_CLIENT_ID", ""):
+            return send_email_via_sendpulse(to_email=to_email, subject=subject, body=body)
+        elif getattr(config, "GMAIL_USER", "") and getattr(config, "GMAIL_APP_PASSWORD", ""):
+            return send_email_via_gmail_smtp(to_email=to_email, subject=subject, body=body)
+        else:
+            logger.info(f"[send_email_notification] Simulated notification to {to_email}: {subject}")
+            return True
+    except Exception as e:
+        logger.error(f"[send_email_notification] Error sending notification to {to_email}: {e}")
+        return False
+

@@ -80,3 +80,45 @@ async def stream_cover_letter(
         generate_smart_cover_letter_stream(req.job_description, req.user_cv, req.tone),
         media_type="text/event-stream",
     )
+
+
+class GCCAlignedCoverLetterRequest(CoverLetterRequest):
+    location: str = "Riyadh, Saudi Arabia"
+    company_name: str = "Enterprise Organization"
+    role_title: str = "Senior Engineer"
+
+
+@router.post("/api/v1/generate-cover-letter/gcc-aligned")
+async def generate_gcc_aligned_cover_letter(req: GCCAlignedCoverLetterRequest) -> dict:
+    """Generate cover letter enriched with Saudi Vision 2030 & GCC Strategic Pillars."""
+    from core.gcc_vision_injector import gcc_vision_injector
+
+    base_text = (
+        f"Dear Hiring Team at {req.company_name},\n\n"
+        f"I am writing to express my strong interest in the {req.role_title} position. "
+        f"With a proven background in delivering scalable impact and technical excellence, "
+        f"I am confident in my ability to contribute meaningfully to your team."
+    )
+
+    enriched = gcc_vision_injector.enrich_cover_letter(
+        original_text=base_text,
+        location_text=req.location,
+        role_title=req.role_title,
+        company_name=req.company_name
+    )
+
+    alignment = gcc_vision_injector.calculate_alignment_score(
+        cv_text=req.user_cv or "Python Docker Kubernetes AWS",
+        target_country=enriched.get("target_country", "saudi_arabia")
+    )
+
+    return {
+        "status": "success",
+        "is_gcc_enriched": enriched["is_gcc_enriched"],
+        "target_country": enriched.get("target_country"),
+        "primary_pillar": enriched.get("primary_pillar"),
+        "cover_letter_text": enriched["enriched_text"],
+        "alignment_score": alignment["alignment_score"],
+        "recommendations": alignment["key_recommendation"]
+    }
+

@@ -1,192 +1,96 @@
-# Handoff Report — Database Pooling & SQLite Fallback Audit
+# Handoff Report: Milestone M1 (Feature 2 - Container RSS Memory Supervisor)
 
-This report presents the findings of a comprehensive read-only audit of the database connection pooling, SQLite fallback, cold-start handling, and connection lifecycle mechanics across the backend and core services of the JobHunt Pro application.
+**Agent**: Explorer 2 (Replacement)  
+**Recipient**: Parent Orchestrator (`sub_orch_m1_1` / `41011934-7311-4236-891c-edf1863f8340`)  
+**Milestone**: M1 (R1: 24/7 Zero-Cost Cloud & Immortality Keepalive)  
+**Subject**: In-depth Investigation & Recommendations for `start_cloud.py` RSS Memory Supervisor  
 
 ---
 
 ## 1. Observation
 
-Direct observations and file-level metrics gathered during the audit:
-
-### A. Configuration & Setup
-- **`.env` File**: Found `DATABASE_URL` configured to a Neon PostgreSQL instance:
-  `postgresql://neondb_owner:npg_yXkT42fDuPUc@ep-steep-cake-ap2mtmij.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require`
-- **`config.py`**:
-  - Line 10-11: `# Database Engine strictly enforces PostgreSQL \n # SQLite shim abolished per Enterprise Blueprint`
-  - Line 169: `DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://...")`
-  - Line 17: `DB_PATH = os.getenv("DB_PATH", "data/jobhunt_saas_v2.db")`
-- There are **three** separate, active database managers in the codebase:
-  1. `backend/database.py` (SQLAlchemy-based, yields session for web app)
-  2. `core/database.py` (SQLAlchemy-based, has `Database` manager wrapper + dependency yielding)
-  3. `core/async_db.py` (Custom `AsyncDatabase` using `asyncpg.create_pool` or `aiosqlite` under APEX MATRIX banner)
-- Additionally, a custom compatibility driver exists at `core/pg_sqlite_shim.py` mapping DB-API requests between PG (`psycopg2`) and SQLite (`sqlite3`).
-
-### B. Connection Pooling Settings vs. Neon Free Tier Limit (10 connections)
-- **`backend/database.py`**:
-  - Line 123-127:
-    ```python
-    "pool_size":     3,
-    "max_overflow":  2,
-    "pool_recycle":  280,
-    "pool_timeout":  30,
-    "pool_pre_ping": True,
-    ```
-    Total max connections per process: **5**.
-- **`core/database.py`**:
-  - Line 41-45:
-    ```python
-    pool_size=3,
-    max_overflow=7,
-    pool_timeout=15,
-    pool_recycle=280,
-    pool_pre_ping=True,
-    ```
-    Total max connections per process: **10**.
-- **`core/async_db.py`**:
-  - Line 48-50:
-    ```python
-    self.pool = await asyncpg.create_pool(
-        dsn=connect_uri, min_size=1, max_size=20
-    )
-    ```
-    Total max connections per process: **20** (Does not set `statement_cache_size=0`).
-- **`core/pg_sqlite_shim.py`**:
-  - Line 508-512:
-    ```python
-    min_conn = int(os.getenv("PG_POOL_MIN", "1"))
-    max_conn = int(os.getenv("PG_POOL_MAX", "3"))
-    ```
-    Total max connections per process: **3**.
-
-### C. Redundant Engines & Connection Pools
-- **`web/shared.py`**:
-  - Line 87-105:
-    ```python
-    if _pg_engine is None:
-        from sqlalchemy import create_engine
-        ...
-        _pg_engine = create_engine(
-            db_url,
-            ...
-        )
-    return shim.connect(db_url)
-    ```
-    An engine is created and stored in the global `_pg_engine` but then ignored. The code immediately calls and returns `shim.connect(db_url)`, which creates its own `ThreadedConnectionPool` inside `core.pg_sqlite_shim`.
-
-### D. FastAPI Generator Yield Retry Bug
-- **`core/database.py`**:
-  - Line 56-74:
-    ```python
-    async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-        retries = 5
-        backoff = 1
-        for attempt in range(retries):
-            try:
-                async with AsyncSessionLocal() as session:
-                    yield session
-                    break
-            except OperationalError as e:
-                # exponential backoff sleeps ...
-    ```
-    The retry loop wraps the `yield session` call. If a database query fails inside the route handler *after* the session has been successfully yielded, the generator catches the error, sleeps, and attempts to loop and `yield` a second time.
-
-### E. Database Connection / Cursor Leaks
-- **`core/pg_sqlite_shim.py`**:
-  - Line 429-440:
-    ```python
-    def fetchone(self) -> Any | None:
-        try:
-            res = self.cursor.fetchone()
-            if res is None:
-                with contextlib.suppress(Exception):
-                    self.cursor.close()
-                return None
-            return self._wrap_row(tuple(res))
-        except Exception as e:
-            with contextlib.suppress(Exception):
-                self.cursor.close()
-            raise e
-    ```
-    If `fetchone()` returns a row, the cursor is not closed, relying on garbage collection (`__del__`) to close the cursor.
-  - Line 635-640:
-    ```python
-    def close(self) -> None:
-        global PG_POOL
-        if PG_POOL and self.conn:
-            PG_POOL.putconn(self.conn)
-            self.conn = None
-    ```
-    The connection is returned to the pool without verifying or closing any outstanding cursors opened during its lifecycle.
-  - Cursors do not implement the `__enter__` and `__exit__` context manager protocol, preventing the use of `with conn.cursor() as cur:` syntax on PG wrappers.
-
-### F. Sync Worker Timeouts & Cold-Starts
-- **`backend/sync_worker.py`**:
-  - Line 237-241:
-    ```python
-    cloud_conn = await _connect_with_retry(
-        pgbouncer_url,
-        ssl="require",
-        statement_cache_size=0,
-    )
-    ```
-    No `server_settings={"statement_timeout": "..."}` or client-side `timeout` is passed to the connection constructor.
-  - Line 102-111:
-    ```python
-    except Exception as exc:
-        last_exc = exc
-        if _TOO_MANY_CONNS and isinstance(exc, _TOO_MANY_CONNS):
-            continue
-        raise
-    ```
-    The worker only retries on `TooManyConnectionsError`. Other connection exceptions (e.g. `PostgresConnectionError` or `TimeoutError` caused by a Neon cold start) fail immediately, causing the outer worker loop to catch the exception and sleep for **30 seconds** (Line 292) before attempting to reconnect.
-
-### G. Import Crash vulnerability in `core/database.py`
-- **`core/database.py`**:
-  - Line 38: Runs `create_async_engine(NEON_URL, ...)` at import time.
-  - If `DATABASE_URL` is not set or empty, this call raises `sqlalchemy.exc.ArgumentError: Could not parse SQLAlchemy URL from string ''` immediately during Python import.
-  - While relative imports via the package `core` transitively load `.env` (due to `core/__init__.py` -> `ats_matcher.py` -> `config.py` -> `load_dotenv`), direct imports (e.g., from unit tests or standalone scripts) will crash at import time if `DATABASE_URL` is absent.
+1. **Supervisor Process Entrypoint & GC Tuning**:
+   - `start_cloud.py:18`: `gc.set_threshold(50, 5, 5)` configures aggressive GC tuning for the parent supervisor.
+   - `start_cloud.py:253`: `gc.collect()` is explicitly invoked every loop iteration.
+2. **Process Tree Memory Measurement**:
+   - `start_cloud.py:256-264`: Supervisor retrieves `psutil` via `sys.modules.get("psutil")` and aggregates parent RSS: `total_rss += psutil.Process(os.getpid()).memory_info().rss`.
+   - `start_cloud.py:277-285`: For each service in `running_services`, queries `proc_info = psutil.Process(p.pid)` and recursively loops through children:
+     ```python
+     for child in proc_info.children(recursive=True):
+         rss += child.memory_info().rss
+     ```
+3. **Two-Tier Threshold Enforcement**:
+   - **Tier 1 (Per-Service Ceiling)**: `start_cloud.py:289-300`:
+     ```python
+     if rss > service["limit"]:
+         logger.warning(f"Service '{name}' (PID {p.pid}) RSS ({rss / (1024*1024):.1f}MB) exceeded limit of {service['limit'] / (1024*1024):.1f}MB! Recycling service...")
+         p.terminate()
+         try:
+             p.wait(timeout=5)
+         except subprocess.TimeoutExpired:
+             p.kill()
+             p.wait()
+     ```
+     Limits: Celery = 180MB, Sync Worker = 80MB, Uvicorn/Granian = 220MB.
+   - **Tier 2 (Global Container 450MB Ceiling)**: `start_cloud.py:305-337`:
+     ```python
+     if psutil and total_rss > 450 * 1024 * 1024:
+         ...
+         # Finds largest consumer in running_services and calls terminate() / wait(5) / kill()
+     ```
+4. **Test Suite Coverage**:
+   - Grep search for `start_cloud` across `tests/` yielded **0 results**.
+   - Grep search for `450` across `tests/` yielded **0 results**.
+   - `tests/test_auto_heal.py` only tests the `/api/system/auto-heal` endpoint mocks, not the container memory supervisor.
+5. **Coupling in `start_cloud.py`**:
+   - All memory evaluation, process tree aggregation, and recycling logic are tightly coupled inside the infinite `while True` loop of `launch_services()` (lines 251–340).
 
 ---
 
 ## 2. Logic Chain
 
-1. **Neon Limit Exhaustion**: Neon's free tier imposes a strict 10-connection limit. Combining `backend/database.py` (max 5), `core/database.py` (max 10), and `core/async_db.py` (max 20) in a multi-process environment (or even in a single process executing concurrent tasks) will exceed 10 connections. This triggers `TooManyConnectionsError` on subsequent requests.
-2. **PgBouncer Failures**: PgBouncer transaction-mode pools reject named prepared statements. Because `core/async_db.py` creates its pool without `statement_cache_size=0`, executing queries via `async_db` will crash on PgBouncer with `FeatureNotSupported` errors under concurrent request patterns.
-3. **Redundant Resource Usage**: `web/shared.py` initializes a SQLAlchemy connection pool (`_pg_engine`) but immediately bypasses it to use `pg_sqlite_shim`'s independent pool. This wastes connection slots on the Neon server.
-4. **FastAPI Generator Lifecycle Crash**: In `get_db_session()`, the generator yields control to FastAPI's route. If a query inside the route fails with `OperationalError`, control flows back into the generator's `except` block. Since the loop iterator is active, it runs again, creates a new session, and yields it. This triggers a `RuntimeError` (generator raised StopIteration / unexpected yield) inside FastAPI, masking the original error and leaking the old session.
-5. **Cold-Start Latency Amplification**: If Neon goes to sleep, the first request wakes it up. `sync_worker.py` attempts a connection, experiences a cold-start timeout/error, and aborts immediately (since it only retries on `TooManyConnectionsError`). It then sleeps for 30 seconds. A 3-second cold start is thus amplified into a 30-second synchronization delay.
-6. **Leak Accumulation**: Because `PgCursorWrapper.fetchone()` does not close the cursor on row retrieval and `PgConnectionWrapper.close()` does not close open cursors, applications executing raw SQL queries (like `core/job_queue.py`'s `dequeue_task` or `fail_task`) leak open cursors on the Postgres server, accumulating resources until garbage collection fires.
+1. **Premise 1 (From Obs 1, 2, 3)**: The core algorithmic concepts required by Acceptance Criterion 2 (`start_cloud.py` includes RSS monitor thread/loop checking total process tree RAM, triggers graceful GC/recycle when RSS exceeds 450MB, targeting highest consumer) are present in `start_cloud.py`.
+2. **Premise 2 (From Obs 4)**: Despite the implementation existing in `start_cloud.py`, there is zero test coverage in `tests/` verifying memory ceiling breaches, process tree aggregation, or largest-consumer recycling.
+3. **Premise 3 (From Obs 5)**: Because `launch_services()` is an infinite loop that directly calls `subprocess.Popen` and `time.sleep(5)`, it cannot be tested in unit tests without refactoring the memory evaluation and recycling logic into discrete, testable helper functions.
+4. **Premise 4 (From Obs 2, 3)**: There is an edge case where killing a service in Tier 1 leaves `total_rss` elevated during the same tick, potentially triggering Tier 2 and terminating a second healthy service. Additionally, `proc_info.children(recursive=True)` can raise `NoSuchProcess` if children exit concurrently during traversal.
+5. **Conclusion**: To satisfy Milestone M1 Feature 2 requirements robustly, `start_cloud.py` must be modularized into testable functions (`get_process_tree_rss`, `evaluate_memory_and_enforce`, `terminate_and_recycle`), race conditions guarded, and a dedicated test file `tests/test_memory_supervisor.py` added to the test suite.
 
 ---
 
 ## 3. Caveats
 
-- **Network Constraints**: The audit was performed in CODE_ONLY network mode. External database latency, firewall behaviors, or actual Neon cluster response times could not be dynamically monitored.
-- **Supabase Mode**: `web/app_v2.py` references a `SUPABASE_MODE` switch that swaps the pg-sqlite shim for `core.supabase_rest_shim`. This shim was not fully analyzed as it was out of scope for Neon connection pooling and SQLite fallbacks.
-- **Other Clients**: Third-party packages or system-level scripts might open connections to Neon independently, reducing the available connection slots below the expected 10.
+- **Host vs Container Memory**: `psutil.Process().memory_info().rss` measures user-space process tree RSS. In container environments with strict cgroups v1/v2 limits (like Render), total cgroup memory may include kernel slab cache. However, process tree RSS is the standard and safest portable metric for worker recycling without requiring root/cgroup file system privileges.
+- **Windows vs Linux Celery Execution**: On Windows (`os.name == 'nt'`), Celery runs with `-P solo`. Process tree recursion handles both single-process solo and Linux pre-fork worker pool process trees cleanly.
 
 ---
 
 ## 4. Conclusion
 
-The Neon DB connection pooling and SQLite fallback logic are partially configured correctly but suffer from critical vulnerabilities under production load:
-1. **High Risk of Connection Exhaustion**: Connection pool configurations in `core/database.py` and `core/async_db.py` are set too high (10 and 20 respectively), easily exceeding Neon's 10-connection limit.
-2. **PgBouncer Incompatibility**: `core/async_db.py` lacks statement caching disabling, causing query failures under PgBouncer transaction pooling.
-3. **FastAPI Route Crashes**: The generator retry loop in `core/database.py` is structurally bugged and will cause FastAPI crashes on query operational errors.
-4. **Resource Leaks**: The pg-sqlite shim leaks database cursors when queries successfully retrieve rows.
-5. **Slow Recovery on Cold Starts**: The background sync worker introduces artificial 30-second delays upon encountering Neon cold starts.
+The Container RSS memory supervisor logic in `start_cloud.py` is structurally sound in design but requires:
+1. **Refactoring into modular functions** for clean unit testing and eliminating race conditions / double-recycling edge cases.
+2. **Immediate respawn after termination** to eliminate the 5-second downtime window.
+3. **Implementation of `tests/test_memory_supervisor.py`** to achieve 100% test coverage for all supervisor memory limits, process tree calculation, GC invocation, and largest consumer recycling.
 
-A patch containing proposed fixes for these issues is available at:
-`c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\proposed_fixes.patch`
+Detailed code designs and recommendations are documented in:
+`c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\analysis.md`
 
 ---
 
 ## 5. Verification Method
 
-To verify these findings and the proposed fixes:
-1. Run the existing test suites to confirm basic functionality is not broken:
-   - `pytest tests/e2e/test_database.py` (verified: 6 passed)
-   - `pytest tests/test_pg_shim.py` (verified: 9 passed)
-2. Verify the import crash by running python import in an isolated environment without environment variables:
-   - `python -c "import os; os.environ.clear(); import core.database"` (will crash under original code due to `create_async_engine('')`).
-3. Inspect `c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_2\proposed_fixes.patch` to verify alignment with findings and structural validity.
+1. **Execute New Test Suite**:
+   ```bash
+   pytest tests/test_memory_supervisor.py -v
+   ```
+2. **Verify Full Test Suite Health**:
+   ```bash
+   pytest tests/
+   ```
+3. **Code Inspection**:
+   - Inspect `start_cloud.py` for extracted functions: `get_process_tree_rss()`, `terminate_and_recycle()`, and `evaluate_memory_and_enforce()`.
+   - Verify `tests/test_memory_supervisor.py` covers:
+     - Process tree RSS aggregation
+     - Per-service memory threshold recycling
+     - Global 450MB container ceiling targeting the largest consumer
+     - Transient child process exit handling (`NoSuchProcess` / `ZombieProcess`)
+     - `gc.collect()` and threshold tuning verification

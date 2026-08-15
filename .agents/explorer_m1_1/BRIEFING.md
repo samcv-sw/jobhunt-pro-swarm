@@ -1,44 +1,46 @@
-# BRIEFING — 2026-07-14T08:17:00Z
+# BRIEFING — 2026-08-14T12:36:00Z
 
 ## Mission
-Audit frontend/src/ files for styling, logical CSS properties, Arabic/RTL typography, and language-based icon flipping, reporting physical CSS properties.
+Investigate Feature 1 (Zero-DB /ping probe) and Feature 4 (Self-healing DLQ auto-heal) for Milestone M1.
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: Code Auditor, Compliance Reviewer
+- Roles: investigation, synthesis
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_1
-- Original parent: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Milestone: CSS/Typography Compliance Audit
+- Original parent: 41011934-7311-4236-891c-edf1863f8340
+- Milestone: M1 (Features 1 & 4)
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement
-- Identify all physical CSS properties (e.g. margin-left, padding-right, left, right, etc. inside TSX/CSS files)
-- Check Arabic/RTL typography requirements (Cairo/Tajawal/IBM Plex Arabic font-family, min 14px size, line-height 1.6-2.0, zero letter-spacing on Arabic)
-- Verify dynamic icon flipping based on language
+- Read-only investigation — do NOT implement production changes
+- Write only to .agents/explorer_m1_1/
+- Zero-DB /ping probe must have 0 DB queries, 0 locks, <10ms response
+- Self-healing DLQ must auto-heal stuck deadlocks, purge poison pills (>3 retries), provide health endpoints
+- Communicate via send_message to parent
 
 ## Current Parent
-- Conversation ID: 1c546bb5-417c-4607-b08a-0b1e19a69db5
-- Updated: 2026-07-14T08:17:00Z
+- Conversation ID: 41011934-7311-4236-891c-edf1863f8340
+- Updated: 2026-08-14T12:36:00Z
 
 ## Investigation State
 - **Explored paths**:
-  - `frontend/src/app/globals.css`
-  - `frontend/src/app/layout.tsx`
-  - `frontend/src/app/locale-context.tsx`
-  - `frontend/src/app/page.tsx`
-  - `frontend/src/app/dashboard/page.tsx`
-  - `frontend/src/components/SkeletonLoader.tsx`
-  - `frontend/__tests__/SkeletonLoader.test.tsx`
+  - `backend/routers/health.py` (lines 83-90 for /ping, lines 365-401 for DLQ endpoints)
+  - `web/app_v2.py` (lines 1397-1400 for /healthz, 3524-3535 for /api/ping, 8881-8885 for /ping, 10056-10080 for keep-alive)
+  - `core/auto_heal.py` (stuck campaign retry thresholding, dead lock clearing, storage pruning, RAM reload)
+  - `core/dlq_healing.py` (regex pattern classification, transient recovery, poison pill quarantine, DLQ purging)
+  - `tests/` (identified test coverage across `test_m1_health.py`, `test_m1_health_failures.py`, `test_auto_heal.py`, `test_sync_dlq_poison_pill_stress.py`, and mapped test gaps)
 - **Key findings**:
-  - Found extensive and standard logical CSS usage (`inlineSize`, `blockSize`, logical paddings/margins).
-  - Verified Arabic typography metrics (fonts defined, RTL font-size override forcing 16px, line-height 1.8, zero letter spacing in Arabic).
-  - Verified dynamic icon scaleX flipping driven by locale-context custom property `--text-x-direction`.
-  - Identified all instances of physical coordinates/properties (mostly in SVG coordinates, vertical translateY, standard border-radii, and linear gradients).
-- **Unexplored areas**: None. All requested frontend/src/ files have been fully audited.
+  - Zero-DB `/ping` is implemented in `backend/routers/health.py` and `web/app_v2.py`, but return payloads diverge between web and backend.
+  - Zero automated tests exist for `/ping` latency or zero-DB assertions.
+  - DLQ auto-healing is robustly implemented across `core/dlq_healing.py` and `core/auto_heal.py`, exposed via `/api/v2/dlq/*`, but lacks unit tests for the classifier, recovery logic, and REST endpoints.
+- **Unexplored areas**: None within scope.
 
 ## Key Decisions Made
-- Performed detailed review of layout structures, verified build compilation status (passed), and completed snapshot test coverage validation (passed).
+- Prepared detailed analysis report (`analysis.md`) and 5-component handoff report (`handoff.md`).
+- Formulated recommendations for unifying `/ping` responses and adding unit tests for `/ping` and DLQ healing.
 
 ## Artifact Index
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_1\handoff.md — Final audit report
-- c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\explorer_m1_1\ORIGINAL_REQUEST.md — Original request text
+- `DISPATCH.md` — Initial dispatch message
+- `BRIEFING.md` — Persistent context and findings index
+- `progress.md` — Liveness & heartbeat log
+- `analysis.md` — Detailed analysis report
+- `handoff.md` — Self-contained 5-component handoff report

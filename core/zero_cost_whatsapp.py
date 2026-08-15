@@ -74,5 +74,46 @@ class ZeroCostWhatsAppAutomator:
             logger.error(f"WhatsApp Cloud automation failed: {e}")
             return {"status": "error", "error": str(e)}
 
+    def generate_wa_me_link(self, phone_number: str = "", message: str = "") -> str:
+        """Fallback to 1-click wa.me deep link when API credentials are not set."""
+        from core.whatsapp_notifier import generate_wa_me_link
+        return generate_wa_me_link(phone=phone_number, message=message)
+
+    async def send_custom_message(
+        self, phone_number: str, text: str
+    ) -> dict:
+        """Sends arbitrary text message via Meta Cloud API or returns simulated / wa.me link."""
+        if not self.access_token or not self.phone_id:
+            logger.warning(
+                "WhatsApp API credentials missing. Simulating Cloud API request with wa.me fallback."
+            )
+            wa_link = self.generate_wa_me_link(phone_number, text)
+            return {"status": "simulated", "platform": "whatsapp_cloud_api", "wa_link": wa_link}
+
+        url = f"https://graph.facebook.com/v17.0/{self.phone_id}/messages"
+        headers = {
+            "Authorization": f"Bearer {self.access_token}",
+            "Content-Type": "application/json",
+        }
+        formatted_phone = (
+            phone_number.replace("+", "").replace(" ", "").replace("-", "")
+        )
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": formatted_phone,
+            "type": "text",
+            "text": {"body": text},
+        }
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code in (200, 201):
+                    return {"status": "success", "platform": "whatsapp_cloud_api"}
+                else:
+                    return {"status": "error", "error": resp.text}
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+
 
 whatsapp_automator = ZeroCostWhatsAppAutomator()
+

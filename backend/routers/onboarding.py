@@ -86,6 +86,21 @@ async def upload_cv(
     if len(content) > 10 * 1024 * 1024:  # 10 MB max
         raise HTTPException(status_code=413, detail="File too large. Maximum size is 10 MB.")
 
+    # Persist file via FileStorage / StorageManager (R2 with local disk fallback)
+    file_storage_url = None
+    try:
+        from core.file_handler import FileStorage
+        import io as _io
+        success, saved_path, _ = FileStorage.save_file(
+            file_content=_io.BytesIO(content),
+            original_filename=file.filename,
+            subfolder="cvs",
+        )
+        if success:
+            file_storage_url = saved_path
+    except Exception as save_err:
+        logger.warning("Failed to persist uploaded CV to storage: %s", save_err)
+
     # Attempt text extraction
     extracted_text = ""
     try:
@@ -110,15 +125,20 @@ async def upload_cv(
         extracted_text = content.decode("utf-8", errors="replace")
 
     word_count = len(extracted_text.split())
-    logger.info("CV uploaded: %s (%d words extracted)", file.filename, word_count)
+    logger.info("CV uploaded: %s (%d words extracted, storage=%s)", file.filename, word_count, file_storage_url)
 
-    return {
+    resp: dict[str, Any] = {
         "status": "parsed",
         "filename": file.filename,
         "word_count": word_count,
         "preview": extracted_text[:500] + ("..." if len(extracted_text) > 500 else ""),
         "next_step": "/api/v1/onboarding/preferences",
     }
+    if file_storage_url:
+        resp["file_url"] = file_storage_url
+        resp["storage_path"] = file_storage_url
+
+    return resp
 
 
 @router.post("/preferences", summary="Step 2 — Set job search preferences (IMP-187)")

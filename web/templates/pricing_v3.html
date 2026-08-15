@@ -25,20 +25,22 @@
 
 .pricing-hero-v3 {
   text-align: center;
-  padding: 60px 20px 40px;
+  padding: 10px 20px 30px;
   position: relative;
   z-index: 10;
+  max-inline-size: 1100px;
+  margin-inline: auto;
 }
 
 .pricing-hero-v3 h1 {
-  font-family: 'Cairo', 'Space Grotesk', sans-serif !important;
-  font-size: 46px !important;
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Space Grotesk', sans-serif !important;
+  font-size: 42px !important;
   font-weight: 900 !important;
   background: linear-gradient(135deg, #00f0ff 0%, #7000ff 50%, #ff007f 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
-  margin-block-end: 16px !important;
+  margin-block-end: 14px !important;
 }
 
 .pricing-hero-v3 .subtitle {
@@ -163,7 +165,7 @@
 }
 
 .companies-v3 {
-  font-family: 'Space Grotesk', 'Cairo', sans-serif !important;
+  font-family:'Space Grotesk', 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
   font-size: 38px !important;
   font-weight: 900 !important;
   line-height: 1.1 !important;
@@ -180,7 +182,7 @@
 }
 
 .price-v3 {
-  font-family: 'Space Grotesk', 'Cairo', sans-serif !important;
+  font-family:'Space Grotesk', 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
   font-size: 36px !important;
   font-weight: 900 !important;
   color: #00f0ff !important;
@@ -290,7 +292,7 @@
 }
 
 .bulk-qty-display {
-  font-family: 'Space Grotesk', 'Cairo', sans-serif !important;
+  font-family:'Space Grotesk', 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif !important;
   font-size: 48px !important;
   font-weight: 900 !important;
   color: #00f0ff !important;
@@ -427,40 +429,41 @@
         <div>
           <div class="tier-name-v3">STARTER</div>
           <h3>باقة المبتدئ</h3>
-          <div class="companies-v3">10 <span>شركة</span></div>
-          <div class="price-v3">$2</div>
-          <div class="original-price-v3">كان $4</div>
-          <div class="per-v3">$0.20 / شركة</div>
+          <div class="companies-v3">25 <span>شركة</span></div>
+          <div class="price-v3">$9</div>
+          <div class="original-price-v3">كان $18</div>
+          <div class="per-v3">$0.36 / شركة</div>
           <ul>
-            <li>10 تقديمات تلقائية مؤتمتة</li>
-            <li>خطابات تغطية بالذكاء الاصطناعي</li>
+            <li>25 تقديم تلقائي مؤتمت بالكامل</li>
+            <li>خطابات تغطية ذكية (Gemini + Groq)</li>
+            <li>فحص Live MX لضمان وصول الإيميل</li>
             <li>تتبع فتح وتفاعل الإيميلات</li>
-            <li>دعم فني عبر المجتمع</li>
+            <li>دعم فني سريع</li>
           </ul>
         </div>
-        <a class="btn btn-starter" href="{{ '/new-campaign' if is_logged_in else '/register' }}">ابدأ بحملة 10 شركات — $2</a>
+        <a class="btn btn-starter" href="javascript:void(0)" onclick="openCryptoCheckoutModal(9.0, 'Starter Plan')">اشترك بـ 25 شركة — $9 ⚡</a>
       </div>
 
       <!-- Basic Tier (Best Value) -->
       <div class="pricing-card-v3 highlight">
-        <div class="badge-v3 best-value">⭐ الأكثر شعبية (BEST VALUE)</div>
+        <div class="badge-v3 best-value">⭐ الأكثر طلباً (BEST VALUE)</div>
         <div>
           <div class="tier-name-v3">BASIC</div>
           <h3>الباقة الأساسية</h3>
           <div class="companies-v3">100 <span>شركة</span></div>
-          <div class="price-v3">$5</div>
-          <div class="original-price-v3">كان $10</div>
-          <div class="per-v3">$0.05 / شركة</div>
+          <div class="price-v3">$19</div>
+          <div class="original-price-v3">كان $38</div>
+          <div class="per-v3">$0.19 / شركة</div>
           <ul>
             <li>100 تقديم تلقائي مؤتمت</li>
-            <li>خطابات تغطية فائقة (Gemini + Groq)</li>
+            <li>تخصيص السيرة الذاتية وخطابات التغطية</li>
             <li>تتبع الفتح والضغطات المباشر</li>
             <li>سلسلة متابعة آلية (7 + 14 يوماً)</li>
-            <li>لوحة تحليلات سريعة</li>
-            <li>دعم فني مباشر عبر الإيميل</li>
+            <li>لوحة تحليلات دقيقة لمعدل التحويل</li>
+            <li>دعم فني ذو أولوية</li>
           </ul>
         </div>
-        <a class="btn btn-basic" href="{{ '/new-campaign' if is_logged_in else '/register' }}">اختر باقة 100 شركة — $5</a>
+        <a class="btn btn-basic" href="javascript:void(0)" onclick="openCryptoCheckoutModal(19.0, 'Basic Plan')">اختر باقة 100 شركة — $19 🚀</a>
       </div>
 
       <!-- Pro Tier (High Impact) -->
@@ -470,47 +473,49 @@
           <div class="tier-name-v3">PRO</div>
           <h3>الباقة الاحترافية</h3>
           <div class="companies-v3">500 <span>شركة</span></div>
-          <div class="price-v3">$15</div>
-          <div class="original-price-v3">كان $30</div>
-          <div class="per-v3">$0.03 / شركة</div>
+          <div class="price-v3">$49</div>
+          <div class="original-price-v3">كان $98</div>
+          <div class="per-v3">$0.098 / شركة</div>
           <ul>
             <li>500 تقديم تلقائي مؤتمت</li>
             <li>كل ميزات باقة Basic</li>
-            <li>200 وكيل Swarm يعمل لك</li>
-            <li>20 مزود إيميل لضمان وصول الرسائل</li>
-            <li>أبحاث كاملة للشركات قبل التقديم</li>
-            <li>لوحة تحليلات استراتيجية متقدمة</li>
-            <li>دعم فني ذو أولوية فائقة</li>
+            <li>200 وكيل Swarm مخصص لحسابك</li>
+            <li>20 مزود إيميل لضمان أعلى تسليم 99%</li>
+            <li>أبحاث وتحليل الشركات قبل التقديم</li>
+            <li>لوحة تحليلات استراتيجية شاملة</li>
+            <li>دعم فني VIP على مدار الساعة</li>
           </ul>
         </div>
-        <a class="btn btn-pro" href="{{ '/new-campaign' if is_logged_in else '/register' }}">انطلق مع 500 شركة — $15</a>
+        <a class="btn btn-pro" href="javascript:void(0)" onclick="openCryptoCheckoutModal(49.0, 'Pro Plan')">انطلق مع 500 شركة — $49 💎</a>
       </div>
 
-      <!-- Enterprise Tier -->
+      <!-- Enterprise / B2B SDR Tier -->
       <div class="pricing-card-v3">
-        <div class="badge-v3 gold">👑 التنفيذيين والشركات</div>
+        <div class="badge-v3 gold">👑 للشركات والوكالات (B2B SDR)</div>
         <div>
-          <div class="tier-name-v3">ENTERPRISE</div>
-          <h3>باقة المؤسسات</h3>
-          <div class="companies-v3">2,000 <span>شركة</span></div>
-          <div class="price-v3">$50</div>
-          <div class="original-price-v3">كان $100</div>
-          <div class="per-v3">$0.025 / شركة</div>
+          <div class="tier-name-v3">ENTERPRISE / B2B</div>
+          <h3>باقة الشركات ووكلاء التوظيف</h3>
+          <div class="companies-v3">2,500 <span>شركة / عميل</span></div>
+          <div class="price-v3">$149</div>
+          <div class="original-price-v3">كان $299</div>
+          <div class="per-v3">$0.059 / فرصة</div>
           <ul>
-            <li>2,000 تقديم تلقائي مؤتمت</li>
-            <li>كل ميزات الباقة الاحترافية Pro</li>
-            <li>تدريب نموذج AI مخصص لسيرتك الذاتية</li>
-            <li>مدير حساب شخصي مخصص لك</li>
-            <li>ضمان اتفاقية مستوى الخدمة SLA</li>
-            <li>خيار White-Label بالكامل</li>
-            <li>وصول كامل لـ API المنظومة</li>
+            <li>2,500 تقديم وحملة عملاء محتملين B2B</li>
+            <li>سرب AI SDR متكامل للتواصل البارد</li>
+            <li>فحص Live MX ومنع تكرار 365 يوماً</li>
+            <li>ربط مباشر مع CRM والـ Webhooks</li>
+            <li>مدير حساب وخادم بريد مخصص</li>
+            <li>اتفاقية مستوى الخدمة SLA 99.9%</li>
+            <li>وصول برمجيات كامل عبر REST API</li>
           </ul>
         </div>
-        <a class="btn btn-enterprise" href="{{ '/new-campaign' if is_logged_in else '/register' }}">احصل على 2,000 شركة — $50</a>
+        <a class="btn btn-enterprise" href="javascript:void(0)" onclick="openCryptoCheckoutModal(149.0, 'Enterprise B2B Plan')">تفعيل باقة الشركات — $149 🏢</a>
       </div>
 
     </div>
   </section>
+
+  {% include "crypto_checkout_modal.html" %}
 
   <!-- Bulk Calculator -->
   <section class="pricing-section-v3" style="padding-top: 0;">

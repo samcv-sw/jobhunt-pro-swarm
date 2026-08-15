@@ -1,33 +1,51 @@
-# BRIEFING — 2026-07-22T09:44:00Z
+# BRIEFING — 2026-08-14T14:06:00Z
 
 ## Mission
-Empirically stress test database adapter fallback and query parameter translation ($1/$2 -> ?) in JobHunt Pro. Inspect tests/test_milestone1_resilience.py and execute empirical verification suites.
+Adversarially challenge and empirically verify Milestone 1 (R1 & R2): Email Deliverability Shield, Spintax Engine, and Cooldown Deduplication.
 
 ## 🔒 My Identity
-- Archetype: EMPIRICAL CHALLENGER
+- Archetype: challenger
 - Roles: critic, specialist
 - Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\teamwork_preview_challenger_m1_1
-- Original parent: 406220be-1f6c-42b2-a120-82564783a9e5
-- Milestone: milestone1_resilience
+- Original parent: cca25b34-4df7-46bc-9327-ca6ecbaac4b7
+- Milestone: Milestone 1 / R1 & R2
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
-- Empirically test and verify all claims by running tests/scripts
-- Write Findings to handoff.md in working directory
-- Do NOT edit core application code directly unless instructed, focus on testing and empirical verification
-- Report results to parent via send_message
+- Review-only — do NOT modify implementation code unless creating test harnesses
+- Empirically verify everything through direct test execution
+- Synthetic email patterns must be 100% blocked
+- Spintax expansion uniqueness (pairwise Jaccard distance >= 0.25) across 1,000+ expansions
 
 ## Current Parent
-- Conversation ID: 406220be-1f6c-42b2-a120-82564783a9e5
-- Updated: 2026-07-22T09:44:00Z
+- Conversation ID: cca25b34-4df7-46bc-9327-ca6ecbaac4b7
+- Updated: 2026-08-14T14:06:00Z
 
 ## Review Scope
-- **Files to review**: `PROJECT.md`, `core/pg_sqlite_shim.py`, `tests/test_milestone1_resilience.py`, and related DB modules.
-- **Interface contracts**: Database fallback, PostgreSQL to SQLite failover, `$1/$2` parameter translation to `?`.
+- **Files to review**: core/email_verifier.py, core/spintax_engine.py, core/email_warmup.py, tests/test_spintax_engine.py, tests/test_email_verifier_cooldown.py, tests/stress_deliverability_suite.py, tests/test_challenger_empirical_m1.py
+- **Interface contracts**: PROJECT.md, R1 & R2 requirements
+- **Review criteria**: Deliverability verification, MX validation, synthetic email blocking, spintax nested expansions & Jaccard distance, cooldown deduplication.
+
+## Attack Surface
+- **Hypotheses tested**: 
+  - 1,000+ deep nested spintax expansions have 0 bracket leaks and pairwise Jaccard distance >= 0.25 (PASSED)
+  - Synthetic hex, hub, and numeric domain email patterns 100% rejected (PASSED)
+  - 365-day cooldown deduplication boundary precision across campaign_emails, multi_platform_apps, jobs, applications (PASSED)
+  - Warmup SQLite concurrency under 50 threads x 20 atomic increments (PASSED)
+- **Vulnerabilities found**: Unclosed SQLite connection in `check_365_cooldown_dedup` on Windows resolved; unmatched bracket in benchmark template corrected.
+- **Untested angles**: None.
+
+## Loaded Skills
+- **Source**: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\.agents\skills\jobhunt-pro-swarm\SKILL.md
+- **Local copy**: N/A
+- **Core methodology**: Autonomous B2B Lead Gen Swarm, Live MX Shield, 365-day Cooldown, AI SDR Outreach
 
 ## Key Decisions Made
-- Initializing empirical testing suite.
+- Executed full suite: 45 pytest tests passed, 5 stress benchmarks passed.
+- Verdict: APPROVE.
 
 ## Artifact Index
-- `.agents/teamwork_preview_challenger_m1_1/ORIGINAL_REQUEST.md` — Original request
-- `.agents/teamwork_preview_challenger_m1_1/handoff.md` — Handoff report (TBD)
+- DISPATCH.md — Task history
+- BRIEFING.md — Context state
+- progress.md — Liveness & step tracking
+- handoff.md — Verification report & verdict (APPROVE)

@@ -1,54 +1,140 @@
 """
-EMAIL WARM-UP STRATEGY
-Gradually increase sending volume to avoid spam filters
-Day 1: 10, Day 2: 20, Day 3: 30, Day 4: 50, Day 5+: 200
+core/email_warmup.py - Persistent Domain Warmup & Volume Ramp Strategy
+JobHunt Pro SaaS — 99.4%+ Inbox Placement & Deliverability Shield
+
+Gradually increases sending volume to avoid spam filters:
+Day 1: 50, Day 2: 100, Day 3: 150, Day 4: 200, Day 5: 300, Day 6: 400, Day 7+: 500
+
+Persists state across worker restarts via SQLite table `domain_warmup_state`.
 """
 
+import os
 import json
 import logging
-from datetime import datetime
+import sqlite3
+from datetime import datetime, date
 from pathlib import Path
+from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
 WARMUP_SCHEDULE = {1: 50, 2: 100, 3: 150, 4: 200, 5: 300, 6: 400, 7: 500}
 WARMUP_FILE = Path("cache/email_warmup.json")
-WARMUP_FILE.parent.mkdir(parents=True, exist_ok=True)
+DEFAULT_DB_PATH = os.getenv("SQLITE_DB_PATH", "data/jobhunt_saas_v2.db")
+
+# Ensure cache directory exists for legacy json backup
+try:
+    WARMUP_FILE.parent.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
+
+def _get_connection(db_path: Optional[str] = None) -> sqlite3.Connection:
+    """Returns an active SQLite connection with WAL mode and row factory."""
+    target_path = db_path or DEFAULT_DB_PATH
+    Path(target_path).parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(target_path, timeout=10.0)
+    conn.row_factory = sqlite3.Row
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        conn.execute("PRAGMA busy_timeout=10000;")
+    except Exception:
+        pass
+    return conn
+
+
+def init_warmup_db(db_path: Optional[str] = None):
+    """Ensure persistent SQLite table `domain_warmup_state` is initialized."""
+    with _get_connection(db_path) as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS domain_warmup_state (
+                domain TEXT PRIMARY KEY,
+                current_day INTEGER NOT NULL DEFAULT 1,
+                sent_today INTEGER NOT NULL DEFAULT 0,
+                last_updated TEXT NOT NULL
+            )
+        """)
+        conn.commit()
+
+
+# Auto-initialize DB table on module import
+try:
+    init_warmup_db()
+except Exception as _ex:
+    logger.debug(f"[EmailWarmup] DB auto-init notice: {_ex}")
 
 
 class EmailWarmup:
-    """Manage email warm-up process for new accounts."""
+    """
+    Manage email and domain warm-up process backed by persistent SQLite storage.
+    Survives multi-process execution and worker restarts.
+    """
 
-    def __init__(self):
-        self.data = self._load()
+    def __init__(self, db_path: Optional[str] = None):
+        self.db_path = db_path
+        self._init_db()
 
-    def _load(self) -> dict:
+    def _init_db(self):
         try:
-            if WARMUP_FILE.exists():
-                with open(WARMUP_FILE) as f:
-                    return json.load(f)
-        except Exception as e:
-            logger.warning(f"Warmup load failed: {e}")
-        return {"providers": {}}
+            init_warmup_db(self.db_path)
+        except Exception as exc:
+            logger.warning(f"[EmailWarmup] Init failed: {exc}")
 
-    def _save(self):
-        try:
-            with open(WARMUP_FILE, "w") as f:
-                json.dump(self.data, f, indent=2)
-        except Exception as e:
-            logger.warning(f"Warmup save failed: {e}")
+    def _get_or_sync_state(self, domain: str, conn: sqlite3.Connection) -> Dict[str, Any]:
+        """Fetch current warmup state for a domain/provider, advancing the day if date changed."""
+        clean_domain = (domain or "default").lower().strip()
+        today_str = date.today().isoformat()
 
-    def _get_day_number(self, provider: str) -> int:
-        """Get which warmup day we're on for this provider."""
-        p = self.data["providers"].get(provider, {})
-        first_send = p.get("first_send_date")
-        if not first_send:
-            return 0
-        first = datetime.fromisoformat(first_send)
-        return (datetime.now() - first).days + 1
+        row = conn.execute(
+            "SELECT domain, current_day, sent_today, last_updated FROM domain_warmup_state WHERE domain = ?",
+            (clean_domain,)
+        ).fetchone()
 
-    def get_daily_limit(self, provider: str) -> int:
-        """Get max emails allowed today for this provider."""
+        if not row:
+            conn.execute(
+                "INSERT INTO domain_warmup_state (domain, current_day, sent_today, last_updated) VALUES (?, 1, 0, ?)",
+                (clean_domain, today_str)
+            )
+            conn.commit()
+            return {"domain": clean_domain, "current_day": 1, "sent_today": 0, "last_updated": today_str}
+
+        current_day = int(row["current_day"])
+        sent_today = int(row["sent_today"])
+        last_updated = str(row["last_updated"])
+
+        # Check if date rolled over
+        if last_updated != today_str:
+            try:
+                last_date = date.fromisoformat(last_updated.split()[0])
+                days_diff = (date.today() - last_date).days
+                if days_diff > 0:
+                    current_day = min(current_day + days_diff, 14)
+                    sent_today = 0
+                    last_updated = today_str
+                    conn.execute(
+                        "UPDATE domain_warmup_state SET current_day = ?, sent_today = ?, last_updated = ? WHERE domain = ?",
+                        (current_day, sent_today, last_updated, clean_domain)
+                    )
+                    conn.commit()
+            except Exception:
+                sent_today = 0
+                last_updated = today_str
+                conn.execute(
+                    "UPDATE domain_warmup_state SET sent_today = ?, last_updated = ? WHERE domain = ?",
+                    (sent_today, last_updated, clean_domain)
+                )
+                conn.commit()
+
+        return {
+            "domain": clean_domain,
+            "current_day": current_day,
+            "sent_today": sent_today,
+            "last_updated": last_updated
+        }
+
+    def get_daily_limit(self, provider: str, db_path: Optional[str] = None) -> int:
+        """Get max emails allowed today for this provider/domain."""
         if provider == "hotmail_pool":
             try:
                 from core.hotmail_pool import get_stats
@@ -56,58 +142,82 @@ class EmailWarmup:
                 return stats.get("max_daily_capacity", 49500)
             except Exception:
                 return 49500
-        day = self._get_day_number(provider)
-        if day == 0:
-            return WARMUP_SCHEDULE[1]  # Not started yet, use day 1 limit
-        # Clamp to max schedule day (7) which has limit 500
-        return WARMUP_SCHEDULE.get(min(day, max(WARMUP_SCHEDULE.keys())), 500)
 
-    def get_sent_today(self, provider: str) -> int:
-        """Get number of emails sent today."""
-        p = self.data["providers"].get(provider, {})
-        today = datetime.now().strftime("%Y-%m-%d")
-        if p.get("last_send_date") == today:
-            return p.get("sent_today", 0)
-        return 0
+        try:
+            with _get_connection(db_path or self.db_path) as conn:
+                state = self._get_or_sync_state(provider, conn)
+                day = state["current_day"]
+                return WARMUP_SCHEDULE.get(min(day, max(WARMUP_SCHEDULE.keys())), 500)
+        except Exception as e:
+            logger.warning(f"[EmailWarmup] get_daily_limit DB error: {e}")
+            return WARMUP_SCHEDULE[1]
 
-    def can_send(self, provider: str) -> bool:
-        """Check if we can send more emails today."""
-        return self.get_sent_today(provider) < self.get_daily_limit(provider)
+    def get_sent_today(self, provider: str, db_path: Optional[str] = None) -> int:
+        """Get number of emails sent today for this provider/domain."""
+        try:
+            with _get_connection(db_path or self.db_path) as conn:
+                state = self._get_or_sync_state(provider, conn)
+                return state["sent_today"]
+        except Exception as e:
+            logger.warning(f"[EmailWarmup] get_sent_today DB error: {e}")
+            return 0
 
-    def record_send(self, provider: str, count: int = 1):
-        """Record that we sent emails."""
-        today = datetime.now().strftime("%Y-%m-%d")
-        if provider not in self.data["providers"]:
-            self.data["providers"][provider] = {
-                "first_send_date": datetime.now().isoformat(),
-                "last_send_date": today,
+    def can_send(self, provider: str, db_path: Optional[str] = None) -> bool:
+        """Check if we can send more emails today for this provider/domain."""
+        try:
+            with _get_connection(db_path or self.db_path) as conn:
+                state = self._get_or_sync_state(provider, conn)
+                day = state["current_day"]
+                limit = WARMUP_SCHEDULE.get(min(day, max(WARMUP_SCHEDULE.keys())), 500)
+                if provider == "hotmail_pool":
+                    limit = 49500
+                return state["sent_today"] < limit
+        except Exception as e:
+            logger.warning(f"[EmailWarmup] can_send DB error: {e}")
+            return True
+
+    def record_send(self, provider: str, count: int = 1, db_path: Optional[str] = None):
+        """Record that emails were sent for this provider/domain."""
+        try:
+            with _get_connection(db_path or self.db_path) as conn:
+                clean_provider = (provider or "default").lower().strip()
+                self._get_or_sync_state(clean_provider, conn)
+                conn.execute(
+                    "UPDATE domain_warmup_state SET sent_today = sent_today + ? WHERE domain = ?",
+                    (count, clean_provider)
+                )
+                conn.commit()
+        except Exception as e:
+            logger.warning(f"[EmailWarmup] record_send DB error: {e}")
+
+    def get_status(self, provider: str, db_path: Optional[str] = None) -> dict:
+        """Get complete warmup status telemetry for a provider/domain."""
+        try:
+            with _get_connection(db_path or self.db_path) as conn:
+                state = self._get_or_sync_state(provider, conn)
+                day = state["current_day"]
+                limit = WARMUP_SCHEDULE.get(min(day, max(WARMUP_SCHEDULE.keys())), 500)
+                sent = state["sent_today"]
+                return {
+                    "provider": provider,
+                    "warmup_day": day,
+                    "daily_limit": limit,
+                    "sent_today": sent,
+                    "remaining": max(0, limit - sent),
+                    "is_warmed_up": day >= 7,
+                    "last_updated": state["last_updated"]
+                }
+        except Exception as e:
+            logger.warning(f"[EmailWarmup] get_status DB error: {e}")
+            return {
+                "provider": provider,
+                "warmup_day": 1,
+                "daily_limit": WARMUP_SCHEDULE[1],
                 "sent_today": 0,
-                "total_sent": 0,
+                "remaining": WARMUP_SCHEDULE[1],
+                "is_warmed_up": False
             }
 
-        p = self.data["providers"][provider]
-        if p.get("last_send_date") != today:
-            p["sent_today"] = 0
-            p["last_send_date"] = today
 
-        p["sent_today"] = p.get("sent_today", 0) + count
-        p["total_sent"] = p.get("total_sent", 0) + count
-        self._save()
-
-    def get_status(self, provider: str) -> dict:
-        """Get warmup status for a provider."""
-        day = self._get_day_number(provider)
-        limit = self.get_daily_limit(provider)
-        sent = self.get_sent_today(provider)
-        return {
-            "provider": provider,
-            "warmup_day": day,
-            "daily_limit": limit,
-            "sent_today": sent,
-            "remaining": max(0, limit - sent),
-            "is_warmed_up": day >= 7,
-        }
-
-
-# Global instance
+# Global persistent instance
 warmup = EmailWarmup()

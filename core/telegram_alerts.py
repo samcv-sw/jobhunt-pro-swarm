@@ -231,8 +231,74 @@ def alert_rate_limit_warning(sent_last_hour: int, provider: str = "Gmail") -> bo
     return _send_message(msg)
 
 
+def alert_lead_captured(
+    source: str = "ATS Instant Score",
+    role: str = "",
+    score: int = 0,
+    gulf_score: int = 0,
+    name: str = "",
+    email: str = "",
+    phone: str = "",
+    notes: str = "",
+) -> bool:
+    """Alert when a new lead is captured via ATS score, Roast, or contact form."""
+    msg = "🎯 <b>New Lead Captured!</b>\n\n"
+    if source:
+        msg += f"<b>Source:</b> {source}\n"
+    if role:
+        msg += f"<b>Target Role:</b> {role}\n"
+    if score:
+        msg += f"<b>ATS Score:</b> {score}%\n"
+    if gulf_score:
+        msg += f"<b>Gulf Fit:</b> {gulf_score}%\n"
+    if name:
+        msg += f"<b>Name:</b> {name}\n"
+    if email:
+        msg += f"<b>Email:</b> {email}\n"
+    if phone:
+        msg += f"<b>Phone:</b> {phone}\n"
+    if notes:
+        snippet = notes[:200]
+        msg += f"<b>Notes:</b> <i>{snippet}</i>\n"
+    msg += f"\n<i>🕐 Captured at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
+    return _send_message(msg)
+
+
+def alert_payment_received(
+    amount: float,
+    currency: str = "USD",
+    plan: str = "",
+    customer_email: str = "",
+    payment_method: str = "Card",
+    transaction_id: str = "",
+) -> bool:
+    """Alert when a customer payment / deposit is confirmed."""
+    tx_short = transaction_id[:16] if len(transaction_id) > 16 else transaction_id
+    msg = (
+        f"💰 <b>Payment Confirmed!</b>\n\n"
+        f"<b>Amount:</b> {currency.upper()} {amount:.2f}\n"
+    )
+    if plan:
+        msg += f"<b>Plan/Product:</b> {plan}\n"
+    if payment_method:
+        msg += f"<b>Method:</b> {payment_method}\n"
+    if customer_email:
+        msg += f"<b>Customer:</b> {customer_email}\n"
+    if tx_short:
+        msg += f"<b>Tx / Session ID:</b> <code>{tx_short}</code>\n"
+    msg += f"\n<i>🕐 Confirmed at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>\n"
+    msg += "🎉 <i>Wallet / Tokens credited successfully!</i>"
+    return _send_message(msg)
+
+
 def alert_daily_report(
-    sent_today: int, opened: int = 0, responded: int = 0, campaigns_active: int = 0
+    sent_today: int,
+    opened: int = 0,
+    responded: int = 0,
+    campaigns_active: int = 0,
+    revenue_today: float = 0.0,
+    leads_today: int = 0,
+    currency: str = "USD",
 ) -> bool:
     """Send a daily summary report."""
     if not _is_configured():
@@ -243,14 +309,121 @@ def alert_daily_report(
     response_rate = round((responded / max(sent_today, 1)) * 100, 1)
 
     msg = (
-        f"📊 <b>Daily Report — {today_str}</b>\n\n"
+        f"📊 <b>Daily Swarm Report — {today_str}</b>\n\n"
         f"📧 <b>Emails Sent:</b> {sent_today}\n"
         f"👁️ <b>Opened:</b> {opened} ({open_rate}%)\n"
         f"📬 <b>Responses:</b> {responded} ({response_rate}%)\n"
-        f"🚀 <b>Active Campaigns:</b> {campaigns_active}\n\n"
-        "<i>Keep going! 📈</i>"
+        f"🚀 <b>Active Campaigns:</b> {campaigns_active}\n"
     )
+    if revenue_today > 0 or revenue_today == 0.0:
+        msg += f"💰 <b>Revenue:</b> {currency.upper()} {revenue_today:.2f}\n"
+    if leads_today > 0:
+        msg += f"🎯 <b>Leads Captured:</b> {leads_today}\n"
+    msg += "\n<i>Keep going! 📈 Autonomous Swarm is operational.</i>"
     return _send_message(msg)
+
+
+def generate_and_dispatch_daily_swarm_report(conn=None) -> dict:
+    """Aggregates 24-hour swarm telemetry metrics and dispatches daily Telegram report."""
+    close_conn = False
+    if conn is None:
+        try:
+            from web.shared import get_db
+            conn = get_db().__enter__()
+            close_conn = True
+        except Exception:
+            try:
+                from core.database import get_db
+                conn = get_db().__enter__()
+                close_conn = True
+            except Exception as e:
+                logger.error(f"[daily_swarm_report] Could not obtain db connection: {e}")
+                return {"status": "error", "error": "db_unavailable"}
+
+    try:
+        # 1. Total emails sent in last 24h / today
+        try:
+            sent_row = conn.execute("""
+                SELECT COUNT(*) as count FROM campaign_emails
+                WHERE sent_at >= datetime('now', '-24 hours') OR sent_at >= date('now')
+            """).fetchone()
+            sent_today = int(sent_row["count"]) if sent_row and "count" in sent_row.keys() else 0
+        except Exception:
+            sent_today = 0
+
+        # 2. Total emails opened in last 24h / today
+        try:
+            opened_row = conn.execute("""
+                SELECT COUNT(*) as count FROM campaign_emails
+                WHERE (status = 'opened' OR opened_at IS NOT NULL)
+                AND (opened_at >= datetime('now', '-24 hours') OR sent_at >= datetime('now', '-24 hours'))
+            """).fetchone()
+            opened_today = int(opened_row["count"]) if opened_row and "count" in opened_row.keys() else 0
+        except Exception:
+            opened_today = 0
+
+        # 3. Responses received in last 24h / today
+        try:
+            replied_row = conn.execute("""
+                SELECT COUNT(*) as count FROM campaign_emails
+                WHERE status = 'replied'
+                OR (replied_at IS NOT NULL AND replied_at >= datetime('now', '-24 hours'))
+            """).fetchone()
+            responded_today = int(replied_row["count"]) if replied_row and "count" in replied_row.keys() else 0
+        except Exception:
+            responded_today = 0
+
+        # 4. Active running / pending campaigns
+        try:
+            camp_row = conn.execute("""
+                SELECT COUNT(*) as count FROM campaigns
+                WHERE status IN ('running', 'active', 'pending')
+            """).fetchone()
+            campaigns_active = int(camp_row["count"]) if camp_row and "count" in camp_row.keys() else 0
+        except Exception:
+            campaigns_active = 0
+
+        # 5. Revenue today from completed orders
+        try:
+            rev_row = conn.execute("""
+                SELECT COALESCE(SUM(amount_usd), 0.0) as total FROM orders
+                WHERE payment_status IN ('completed', 'paid')
+                AND created_at >= datetime('now', '-24 hours')
+            """).fetchone()
+            revenue_today = float(rev_row["total"]) if rev_row and "total" in rev_row.keys() else 0.0
+        except Exception:
+            revenue_today = 0.0
+
+        # 6. Fire Telegram alert
+        dispatched = alert_daily_report(
+            sent_today=sent_today,
+            opened=opened_today,
+            responded=responded_today,
+            campaigns_active=campaigns_active,
+            revenue_today=revenue_today,
+            currency="USD",
+        )
+
+        return {
+            "status": "success",
+            "dispatched": dispatched,
+            "metrics": {
+                "sent_today": sent_today,
+                "opened_today": opened_today,
+                "responded_today": responded_today,
+                "campaigns_active": campaigns_active,
+                "revenue_today": revenue_today,
+            }
+        }
+    except Exception as exc:
+        logger.error(f"[daily_swarm_report] Telemetry aggregation failed: {exc}")
+        return {"status": "error", "error": str(exc)}
+    finally:
+        if close_conn and conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -311,3 +484,49 @@ async def async_alert_email_sent(
     return await asyncio.to_thread(
         alert_email_sent, company, job_title, email_addr, campaign_id, sent_count, total
     )
+
+
+async def async_alert_lead_captured(
+    source: str = "ATS Instant Score",
+    role: str = "",
+    score: int = 0,
+    gulf_score: int = 0,
+    name: str = "",
+    email: str = "",
+    phone: str = "",
+    notes: str = "",
+) -> bool:
+    """Async wrapper for lead captured alert."""
+    return await asyncio.to_thread(
+        alert_lead_captured, source, role, score, gulf_score, name, email, phone, notes
+    )
+
+
+async def async_alert_payment_received(
+    amount: float,
+    currency: str = "USD",
+    plan: str = "",
+    customer_email: str = "",
+    payment_method: str = "Card",
+    transaction_id: str = "",
+) -> bool:
+    """Async wrapper for payment received alert."""
+    return await asyncio.to_thread(
+        alert_payment_received, amount, currency, plan, customer_email, payment_method, transaction_id
+    )
+
+
+async def async_alert_daily_report(
+    sent_today: int,
+    opened: int = 0,
+    responded: int = 0,
+    campaigns_active: int = 0,
+    revenue_today: float = 0.0,
+    leads_today: int = 0,
+    currency: str = "USD",
+) -> bool:
+    """Async wrapper for daily report alert."""
+    return await asyncio.to_thread(
+        alert_daily_report, sent_today, opened, responded, campaigns_active, revenue_today, leads_today, currency
+    )
+

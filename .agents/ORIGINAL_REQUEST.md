@@ -1,72 +1,40 @@
 # Original User Request
 
-## Initial Request — 2026-07-17T09:21:01+03:00
+## 2026-08-14T13:33:01Z
 
-Fully integrate and wire the Telegram Mini App (HTML/CSS/JS) with the FastAPI backend, serving static files at `/telegram-miniapp/` and replacing the external Cloudflare Workers URLs with local FastAPI endpoints.
+Use a very large team of agents. "trilion agens ikouno super hyper azkia la i5also bser3a wbtari2a afdal wahsan wnatije 2a2wa wahsan"
 
-Working directory: `C:\\Users\\samde\\Desktop\\📂 Folders & Projects\\cv sam new ma3 kimi`
-Integrity mode: benchmark
-
-## Requirements
-
-### R1. Static Files Mounting
-Configure the FastAPI application in `backend/main.py` to serve the static files in the `telegram_miniapp/` directory under the route `/telegram-miniapp`.
-
-### R2. Backend REST API Endpoints
-Create a new router `backend/routers/telegram_app.py` and register it in `backend/main.py` implementing:
-- `GET /api/v1/user/{userId}`: Fetch user credits and invites.
-- `POST /api/v1/queue/status`: Queue status updates.
-- `POST /api/v1/checkout`: Create mock crypto invoice URL checkout.
-Update `telegram_miniapp/app.js` to send requests directly to the local origin `/` instead of the hardcoded Cloudflare worker URL.
-
-### R3. Automated Tests & Build Safety
-- Implement a test suite `tests/test_telegram_miniapp.py` verifying the mounted static assets and all API endpoints return valid JSON/responses.
-- Ensure all 660+ existing backend tests execute and pass at 100%.
-
-## Acceptance Criteria
-
-### Static App Serving
-- [ ] Accessing `/telegram-miniapp/index.html` returns the mini app page.
-- [ ] Assets `styles.css` and `app.js` load cleanly under `/telegram-miniapp/`.
-
-### API Integration
-- [ ] `GET /api/v1/user/{userId}` returns JSON with `credits` and details.
-- [ ] `POST /api/v1/queue/status` updates the user status in database.
-- [ ] `POST /api/v1/checkout` returns JSON containing a realistic mock `invoice_url`.
-
-### Verification
-- [ ] Running `pytest tests/test_telegram_miniapp.py` passes 100%.
-- [ ] All 660+ existing backend tests pass.
-
-## Follow-up — 2026-07-22T09:36:46Z
-
-JobHunt Pro: A 100% $0 cloud-native, 24/7 autonomous SaaS empire with an automated dual-channel self-marketing engine (Cold Email + LinkedIn/X/Reddit Social Swarm) that acquires paying clients and scales corporate leads 24/7 without local PC execution.
+JobHunt Pro SaaS: 1,000-Vector Hyper-Optimization, Zero-Cost 24/7 Permanent Cloud Architecture, and Maximum Profit Conversion Engine.
 
 Working directory: c:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi
 Integrity mode: development
 
 ## Requirements
 
-### R1. 24/7 Zero-PC Autonomous Cloud Architecture
-- Operate 24/7 continuously on $0 free-tier cloud infrastructure (Vercel, Render, Cloudflare, GitHub Actions Cron, Supabase/Neon).
-- Zero runtime or memory dependencies on local PC.
+### R1. Zero-Cost 24/7 Cloud Deployment & Serverless Resilience
+- Configure and harden the application for 100% $0/month permanent operation using Cloudflare Pages/Workers, Supabase/Neon PostgreSQL, and keep-alive sentinels.
+- Zero downtime with cold-start prevention via automated background health probes.
 
-### R2. Dual-Channel B2B Lead Generation & Automated Outreach Swarm
-- Autonomous scraping and enrichment of corporate hiring manager leads.
-- Multi-step personalized cold email sequence generator & dispatch tracking.
-- Social media viral growth post generator for LinkedIn, X (Twitter), and Reddit.
+### R2. 1,000-Vector SaaS Growth, Deliverability & AI Arbitrage Engine
+- Optimize dynamic LLM cost-arbitrage (Gemini Flash + Groq + L1 caching) to maintain >95% gross margins.
+- Harden the Live MX verification, 365-day cooldown deduplication, and Spintax personalization outbox engine.
+- Implement high-converting viral hooks (Free ATS Resume Roast, Telegram Mini App Stars checkout, Golden Ticket referral loops).
 
-### R3. Ray Dalio & Paul Graham Elite SaaS Standard
-- Real-time lead conversion analytics dashboard in web/templates/.
-- High-converting onboarding flow with Gulf RTL/LTR dual support (Cairo/Tajawal typography, dynamic CSS logical properties).
+### R3. B2B Enterprise SDR & Recruiter Multi-Tenant Swarm
+- Expand automated lead extraction and multi-tenant campaign management for Gulf recruiters ($149 - $499/mo tiers).
+- Full audit and pass rate across all 2,026+ automated test suites.
 
 ## Acceptance Criteria
 
-### Infrastructure & Cloud Automation
-- [ ] 24/7 GitHub Actions & Render keep-alive cron ticks execute cleanly in sub-5s.
-- [ ] Database shim auto-detects cloud PostgreSQL with seamless SQLite fallback.
+### Infrastructure & Zero-Cost Verification
+- [ ] Application boots and serves web/API traffic with zero external monthly subscription costs.
+- [ ] Database shim seamlessly switches between PostgreSQL and SQLite without data loss.
+- [ ] Keepalive sentinels successfully prevent free-tier container sleep.
 
-### Marketing & Acquisition
-- [ ] B2B Growth Swarm generates verified LinkedIn/X/Reddit social campaigns every cloud tick.
-- [ ] Cold email sequence generator formats multi-step personalized sequences for target companies.
+### Deliverability & Quality Assurance
+- [ ] 100% of candidate outgoing emails pass DNS MX check (`is_deliverable_email()`).
+- [ ] Deduplication window strictly blocks duplicate applications within 365 days.
+- [ ] All 2,026+ unit and integration tests pass cleanly without regression.
 
+### Monetization & Conversion
+- [ ] Checkout flows for GCC Mada, Apple Pay, Telegram Stars, and Crypto USDT/Lightning complete with instant credit provisioning.

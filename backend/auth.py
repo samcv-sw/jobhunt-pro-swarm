@@ -22,7 +22,12 @@ JWT_SECRET_KEYS = [k.strip() for k in raw_keys.split(",") if k.strip()] if raw_k
 if not JWT_SECRET_KEYS:
     single_key = os.environ.get("JWT_SECRET_KEY")
     if not single_key:
-        if os.getenv("TESTING") == "true" or "pytest" in sys.modules or "unittest" in sys.modules:
+        if (
+            os.getenv("TESTING", "0").lower() in ("true", "1", "yes")
+            or os.getenv("PYTEST_RUNNING", "0") == "1"
+            or "pytest" in sys.modules
+            or "unittest" in sys.modules
+        ):
             single_key = "jobhunt-pro-secret-key-32bytes-ok!!"
         else:
             raise ValueError(
@@ -41,7 +46,8 @@ security = HTTPBearer(auto_error=False)
 # to avoid cross-test IP lockouts. The rate limiter logic is tested directly in
 # tests/test_hardening_v2.py via unit tests.
 _IS_TESTING: bool = (
-    os.getenv("TESTING", "false").lower() == "true"
+    os.getenv("TESTING", "false").lower() in ("true", "1", "yes")
+    or os.getenv("PYTEST_RUNNING", "0") == "1"
     or "pytest" in sys.modules
     or "unittest" in sys.modules
 )
@@ -248,6 +254,12 @@ def _record_success(ip: str) -> None:
             _rate_state[ip]["locked_until"] = None
         _lazy_prune_ip_locked(ip, now)
         _run_global_cleanup_if_needed(now)
+
+
+def reset_auth_rate_limiter() -> None:
+    """Reset brute-force rate limiter state completely."""
+    with _rate_lock:
+        _rate_state.clear()
 
 
 # ---------------------------------------------------------------------------

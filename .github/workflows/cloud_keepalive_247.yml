@@ -1,0 +1,30 @@
+name: JobHunt Pro 24/7 Zero-Cost Cloud Keep-Alive
+
+on:
+  schedule:
+    # Run every 5 minutes (standard cron syntax)
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Multi-Cloud 24/7 Keep-Alive & Health Ping
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run 24/7 Cloud Keepalive Ping
+        run: |
+          python scripts/cron_keepalive.py
+        env:
+          PRIMARY_API_URL: ${{ secrets.PRIMARY_API_URL || 'https://jobhunt-pro.onrender.com/healthz' }}
+          BACKEND_API_URL: ${{ secrets.BACKEND_API_URL || 'https://jhfguf.pythonanywhere.com/api/v1/health' }}
+          KOYEB_API_URL: ${{ secrets.KOYEB_API_URL || 'https://jobhunt-pro-koyeb.koyeb.app/healthz' }}

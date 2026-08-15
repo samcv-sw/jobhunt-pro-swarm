@@ -1,69 +1,107 @@
 """
 GCC Multi-Currency & Dual Language Tax Invoicing Engine
-Supports USD, AED (د.إ), SAR (ر.س), KWD (د.ك) with dual Arabic/English rendering.
+Supports USD, AED (د.إ), SAR (ر.س), KWD (د.ك), QAR (ر.ق), BHD (د.ب), OMR (ر.ع) with dual Arabic/English rendering.
 """
 
 import time
-from typing import Dict, Any, List
+import base64
+from typing import Dict, Any, List, Optional
 
 class GCCBillingService:
     RATES_TO_USD = {
         "USD": 1.0,
         "AED": 3.6725,
         "SAR": 3.75,
-        "KWD": 0.307
+        "KWD": 0.307,
+        "QAR": 3.64,
+        "BHD": 0.376,
+        "OMR": 0.385
     }
 
     CURRENCY_SYMBOLS = {
         "USD": "$",
         "AED": "د.إ",
         "SAR": "ر.س",
-        "KWD": "د.ك"
+        "KWD": "د.ك",
+        "QAR": "ر.ق",
+        "BHD": "د.ب",
+        "OMR": "ر.ع"
+    }
+
+    # GCC Country Tax Specifications (KSA ZATCA 15%, UAE FTA 5%, Bahrain 10%, Oman 5%, others 0%)
+    COUNTRY_VAT_RATES = {
+        "SAR": 0.15,  # Saudi Arabia (ZATCA 15%)
+        "AED": 0.05,  # United Arab Emirates (FTA 5%)
+        "BHD": 0.10,  # Bahrain (10%)
+        "OMR": 0.05,  # Oman (5%)
+        "KWD": 0.00,  # Kuwait (0%)
+        "QAR": 0.00,  # Qatar (0%)
+        "USD": 0.00   # Global (0%)
     }
 
     def convert_price(self, amount_usd: float, target_currency: str = "AED") -> Dict[str, Any]:
         """
-        Converts USD amount to target GCC currency with localized symbols.
+        Converts USD amount to target GCC currency with localized symbols and VAT breakdown.
         """
-        curr = target_currency.upper()
+        curr = (target_currency or "AED").upper().strip()
         rate = self.RATES_TO_USD.get(curr, 1.0)
         converted_amount = round(amount_usd * rate, 2)
         symbol = self.CURRENCY_SYMBOLS.get(curr, curr)
+        vat_rate = self.COUNTRY_VAT_RATES.get(curr, 0.0)
+        vat_amount = round(converted_amount * vat_rate, 2)
+        total_with_vat = round(converted_amount + vat_amount, 2)
 
         return {
             "amount_usd": amount_usd,
             "currency": curr,
             "rate": rate,
+            "subtotal": converted_amount,
             "converted_amount": converted_amount,
-            "formatted_price": f"{converted_amount} {symbol}"
+            "vat_rate_percent": int(vat_rate * 100),
+            "vat_amount": vat_amount,
+            "total_amount": total_with_vat,
+            "formatted_price": f"{converted_amount} {symbol}",
+            "formatted_total": f"{total_with_vat} {symbol}"
         }
 
     def generate_tax_invoice(self, client_name: str, client_vat_id: str, amount_usd: float, currency: str = "AED") -> Dict[str, Any]:
         """
-        Generates structured dual-language (Arabic/English) B2B tax invoice data.
+        Generates structured dual-language (Arabic/English) B2B tax invoice data conforming to GCC/ZATCA guidelines.
         """
-        pricing = self.convert_price(amount_usd, currency)
-        subtotal = pricing["converted_amount"]
-        vat_rate = 0.05 if currency in ["AED", "SAR"] else 0.0  # 5% GCC standard VAT
-        vat_amount = round(subtotal * vat_rate, 2)
-        total_amount = round(subtotal + vat_amount, 2)
+        curr = (currency or "AED").upper().strip()
+        pricing = self.convert_price(amount_usd, curr)
+        subtotal = pricing["subtotal"]
+        vat_rate = self.COUNTRY_VAT_RATES.get(curr, 0.0)
+        vat_amount = pricing["vat_amount"]
+        total_amount = pricing["total_amount"]
         invoice_num = f"INV-GCC-{int(time.time())}"
+        timestamp_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+        # Build ZATCA TLV representation (Seller, VAT No, Timestamp, Total, VAT Total)
+        seller_name = "JobHunt Pro Enterprise FZ-LLC"
+        seller_vat = "TRN-100482910300003"
+        qr_payload = f"{seller_name}|{seller_vat}|{timestamp_iso}|{total_amount}|{vat_amount}"
+        qr_base64 = base64.b64encode(qr_payload.encode("utf-8")).decode("utf-8")
 
         return {
             "invoice_number": invoice_num,
             "date": time.strftime("%Y-%m-%d"),
+            "timestamp_iso": timestamp_iso,
             "client_name": client_name,
             "client_vat_id": client_vat_id or "N/A",
-            "currency": pricing["currency"],
-            "currency_symbol": self.CURRENCY_SYMBOLS.get(pricing["currency"], pricing["currency"]),
+            "currency": curr,
+            "currency_symbol": self.CURRENCY_SYMBOLS.get(curr, curr),
             "subtotal": subtotal,
             "vat_rate_percent": int(vat_rate * 100),
             "vat_amount": vat_amount,
             "total_amount": total_amount,
-            "formatted_total": f"{total_amount} {self.CURRENCY_SYMBOLS.get(pricing['currency'], pricing['currency'])}",
-            "company_name_en": "JobHunt Pro Enterprise FZ-LLC",
+            "formatted_total": f"{total_amount} {self.CURRENCY_SYMBOLS.get(curr, curr)}",
+            "company_name_en": seller_name,
             "company_name_ar": "جوب هانت برو إنتربرايز ش.ذ.م.م",
-            "tax_registration_num": "TRN-100482910300003"
+            "tax_registration_num": seller_vat,
+            "zatca_qr_data": qr_base64,
+            "status": "ISSUED_COMPLIANT"
         }
 
 gcc_billing_service = GCCBillingService()
+

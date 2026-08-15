@@ -54,21 +54,27 @@ async def api_generate_redeem_code(request: Request):
 @router.post("/api/payments/telegram-stars/checkout")
 async def create_telegram_stars_invoice(request: Request):
     """
-    Create an invoice link for Telegram Stars payment in Telegram Mini App.
+    Create an invoice link for Telegram Stars payment in Telegram Mini App (1-click checkout).
     """
     try:
         body = await request.json()
-        stars_amount = int(body.get("stars", 100))
+        stars_amount = int(body.get("stars") or body.get("amount") or 250)
+        label = str(body.get("label") or "500 AI Applications")
         plan_id = body.get("plan_id", "pro_monthly")
+        user_id = str(body.get("user_id") or body.get("userId") or "")
         
         invoice_link = f"https://t.me/$invoice_stars_{uuid.uuid4().hex[:12]}"
+        prices = [{"label": label, "amount": stars_amount}]
         
         return {
             "status": "success",
             "invoice_link": invoice_link,
             "stars_amount": stars_amount,
+            "amount": stars_amount,
             "plan_id": plan_id,
             "currency": "XTR",
+            "prices": prices,
+            "user_id": user_id,
             "provider": "telegram_stars"
         }
     except Exception as e:
@@ -424,6 +430,18 @@ async def payment_webhook(request: Request):
                         update_wallet(conn, user["user_id"], amount, f"Stripe Checkout: {event_id}", "deposit")
                         conn.commit()
                     pass  # conn.close()
+                try:
+                    from core.telegram_alerts import alert_payment_received
+                    alert_payment_received(
+                        amount=amount,
+                        currency="USD",
+                        plan="Stripe Checkout Session",
+                        customer_email=email,
+                        payment_method="Stripe",
+                        transaction_id=str(event_id),
+                    )
+                except Exception as alert_err:
+                    logger.debug(f"[payment_webhook] Stripe payment alert skipped: {alert_err}")
         return {"status": "success", "message": "stripe_processed"}
 
     if event == "order:paid" and data:
@@ -451,7 +469,19 @@ async def payment_webhook(request: Request):
                     update_wallet(conn, user["user_id"], amount, f"Automated Webhook Deposit: {data.get('uniqid')}", "deposit")
                     conn.commit()
                 pass  # conn.close()
-                return {"status": "success", "message": "wallet_credited"}
+            try:
+                from core.telegram_alerts import alert_payment_received
+                alert_payment_received(
+                    amount=amount,
+                    currency=data.get("currency", "USD"),
+                    plan=data.get("title", "Sellix Package"),
+                    customer_email=email,
+                    payment_method="Sellix",
+                    transaction_id=str(data.get("uniqid", "")),
+                )
+            except Exception as alert_err:
+                logger.debug(f"[payment_webhook] Sellix payment alert skipped: {alert_err}")
+            return {"status": "success", "message": "wallet_credited"}
 
     status = payload.get("status")
     merchant_order = payload.get("order_id")
@@ -465,7 +495,19 @@ async def payment_webhook(request: Request):
                 update_wallet(conn, user_id, amount, f"Automated Cryptomus Webhook: {merchant_order}", "deposit")
                 conn.commit()
             pass  # conn.close()
-            return {"status": "success", "message": "cryptomus_credited"}
+        try:
+            from core.telegram_alerts import alert_payment_received
+            alert_payment_received(
+                amount=amount,
+                currency="USD",
+                plan="Cryptomus Deposit",
+                customer_email=f"User {user_id}" if "user_id" in locals() else "",
+                payment_method="Cryptomus",
+                transaction_id=str(merchant_order),
+            )
+        except Exception as alert_err:
+            logger.debug(f"[payment_webhook] Cryptomus payment alert skipped: {alert_err}")
+        return {"status": "success", "message": "cryptomus_credited"}
 
     return {"status": "ignored"}
 
@@ -543,29 +585,63 @@ async def process_direct_card_payment(order_id: str = Form(...), card_number: st
         "amount_paid": amount
     }
 
+@router.post("/api/v2/payments/apply-order-bump")
+async def apply_order_bump_to_order(
+    order_id: str = Form(...),
+    bump_item: str = Form("linkedin_optimization"),
+    bump_amount: float = Form(7.00)
+):
+    """Dynamically applies 1-click order bump to a pending checkout order."""
+    get_db, _, _, _, _, _, _, _ = _deps()
+    with get_db() as conn:
+        order = conn.execute("SELECT amount_usd, package_name, payment_status FROM orders WHERE order_id = ?", (order_id,)).fetchone()
+        if not order:
+            return JSONResponse({"status": "error", "message": "Order not found"}, status_code=404)
+        
+        current_amount = float(order["amount_usd"] or 19.0)
+        new_amount = current_amount + bump_amount
+        new_pkg = f"{order['package_name']}+{bump_item}"
+
+        conn.execute("UPDATE orders SET amount_usd = ?, package_name = ? WHERE order_id = ?", (new_amount, new_pkg, order_id))
+        conn.commit()
+
+    return {
+        "status": "success",
+        "order_id": order_id,
+        "new_total": new_amount,
+        "bump_applied": bump_item,
+        "bump_amount": bump_amount
+    }
+
+
 
 # ── MIGRATED PAYMENTS & WALLET ROUTES ───────────────────────────────────────
 
 
 @router.post("/api/v2/nowpayments-ipn")
 async def api_nowpayments_ipn(request: Request):
-    """Callback for NowPayments payment completion."""
+    """Callback for NowPayments payment completion with HMAC-SHA512 verification & replay defense."""
     get_db, _, update_wallet, _, _, _, _, _ = _deps()
     from payments.nowpayments import process_ipn_callback
     body = await request.body()
     headers = dict(request.headers)
-    success, order_id, amount_usd = process_ipn_callback(body, headers)
+    success, order_id, amount_usd, msg = process_ipn_callback(body, headers)
+    if not success and "signature" in msg.lower():
+        return JSONResponse({"status": "forbidden", "message": msg}, status_code=403)
+
     if success and order_id:
         with get_db() as conn:
-            order = conn.execute("SELECT user_id, payment_status FROM orders WHERE order_id = ? AND payment_status = 'pending'", (order_id,)).fetchone()
+            order = conn.execute("SELECT user_id, payment_status FROM orders WHERE order_id = ?", (order_id,)).fetchone()
             if order:
+                if order["payment_status"] == "completed":
+                    # Already completed - return idempotent OK
+                    return {"status": "success", "order_id": order_id, "message": "Already processed"}
                 user_id = order["user_id"]
                 conn.execute("UPDATE orders SET payment_status = 'completed' WHERE order_id = ?", (order_id,))
-                update_wallet(conn, user_id, amount_usd, f"NowPayments Cryptocurrencies Checkout: {order_id}", "deposit")
+                update_wallet(conn, user_id, amount_usd, f"NowPayments Cryptocurrencies Checkout: {order_id}", "deposit", tx_id=f"np_{order_id}")
                 conn.commit()
-            pass  # conn.close()
-            return {"status": "success", "order_id": order_id}
-    return JSONResponse({"status": "failed"}, status_code=400)
+            return {"status": "success", "order_id": order_id, "message": msg}
+    return JSONResponse({"status": "failed", "message": msg}, status_code=400)
 
 
 @router.post("/api/v2/nowpayments/create-invoice")
@@ -1303,9 +1379,14 @@ async def offers_buy(request: Request, offer_id: str):
         try:
             conn.execute("BEGIN TRANSACTION")
 
-            # Atomic wallet balance update
-            conn.execute("UPDATE users SET wallet_balance = wallet_balance - ?, total_spent = total_spent + ? WHERE user_id = ?",
-                         (price, price, user_id))
+            # Atomic wallet balance update with conditional check
+            cur = conn.execute(
+                "UPDATE users SET wallet_balance = wallet_balance - ?, total_spent = total_spent + ? WHERE user_id = ? AND wallet_balance >= ?",
+                (price, price, user_id, price)
+            )
+            if getattr(cur, "rowcount", 0) == 0:
+                conn.rollback()
+                return RedirectResponse("/offers?error=insufficient_funds", status_code=303)
 
             # Record special offer purchase
             conn.execute("""
@@ -1315,9 +1396,9 @@ async def offers_buy(request: Request, offer_id: str):
 
             # Record wallet transaction
             conn.execute("""
-                INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description)
-                VALUES (?, 'spend', ?, ?, ?)
-            """, (user_id, -price, new_balance, f"Offer: {offer_title}"))
+                INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description, tx_hash)
+                VALUES (?, 'spend', ?, ?, ?, ?)
+            """, (user_id, -price, new_balance, f"Offer: {offer_title}", purchase_id))
 
             # Record in global orders
             conn.execute("""
@@ -1328,7 +1409,7 @@ async def offers_buy(request: Request, offer_id: str):
             conn.commit()
         except Exception as e:
             conn.rollback()
-            pass  # conn.close()
+            return RedirectResponse("/offers?error=purchase_failed", status_code=303)
             logger.error(f"Error processing purchase transaction: {e}")
             return RedirectResponse("/offers?error=transaction_failed", status_code=303)
 
@@ -1804,6 +1885,18 @@ async def changenow_webhook(request: Request):
                     (user_id, amount_usd, "crypto_topup_changenow", f"ChangeNOW TX {tx_id} confirmed (+{tokens} tokens)")
                 )
                 conn.commit()
+            try:
+                from core.telegram_alerts import alert_payment_received
+                alert_payment_received(
+                    amount=amount_usd,
+                    currency="USD",
+                    plan="ChangeNOW Crypto Top-up",
+                    customer_email=f"User {user_id}",
+                    payment_method="ChangeNOW Crypto",
+                    transaction_id=str(tx_id),
+                )
+            except Exception as alert_err:
+                logger.debug(f"[changenow_webhook] Payment alert skipped: {alert_err}")
             return {"status": "ok", "message": f"Successfully credited {tokens} tokens for TX {tx_id}"}
         return {"status": "pending", "message": f"TX {tx_id} status is {status}"}
     except Exception as e:
@@ -1899,10 +1992,72 @@ async def moonpay_webhook(request: Request):
                     (user_id, amount_usd, "crypto_topup_moonpay", f"MoonPay Card TX {tx_id} confirmed (+{tokens} tokens)")
                 )
                 conn.commit()
+            try:
+                from core.telegram_alerts import alert_payment_received
+                alert_payment_received(
+                    amount=amount_usd,
+                    currency="USD",
+                    plan="MoonPay Crypto Top-up",
+                    customer_email=f"User {user_id}",
+                    payment_method="MoonPay Card",
+                    transaction_id=str(tx_id),
+                )
+            except Exception as alert_err:
+                logger.debug(f"[moonpay_webhook] Payment alert skipped: {alert_err}")
             return {"status": "ok", "message": f"Successfully credited {tokens} tokens for MoonPay TX {tx_id}"}
         return {"status": "pending", "message": f"MoonPay event {tx_type} status {status}"}
     except Exception as e:
         return JSONResponse({"status": "error", "detail": str(e)}, status_code=500)
+
+
+@router.get("/api/pricing/localized")
+async def get_localized_pricing_api(request: Request, country: str | None = None, currency: str | None = None):
+    """
+    Returns localized pricing in GCC/International currencies (SAR, AED, QAR, KWD, USD, EUR, GBP).
+    Auto-detects country from CF-IPCountry / X-Forwarded-For headers if not specified.
+    """
+    try:
+        from core.pricing_manager import get_gcc_localized_pricing
+        
+        detected_country = country
+        if not detected_country:
+            # Check Cloudflare or reverse-proxy geo headers
+            detected_country = (
+                request.headers.get("CF-IPCountry")
+                or request.headers.get("X-Country-Code")
+                or "AE"
+            ).upper()
+            
+        data = get_gcc_localized_pricing(country_code=detected_country, preferred_currency=currency)
+        return JSONResponse(data)
+    except Exception as e:
+        logger.error(f"Error fetching localized pricing: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+@router.post("/api/pricing/roi-calculator")
+async def calculate_roi_api(request: Request):
+    """
+    Calculates time saved, monthly financial value, and ROI multiplier for a job seeker.
+    """
+    try:
+        from core.pricing_manager import calculate_job_search_roi
+        body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+        
+        salary = float(body.get("target_monthly_salary_usd", 4000.0))
+        hours = float(body.get("manual_hours_per_week", 10.0))
+        tier = str(body.get("selected_tier", "pro"))
+        
+        result = calculate_job_search_roi(
+            target_monthly_salary_usd=salary,
+            manual_hours_per_week=hours,
+            selected_tier=tier
+        )
+        return JSONResponse({"success": True, "data": result})
+    except Exception as e:
+        logger.error(f"Error calculating ROI: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
 
 
 

@@ -22,7 +22,7 @@
 
 body {
   background: var(--bg-main);
-  font-family: 'Cairo', var(--font-sans);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-sans);
   color: var(--text-main);
   min-block-size: 100vh;
   display: flex;
@@ -60,7 +60,7 @@ body {
 
 /* ── Logo ── */
 .checkout-logo {
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   font-size: 20px;
   font-weight: 700;
   margin-block-end: 24px;
@@ -154,7 +154,7 @@ body {
 .order-amount-v3 {
   font-size: 42px;
   font-weight: 900;
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   color: var(--accent-primary);
   margin: 12px 0;
 }
@@ -162,7 +162,7 @@ body {
 .order-id-v3 {
   font-size:14px;
   color: var(--text-dim);
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   background: rgba(0,0,0,0.3);
   padding: 4px 10px;
   border-radius: var(--radius-sm);
@@ -222,7 +222,7 @@ body {
 .payment-code-box .pc-code {
   font-size: 28px;
   font-weight: 900;
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   color: var(--accent-primary);
   
   user-select: all;
@@ -249,7 +249,7 @@ body {
   color: #fff;
   font-weight: 700;
   font-size: 16px;
-  font-family: 'Cairo', var(--font-sans);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-sans);
   cursor: pointer;
   transition: all var(--transition-base);
   margin-block-end: 24px;
@@ -287,7 +287,7 @@ body {
   color: var(--text-dim);
   font-size:14px;
   font-weight: 600;
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -305,7 +305,7 @@ body {
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
   padding: 14px 16px;
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   font-size:14px;
   color: var(--text-muted);
   word-break: break-all;
@@ -383,7 +383,7 @@ body {
   background: var(--bg-glass);
   color: var(--text-main);
   font-size:14px;
-  font-family: 'Cairo', var(--font-mono);
+  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);
   outline: none;
   transition: border-color var(--transition-fast);
 }
@@ -481,6 +481,17 @@ body {
 <div class="checkout-v3">
 <h1 class="sr-only" style="position:absolute;inline-size:1px;block-size:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">إتمام الدفع — JobHunt Pro</h1>
 <div class="checkout-logo">JOBHUNT PRO</div>
+
+<!-- Flash Scarcity Countdown Banner -->
+<div style="margin-block-end:20px; padding:12px 18px; background:linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15)); border:1px solid rgba(245, 158, 11, 0.4); border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+  <div style="display:flex; align-items:center; gap:8px; font-weight:800; color:#fbbf24; font-size:14px;">
+    <span>⚡ عرض الإطلاق الخليجي الموقوت: خصم 40% ينتهي خلال:</span>
+  </div>
+  <div id="flashCountdownTimer" style="background:#0f172a; padding:6px 14px; border-radius:8px; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif; font-weight:900; font-size:16px; color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+    14:59
+  </div>
+</div>
+
 <!-- Progress Steps -->
 <div class="progress-steps">
 <div class="progress-step {% if order.status in ('pending','pending_payment') %}active{% else %}completed{% endif %}">
@@ -506,16 +517,26 @@ body {
       {% for item in order.items %}
       <div style="display:flex;justify-content:space-between;padding:4px 0;border-inset-block-end:1px solid var(--border-glass);">
 <span>{{ item.service_name }}{% if item.quantity > 1 %} x{{ item.quantity }}{% endif %}</span>
-<span style="font-family:'Cairo', var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
+<span style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', var(--font-mono);color:var(--accent-primary);">${{ "%.2f"|format(item.line_total) }}</span>
 </div>
       {% endfor %}
     </div>
-<div class="order-amount-v3">${{ "%.2f"|format(order.total_price or order.price) }}</div>
+<div class="order-amount-v3" id="orderTotalDisplay">${{ "%.2f"|format(order.total_price or order.price) }}</div>
 <div style="font-size:14px;color:var(--text-dim);">{{ order.items|length }} عنصر في هذا الطلب</div>
     {% else %}
     <div class="order-service-v3">{{ order.service_name }}</div>
-<div class="order-amount-v3">${{ "%.2f"|format(order.price) }}</div>
+<div class="order-amount-v3" id="orderTotalDisplay">${{ "%.2f"|format(order.price) }}</div>
     {% endif %}
+
+    <!-- 1-Click Order Bump Upsell Box -->
+    <div style="margin-block:16px; padding:14px 16px; background:rgba(30, 41, 59, 0.5); border:1px dashed rgba(16, 185, 129, 0.4); border-radius:12px; text-align:start;">
+      <div style="font-size:13px; font-weight:800; color:#34d399; margin-block-end:6px;">⚡ عرض الحزمة التكميلية (1-Click Order Bump):</div>
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13px; color:#e2e8f0;">
+        <input type="checkbox" id="orderBumpLinkedin" onchange="toggleOrderBump(this, 7.00)" style="inline-size:18px; block-size:18px; accent-color:#10b981;">
+        <span><strong>نعم، أضف خدمة تحسين ملف LinkedIn بـ +$7 فقط</strong> <span style="color:#94a3b8; text-decoration:line-through;">$20</span> (توفير 65%)</span>
+      </label>
+    </div>
+
     <div class="order-id-v3">رقم الطلب: {{ order.order_id }}</div>
 <div class="order-status-v3 {% if order.status in ('pending', 'pending_payment') %}status-pending-v3{% elif order.status == 'paid' %}status-paid-v3{% elif order.status == 'delivered' %}status-delivered-v3{% endif %}">
       {{ order.status|upper }}
@@ -536,6 +557,58 @@ body {
 
   {% if order.status in ('pending', 'pending_payment') %}
   <!-- Payment Section -->
+<!-- Localized GCC Payment Methods (Mada, KNET, Apple Pay, Tamara, Tabby) -->
+<div style="margin-block-end:20px; padding:18px 20px; background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(15,23,42,0.9)); border:1px solid rgba(16,185,129,0.3); border-radius:14px; text-align:start;">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-block-end:10px; gap:8px;">
+    <div style="font-size:16px; font-weight:800; color:#34d399; display:flex; align-items:center; gap:8px;">
+      <span>🇸🇦 🇰🇼 🇦🇪 بوابات الدفع الخليجية المباشرة (Mada / KNET / Apple Pay / BNPL)</span>
+    </div>
+    <span style="font-size:12px; background:rgba(16,185,129,0.2); color:#6ee7b7; padding:3px 8px; border-radius:6px; font-weight:700;">دفع محلي فوري بالريال والدرهم</span>
+  </div>
+  
+  <div style="font-size:13px; color:#cbd5e1; margin-block-end:14px; line-height:1.6;">
+    ادفع مباشرة عبر بطاقات <strong>مدى (Mada)</strong>، شبكة <strong>KNET الكويتية</strong>، أو قسم فاتورتك على <strong>4 دفعات شهرية متساوية بدون أي فوائد</strong> عبر تمارا أو تابي.
+  </div>
+
+  <!-- BNPL & Method Badges Grid -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-block-end:14px;">
+    <button type="button" onclick="selectGCCMethod('mada', 'SA')" style="padding:10px; background:rgba(30,41,59,0.8); border:1px solid rgba(16,185,129,0.4); border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.2s;">
+      <span style="font-size:18px;">🇸🇦</span>
+      <span>مدى (Mada)</span>
+      <small style="color:#94a3b8; font-size:11px;">السعودية</small>
+    </button>
+    <button type="button" onclick="selectGCCMethod('knet', 'KW')" style="padding:10px; background:rgba(30,41,59,0.8); border:1px solid rgba(59,130,246,0.4); border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.2s;">
+      <span style="font-size:18px;">🇰🇼</span>
+      <span>KNET</span>
+      <small style="color:#94a3b8; font-size:11px;">الكويت</small>
+    </button>
+    <button type="button" onclick="selectGCCMethod('apple_pay', 'AE')" style="padding:10px; background:rgba(30,41,59,0.8); border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.2s;">
+      <span style="font-size:18px;">🍏</span>
+      <span>Apple Pay</span>
+      <small style="color:#94a3b8; font-size:11px;">الخليج & العالم</small>
+    </button>
+    <button type="button" onclick="selectGCCMethod('tamara', 'SA')" style="padding:10px; background:rgba(30,41,59,0.8); border:1px solid rgba(245,158,11,0.5); border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.2s;">
+      <span style="font-size:18px;">🛍️</span>
+      <span>تمارا (Tamara)</span>
+      <small style="color:#fbbf24; font-size:11px;">4 دفعات بدون فوائد</small>
+    </button>
+    <button type="button" onclick="selectGCCMethod('tabby', 'AE')" style="padding:10px; background:rgba(30,41,59,0.8); border:1px solid rgba(168,85,247,0.5); border-radius:8px; color:#fff; font-size:13px; font-weight:700; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:4px; transition:all 0.2s;">
+      <span style="font-size:18px;">💳</span>
+      <span>تابي (Tabby)</span>
+      <small style="color:#c084fc; font-size:11px;">4 أقساط متساوية</small>
+    </button>
+  </div>
+
+  <!-- BNPL 4-Installment Display Box -->
+  <div id="bnplInstallmentBox" style="padding:12px 14px; background:rgba(15,23,42,0.7); border:1px dashed rgba(245,158,11,0.4); border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <div>
+      <span style="color:#fbbf24; font-weight:800; font-size:13px;">خيار التقسيط الميسر (BNPL):</span>
+      <span style="color:#e2e8f0; font-size:13px; margin-inline-start:6px;">ادفع <strong>{{ "%.2f"|format((order.total_price or order.price) * 3.75 / 4) }} ر.س</strong> اليوم وقسّم الباقي على 3 أشهر.</span>
+    </div>
+    <span style="font-size:11px; color:#94a3b8;">متوافق مع الشريعة 100%</span>
+  </div>
+</div>
+
 <!-- Visa / Mastercard Instant Card Payment -->
 <div style="margin-block-end:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.85)); border:1px solid rgba(59,130,246,0.25); border-radius:14px; text-align:center;">
 <div style="font-size:15px; font-weight:700; color:#60a5fa; margin-block-end:4px;">
@@ -547,7 +620,7 @@ body {
 <div style="font-size: 14px; color:#60a5fa; font-weight:700; margin-block-end:10px;">
   📌 الحد الأدنى للشحن بالبطاقة: 10$ دولار
 </div>
-<button type="button" onclick="openDirectCardPayment('{{ order.price }}')" style="width:100%; max-width:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
+<button type="button" onclick="openDirectCardPayment('{{ order.price }}')" style="inline-size:100%; max-inline-size:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
   💳 ادفع الآن بواسطة Visa / Mastercard / Apple Pay →
 </button>
 <div style="margin-block-start:6px; font-size: 14px; color:#94a3b8;">
@@ -790,17 +863,83 @@ async function payWithNOWPaymentsV3(btn) {
   }
 
   btn.disabled = false;
+  btn.textContent = '🚀 الدفع السريع عبر NOWPayments (USDT / Crypto)';
+}
+
 function openDirectCardPayment(amount, provider) {
-  var walletAddr = '0x3d2e9d8a2a506417F2D5A2Ea5149b868d2A72492';
-  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdt&amount=' + encodeURIComponent(amount || '10') + '&recipient=' + encodeURIComponent(walletAddr);
+  if (typeof openCryptoCheckoutModal === 'function') {
+    openCryptoCheckoutModal(parseFloat(amount) || 19.0, '{{ order.service_name or "JobHunt Pro Plan" }}');
+    return;
+  }
+  var walletAddr = 'TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61';
+  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdttrc20&amount=' + encodeURIComponent(amount || '19') + '&recipient=' + encodeURIComponent(walletAddr);
   if (provider === 'moonpay') {
-    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(amount || '10');
+    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(amount || '19');
   }
   window.open(cardUrl, '_blank');
 }
 
+/* ── Order Bump & Scarcity Countdown Logic ── */
+var baseOrderAmount = parseFloat('{{ order.total_price or order.price or 19.0 }}') || 19.0;
+var currentOrderTotal = baseOrderAmount;
+
+function toggleOrderBump(checkbox, bumpAmount) {
+  if (checkbox.checked) {
+    currentOrderTotal = baseOrderAmount + bumpAmount;
+  } else {
+    currentOrderTotal = baseOrderAmount;
+  }
+  var displayEl = document.getElementById('orderTotalDisplay');
+  if (displayEl) {
+    displayEl.textContent = '$' + currentOrderTotal.toFixed(2);
+  }
+}
+
+async function selectGCCMethod(method, countryCode) {
+  try {
+    var resp = await fetch('/api/v2/checkout/gcc-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        plan_id: '{{ order.package_name or "pro" }}',
+        country_code: countryCode || 'SA',
+        payment_method: method,
+        user_email: '{{ order.customer_email or "customer@jobhuntpro.io" }}'
+      })
+    });
+    var data = await resp.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert('بوابة ' + method.toUpperCase() + ' قيد التجهيز للسداد الفوري.');
+    }
+  } catch (err) {
+    console.error('GCC checkout error:', err);
+    alert('حدث خطأ أثناء إنشاء جلسة الدفع الخليجي.');
+  }
+}
+
+function initFlashScarcityTimer() {
+  var duration = 14 * 60 + 59;
+  var timerEl = document.getElementById('flashCountdownTimer');
+  if (!timerEl) return;
+
+  var interval = setInterval(function() {
+    var minutes = Math.floor(duration / 60);
+    var seconds = duration % 60;
+    var strMin = minutes < 10 ? '0' + minutes : minutes;
+    var strSec = seconds < 10 ? '0' + seconds : seconds;
+    timerEl.textContent = strMin + ':' + strSec;
+    if (--duration < 0) {
+      clearInterval(interval);
+      timerEl.textContent = '00:00';
+    }
+  }, 1000);
+}
+
 /* ── Generate QR Codes ── */
 document.addEventListener('DOMContentLoaded', function() {
+  initFlashScarcityTimer();
   {% for currency, addr in order.crypto_addresses.items() %}
   (function() {
     var qrContainer = document.getElementById('qrV3_{{ currency }}');

@@ -1,20 +1,15 @@
 """
 JobHunt Pro — NOWPayments.io Integration
 =========================================
-Cryptocurrency payment gateway with IPN (Instant Payment Notification).
+Cryptocurrency payment gateway with HMAC SHA-512 IPN (Instant Payment Notification)
+and multi-chain stablecoin routing (USDT/USDC on TRC20, Polygon, TON with $0 merchant fees).
 
 Features:
-- Create payment invoices (BTC, ETH, USDT, LTC + 50+ coins)
-- Webhook verification via IPN callback
+- Create payment invoices (BTC, ETH, USDT-TRC20, USDT-Polygon, USDC-Polygon, TON, LTC + 50+ coins)
+- Canonical HMAC SHA-512 webhook verification via IPN callback
+- Multi-chain currency resolution and zero merchant fees routing
 - Auto-delivery on payment confirmation
 - Payment status polling fallback
-
-Setup:
-1. Sign up at https://nowpayments.io
-2. Get your API key from Dashboard → API Keys
-3. Set NOWPAYMENTS_API_KEY in .env
-4. Set NOWPAYMENTS_IPN_SECRET in .env (optional, for IPN verification)
-5. Set SITE_URL in .env (for IPN callback URL)
 """
 
 import hashlib
@@ -22,6 +17,7 @@ import hmac
 import json
 import logging
 import time
+from typing import Any, Dict, List, Optional, Tuple, Union
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -32,7 +28,10 @@ logger = logging.getLogger(__name__)
 
 # ── Constants ──────────────────────────────────────────────────
 NOWPAYMENTS_API_URL = "https://api.nowpayments.io/v1"
-SUPPORTED_CURRENCIES = ["BTC", "ETH", "USDT", "LTC", "BNB", "MATIC", "SOL", "TRX", "ADA", "DOT", "DAI", "BUSD"]
+SUPPORTED_CURRENCIES = [
+    "BTC", "ETH", "USDT", "USDTTRC20", "USDTMATIC", "USDCMATIC", "USDCTRC20",
+    "TON", "USDTON", "LTC", "BNB", "MATIC", "SOL", "TRX", "ADA", "DOT", "DAI", "BUSD"
+]
 
 # ── API Client ─────────────────────────────────────────────────
 
@@ -104,24 +103,7 @@ class NOWPaymentsClient:
         is_fee_paid_by_user: bool = True,
     ) -> dict | None:
         """
-        Create a payment invoice.
-
-        Args:
-            pay_currency: Crypto currency code (e.g. "btc", "eth", "usdttrc20").
-                         Leave empty to let the user choose on the invoice page.
-
-        Returns: {
-            "id": int,              # NOWPayments invoice ID
-            "invoice_url": str,     # URL to send customer to
-            "payment_id": str,      # Payment ID
-            "payment_status": str,  # "waiting", "confirming", "confirmed", "sending", "finished", "failed"
-            "pay_address": str,     # Crypto address to send payment to
-            "price_amount": float,  # Amount in fiat
-            "price_currency": str,  # Fiat currency
-            "pay_amount": float,    # Amount in crypto
-            "pay_currency": str,    # Crypto currency
-            "order_id": str,        # Your internal order ID
-        }
+        Create a payment invoice with $0 merchant fees.
         """
         payload = {
             "price_amount": price_amount,
@@ -155,35 +137,42 @@ class NOWPaymentsClient:
 
     def verify_ipn(self, ipn_data: dict, headers: dict) -> bool:
         """
-        Verify IPN callback signature.
-        NOWPayments sends x-nowpayments-sig header.
-        If NOWPAYMENTS_IPN_SECRET is not configured, we accept the callback without HMAC.
+        Verify IPN callback HMAC-SHA512 signature.
+        NOWPayments sends signature in x-nowpayments-sig header.
+        Payload keys are canonicalized and sorted in ascending order.
         """
-        sig = headers.get("x-nowpayments-sig", "")
+        sig = headers.get("x-nowpayments-sig") or headers.get("X-Nowpayments-Sig", "")
         ipn_secret = config.NOWPAYMENTS_IPN_SECRET
 
-        # If IPN secret is configured, verify HMAC
-        if ipn_secret:
-            if not sig:
-                logger.warning("IPN: Missing signature header — rejecting")
-                return False
-            body = json.dumps(ipn_data, sort_keys=True).encode()
-            expected_sig = hmac.new(
-                ipn_secret.encode(),
-                body,
-                hashlib.sha512,
-            ).hexdigest()
-            if not hmac.compare_digest(sig, expected_sig):
-                logger.warning("IPN: Invalid signature — possible fraud!")
-                return False
-        else:
+        if not ipn_secret:
             logger.critical("IPN: REJECTED — no IPN secret configured! Set NOWPAYMENTS_IPN_SECRET in .env")
             return False  # NEVER accept unverified IPN callbacks
 
-        # Verify payment is in expected state
-        payment_status = ipn_data.get("payment_status", "")
-        if payment_status not in ("finished", "confirmed", "sending"):
-            logger.info(f"IPN: Payment {ipn_data.get('payment_id')} status={payment_status} — not yet complete")
+        if not sig:
+            logger.warning("IPN: Missing signature header — rejecting")
+            return False
+
+        try:
+            # Canonical compact JSON with sorted keys
+            sorted_dict = dict(sorted(ipn_data.items(), key=lambda item: item[0]))
+            compact_json = json.dumps(sorted_dict, separators=(",", ":"), sort_keys=True).encode("utf-8")
+            expected_sig = hmac.new(
+                ipn_secret.encode("utf-8"),
+                compact_json,
+                hashlib.sha512,
+            ).hexdigest()
+
+            if not hmac.compare_digest(sig.lower(), expected_sig.lower()):
+                logger.warning(f"IPN: Invalid signature — possible fraud! Received: {sig[:10]}... Expected: {expected_sig[:10]}...")
+                return False
+        except Exception as e:
+            logger.error(f"IPN: Error computing HMAC SHA-512 signature: {e}")
+            return False
+
+        # Verify payment is in valid state
+        payment_status = str(ipn_data.get("payment_status", "")).lower()
+        if payment_status not in ("finished", "confirmed", "sending", "partially_paid"):
+            logger.info(f"IPN: Payment {ipn_data.get('payment_id')} status={payment_status} — not yet completed")
             return False
 
         logger.info(f"IPN: Verified payment #{ipn_data.get('payment_id')} — {payment_status}")
@@ -200,7 +189,7 @@ def create_crypto_invoice(
     pay_currency: str = ""
 ) -> dict | None:
     """
-    Create a NOWPayments invoice for a service order.
+    Create a NOWPayments invoice for a service order with multi-chain routing.
     Returns invoice data or None on failure.
     """
     if not config.NOWPAYMENTS_API_KEY:
@@ -208,10 +197,20 @@ def create_crypto_invoice(
         return None
 
     # Map currency aliases for NOWPayments API
-    curr = (pay_currency or "").lower().strip()
-    if curr in ("usdt", "usdttrc20", "usdt-trc20", "usdt (trc20)"):
+    curr = (pay_currency or "").lower().strip().replace(" ", "").replace("-", "")
+    if curr in ("usdt", "usdttrc20", "trc20", "usdt(trc20)"):
         target_currency = "usdttrc20"
-    elif curr in ("any", "other", "all"):
+    elif curr in ("usdtmatic", "usdtpolygon", "usdt(polygon)"):
+        target_currency = "usdtmatic"
+    elif curr in ("usdcmatic", "usdcpolygon", "usdc(polygon)"):
+        target_currency = "usdcmatic"
+    elif curr in ("usdctrc20", "usdc(trc20)"):
+        target_currency = "usdctrc20"
+    elif curr in ("ton", "theopennetwork"):
+        target_currency = "ton"
+    elif curr in ("usdton", "usdtton", "usdt(ton)"):
+        target_currency = "usdton"
+    elif curr in ("any", "other", "all", ""):
         target_currency = ""
     else:
         target_currency = curr
@@ -225,6 +224,8 @@ def create_crypto_invoice(
         order_id=order_id,
         order_description=f"JobHunt Pro: {service_name or 'Service'}",
         ipn_callback_url=f"{site_url}/api/v2/nowpayments-ipn",
+        is_fixed_rate=True,
+        is_fee_paid_by_user=True,
     )
 
     # Fallback retry if primary coin is under temporary NOWPayments maintenance
@@ -236,6 +237,8 @@ def create_crypto_invoice(
             order_id=order_id,
             order_description=f"JobHunt Pro: {service_name or 'Service'}",
             ipn_callback_url=f"{site_url}/api/v2/nowpayments-ipn",
+            is_fixed_rate=True,
+            is_fee_paid_by_user=True,
         )
 
     if not result:
@@ -253,76 +256,94 @@ def create_crypto_invoice(
     }
 
 
-def process_ipn_callback(ipn_data: dict, headers: dict) -> bool:
+def process_ipn_callback(
+    raw_body: Union[bytes, str, dict],
+    headers: dict
+) -> Tuple[bool, str, float, str]:
     """
     Process an IPN callback from NOWPayments.
-    Returns True if payment was successfully processed and delivery triggered.
+    Safely handles raw bytes, string, or parsed dict, validates HMAC-SHA512,
+    prevents replay attacks, and records payment.
 
-    IPN data format:
-    {
-        "payment_id": int,
-        "payment_status": str,
-        "pay_address": str,
-        "price_amount": float,
-        "price_currency": str,
-        "pay_amount": float,
-        "actually_paid": float,
-        "actually_paid_at_fiat": float,
-        "order_id": str,
-        "order_description": str,
-        "purchase_id": str,
-        "created_at": str,
-        "updated_at": str,
-        "outcome_amount": float,
-        "outcome_currency": str,
-    }
+    Returns: (success: bool, order_id: str, actually_paid_usd: float, message: str)
     """
     client = NOWPaymentsClient()
+
+    # Parse input body
+    ipn_data: dict = {}
+    if isinstance(raw_body, bytes):
+        try:
+            ipn_data = json.loads(raw_body.decode("utf-8"))
+        except Exception as e:
+            logger.error(f"IPN: Failed to decode json from bytes: {e}")
+            return False, "", 0.0, "Invalid JSON payload"
+    elif isinstance(raw_body, str):
+        try:
+            ipn_data = json.loads(raw_body)
+        except Exception as e:
+            logger.error(f"IPN: Failed to parse json string: {e}")
+            return False, "", 0.0, "Invalid JSON payload"
+    elif isinstance(raw_body, dict):
+        ipn_data = raw_body
+    else:
+        return False, "", 0.0, "Unsupported payload format"
 
     # Verify IPN signature
     if not client.verify_ipn(ipn_data, headers):
         logger.warning(f"IPN verification failed for payment #{ipn_data.get('payment_id')}")
-        return False
+        return False, str(ipn_data.get("order_id", "")), 0.0, "HMAC signature verification failed"
 
-    order_id = ipn_data.get("order_id", "")
-    payment_status = ipn_data.get("payment_status", "")
-    actually_paid = float(ipn_data.get("actually_paid_at_fiat", 0))
+    order_id = str(ipn_data.get("order_id", "")).strip()
+    payment_status = str(ipn_data.get("payment_status", "")).strip().lower()
+    actually_paid = float(ipn_data.get("actually_paid_at_fiat") or ipn_data.get("actually_paid") or ipn_data.get("price_amount") or 0.0)
     payment_id = ipn_data.get("payment_id")
-    tx_hash = ipn_data.get("purchase_id", f"nowpayments-{payment_id}")
+    tx_hash = str(ipn_data.get("purchase_id") or f"nowpayments-{payment_id}")
 
     if not order_id:
         logger.error("IPN: Missing order_id in callback")
-        return False
+        return False, "", 0.0, "Missing order_id"
 
     logger.info(
         f"IPN: Payment #{payment_id} for order {order_id} — "
         f"{payment_status} — ${actually_paid:.2f}"
     )
 
+    # Replay protection: check if payment was already recorded
+    from payments.crypto_verifier import on_chain_verifier
+    if on_chain_verifier.is_tx_already_processed(tx_hash):
+        logger.info(f"IPN: Duplicate notification for already processed tx {tx_hash}")
+        return True, order_id, actually_paid, "Already processed (idempotent)"
+
     # Record payment in our system
     try:
         from services.fulfillment import ServiceFulfillment
-
         ServiceFulfillment()
 
-        # Record the payment
         from payments import record_payment
         record_payment(
             order_id=order_id,
             currency=ipn_data.get("pay_currency", "USDT"),
             amount_usd=actually_paid or float(ipn_data.get("price_amount", 0)),
             tx_hash=tx_hash,
-            customer_email="",  # Will be filled by fulfillment from order data
+            customer_email="",
             payment_code="NOWPAYMENTS_IPN",
             client_ip="nowpayments.io",
         )
 
+        on_chain_verifier.record_processed_tx(
+            tx_hash=tx_hash,
+            network=ipn_data.get("pay_currency", "crypto"),
+            amount_usd=actually_paid,
+            recipient=ipn_data.get("pay_address", "nowpayments"),
+            order_id=order_id,
+        )
+
         logger.info(f"IPN: Payment recorded for order {order_id}, delivery triggered")
-        return True
+        return True, order_id, actually_paid, "Payment processed successfully"
 
     except Exception as e:
         logger.error(f"IPN: Failed to process payment for {order_id}: {e}")
-        return False
+        return False, order_id, actually_paid, f"Processing error: {str(e)}"
 
 
 def poll_payment_status(nowpayments_id: int, order_id: str, max_retries: int = 30) -> bool:
@@ -347,7 +368,6 @@ def poll_payment_status(nowpayments_id: int, order_id: str, max_retries: int = 3
         )
 
         if status in ("finished", "confirmed"):
-            # Payment confirmed — trigger delivery
             try:
                 from services.fulfillment import ServiceFulfillment
                 fulfillment = ServiceFulfillment()

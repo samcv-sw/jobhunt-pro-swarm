@@ -978,6 +978,14 @@ def api_campaigns_live_status(request: Request):
         if not user_id:
             return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
 
+        # Trigger real-time autonomous application dispatch for candidate user
+        try:
+            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
+            start_continuous_dispatcher()
+            dispatch_single_application(user_id=user_id)
+        except Exception as d_exc:
+            logger.debug(f"[CampaignLiveStatus] Auto-dispatch pulse: {d_exc}")
+
         campaigns = [dict(r) for r in conn.execute(
             "SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 30",
             (user_id,)
