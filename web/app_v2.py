@@ -12285,6 +12285,30 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load social_growth_engine_router: {_e}")
 
+try:
+    from backend.routers.gcc_interviewer_router import router as gcc_interviewer_router
+    app.include_router(gcc_interviewer_router)
+except Exception as _e:
+    logger.warning(f"Could not load gcc_interviewer_router: {_e}")
+
+try:
+    from backend.routers.voice_to_cv_router import router as voice_to_cv_router
+    app.include_router(voice_to_cv_router)
+except Exception as _e:
+    logger.warning(f"Could not load voice_to_cv_router: {_e}")
+
+try:
+    from backend.routers.whitelabel_multi_tenant_router import router as whitelabel_multi_tenant_router
+    app.include_router(whitelabel_multi_tenant_router)
+except Exception as _e:
+    logger.warning(f"Could not load whitelabel_multi_tenant_router: {_e}")
+
+try:
+    from backend.routers.zatca_invoice_router import router as zatca_invoice_router
+    app.include_router(zatca_invoice_router)
+except Exception as _e:
+    logger.warning(f"Could not load zatca_invoice_router: {_e}")
+
 
 @app.get("/ats-score", response_class=HTMLResponse)
 @app.get("/free-ats-score", response_class=HTMLResponse)

@@ -1,31 +1,35 @@
 {
   "manifest_version": 3,
-  "name": "JobHunt Pro — AI Sidecar & Auto-Applier",
-  "version": "2.0.0",
-  "description": "Instant 1-Click AI Auto-Apply, ATS Keyword Scoring & Cover Letter Generator for LinkedIn, Indeed, and Wuzzuf.",
+  "name": "JobHunt Pro — AI 1-Click Career Copilot",
+  "version": "1.0.0",
+  "description": "Instant 1-Click ATS Resume Matcher, Cold Outreach Pitch Generator, and Recruiter Magnet for LinkedIn & Indeed.",
   "permissions": [
     "activeTab",
-    "scripting",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "https://*.linkedin.com/*",
     "https://*.indeed.com/*",
-    "https://*.wuzzuf.net/*",
-    "http://localhost:8000/*"
+    "https://*.bayt.com/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "https://*.pythonanywhere.com/*",
+    "https://jobhunt-pro.com/*"
   ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_title": "JobHunt Pro AI Copilot"
   },
   "content_scripts": [
     {
       "matches": [
         "https://*.linkedin.com/*",
         "https://*.indeed.com/*",
-        "https://*.wuzzuf.net/*"
+        "https://*.bayt.com/*"
       ],
       "js": ["content.js"],
-      "run_at": "document_end"
+      "run_at": "document_idle"
     }
   ]
 }

@@ -590,6 +590,10 @@ from backend.routers.microsite_builder import router as microsite_builder_router
 
 from backend.routers.multimodal_vision_router import router as multimodal_vision_router
 from backend.routers.social_growth_engine import router as social_growth_engine_router
+from backend.routers.gcc_interviewer_router import router as gcc_interviewer_router
+from backend.routers.voice_to_cv_router import router as voice_to_cv_router
+from backend.routers.whitelabel_multi_tenant_router import router as whitelabel_multi_tenant_router
+from backend.routers.zatca_invoice_router import router as zatca_invoice_router
 
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
@@ -597,6 +601,10 @@ app.include_router(pseo_jobs_router)
 app.include_router(microsite_builder_router)
 app.include_router(multimodal_vision_router)
 app.include_router(social_growth_engine_router)
+app.include_router(gcc_interviewer_router)
+app.include_router(voice_to_cv_router)
+app.include_router(whitelabel_multi_tenant_router)
+app.include_router(zatca_invoice_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router

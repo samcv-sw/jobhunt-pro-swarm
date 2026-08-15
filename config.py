@@ -32,11 +32,11 @@ SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jobhuntpro.app")
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
 # SECRET_KEY: must be set via .env — generates random fallback if missing (but warns loudly)
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "427002552579-30li2c3vkjdehr7rs15sh4r80pdbs265.apps.googleusercontent.com")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
-MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "487d1da1-69fb-4a84-8446-227973d977df")
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-SECRET_KEY = os.getenv("SECRET_KEY") or "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
+SECRET_KEY = os.getenv("SECRET_KEY", "")
 CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2831")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
 CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/alex-johnson-demo"
@@ -178,14 +178,14 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 PA_API_TOKEN = os.getenv("PA_API_TOKEN", "")
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "sam.dev1@hotmail.com")
+BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "")
 JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
-NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "3C4BHM5-V7641D9-KHBEJY7-865AFER")
-NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "hCGQjbcilPsaJQkW073hfzg5ziDyszfl")
-NOWPAYMENTS_PUBLIC_KEY = os.getenv("NOWPAYMENTS_PUBLIC_KEY", "d5bd644a-297c-44b6-82cf-ff62a3d891bd")
+NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
+NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
+NOWPAYMENTS_PUBLIC_KEY = os.getenv("NOWPAYMENTS_PUBLIC_KEY", "")
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 TURNSTILE_SITE_KEY = os.getenv("TURNSTILE_SITE_KEY", "")
 B2B_API_KEYS = [k.strip() for k in os.getenv("B2B_API_KEYS", "").split(",") if k.strip()]
@@ -303,10 +303,10 @@ COLD_BLAST_MIN_DELAY = float(os.getenv("COLD_BLAST_MIN_DELAY", "30.0"))
 COLD_BLAST_MAX_DELAY = float(os.getenv("COLD_BLAST_MAX_DELAY", "45.0"))
 
 # Crypto wallet addresses (for SaaS deposit feature)
-CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f")
-CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec")
-CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "0xc303249a1992405ac2879f97fa8fec34c72be2f8")
-CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f")
+CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "")
+CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "")
+CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "")
+CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "")
 
 # Ã¢â€â‚¬Ã¢â€â‚¬ Hyper Mode Configuration Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 HYPER_MODE_ENABLED = os.getenv("HYPER_MODE_ENABLED", "true").lower() == "true"
@@ -433,6 +433,73 @@ GEMINI_MODELS_URL = "https://generativelanguage.googleapis.com/v1beta/models"
 pythonanywhere_user = "JHFGUF"
 PA_LOG_BYTES_URL = f"https://www.pythonanywhere.com/api/v0/user/{pythonanywhere_user}/files/path/var/log/{SITE_URL.split('//')[-1]}.server.log/?bytes=4000"
 PA_RELOAD_URL = f"https://www.pythonanywhere.com/api/v0/user/{pythonanywhere_user}/webapps/{SITE_URL.split('//')[-1]}/reload/"
+
+
+# ---------------------------------------------------------------------------
+# Strict Environment Validation (Security Hardening)
+# ---------------------------------------------------------------------------
+# Fails fast in production when critical secrets are missing/empty, while
+# allowing graceful fallback in development and test environments.
+# ---------------------------------------------------------------------------
+
+_IS_DEV = bool(
+    os.getenv("TESTING", "0") in ("1", "true", "True")
+    or os.getenv("PYTEST_RUNNING", "0") in ("1", "true", "True")
+    or os.getenv("ENV", "development").lower() in ("dev", "development", "local")
+)
+
+_CRITICAL_ENV_VARS = (
+    "SECRET_KEY",
+    "DATABASE_URL",
+    "NOWPAYMENTS_API_KEY",
+    "NOWPAYMENTS_IPN_SECRET",
+    "NOWPAYMENTS_PUBLIC_KEY",
+)
+
+_WARN_ENV_VARS = (
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "MICROSOFT_CLIENT_ID",
+    "MICROSOFT_CLIENT_SECRET",
+    "JWT_SECRET_KEY",
+    "GROQ_API_KEY",
+    "GEMINI_API_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "SELLIX_WEBHOOK_SECRET",
+    "BREVO_API_KEY",
+    "TELEGRAM_BOT_TOKEN",
+)
+
+
+def _validate_env() -> None:
+    """Validate critical environment variables, failing fast in production."""
+    missing_critical = [v for v in _CRITICAL_ENV_VARS if not os.getenv(v)]
+    missing_warn = [v for v in _WARN_ENV_VARS if not os.getenv(v)]
+
+    if _IS_DEV:
+        if missing_critical:
+            logger.warning(
+                "DEV MODE: Missing critical env vars (using fallbacks): %s",
+                ", ".join(missing_critical),
+            )
+        return
+
+    if missing_critical:
+        raise RuntimeError(
+            "CRITICAL CONFIG ERROR: Missing required environment variables in "
+            f"production: {', '.join(missing_critical)}. "
+            "Set them in the .env file before starting the server."
+        )
+
+    if missing_warn:
+        logger.warning(
+            "Missing optional env vars (features will degrade gracefully): %s",
+            ", ".join(missing_warn),
+        )
+
+
+_validate_env()
 
 
 
