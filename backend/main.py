@@ -182,7 +182,9 @@ async def lifespan(app: FastAPI):
     # Initialize Telegram Bot in Webhook mode (skip during unit tests)
     if not os.getenv("TESTING") and not os.getenv("PYTEST_RUNNING"):
         try:
-            from core.telegram_bot import TelegramBot
+            from core.telegram.bot import TelegramBot
+        except Exception:
+            from core.telegram import TelegramBot
 
             bot_instance = TelegramBot()
             app.state.bot_instance = bot_instance

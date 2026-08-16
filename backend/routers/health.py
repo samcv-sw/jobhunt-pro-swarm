@@ -118,11 +118,11 @@ async def health_v1(request: Request = None) -> dict[str, Any]:
     except Exception as e:
         logger.warning(f"Health check DB query failed: {e}")
         db_status = "error"
-    return {
-        "status": "ok" if db_status == "ok" else "degraded",
-        "database": db_status,
-        "timestamp": int(time.time()),
-    }
+    # Keepalive contract: healthy => exactly {"status": "ok"}; degraded => include db detail.
+    result = {"status": "ok" if db_status == "ok" else "degraded"}
+    if db_status != "ok":
+        result["database"] = db_status
+    return result
 
 
 # ---------------------------------------------------------------------------
