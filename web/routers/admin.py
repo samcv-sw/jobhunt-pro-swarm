@@ -445,11 +445,11 @@ def admin_reset_pw(token: str = ""):
         return JSONResponse({"error": "ADMIN_PW_HASH not set in env"}, status_code=503)
     with get_db() as conn:
         conn.execute("UPDATE users SET password_hash = ? WHERE email = ?",
-                     (admin_hash, "samsalameh.cv@gmail.com"))
+                     (admin_hash, "samatou683@gmail.com"))
         conn.commit()
         pass  # conn.close()
-        logger.info("Password reset for samsalameh.cv@gmail.com via admin-reset-pw")
-        return {"status": "password updated for samsalameh.cv@gmail.com"}
+        logger.info("Password reset for samatou683@gmail.com via admin-reset-pw")
+        return {"status": "password updated for samatou683@gmail.com"}
 
 
 @router.post("/api/admin/run-design-scan")
