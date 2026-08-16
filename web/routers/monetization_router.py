@@ -144,6 +144,8 @@ def get_referral_link(user_id: str):
     stats = get_user_referral_stats(user_id)
     return {
         "status": "success",
+        "referral_code": stats.get("referral_code"),
+        "referral_link": stats.get("referral_link"),
         "stats": stats
     }
 

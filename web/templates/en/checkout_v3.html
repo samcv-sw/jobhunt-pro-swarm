@@ -806,7 +806,7 @@ function openDirectCardPayment(amount, provider) {
     openCryptoCheckoutModal(parseFloat(amount) || 19.0, '{{ order.service_name or "JobHunt Pro Plan" }}');
     return;
   }
-  var walletAddr = 'TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61';
+  var walletAddr = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
   var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdttrc20&amount=' + encodeURIComponent(amount || '19') + '&recipient=' + encodeURIComponent(walletAddr);
   if (provider === 'moonpay') {
     cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(amount || '19');

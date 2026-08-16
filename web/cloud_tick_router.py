@@ -77,7 +77,20 @@ async def cloud_tick_handler(request: Request):
         user_id = get_verified_user_id(request)
     except Exception:
         user_id = None
-    
+
+    # Require CRON_SECRET or admin session (same guard as the secured
+    # /api/v2/cloud-tick endpoint in routers/api_v2.py). Without this,
+    # the public handler shadows the secured one and would let anyone
+    # trigger campaign ticks.
+    try:
+        from web.app_v2 import verify_system_key
+        verify_system_key(request)
+    except Exception as vsk_err:
+        from fastapi import HTTPException as _HTTPException
+        if isinstance(vsk_err, _HTTPException):
+            raise
+        logger.warning(f"[CloudTick] verify_system_key unavailable: {vsk_err}")
+
     if not user_id:
         user_id = "user_1b73747a6e9a41d6"
 

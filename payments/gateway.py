@@ -24,10 +24,10 @@ class NOWPaymentsGateway:
             "btc": os.getenv("CRYPTO_BTC_ADDRESS", "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
             "eth": os.getenv("CRYPTO_ETH_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
             "usdt": os.getenv("CRYPTO_USDT_ADDRESS", "0xc303249a1992405ac2879f97fa8fec34c72be2f8"),
-            "usdt_trc20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TYDzsYUEpvnYmQk4zGP9sWWcTEd3ZiPULj")),
+            "usdt_trc20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")),
             "usdt_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
             "usdc_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
-            "ton": os.getenv("CRYPTO_TON_ADDRESS", "EQB_k02mK3m1UoG7zW9T0z2_Z9nK3m1UoG7zW9T0z2_Z9nK3"),
+            "ton": os.getenv("CRYPTO_TON_ADDRESS", "UQA8Rk7hv93aWeIAb3j_XqpUqvjC4igQdObtlVLykGyrQ9ux"),
             "ltc": os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
         }
 

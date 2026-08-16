@@ -822,10 +822,15 @@ class SpamWordScrubber:
         flagged = []
         sanitized = text
         for pattern, replacement in cls.SPAM_TRIGGER_MAP.items():
-            matches = re.findall(pattern, sanitized, flags=re.IGNORECASE)
+            # Handle Arabic unicode patterns where \b fails on Arabic conjunction prefixes (like و)
+            if any("\u0600" <= char <= "\u06FF" for char in pattern):
+                effective_pattern = pattern.replace(r"\b", r"(?:(?<=[\s،,.!?و])|(?=[\s،,.!?])|^|$)")
+            else:
+                effective_pattern = pattern
+            matches = re.findall(effective_pattern, sanitized, flags=re.IGNORECASE)
             if matches:
                 flagged.extend(matches)
-                sanitized = re.sub(pattern, replacement, sanitized, flags=re.IGNORECASE)
+                sanitized = re.sub(effective_pattern, replacement, sanitized, flags=re.IGNORECASE)
         return sanitized, list(set(flagged))
 
     @classmethod

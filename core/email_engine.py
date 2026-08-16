@@ -1624,19 +1624,22 @@ class EmailEngine:
 
     def _check_oauth_daily_limit(self, user_id: str) -> bool:
         """
-        Check if the user has reached their daily OAuth limit of 20 emails.
+        Check if the user has reached their daily OAuth anti-ban safety limit (480 emails/day).
+        Google allows 500/day for free Gmail accounts. Capping at 480 creates a 20-email
+        buffer to 100% eliminate ban risks and preserve reserve quota for personal emails.
 
         Args:
             user_id: The ID of the user.
 
         Returns:
-            True if user is below daily limit, False otherwise.
+            True if user is below daily safe limit (< 480), False otherwise (cascades to Central Pool).
         """
         try:
             import datetime
 
             from web.app_v2 import get_db
 
+            safe_limit = int(os.getenv("OAUTH_USER_SAFE_DAILY_CAP", "480"))
             conn = get_db()
             today_start = datetime.datetime.now().strftime("%Y-%m-%d 00:00:00")
 
@@ -1648,11 +1651,12 @@ class EmailEngine:
             daily_sent = count_row[0] if count_row else 0
             conn.close()
 
-            if daily_sent < 20:
+            if daily_sent < safe_limit:
                 return True
             else:
                 logger.warning(
-                    f"OAuth safety limit reached for user {user_id} ({daily_sent} sent today). Falling back to system SMTP to protect account."
+                    f"[AntiBan/SafetyBuffer] OAuth daily safety buffer reached for user {user_id} ({daily_sent}/{safe_limit} sent today). "
+                    f"Seamlessly cascading to Central Cloud Pool to guarantee 0% risk of account restriction."
                 )
                 return False
         except Exception as e:

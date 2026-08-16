@@ -62,9 +62,9 @@ def create_checkout_session(req: CheckoutSessionRequest) -> Dict[str, Any]:
     
     method = req.payment_method.lower()
     if method == "moonpay":
-        url = f"https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61&baseCurrencyCode={req.currency.lower()}"
+        url = f"https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98&baseCurrencyCode={req.currency.lower()}"
     elif method == "changenow":
-        url = f"https://changenow.io/embeded/exchange?from=btc&to=usdttrc20&address=TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61&amountType=fiat"
+        url = f"https://changenow.io/embeded/exchange?from=btc&to=usdttrc20&address=TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98&amountType=fiat"
     else:
         url = f"https://checkout.jobhuntpro.io/pay/{req.plan_id}?method={method}"
 
@@ -107,7 +107,7 @@ def verify_crypto_transaction(tx_hash: str, chain: str = "solana") -> Dict[str, 
 @router.post("/moonpay/checkout-url")
 def moonpay_checkout_handler(amount_usd: float = 49.0, user_id: str = "default_user", currency: str = "usd") -> Dict[str, Any]:
     """Generates direct MoonPay Credit Card to Crypto buy link with pre-filled wallet for Lebanon & global users."""
-    wallet_address = "TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61"
+    wallet_address = "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98"
     moonpay_url = (
         f"https://buy.moonpay.com/?"
         f"defaultCurrencyCode=usdt&walletAddress={wallet_address}"
@@ -125,7 +125,7 @@ def moonpay_checkout_handler(amount_usd: float = 49.0, user_id: str = "default_u
 @router.post("/changenow/create-swap")
 def changenow_create_swap_handler(from_currency: str = "btc", amount_usd: float = 49.0, user_id: str = "default_user") -> Dict[str, Any]:
     """Creates an instant ChangeNOW.io non-custodial crypto swap (BTC, ETH, SOL, TON, LTC, XRP to USDT) for zero KYC Lebanon users."""
-    payout_address = "TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61"
+    payout_address = "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98"
     supported_from = ["btc", "eth", "sol", "ton", "ltc", "xrp", "usdt", "usdc", "trx"]
     target_currency = from_currency.lower() if from_currency.lower() in supported_from else "btc"
     

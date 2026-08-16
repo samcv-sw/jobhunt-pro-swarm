@@ -459,9 +459,9 @@ PPP_DISCOUNTS = {
 
 GCC_CURRENCIES: dict[str, dict[str, Any]] = {
     "SAR": {"rate": 3.75, "symbol": "ر.س", "symbol_en": "SAR", "name": "Saudi Riyal", "decimals": 0},
-    "AED": {"rate": 3.6725, "symbol": "د.إ", "symbol_en": "AED", "name": "UAE Dirham", "decimals": 0},
+    "AED": {"rate": 3.67, "symbol": "د.إ", "symbol_en": "AED", "name": "UAE Dirham", "decimals": 0},
     "QAR": {"rate": 3.64, "symbol": "ر.ق", "symbol_en": "QAR", "name": "Qatari Riyal", "decimals": 0},
-    "KWD": {"rate": 0.308, "symbol": "د.ك", "symbol_en": "KWD", "name": "Kuwaiti Dinar", "decimals": 2},
+    "KWD": {"rate": 0.31, "symbol": "د.ك", "symbol_en": "KWD", "name": "Kuwaiti Dinar", "decimals": 2},
     "BHD": {"rate": 0.376, "symbol": "د.ب", "symbol_en": "BHD", "name": "Bahraini Dinar", "decimals": 2},
     "OMR": {"rate": 0.385, "symbol": "ر.ع", "symbol_en": "OMR", "name": "Omani Rial", "decimals": 2},
     "USD": {"rate": 1.0, "symbol": "$", "symbol_en": "USD", "name": "US Dollar", "decimals": 0},
@@ -549,7 +549,11 @@ def get_gcc_localized_pricing(country_code: str = "AE", preferred_currency: str 
         "success": True,
         "country_code": c_code,
         "currency": currency_code,
+        "currency_code": currency_code,
         "currency_name": currency_meta["name"],
+        "symbol_ar": symbol_ar,
+        "symbol_en": symbol_en,
+        "rate": rate,
         "exchange_rate_vs_usd": rate,
         "tiers": localized_tiers,
     }

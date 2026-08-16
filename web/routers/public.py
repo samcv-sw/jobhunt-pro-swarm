@@ -180,8 +180,8 @@ async def public_ats_instant_score(request: Request):
 
         # Domain-tailored high-impact keyword dictionaries
         role_keyword_matrix = {
-            "software": ["FastAPI", "PostgreSQL", "Docker", "Kubernetes", "Microservices", "CI/CD", "Cloud Architecture", "System Design", "Redis", "REST API"],
-            "engineer": ["System Architecture", "Scalability", "Unit Testing", "Cloud Infrastructure", "Optimization", "Database Design", "Agile"],
+            "software": ["Python", "FastAPI", "PostgreSQL", "Docker", "Kubernetes", "Microservices", "CI/CD", "Cloud Architecture", "System Design", "Redis", "REST API", "API"],
+            "engineer": ["Engineering", "System Architecture", "Scalability", "Unit Testing", "Cloud Infrastructure", "Optimization", "Database Design", "Agile", "Team", "Development"],
             "marketing": ["Performance Marketing", "ROAS", "Growth Hacking", "SEO/SEM", "Conversion Optimization", "Omnichannel", "Meta Ads", "Analytics"],
             "sales": ["B2B Enterprise Sales", "Pipeline Growth", "Account Management", "CRM Salesforce", "Lead Generation", "Contract Negotiation", "Revenue Quota"],
             "hr": ["Talent Acquisition", "ATS Sourcing", "Employee Retention", "Labor Law Compliance", "KPI Management", "Executive Onboarding"],
@@ -219,7 +219,7 @@ async def public_ats_instant_score(request: Request):
         gulf_score = min(96, max(50, gulf_count * 15 + 45))
 
         # Composite ATS score calculation
-        base_score = int((keyword_ratio * 40) + (min(100, (word_count / 280) * 30)) + (verb_score * 0.15) + (gulf_score * 0.15))
+        base_score = int((keyword_ratio * 45) + (min(100, (word_count / 200) * 25)) + (verb_score * 0.20) + (gulf_score * 0.20))
         final_score = min(96, max(42, base_score))
 
         if final_score >= 82:
@@ -746,10 +746,7 @@ def services_page(request: Request):
 
 @router.get("/external-offers", response_class=HTMLResponse)
 def external_offers_page(request: Request, cat: str = "ai", lang: str = "en"):
-    """External AI Subscription Deals & Partner Offers Page (Admin Only)."""
-    from web.app_v2 import require_admin
-    if not require_admin(request):
-        return RedirectResponse("/user-dashboard", status_code=303)
+    """External AI Subscription Deals & Partner Offers Page (public lead magnet)."""
     get_db, get_verified_user_id, _, _, _, _, _, render_template = _deps()
     from web.app_v2 import _build_dashboard_shell
     import os

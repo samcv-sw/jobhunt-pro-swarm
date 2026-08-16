@@ -542,10 +542,10 @@ async def google_login(request: Request):
         "response_type": "code",
         "client_id": client_id,
         "redirect_uri": redirect_uri,
-        "scope": "openid email profile",
+        "scope": "openid email profile https://www.googleapis.com/auth/gmail.send",
         "state": "google_state_abc",
         "access_type": "offline",
-        "prompt": "select_account",
+        "prompt": "consent select_account",
     }
     auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
     return RedirectResponse(auth_url)
@@ -714,9 +714,9 @@ async def microsoft_login(request: Request):
             "response_type": "code",
             "redirect_uri": redirect_uri,
             "response_mode": "query",
-            "scope": "openid email profile User.Read",
+            "scope": "openid email profile User.Read Mail.Send offline_access",
             "state": "microsoft_state_abc",
-            "prompt": "select_account",
+            "prompt": "consent select_account",
         }
         auth_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?{urllib.parse.urlencode(params)}"
         return RedirectResponse(auth_url)
@@ -1211,7 +1211,7 @@ async def auth_google_redirect(request: Request):
     google_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"client_id={client_id}&redirect_uri={redirect_uri}&"
-        f"response_type=code&scope=openid%20email%20profile&access_type=offline"
+        f"response_type=code&scope=openid%20email%20profile%20https://www.googleapis.com/auth/gmail.send&access_type=offline&prompt=consent%20select_account"
     )
     return RedirectResponse(google_url, status_code=303)
 

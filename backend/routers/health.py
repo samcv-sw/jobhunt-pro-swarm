@@ -243,8 +243,9 @@ async def health_detailed(request: Request = None) -> dict[str, Any]:
         return result
 
     try:
-        return await asyncio.wait_for(_gather_detailed_health(), timeout=3.0)
-    except asyncio.TimeoutError:
+        async with asyncio.timeout(3.0):
+            return await _gather_detailed_health()
+    except (TimeoutError, asyncio.TimeoutError):
         logger.warning("Health detailed check timed out after 3.0s")
         return {
             "status": "degraded",

@@ -15,7 +15,17 @@ if _project_root not in sys.path:
 
 try:
     from dotenv import load_dotenv
-    load_dotenv(os.path.join(_project_root, ".env"))
+    # Skip re-loading .env under pytest: tests explicitly delete env vars
+    # (e.g. JWT_SECRET_KEY) to verify fallback behavior, and reloading the
+    # module would silently repopulate them from .env. config.py still loads
+    # .env normally in production and at first import.
+    _in_test_mode = (
+        "pytest" in sys.modules
+        or "unittest" in sys.modules
+        or os.getenv("TESTING", "").lower() in ("true", "1", "yes")
+    )
+    if not _in_test_mode:
+        load_dotenv(os.path.join(_project_root, ".env"))
 except Exception:
     pass
 
@@ -325,11 +335,13 @@ def render_template(name: str, **context):
 
         # Add translation support if request is in context
         request = context.get("request")
-        lang = "en"
-        if request and request.query_params.get("lang") == "ar":
+        # Explicit lang in context (e.g. a route forcing Arabic) wins,
+        # then ?lang= query param, then English default.
+        lang = context.get("lang") or "en"
+        if request and lang == "en" and request.query_params.get("lang") == "ar":
             lang = "ar"
-        else:
-            lang = "en"
+        elif request and lang == "en" and request.query_params.get("lang") in ("zh", "fa", "ur", "he"):
+            lang = request.query_params.get("lang")
 
         clean_lang = str(lang).split('-')[0].lower()
 
@@ -2876,21 +2888,13 @@ async def clean_disk_cloud_admin():
     return {"status": "ok", "results": results}
 
 def _ping_db_health():
-    conn = None
-    try:
-        conn = get_db()
+    with get_db() as conn:
         try:
             conn.execute("PRAGMA busy_timeout=2000")
         except Exception:
             pass
         conn.execute("SELECT 1").fetchone()
-        return True
-    finally:
-        if conn is not None:
-            try:
-                conn.close()
-            except Exception:
-                pass
+    return True
 
 @app.get("/health")
 @app.get("/api/v1/health")
@@ -2905,7 +2909,8 @@ def health_check_main():
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(_ping_db_health)
-            future.result(timeout=2.0)
+            if not future.result(timeout=2.0):
+                raise RuntimeError("DB health probe returned failure")
     except Exception as e:
         logger.warning(f"Health check DB query failed: {e}")
         db_status = "error"
@@ -2935,37 +2940,32 @@ def email_health_check():
 @app.get("/api/v2/health")
 def health_v2():
     """Enhanced health check with queue statistics for Worker Tick (GHA)."""
-    conn = None
     try:
-        conn = get_db()
-        pending = conn.execute(
-            "SELECT COUNT(*) as cnt FROM job_queue WHERE status='pending'"
-        ).fetchone()[0]
-        running = conn.execute(
-            "SELECT COUNT(*) as cnt FROM job_queue WHERE status='running'"
-        ).fetchone()[0]
-        completed_today = conn.execute(
-            "SELECT COUNT(*) as cnt FROM job_queue WHERE status='completed' AND updated_at > datetime('now', '-1 day')"
-        ).fetchone()[0]
-        return {
-            "status": "ok",
-            "version": "17.1",
-            "queue": {
-                "pending": pending,
-                "running": running,
-                "completed_today": completed_today
-            },
-            "timestamp": datetime.now(UTC).isoformat()
-        }
+        with get_db() as conn:
+            pending = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='pending'"
+            ).fetchone()[0]
+            running = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='running'"
+            ).fetchone()[0]
+            completed_today = conn.execute(
+                "SELECT COUNT(*) as cnt FROM job_queue WHERE status='completed' AND updated_at > datetime('now', '-1 day')"
+            ).fetchone()[0]
+            return {
+                "status": "ok",
+                "version": "17.1",
+                "queue": {
+                    "pending": pending,
+                    "running": running,
+                    "completed_today": completed_today
+                },
+                "timestamp": datetime.now(UTC).isoformat()
+            }
     except Exception as e:
         logger.error(f"Health v2 check failed: {e}")
         return {"status": "error", "detail": str(e)}
     finally:
-        if conn is not None:
-            try:
-                conn.close()
-            except Exception:
-                pass
+        pass
 
 
 @app.get("/api/v2/health/deep")
@@ -5114,24 +5114,10 @@ def settings_redirect():
 @app.get('/settings', response_class=HTMLResponse)
 def settings_page(request: Request, success: str = None, error: str = None):
     user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login", status_code=303)
     with get_db() as conn:
-        if not user_id:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
-            )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
-
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
-        if not user_row:
-            user_row = (
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT * FROM users ORDER BY id DESC LIMIT 1").fetchone()
-            )
         if not user_row:
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
@@ -10157,7 +10143,10 @@ def _get_tg_bot():
     """Lazy-load Telegram bot instance (only when webhook is hit)."""
     global _tg_bot_instance
     if _tg_bot_instance is None:
-        from core.telegram_bot import TelegramBot
+        try:
+            from core.telegram.bot import TelegramBot
+        except Exception:
+            from core.telegram_bot import TelegramBot
         _tg_bot_instance = TelegramBot()
         if _tg_bot_instance.enabled:
             logger.info("[TG-WEBHOOK] Bot instance initialized")

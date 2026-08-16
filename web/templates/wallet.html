@@ -279,8 +279,8 @@ function toggleApiKey() {
 function openDirectCardPaymentFromWallet(provider) {
   var amtInput = document.getElementById('topupAmount');
   var val = amtInput ? amtInput.value : '25';
-  var walletAddr = '0x3d2e9d8a2a506417F2D5A2Ea5149b868d2A72492';
-  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdt&amount=' + encodeURIComponent(val || '25') + '&recipient=' + encodeURIComponent(walletAddr);
+  var walletAddr = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
+  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdttrc20&amount=' + encodeURIComponent(val || '25') + '&recipient=' + encodeURIComponent(walletAddr);
   if (provider === 'moonpay') {
     cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(val || '25');
   }

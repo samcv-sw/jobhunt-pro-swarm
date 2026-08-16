@@ -2,7 +2,7 @@ name: 🌌 24/7 Cloud Eternity SaaS Loop
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # Executes every 6 hours automatically on GitHub Cloud
+    - cron: '0 */2 * * *' # Executes every 2 hours automatically on GitHub Cloud
   workflow_dispatch:
 
 jobs:
@@ -26,6 +26,8 @@ jobs:
       - name: Run 24/7 Verification & Health Diagnostic
         run: |
           pytest tests/test_trillion_dollar_empire.py -q --tb=short
+          pytest tests/test_cloud_eternity.py -q --tb=short
+          pytest tests/test_galactic_upgrades.py -q --tb=short
 
       - name: Execute Autonomous Client SDR Growth Swarm Loop
         env:
@@ -47,3 +49,20 @@ jobs:
           conn.close()
           print('Edge DB Optimized Successfully.')
           "
+
+      - name: Verify Live Production Endpoints
+        run: |
+          python -c "
+          import urllib.request, json
+          endpoints = [
+            'https://jobhuntpro.com/healthz',
+            'https://jhfguf.pythonanywhere.com/healthz',
+          ]
+          for url in endpoints:
+              try:
+                  resp = urllib.request.urlopen(url, timeout=10)
+                  print(f'LIVE: {url} -> {resp.status}')
+              except Exception as e:
+                  print(f'FAIL: {url} -> {e}')
+          "
+

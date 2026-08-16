@@ -72,10 +72,10 @@ def get_payment_addresses() -> dict[str, str]:
         "BTC": os.getenv("CRYPTO_BTC_ADDRESS", "") or config.CRYPTO_BTC_ADDRESS or "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f",
         "ETH": os.getenv("CRYPTO_ETH_ADDRESS", "") or config.CRYPTO_ETH_ADDRESS or "0x0e68d76d8dc303249a1992405ac2879f97fa8fec",
         "USDT": os.getenv("CRYPTO_USDT_ADDRESS", "") or config.CRYPTO_USDT_ADDRESS or "0xc303249a1992405ac2879f97fa8fec34c72be2f8",
-        "USDT_TRC20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TYDzsYUEpvnYmQk4zGP9sWWcTEd3ZiPULj")),
+        "USDT_TRC20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")),
         "USDT_POLYGON": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
         "USDC_POLYGON": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
-        "TON": os.getenv("CRYPTO_TON_ADDRESS", "EQB_k02mK3m1UoG7zW9T0z2_Z9nK3m1UoG7zW9T0z2_Z9nK3"),
+        "TON": os.getenv("CRYPTO_TON_ADDRESS", "UQA8Rk7hv93aWeIAb3j_XqpUqvjC4igQdObtlVLykGyrQ9ux"),
         "LTC": os.getenv("CRYPTO_LTC_ADDRESS", "") or config.CRYPTO_LTC_ADDRESS or "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f",
     }
 

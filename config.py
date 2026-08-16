@@ -305,7 +305,10 @@ COLD_BLAST_MAX_DELAY = float(os.getenv("COLD_BLAST_MAX_DELAY", "45.0"))
 # Crypto wallet addresses (for SaaS deposit feature)
 CRYPTO_BTC_ADDRESS = os.getenv("CRYPTO_BTC_ADDRESS", "")
 CRYPTO_ETH_ADDRESS = os.getenv("CRYPTO_ETH_ADDRESS", "")
-CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "")
+CRYPTO_USDT_ADDRESS = os.getenv("CRYPTO_USDT_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")
+CRYPTO_USDT_TRC20_ADDRESS = os.getenv("CRYPTO_USDT_TRC20_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")
+CRYPTO_TRON_ADDRESS = os.getenv("CRYPTO_TRON_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")
+CRYPTO_TON_ADDRESS = os.getenv("CRYPTO_TON_ADDRESS", "UQA8Rk7hv93aWeIAb3j_XqpUqvjC4igQdObtlVLykGyrQ9ux")
 CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "")
 
 # Ã¢â€â‚¬Ã¢â€â‚¬ Hyper Mode Configuration Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬

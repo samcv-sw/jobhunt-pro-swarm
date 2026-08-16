@@ -1,4 +1,4 @@
-<!-- Crypto & Card Checkout Modal (MoonPay + ChangeNOW + Whish Money + Direct Web3 QR) -->
+<!-- Crypto & Card Checkout Modal (MoonPay + ChangeNOW + Direct Web3 QR) -->
 <div id="cryptoCheckoutModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 16px;">
     <div style="position: relative; inline-size: 100%; max-inline-size: 640px; background: rgba(10, 18, 30, 0.96); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 24px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.15); color: #fff; font-family:{{ 'Cairo, Tajawal, sans-serif' if (lang or 'ar') == 'ar' else 'Inter, system-ui, sans-serif' }};" dir="{{ 'rtl' if (lang or 'ar') == 'ar' else 'ltr' }}">
         
@@ -10,29 +10,26 @@
         <!-- Header -->
         <div style="text-align: center; margin-block-end: 20px;">
             <span style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; color: #00f0ff; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 9999px; margin-block-end: 8px;">
-                {{ '🇱🇧 بوابة الدفع المباشرة للخليج ولبنان والعالم (Direct Checkout)' if (lang or 'ar') == 'ar' else '🌐 Direct Global & Regional Payment Portal' }}
+                {{ '🌐 بوابة الدفع المباشرة العالمية (MoonPay • ChangeNOW • Web3)' if (lang or 'ar') == 'ar' else '🌐 Direct Global & Regional Payment Portal' }}
             </span>
             <h2 style="font-size: 22px; font-weight: 800; background: linear-gradient(135deg, #00f0ff, #0080ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 6px;">
                 {{ 'تفعيل باقة JobHunt Pro فوراً' if (lang or 'ar') == 'ar' else 'Instant JobHunt Pro Activation' }}
             </h2>
             <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
-                {{ 'ادفع بأمان عبر بطاقتك الائتمانية (MoonPay) أو تحويل كريبتو فوري أو Whish Money' if (lang or 'ar') == 'ar' else 'Secure instant checkout via Credit / Debit Card (MoonPay), Instant Crypto Swap, or Whish Money' }}
+                {{ 'ادفع بأمان عبر بطاقتك الائتمانية (MoonPay) أو تحويل كريبتو فوري آلياً (ChangeNOW & NOWPayments)' if (lang or 'ar') == 'ar' else 'Secure instant checkout via Credit / Debit Card (MoonPay), Instant Crypto Swap (ChangeNOW), or USDT Wallet' }}
             </p>
         </div>
 
         <!-- Tab Buttons -->
         <div style="display: flex; border-block-end: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 20px; gap: 8px; overflow-x: auto; padding-block-end: 8px;">
             <button id="tabMoonPay" onclick="switchCheckoutTab('moonpay')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 700; border: none; border-block-end: 2px solid #00f0ff; color: #00f0ff; background: transparent; cursor: pointer; white-space: nowrap;">
-                💳 {{ 'فيزا / ماستركارد' if (lang or 'ar') == 'ar' else 'Card (MoonPay)' }}
+                💳 {{ 'فيزا / ماستركارد (MoonPay)' if (lang or 'ar') == 'ar' else 'Card (MoonPay)' }}
             </button>
             <button id="tabChangeNow" onclick="switchCheckoutTab('changenow')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 600; border: none; border-block-end: 2px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; white-space: nowrap;">
-                ⚡ {{ 'مبادلة كريبتو' if (lang or 'ar') == 'ar' else 'Crypto Swap' }}
-            </button>
-            <button id="tabWhish" onclick="switchCheckoutTab('whish')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 600; border: none; border-block-end: 2px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; white-space: nowrap;">
-                🇱🇧 {{ 'Whish / OMT' if (lang or 'ar') == 'ar' else 'Whish Money' }}
+                ⚡ {{ 'مبادلة كريبتو (ChangeNOW)' if (lang or 'ar') == 'ar' else 'Crypto Swap (ChangeNOW)' }}
             </button>
             <button id="tabWeb3QR" onclick="switchCheckoutTab('web3qr')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 600; border: none; border-block-end: 2px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; white-space: nowrap;">
-                📱 {{ 'محفظة USDT' if (lang or 'ar') == 'ar' else 'USDT Wallet' }}
+                📱 {{ 'محفظة USDT (TRC20)' if (lang or 'ar') == 'ar' else 'USDT Wallet (TRC20)' }}
             </button>
         </div>
 
@@ -78,32 +75,12 @@
             </button>
         </div>
 
-        <!-- Whish Money / Local Lebanon Content -->
-        <div id="contentWhish" style="display: none;">
-            <div style="padding: 16px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(245, 158, 11, 0.3); margin-block-end: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 8px;">
-                    <span style="font-size: 13px; font-weight: 700; color: #f59e0b;">🇱🇧 Whish Money / OMT</span>
-                    <span id="whishPriceDisplay" style="font-size: 18px; font-weight: 800; color: #f59e0b;">$19.00 USD</span>
-                </div>
-                <p style="font-size: 12px; color: #cbd5e1; line-height: 1.6; margin-block-end: 10px;">
-                    {{ 'إذا كنت متواجداً في لبنان، يمكنك التحويل المباشر عبر تطبيق Whish Money لتفعيل حسابك فوراً وبدون أي عمولات.' if (lang or 'ar') == 'ar' else 'For Lebanon local payments, transfer directly via Whish Money app or OMT to activate immediately without fees.' }}
-                </p>
-                <div style="padding: 10px 14px; background: rgba(0, 0, 0, 0.5); border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px;">
-                    <p style="margin-block-end: 4px;"><strong>Whish Account:</strong> <span style="color: #f59e0b;">+961 70 000 000</span></p>
-                    <p><strong>Name:</strong> JobHunt Pro SaaS Lebanon</p>
-                </div>
-            </div>
-            <a id="whishWhatsappBtn" href="https://wa.me/96170000000?text=Hello,%20I%20want%20to%20activate%20JobHunt%20Pro%20subscription%20via%20Whish%20Money" target="_blank" style="display: block; inline-size: 100%; padding: 14px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 14px; border-radius: 12px; text-align: center; text-decoration: none;">
-                {{ 'تأكيد الدفع فوراً عبر واتساب (WhatsApp) 💬' if (lang or 'ar') == 'ar' else 'Confirm Payment via WhatsApp 💬' }}
-            </a>
-        </div>
-
         <!-- Direct Web3 QR Content -->
         <div id="contentWeb3QR" style="display: none; text-align: center;">
             <div style="padding: 16px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 16px;">
-                <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61" alt="USDT QR Code" style="inline-size: 150px; block-size: 150px; border-radius: 12px; padding: 6px; background: #fff; margin-inline: auto; margin-block-end: 12px; display: block;">
+                <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98" alt="USDT QR Code" style="inline-size: 150px; block-size: 150px; border-radius: 12px; padding: 6px; background: #fff; margin-inline: auto; margin-block-end: 12px; display: block;">
                 <p style="font-size: 12px; font-family:monospace; word-break: break-all; padding: 8px 12px; background: #050b14; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; margin-block-end: 10px;">
-                    <span id="usdtAddressText">TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61</span>
+                    <span id="usdtAddressText">TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98</span>
                 </p>
                 <button onclick="copyWalletAddress()" style="padding: 8px 16px; background: rgba(0, 240, 255, 0.12); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
                     📋 {{ 'نسخ عنوان USDT TRC20' if (lang or 'ar') == 'ar' else 'Copy USDT TRC20 Address' }}
@@ -115,7 +92,7 @@
         </div>
 
         <div style="margin-block-start: 16px; padding-block-start: 12px; border-block-start: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-size: 11px; color: #64748b;">
-            🔒 256-Bit SSL Encrypted • GCC, Global & Lebanon Support
+            🔒 256-Bit SSL Encrypted • Direct Global Crypto & Card Support
         </div>
     </div>
 </div>
@@ -125,7 +102,7 @@ window.currentCheckoutAmount = 19.0;
 window.currentCheckoutPlan = 'Basic Plan';
 
 function switchCheckoutTab(tabName) {
-    const tabs = ['MoonPay', 'ChangeNow', 'Whish', 'Web3QR'];
+    const tabs = ['MoonPay', 'ChangeNow', 'Web3QR'];
     tabs.forEach(t => {
         const btn = document.getElementById('tab' + t);
         const content = document.getElementById('content' + t);
@@ -133,7 +110,7 @@ function switchCheckoutTab(tabName) {
         if (t.toLowerCase() === tabName.toLowerCase()) {
             btn.style.borderBottomColor = '#00f0ff';
             btn.style.color = '#00f0ff';
-            content.style.display = (t === 'Web3QR' ? 'block' : 'block');
+            content.style.display = 'block';
         } else {
             btn.style.borderBottomColor = 'transparent';
             btn.style.color = '#94a3b8';
@@ -163,19 +140,12 @@ function openCryptoCheckoutModal(amountUsd = 19.0, planName = 'Basic Plan') {
     if (document.getElementById('moonpayPlanName')) document.getElementById('moonpayPlanName').innerText = planName;
     if (document.getElementById('moonpayPriceDisplay')) document.getElementById('moonpayPriceDisplay').innerText = formattedPrice;
     if (document.getElementById('cnowPriceDisplay')) document.getElementById('cnowPriceDisplay').innerText = formattedPrice;
-    if (document.getElementById('whishPriceDisplay')) document.getElementById('whishPriceDisplay').innerText = formattedPrice;
 
     // Build direct MoonPay link
-    const walletAddress = 'TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61';
+    const walletAddress = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
     const moonpayDirectUrl = `https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=${walletAddress}&baseCurrencyAmount=${window.currentCheckoutAmount}&baseCurrencyCode=usd`;
     const moonpayBtn = document.getElementById('moonpayCheckoutBtn');
     if (moonpayBtn) moonpayBtn.href = moonpayDirectUrl;
-
-    // Update WhatsApp template text
-    const whishBtn = document.getElementById('whishWhatsappBtn');
-    if (whishBtn) {
-        whishBtn.href = `https://wa.me/96170000000?text=${encodeURIComponent('Hello, I want to activate ' + planName + ' for ' + formattedPrice + ' via Whish Money')}`;
-    }
 
     // Try backend signed checkout URL
     fetch('/api/v1/payments/moonpay/checkout-url', {
@@ -192,7 +162,7 @@ function openCryptoCheckoutModal(amountUsd = 19.0, planName = 'Basic Plan') {
 function initiateChangeNowSwap() {
     const fromCurr = document.getElementById('cnowCryptoSelect') ? document.getElementById('cnowCryptoSelect').value : 'usdttrc20';
     const amt = window.currentCheckoutAmount || 19.0;
-    const walletAddress = 'TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61';
+    const walletAddress = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
 
     const fallbackUrl = `https://changenow.io/embeded/exchange?from=${encodeURIComponent(fromCurr)}&to=usdttrc20&amount=${amt}&address=${walletAddress}&amountType=fiat`;
     const frame = document.getElementById('cnowEmbedFrame');

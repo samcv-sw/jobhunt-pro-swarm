@@ -1833,7 +1833,7 @@ async def changenow_create_exchange(request: Request):
         
         from payments import get_payment_addresses
         addresses = get_payment_addresses()
-        payout_address = addresses.get("USDT_TRC20") or addresses.get("USDT") or "TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61"
+        payout_address = addresses.get("USDT_TRC20") or addresses.get("USDT") or "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98"
 
         exchange_id = f"cnow_{uuid.uuid4().hex[:12]}"
         changenow_url = (
@@ -1922,7 +1922,7 @@ async def moonpay_checkout_url(request: Request):
         
         from payments import get_payment_addresses
         addresses = get_payment_addresses()
-        wallet_address = addresses.get("USDT_TRC20") or addresses.get("USDT") or "TQn9Y2khEsLJW1ChV86WeR35uX6DY4Xb61"
+        wallet_address = addresses.get("USDT_TRC20") or addresses.get("USDT") or "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98"
 
         moonpay_api_key = os.getenv("MOONPAY_PUBLIC_KEY", "pk_live_default")
         moonpay_url = (

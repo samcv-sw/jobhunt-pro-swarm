@@ -153,27 +153,8 @@ def alert_email_sent(
     sent_count: int = 0,
     total: int = 0,
 ) -> bool:
-    """Alert when an individual email is sent. Throttled — only fires every ~10 sends."""
-    if not _is_configured():
-        return False
-
-    # Only alert on milestone sends (every 10th, or first/last)
-    if sent_count > 0 and sent_count % 10 != 0 and sent_count != 1:
-        return False
-
-    cid_short = campaign_id[:8] if len(campaign_id) > 8 else campaign_id
-    progress = f" ({sent_count}/{total})" if total > 0 else ""
-
-    msg = (
-        f"📧 <b>Email Sent!</b>{progress}\n\n"
-        f"<b>To:</b> {company}\n"
-        f"<b>Position:</b> {job_title}\n"
-        f"<b>Address:</b> {email_addr}\n"
-    )
-    if campaign_id:
-        msg += f"<b>Campaign:</b> <code>{cid_short}</code>\n"
-
-    return _send_message(msg)
+    """Muted: Silences per-email spam. Real-time alerts are reserved for Payments and Daily Reports."""
+    return True
 
 
 def alert_email_opened(

@@ -63,21 +63,33 @@ SUSPICIOUS_LOCAL_PARTS = {
     "noemail", "no-email", "noreply_fake", "sample", "user_vip"
 }
 
-# Top GCC, Levant, and Global enterprise domains pre-warmed for ultra-low latency
+# Top GCC, Levant, and Global enterprise domains pre-warmed for ultra-low latency (<0.01ms)
 MAJOR_ENTERPRISE_DOMAINS = {
     "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com", "aol.com", "protonmail.com", "apexrecruitment.ae",
     "oracle.com", "microsoft.com", "cisco.com", "paloaltonetworks.com", "fortinet.com", "ibm.com", "sap.com", "vmware.com",
     "dell.com", "salesforce.com", "amazon.com", "google.com", "huawei.com", "siemens.com", "se.com", "abb.com", "honeywell.com",
     "slb.com", "bakerhughes.com", "halliburton.com", "parsons.com", "jacobs.com", "aecom.com", "wsp.com", "atkinsrealis.com",
     "mottmac.com", "egis-group.com", "dar.com", "keoic.com", "hillintl.com", "turnerandtownsend.com", "alvarezandmarsal.com",
-    "oliverwyman.com", "kearney.com", "rolandberger.com", "gartner.com", "idc.com", "aramco.com", "neom.com", "pif.gov.sa",
-    "tascoutsourcing.com", "blackpearl.com", "bayt.com", "gulftalent.com", "dubizzle.com", "chalhoub.com", "anghami.com", 
-    "careem.com", "noon.com", "talabat.com", "toters.com", "ogero.gov.lb", "alfa.com.lb", "touch.com.lb", "cedarcom.net", 
-    "softflow.io", "elementn.com", "itworksme.com", "nartechnologies.com", "maliagroup.com", "procomlb.com", "stc.com.sa", 
-    "etisalat.ae", "du.ae", "zain.com", "mobily.com.sa", "ooredoo.qa", "mrsool.co", "salla.sa", "zid.sa", "foodics.com", 
-    "unifonic.com", "lean.me", "tamara.co", "tabby.ai", "propertyfinder.ae", "kitopi.com", "jahez.net", "hungerstation.com", 
-    "adnoc.ae", "sabic.com", "dewa.gov.ae", "enoc.com", "qatarairways.com.qa", "emirates.com", "etihad.ae", "flydubai.com", 
-    "saudia.com", "airarabia.com", "al-futtaim.com", "emaar.com", "damacproperties.com", "aldar.com", "stripe.com", "openai.com"
+    "oliverwyman.com", "kearney.com", "rolandberger.com", "gartner.com", "idc.com", "aramco.com", "aramcodigital.com", "neom.com", 
+    "redseaglobal.com", "qiddiya.com", "diriyah.sa", "roshn.sa", "pif.gov.sa", "mubadala.com", "adq.ae", "g42.ai", "presight.ai",
+    "solutions.com.sa", "site.sa", "elm.sa", "eand.com", "du.ae", "stc.com.sa", "zain.com", "ooredoo.qa", "omantel.om", "beyon.com",
+    "emirates.com", "qatarairways.com.qa", "qatarairways.com", "flydubai.com", "airarabia.com", "riyadhair.com", "dpworld.com",
+    "adportsgroup.com", "agility.com", "aramex.com", "emiratesnbd.com", "bankfab.com", "adcb.com", "dib.ae", "mashreqbank.com",
+    "alrajhibank.com.sa", "snb.com.sa", "riyadbank.com", "kfh.com", "nbk.com", "qnb.com", "bankmuscat.com", "bankabc.com",
+    "arabbank.com", "bankaudi.com.lb", "blom-bank.com", "byblosbank.com", "majidalfuttaim.com", "chalhoubgroup.com", "alshaya.com",
+    "altayer.com", "apparelgroup.com", "landmarkgroup.com", "alfuttaim.com", "emaar.com", "damacproperties.com", "aldar.com",
+    "mrsool.co", "salla.sa", "zid.sa", "foodics.com", "unifonic.com", "anghami.com", "leantech.me", "tamara.co", "tabby.ai",
+    "careem.com", "talabat.com", "noon.com", "propertyfinder.ae", "dubizzle.com", "deliveryhero.com", "kitopi.com", "jahez.net",
+    "hungerstation.com", "nvidia.com", "ericsson.com", "nokia.com", "schneider-electric.com", "emerson.com", "hpe.com",
+    "checkpoint.com", "juniper.net", "crowdstrike.com", "cloudflare.com", "snowflake.com", "nutanix.com", "servicenow.com",
+    "workday.com", "darktrace.com", "sentinelone.com", "wiz.io", "redhat.com", "citrix.com", "equinix.com", "nttdata.com",
+    "infosys.com", "wipro.com", "tcs.com", "capgemini.com", "dxc.com", "kyndryl.com", "cognizant.com", "sabic.com",
+    "maaden.com.sa", "se.com.sa", "swcc.gov.sa", "nwc.com.sa", "sami.com.sa", "bupa.com.sa", "tawuniya.com.sa", "hmg.com.sa",
+    "fakeeh.care", "dewa.gov.ae", "enoc.com", "ega.ae", "borouge.com", "fertiglobe.com", "americanarestaurants.com", "almarai.com",
+    "nadec.com.sa", "savola.com", "bindawoodholding.com", "jarir.com", "extra.com", "nahdi.sa", "bahri.sa", "sal.sa", "saptco.com.sa",
+    "sisco.com.sa", "mckinsey.com", "bcg.com", "bain.com", "pwc.com", "deloitte.com", "ey.com", "kpmg.com", "tascoutsourcing.com",
+    "blackpearl.com", "bayt.com", "gulftalent.com", "toters.com", "ogero.gov.lb", "alfa.com.lb", "touch.com.lb", "cedarcom.net",
+    "softflow.io", "elementn.com", "itworksme.com", "nartechnologies.com", "maliagroup.com", "procomlb.com", "stripe.com", "openai.com"
 }
 
 

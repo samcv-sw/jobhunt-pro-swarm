@@ -206,7 +206,7 @@ class SalaryNegotiationOracle:
             "recommended_counter_offer": recommended_counter,
             "potential_gain": potential_gain,
             "potential_percentage_gain": round(((recommended_counter - initial_offer) / max(initial_offer, 1)) * 100, 1),
-            "counter_email_script": scripts.get(style_clean, scripts.get("balanced")),
+            "counter_email_script": scripts.get(style_clean, scripts.get("balanced")).get("en", ""),
             "scripts": scripts,
             "call_scripts": call_scripts,
             "tax_insights": tax_info,

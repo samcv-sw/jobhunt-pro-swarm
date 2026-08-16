@@ -99,7 +99,7 @@ def parse_rate_limit_reset(
     Guaranteed > 0.0 and <= 86400.0.
     """
     now = time.time()
-    if not headers:
+    if not headers and not response_text:
         return max(0.01, min(default_cooldown, 86400.0))
 
     if isinstance(headers, str):
@@ -130,15 +130,8 @@ def parse_rate_limit_reset(
 
         s_lower = raw_val.lower()
 
-        # 2. Duration string with units (e.g. '1.2s', '15ms', '6m15s', '1h2m3s')
-        if any(unit in s_lower for unit in ("ms", "s", "m", "h")):
-            # If not ISO-8601 containing dates (avoid matching 't' in timestamps)
-            if "t" not in s_lower or "z" not in s_lower:
-                duration = parse_groq_reset_time(raw_val)
-                if duration > 0:
-                    return max(0.01, min(duration, 86400.0))
-
-        # 3. HTTP-Date (RFC 1123)
+        # 2. HTTP-Date (RFC 1123) — checked FIRST so dates like
+        #    "Sat, 15 Aug 2026 21:05:56 GMT" are never fed to duration parsing
         if "gmt" in s_lower or "utc" in s_lower or "," in raw_val:
             try:
                 parsed_dt = email.utils.parsedate_to_datetime(raw_val)
@@ -147,6 +140,15 @@ def parse_rate_limit_reset(
                     return max(0.01, min(delta, 86400.0))
             except Exception:
                 pass
+
+        # 3. Duration string with units (e.g. '1.2s', '15ms', '6m15s', '1h2m3s')
+        #    Only treat as a duration when it starts with a digit — avoids
+        #    mis-parsing HTTP dates / ISO timestamps that merely contain s/m/h.
+        if raw_val[:1].isdigit() and any(unit in s_lower for unit in ("ms", "s", "m", "h")):
+            if "t" not in s_lower or "z" not in s_lower:
+                duration = parse_groq_reset_time(raw_val)
+                if duration > 0:
+                    return max(0.01, min(duration, 86400.0))
 
         # 4. ISO-8601 (e.g. Anthropic)
         if "t" in s_lower and ("z" in s_lower or "+" in raw_val or "-" in raw_val):
@@ -343,8 +345,16 @@ class ProviderConfig:
 
     @property
     def is_configured(self) -> bool:
-        if self.name in (LLMProvider.DUMMY, LLMProvider.OLLAMA):
+        if self.name == LLMProvider.DUMMY:
             return True
+        if self.name == LLMProvider.OLLAMA:
+            # Local Ollama is opt-in: only active when the user points us at a
+            # running Ollama server. Avoids a real localhost connection attempt
+            # on every request when no local inference server exists.
+            return bool(
+                os.environ.get("OLLAMA_HOST")
+                or os.environ.get("OLLAMA_BASE_URL")
+            )
         return bool(self._collect_keys_from_env())
 
 
@@ -1266,7 +1276,7 @@ class LLMProviderPool:
     def initialize(self) -> "LLMProviderPool":
         """Record configured providers lazily without blocking on startup."""
         for cfg in PROVIDER_CONFIGS:
-            if cfg.is_configured or cfg.name in (LLMProvider.DUMMY, LLMProvider.OLLAMA):
+            if cfg.is_configured or cfg.name == LLMProvider.DUMMY:
                 self._health[cfg.name] = True
                 self._last_used[cfg.name] = 0.0
                 self._providers[cfg.name] = ProviderInstance(cfg)
