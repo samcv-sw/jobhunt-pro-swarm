@@ -10144,18 +10144,16 @@ def _get_tg_bot():
     global _tg_bot_instance
     if _tg_bot_instance is None:
         try:
+            import traceback
             from core.telegram.bot import TelegramBot
             _tg_bot_instance = TelegramBot()
+            if _tg_bot_instance and _tg_bot_instance.enabled:
+                logger.info("[TG-WEBHOOK] Bot instance initialized successfully")
         except Exception as err:
-            logger.error(f"[TG-WEBHOOK] Error loading TelegramBot from core.telegram.bot: {err}")
-            try:
-                from core.telegram_bot import TelegramBot
-                _tg_bot_instance = TelegramBot()
-            except Exception as err2:
-                logger.error(f"[TG-WEBHOOK] Secondary import failed: {err2}")
-                return None
-        if _tg_bot_instance and _tg_bot_instance.enabled:
-            logger.info("[TG-WEBHOOK] Bot instance initialized successfully")
+            import traceback
+            tb = traceback.format_exc()
+            logger.error(f"[TG-WEBHOOK] Primary import failed:\n{tb}")
+            raise RuntimeError(f"Primary TelegramBot import error: {err} | Traceback: {tb[-300:]}") from err
     return _tg_bot_instance
 
 
