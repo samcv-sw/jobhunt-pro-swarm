@@ -47,8 +47,27 @@ class IronCloakMiddleware:
             client_ip = request.client.host if request.client else "unknown"
 
             # 1. Scraper / Competitor Shield (User-Agent check)
+            path = request.url.path
             user_agent = request.headers.get("user-agent", "").lower()
-            is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
+            
+            # Exempt official webhooks, Telegram, TMA, and payments
+            is_exempt_path = (
+                path.startswith("/webhook")
+                or path.startswith("/tma")
+                or path.startswith("/telegram")
+                or path.startswith("/api/v1/ipn")
+                or path.startswith("/ping")
+                or path.startswith("/health")
+                or path.startswith("/healthz")
+            )
+            is_telegram = "telegram" in user_agent or "telegrambot" in user_agent
+            
+            if is_exempt_path or is_telegram:
+                is_bot = False
+            else:
+                is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS if bot != "bot")
+                if not is_bot and "bot" in user_agent and not is_telegram:
+                    is_bot = True
 
             # Allow local testing/audits or authenticated E2E runs to bypass bot checks
             if client_ip in ("127.0.0.1", "localhost", "testserver") or request.headers.get("x-bypass-waf") == "AntigravityE2EKey":
