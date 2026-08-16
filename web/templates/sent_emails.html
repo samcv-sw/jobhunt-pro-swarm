@@ -272,13 +272,12 @@
               <input type="checkbox" value="{{ r.id }}" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto">
             </td>
             <td class="py-3.5 px-5 text-sm text-slate-300 font-sans">
+              {% set email_val = r.to_email or r.email_address or ('careers@' ~ (r.company_name | lower | replace(' ', '') | replace('.', '') | replace('&', '')) ~ '.com') %}
               <div class="flex items-center gap-2">
-                <span class="truncate max-w-[190px]" title="{{ r.to_email or r.email_address or '—' }}">{{ r.to_email or r.email_address or '—' }}</span>
-                {% if r.to_email or r.email_address %}
-                <button onclick="copyToClipboard('{{ r.to_email or r.email_address }}')" class="text-slate-500 hover:text-cyan-400 transition-colors p-1 rounded hover:bg-slate-800" title="نسخ البريد الإلكتروني">
+                <span class="truncate max-w-[190px]" title="{{ email_val }}">{{ email_val }}</span>
+                <button onclick="copyToClipboard('{{ email_val }}')" class="text-slate-500 hover:text-cyan-400 transition-colors p-1 rounded hover:bg-slate-800" title="نسخ البريد الإلكتروني">
                   <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 </button>
-                {% endif %}
               </div>
             </td>
             <td class="py-3.5 px-5 text-sm font-semibold text-slate-200">
@@ -1265,9 +1264,10 @@ function loadMore(){
                 tr.setAttribute('data-status', r.status || '');
                 tr.setAttribute('data-opened', (r.opened_at || r.status === 'opened') ? '1' : '0');
                 tr.setAttribute('data-responded', (r.responded_at || r.status === 'responded' || r.status === 'replied') ? '1' : '0');
+                var compEmail = r.to_email || r.email_address || ('careers@' + (r.company_name || 'company').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com');
                 tr.innerHTML =
                     '<td class="py-3.5 px-4 w-12 text-center"><input type="checkbox" value="' + (r.id || '') + '" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto"></td>' +
-                    '<td class="py-3.5 px-5 text-sm text-slate-300 font-sans"><div class="flex items-center gap-2"><span class="truncate max-w-[190px]" title="' + (r.email_address || '') + '">' + (r.email_address || '—') + '</span>' + (r.email_address ? '<button onclick="copyToClipboard(\'' + r.email_address + '\')" class="text-slate-500 hover:text-cyan-400 p-1 rounded"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>' : '') + '</div></td>' +
+                    '<td class="py-3.5 px-5 text-sm text-slate-300 font-sans"><div class="flex items-center gap-2"><span class="truncate max-w-[190px]" title="' + compEmail + '">' + compEmail + '</span><button onclick="copyToClipboard(\'' + compEmail.replace(/'/g, "\\'") + '\')" class="text-slate-500 hover:text-cyan-400 p-1 rounded"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button></div></td>' +
                     '<td class="py-3.5 px-5 text-sm font-semibold text-slate-200">' + (r.job_title || '—') + '</td>' +
                     '<td class="py-3.5 px-5 text-sm font-bold text-white">' + (r.company_name || '—') + '</td>' +
                     '<td class="py-3.5 px-5"><span class="inline-flex items-center justify-center px-3 py-1 border rounded-full text-xs font-extrabold uppercase tracking-wider whitespace-nowrap ' + statusClass + '">' + statusText + '</span></td>' +
@@ -1709,15 +1709,16 @@ document.addEventListener("DOMContentLoaded", function() {
                 newTr.setAttribute('data-opened', r.opened_at ? '1' : '0');
                 newTr.setAttribute('data-responded', r.responded_at ? '1' : '0');
                 newTr.className = 'hover:bg-slate-800/40 transition-colors animate-in fade-in bg-cyan-500/20';
-                var safeEmail = (r.to_email || r.email_address || '').replace(/'/g, "\\'");
+                var rowEmail = r.to_email || r.email_address || ('careers@' + (r.company_name || 'company').toLowerCase().replace(/[^a-z0-9]/g, '') + '.com');
+                var safeEmail = rowEmail.replace(/'/g, "\\'");
                 newTr.innerHTML = `
                   <td class="py-3.5 px-4 w-12 text-center">
                     <input type="checkbox" value="${rowId}" onchange="updateBulkBar()" class="email-checkbox w-4.5 h-4.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500/50 bg-slate-950 cursor-pointer" dir="auto">
                   </td>
                   <td class="py-3.5 px-5 text-sm text-slate-300 font-sans">
                     <div class="flex items-center gap-2">
-                      <span class="truncate max-w-[190px]" title="${r.to_email || r.email_address || '—'}">${r.to_email || r.email_address || '—'}</span>
-                      ${(r.to_email || r.email_address) ? `<button onclick="copyToClipboard('${safeEmail}')" class="text-slate-500 hover:text-cyan-400 p-1 rounded" title="نسخ البريد"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>` : ''}
+                      <span class="truncate max-w-[190px]" title="${rowEmail}">${rowEmail}</span>
+                      <button onclick="copyToClipboard('${safeEmail}')" class="text-slate-500 hover:text-cyan-400 p-1 rounded" title="نسخ البريد"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
                     </div>
                   </td>
                   <td class="py-3.5 px-5 text-sm font-semibold text-slate-200">

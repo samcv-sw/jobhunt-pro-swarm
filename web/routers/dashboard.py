@@ -174,8 +174,9 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
             role = d.get("job_title") or user_target_role
             raw_email = d.get("email_address") or d.get("to_email") or ""
             email = re.sub(r"\.(branch|gateway)\.[a-f0-9]+@", "@", str(raw_email), flags=re.IGNORECASE).strip()
-            if not email:
-                email = ""
+            if not email or "@" not in email:
+                from web.app_v2 import resolve_company_email
+                email = resolve_company_email(comp, raw_email)
             platform = "Direct Corporate Gateway" if "@" in email else "LinkedIn Gateway"
             
             enriched_dispatches.append({
