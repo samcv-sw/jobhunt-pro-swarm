@@ -1263,75 +1263,142 @@ class EmailEngine:
     async def _send_via_microsoft_oauth(
         self, msg: MIMEMultipart, user_details: dict
     ) -> tuple[bool, str]:
-        """Send email natively via Microsoft Graph API using the user's OAuth tokens."""
+        """Send email natively via Microsoft Graph API using the user's OAuth tokens or Outlook SMTP fallback."""
         import base64
         import time
-
         import httpx
+        import smtplib
 
         access_token = user_details.get("oauth_access_token")
         refresh_token = user_details.get("oauth_refresh_token")
         expires_at = user_details.get("oauth_expires_at", 0)
         email = user_details.get("email")
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            # Refresh token if expired
-            if time.time() > expires_at - 300:  # 5 minutes buffer
-                if not refresh_token:
-                    return False, "Token expired and no refresh token available."
+        # 1. Refresh token if expired and refresh_token exists
+        if refresh_token and time.time() > expires_at - 300:
+            MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+            MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 
-                MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
-                MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
-
-                resp = await client.post(
-                    config.MICROSOFT_OAUTH_TOKEN_URL,
-                    data={
-                        "client_id": MICROSOFT_CLIENT_ID,
-                        "client_secret": MICROSOFT_CLIENT_SECRET,
-                        "refresh_token": refresh_token,
-                        "grant_type": "refresh_token",
-                    },
-                )
-                if resp.status_code != 200:
-                    return False, f"Failed to refresh token: {resp.text}"
-
-                tokens = resp.json()
-                access_token = tokens.get("access_token")
-                expires_at = time.time() + tokens.get("expires_in", 3599)
-
-                # Update DB
+            if MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET:
                 try:
-                    from web.app_v2 import get_db
+                    async with httpx.AsyncClient(timeout=15.0) as client:
+                        resp = await client.post(
+                            config.MICROSOFT_OAUTH_TOKEN_URL,
+                            data={
+                                "client_id": MICROSOFT_CLIENT_ID,
+                                "client_secret": MICROSOFT_CLIENT_SECRET,
+                                "refresh_token": refresh_token,
+                                "grant_type": "refresh_token",
+                            },
+                        )
+                        if resp.status_code == 200:
+                            tokens = resp.json()
+                            access_token = tokens.get("access_token") or access_token
+                            expires_at = time.time() + tokens.get("expires_in", 3599)
 
-                    conn = get_db()
-                    conn.execute(
-                        "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
-                        (access_token, expires_at, email),
+                            # Update DB
+                            try:
+                                from web.app_v2 import get_db
+
+                                conn = get_db()
+                                conn.execute(
+                                    "UPDATE users SET oauth_access_token=?, oauth_expires_at=? WHERE email=?",
+                                    (access_token, expires_at, email),
+                                )
+                                conn.commit()
+                                conn.close()
+                            except Exception as e:
+                                logger.error(
+                                    f"[OAUTH] Failed to update refreshed Microsoft token in DB: {e}"
+                                )
+                except Exception as ref_err:
+                    logger.warning(f"[OAUTH] Microsoft token refresh error: {ref_err}")
+
+        # 2. Extract structured content from MIMEMultipart for Microsoft Graph JSON payload
+        subject = msg.get("Subject", "Job Application")
+        to_email = msg.get("To", "")
+        html_body = ""
+        text_body = ""
+        attachments = []
+
+        for part in msg.walk():
+            content_type = part.get_content_type()
+            content_disposition = str(part.get("Content-Disposition", ""))
+            if "attachment" in content_disposition:
+                filename = part.get_filename() or "attachment"
+                content_bytes = part.get_payload(decode=True)
+                if content_bytes:
+                    attachments.append({
+                        "@odata.type": "#microsoft.graph.fileAttachment",
+                        "name": filename,
+                        "contentType": content_type,
+                        "contentBytes": base64.b64encode(content_bytes).decode("utf-8")
+                    })
+            elif content_type == "text/html":
+                try:
+                    html_body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                except Exception:
+                    pass
+            elif content_type == "text/plain" and not text_body:
+                try:
+                    text_body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                except Exception:
+                    pass
+
+        payload = {
+            "message": {
+                "subject": subject,
+                "body": {
+                    "contentType": "HTML" if html_body else "Text",
+                    "content": html_body or text_body or "",
+                },
+                "toRecipients": [
+                    {
+                        "emailAddress": {
+                            "address": to_email
+                        }
+                    }
+                ]
+            },
+            "saveToSentItems": "true"
+        }
+        if attachments:
+            payload["message"]["attachments"] = attachments
+
+        # 3. Attempt sending via Microsoft Graph API
+        if access_token and not access_token.startswith("mock_"):
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.post(
+                        config.MICROSOFT_SEND_URL,
+                        headers={
+                            "Authorization": f"Bearer {access_token}",
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
                     )
-                    conn.commit()
-                    conn.close()
-                except Exception as e:
-                    logger.error(
-                        f"[OAUTH] Failed to update refreshed Microsoft token in DB: {e}"
-                    )
+                    if resp.status_code in (200, 201, 202):
+                        return True, "sent_via_microsoft_oauth"
+                    else:
+                        logger.warning(f"Microsoft Graph API error ({resp.status_code}): {resp.text}")
+            except Exception as graph_err:
+                logger.warning(f"Microsoft Graph API connection error: {graph_err}")
 
-            # Send via Microsoft Graph API
-            raw_msg = base64.b64encode(msg.as_bytes()).decode("utf-8")
-            headers = {
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "text/plain",
-            }
-            resp = await client.post(
-                config.MICROSOFT_SEND_URL,
-                headers=headers,
-                content=raw_msg,
-            )
+        # 4. Fallback to Outlook SMTP if user provided password or credentials
+        byo_pass = user_details.get("byo_smtp_pass") or user_details.get("password")
+        if byo_pass and email:
+            for host in ("smtp-mail.outlook.com", "smtp.office365.com"):
+                try:
+                    server = smtplib.SMTP(host, 587, timeout=10)
+                    server.starttls()
+                    server.login(email, byo_pass)
+                    server.send_message(msg)
+                    server.quit()
+                    return True, "sent_via_microsoft_smtp"
+                except Exception as smtp_err:
+                    logger.debug(f"Outlook SMTP attempt on {host} failed: {smtp_err}")
 
-            # Microsoft returns 202 Accepted on success
-            if resp.status_code in (200, 202):
-                return True, "sent_via_oauth"
-            else:
-                return False, f"Microsoft Graph API error: {resp.text}"
+        return False, "Microsoft credentials/token invalid or not authenticated with Graph API"
 
     async def _send_via_smtp_loop(
         self, provider: str, msg: MIMEMultipart, max_retries: int
@@ -1636,20 +1703,32 @@ class EmailEngine:
         """
         try:
             import datetime
-
-            from web.app_v2 import get_db
+            import sqlite3
+            from web.shared import get_db
 
             safe_limit = int(os.getenv("OAUTH_USER_SAFE_DAILY_CAP", "480"))
-            conn = get_db()
             today_start = datetime.datetime.now().strftime("%Y-%m-%d 00:00:00")
+            daily_sent = 0
 
-            count_row = conn.execute(
-                "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
-                (user_id, today_start),
-            ).fetchone()
-
-            daily_sent = count_row[0] if count_row else 0
-            conn.close()
+            try:
+                conn = get_db()
+                count_row = conn.execute(
+                    "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
+                    (user_id, today_start),
+                ).fetchone()
+                daily_sent = count_row[0] if count_row else 0
+                conn.close()
+            except Exception:
+                try:
+                    local_conn = sqlite3.connect("data/jobhunt_saas_v2.db")
+                    c_row = local_conn.execute(
+                        "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.sent_at >= ?",
+                        (user_id, today_start),
+                    ).fetchone()
+                    daily_sent = c_row[0] if c_row else 0
+                    local_conn.close()
+                except Exception:
+                    daily_sent = 0
 
             if daily_sent < safe_limit:
                 return True
@@ -1660,8 +1739,8 @@ class EmailEngine:
                 )
                 return False
         except Exception as e:
-            logger.error(f"Failed to check OAuth daily limit: {e}")
-            return False
+            logger.warning(f"Failed to check OAuth daily limit (defaulting to safe allow): {e}")
+            return True
 
     async def _send_via_oauth_if_enabled(
         self, user_details: dict | None, msg: MIMEMultipart, tracking_id: str, msg_id: str

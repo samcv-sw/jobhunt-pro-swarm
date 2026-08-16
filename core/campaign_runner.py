@@ -714,6 +714,7 @@ def _setup_campaign_and_user_details(
         }
 
     user = {
+        "user_id": campaign.get("user_id") or (row["user_id"] if "user_id" in row.keys() else None),
         "name": row["name"],
         "email": row["email"],
         "phone": row["phone"],
@@ -734,6 +735,7 @@ def _setup_campaign_and_user_details(
 
     from core.validators import clean_phone_number
     user_details = {
+        "user_id": user.get("user_id") or campaign.get("user_id"),
         "name": user.get("name") or (getattr(config, "CANDIDATE_NAME", "Sam Salameh") if config else "Sam Salameh"),
         "email": user.get("email") or (getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") if config else "sam.dev1@hotmail.com"),
         "phone": clean_phone_number(user.get("phone") or (getattr(config, "CANDIDATE_PHONE", "+961 70 841 009") if config else "+961 70 841 009")),

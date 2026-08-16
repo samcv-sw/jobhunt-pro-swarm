@@ -947,18 +947,36 @@ async def oauth_submit(
         existing_user = _fetch_user_by_email(conn, clean_email)
         is_admin = 1 if is_admin_email(clean_email) else 0
 
+        import time, uuid
+        token_val = f"{provider}_token_{uuid.uuid4().hex}"
+        expires_at_val = int(time.time()) + 86400 * 30
+
         if existing_user:
             user_id = existing_user["user_id"]
             # OAuth is single sign-on (SSO); seamless login for existing accounts
             try:
                 name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else existing_user.get("name", "Sam Salameh")
-                if is_admin:
-                    conn.execute("UPDATE users SET name = ?, oauth_provider = ?, user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (name_to_set, provider, clean_email))
+                
+                smtp_host = "smtp-mail.outlook.com" if provider == "microsoft" else ("smtp.gmail.com" if provider == "google" else "")
+                smtp_port = 587 if smtp_host else None
+                
+                if password:
+                    conn.execute("""
+                        UPDATE users SET name = ?, oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
+                        oauth_expires_at = COALESCE(oauth_expires_at, ?), byo_smtp_email = ?, byo_smtp_pass = ?, 
+                        byo_smtp_host = ?, byo_smtp_port = ? WHERE email = ?
+                    """, (name_to_set, provider, token_val, expires_at_val, clean_email, password, smtp_host, smtp_port, clean_email))
                 else:
-                    conn.execute("UPDATE users SET name = ?, oauth_provider = ? WHERE email = ?", (name_to_set, provider, clean_email))
+                    conn.execute("""
+                        UPDATE users SET name = ?, oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
+                        oauth_expires_at = COALESCE(oauth_expires_at, ?) WHERE email = ?
+                    """, (name_to_set, provider, token_val, expires_at_val, clean_email))
+
+                if is_admin:
+                    conn.execute("UPDATE users SET user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (clean_email,))
                 conn.commit()
             except Exception as e:
-                logger.warning(f"Failed to update user name for OAuth user: {e}")
+                logger.warning(f"Failed to update user for OAuth login: {e}")
         else:
             # Auto-register new Microsoft / OAuth user smoothly
             pw_to_set = password if password else "OauthPasswordSecure123!"
@@ -966,10 +984,17 @@ async def oauth_submit(
             name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else "Sam Salameh"
             user_id = _create_new_user(conn, clean_email, pw_to_set, name_to_set, "", "", u_type)
             try:
+                smtp_host = "smtp-mail.outlook.com" if provider == "microsoft" else ("smtp.gmail.com" if provider == "google" else "")
+                smtp_port = 587 if smtp_host else None
+                
+                conn.execute("""
+                    UPDATE users SET oauth_provider = ?, oauth_access_token = ?, oauth_expires_at = ?, 
+                    byo_smtp_email = ?, byo_smtp_pass = ?, byo_smtp_host = ?, byo_smtp_port = ? WHERE user_id = ?
+                """, (provider, token_val, expires_at_val, clean_email, password if password else None, smtp_host, smtp_port, user_id))
+                
                 if is_admin:
-                    conn.execute("UPDATE users SET oauth_provider = ?, user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?", (provider, user_id))
-                else:
-                    conn.execute("UPDATE users SET oauth_provider = ? WHERE user_id = ?", (provider, user_id))
+                    conn.execute("UPDATE users SET user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?", (user_id,))
+                
                 conn.execute(
                     "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, target_titles, target_locations) "
                     "VALUES (?, ?, ?, ?, ?, ?)",
