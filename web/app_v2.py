@@ -10145,20 +10145,26 @@ def _get_tg_bot():
     if _tg_bot_instance is None:
         try:
             from core.telegram.bot import TelegramBot
-        except Exception:
-            from core.telegram_bot import TelegramBot
-        _tg_bot_instance = TelegramBot()
-        if _tg_bot_instance.enabled:
-            logger.info("[TG-WEBHOOK] Bot instance initialized")
+            _tg_bot_instance = TelegramBot()
+        except Exception as err:
+            logger.error(f"[TG-WEBHOOK] Error loading TelegramBot from core.telegram.bot: {err}")
+            try:
+                from core.telegram_bot import TelegramBot
+                _tg_bot_instance = TelegramBot()
+            except Exception as err2:
+                logger.error(f"[TG-WEBHOOK] Secondary import failed: {err2}")
+                return None
+        if _tg_bot_instance and _tg_bot_instance.enabled:
+            logger.info("[TG-WEBHOOK] Bot instance initialized successfully")
     return _tg_bot_instance
 
 
 @app.post("/webhook/telegram")
 async def telegram_webhook(request: Request):
-    """Receive Telegram updates via webhook — works on PA free tier!"""
+    """Receive Telegram updates via webhook — works on PA free tier & Render!"""
     try:
         body = await request.json()
-        bot = await _get_tg_bot()
+        bot = _get_tg_bot()
         if not bot or not bot.enabled:
             return JSONResponse({"status": "bot_disabled"})
         await bot.process_webhook_update(body)
