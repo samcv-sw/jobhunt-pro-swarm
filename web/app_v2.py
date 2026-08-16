@@ -934,10 +934,13 @@ async def lifespan(app_instance):
             import tempfile
             lock_path = os.path.join(tempfile.gettempdir(), "jobhunt_background_loops.lock")
             if os.path.exists(lock_path):
-                os.remove(lock_path)
+                try:
+                    os.remove(lock_path)
+                except Exception:
+                    pass
             logger.info("[LIFESPAN] Released background loops process lock.")
         except Exception as le:
-            logger.warning(f"[LIFESPAN] Error releasing background loops process lock: {le}")
+            logger.debug(f"[LIFESPAN] Background loops lock notice: {le}")
 
     logger.info("[LIFESPAN] Shutdown complete.")
 
@@ -4954,9 +4957,6 @@ def user_dashboard(request: Request):
         login_streak, streak_reward, next_milestone, days_to_next, next_reward = _process_dashboard_login_streak(conn, user, user_id)
         active_flash_sales, recent_purchases = _get_dashboard_additional_data(conn)
 
-        email_cnt = (conn.execute("SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ?", (user_id,)).fetchone() or [0])[0] or 0
-        mpa_cnt = (conn.execute("SELECT COUNT(*) FROM multi_platform_apps WHERE user_id = ?", (user_id,)).fetchone() or [0])[0] or 0
-        
         from web.shared import (
             get_unified_dispatches_count,
             get_unified_companies_count,
@@ -4965,14 +4965,14 @@ def user_dashboard(request: Request):
             get_unified_interview_count,
             get_unified_bounced_count,
         )
-        total_sent = get_unified_dispatches_count(conn, user_id=user_id)
-        companies_dispatched = get_unified_companies_count(conn, user_id=user_id)
-        total_opened = get_unified_opened_count(conn, user_id=user_id)
-        responses = get_unified_responded_count(conn, user_id=user_id)
-        interviews = get_unified_interview_count(conn, user_id=user_id)
+        total_sent = get_unified_dispatches_count(conn, user_id=actual_uid)
+        companies_dispatched = get_unified_companies_count(conn, user_id=actual_uid)
+        total_opened = get_unified_opened_count(conn, user_id=actual_uid)
+        responses = get_unified_responded_count(conn, user_id=actual_uid)
+        interviews = get_unified_interview_count(conn, user_id=actual_uid)
 
-        mpa_sent_count = mpa_cnt
-        email_sent_count = email_cnt
+        mpa_sent_count = total_sent
+        email_sent_count = total_sent
 
         today_sent = total_sent
         daily_target = 50
@@ -12349,6 +12349,38 @@ try:
     app.include_router(contract_analyzer_router)
 except Exception as _e:
     logger.warning(f"Could not load contract_analyzer_router: {_e}")
+
+try:
+    from web.routers.interview_arena import router as web_interview_arena_router
+    app.include_router(web_interview_arena_router)
+except Exception as _e:
+    logger.warning(f"Could not load web_interview_arena_router: {_e}")
+
+try:
+    from web.routers.salary_copilot import router as web_salary_copilot_router
+    app.include_router(web_salary_copilot_router)
+except Exception as _e:
+    logger.warning(f"Could not load web_salary_copilot_router: {_e}")
+
+try:
+    from web.routers.market_radar import router as web_market_radar_router
+    app.include_router(web_market_radar_router)
+except Exception as _e:
+    logger.warning(f"Could not load web_market_radar_router: {_e}")
+
+try:
+    from web.routers.pseo_web_router import router as web_pseo_web_router
+    app.include_router(web_pseo_web_router)
+except Exception as _e:
+    logger.warning(f"Could not load web_pseo_web_router: {_e}")
+
+try:
+    from web.routers.lead_nurture import router as web_lead_nurture_router
+    app.include_router(web_lead_nurture_router)
+except Exception as _e:
+    logger.warning(f"Could not load web_lead_nurture_router: {_e}")
+
+
 
 
 @app.get("/ats-score", response_class=HTMLResponse)

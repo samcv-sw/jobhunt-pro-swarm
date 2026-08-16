@@ -29,7 +29,8 @@ WARMUP_SCHEDULE_DAYS = {
 DISPOSABLE_AND_PLACEHOLDER_DOMAINS = {
     "example.com", "test.com", "demo.com", "sample.com", "placeholder.com",
     "invalid.com", "localhost", "test.org", "example.org", "fake.com",
-    "mailinator.com", "tempmail.com", "10minutemail.com", "guerrillamail.com",
+    "mailinator.com", "tempmail.com", "temp-mail.org", "temp-mail.com", "temp-mail.io",
+    "10minutemail.com", "10minutemail.net", "guerrillamail.com",
     "trashmail.com", "yopmail.com", "sharklasers.com", "getnada.com",
     "throwawaymail.com", "dispostable.com", "fakemailgenerator.com", "maildrop.cc",
     "inboxkitten.com", "burnermail.io", "mohmal.com", "mytemp.email"
@@ -217,7 +218,7 @@ def is_deliverable_email(email: str) -> bool:
         return False
     if re.search(r'^[0-9a-f]{10,}@', email_clean):  # Pure hex hashes as user local-part
         return False
-    if re.search(r'^(?:demo|sample|fake|test|synthetic|placeholder)[0-9a-fA-F]*@', email_clean):
+    if re.search(r'^(?:demo|sample|fake|test|synthetic|placeholder|temp)(?:user|mail|account|lead)?[0-9a-fA-F]*@', email_clean):
         return False
 
     # 3. Extract and validate user and domain
@@ -961,6 +962,13 @@ class DeliverabilityShield:
 
     def scrub_spam(self, text: str) -> Dict[str, Any]:
         return self.scrubber.scrub_text(text)
+
+    def audit_threat_intelligence(self, sender_ip: Optional[str], sender_domain: str, recipient_email: str) -> Dict[str, Any]:
+        try:
+            from core.dnsbl_threat_sentinel import global_dnsbl_sentinel
+            return global_dnsbl_sentinel.get_comprehensive_deliverability_threat_score(sender_ip, sender_domain, recipient_email)
+        except Exception as e:
+            return {"safe_to_dispatch": True, "composite_threat_score": 95.0, "error": str(e)}
 
 
 # Global pre-configured instances

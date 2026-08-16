@@ -39,6 +39,9 @@ jobs:
         run: python verify_integrity.py
         continue-on-error: true
 
+      - name: Run Power Score Evaluator (100/100 Target)
+        run: python manage.py power-score
+
   security-audit:
     name: Security — pip-audit CVE scan (IMP-007)
     runs-on: ubuntu-latest

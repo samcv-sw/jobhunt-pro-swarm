@@ -330,6 +330,81 @@
 </div>
 </div>
 
+<!-- ═══════════ B2B RECRUITMENT AGENCY ROI CALCULATOR ═══════════ -->
+<div style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(6,182,212,0.08)); border:1px solid rgba(6,182,212,0.3); border-radius:22px; padding:28px; margin-block:30px; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-block-end:20px;">
+    <div>
+      <span style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:12px; font-weight:800; padding:4px 12px; border-radius:20px; border:1px solid rgba(6,182,212,0.3);">💼 حاسبة العائد المالي لوكالات التوظيف (B2B ROI Calculator)</span>
+      <h3 style="color:#fff; font-size:1.4em; font-weight:800; margin:8px 0 4px 0;">كم ستوفّر وكالتك شهرياً باستخدام سرب الذكاء الاصطناعي؟</h3>
+      <p style="color:#94a3b8; font-size:0.9em; margin:0;">احسب ساعات العمل والتكاليف التشغيلية التي توفرها المنصة مقارنة بالفرز اليدوي التقليدي</p>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-block-end:24px;">
+    <div>
+      <label style="color:#cbd5e1; font-size:13px; font-weight:700; display:block; margin-block-end:6px;">الوظائف المفتوحة شهرياً</label>
+      <input type="number" id="roiOpenRoles" value="5" min="1" max="100" oninput="updateAgencyRoi()" style="inline-size:100%; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; font-weight:700;" dir="auto">
+    </div>
+    <div>
+      <label style="color:#cbd5e1; font-size:13px; font-weight:700; display:block; margin-block-end:6px;">ساعات الفرز والتواصل لكل وظيفة</label>
+      <input type="number" id="roiHoursPerRole" value="25" min="5" max="100" oninput="updateAgencyRoi()" style="inline-size:100%; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; font-weight:700;" dir="auto">
+    </div>
+    <div>
+      <label style="color:#cbd5e1; font-size:13px; font-weight:700; display:block; margin-block-end:6px;">تكلفة ساعة مسؤول التوظيف ($/hr)</label>
+      <input type="number" id="roiHourlyRate" value="45" min="15" max="250" oninput="updateAgencyRoi()" style="inline-size:100%; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; font-weight:700;" dir="auto">
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; padding:18px; background:rgba(0,0,0,0.3); border-radius:16px; border:1px solid rgba(255,255,255,0.08); text-align:center;">
+    <div>
+      <div style="font-size:12px; color:#94a3b8; margin-block-end:4px;">الساعات الموفرة شهرياً</div>
+      <div id="roiHoursSaved" style="font-size:24px; font-weight:900; color:var(--cyan);">105 ساعة</div>
+    </div>
+    <div>
+      <div style="font-size:12px; color:#94a3b8; margin-block-end:4px;">الوفر المالي الشهري</div>
+      <div id="roiMonthlySavings" style="font-size:24px; font-weight:900; color:#22c55e;">$5,326</div>
+    </div>
+    <div>
+      <div style="font-size:12px; color:#94a3b8; margin-block-end:4px;">الوفر المالي السنوي</div>
+      <div id="roiAnnualSavings" style="font-size:24px; font-weight:900; color:#fbbf24;">$63,912</div>
+    </div>
+    <div>
+      <div style="font-size:12px; color:#94a3b8; margin-block-end:4px;">نسبة العائد على الاستثمار (ROI)</div>
+      <div id="roiPercent" style="font-size:24px; font-weight:900; color:#a78bfa;">+1,780%</div>
+    </div>
+  </div>
+
+  <div style="margin-block-start:20px; text-align:center;">
+    <a href="/register?role=employer&plan=enterprise" class="btn" style="display:inline-block; background:linear-gradient(135deg, var(--cyan), #0284c7); color:#0a0a1a !important; -webkit-text-fill-color:#0a0a1a !important; padding:14px 32px; border-radius:30px; font-weight:800; text-decoration:none; box-shadow:0 0 20px rgba(6,182,212,0.4);">
+      🚀 تفعيل لوحة تحكم وكالة التوظيف (14 يوماً تجربة مجانية)
+    </a>
+  </div>
+</div>
+
+<script>
+function updateAgencyRoi() {
+  const roles = Math.max(1, parseFloat(document.getElementById('roiOpenRoles')?.value) || 5);
+  const hrs = Math.max(1, parseFloat(document.getElementById('roiHoursPerRole')?.value) || 25);
+  const rate = Math.max(15, parseFloat(document.getElementById('roiHourlyRate')?.value) || 45);
+
+  const manualCost = roles * hrs * rate;
+  const toolCost = 299;
+  const monthlySavings = Math.max(0, manualCost - toolCost);
+  const hrsSaved = Math.round(roles * (hrs * 0.85));
+  const roiPct = Math.round((monthlySavings / toolCost) * 100);
+
+  const elHrs = document.getElementById('roiHoursSaved');
+  const elMo = document.getElementById('roiMonthlySavings');
+  const elYr = document.getElementById('roiAnnualSavings');
+  const elRoi = document.getElementById('roiPercent');
+
+  if (elHrs) elHrs.textContent = hrsSaved + ' ساعة';
+  if (elMo) elMo.textContent = '$' + Math.round(monthlySavings).toLocaleString();
+  if (elYr) elYr.textContent = '$' + Math.round(monthlySavings * 12).toLocaleString();
+  if (elRoi) elRoi.textContent = '+' + roiPct.toLocaleString() + '%';
+}
+</script>
+
 <!-- ═══════════ AI REVOLUTIONARY SUITE ═══════════ -->
 <h2 class="sec-title">👑 <span>أجنحة الذكاء الاصطناعي الفائقة (مُضمنة مجاناً للشركات — اضغط لتجربة المحرك حياً)</span></h2>
 <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-block-end:28px;">
@@ -1423,7 +1498,7 @@ function aiCalculateSalaryBenchmark() {
             <div style="font-size:0.75em; color:#94a3b8; font-weight:600;">${isEn ? 'Target Role & Location' : 'المسمى المستهدف والمنطقة'}:</div>
             <div style="font-size:0.9em; font-weight:800; color:#fbbf24;">📍 ${locDisplayName} • 💼 ${roleDisplayName}</div>
           </div>
-          <div style="text-align:right;">
+          <div style="text-align: end;">
             <span style="font-size:0.72em; color:#4ade80; background:rgba(34,197,94,0.15); padding:4px 10px; border-radius:10px; font-weight:800; display:inline-block;">
               ⚡ ${isEn ? '+310% More Applications' : '+310% زيادة استجابة المتقدمين'}
             </span>

@@ -76,4 +76,93 @@ class ClosedLoopNegotiator:
             "reply_body": body_pitch
         }
 
+    def generate_counter_offer(
+        self,
+        job_title: str = "Senior Cloud Architect",
+        city: str = "Riyadh",
+        offered_monthly: float = 25000.0,
+        currency: str = "SAR",
+        experience_years: int = 7,
+        current_benefits: str = "Standard health insurance + 30 days leave"
+    ) -> Dict[str, Any]:
+        """
+        Calculates Gulf compensation percentiles and generates high-converting counter-offer copy.
+        """
+        # Baseline benchmarks in SAR/AED
+        base_median = 28000.0
+        title_lower = job_title.lower()
+        if "lead" in title_lower or "principal" in title_lower or "director" in title_lower:
+            base_median = 42000.0
+        elif "architect" in title_lower or "manager" in title_lower:
+            base_median = 34000.0
+        elif "senior" in title_lower:
+            base_median = 27000.0
+        else:
+            base_median = 18000.0
+
+        # City cost factor
+        city_lower = city.lower()
+        if "dubai" in city_lower or "abu dhabi" in city_lower:
+            base_median *= 1.15
+        elif "doha" in city_lower:
+            base_median *= 1.10
+
+        p25 = round(base_median * 0.85, 0)
+        p50 = round(base_median, 0)
+        p75 = round(base_median * 1.22, 0)
+        p90 = round(base_median * 1.45, 0)
+
+        # Counter offer recommendation: Target 75th percentile or +18% if already high
+        recommended_counter = max(offered_monthly * 1.18, p75)
+        recommended_counter = round(recommended_counter, 0)
+        increase_pct = round(((recommended_counter - offered_monthly) / offered_monthly) * 100, 1)
+
+        # Email Copy (English)
+        counter_email_en = (
+            f"Subject: Regarding Offer for {job_title} - Discussion on Compensation\n\n"
+            f"Dear Hiring Team,\n\n"
+            f"Thank you sincerely for extending the offer to join your organization as {job_title} in {city}. "
+            f"I am genuinely excited about the team's strategic roadmap and the opportunity to drive meaningful technical value.\n\n"
+            f"Based on regional compensation benchmarks for senior specialists with {experience_years}+ years of experience and the specialized scope of this position, "
+            f"I would like to propose an adjusted monthly package of {currency} {recommended_counter:,.0f} (a {increase_pct}% adjustment). "
+            f"Alternatively, I am open to discussing an enhanced performance bonus structure or housing allowance allocation.\n\n"
+            f"I am confident in delivering immediate ROI to your initiatives and look forward to reaching a mutually beneficial agreement.\n\n"
+            f"Best regards,\nCandidate"
+        )
+
+        # Email Copy (Arabic)
+        counter_email_ar = (
+            f"الموضوع: بخصوص عرض العمل لوظيفة {job_title} — مناقشة الحزمة المالية\n\n"
+            f"السلام عليكم ورحمة الله وبركاته،\n"
+            f"تحية طيبة وبعد،،\n\n"
+            f"أود أن أتقدم بجزيل الشكر والتقدير لثقتكم الكريمة وتقديمكم عرض العمل لمنصب {job_title} في {city}. أنا متحمس جداً للانضمام إلى فريقكم والمساهمة الفعالة في تحقيق الأهداف الاستراتيجية للشركة.\n\n"
+            f"بناءً على معايير الرواتب المعتمدة في السوق الخليجي للخبرات المتقدمة ({experience_years}+ سنوات) ونطاق المسؤوليات التقنية القيادية لهذا الدور، "
+            f"أقترح تعديل إجمالي الحزمة الشهرية لتكون {recommended_counter:,.0f} {currency} (بفارق {increase_pct}%)، أو تعويض الفارق عبر بدل سكن مرن ومكافأة أداء سنوية.\n\n"
+            f"أنا على ثقة تامة بتقديم قيمة تشغيلية فورية تسهم في نجاح مشاريعكم، وأتطلع لتأكيد التفاصيل النهائية وتوقيع العقد.\n\n"
+            f"مع خالص التقدير والامتنان،،"
+        )
+
+        return {
+            "success": True,
+            "job_title": job_title,
+            "city": city,
+            "currency": currency,
+            "offered_monthly": offered_monthly,
+            "recommended_counter": recommended_counter,
+            "increase_percentage": increase_pct,
+            "market_percentiles": {
+                "p25": p25,
+                "p50_median": p50,
+                "p75": p75,
+                "p90": p90
+            },
+            "offer_assessment": (
+                "Competitive but room for negotiation (+15-20%)" if offered_monthly >= p50 else "Below market median — High negotiation leverage"
+            ),
+            "counter_email_en": counter_email_en,
+            "counter_email_ar": counter_email_ar
+        }
+
+
 closed_loop_negotiator = ClosedLoopNegotiator()
+

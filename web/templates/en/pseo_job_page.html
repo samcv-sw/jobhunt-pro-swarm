@@ -1,0 +1,127 @@
+<!-- Schema.org JobPosting Structured Data for Google Search Indexing -->
+<script type="application/ld+json">
+{{ page_data.schema_job_posting_json_ld | tojson }}
+</script>
+
+<div class="pseo-page-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+  
+  <!-- Breadcrumb -->
+  <div style="font-size:13px; color:#94a3b8; margin-block-end:20px;">
+    <a href="/en" style="color:#94a3b8; text-decoration:none;">Home</a> &gt;
+    <a href="/en/jobs/catalog" style="color:#94a3b8; text-decoration:none;">Job Directory</a> &gt;
+    <span style="color:var(--cyan);">{{ page_data.h1_heading }}</span>
+  </div>
+
+  <!-- Hero Header -->
+  <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(6,182,212,0.3); border-radius:22px; padding:32px; box-shadow:0 10px 40px rgba(0,0,0,0.5); margin-block-end:30px;">
+    <span style="background:rgba(16,185,129,0.15); color:var(--green); font-size:12px; font-weight:800; padding:4px 12px; border-radius:20px; border:1px solid rgba(16,185,129,0.3);">
+      🟢 Verified Active Openings (2026 Direct Apply)
+    </span>
+    <h1 style="color:#fff; font-size:2.2em; font-weight:900; margin:14px 0 10px 0;">{{ page_data.h1_heading }}</h1>
+    <p style="color:#cbd5e1; font-size:1.1em; line-height:1.7; margin:0 0 20px 0;">
+      {{ page_data.meta_description }}
+    </p>
+
+    <!-- Key Metrics Grid -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; padding:16px; background:rgba(0,0,0,0.4); border-radius:14px; border:1px solid rgba(255,255,255,0.06); text-align:center;">
+      <div>
+        <div style="font-size:11px; color:#94a3b8;">Average Monthly Salary</div>
+        <div style="font-size:18px; font-weight:800; color:var(--gold); margin-block-start:4px;">{{ page_data.market_insights.average_salary_range }}</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#94a3b8;">Employment Type</div>
+        <div style="font-size:18px; font-weight:800; color:#fff; margin-block-start:4px;">Full-Time / Direct Hire</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:#94a3b8;">Dispatch Speed</div>
+        <div style="font-size:18px; font-weight:800; color:var(--cyan); margin-block-start:4px;">Instant AI Application</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instant 1-Click Apply Zone -->
+  <div style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(16,185,129,0.08)); border:1px solid rgba(16,185,129,0.3); border-radius:22px; padding:30px; margin-block-end:30px; box-shadow:0 10px 40px rgba(0,0,0,0.4);">
+    <h3 style="color:#fff; font-size:1.4em; font-weight:800; margin:0 0 8px 0;">⚡ {{ page_data.cta_text }}</h3>
+    <p style="color:#94a3b8; font-size:0.95em; margin:0 0 20px 0;">Enter your email to verify MX deliverability and auto-dispatch your application to verified hiring committees.</p>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <input type="email" id="pseoLeadEmail" placeholder="Enter your email to receive recruiter responses..." style="flex:1; min-inline-size:260px; padding:14px 18px; border-radius:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px;" dir="auto">
+      <button onclick="submitPseoApplication()" style="padding:14px 32px; border-radius:12px; font-weight:800; font-size:15px; background:linear-gradient(135deg, var(--green), #059669); color:#052e16; border:none; cursor:pointer;">
+        🚀 Instant 1-Click Free Apply
+      </button>
+    </div>
+    <div id="pseoStatusMsg" style="display:none; font-size:13px; font-weight:700; margin-block-start:12px;"></div>
+  </div>
+
+  <!-- In-Demand Skills & Top Companies -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; margin-block-end:30px;">
+    
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+      <h4 style="color:#fff; font-size:16px; font-weight:800; margin:0 0 14px 0;">🎯 Top In-Demand Technical Skills:</h4>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        {% for skill in page_data.market_insights.in_demand_skills %}
+        <span style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.25); color:var(--cyan); padding:6px 14px; border-radius:16px; font-size:12px; font-weight:700;">
+          ✓ {{ skill }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:24px;">
+      <h4 style="color:#fff; font-size:16px; font-weight:800; margin:0 0 14px 0;">🏢 Key Hiring Enterprises in this Region:</h4>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        {% for comp in page_data.market_insights.active_hiring_companies %}
+        <span style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:var(--gold); padding:6px 14px; border-radius:16px; font-size:12px; font-weight:700;">
+          🏛️ {{ comp }}
+        </span>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+async function submitPseoApplication() {
+  const email = document.getElementById('pseoLeadEmail')?.value || '';
+  const statusMsg = document.getElementById('pseoStatusMsg');
+
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  if (statusMsg) {
+    statusMsg.style.display = 'block';
+    statusMsg.style.color = 'var(--cyan)';
+    statusMsg.textContent = '⏳ Verifying MX deliverability & dispatching application...';
+  }
+
+  try {
+    const resp = await fetch('/api/public/claim-free-pulse', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: email,
+        cv_text: 'Programmatic High-Intent Job Candidate',
+        target_role: '{{ page_data.h1_heading }}',
+        target_company: '{{ page_data.market_insights.active_hiring_companies[0] }}'
+      })
+    });
+    const res = await resp.json();
+    if (res.success) {
+      statusMsg.style.color = 'var(--green)';
+      statusMsg.innerHTML = `✅ ${res.message_en || res.message_ar}`;
+    } else {
+      statusMsg.style.color = 'var(--magenta)';
+      statusMsg.textContent = `❌ ${res.error || 'Failed to dispatch application.'}`;
+    }
+  } catch(e) {
+    if (statusMsg) {
+      statusMsg.style.color = 'var(--magenta)';
+      statusMsg.textContent = '❌ Connection error: ' + e.message;
+    }
+  }
+}
+</script>

@@ -196,39 +196,37 @@ async def lifespan(app: FastAPI):
                 if bot_instance.enabled:
                     logger.info("Initializing Telegram bot...")
                     bot_instance.notifier.start()
-            except Exception as e:
-                logger.error(f"Error initializing TelegramBot: {e}")
 
-                from . import config
+                    from . import config
 
-                site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
-                render_url = getattr(config, "RENDER_URL", None)
-                base_url = (render_url or site_url).rstrip("/")
-                webhook_url = f"{base_url}/webhook/telegram"
+                    site_url = getattr(config, "SITE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
+                    render_url = getattr(config, "RENDER_URL", None)
+                    base_url = (render_url or site_url).rstrip("/")
+                    webhook_url = f"{base_url}/webhook/telegram"
 
-                is_local = "localhost" in base_url or "127.0.0.1" in base_url or not base_url.startswith("https")
+                    is_local = "localhost" in base_url or "127.0.0.1" in base_url or not base_url.startswith("https")
 
-                if not is_local:
-                    logger.info(f"Setting Telegram webhook to: {webhook_url}")
-                    import httpx
+                    if not is_local:
+                        logger.info(f"Setting Telegram webhook to: {webhook_url}")
+                        import httpx
 
-                    async with httpx.AsyncClient(timeout=10.0) as client:
-                        res = await client.post(
-                            f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
-                            json={"url": webhook_url},
-                        )
-                        if res.status_code == 200:
-                            logger.info("Telegram webhook registered successfully.")
-                        else:
-                            logger.warning(
-                                f"Failed to set Telegram webhook: {res.status_code} - {res.text}. Falling back to polling."
+                        async with httpx.AsyncClient(timeout=10.0) as client:
+                            res = await client.post(
+                                f"https://api.telegram.org/bot{bot_instance.token}/setWebhook",
+                                json={"url": webhook_url},
                             )
-                            app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
-                else:
-                    logger.info("Local environment detected. Starting Telegram bot in polling mode...")
-                    app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
-        except Exception as e:
-            logger.error(f"Failed to initialize Telegram bot: {e}")
+                            if res.status_code == 200:
+                                logger.info("Telegram webhook registered successfully.")
+                            else:
+                                logger.warning(
+                                    f"Failed to set Telegram webhook: {res.status_code} - {res.text}. Falling back to polling."
+                                )
+                                app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
+                    else:
+                        logger.info("Local environment detected. Starting Telegram bot in polling mode...")
+                        app.state.bot_task = asyncio.create_task(bot_instance.run_bot())
+            except Exception as e:
+                logger.error(f"Failed to initialize Telegram bot: {e}")
 
     yield
 
@@ -611,6 +609,8 @@ from backend.routers.headhunter_dossier_router import router as headhunter_dossi
 from backend.routers.security_shield_router import router as security_shield_router
 from backend.routers.monetization_engine_router import router as monetization_engine_router
 from backend.routers.contract_analyzer_router import router as contract_analyzer_router
+from backend.routers.compliance_router import router as compliance_router
+from backend.routers.programmatic_seo_router import router as programmatic_seo_router
 
 app.include_router(linkedin_magnet_router)
 app.include_router(gulf_compensation_router)
@@ -630,6 +630,8 @@ app.include_router(headhunter_dossier_router)
 app.include_router(security_shield_router)
 app.include_router(monetization_engine_router)
 app.include_router(contract_analyzer_router)
+app.include_router(compliance_router)
+app.include_router(programmatic_seo_router)
 
 # Phase 7 Empire Upgrades
 from backend.routers.ai_sdr_outreach import router as ai_sdr_outreach_router
@@ -690,8 +692,19 @@ app.include_router(executive_search_engine_router)
 
 
 
-from web.routers.monetization_router import router as monetization_router
+from web.routers.whatsapp_alerts import v2_alerts_router as whatsapp_v2_alerts_router
+app.include_router(whatsapp_v2_alerts_router)
+
+from web.routers.monetization_router import router as monetization_router, v2_monetization_router
 app.include_router(monetization_router)
+app.include_router(v2_monetization_router)
+
+from web.routers.dashboard import router as web_dashboard_router
+app.include_router(web_dashboard_router)
+
+from web.routers.white_label_portal import router as web_white_label_portal_router, v2_white_label_router
+app.include_router(web_white_label_portal_router)
+app.include_router(v2_white_label_router)
 
 from backend.routers.next_gen_god_suite import router as next_gen_god_suite_router
 app.include_router(next_gen_god_suite_router)

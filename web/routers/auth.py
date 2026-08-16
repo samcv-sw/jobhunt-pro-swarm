@@ -522,14 +522,22 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
 
 
 def _get_google_redirect_uri(request: Request) -> str:
-    host = (request.headers.get("x-forwarded-host", "") or request.headers.get("host", "") or "").lower()
+    host = (request.headers.get("x-forwarded-host", "") or request.headers.get("host", "") or request.url.netloc or "").lower()
     site_url = os.getenv("SITE_URL", "")
     if "pythonanywhere.com" in host or "jhfguf" in host or "pythonanywhere" in site_url or os.getenv("PYTHONANYWHERE_SITE"):
         return "https://jhfguf.pythonanywhere.com/auth/google/callback"
-    return "http://localhost:8000/auth/google/callback"
+    port = request.url.port or 8000
+    scheme = request.url.scheme or "http"
+    hostname = request.url.hostname or "localhost"
+    if hostname in ("127.0.0.1", "0.0.0.0"):
+        hostname = "localhost"
+    return f"{scheme}://{hostname}:{port}/auth/google/callback"
 
 
 @router.get("/auth/google/login")
+@router.get("/oauth/google/login")
+@router.get("/login/google")
+@router.get("/signup/google")
 async def google_login(request: Request):
     """Google login entrypoint. Redirects directly to real Google authorization page."""
     import urllib.parse
@@ -538,11 +546,17 @@ async def google_login(request: Request):
     client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or os.getenv("GOOGLE_CLIENT_ID", "")
 
     redirect_uri = _get_google_redirect_uri(request)
+    req_scope = request.query_params.get("scope", "")
+    if req_scope == "send" or "send" in req_scope or "gmail" in req_scope:
+        scope = "openid email profile https://www.googleapis.com/auth/gmail.send"
+    else:
+        scope = "openid email profile"
+
     params = {
         "response_type": "code",
         "client_id": client_id,
         "redirect_uri": redirect_uri,
-        "scope": "openid email profile https://www.googleapis.com/auth/gmail.send",
+        "scope": scope,
         "state": "google_state_abc",
         "access_type": "offline",
         "prompt": "consent select_account",
@@ -687,10 +701,16 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
 
 
 def _get_microsoft_redirect_uri(request: Request) -> str:
-    host = (request.headers.get("host", "") or request.url.netloc).lower()
-    if "pythonanywhere.com" in host or "jhfguf" in host:
+    host = (request.headers.get("x-forwarded-host", "") or request.headers.get("host", "") or request.url.netloc or "").lower()
+    site_url = os.getenv("SITE_URL", "")
+    if "pythonanywhere.com" in host or "jhfguf" in host or "pythonanywhere" in site_url or os.getenv("PYTHONANYWHERE_SITE"):
         return "https://jhfguf.pythonanywhere.com/auth/microsoft/callback"
-    return "http://localhost:8000/auth/microsoft/callback"
+    port = request.url.port or 8000
+    scheme = request.url.scheme or "http"
+    hostname = request.url.hostname or "localhost"
+    if hostname in ("127.0.0.1", "0.0.0.0"):
+        hostname = "localhost"
+    return f"{scheme}://{hostname}:{port}/auth/microsoft/callback"
 
 
 @router.get("/auth/microsoft/login")
@@ -716,7 +736,7 @@ async def microsoft_login(request: Request):
             "response_mode": "query",
             "scope": "openid email profile User.Read Mail.Send offline_access",
             "state": "microsoft_state_abc",
-            "prompt": "consent select_account",
+            "prompt": "select_account",
         }
         auth_url = f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?{urllib.parse.urlencode(params)}"
         return RedirectResponse(auth_url)
@@ -744,8 +764,8 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
     import time, uuid
 
     get_db, session_serializer, _, config, _ = _deps()
-    email = "sam.dev1@hotmail.com"
-    name = "Network Master"
+    email = ""
+    name = ""
     user_id = None
     access_token = "mock_ms_access_token_123"
     refresh_token = "mock_ms_refresh_token_123"
@@ -757,22 +777,27 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
 
     if client_id and client_id not in ("mock_microsoft_id", "") and code and code != "mock_code_123":
         try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
+            token_post_data = {
+                "client_id": client_id,
+                "scope": "openid email profile User.Read Mail.Send offline_access",
+                "code": code,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+            }
+            if client_secret:
+                token_post_data["client_secret"] = client_secret
+
+            async with httpx.AsyncClient(timeout=10.0) as client:
                 token_resp = await client.post(
                     "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-                    data={
-                        "client_id": client_id,
-                        "scope": "openid email profile User.Read",
-                        "code": code,
-                        "redirect_uri": redirect_uri,
-                        "grant_type": "authorization_code",
-                        "client_secret": client_secret,
-                    },
+                    data=token_post_data,
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
                 )
                 if token_resp.status_code == 200:
                     token_data = token_resp.json()
-                    access_token = token_data.get("access_token")
+                    access_token = token_data.get("access_token") or access_token
+                    refresh_token = token_data.get("refresh_token") or refresh_token
+                    expires_in = token_data.get("expires_in", 3600)
 
                     # Decode id_token for real user name & email claims if present
                     if "id_token" in token_data:
@@ -808,6 +833,8 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                     logger.warning(f"[OAuth] Microsoft token exchange code warning ({token_resp.status_code}): {token_resp.text[:150]}")
         except Exception as e:
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
+
+    if not email:
         email = "sam.dev1@hotmail.com"
 
     email = email.strip().lower()

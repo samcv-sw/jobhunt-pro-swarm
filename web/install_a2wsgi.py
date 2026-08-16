@@ -1,12 +1,22 @@
 import logging
+import os
 
 import requests
 
 logger = logging.getLogger(__name__)
 
-username = "JHFGUF"
-token = "7f8bf3e6ad742bcb9e3c25e446cf664d6710b31d"
-domain = "jhfguf.pythonanywhere.com"
+# SECURITY: Credentials loaded EXCLUSIVELY from environment variables.
+# Never commit real PythonAnywhere tokens to source control.
+username = os.environ.get("PA_USERNAME", "")
+token = os.environ.get("PA_API_TOKEN", "")
+domain = os.environ.get("PA_DOMAIN", "")
+
+if not username or not token or not domain:
+    raise RuntimeError(
+        "PA_USERNAME / PA_API_TOKEN / PA_DOMAIN must be set in the environment. "
+        "Refusing to run with empty or hardcoded credentials."
+    )
+
 headers = {'Authorization': f'Token {token}'}
 
 # Get consoles

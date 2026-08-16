@@ -8,6 +8,7 @@ import gc
 import json as _json
 import logging
 import os
+import secrets
 import signal
 import subprocess
 import sys
@@ -403,9 +404,11 @@ def startup_self_test() -> bool:
     results: dict = {}
 
     # --- JWT Secret Key ---
+    # SECURITY: Load from env only. If absent, generate a cryptographically
+    # random 64-char secret at runtime — never a hardcoded, predictable value.
     jwt_secret = os.environ.get("JWT_SECRET_KEY") or os.environ.get("JWT_SECRET_KEYS") or os.environ.get("SECRET_KEY")
     if not jwt_secret:
-        jwt_secret = "jobhunt-cloud-jwt-sovereign-secret-key-2026"
+        jwt_secret = secrets.token_hex(32)
         os.environ["JWT_SECRET_KEY"] = jwt_secret
     jwt_ok = True
     results["jwt_secret"] = "ok"

@@ -1,0 +1,102 @@
+<div class="developers-portal-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+
+  <!-- Header -->
+  <div style="text-align:center; margin-block-end:36px;">
+    <span style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:13px; font-weight:800; padding:6px 16px; border-radius:20px; border:1px solid rgba(6,182,212,0.3);">
+      ⚡ DEVELOPER & PARTNER API PORTAL
+    </span>
+    <h1 style="color:#fff; font-size:2.4em; font-weight:900; margin:14px 0 8px 0;">Build On JobHunt Pro's Autonomous AI Infrastructure</h1>
+    <p style="color:#94a3b8; font-size:1.1em; max-inline-size:750px; margin:0 auto;">
+      High-performance RESTful APIs for ATS scoring, resume diagnostic pipelines, and real-time GCC labor market intelligence.
+    </p>
+  </div>
+
+  <!-- Sandbox API Key Generator -->
+  <div style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,27,75,0.85)); border:2px solid var(--cyan); border-radius:20px; padding:28px; margin-block-end:40px; text-align:center;">
+    <h3 style="color:#fff; font-size:20px; font-weight:800; margin:0 0 10px 0;">🔑 Free Developer Sandbox API Key</h3>
+    <p style="color:#cbd5e1; font-size:14px; margin:0 0 20px 0;">Get 100 free requests per day to prototype your integration.</p>
+    
+    <div style="display:flex; justify-content:center; gap:12px; max-inline-size:600px; margin:0 auto;">
+      <input type="email" id="devEmailInput" placeholder="Enter your developer email..." style="flex:1; padding:12px 18px; border-radius:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:14px;" dir="auto">
+      <button onclick="generateDevApiKey()" style="padding:12px 24px; border-radius:12px; font-weight:800; font-size:14px; background:linear-gradient(135deg, var(--cyan), #0284c7); color:#fff; border:none; cursor:pointer;">
+        ⚡ Generate Sandbox Key
+      </button>
+    </div>
+
+    <div id="devKeyResult" style="display:none; margin-block-start:18px; background:rgba(0,0,0,0.6); border:1px solid var(--green); border-radius:12px; padding:14px; text-align:start;">
+      <div style="color:#94a3b8; font-size:12px; margin-block-end:4px;">Your Active Sandbox API Key:</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <code id="devKeyVal" style="color:var(--green); font-size:14px; font-weight:800;"></code>
+        <button onclick="copyDevKey()" style="padding:4px 12px; border-radius:6px; background:rgba(255,255,255,0.1); color:#fff; border:none; font-size:12px; cursor:pointer;">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Documentation Showcase -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:24px;">
+    
+    <!-- Endpoint 1 -->
+    <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-block-end:12px;">
+        <span style="background:var(--cyan); color:#000; font-size:11px; font-weight:900; padding:3px 8px; border-radius:6px;">POST</span>
+        <code style="color:#fff; font-size:13px; font-weight:700;">/api/public/instant-cv-pulse</code>
+      </div>
+      <h4 style="color:#cbd5e1; font-size:15px; margin:0 0 8px 0;">ATS Resume Audit & Scoring</h4>
+      <p style="color:#94a3b8; font-size:13px; margin:0 0 14px 0;">Parses candidate resume text across 4 evaluation pillars and returns matched GCC tech giants.</p>
+      
+      <div style="background:#0b0f19; border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; overflow-x:auto;">
+        <pre style="margin:0; color:#38bdf8; font-size:12px; font-family:monospace;" dir="ltr">curl -X POST https://jobhuntpro.io/api/public/instant-cv-pulse \
+  -H "Content-Type: application/json" \
+  -d '{"cv_text": "Senior Cloud Architect with AWS/GCP experience in Riyadh..."}'</pre>
+      </div>
+    </div>
+
+    <!-- Endpoint 2 -->
+    <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:24px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-block-end:12px;">
+        <span style="background:var(--green); color:#000; font-size:11px; font-weight:900; padding:3px 8px; border-radius:6px;">GET</span>
+        <code style="color:#fff; font-size:13px; font-weight:700;">/api/market-radar/summary</code>
+      </div>
+      <h4 style="color:#cbd5e1; font-size:15px; margin:0 0 8px 0;">Live Labor Market Intelligence</h4>
+      <p style="color:#94a3b8; font-size:13px; margin:0 0 14px 0;">Fetch real-time vacancy metrics, hiring velocities, and regional salary percentiles.</p>
+      
+      <div style="background:#0b0f19; border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; overflow-x:auto;">
+        <pre style="margin:0; color:#38bdf8; font-size:12px; font-family:monospace;" dir="ltr">curl -X GET https://jobhuntpro.io/api/market-radar/summary \
+  -H "Authorization: Bearer YOUR_API_KEY"</pre>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+async function generateDevApiKey() {
+  const email = (document.getElementById('devEmailInput')?.value || '').trim();
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  try {
+    const resp = await fetch('/api/developers/sandbox-key', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email: email })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      document.getElementById('devKeyResult').style.display = 'block';
+      document.getElementById('devKeyVal').textContent = data.api_key;
+    }
+  } catch(e) {
+    alert('Error generating sandbox key.');
+  }
+}
+
+function copyDevKey() {
+  const k = document.getElementById('devKeyVal').textContent;
+  navigator.clipboard.writeText(k).then(() => {
+    alert('API key copied to clipboard!');
+  }).catch(() => {});
+}
+</script>

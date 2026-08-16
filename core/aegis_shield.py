@@ -381,7 +381,7 @@ class AegisShieldMiddleware:
             return
 
         # ── 5. DISTRIBUTED TOKEN BUCKET RATE LIMITER ─────────────────────────
-        if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING") == "1" or is_keepalive or client_ip in ("127.0.0.1", "localhost", "::1", "testclient", "testserver", "unknown"):
+        if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("TESTING") == "1" or is_exempt_path or client_ip in ("127.0.0.1", "localhost", "::1", "testclient", "testserver", "unknown"):
             allowed_req, remaining, retry_after = True, 1000, 0
         else:
             allowed_req, remaining, retry_after = await asyncio.to_thread(_redis.token_bucket_check, client_ip)

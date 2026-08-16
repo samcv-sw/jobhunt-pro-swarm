@@ -1,16 +1,31 @@
-/* Apex Glassmorphism & Cyberpunk RTL Design System */
+/* Apex Glassmorphism & Cyberpunk RTL Design System v2.0 - JobHunt Pro */
 :root {
-  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-bg: rgba(15, 23, 42, 0.82);
+  --glass-bg-subtle: rgba(30, 41, 59, 0.65);
+  --glass-bg-hover: rgba(51, 65, 85, 0.75);
   --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --glass-blur: blur(16px);
+  --glass-border-bright: rgba(255, 255, 255, 0.22);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.42);
+  --glass-blur: blur(20px);
+  --glass-radius-sm: 8px;
+  --glass-radius-md: 14px;
+  --glass-radius-lg: 20px;
+  --glass-radius-xl: 28px;
+  
+  /* Brand Luxury & Tech Accents */
   --accent-gold: #f59e0b;
+  --accent-gold-glow: rgba(245, 158, 11, 0.35);
   --accent-cyan: #06b6d4;
+  --accent-cyan-glow: rgba(6, 182, 212, 0.35);
   --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.35);
+  --accent-violet: #8b5cf6;
+  --accent-rose: #f43f5e;
+  
   --text-x-direction: 1;
   
-  /* Font Family Stack for Gulf Arabic & LTR */
-  --font-family-arabic: 'Cairo', 'IBM Plex Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography Stack for Gulf Arabic & Global LTR */
+  --font-family-arabic: 'Cairo', 'IBM Plex Arabic', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 [dir="rtl"] {
@@ -21,80 +36,128 @@ body {
   font-family: var(--font-family-arabic);
   min-font-size: 14px;
   line-height: 1.7;
+  letter-spacing: normal;
+  background-color: #090d16;
+  color: #f1f5f9;
 }
 
-/* Glass Card Component */
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+}
+
+/* Glass Card & Surfaces */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border-radius: var(--glass-radius-lg);
   box-shadow: var(--glass-shadow);
   padding: 1.5rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .glass-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 16px 48px 0 rgba(245, 158, 11, 0.18);
   transform: translateY(-2px);
 }
 
-/* Logical Properties & RTL helpers */
-.m-inline-start { margin-inline-start: 1rem; }
-.m-inline-end { margin-inline-end: 1rem; }
-.p-inline-start { padding-inline-start: 1rem; }
-.p-inline-end { padding-inline-end: 1rem; }
-
-/* Flip directional icons automatically in RTL */
-.flip-rtl {
-  transform: scaleX(var(--text-x-direction));
+.glass-panel {
+  background: var(--glass-bg-subtle);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius-md);
+  padding: 1rem 1.25rem;
 }
 
-/* Dynamic Ambient Glow */
+.glass-input {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius-sm);
+  color: #ffffff;
+  padding-inline-start: 1rem;
+  padding-inline-end: 1rem;
+  padding-block-start: 0.65rem;
+  padding-block-end: 0.65rem;
+  transition: all 0.2s ease;
+  inline-size: 100%;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+/* Logical Properties & RTL Utilities */
+.m-inline-start { margin-inline-start: 1rem; }
+.m-inline-end { margin-inline-end: 1rem; }
+.m-block-start { margin-block-start: 1rem; }
+.m-block-end { margin-block-end: 1rem; }
+
+.p-inline-start { padding-inline-start: 1rem; }
+.p-inline-end { padding-inline-end: 1rem; }
+.p-block-start { padding-block-start: 1rem; }
+.p-block-end { padding-block-end: 1rem; }
+
+.border-inline-start-accent {
+  border-inline-start: 4px solid var(--accent-gold);
+}
+
+/* Flip directional icons in RTL */
+.flip-rtl {
+  transform: scaleX(var(--text-x-direction));
+  display: inline-block;
+}
+
+/* Dynamic Ambient Glows */
 .glow-gold {
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 20px var(--accent-gold-glow);
   animation: apexGlowPulseGold 3s infinite ease-in-out;
 }
 
 .glow-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 20px var(--accent-cyan-glow);
   animation: apexGlowPulseCyan 3s infinite ease-in-out;
 }
 
 .glow-emerald {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px var(--accent-emerald-glow);
   animation: apexGlowPulseEmerald 3s infinite ease-in-out;
 }
 
-/* GPU Accelerated Keyframes */
+/* GPU Keyframe Glows */
 @keyframes apexGlowPulseGold {
   0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); transform: translateZ(0); }
-  50% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.55); transform: translateZ(0); }
+  50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); transform: translateZ(0); }
 }
 
 @keyframes apexGlowPulseCyan {
   0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.25); transform: translateZ(0); }
-  50% { box-shadow: 0 0 28px rgba(6, 182, 212, 0.55); transform: translateZ(0); }
+  50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.6); transform: translateZ(0); }
 }
 
 @keyframes apexGlowPulseEmerald {
   0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); transform: translateZ(0); }
-  50% { box-shadow: 0 0 28px rgba(16, 185, 129, 0.55); transform: translateZ(0); }
+  50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); transform: translateZ(0); }
 }
 
+/* Telemetry & Pulse Badges */
 .badge-pulse {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding-inline-start: 0.75rem;
   padding-inline-end: 0.75rem;
-  padding-block-start: 0.25rem;
-  padding-block-end: 0.25rem;
+  padding-block-start: 0.35rem;
+  padding-block-end: 0.35rem;
   border-radius: 9999px;
   background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   color: var(--accent-emerald);
   font-size: 0.85rem;
   font-weight: 600;
@@ -106,12 +169,56 @@ body {
   block-size: 8px;
   border-radius: 50%;
   background-color: var(--accent-emerald);
-  box-shadow: 0 0 8px var(--accent-emerald);
-  animation: pulseDot 1.5s infinite;
+  box-shadow: 0 0 10px var(--accent-emerald);
+  animation: pulseDot 1.5s infinite ease-in-out;
+}
+
+.badge-pulse-gold {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: var(--accent-gold);
+}
+
+.badge-pulse-gold::before {
+  background-color: var(--accent-gold);
+  box-shadow: 0 0 10px var(--accent-gold);
+}
+
+.badge-pulse-cyan {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: rgba(6, 182, 212, 0.35);
+  color: var(--accent-cyan);
+}
+
+.badge-pulse-cyan::before {
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
 }
 
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.75); }
+  50% { opacity: 0.35; transform: scale(0.7); }
 }
 
+/* ATS Radial Gauge & Progress Indicator */
+.ats-progress-track {
+  block-size: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ats-progress-bar {
+  block-size: 100%;
+  background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
+  border-radius: 9999px;
+  transition: inline-size 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stat Grid Layout */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}

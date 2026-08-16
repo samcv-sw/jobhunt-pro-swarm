@@ -158,3 +158,69 @@ def audit_resume(req: ResumeAuditRequest) -> Dict[str, Any]:
 
     global_sub_ms_cache.set(cache_key, result, ttl=86400.0)
     return result
+
+
+class RoastRequest(BaseModel):
+    resume_text: str
+    target_role: Optional[str] = "Software Engineer"
+    language: Optional[str] = "en"
+
+
+@router.post("/roast")
+def roast_resume(req: RoastRequest) -> Dict[str, Any]:
+    """
+    Spicy & constructive AI CV Roaster.
+    Gives direct, humorous yet high-converting feedback on why recruiters ghost this CV.
+    """
+    text = req.resume_text.strip()
+    words = text.split()
+    total_words = len(words)
+    text_lower = text.lower()
+
+    roasts = []
+    strengths = []
+    critical_fixes = []
+
+    # Length roast
+    if total_words < 250:
+        roasts.append("Your resume is shorter than a LinkedIn post. Are you applying for a job or playing hide and seek?")
+        critical_fixes.append("Expand on specific achievements, technical tools, and measurable business impact.")
+    elif total_words > 1100:
+        roasts.append("Recruiters spend 6 seconds per CV. Yours reads like a Tolstoy novel. Nobody has time for this!")
+        critical_fixes.append("Trim down to 1-2 focused pages (400-800 words maximum).")
+    else:
+        strengths.append("Length is in the sweet spot for rapid human & ATS scanning.")
+
+    # Buzzword roast
+    buzzwords = ["hardworking", "team player", "passionate", "detail-oriented", "think outside the box", "متحمس", "طموح", "مجتهد"]
+    found_buzzwords = [b for b in buzzwords if b in text_lower]
+    if found_buzzwords:
+        roasts.append(f"You used generic fluff ({', '.join(found_buzzwords[:3])}). Replace clichés with brutal cold numbers!")
+        critical_fixes.append(f"Delete vague words ({', '.join(found_buzzwords[:3])}) and show revenue/efficiency gains instead.")
+    else:
+        strengths.append("Zero generic buzzword fluff detected.")
+
+    # Metrics roast
+    metrics = re.findall(r'\b\d+[\%kKmMbB]?\b', text)
+    if len(metrics) < 3:
+        roasts.append("Where are the numbers? Did you actually accomplish anything or just show up to the office?")
+        critical_fixes.append("Add minimum 4-6 quantifiable metrics (e.g. '+42% pipeline growth', 'Saved $18K/mo in cloud spend').")
+    else:
+        strengths.append(f"Good quantitative impact detected ({len(metrics)} metrics found).")
+
+    # Final verdict
+    rating = "NEEDS_SALVATION" if len(roasts) >= 2 else "NEARLY_LETHAL"
+
+    return {
+        "status": "success",
+        "roast_rating": rating,
+        "punchy_roasts": roasts,
+        "hidden_strengths": strengths,
+        "critical_fixes": critical_fixes,
+        "conversion_offer": {
+            "title": "⚡ AI Auto-Rebuilder Available",
+            "desc": "Click below to let JobHunt Pro rewrite your bullet points into quantifiable executive statements in 3 seconds.",
+            "free_credits": 10
+        }
+    }
+

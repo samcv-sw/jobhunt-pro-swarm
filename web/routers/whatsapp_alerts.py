@@ -132,7 +132,12 @@ class WhatsAppOutboundCampaignRequest(BaseModel):
     media_url: Optional[str] = Field(None, description="Optional image/PDF proposal attachment URL")
 
 
+# V2 Alerts Router (Standalone without v1 prefix)
+v2_alerts_router = APIRouter(tags=["V2 Alerts"])
+
+@v2_alerts_router.post("/api/v2/alerts/dispatch")
 @router.post("/api/v2/alerts/dispatch")
+@router.post("/alerts/dispatch")
 def dispatch_mobile_alert_v2(req: UnifiedAlertDispatch):
     return {
         "status": "success",
@@ -145,7 +150,9 @@ def dispatch_mobile_alert_v2(req: UnifiedAlertDispatch):
     }
 
 
+@v2_alerts_router.post("/api/v2/outreach/send-campaign")
 @router.post("/api/v2/outreach/send-campaign")
+@router.post("/outreach/send-campaign")
 def send_whatsapp_sdr_campaign(req: WhatsAppOutboundCampaignRequest):
     """
     Executes outbound GCC WhatsApp SDR campaign to target decision makers.

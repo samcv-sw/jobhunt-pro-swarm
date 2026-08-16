@@ -89,6 +89,53 @@ class GccDialectInterviewer:
             "recommended_response_framework": "STAR Framework (Situation, Task, Action, Result) with quantified GCC impact."
         }
 
+    @classmethod
+    async def evaluate_candidate_response(
+        cls,
+        persona_key: str,
+        question: str,
+        answer: str,
+        role: str = "Technical Lead"
+    ) -> Dict[str, Any]:
+        """Evaluates candidate interview response on STAR framework, clarity, and GCC market relevance."""
+        clean_ans = (answer or "").strip()
+        word_count = len(clean_ans.split())
+        
+        # Base scoring heuristics
+        star_situation = 20 if any(w in clean_ans.lower() for w in ["when", "project", "situation", "company", "مشروع", "عندما", "شركة", "في"]) else 10
+        star_task = 20 if any(w in clean_ans.lower() for w in ["goal", "target", "objective", "task", "مهمة", "هدف", "مطلوب"]) else 12
+        star_action = 30 if any(w in clean_ans.lower() for w in ["built", "developed", "led", "architected", "engineered", "قمت", "بنيت", "طورت", "أدرت", "حللت"]) else 15
+        star_result = 30 if any(w in clean_ans.lower() for w in ["result", "reduced", "increased", "saved", "%", "$", "نتيجة", "وفرت", "حققت", "نسبة"]) else 15
+
+        raw_score = min(98, max(45, star_situation + star_task + star_action + star_result + min(15, word_count // 10)))
+        
+        feedback_en = []
+        feedback_ar = []
+        if star_result < 25:
+            feedback_en.append("Quantify your end results (e.g. '% latency reduction', '$ cost savings', or 'delivery timeline').")
+            feedback_ar.append("قم بإضافة أرقام ونتائج رقمية واضحة (مثل نسبة تسريع الأداء أو الوفر المالي).")
+        if star_action < 25:
+            feedback_en.append("Use stronger leadership action verbs highlighting your direct technical contributions.")
+            feedback_ar.append("ركز على دورك القيادي المباشر والخطوات التقنية التي اتخذتها شخصياً.")
+        if not feedback_en:
+            feedback_en.append("Excellent structured answer following the STAR methodology with strong impact metrics!")
+            feedback_ar.append("إجابة ممتازة ومكتملة تتبع أسلوب STAR باحترافية وتبرز القيمة المضافة!")
+
+        return {
+            "success": True,
+            "overall_score": raw_score,
+            "star_breakdown": {
+                "situation": star_situation,
+                "task": star_task,
+                "action": star_action,
+                "result": star_result
+            },
+            "persona_feedback_en": " ".join(feedback_en),
+            "persona_feedback_ar": " ".join(feedback_ar),
+            "hiring_verdict": "STRONG HIRE (موصى بالتعيين الفوري)" if raw_score >= 85 else "PROCEED TO NEXT ROUND (مؤهل للمرحلة التالية)" if raw_score >= 70 else "NEEDS POLISHING (يحتاج تدريب إضافي)"
+        }
+
 
 # Global singleton instance
 gcc_dialect_interviewer = GccDialectInterviewer()
+

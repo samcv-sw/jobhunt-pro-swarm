@@ -312,6 +312,7 @@ async def trigger_database_backup() -> dict:
         result = await asyncio.to_thread(run_backup)
         return {
             "status": "success" if result["success"] else "error",
+            "backup_id": f"bkp_{int(time.time())}",
             "backup_path": str(result.get("backup_path")),
             "telegram_sent": result.get("telegram_sent", False),
             "db_size_mb": result.get("db_size_mb", 0.0),

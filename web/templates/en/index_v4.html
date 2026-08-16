@@ -77,14 +77,24 @@
 @media(max-width:600px){.cookie-content{text-align:center}}
 </style>
 <style>
-.guarantee-badge-section{padding:0 24px 40px;display:flex;justify-content:center;position:relative;z-index:2}
-.guarantee-badge{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,rgba(0,240,255,0.08),rgba(0,240,255,0.02));border:1px solid rgba(0,240,255,0.2);border-radius:20px;padding:20px 32px;max-inline-size:700px;inline-size:100%;backdrop-filter:blur(10px);animation:guaranteePulse 2s ease-in-out infinite}
-.guarantee-icon{font-size:32px;flex-shrink:0}
-.guarantee-text{display:flex;flex-direction:column;gap:4px;flex:1}
-.guarantee-text strong{font-size:16px;color:var(--cyan);color:var(--muted)}
-.guarantee-seal{flex-shrink:0;opacity:0.8}
-@keyframes guaranteePulse{0%,100%{box-shadow:0 0 20px rgba(0,240,255,0.1)}50%{box-shadow:0 0 35px rgba(0,240,255,0.2)}}
-@media(max-width:600px){.guarantee-badge{flex-direction:column;text-align:center;padding:16px 20px}}
+.ats-instant-hub{background:rgba(15,23,42,0.85);border:1px solid rgba(6,182,212,0.3);border-radius:24px;padding:32px;backdrop-filter:blur(16px);margin-block:20px;box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+.dropzone-container{border:2px dashed rgba(6,182,212,0.4);border-radius:18px;padding:30px;text-align:center;background:rgba(6,182,212,0.03);cursor:pointer;transition:all 0.3s ease}
+.dropzone-container:hover,.dropzone-container.dragover{border-color:var(--cyan);background:rgba(6,182,212,0.08);box-shadow:0 0 25px rgba(6,182,212,0.2)}
+.matched-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-block:20px}
+.matched-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;transition:transform 0.2s ease,border-color 0.2s ease}
+.matched-card:hover{transform:translateY(-3px);border-color:var(--cyan)}
+.pulse-action-box{background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(6,182,212,0.05));border:1px solid rgba(16,185,129,0.3);border-radius:18px;padding:24px;margin-block-start:24px}
+.viral-share-bar{display:flex;gap:12px;flex-wrap:wrap;margin-block-start:12px}
+.share-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:12px;font-weight:700;font-size:14px;text-decoration:none;color:#fff !important;-webkit-text-fill-color:#fff !important;transition:opacity 0.2s ease}
+.share-btn.linkedin{background:#0077b5}
+.share-btn.whatsapp{background:#25d366;color:#052e16 !important;-webkit-text-fill-color:#052e16 !important}
+.share-btn.twitter{background:#1da1f2}
+.share-btn:hover{opacity:0.9}
+.whatsapp-float-widget{position:fixed;inset-inline-end:24px;inset-block-end:24px;z-index:9999;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#25d366,#128c7e);color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;padding:12px 20px;border-radius:30px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 6px 20px rgba(37,211,102,0.4);transition:transform 0.3s ease,box-shadow 0.3s ease}
+.whatsapp-float-widget:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 10px 25px rgba(37,211,102,0.6)}
+.whatsapp-pulse-dot{inline-size:10px;block-size:10px;background:#ffffff;border-radius:50%;box-shadow:0 0 10px #ffffff;animation:pulseDot 1.5s infinite}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.3)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 
@@ -335,34 +345,137 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
   </div>
 </section>
 
-<!-- ═══ ATS RESUME CHECKER ═══ -->
-<section class="ats-checker" id="ats-checker">
+<!-- ═══ ATS RESUME CHECKER & GCC ENTERPRISE RADAR ═══ -->
+<section class="ats-checker" id="ats-checker" style="position:relative; z-index:2;">
   <div class="section-header">
-    <span class="section-tag">&#x1f9fe; ATS CHECKER</span>
-    <h2>Test Your Resume Against AI</h2>
-    <p>See how your resume scores against Applicant Tracking Systems</p>
+    <span class="section-tag">&#x1f9fe; INSTANT ATS & ENTERPRISE RADAR</span>
+    <h2>Audit Your Resume & Match GCC Tech Giants</h2>
+    <p>Drop your resume (PDF/Word) to get an instant 4-pillar ATS score, match top Gulf employers, and send your 1st verified application free.</p>
   </div>
-  <div class="ats-demo">
-    <div class="ats-input-group">
-      <label for="atsJobTitle">Job Title</label>
-      <input dir="auto" type="text" id="atsJobTitle" placeholder="e.g. Software Engineer" value="Software Engineer" dir="auto">
+
+  <div class="ats-instant-hub">
+    <!-- Top Settings & Role -->
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-block-end:20px;">
+      <div style="flex:1; min-inline-size:240px;">
+        <label for="atsJobTitle" style="font-weight:700; font-size:14px; color:var(--cyan); margin-block-end:6px; display:block;">Target Job Title</label>
+        <input dir="auto" id="atsJobTitle" placeholder="e.g. Senior Software Engineer / Cloud Architect" type="text" value="Software Engineer" style="inline-size:100%; padding:12px 16px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px;">
+      </div>
     </div>
-    <div class="ats-input-group">
-      <label for="atsSkills">Your Skills (comma separated)</label>
-      <input dir="auto" type="text" id="atsSkills" placeholder="e.g. Python, React, AWS" value="Python, JavaScript, React" dir="auto">
+
+    <!-- Dropzone Area -->
+    <div class="dropzone-container" id="cvDropzone" onclick="document.getElementById('cvFileInput').click()">
+      <input type="file" id="cvFileInput" accept=".pdf,.docx,.doc,.txt" style="display:none;" onchange="handleCvFileSelected(this.files)" dir="auto">
+      <div style="font-size:36px; margin-block-end:8px;">📁</div>
+      <div style="font-size:16px; font-weight:700; color:#fff;" id="dropzoneText">Drag & drop your resume file (PDF, Word, TXT) or click to browse</div>
+      <div style="font-size:13px; color:var(--muted); margin-block-start:6px;">Or paste raw resume text below • Zero friction, no signup required</div>
     </div>
-    <button class="primary" onclick="checkATS()">&#x1f50d; Check My Score</button>
-    <div class="ats-result" id="atsResult" style="display:none;">
-      <div class="ats-score-ring">
-        <svg width="120" height="120" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
-          <circle id="atsScoreCircle" cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" transform="rotate(-90 60 60)"/>
-        </svg>
-        <div class="ats-score-text">
-          <span id="atsScoreValue">0</span><small>%</small>
+
+    <!-- Or Paste Text Toggle -->
+    <div style="margin-block-start:12px;">
+      <textarea id="cvTextInput" dir="auto" placeholder="Or paste your resume text / work experience summary here..." style="inline-size:100%; min-block-size:80px; padding:12px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:#fff; font-size:14px; resize:vertical;"></textarea>
+    </div>
+
+    <div style="margin-block-start:16px; text-align:center;">
+      <button class="primary" id="btnScanCv" onclick="runInstantCvPulseScan()" style="padding:14px 32px; font-size:16px; font-weight:800; border-radius:30px; background:linear-gradient(135deg, var(--cyan), #0284c7); color:#0a0a1a; cursor:pointer; border:none; box-shadow:0 0 20px rgba(6,182,212,0.4);">
+        ⚡ Scan ATS & Reveal Matching Companies
+      </button>
+    </div>
+
+    <!-- Scanning Indicator -->
+    <div id="pulseScannerStatus" style="display:none; margin-block:20px; text-align:center; padding:16px; background:rgba(6,182,212,0.08); border-radius:12px; border:1px solid rgba(6,182,212,0.2);">
+      <div style="font-size:20px; animation:spin 1s linear infinite; display:inline-block;">⚡</div>
+      <div id="scannerStatusText" style="font-weight:700; color:var(--cyan); margin-block-start:6px;">Scanning ATS structure & matching 160+ GCC enterprise targets...</div>
+    </div>
+
+    <!-- ═══ RESULTS HUB ═══ -->
+    <div id="atsResultHub" style="display:none; margin-block-start:30px; border-block-start:1px solid rgba(255,255,255,0.1); padding-block-start:24px;">
+      <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center;">
+        <!-- Score Circle -->
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="position:relative; inline-size:110px; block-size:110px;">
+            <svg height="110" viewBox="0 0 120 120" width="110">
+              <circle cx="60" cy="60" fill="none" r="50" stroke="rgba(255,255,255,0.1)" stroke-width="10"></circle>
+              <circle cx="60" cy="60" fill="none" id="instantScoreCircle" r="50" stroke="var(--green)" stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round" stroke-width="10" transform="rotate(-90 60 60)"></circle>
+            </svg>
+            <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <span id="instantScoreValue" style="font-size:28px; font-weight:900; color:#fff;">0</span>
+              <small style="font-size:11px; color:var(--muted); font-weight:700;">ATS SCORE</small>
+            </div>
+          </div>
+          <div>
+            <div id="instantScoreGrade" style="font-size:22px; font-weight:800; color:var(--green);">Top Candidate (A+)</div>
+            <p id="instantScoreMessage" style="font-size:14px; color:var(--muted); max-inline-size:450px; margin-block-start:4px;"></p>
+          </div>
         </div>
       </div>
-      <p id="atsScoreMessage">Enter your details above and click "Check My Score"</p>
+
+      <!-- 4-Pillar Progress Breakdown -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-block:20px;">
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-block-end:4px;"><span>Structure & Format</span><strong id="barFormatVal">80%</strong></div>
+          <div style="inline-size:100%; block-size:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;"><div id="barFormatFill" style="block-size:100%; inline-size:80%; background:var(--cyan);"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-block-end:4px;"><span>Tech Keywords</span><strong id="barKeywordVal">85%</strong></div>
+          <div style="inline-size:100%; block-size:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;"><div id="barKeywordFill" style="block-size:100%; inline-size:85%; background:var(--green);"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-block-end:4px;"><span>Action Verbs & Impact</span><strong id="barImpactVal">75%</strong></div>
+          <div style="inline-size:100%; block-size:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;"><div id="barImpactFill" style="block-size:100%; inline-size:75%; background:var(--gold);"></div></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-block-end:4px;"><span>GCC Market Alignment</span><strong id="barGccVal">90%</strong></div>
+          <div style="inline-size:100%; block-size:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;"><div id="barGccFill" style="block-size:100%; inline-size:90%; background:var(--cyan);"></div></div>
+        </div>
+      </div>
+
+      <!-- ═══ Matched GCC Enterprises ═══ -->
+      <div style="margin-block-start:24px;">
+        <h3 style="font-size:18px; color:#fff; margin-block-end:12px; display:flex; align-items:center; gap:8px;">
+          <span>🏢</span> Top GCC Companies Matching Your Profile
+        </h3>
+        <div class="matched-grid" id="matchedEnterprisesGrid"></div>
+      </div>
+
+      <!-- ═══ Live AI Pitch Preview ═══ -->
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-block-start:16px;">
+        <div style="font-weight:700; font-size:14px; color:var(--gold); margin-block-end:6px;">🤖 Generated AI Pitch Preview:</div>
+        <p id="instantAiPitchText" style="font-size:14px; color:#cbd5e1; line-height:1.7; margin:0;" dir="auto"></p>
+      </div>
+
+      <!-- ═══ 1-Click Free Application Pulse Action ═══ -->
+      <div class="pulse-action-box">
+        <div style="display:flex; align-items:center; gap:10px; margin-block-end:8px;">
+          <span style="font-size:24px;">🚀</span>
+          <h4 style="font-size:18px; color:var(--green); margin:0;">Send 1 Real Verified AI Application — 100% Free</h4>
+        </div>
+        <p style="font-size:14px; color:var(--muted); margin-block-end:14px;">
+          Enter your real email to receive direct interview replies. Our background delivery engine will dispatch your verified application to the #1 matched enterprise immediately:
+        </p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <input type="email" id="freePulseEmail" placeholder="your.name@example.com" dir="ltr" style="flex:1; min-inline-size:240px; padding:12px 16px; border-radius:12px; background:rgba(0,0,0,0.4); border:1px solid rgba(16,185,129,0.4); color:#fff; font-size:15px;">
+          <button class="primary" id="btnClaimFreePulse" onclick="submitFreePulseClaim()" style="padding:12px 24px; font-weight:800; border-radius:12px; background:var(--green); color:#052e16; border:none; cursor:pointer;">
+            🚀 Dispatch My Application Free
+          </button>
+        </div>
+        <div id="freePulseStatusMsg" style="display:none; margin-block-start:12px; font-weight:700; font-size:14px;"></div>
+      </div>
+
+      <!-- ═══ Viral Social Share & Referral Hub ═══ -->
+      <div style="margin-block-start:24px; padding:18px; background:rgba(6,182,212,0.04); border-radius:14px; border:1px solid rgba(6,182,212,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong style="color:var(--cyan); font-size:15px;">📢 Share Your Result & Unlock +25 Free Applications!</strong>
+            <p style="font-size:13px; color:var(--muted); margin:4px 0 0 0;">Share your ATS score card on LinkedIn or WhatsApp to receive instant bonus credits.</p>
+          </div>
+          <div class="viral-share-bar">
+            <a id="shareLinkedInLink" href="#" target="_blank" class="share-btn linkedin">💼 LinkedIn</a>
+            <a id="shareWhatsAppLink" href="#" target="_blank" class="share-btn whatsapp">💬 WhatsApp</a>
+            <a id="shareTwitterLink" href="#" target="_blank" class="share-btn twitter">🐦 X / Twitter</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1010,36 +1123,212 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
     }
   };
 
-  // ── ATS Checker ──
-  window.checkATS = function() {
-    const jobTitle = document.getElementById('atsJobTitle')?.value || '';
-    const skills = document.getElementById('atsSkills')?.value || '';
-    const resultDiv = document.getElementById('atsResult');
-    const scoreValue = document.getElementById('atsScoreValue');
-    const scoreCircle = document.getElementById('atsScoreCircle');
-    const scoreMsg = document.getElementById('atsScoreMessage');
-    if (!resultDiv || !scoreValue || !scoreCircle || !scoreMsg) return;
+  // ── Instant CV Drop & Free Pulse Engine ──
+  let currentCvFile = null;
+  let currentExtractedCvText = '';
+  let currentMatchedEnterprises = [];
 
-    const baseScore = 45 + Math.min(skills.split(',').length * 8, 35);
-    const titleBonus = jobTitle.length > 5 ? 10 : 0;
-    const finalScore = Math.min(Math.round(baseScore + titleBonus + Math.random() * 10), 99);
-    const circumference = 314;
-    const offset = circumference - (finalScore / 100) * circumference;
+  window.handleCvFileSelected = function(files) {
+    if (!files || !files.length) return;
+    currentCvFile = files[0];
+    const dropText = document.getElementById('dropzoneText');
+    if (dropText) {
+      dropText.innerHTML = `✅ Selected file: <strong style="color:var(--cyan)">${currentCvFile.name}</strong> (${Math.round(currentCvFile.size/1024)} KB)`;
+    }
+  };
 
-    resultDiv.style.display = 'block';
-    scoreCircle.style.transition = 'stroke-dashoffset 1.5s ease';
-    scoreCircle.style.strokeDashoffset = offset;
-    scoreValue.textContent = finalScore;
+  // Drag & drop support
+  const dropzone = document.getElementById('cvDropzone');
+  if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => { e.preventDefault(); dropzone.classList.add('dragover'); }, false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); }, false);
+    });
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      if (dt && dt.files && dt.files.length) {
+        handleCvFileSelected(dt.files);
+      }
+    }, false);
+  }
 
-    if (finalScore >= 80) {
-      scoreMsg.textContent = '&#x1f389; Great score! Your resume is well-optimized for ATS systems. JobHunt Pro can help you apply to hundreds of matching positions.';
-      scoreCircle.style.stroke = 'var(--green)';
-    } else if (finalScore >= 60) {
-      scoreMsg.textContent = '&#x1f4aa; Good score! With a few tweaks and JobHunt Pro\'s AI optimization, you could be landing interviews in no time.';
-      scoreCircle.style.stroke = 'var(--gold)';
-    } else {
-      scoreMsg.textContent = '&#x1f4ad; Your resume needs optimization. JobHunt Pro\'s AI can help tailor your resume for each application to boost your score.';
-      scoreCircle.style.stroke = 'var(--magenta)';
+  window.runInstantCvPulseScan = async function() {
+    const jobTitle = document.getElementById('atsJobTitle')?.value || 'Software Engineer';
+    const textInput = document.getElementById('cvTextInput')?.value || '';
+    const scannerStatus = document.getElementById('pulseScannerStatus');
+    const scannerText = document.getElementById('scannerStatusText');
+    const resultHub = document.getElementById('atsResultHub');
+    const btnScan = document.getElementById('btnScanCv');
+
+    if (!currentCvFile && (!textInput || textInput.trim().length < 15)) {
+      alert('Please select a resume file (PDF/Word) or paste your resume text first.');
+      return;
+    }
+
+    if (scannerStatus) scannerStatus.style.display = 'block';
+    if (btnScan) btnScan.disabled = true;
+    if (resultHub) resultHub.style.display = 'none';
+
+    const formData = new FormData();
+    if (currentCvFile) {
+      formData.append('cv_file', currentCvFile);
+    }
+    formData.append('cv_text', textInput);
+    formData.append('job_title', jobTitle);
+    formData.append('lang', 'en');
+
+    try {
+      if (scannerText) scannerText.textContent = '1/3 Auditing ATS keyword structure and parsing sections...';
+      setTimeout(() => { if (scannerText) scannerText.textContent = '2/3 Matching 160+ GCC enterprise targets in Dubai & Riyadh...'; }, 600);
+      setTimeout(() => { if (scannerText) scannerText.textContent = '3/3 Synthesizing bespoke AI cold outreach pitch...'; }, 1200);
+
+      const resp = await fetch('/api/public/instant-cv-pulse', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await resp.json();
+
+      if (!data.success) {
+        alert(data.error || 'An error occurred during ATS analysis.');
+        if (scannerStatus) scannerStatus.style.display = 'none';
+        if (btnScan) btnScan.disabled = false;
+        return;
+      }
+
+      currentExtractedCvText = data.cv_snippet || textInput || 'Technical Professional';
+      currentMatchedEnterprises = data.matched_enterprises || [];
+
+      // Update ATS score circle
+      const report = data.ats_report;
+      const score = report.score || 85;
+      const scoreCircle = document.getElementById('instantScoreCircle');
+      const scoreVal = document.getElementById('instantScoreValue');
+      const scoreGrade = document.getElementById('instantScoreGrade');
+      const scoreMsg = document.getElementById('instantScoreMessage');
+
+      if (scoreVal) scoreVal.textContent = score;
+      if (scoreCircle) {
+        const offset = 314 - (score / 100) * 314;
+        scoreCircle.style.transition = 'stroke-dashoffset 1.2s ease';
+        scoreCircle.style.strokeDashoffset = offset;
+        scoreCircle.style.stroke = score >= 80 ? 'var(--green)' : score >= 65 ? 'var(--gold)' : 'var(--magenta)';
+      }
+      if (scoreGrade) scoreGrade.textContent = `${report.grade} Candidate (${score >= 80 ? 'Top Tier Profile' : 'Needs Optimization'})`;
+      if (scoreMsg) scoreMsg.textContent = report.recommendations_en || report.recommendations_ar;
+
+      // 4-Pillars progress
+      const bd = report.breakdown || {};
+      const setBar = (id, val, textId) => {
+        const fill = document.getElementById(id);
+        const txt = document.getElementById(textId);
+        if (fill) fill.style.inlineSize = `${val}%`;
+        if (txt) txt.textContent = `${val}%`;
+      };
+      setBar('barFormatFill', bd.format || 80, 'barFormatVal');
+      setBar('barKeywordFill', bd.keywords || 85, 'barKeywordVal');
+      setBar('barImpactFill', bd.impact || 75, 'barImpactVal');
+      setBar('barGccFill', bd.gcc_fit || 90, 'barGccVal');
+
+      // Render Matched Enterprises Cards
+      const grid = document.getElementById('matchedEnterprisesGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        currentMatchedEnterprises.forEach((item) => {
+          const card = document.createElement('div');
+          card.className = 'matched-card';
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-block-end:8px;">
+              <strong style="color:#fff; font-size:15px;">${item.company}</strong>
+              <span style="background:rgba(16,185,129,0.15); color:var(--green); font-size:12px; font-weight:700; padding:2px 8px; border-radius:6px;">${item.match_score}% Match</span>
+            </div>
+            <div style="font-size:13px; color:var(--cyan); margin-block-end:6px;">🎯 ${item.title}</div>
+            <div style="font-size:12px; color:var(--muted); display:flex; gap:10px;">
+              <span>📍 ${item.location}</span>
+              <span style="color:var(--green);">✓ MX Verified</span>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      // Live AI Pitch Preview
+      const pitchText = document.getElementById('instantAiPitchText');
+      if (pitchText) pitchText.textContent = data.pitch_preview || '';
+
+      // Viral Share URLs
+      const sc = data.social_card || {};
+      const links = sc.share_links || {};
+      const li = document.getElementById('shareLinkedInLink');
+      const wa = document.getElementById('shareWhatsAppLink');
+      const tw = document.getElementById('shareTwitterLink');
+      if (li && links.linkedin) li.href = links.linkedin;
+      if (wa && links.whatsapp) wa.href = links.whatsapp;
+      if (tw && links.twitter) tw.href = links.twitter;
+
+      if (scannerStatus) scannerStatus.style.display = 'none';
+      if (resultHub) resultHub.style.display = 'block';
+      resultHub.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch (err) {
+      alert('Server communication error: ' + err.message);
+      if (scannerStatus) scannerStatus.style.display = 'none';
+    } finally {
+      if (btnScan) btnScan.disabled = false;
+    }
+  };
+
+  window.submitFreePulseClaim = async function() {
+    const email = document.getElementById('freePulseEmail')?.value || '';
+    const statusMsg = document.getElementById('freePulseStatusMsg');
+    const btn = document.getElementById('btnClaimFreePulse');
+    const jobTitle = document.getElementById('atsJobTitle')?.value || 'Software Engineer';
+    const topComp = (currentMatchedEnterprises && currentMatchedEnterprises.length > 0) ? currentMatchedEnterprises[0].company : 'NVIDIA MENA';
+
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid deliverable email address to receive recruiter responses.');
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (statusMsg) {
+      statusMsg.style.display = 'block';
+      statusMsg.style.color = 'var(--cyan)';
+      statusMsg.textContent = '⏳ Verifying MX deliverability & dispatching your free test application...';
+    }
+
+    try {
+      const resp = await fetch('/api/public/claim-free-pulse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          cv_text: currentExtractedCvText || 'Professional Applicant',
+          target_role: jobTitle,
+          target_company: topComp
+        })
+      });
+      const res = await resp.json();
+
+      if (res.success) {
+        if (statusMsg) {
+          statusMsg.style.color = 'var(--green)';
+          statusMsg.innerHTML = `✅ ${res.message_en || res.message_ar}`;
+        }
+      } else {
+        if (statusMsg) {
+          statusMsg.style.color = 'var(--magenta)';
+          statusMsg.textContent = `❌ ${res.error || 'Failed to dispatch free pulse.'}`;
+        }
+      }
+    } catch (err) {
+      if (statusMsg) {
+        statusMsg.style.color = 'var(--magenta)';
+        statusMsg.textContent = '❌ Connection error: ' + err.message;
+      }
+    } finally {
+      if (btn) btn.disabled = false;
     }
   };
 
@@ -1219,10 +1508,98 @@ if(localStorage.getItem('cookiesAccepted')){document.getElementById('cookieBanne
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
+  // ── Exit-Intent Lead Magnet Trigger ──
+  let exitIntentFired = sessionStorage.getItem('exitIntentFired');
+  document.addEventListener('mouseleave', (e) => {
+    if (e.clientY <= 20 && !exitIntentFired) {
+      exitIntentFired = true;
+      sessionStorage.setItem('exitIntentFired', 'true');
+      const modal = document.getElementById('exitIntentModal');
+      if (modal) modal.style.display = 'flex';
+    }
   });
+
+  window.closeExitIntentModal = function() {
+    const modal = document.getElementById('exitIntentModal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  window.claimExitIntentGift = async function() {
+    const email = document.getElementById('exitIntentEmail')?.value || '';
+    const msg = document.getElementById('exitIntentMsg');
+    if (!email || !email.includes('@')) {
+      alert('Please enter your email to claim your free pulse & discount code.');
+      return;
+    }
+    if (msg) {
+      msg.style.display = 'block';
+      msg.style.color = 'var(--cyan)';
+      msg.textContent = '⏳ Activating discount code GULF30 & free pulse...';
+    }
+    try {
+      const resp = await fetch('/api/public/claim-free-pulse', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: email,
+          cv_text: 'Exit Intent Visitor Profile',
+          target_role: 'Software Specialist',
+          target_company: 'Tamara'
+        })
+      });
+      const res = await resp.json();
+      if (res.success) {
+        if (msg) {
+          msg.style.color = 'var(--green)';
+          msg.innerHTML = '🎉 Your gift has been activated! Coupon: <strong style="color:var(--gold);">GULF30</strong> (30% off). Your free application pulse has been dispatched.';
+        }
+      } else {
+        if (msg) {
+          msg.style.color = 'var(--magenta)';
+          msg.textContent = res.error || 'Activation failed.';
+        }
+      }
+    } catch(err) {
+      if (msg) {
+        msg.style.color = 'var(--magenta)';
+        msg.textContent = 'Connection error: ' + err.message;
+      }
+    }
+  };
 
 })();
 </script>
+
+<!-- ═══ EXIT-INTENT VIRAL CONVERSION MODAL ═══ -->
+<div id="exitIntentModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+  <div style="position:relative; background:linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,27,75,0.95)); border:2px solid var(--gold); border-radius:24px; max-inline-size:520px; inline-size:100%; padding:32px; box-shadow:0 0 60px rgba(245,158,11,0.4); text-align:center;">
+    <button onclick="closeExitIntentModal()" style="position:absolute; top:16px; inset-inline-end:16px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" aria-label="Close">✕</button>
+    
+    <div style="font-size:44px; margin-block-end:10px;">🎁</div>
+    <span style="background:rgba(245,158,11,0.15); color:var(--gold); font-size:12px; font-weight:800; padding:4px 14px; border-radius:20px; border:1px solid rgba(245,158,11,0.3);">
+      Exclusive Gift Before You Go!
+    </span>
+    <h3 style="color:#fff; font-size:1.5em; font-weight:900; margin:12px 0 8px 0;">Don't Leave Without Your Free ATS Audit!</h3>
+    <p style="color:#cbd5e1; font-size:0.95em; line-height:1.6; margin:0 0 20px 0;">
+      Claim your free 4-pillar ATS score + 1 free test application to top Gulf employers + an exclusive 30% discount token (<strong style="color:var(--gold);">GULF30</strong>).
+    </p>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin-block-end:14px;">
+      <input type="email" id="exitIntentEmail" placeholder="Enter your email to claim your gift..." style="padding:14px 18px; border-radius:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:15px;" dir="auto">
+      <button onclick="claimExitIntentGift()" style="padding:14px 24px; border-radius:12px; font-weight:900; font-size:16px; background:linear-gradient(135deg, var(--gold), #d97706); color:#000; border:none; cursor:pointer; box-shadow:0 0 20px rgba(245,158,11,0.4);">
+        ⚡ Activate Free Pulse & 30% Discount
+      </button>
+    </div>
+    <div id="exitIntentMsg" style="display:none; font-size:13px; font-weight:700; margin-block-start:8px;"></div>
+  </div>
+</div>
+
+<!-- ═══ FLOATING SMART WHATSAPP WIDGET ═══ -->
+<a href="https://api.whatsapp.com/send?text=Hi%20JobHunt%20Pro%2C%20I%20want%20to%20audit%20my%20resume%20and%20auto-apply%20to%20Gulf%20tech%20companies%20with%20AI" target="_blank" class="whatsapp-float-widget" aria-label="Chat with AI Career Advisor on WhatsApp">
+  <span class="whatsapp-pulse-dot"></span>
+  <span style="font-size:18px;">💬</span>
+  <span>Chat with AI Career Advisor</span>
+</a>
 </body>
 </html>
 

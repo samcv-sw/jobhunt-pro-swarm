@@ -40,8 +40,10 @@ class OutreachSequenceResponse(BaseModel):
     initial_message: str
     follow_up_1: str
     follow_up_2: str
+    follow_up_3: Optional[str] = None
     day3_scheduled_at: str
     day7_scheduled_at: str
+    day14_scheduled_at: Optional[str] = None
     ats_relevance_score: float
     created_at: str
 
@@ -92,6 +94,7 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
     now = datetime.datetime.now()
     day3 = (now + datetime.timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S")
     day7 = (now + datetime.timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+    day14 = (now + datetime.timedelta(days=14)).strftime("%Y-%m-%d %H:%M:%S")
 
     lang = (req.language or "en").strip().lower()
     industry_key = (req.recruiter.industry or "Tech").strip().lower()
@@ -116,15 +119,15 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
     elif "cyber" in industry_key or "security" in industry_key:
         industry_hook_ar = "تطبيق بنية الثقة المعدومة (Zero-Trust) والاستجابة الاستباقية للتهديدات السيبرانية"
     elif "retail" in industry_key or "ecom" in industry_key:
-        industry_hook_ar = "تحسين مسارات التحويل وتوسيع منصات التجارة الإلكترونية عالية الاعتمادية"
+        industry_hook_ar = "تحسين مسارات التحويل وتوسيع منصات التجارة الإلكترونية عالية الاعتدادية"
     else:
-        industry_hook_ar = f"تسريع وتيرة التحول الرقمي وتطوير البنية التقنية السحابية في قطاع {req.recruiter.industry or 'التقنية'}"
+        industry_hook_ar = f"المساهمة في تحقيق مستهدفات النمو التقني وتطوير الحلول المبتكرة لقطاع {req.recruiter.industry or 'التكنولوجيا'}"
 
-    pain_points_en = f" to solve challenges in {', '.join(req.company_pain_points)}" if req.company_pain_points else ""
-    pain_points_ar = f" ومعالجة تحديات {', '.join(req.company_pain_points)}" if req.company_pain_points else ""
+    pain_points_en = f" while tackling {req.company_pain_points[0]}" if req.company_pain_points else ""
+    pain_points_ar = f" وحل تحديات {req.company_pain_points[0]}" if req.company_pain_points else ""
 
-    if lang in ["ar", "arabic"]:
-        # Culturally tailored Arabic Cold Sequence (Gulf Etiquette + Respectful Tone)
+    if lang == "ar" or _is_arabic_text(req.target_role):
+        # Arabic Sequence
         if req.channel == "email":
             initial = (
                 f"الموضوع: استفسار بخصوص فرصة {req.target_role} لدى {req.recruiter.company}\n\n"
@@ -145,6 +148,11 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
                 f"أرفع هذه الرسالة للأهمية مع تفهمي الكامل لانشغالكم وجدول أعمالكم المزدحم. سيسعدني البقاء على تواصل دائم لأي فرص ومشاريع مستقبلية تجمعنا بإذن الله.\n\n"
                 f"خالص التحيات والتقدير،\n{req.candidate_name}"
             )
+            fu3 = (
+                f"السلام عليكم أستاذ/ة {req.recruiter.name}،\n\n"
+                f"رسالة أخيرة للتأكيد على إغلاق المتابعة حتى لا أثقل على وقتكم. إذا كنتم بحاجة لكفاءات في مجالي مستقبلاً، يمكنكم دائماً التواصل معي عبر هذا البريد.\n\n"
+                f"بالتوفيق الدائم،\n{req.candidate_name}"
+            )
         else: # Default: LinkedIn / WhatsApp / Social DM
             initial = (
                 f"السلام عليكم أستاذ/ة {req.recruiter.name}! 👋\n"
@@ -160,6 +168,9 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
                 f"السلام عليكم أستاذ/ة {req.recruiter.name}، أقدر انشغالكم تماماً. "
                 f"أرفق لكم رابط ملف الأعمال للاطلاع عليه في الوقت المناسب. كل التوفيق والنجاح في مشاريعكم!"
             )
+            fu3 = (
+                f"أستاذ/ة {req.recruiter.name}، ختاماً أتمنى لكم كل التوفيق في توظيف أفضل الكفاءات لفريقكم!"
+            )
     elif lang in ["bilingual", "both", "en_ar"]:
         # Bilingual Sequence (Arabic header + English body)
         initial = (
@@ -172,6 +183,7 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
         )
         fu1 = f"السلام عليكم / Hi {req.recruiter.name}, following up on my note re: {req.target_role}. Would love to share how my experience with {achievements_str} can help accelerate initiatives at {req.recruiter.company}."
         fu2 = f"السلام عليكم / Hi {req.recruiter.name}, floating this back to the top. I completely understand your busy schedule and would welcome staying in touch for future initiatives."
+        fu3 = f"Hi {req.recruiter.name}, final note to keep things clean. Wishing you all the best with current hiring initiatives!"
     else:
         # Standard English Sequence
         if req.channel == "email":
@@ -184,6 +196,7 @@ async def generate_outreach_sequence(req: OutreachSequenceRequest):
             )
             fu1 = f"Hi {req.recruiter.name}, following up on my note re: {req.target_role}. Would love to share how my experience with {achievements_str} can help drive upcoming initiatives at {req.recruiter.company}."
             fu2 = f"Hi {req.recruiter.name}, floating this back to the top. If now isn't the right time, I'd still welcome connecting for future opportunities."
+            fu3 = f"Hi {req.recruiter.name}, closing the loop here so I don't clutter your inbox. Best of luck with building out the team!"
         else: # LinkedIn / Social DM
             initial = (
                 f"Hi {req.recruiter.name}! 👋 Came across your profile while exploring {req.target_role} roles at {req.recruiter.company}. "

@@ -528,6 +528,191 @@
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
         }
+
+        /* Gated Blur Overlay */
+        .gated-blur-area {
+            position: relative;
+            transition: filter 0.4s ease;
+        }
+
+        .is-blurred {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .gate-unlock-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            margin-block: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Modals (Lead Gate & Exit Intent) */
+        .viral-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 11, 20, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        .viral-modal-card {
+            background: linear-gradient(145deg, #0f172a, #0b1120);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            inline-size: 100%;
+            max-inline-size: 520px;
+            padding: 32px 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.2);
+            position: relative;
+            text-align: center;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            inset-block-start: 16px;
+            inset-inline-end: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #94a3b8;
+            inline-size: 32px;
+            block-size: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        /* WhatsApp Floating Advisor Widget */
+        .floating-whatsapp-advisor {
+            position: fixed;
+            inset-block-end: 24px;
+            inset-inline-end: 24px;
+            z-index: 9990;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #25d366;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 14px;
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.45);
+            transition: all 0.25s ease;
+        }
+
+        .floating-whatsapp-advisor:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 15px 35px rgba(37, 211, 102, 0.6);
+            color: #ffffff;
+        }
+
+        .whatsapp-pulse-dot {
+            inline-size: 10px;
+            block-size: 10px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: pulseGlow 1.5s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* Live Social Proof Toast */
+        .social-proof-toast {
+            position: fixed;
+            inset-block-end: 24px;
+            inset-inline-start: 24px;
+            z-index: 9990;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(120px);
+            opacity: 0;
+            pointer-events: none;
+            max-inline-size: 340px;
+        }
+
+        .social-proof-toast.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Quick Quiz Selector */
+        .quiz-container {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-block-end: 20px;
+        }
+
+        .quiz-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary-cyan);
+            margin-block-end: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quiz-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .quiz-pill-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .quiz-pill-btn.active, .quiz-pill-btn:hover {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: var(--primary-cyan);
+            color: #ffffff;
+        }
     </style>
 </head>
 <body style="background-color:var(--bg-dark); color:var(--text-main);">
@@ -540,9 +725,57 @@
             <i data-lucide="sparkles" style="inline-size: 14px; block-size: 14px;"></i>
             <span>{{ 'فحص ATS المتقدم مجاناً 100% • بدون تسجيل' if (lang or 'ar') == 'ar' else '100% Free AI ATS & Recruiter Audit • No Signup' }}</span>
         </div>
+        
+        <!-- Live Psychographic Scarcity Bar -->
+        <div id="fomoBar" style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 9999px; color: var(--accent-gold); font-size: 12px; font-weight: 700; margin-block-end: 14px;">
+            <i data-lucide="flame" style="inline-size: 14px; block-size: 14px;"></i>
+            <span id="fomoLiveText">{{ '🔥 متبقي 3 مقاعد مخفضة فقط اليوم في سرب الـ B2B SDR لمنطقة الرياض ودبي' if (lang or 'ar') == 'ar' else '🔥 Only 3 discounted slots remaining today for the B2B SDR Swarm' }}</span>
+        </div>
+
         <h1>{{ 'هل تتجاوز سيرتك الذاتية فلاتر الـ ATS ومسؤولي التوظيف في الخليج؟' if (lang or 'ar') == 'ar' else 'Does Your Resume Pass Gulf ATS & Recruiter Filters?' }}</h1>
         <p>{{ 'أكثر من 75% من السير الذاتية تُرفض آلياً قبل أن يراها صاحب العمل. افحص سيرتك الآن واكتشف النواقص الدقيقة وتجاوز الفلاتر عبر الذكاء الاصطناعي.' if (lang or 'ar') == 'ar' else 'Over 75% of applications are discarded by automated applicant tracking filters. Scan your CV in seconds to reveal critical keyword gaps and launch automated outreach.' }}</p>
     </header>
+
+    <!-- Gamification XP & Rewards Hub Bar -->
+    <div class="glass-card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 12px 20px; margin-block-end: 20px; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08);">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="inline-size: 32px; block-size: 32px; background: rgba(16, 185, 129, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="award" style="inline-size: 18px; block-size: 18px; color: var(--primary-emerald);"></i>
+            </div>
+            <div>
+                <div style="font-size: 13px; font-weight: 800; color: #fff;">
+                    {{ 'رصيد مكافآتك: ' if (lang or 'ar') == 'ar' else 'Your Rewards: ' }}<span id="userXpBadge" style="color: var(--primary-emerald);">15 XP</span> • <span id="userLevelBadge" style="color: var(--primary-cyan);">{{ 'المستوى 1' if (lang or 'ar') == 'ar' else 'Level 1' }}</span>
+                </div>
+                <div style="font-size: 11px; color: #94a3b8;">
+                    {{ 'اكسب 50 XP لكل صديق تدعوه وافتح 10 تقديمات ذكاء اصطناعي مجانية!' if (lang or 'ar') == 'ar' else 'Earn 50 XP per referral to unlock 10 Free AI Auto-Applications!' }}
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="showLeaderboardModal()" class="share-btn" style="padding: 6px 14px; font-size: 12px; border-color: var(--accent-gold); color: var(--accent-gold); background: rgba(245, 158, 11, 0.1);">
+            <i data-lucide="trophy" style="inline-size: 14px; block-size: 14px;"></i>
+            <span>{{ 'لوحة الشرف الأسبوعية' if (lang or 'ar') == 'ar' else 'Weekly Leaderboard' }}</span>
+        </button>
+    </div>
+
+    <!-- Interactive 2-Step Quiz Selector -->
+    <div class="glass-card quiz-container" id="quizContainer">
+        <div class="quiz-title">
+            <i data-lucide="compass" style="inline-size: 16px; block-size: 16px;"></i>
+            <span>{{ '🎯 خطوة 1 من 2: حدد مستواك وسوقك لتخصيص دقة خوارزمية الفحص (Personalized ATS Calibration)' if (lang or 'ar') == 'ar' else '🎯 Step 1 of 2: Select Level & Target Region for Tailored Scoring' }}</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="quiz-pills" id="levelPills">
+                <button type="button" class="quiz-pill-btn active" onclick="setQuizPill(this, 'level', 'entry')">🎓 {{ 'خريج جديد / مبتدئ (0-2 سنة)' if (lang or 'ar') == 'ar' else 'Entry / Graduate (0-2 yrs)' }}</button>
+                <button type="button" class="quiz-pill-btn" onclick="setQuizPill(this, 'level', 'mid')">💼 {{ 'خبرة متوسطة (3-6 سنوات)' if (lang or 'ar') == 'ar' else 'Mid-Level (3-6 yrs)' }}</button>
+                <button type="button" class="quiz-pill-btn" onclick="setQuizPill(this, 'level', 'senior')">🏆 {{ 'خبير / إداري / تنفيذي (+7 سنوات)' if (lang or 'ar') == 'ar' else 'Senior / Lead / Exec (7+ yrs)' }}</button>
+            </div>
+            <div class="quiz-pills" id="regionPills">
+                <button type="button" class="quiz-pill-btn active" onclick="setQuizPill(this, 'region', 'sa')">🇸🇦 {{ 'السوق السعودي (رؤية 2030)' if (lang or 'ar') == 'ar' else 'Saudi Arabia (Vision 2030)' }}</button>
+                <button type="button" class="quiz-pill-btn" onclick="setQuizPill(this, 'region', 'uae')">🇦🇪 {{ 'الإمارات ودبي' if (lang or 'ar') == 'ar' else 'UAE & Dubai' }}</button>
+                <button type="button" class="quiz-pill-btn" onclick="setQuizPill(this, 'region', 'remote')">🌍 {{ 'عن بُعد / دولي (Remote)' if (lang or 'ar') == 'ar' else 'Remote & Global' }}</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Upload / Input Section -->
     <div class="glass-card" id="inputCard">
@@ -611,123 +844,200 @@
             </div>
         </div>
 
-        <!-- Interactive Keyword Radar Chips -->
-        <div class="keywords-box">
-            <div class="keywords-title">
-                <i data-lucide="radar" style="inline-size: 18px; block-size: 18px; color: var(--primary-cyan);"></i>
-                <span>{{ 'رادار الكلمات المفتاحية الذكي (Keyword Radar):' if (lang or 'ar') == 'ar' else 'AI Keyword Radar & Extraction:' }}</span>
+        <!-- 💰 Live Salary Potential & Monthly Loss Card -->
+        <div class="glass-card" id="salaryArbitrageCard" style="margin-block-end: 20px; border-color: rgba(245, 158, 11, 0.4); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0.7) 100%);">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-block-end: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="inline-size: 36px; block-size: 36px; background: rgba(245, 158, 11, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="dollar-sign" style="inline-size: 20px; block-size: 20px; color: var(--accent-gold);"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 16px; font-weight: 800; color: #fff;">{{ 'التقييم المالي لسوق العمل الخليجي (Market Value & Loss Radar)' if (lang or 'ar') == 'ar' else 'GCC Compensation & Salary Arbitrage Radar' }}</h4>
+                        <p style="font-size: 12px; color: #94a3b8;">{{ 'تقدير الرواتب الحقيقية لمسماك في الرياض ودبي بناءً على خوارزميات التوظيف:' if (lang or 'ar') == 'ar' else 'Estimated real compensation benchmark for this role:' }}</p>
+                    </div>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 8px; padding: 6px 14px; color: #f87171; font-size: 12px; font-weight: 800;" id="salaryLossBadge">
+                    ⚠️ خسارة متوقعة: 8,500 ريال / شهر
+                </div>
             </div>
-            
-            <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المكتشفة بنجاح في سيرتك:' if (lang or 'ar') == 'ar' else 'Detected Power Keywords in your CV:' }}</p>
-            <div class="chip-container" id="detectedChips">
-                <span class="chip-detected"><i data-lucide="check" style="inline-size: 12px; block-size: 12px;"></i> Fast Analysis</span>
-            </div>
-
-            <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المفقودة الضرورية لتجاوز فلتر التوظيف:' if (lang or 'ar') == 'ar' else 'Missing Power Keywords needed to pass recruiter filters:' }}</p>
-            <div class="chip-container" id="missingChips">
-                <span class="chip-missing"><i data-lucide="alert-circle" style="inline-size: 12px; block-size: 12px;"></i> Core Competencies</span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 11px; color: #94a3b8;">{{ 'نطاق الراتب المستحق في الخليج' if (lang or 'ar') == 'ar' else 'Estimated Market Salary' }}</div>
+                    <div style="font-size: 18px; font-weight: 900; color: var(--accent-gold); margin-block-start: 4px;" id="salaryRangeText">22,000 - 34,000 SAR</div>
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.04); padding: 12px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 11px; color: #94a3b8;">{{ 'عائد الاستثمار السنوي من تحسين السيرة' if (lang or 'ar') == 'ar' else 'Annual Compensation Upside' }}</div>
+                    <div style="font-size: 18px; font-weight: 900; color: var(--primary-emerald); margin-block-start: 4px;" id="salaryUpsideText">+102,000 SAR / السنة</div>
+                </div>
             </div>
         </div>
 
-        <!-- Recruiter X-Ray Perspective Box -->
-        <div class="recruiter-xray">
-            <h4 style="font-size: 16px; font-weight: 800; color: var(--primary-cyan); margin-block-end: 8px; display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="eye" style="inline-size: 18px; block-size: 18px;"></i>
-                <span>{{ 'نظرة مسؤول التوظيف التنفيذي (Recruiter 6-Second Screen Preview):' if (lang or 'ar') == 'ar' else 'Recruiter 6-Second X-Ray Screen Preview:' }}</span>
-            </h4>
-            <p id="recruiterSummary" style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
-                {{ 'يقضي مسؤول التوظيف في الرياض ودبي 6 ثوانٍ فقط لفحص سيرتك. السيرة الحالية تحتاج لتعزيز بالأرقام ونسب الإنجاز لضمان استدعائك للمقابلة.' if (lang or 'ar') == 'ar' else 'Recruiters in Riyadh and Dubai spend an average of 6 seconds scanning applications. Adding quantified achievements dramatically increases interview conversion.' }}
+        <!-- 🔄 Live Before vs After Instant Makeover Box -->
+        <div class="glass-card" style="margin-block-end: 20px; border-color: rgba(56, 189, 248, 0.35); background: rgba(56, 189, 248, 0.05);">
+            <div style="display: flex; align-items: center; gap: 8px; margin-block-end: 12px;">
+                <i data-lucide="sparkles" style="inline-size: 18px; block-size: 18px; color: var(--primary-cyan);"></i>
+                <h4 style="font-size: 15px; font-weight: 800; color: #fff;">{{ 'معاينة التحسين الذكي الفوري (Live AI Before vs After Makeover):' if (lang or 'ar') == 'ar' else 'Live AI Before vs After Bullet Makeover:' }}</h4>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px;">
+                    <div style="font-size: 11px; font-weight: 800; color: #f87171; margin-block-end: 6px;">❌ {{ 'قبل التحسين (صيغة تقليدية تستبعدها الـ ATS):' if (lang or 'ar') == 'ar' else 'Before (Generic - Screened Out):' }}</div>
+                    <p style="font-size: 12px; color: #cbd5e1; line-height: 1.6;" id="makeoverBefore">مسؤول عن تطوير البرمجيات وإصلاح الأخطاء في النظام.</p>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 10px; padding: 12px;">
+                    <div style="font-size: 11px; font-weight: 800; color: #34d399; margin-block-end: 6px;">✅ {{ 'بعد التحسين الذكي (معيار Google XYZ للأداء):' if (lang or 'ar') == 'ar' else 'After (Google XYZ High-Impact Framework):' }}</div>
+                    <p style="font-size: 12px; color: #fff; font-weight: 600; line-height: 1.6;" id="makeoverAfter">قيادة وتطوير 8 أنظمة سحابية متوافقة مع معايير الأمان السعودية، مما رفع سرعة المعالجة بنسبة 42% وخفض تكاليف التشغيل بـ 120,000 ريال سنوياً.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎯 Live GCC Hiring Surge Targets -->
+        <div class="glass-card" style="margin-block-end: 20px; border-color: rgba(168, 85, 247, 0.35); background: rgba(168, 85, 247, 0.06);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-block-end: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="crosshair" style="inline-size: 18px; block-size: 18px; color: var(--accent-magenta);"></i>
+                    <h4 style="font-size: 15px; font-weight: 800; color: #fff;">{{ 'شركات خليجية تبحث عن هذا المسمى الوظيفي الآن (Live Hiring Radar):' if (lang or 'ar') == 'ar' else 'GCC Companies Actively Scouting This Role Now:' }}</h4>
+                </div>
+                <span style="font-size: 11px; color: var(--accent-magenta); font-weight: 700;">● {{ 'تحديث لحظي' if (lang or 'ar') == 'ar' else 'Live Scan' }}</span>
+            </div>
+            <div id="hiringTargetsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <!-- Dynamic render -->
+            </div>
+        </div>
+
+        <!-- Gated Detail Banner (appears if locked) -->
+        <div class="gate-unlock-banner" id="gateUnlockBanner" style="display: none;">
+            <div style="font-size: 18px; font-weight: 800; color: #34d399;">
+                🔒 {{ 'تم اكتشاف 7 فجوات حرجة وكلمات مفتاحية مفقودة!' if (lang or 'ar') == 'ar' else '🔒 7 Critical Keyword Gaps & Filtering Risks Detected!' }}
+            </div>
+            <p style="font-size: 13px; color: #cbd5e1; max-inline-size: 600px;">
+                {{ 'أدخل بريدك أو رقم الواتساب لفتح التقرير التحليلي الكامل وقائمة الكلمات المفقودة واستلام خطة التقديم مجاناً فوراً.' if (lang or 'ar') == 'ar' else 'Enter your email or WhatsApp to unlock the complete keyword gap breakdown and instant interview roadmap for free.' }}
             </p>
+            <button type="button" class="btn-analyze" style="max-inline-size: 320px; padding: 12px 20px; font-size: 15px;" onclick="openLeadModal()">
+                <i data-lucide="unlock" style="inline-size: 16px; block-size: 16px;"></i>
+                <span>{{ 'افتح التقرير الكامل مجاناً' if (lang or 'ar') == 'ar' else 'Unlock Full Report Free' }}</span>
+            </button>
         </div>
 
-        <!-- Red Alert Gap Box -->
-        <div class="alert-box" id="gapAlert">
-            <i data-lucide="alert-triangle" style="inline-size: 24px; block-size: 24px;"></i>
-            <div class="alert-content">
-                <h4 id="gapTitle">{{ 'تنبيه: تم رصد فجوات حرجة تمنع ظهور سيرتك في الصفحة الأولى!' if (lang or 'ar') == 'ar' else 'Warning: Critical Filtering Gaps Detected!' }}</h4>
-                <p id="gapDetails">--</p>
-            </div>
-        </div>
-
-        <!-- High-Ticket 3-Tier Conversion Grid -->
-        <h3 style="font-size: 20px; font-weight: 900; margin-block-end: 18px; text-align: center;">
-            {{ '⚡ اختر خطوتك القادمة: أصلح سيرتك أو تواصل فوراً مع أصحاب العمل' if (lang or 'ar') == 'ar' else '⚡ Instant Fix: Upgrade Your CV or Launch Direct SDR Outreach' }}
-        </h3>
-        
-        <div class="upsell-grid">
-            <!-- Basic Seeker $19 -->
-            <div class="upsell-card popular">
-                <div>
-                    <div class="upsell-badge badge-gold">{{ 'الأعلى طلباً للأفراد' if (lang or 'ar') == 'ar' else 'MOST POPULAR' }}</div>
-                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'باقة الـ 100 شركة + تحسين السيرة الذاتية' if (lang or 'ar') == 'ar' else 'Basic 100 Companies + AI CV Polish' }}</h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
-                        {{ 'إعادة صياغة ذكية كاملة لسيرتك + تقديم آلي مخصص لـ 100 شركة في الخليج مع تتبع فتح الإيميلات.' if (lang or 'ar') == 'ar' else 'Full AI resume polish + automated outreach to 100 verified decision makers with live open tracking.' }}
-                    </p>
+        <!-- Gated Details Wrapper -->
+        <div id="gatedDetailsArea" class="gated-blur-area">
+            <!-- Interactive Keyword Radar Chips -->
+            <div class="keywords-box">
+                <div class="keywords-title">
+                    <i data-lucide="radar" style="inline-size: 18px; block-size: 18px; color: var(--primary-cyan);"></i>
+                    <span>{{ 'رادار الكلمات المفتاحية الذكي (Keyword Radar):' if (lang or 'ar') == 'ar' else 'AI Keyword Radar & Extraction:' }}</span>
                 </div>
-                <div>
-                    <div style="font-size: 28px; font-weight: 900; color: var(--accent-gold); margin-block-start: 12px;">$19 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$38</span></div>
-                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
-                        ≈ 71 SAR • 70 AED • 5.8 KWD
-                    </div>
-                    <a href="/checkout_v3?plan=basic&amount=19" class="upsell-btn btn-gold" id="btnBasicUpsell">
-                        {{ 'احصل على الباقة بـ $19 فقط' if (lang or 'ar') == 'ar' else 'Get Basic Plan – $19' }}
-                    </a>
-                    <div class="payment-badges">
-                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
-                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
-                        <span class="pay-tag">Visa / MC</span>
-                        <span class="pay-tag">USDT</span>
-                    </div>
+                
+                <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المكتشفة بنجاح في سيرتك:' if (lang or 'ar') == 'ar' else 'Detected Power Keywords in your CV:' }}</p>
+                <div class="chip-container" id="detectedChips">
+                    <span class="chip-detected"><i data-lucide="check" style="inline-size: 12px; block-size: 12px;"></i> Fast Analysis</span>
+                </div>
+
+                <p style="font-size: 12px; color: var(--text-muted); margin-block-end: 8px;">{{ 'الكلمات المفتاحية المفقودة الضرورية لتجاوز فلتر التوظيف:' if (lang or 'ar') == 'ar' else 'Missing Power Keywords needed to pass recruiter filters:' }}</p>
+                <div class="chip-container" id="missingChips">
+                    <span class="chip-missing"><i data-lucide="alert-circle" style="inline-size: 12px; block-size: 12px;"></i> Core Competencies</span>
                 </div>
             </div>
 
-            <!-- B2B SDR Swarm $149 High Ticket -->
-            <div class="upsell-card b2b-tier">
-                <div>
-                    <div class="upsell-badge badge-magenta">{{ 'سرب B2B والشركات • استهداف مباشر' if (lang or 'ar') == 'ar' else 'B2B SDR SWARM • 2,500 LEADS' }}</div>
-                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'سرب B2B SDR للوصول لـ 2,500 صانع قرار' if (lang or 'ar') == 'ar' else 'B2B SDR Swarm (2,500 Leads & Outreach)' }}</h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
-                        {{ 'تجاوز جميع الفلاتر! سرب وكلاء الذكاء الاصطناعي يتواصل مباشرة مع 2,500 مدير تنفيذي ومدير توظيف مع فحص Live MX وضمان عدم الحظر 365 يوماً.' if (lang or 'ar') == 'ar' else 'Bypass all ATS gatekeepers. Autonomous AI SDR swarm reaches 2,500 verified executives with 100% Live MX verification & 365-day cooldown shield.' }}
-                    </p>
-                </div>
-                <div>
-                    <div style="font-size: 28px; font-weight: 900; color: var(--accent-magenta); margin-block-start: 12px;">$149 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$299</span></div>
-                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
-                        ≈ 559 SAR • 547 AED • 46 KWD
-                    </div>
-                    <a href="/checkout_v3?plan=enterprise&amount=149" class="upsell-btn btn-magenta" id="btnB2bUpsell">
-                        {{ 'إطلاق سرب B2B SDR بـ $149' if (lang or 'ar') == 'ar' else 'Launch B2B SDR Swarm – $149' }}
-                    </a>
-                    <div class="payment-badges">
-                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
-                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
-                        <span class="pay-tag">USDT (Zero Fee)</span>
-                        <span class="pay-tag">BTC/ETH/SOL</span>
-                    </div>
+            <!-- Recruiter X-Ray Perspective Box -->
+            <div class="recruiter-xray">
+                <h4 style="font-size: 16px; font-weight: 800; color: var(--primary-cyan); margin-block-end: 8px; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="eye" style="inline-size: 18px; block-size: 18px;"></i>
+                    <span>{{ 'نظرة مسؤول التوظيف التنفيذي (Recruiter 6-Second Screen Preview):' if (lang or 'ar') == 'ar' else 'Recruiter 6-Second X-Ray Screen Preview:' }}</span>
+                </h4>
+                <p id="recruiterSummary" style="font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+                    {{ 'يقضي مسؤول التوظيف في الرياض ودبي 6 ثوانٍ فقط لفحص سيرتك. السيرة الحالية تحتاج لتعزيز بالأرقام ونسب الإنجاز لضمان استدعائك للمقابلة.' if (lang or 'ar') == 'ar' else 'Recruiters in Riyadh and Dubai spend an average of 6 seconds scanning applications. Adding quantified achievements dramatically increases interview conversion.' }}
+                </p>
+            </div>
+
+            <!-- Red Alert Gap Box -->
+            <div class="alert-box" id="gapAlert">
+                <i data-lucide="alert-triangle" style="inline-size: 24px; block-size: 24px;"></i>
+                <div class="alert-content">
+                    <h4 id="gapTitle">{{ 'تنبيه: تم رصد فجوات حرجة تمنع ظهور سيرتك في الصفحة الأولى!' if (lang or 'ar') == 'ar' else 'Warning: Critical Filtering Gaps Detected!' }}</h4>
+                    <p id="gapDetails">--</p>
                 </div>
             </div>
 
-            <!-- Micro Service $5 -->
-            <div class="upsell-card">
-                <div>
-                    <div class="upsell-badge badge-cyan">{{ 'تعديل فوري' if (lang or 'ar') == 'ar' else 'INSTANT MICRO-SERVICE' }}</div>
-                    <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'حقن الكلمات المفتاحية للـ ATS' if (lang or 'ar') == 'ar' else 'ATS Keyword Injection' }}</h4>
-                    <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
-                        {{ 'توليد ملف سيرة ذاتية جاهز للتنزيل ومطابق 100% مع كلمات المسمى الوظيفي المطلوب.' if (lang or 'ar') == 'ar' else 'Download an instantly optimized ATS-compliant CV with maximum keyword density and clean formatting.' }}
-                    </p>
-                </div>
-                <div>
-                    <div style="font-size: 28px; font-weight: 900; color: var(--primary-cyan); margin-block-start: 12px;">$5 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$10</span></div>
-                    <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
-                        ≈ 19 SAR • 18.5 AED • 1.5 KWD
+            <!-- High-Ticket 3-Tier Conversion Grid -->
+            <h3 style="font-size: 20px; font-weight: 900; margin-block-end: 18px; text-align: center;">
+                {{ '⚡ اختر خطوتك القادمة: أصلح سيرتك أو تواصل فوراً مع أصحاب العمل' if (lang or 'ar') == 'ar' else '⚡ Instant Fix: Upgrade Your CV or Launch Direct SDR Outreach' }}
+            </h3>
+            
+            <div class="upsell-grid">
+                <!-- Basic Seeker $19 -->
+                <div class="upsell-card popular">
+                    <div>
+                        <div class="upsell-badge badge-gold">{{ 'الأعلى طلباً للأفراد' if (lang or 'ar') == 'ar' else 'MOST POPULAR' }}</div>
+                        <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'باقة الـ 100 شركة + تحسين السيرة الذاتية' if (lang or 'ar') == 'ar' else 'Basic 100 Companies + AI CV Polish' }}</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                            {{ 'إعادة صياغة ذكية كاملة لسيرتك + تقديم آلي مخصص لـ 100 شركة في الخليج مع تتبع فتح الإيميلات.' if (lang or 'ar') == 'ar' else 'Full AI resume polish + automated outreach to 100 verified decision makers with live open tracking.' }}
+                        </p>
                     </div>
-                    <a href="/checkout_v3?service=cv-keyword&amount=5" class="upsell-btn btn-cyan">
-                        {{ 'تحسين السيرة الذاتية بـ $5' if (lang or 'ar') == 'ar' else 'Inject Keywords – $5' }}
-                    </a>
-                    <div class="payment-badges">
-                        <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
-                        <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
-                        <span class="pay-tag">Visa / MC</span>
+                    <div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent-gold); margin-block-start: 12px;">$19 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$38</span></div>
+                        <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                            ≈ 71 SAR • 70 AED • 5.8 KWD
+                        </div>
+                        <a href="/checkout_v3?plan=basic&amount=19" class="upsell-btn btn-gold" id="btnBasicUpsell">
+                            {{ 'احصل على الباقة بـ $19 فقط' if (lang or 'ar') == 'ar' else 'Get Basic Plan – $19' }}
+                        </a>
+                        <div class="payment-badges">
+                            <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                            <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                            <span class="pay-tag">Visa / MC</span>
+                            <span class="pay-tag">USDT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B2B SDR Swarm $149 High Ticket -->
+                <div class="upsell-card b2b-tier">
+                    <div>
+                        <div class="upsell-badge badge-magenta">{{ 'سرب B2B والشركات • استهداف مباشر' if (lang or 'ar') == 'ar' else 'B2B SDR SWARM • 2,500 LEADS' }}</div>
+                        <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'سرب B2B SDR للوصول لـ 2,500 صانع قرار' if (lang or 'ar') == 'ar' else 'B2B SDR Swarm (2,500 Leads & Outreach)' }}</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                            {{ 'تجاوز جميع الفلاتر! سرب وكلاء الذكاء الاصطناعي يتواصل مباشرة مع 2,500 مدير تنفيذي ومدير توظيف مع فحص Live MX وضمان عدم الحظر 365 يوماً.' if (lang or 'ar') == 'ar' else 'Bypass all ATS gatekeepers. Autonomous AI SDR swarm reaches 2,500 verified executives with 100% Live MX verification & 365-day cooldown shield.' }}
+                        </p>
+                    </div>
+                    <div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--accent-magenta); margin-block-start: 12px;">$149 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$299</span></div>
+                        <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                            ≈ 559 SAR • 547 AED • 46 KWD
+                        </div>
+                        <a href="/checkout_v3?plan=enterprise&amount=149" class="upsell-btn btn-magenta" id="btnB2bUpsell">
+                            {{ 'إطلاق سرب B2B SDR بـ $149' if (lang or 'ar') == 'ar' else 'Launch B2B SDR Swarm – $149' }}
+                        </a>
+                        <div class="payment-badges">
+                            <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                            <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                            <span class="pay-tag">USDT (Zero Fee)</span>
+                            <span class="pay-tag">BTC/ETH/SOL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Micro Service $5 -->
+                <div class="upsell-card">
+                    <div>
+                        <div class="upsell-badge badge-cyan">{{ 'تعديل فوري' if (lang or 'ar') == 'ar' else 'INSTANT MICRO-SERVICE' }}</div>
+                        <h4 style="font-size: 19px; font-weight: 900; color: #fff;">{{ 'حقن الكلمات المفتاحية للـ ATS' if (lang or 'ar') == 'ar' else 'ATS Keyword Injection' }}</h4>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-block-start: 8px;">
+                            {{ 'توليد ملف سيرة ذاتية جاهز للتنزيل ومطابق 100% مع كلمات المسمى الوظيفي المطلوب.' if (lang or 'ar') == 'ar' else 'Download an instantly optimized ATS-compliant CV with maximum keyword density and clean formatting.' }}
+                        </p>
+                    </div>
+                    <div>
+                        <div style="font-size: 28px; font-weight: 900; color: var(--primary-cyan); margin-block-start: 12px;">$5 <span style="font-size: 14px; color: var(--text-muted); text-decoration: line-through;">$10</span></div>
+                        <div style="font-size: 12px; font-weight: 700; color: #94a3b8; margin-block-start: 4px; margin-block-end: 10px;">
+                            ≈ 19 SAR • 18.5 AED • 1.5 KWD
+                        </div>
+                        <a href="/checkout_v3?service=cv-keyword&amount=5" class="upsell-btn btn-cyan">
+                            {{ 'تحسين السيرة الذاتية بـ $5' if (lang or 'ar') == 'ar' else 'Inject Keywords – $5' }}
+                        </a>
+                        <div class="payment-badges">
+                            <span class="pay-tag" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-weight: 700;">مدى Mada</span>
+                            <span class="pay-tag" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.3); color: #ffffff; font-weight: 700;"> Apple Pay</span>
+                            <span class="pay-tag">Visa / MC</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -736,7 +1046,7 @@
         <!-- Social Share Engine -->
         <div style="text-align: center; border-block-start: 1px solid var(--border-glass); padding-block-start: 20px;">
             <p style="font-size: 13px; color: var(--text-muted); margin-block-end: 10px;">
-                {{ 'شارك تقييم سيرتك مع زملائك على الشبكات المهنية:' if (lang or 'ar') == 'ar' else 'Share your ATS scorecard badge with your network:' }}
+                {{ 'شارك تقييم سيرتك مع زملائك على الشبكات المهنية واحصل على فحص مجاني إضافي:' if (lang or 'ar') == 'ar' else 'Share your ATS scorecard with your network for free bonus checks:' }}
             </p>
             <div class="social-share">
                 <a href="#" id="shareLinkedIn" target="_blank" class="share-btn" style="border-color: #0077b5;">
@@ -753,8 +1063,88 @@
     </div>
 </div>
 
+<!-- 🔐 Modal 1: Lead Capture Gate Modal -->
+<div class="viral-modal-backdrop" id="leadUnlockModal">
+    <div class="viral-modal-card">
+        <button type="button" class="modal-close-btn" onclick="closeLeadModal()"><i data-lucide="x" style="inline-size: 16px; block-size: 16px;"></i></button>
+        <div style="inline-size: 56px; block-size: 56px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-inline: auto; margin-block-end: 16px;">
+            <i data-lucide="shield-check" style="inline-size: 28px; block-size: 28px; color: var(--primary-emerald);"></i>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 900; color: #fff; margin-block-end: 8px;">
+            {{ 'افتح التقرير التحليلي الكامل + قائمة الكلمات المفتاحية' if (lang or 'ar') == 'ar' else 'Unlock Full Report & Missing Keywords' }}
+        </h3>
+        <p style="font-size: 14px; color: var(--text-muted); margin-block-end: 20px; line-height: 1.6;">
+            {{ 'أدخل بريدك أو رقم واتسابك لاستلام تقرير الـ ATS الكامل وقائمة الكلمات المفقودة التي يبحث عنها مسؤولو التوظيف مجاناً فوراً.' if (lang or 'ar') == 'ar' else 'Enter your email or WhatsApp to receive the complete PDF audit and missing keyword blueprint instantly.' }}
+        </p>
+
+        <form id="leadCaptureForm" onsubmit="event.preventDefault(); submitLeadUnlock();">
+            <div class="input-group" style="margin-block-end: 14px;">
+                <input type="email" id="leadEmail" class="role-input" placeholder="{{ 'البريد الإلكتروني (مثال: name@gmail.com)' if (lang or 'ar') == 'ar' else 'Email address (e.g. name@gmail.com)' }}" dir="auto">
+            </div>
+            <div class="input-group" style="margin-block-end: 16px;">
+                <input type="tel" id="leadPhone" class="role-input" placeholder="{{ 'أو رقم الواتساب (مثال: +966 50 123 4567)' if (lang or 'ar') == 'ar' else 'Or WhatsApp number (e.g. +966 50 123 4567)' }}" dir="auto">
+            </div>
+            <button type="submit" class="btn-analyze" id="btnSubmitLead">
+                <i data-lucide="unlock" style="inline-size: 18px; block-size: 18px;"></i>
+                <span>{{ 'افتح التقرير فوراً مجاناً' if (lang or 'ar') == 'ar' else 'Unlock Full Report Free' }}</span>
+            </button>
+            <button type="button" onclick="closeLeadModal(true)" style="background: none; border: none; color: #64748b; font-size: 12px; margin-block-start: 12px; cursor: pointer; text-decoration: underline;">
+                {{ 'تخطي وعرض التقرير السريع فقط' if (lang or 'ar') == 'ar' else 'Skip & view quick summary only' }}
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ⚡ Modal 2: Exit Intent Discount Popup -->
+<div class="viral-modal-backdrop" id="exitIntentModal">
+    <div class="viral-modal-card" style="border-color: var(--accent-gold);">
+        <button type="button" class="modal-close-btn" onclick="closeExitIntentModal()"><i data-lucide="x" style="inline-size: 16px; block-size: 16px;"></i></button>
+        <div style="inline-size: 56px; block-size: 56px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-inline: auto; margin-block-end: 16px;">
+            <i data-lucide="gift" style="inline-size: 28px; block-size: 28px; color: var(--accent-gold);"></i>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 900; color: #fff; margin-block-end: 8px;">
+            {{ '⚡ انتظر قبل أن تغادر! هدية حصرية لك' if (lang or 'ar') == 'ar' else '⚡ Wait! Exclusive 30% Flash Discount' }}
+        </h3>
+        <p style="font-size: 14px; color: var(--text-muted); margin-block-end: 16px; line-height: 1.6;">
+            {{ 'استخدم كود الخصم الحصري واحصل على باقة الـ 100 شركة + تحسين السيرة الذاتية بالذكاء الاصطناعي بخصم 30% فوري!' if (lang or 'ar') == 'ar' else 'Get the 100-Company AI Outreach & CV Polish package with an instant 30% discount!' }}
+        </p>
+
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px dashed var(--accent-gold); border-radius: 10px; padding: 12px; font-size: 18px; font-weight: 900; color: var(--accent-gold); margin-block-end: 20px; letter-spacing: 2px;">
+            JOBHUNT30
+        </div>
+
+        <a href="/checkout_v3?plan=basic&amount=13.3&coupon=JOBHUNT30" class="btn-analyze" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; text-decoration: none;">
+            <i data-lucide="zap" style="inline-size: 18px; block-size: 18px;"></i>
+            <span>{{ 'تفعيل الخصم والحصول على الباقة بـ $13.3' if (lang or 'ar') == 'ar' else 'Claim Discount & Get Plan for $13.3' }}</span>
+        </a>
+    </div>
+</div>
+
+<!-- 💬 Floating WhatsApp AI Advisor Button -->
+<a href="https://api.whatsapp.com/send?text={{ 'مرحباً، فحصت سيرتي الذاتية على مقياس ATS في JobHunt Pro وأود استشارة بخصوص التقديم التلقائي للوظائف في الخليج' if (lang or 'ar') == 'ar' else 'Hi, I analyzed my resume on JobHunt Pro and want advice on automated job applications in GCC.' }}" target="_blank" class="floating-whatsapp-advisor" id="whatsappAdvisorBtn">
+    <div class="whatsapp-pulse-dot"></div>
+    <i data-lucide="message-circle" style="inline-size: 18px; block-size: 18px;"></i>
+    <span>{{ 'مستشار التوظيف AI' if (lang or 'ar') == 'ar' else 'AI Career Advisor' }}</span>
+</a>
+
+<!-- 🔔 Live Social Proof Toaster -->
+<div class="social-proof-toast" id="socialProofToast">
+    <div style="inline-size: 36px; block-size: 36px; background: rgba(16, 185, 129, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <i data-lucide="user-check" style="inline-size: 18px; block-size: 18px; color: #34d399;"></i>
+    </div>
+    <div>
+        <div id="toastText" style="font-size: 12px; font-weight: 700; color: #fff; line-height: 1.4;">--</div>
+        <div id="toastTime" style="font-size: 10px; color: #94a3b8;">{{ 'منذ دقيقة واحدة' if (lang or 'ar') == 'ar' else '1 minute ago' }}</div>
+    </div>
+</div>
+
 <script>
     lucide.createIcons();
+
+    let isReportUnlocked = false;
+    let latestScanData = null;
+    let selectedQuiz = { level: 'entry', region: 'sa' };
+    let hasShownExitIntent = false;
 
     const PRESETS = {
         software: {
@@ -779,6 +1169,13 @@
         }
     };
 
+    function setQuizPill(btn, type, value) {
+        selectedQuiz[type] = value;
+        const container = type === 'level' ? document.getElementById('levelPills') : document.getElementById('regionPills');
+        container.querySelectorAll('.quiz-pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
     function loadPreset(key) {
         if (PRESETS[key]) {
             document.getElementById('jobTitle').value = PRESETS[key].title;
@@ -802,18 +1199,30 @@
             const res = await fetch('/api/v2/public/ats-instant-score', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ job_title: jobTitle, cv_text: cvContent })
+                body: JSON.stringify({ 
+                    job_title: jobTitle, 
+                    cv_text: cvContent,
+                    level: selectedQuiz.level,
+                    region: selectedQuiz.region
+                })
             });
 
             const data = await res.json();
+            latestScanData = data;
             displayResults(data, jobTitle);
         } catch (e) {
             console.error(e);
-            displayResults(generateLocalAtsScore(jobTitle, cvContent), jobTitle);
+            const fallbackData = generateLocalAtsScore(jobTitle, cvContent);
+            latestScanData = fallbackData;
+            displayResults(fallbackData, jobTitle);
         } finally {
             btn.disabled = false;
             btn.innerHTML = `<i data-lucide="zap" style="inline-size: 18px; block-size: 18px;"></i> <span>{{ 'إعادة الفحص' if (lang or 'ar') == 'ar' else 'Re-Scan Resume' }}</span>`;
             lucide.createIcons();
+
+            if (!isReportUnlocked) {
+                setTimeout(() => openLeadModal(), 1200);
+            }
         }
     }
 
@@ -868,8 +1277,47 @@
         const missingContainer = document.getElementById('missingChips');
         const missing = data.missing_keywords || ['Vision 2030 Alignment', 'P&L Optimization', 'Executive Reporting'];
         missingContainer.innerHTML = missing.length > 0
-            ? missing.map(kw => `<span class="chip-missing"><i data-lucide="plus" style="inline-size:12px;block-size:12px;"></i> ${kw}</span>`).join('')
+            ? missing.map(kw => `<span class="chip-missing"><i data-lucide="alert-circle" style="inline-size:12px;block-size:12px;"></i> ${kw}</span>`).join('')
             : `<span style="font-size:12px;color:var(--primary-emerald);">{{ 'تغطية ممتازة للكلمات المفتاحية' if (lang or 'ar') == 'ar' else 'Excellent keyword coverage' }}</span>`;
+
+        // Populate Salary Arbitrage
+        if (data.salary_arbitrage) {
+            const sal = data.salary_arbitrage;
+            document.getElementById('salaryRangeText').innerText = `${sal.market_min.toLocaleString()} - ${sal.market_max.toLocaleString()} ${sal.currency}`;
+            document.getElementById('salaryUpsideText').innerText = `+${sal.annual_compensation_upside.toLocaleString()} ${sal.currency} / السنة`;
+            document.getElementById('salaryLossBadge').innerText = `⚠️ ${sal.loss_headline}`;
+        }
+
+        // Populate Makeover Preview
+        if (data.makeover_preview) {
+            document.getElementById('makeoverBefore').innerText = data.makeover_preview.before;
+            document.getElementById('makeoverAfter').innerText = data.makeover_preview.after;
+        }
+
+        // Populate Live Hiring Radar
+        if (data.live_hiring_targets) {
+            const grid = document.getElementById('hiringTargetsGrid');
+            grid.innerHTML = data.live_hiring_targets.map(c => `
+                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-glass); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 13px; font-weight: 800; color: #fff;">${c.name}</div>
+                        <div style="font-size: 11px; color: #94a3b8;">${c.location} • تطابق: <strong style="color: var(--primary-emerald);">${c.match}</strong></div>
+                    </div>
+                    <span style="background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;">${c.urgency}</span>
+                </div>
+            `).join('');
+        }
+
+        // Gated blur logic
+        const gatedArea = document.getElementById('gatedDetailsArea');
+        const unlockBanner = document.getElementById('gateUnlockBanner');
+        if (!isReportUnlocked) {
+            gatedArea.classList.add('is-blurred');
+            unlockBanner.style.display = 'flex';
+        } else {
+            gatedArea.classList.remove('is-blurred');
+            unlockBanner.style.display = 'none';
+        }
 
         // Dynamic links update
         if (data.upsells) {
@@ -886,7 +1334,183 @@
 
         lucide.createIcons();
     }
+
+    // Modal Handlers
+    function openLeadModal() {
+        if (isReportUnlocked) return;
+        document.getElementById('leadUnlockModal').style.display = 'flex';
+        lucide.createIcons();
+    }
+
+    function closeLeadModal(skip = false) {
+        document.getElementById('leadUnlockModal').style.display = 'none';
+        if (skip) {
+            unlockReportUI();
+        }
+    }
+
+    async function submitLeadUnlock() {
+        const email = document.getElementById('leadEmail').value.trim();
+        const phone = document.getElementById('leadPhone').value.trim();
+        const btn = document.getElementById('btnSubmitLead');
+
+        if (!email && !phone) {
+            alert("{{ 'يرجى إدخال البريد الإلكتروني أو رقم الواتساب' if (lang or 'ar') == 'ar' else 'Please enter email or WhatsApp number' }}");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="spin" style="inline-size: 16px; block-size: 16px;"></i> <span>{{ 'جاري الفتح...' if (lang or 'ar') == 'ar' else 'Unlocking...' }}</span>`;
+        lucide.createIcons();
+
+        try {
+            await fetch('/api/v2/public/capture-lead', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    phone: phone,
+                    job_title: document.getElementById('jobTitle').value.trim() || 'Job Seeker',
+                    score: latestScanData ? latestScanData.score : 70,
+                    missing_keywords: latestScanData ? latestScanData.missing_keywords : [],
+                    source: 'free_ats_magnet'
+                })
+            });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            unlockReportUI();
+            closeLeadModal();
+        }
+    }
+
+    function unlockReportUI() {
+        isReportUnlocked = true;
+        const gatedArea = document.getElementById('gatedDetailsArea');
+        const unlockBanner = document.getElementById('gateUnlockBanner');
+        if (gatedArea) gatedArea.classList.remove('is-blurred');
+        if (unlockBanner) unlockBanner.style.display = 'none';
+    }
+
+    // Exit Intent Handler
+    document.addEventListener('mouseleave', (e) => {
+        if (e.clientY <= 0 && !hasShownExitIntent) {
+            hasShownExitIntent = true;
+            document.getElementById('exitIntentModal').style.display = 'flex';
+            lucide.createIcons();
+        }
+    });
+
+    function closeExitIntentModal() {
+        document.getElementById('exitIntentModal').style.display = 'none';
+    }
+
+    // Live Social Proof Toast Cycler
+    const SOCIAL_PROOF_EVENTS = [
+        "🇸🇦 {{ 'سعود من الرياض قام بفحص سيرته الذاتية للتو وحصل على 86%' if (lang or 'ar') == 'ar' else 'Saud from Riyadh just scored 86% ATS match' }}",
+        "🇦🇪 {{ 'ريم من دبي قامت بتفعيل باقة الـ 100 شركة' if (lang or 'ar') == 'ar' else 'Reem from Dubai activated 100 Companies SDR Plan' }}",
+        "🇰🇼 {{ 'أحمد من الكويت تلقى 3 دعوات مقابلات هذا الأسبوع' if (lang or 'ar') == 'ar' else 'Ahmed from Kuwait secured 3 interviews this week' }}",
+        "🔥 {{ '1,328 باحث عن عمل يستخدمون المنصة الآن في الخليج' if (lang or 'ar') == 'ar' else '1,328 candidates currently active on JobHunt Pro' }}"
+    ];
+    let toastIndex = 0;
+
+    function cycleSocialProof() {
+        const toast = document.getElementById('socialProofToast');
+        const toastText = document.getElementById('toastText');
+        if (!toast || !toastText) return;
+
+        toastText.innerText = SOCIAL_PROOF_EVENTS[toastIndex % SOCIAL_PROOF_EVENTS.length];
+        toastIndex++;
+        toast.classList.add('active');
+
+        setTimeout(() => {
+            toast.classList.remove('active');
+        }, 4500);
+    }
+
+    setInterval(cycleSocialProof, 14000);
+    setTimeout(cycleSocialProof, 2500);
+
+    // Neuromarketing & Gamification Telemetry
+    async function loadNeuromarketingTelemetry() {
+        try {
+            const res = await fetch('/api/v2/public/scarcity-telemetry?lang={{ lang or "ar" }}');
+            const data = await res.json();
+            if (data.status === 'success') {
+                if (data.trigger && data.trigger.text) {
+                    document.getElementById('fomoLiveText').innerText = data.trigger.text;
+                }
+            }
+        } catch (e) {
+            console.debug("Telemetry fetch note:", e);
+        }
+    }
+    loadNeuromarketingTelemetry();
+
+    // Leaderboard Modal Handlers
+    async function showLeaderboardModal() {
+        const modal = document.getElementById('leaderboardModal');
+        modal.style.display = 'flex';
+        lucide.createIcons();
+
+        try {
+            const res = await fetch('/api/v2/public/leaderboard');
+            const data = await res.json();
+            if (data.status === 'success' && data.leaderboard) {
+                const list = document.getElementById('leaderboardList');
+                list.innerHTML = data.leaderboard.map(item => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 10px; margin-block-end: 8px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 14px; font-weight: 900; color: ${item.rank === 1 ? 'var(--accent-gold)' : (item.rank === 2 ? '#e2e8f0' : '#38bdf8')};">#${item.rank}</span>
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800; color: #fff;">${item.name} (${item.city})</div>
+                                <div style="font-size: 11px; color: #94a3b8;">${item.referrals} إحالة • مكافأة: ${item.reward}</div>
+                            </div>
+                        </div>
+                        <span style="font-size: 13px; font-weight: 800; color: var(--primary-emerald);">${item.xp} XP</span>
+                    </div>
+                `).join('');
+            }
+        } catch (e) {
+            console.debug(e);
+        }
+    }
+
+    function closeLeaderboardModal() {
+        document.getElementById('leaderboardModal').style.display = 'none';
+    }
 </script>
+
+<!-- 🏆 Modal 3: Leaderboard Modal -->
+<div class="viral-modal-backdrop" id="leaderboardModal">
+    <div class="viral-modal-card" style="border-color: var(--accent-gold); max-inline-size: 560px;">
+        <button type="button" class="modal-close-btn" onclick="closeLeaderboardModal()"><i data-lucide="x" style="inline-size: 16px; block-size: 16px;"></i></button>
+        <div style="inline-size: 56px; block-size: 56px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-inline: auto; margin-block-end: 16px;">
+            <i data-lucide="trophy" style="inline-size: 28px; block-size: 28px; color: var(--accent-gold);"></i>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 900; color: #fff; margin-block-end: 8px;">
+            {{ '🏆 لوحة شرف سفراء التوظيف الأسبوعية' if (lang or 'ar') == 'ar' else '🏆 Weekly Candidate Ambassador Leaderboard' }}
+        </h3>
+        <p style="font-size: 13px; color: var(--text-muted); margin-block-end: 18px;">
+            {{ 'ادعُ زملاءك لفحص سيرهم الذاتية، واكسب 50 XP عن كل مستخدم لتتصدر الترتيب وتربح اشتراك Pro مجاناً مدى الحياة!' if (lang or 'ar') == 'ar' else 'Invite colleagues to audit their resumes, earn 50 XP per invite, and win a Lifetime Pro Subscription!' }}
+        </p>
+
+        <div id="leaderboardList" style="max-block-size: 260px; overflow-y: auto; text-align: start; margin-block-end: 16px;">
+            <!-- Rendered dynamically -->
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px; font-size: 12px; color: #cbd5e1; margin-block-end: 16px;">
+            {{ 'رابط دعوتك الشخصي: ' if (lang or 'ar') == 'ar' else 'Your referral link: ' }}<strong style="color: var(--primary-emerald);">https://jobhuntpro.io/free-ats-score?ref=VIP</strong>
+        </div>
+
+        <button type="button" class="btn-analyze" onclick="navigator.clipboard.writeText('https://jobhuntpro.io/free-ats-score?ref=VIP'); alert('تم نسخ رابط الدعوة بنجاح!');">
+            <i data-lucide="copy" style="inline-size: 16px; block-size: 16px;"></i>
+            <span>{{ 'انسخ رابط دعوتك واكسب النقاط' if (lang or 'ar') == 'ar' else 'Copy Referral Link' }}</span>
+        </button>
+    </div>
+</div>
+
 {% include "_public_footer.html" %}
 </body>
 </html>
+

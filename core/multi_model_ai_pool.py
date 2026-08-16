@@ -540,6 +540,61 @@ class MultiModelAIPool:
             "winning_styles": data.get("best_styles", {}),
         }
 
+    def generate_regional_personalized_pitch(
+        self,
+        candidate_name: str,
+        target_role: str,
+        recruiter_name: str,
+        company_name: str,
+        key_skills: List[str],
+        location: Optional[str] = None,
+        company_domain: Optional[str] = None,
+        job_text: Optional[str] = None,
+        language: str = "en",
+    ) -> Dict[str, Any]:
+        """
+        Sovereign Regional AI Generation:
+        Automatically detects market territory (China, CIS, US/EU, GCC/MENA) and injects
+        culturally tuned prompts and regional model priorities.
+        """
+        try:
+            from core.regional_ai_matrix import global_regional_ai_matrix, MarketRegion
+            region = global_regional_ai_matrix.detect_market_region(
+                location=location, company_domain=company_domain, job_text=job_text, language=language
+            )
+            prompt_data = global_regional_ai_matrix.build_culturally_adapted_prompt(
+                region=region,
+                candidate_name=candidate_name,
+                target_role=target_role,
+                recruiter_name=recruiter_name,
+                company_name=company_name,
+                key_skills=key_skills,
+            )
+            # Use base personalized pitch with detected language/region context
+            pitch_res = self.generate_personalized_pitch(
+                candidate_name=candidate_name,
+                target_role=target_role,
+                recruiter_name=recruiter_name,
+                company_name=company_name,
+                key_skills=key_skills,
+                language=language,
+            )
+            pitch_res["market_region"] = region.value
+            pitch_res["regional_adaptation"] = prompt_data
+            return pitch_res
+        except Exception as e:
+            logger.debug("Regional adaptation fallback: %s", e)
+            res = self.generate_personalized_pitch(
+                candidate_name=candidate_name,
+                target_role=target_role,
+                recruiter_name=recruiter_name,
+                company_name=company_name,
+                key_skills=key_skills,
+                language=language,
+            )
+            res["market_region"] = "global"
+            return res
+
     def get_pool_telemetry(self) -> Dict[str, Any]:
         """Returns health, status, and active provider telemetry."""
         return {
@@ -557,7 +612,8 @@ class MultiModelAIPool:
                 "Dynamic Semantic Token Compression",
                 "Psychographic ATS Tone Tuning",
                 "Zero-Token Cosine Vector Matching",
-                "Self-Refining Outreach Feedback Memory"
+                "Self-Refining Outreach Feedback Memory",
+                "Sovereign Regional AI Matrix Routing"
             ]
         }
 

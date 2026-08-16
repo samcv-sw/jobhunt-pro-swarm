@@ -1,0 +1,47 @@
+<div class="pseo-catalog-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+  
+  <div style="text-align:center; margin-block-end:32px;">
+    <span style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:13px; font-weight:800; padding:6px 16px; border-radius:20px; border:1px solid rgba(6,182,212,0.3);">
+      🌐 GCC TECH CAREERS & VACANCIES DIRECTORY
+    </span>
+    <h1 style="color:#fff; font-size:2.2em; font-weight:900; margin:14px 0 8px 0;">Browse Highest Demand Tech Positions by Hub</h1>
+    <p style="color:#94a3b8; font-size:1.05em; max-inline-size:700px; margin:0 auto 20px auto;">
+      Select your specialty and target city to view verified salary benchmarks and auto-apply with AI.
+    </p>
+
+    <div style="max-inline-size:500px; margin:0 auto;">
+      <input type="text" id="catalogSearchInput" onkeyup="filterCatalog()" placeholder="🔍 Search role or city (e.g. Cloud, Riyadh, Dubai)..." style="inline-size:100%; padding:14px 20px; border-radius:30px; background:rgba(15,23,42,0.9); border:1px solid rgba(6,182,212,0.4); color:#fff; font-size:15px;" dir="auto">
+    </div>
+  </div>
+
+  <div id="catalogGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
+    {% for role in roles %}
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:22px;">
+      <h3 style="color:var(--cyan); font-size:17px; font-weight:800; margin:0 0 12px 0;">💼 {{ role.title }}</h3>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        {% for loc in locations %}
+        {% set role_slug = role.title.lower().replace('&', 'and').replace(' ', '-') %}
+        {% set city_slug = loc.city.lower().replace(' ', '-') %}
+        <a href="/en/jobs/{{ role_slug }}-in-{{ city_slug }}" style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,0.03); border-radius:10px; color:#cbd5e1; text-decoration:none; font-size:13px; font-weight:700; transition:all 0.2s ease;">
+          <span>📍 {{ role.title }} Jobs in {{ loc.city }}</span>
+          <span style="color:var(--green); font-size:11px;">{{ loc.avg_salary }} →</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+function filterCatalog() {
+  const query = (document.getElementById('catalogSearchInput')?.value || '').toLowerCase();
+  const cards = document.querySelectorAll('#catalogGrid > div');
+  cards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(query) ? 'block' : 'none';
+  });
+}
+</script>
+

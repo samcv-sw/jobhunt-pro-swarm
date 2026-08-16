@@ -49,6 +49,30 @@ async def api_instant_cv_audit(payload: CVAuditInstantRequest):
     if not result.get("success"):
         return JSONResponse(status_code=400, content=result)
 
+    # 3. Attach Viral Lead Magnet Card & Golden Ticket
+    try:
+        from core.viral_lead_magnet_engine import viral_lead_magnet_engine
+        score_val = result.get("overall_ats_score", 85)
+        role_val = payload.job_title or "GCC Professional"
+        lang_val = "ar" if any('\u0600' <= c <= '\u06FF' for c in payload.cv_text[:200]) else "en"
+        
+        viral_card = viral_lead_magnet_engine.generate_shareable_ats_card(
+            candidate_name="Verified Candidate",
+            target_role=role_val,
+            ats_score=score_val,
+            lang=lang_val
+        )
+        result["viral_shareable_card"] = viral_card
+        result["conversion_offer"] = {
+            "tier_recommended": "basic",
+            "tier_name": "Basic Campaign ($19)",
+            "discounted_price_sar": 71.0,
+            "cta_headline": "أطلق حملة تقديم ذكية لـ 100 شركة خليجية بنقرة واحدة",
+            "checkout_url": f"/gcc-billing/checkout?plan=basic&ats_score={score_val}"
+        }
+    except Exception as e:
+        logger.debug(f"Viral card attachment error: {e}")
+
     return result
 
 
@@ -88,6 +112,31 @@ async def api_upload_and_score_cv(
         target_role=job_title or "",
         market_focus=market_focus or "all"
     )
+
+    # Attach Viral Lead Magnet Card & Golden Ticket
+    try:
+        from core.viral_lead_magnet_engine import viral_lead_magnet_engine
+        score_val = result.get("overall_ats_score", 85)
+        role_val = job_title or "GCC Professional"
+        lang_val = "ar" if any('\u0600' <= c <= '\u06FF' for c in cv_text[:200]) else "en"
+        
+        viral_card = viral_lead_magnet_engine.generate_shareable_ats_card(
+            candidate_name="Verified Candidate",
+            target_role=role_val,
+            ats_score=score_val,
+            lang=lang_val
+        )
+        result["viral_shareable_card"] = viral_card
+        result["conversion_offer"] = {
+            "tier_recommended": "basic",
+            "tier_name": "Basic Campaign ($19)",
+            "discounted_price_sar": 71.0,
+            "cta_headline": "أطلق حملة تقديم ذكية لـ 100 شركة خليجية بنقرة واحدة",
+            "checkout_url": f"/gcc-billing/checkout?plan=basic&ats_score={score_val}"
+        }
+    except Exception as e:
+        logger.debug(f"Viral card attachment error: {e}")
+
     return result
 
 

@@ -219,7 +219,7 @@ export default function Home() {
                     type="text"
                     dir="auto"
                     value={tenantNameInput}
-                    onChange={(e) = dir="auto"> setTenantNameInput(e.target.value)}
+                    onChange={(e) => setTenantNameInput(e.target.value)}
                     placeholder={t("landing.tenantPlaceholder")}
                     className="input-field flex-1"
                   />
@@ -387,7 +387,7 @@ export default function Home() {
                     type="email"
                     dir="auto"
                     value={smtpEmail}
-                    onChange={(e) = dir="auto"> setSmtpEmail(e.target.value)}
+                    onChange={(e) => setSmtpEmail(e.target.value)}
                     placeholder={t("landing.emailPlaceholder")}
                     className="input-field"
                   />
@@ -401,7 +401,7 @@ export default function Home() {
                     type="password"
                     dir="auto"
                     value={smtpPass}
-                    onChange={(e) = dir="auto"> setSmtpPass(e.target.value)}
+                    onChange={(e) => setSmtpPass(e.target.value)}
                     placeholder={t("landing.passPlaceholder")}
                     className="input-field"
                   />

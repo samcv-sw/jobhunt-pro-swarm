@@ -68,34 +68,18 @@ def generate_referral_code(user_id: str, db_path: str = "data/jobhunt_saas_v2.db
         ref_user_col = "referred_user_id" if "referred_user_id" in cols else "referred_id"
         
         row = conn.execute(
-            f"SELECT referral_code FROM referrals WHERE ({id_col} = ? OR referrer_user_id = ?) AND ({ref_user_col} IS NULL OR referred_user_id IS NULL)",
-            (user_id_str, user_id_str)
-        ).fetchone() if "referrer_user_id" in cols and id_col != "referrer_user_id" else conn.execute(
-            f"SELECT referral_code FROM referrals WHERE {id_col} = ? AND ({ref_user_col} IS NULL)",
+            f"SELECT referral_code FROM referrals WHERE {id_col} = ? ORDER BY id ASC LIMIT 1",
             (user_id_str,)
         ).fetchone()
 
         if row:
             existing = row["referral_code"]
-            # Migrate legacy JOBHUNT-* codes to the deterministic user-derived
-            # format so referral links stay consistent with the user id.
-            expected = f"REF-{str(user_id_str).upper().replace('-', '_')[:20]}"
-            if existing != expected:
-                try:
-                    conn.execute(
-                        "UPDATE referrals SET referral_code = ? WHERE referral_code = ?",
-                        (expected, existing),
-                    )
-                    conn.commit()
-                    return expected
-                except Exception:
-                    return existing
             return existing
 
         short_id = str(user_id_str).upper().replace("-", "_")[:20]
-        code = f"REF-{short_id}"
-        if len(code) < 8:
-            code = f"REF-{short_id}-{str(uuid.uuid4())[:4].upper()}"
+        code = f"JOBHUNT-{short_id}"
+        if len(code) < 10:
+            code = f"JOBHUNT-{short_id}-{str(uuid.uuid4())[:4].upper()}"
         
         insert_cols = ["referral_code", "status", "tokens_awarded"]
         insert_vals = [code, "pending", 50]
@@ -106,14 +90,20 @@ def generate_referral_code(user_id: str, db_path: str = "data/jobhunt_saas_v2.db
         if "referrer_id" in cols:
             insert_cols.append("referrer_id")
             insert_vals.append(user_id_str)
-        if "referred_id" in cols:
+        if "referred_user_id" in cols:
+            insert_cols.append("referred_user_id")
+            insert_vals.append(None)
+        elif "referred_id" in cols:
             insert_cols.append("referred_id")
-            insert_vals.append("")
+            insert_vals.append(None)
             
         placeholders = ", ".join(["?"] * len(insert_vals))
         col_names = ", ".join(insert_cols)
-        conn.execute(f"INSERT INTO referrals ({col_names}) VALUES ({placeholders})", tuple(insert_vals))
-        conn.commit()
+        try:
+            conn.execute(f"INSERT OR IGNORE INTO referrals ({col_names}) VALUES ({placeholders})", tuple(insert_vals))
+            conn.commit()
+        except Exception:
+            pass
         return code
 
 

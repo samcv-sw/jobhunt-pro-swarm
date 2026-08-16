@@ -112,6 +112,9 @@ def add_agency_client(req: AddClientSubaccountRequest) -> Dict[str, Any]:
 
 
 # V2 Router Aliases
+v2_white_label_router = APIRouter(tags=["V2 White Label Portal"])
+
+@v2_white_label_router.get("/api/v2/agency/white-label")
 @router.get("/api/v2/agency/white-label")
 def get_agency_white_label_v2(agency_id: str = "agency_default"):
     info = get_tenant_info(agency_id)
@@ -185,6 +188,7 @@ def get_agency_theme_css(domain: str):
     return Response(content=css_content, media_type="text/css")
 
 
+@v2_white_label_router.post("/api/v2/agency/white-label")
 @router.post("/api/v2/agency/white-label")
 def configure_agency_white_label_v2(req: AgencyTenantSetupRequest):
     res = configure_agency_branding(req)

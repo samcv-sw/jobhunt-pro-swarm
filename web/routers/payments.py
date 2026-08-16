@@ -1877,12 +1877,12 @@ async def changenow_webhook(request: Request):
             tokens = int(amount_usd * 25)  # 25 AI credits per $1
             with get_db() as conn:
                 conn.execute(
-                    "UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE user_id = ?",
-                    (tokens, user_id)
+                    "UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE user_id = ? OR id = ?",
+                    (tokens, user_id, user_id)
                 )
                 conn.execute(
-                    "INSERT INTO transactions (user_id, amount_usd, tx_type, description, created_at) VALUES (?, ?, ?, ?, datetime('now'))",
-                    (user_id, amount_usd, "crypto_topup_changenow", f"ChangeNOW TX {tx_id} confirmed (+{tokens} tokens)")
+                    "INSERT INTO transactions (reference_id, user_id, amount_usd, tx_type, description, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                    (str(tx_id), user_id, amount_usd, "crypto_topup_changenow", f"ChangeNOW TX {tx_id} confirmed (+{tokens} tokens)")
                 )
                 conn.commit()
             try:
@@ -1984,12 +1984,12 @@ async def moonpay_webhook(request: Request):
             tokens = int(amount_usd * 25)  # 25 AI credits per $1
             with get_db() as conn:
                 conn.execute(
-                    "UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE user_id = ?",
-                    (tokens, user_id)
+                    "UPDATE users SET tokens = COALESCE(tokens, 0) + ? WHERE user_id = ? OR id = ?",
+                    (tokens, user_id, user_id)
                 )
                 conn.execute(
-                    "INSERT INTO transactions (user_id, amount_usd, tx_type, description, created_at) VALUES (?, ?, ?, ?, datetime('now'))",
-                    (user_id, amount_usd, "crypto_topup_moonpay", f"MoonPay Card TX {tx_id} confirmed (+{tokens} tokens)")
+                    "INSERT INTO transactions (reference_id, user_id, amount_usd, tx_type, description, created_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                    (str(tx_id), user_id, amount_usd, "crypto_topup_moonpay", f"MoonPay Card TX {tx_id} confirmed (+{tokens} tokens)")
                 )
                 conn.commit()
             try:

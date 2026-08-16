@@ -3,7 +3,7 @@ Viral Growth & Referral Engine Router for JobHunt Pro.
 Exposes referral link tracking, Golden Ticket (Hongbao) redemption, and viral social cards.
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from core.viral_engine import (
@@ -13,6 +13,7 @@ from core.viral_engine import (
     redeem_golden_ticket,
     get_share_card,
     generate_social_hook_card,
+    render_dynamic_social_card_svg,
     get_ph_assets,
     get_random_social_proof
 )
@@ -32,9 +33,47 @@ async def get_tiers() -> List[Dict[str, Any]]:
 
 
 @router.get("/share-text")
-async def get_viral_share_text() -> Dict[str, str]:
-    """Get random high-converting viral share message."""
+async def get_viral_share_text(lang: str = "en") -> Dict[str, str]:
+    """Get high-converting viral share message in English or Arabic."""
+    if lang == "ar":
+        return {
+            "share_text": "🚀 قدمت على أكثر من 50 شركة بالخليج بضغطة زر واحدة بالذكاء الاصطناعي! جرب فحص سيرتك الذاتية مجاناً: https://jobhuntpro.app"
+        }
     return {"share_text": get_share_text()}
+
+
+@router.get("/card-image/{score}")
+async def get_social_card_image(
+    score: int,
+    user_id: str = Query(default="guest"),
+    role: str = Query(default="Candidate")
+) -> Response:
+    """Serve dynamic 1200x630 SVG social card for OpenGraph, Twitter, and LinkedIn embedding."""
+    svg_content = render_dynamic_social_card_svg(score=score, user_id=user_id, role=role)
+    return Response(
+        content=svg_content,
+        media_type="image/svg+xml",
+        headers={
+            "Cache-Control": "public, max-age=86400",
+            "Content-Disposition": f'inline; filename="ats-score-{score}.svg"'
+        }
+    )
+
+
+@router.get("/qr-code")
+async def get_dynamic_qr_code(url: str = Query(default="https://jobhuntpro.io")) -> Response:
+    """Serve dynamic vector SVG QR code for any campaign, referral, or job URL."""
+    from core.viral_engine import generate_svg_qr_code
+    svg_qr = generate_svg_qr_code(target_url=url, size=300)
+    return Response(
+        content=svg_qr,
+        media_type="image/svg+xml",
+        headers={
+            "Cache-Control": "public, max-age=86400",
+            "Content-Disposition": 'inline; filename="jobhunt-qr.svg"'
+        }
+    )
+
 
 
 @router.post("/golden-ticket/generate")
@@ -50,9 +89,14 @@ async def claim_golden_ticket(req: TicketRedeemRequest) -> Dict[str, Any]:
 
 
 @router.get("/social-card")
-async def get_social_card(tool: str = "ats_score", score: int = 88, user_id: str = "user_1") -> Dict[str, Any]:
+async def get_social_card(
+    tool: str = "ats_score",
+    score: int = 88,
+    user_id: str = "guest",
+    role: str = "Software Engineer"
+) -> Dict[str, Any]:
     """Generate viral social proof cards for sharing on LinkedIn, Twitter, or WhatsApp."""
-    return generate_social_hook_card(tool=tool, user_id=user_id, score=score)
+    return generate_social_hook_card(tool=tool, user_id=user_id, score=score, role=role)
 
 
 @router.get("/live-proof")

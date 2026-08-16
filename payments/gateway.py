@@ -17,19 +17,28 @@ class NOWPaymentsGateway:
     """Full NOWPayments integration for JobHunt Pro with Multi-Chain Sovereign Wallet Support."""
 
     def __init__(self):
-        self.api_key = os.getenv("NOWPAYMENTS_API_KEY", "VA1FDVQ-JBJ41KM-QN6MVGF-TTR80X4")
-        self.ipn_secret = os.getenv("NOWPAYMENTS_IPN_SECRET", "OE+zU1NbfNNlySwH3zrUthqQWZtGqrJa")
+        # SECURITY: Secrets are loaded EXCLUSIVELY from environment variables.
+        # No hardcoded fallbacks. If a secret is missing, the gateway fails loudly
+        # rather than silently operating with a leaked credential.
+        self.api_key = os.getenv("NOWPAYMENTS_API_KEY", "")
+        self.ipn_secret = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
         # Direct sovereign crypto addresses (non-custodial, $0 merchant fee)
+        # Loaded from env only — never commit wallet addresses to source control.
         self.wallets = {
-            "btc": os.getenv("CRYPTO_BTC_ADDRESS", "bc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
-            "eth": os.getenv("CRYPTO_ETH_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
-            "usdt": os.getenv("CRYPTO_USDT_ADDRESS", "0xc303249a1992405ac2879f97fa8fec34c72be2f8"),
-            "usdt_trc20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98")),
-            "usdt_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
-            "usdc_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", "0x0e68d76d8dc303249a1992405ac2879f97fa8fec"),
-            "ton": os.getenv("CRYPTO_TON_ADDRESS", "UQA8Rk7hv93aWeIAb3j_XqpUqvjC4igQdObtlVLykGyrQ9ux"),
-            "ltc": os.getenv("CRYPTO_LTC_ADDRESS", "ltc1q0e68d76d8dc303249a1992405ac2879f97fa8f"),
+            "btc": os.getenv("CRYPTO_BTC_ADDRESS", ""),
+            "eth": os.getenv("CRYPTO_ETH_ADDRESS", ""),
+            "usdt": os.getenv("CRYPTO_USDT_ADDRESS", ""),
+            "usdt_trc20": os.getenv("CRYPTO_USDT_TRC20_ADDRESS", os.getenv("CRYPTO_TRON_ADDRESS", "")),
+            "usdt_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", ""),
+            "usdc_polygon": os.getenv("CRYPTO_POLYGON_ADDRESS", ""),
+            "ton": os.getenv("CRYPTO_TON_ADDRESS", ""),
+            "ltc": os.getenv("CRYPTO_LTC_ADDRESS", ""),
         }
+        if not self.api_key or not self.ipn_secret:
+            logging.warning(
+                "NOWPAYMENTS_API_KEY / NOWPAYMENTS_IPN_SECRET not set. "
+                "Crypto payments will be unavailable until configured via environment."
+            )
 
     def create_invoice(self, price_amount: float = 29.0,
                        price_currency: str = "usd",
@@ -46,14 +55,23 @@ class NOWPaymentsGateway:
 
         try:
             import urllib.request
+            # HARDENING: Public base URL is env-configurable so IPN/success/cancel
+            # callbacks resolve correctly regardless of deployment host (Render,
+            # PythonAnywhere, Vercel, etc.). Never hardcode a single host.
+            base_url = (
+                os.environ.get("SITE_URL")
+                or os.environ.get("PUBLIC_BASE_URL")
+                or os.environ.get("RENDER_EXTERNAL_URL")
+                or "https://jhfguf.pythonanywhere.com"
+            ).rstrip("/")
             payload = {
                 "price_amount": price_amount,
                 "price_currency": price_currency,
                 "order_id": order_id,
                 "order_description": f"JobHunt Pro — Lifetime Access (${price_amount})",
-                "ipn_callback_url": "https://jhfguf.pythonanywhere.com/api/v2/nowpayments-ipn",
-                "success_url": "https://jhfguf.pythonanywhere.com/payment/success",
-                "cancel_url": "https://jhfguf.pythonanywhere.com/payment/cancel",
+                "ipn_callback_url": f"{base_url}/api/v2/nowpayments-ipn",
+                "success_url": f"{base_url}/payment/success",
+                "cancel_url": f"{base_url}/payment/cancel",
                 "is_fixed_rate": True,
                 "is_fee_paid_by_user": True,
             }

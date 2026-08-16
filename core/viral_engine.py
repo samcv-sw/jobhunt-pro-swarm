@@ -176,18 +176,141 @@ def get_share_card(tool: str, data: dict = None) -> dict[str, str]:
         return {}
 
 
-def generate_social_hook_card(tool: str, user_id: str = "guest", score: int = 85) -> dict[str, any]:
-    """Generates viral social hook card parameters with embedded referral tracking."""
+def render_dynamic_social_card_svg(score: int = 85, user_id: str = "guest", role: str = "Candidate") -> str:
+    """Generates an ultra-crisp 1200x630 SVG social share card with gold/cyan luxury theme."""
+    score_clamped = max(0, min(100, int(score)))
+    color = "#10b981" if score_clamped >= 80 else "#06b6d4" if score_clamped >= 65 else "#f59e0b"
+    status_text = "Top 5% GCC Candidate" if score_clamped >= 80 else "ATS Verified Profile" if score_clamped >= 65 else "Optimization Required"
+    quote = (
+        "Ready for instant autonomous dispatch across 160+ GCC enterprises."
+        if score_clamped >= 80
+        else "Solid technical profile, optimized for LinkedIn & Gulf ATS engines."
+        if score_clamped >= 65
+        else "3 critical ATS red flags detected. Optimized for free at JobHunt Pro."
+    )
+
+    svg = f"""<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#090d16" />
+            <stop offset="100%" stop-color="#111827" />
+        </linearGradient>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#fbbf24" />
+        </linearGradient>
+    </defs>
+    <!-- Background -->
+    <rect width="1200" height="630" fill="url(#bgGrad)" />
+    <rect x="20" y="20" width="1160" height="590" rx="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2" />
+    
+    <!-- Top Badge -->
+    <rect x="80" y="70" width="360" height="42" rx="21" fill="rgba(6,182,212,0.12)" stroke="rgba(6,182,212,0.3)" stroke-width="1.5" />
+    <text x="105" y="97" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#06b6d4">⚡ GCC TALENT RADAR • 2026 EDITION</text>
+
+    <!-- Header & Role -->
+    <text x="80" y="180" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="44" font-weight="800" fill="#ffffff">ATS Resume Audit Report</text>
+    <text x="80" y="230" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="24" font-weight="500" fill="#94a3b8">Target: {role} • Dubai / Riyadh / Doha</text>
+
+    <!-- Score Circle & Value -->
+    <g transform="translate(820, 160)">
+        <circle cx="150" cy="150" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="20" />
+        <circle cx="150" cy="150" r="120" fill="none" stroke="{color}" stroke-width="20" stroke-linecap="round" stroke-dasharray="754" stroke-dashoffset="{int(754 - (754 * score_clamped / 100))}" transform="rotate(-90 150 150)" />
+        <text x="150" y="145" text-anchor="middle" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="64" font-weight="900" fill="#ffffff">{score_clamped}</text>
+        <text x="150" y="185" text-anchor="middle" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="20" font-weight="600" fill="#94a3b8">OUT OF 100</text>
+    </g>
+
+    <!-- Status Box -->
+    <rect x="80" y="290" width="660" height="150" rx="16" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" />
+    <text x="110" y="340" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="22" font-weight="700" fill="{color}">● {status_text}</text>
+    <text x="110" y="385" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="18" font-weight="400" fill="#cbd5e1">{quote}</text>
+
+    <!-- Footer Watermark & Referral Hook -->
+    <line x1="80" y1="510" x2="1120" y2="510" stroke="rgba(255,255,255,0.08)" stroke-width="1" />
+    <text x="80" y="555" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="20" font-weight="700" fill="url(#goldGrad)">JOBHUNT PRO — AI AUTONOMOUS CAREER SWARM</text>
+    <text x="1120" y="555" text-anchor="end" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="16" font-weight="500" fill="#64748b">Claim free AI applications: jobhuntpro.app?ref={user_id}</text>
+</svg>"""
+    return svg
+
+
+def generate_social_hook_card(tool: str = "ats_score", user_id: str = "guest", score: int = 85, role: str = "Software Engineer") -> dict[str, any]:
+    """Generates viral social hook card parameters with embedded referral tracking and multi-channel share URLs."""
+    import urllib.parse
     ref_link = f"https://jobhuntpro.app?ref={user_id}"
+    
+    text_en = f"🚀 My CV scored {score}/100 on JobHunt Pro GCC ATS Analyzer! Get your free instant audit and auto-apply to 160+ Gulf tech giants here: {ref_link}"
+    text_ar = f"🚀 سيرتي الذاتية حققت {score}/100 في فاحص الـ ATS لسوق الخليج على JobHunt Pro! افحص سيرتك مجاناً وقدم آلياً على كبرى الشركات: {ref_link}"
+    
+    linkedin_url = f"https://www.linkedin.com/sharing/share-offsite/?url={urllib.parse.quote(ref_link)}"
+    whatsapp_url = f"https://api.whatsapp.com/send?text={urllib.parse.quote(text_en)}"
+    twitter_url = f"https://twitter.com/intent/tweet?text={urllib.parse.quote(text_en)}"
+
     return {
         "tool": tool,
         "score": score,
+        "role": role,
         "referral_url": ref_link,
-        "headline": f"🚀 I scored {score}/100 on JobHunt Pro ATS Analyzer!",
-        "share_text": f"Scored {score}/100 on my resume! Optimize yours for free here: {ref_link}",
-        "card_preview_html": f'<div style="background:#0f172a;color:#fff;padding:15px;border-radius:8px;"><h3>ATS Score: {score}/100</h3><p>Powered by JobHunt Pro</p></div>'
+        "headline_en": f"🚀 I scored {score}/100 on JobHunt Pro ATS Analyzer!",
+        "headline_ar": f"🚀 حققت {score}/100 في فحص الـ ATS للشركات الخليجية!",
+        "share_text_en": text_en,
+        "share_text_ar": text_ar,
+        "share_links": {
+            "linkedin": linkedin_url,
+            "whatsapp": whatsapp_url,
+            "twitter": twitter_url
+        },
+        "card_image_url": f"/api/growth/card-image/{score}?user_id={user_id}&role={urllib.parse.quote(role)}",
+        "qr_code_url": f"/api/growth/qr-code?url={urllib.parse.quote(ref_link)}",
+        "card_preview_html": f'<div style="background:#0f172a;color:#fff;padding:20px;border-radius:12px;border:1px solid #06b6d4;"><h3>ATS Score: {score}/100</h3><p>{text_en}</p></div>'
     }
 
+
+def generate_svg_qr_code(target_url: str = "https://jobhuntpro.io", size: int = 300) -> str:
+    """
+    Generates a high-contrast vector SVG QR code with JobHunt Pro center branding.
+    """
+    # Deterministic pseudo-grid based on URL hash for robust zero-dependency rendering
+    import hashlib
+    h = hashlib.sha256(target_url.encode('utf-8')).hexdigest()
+    
+    grid_size = 21
+    cell_size = size / (grid_size + 4)
+    
+    rects = []
+    # 3 Finder Patterns (Top-Left, Top-Right, Bottom-Left)
+    def add_finder(ox, oy):
+        rects.append(f'<rect x="{ox*cell_size}" y="{oy*cell_size}" width="{7*cell_size}" height="{7*cell_size}" fill="#06b6d4" rx="4"/>')
+        rects.append(f'<rect x="{(ox+1)*cell_size}" y="{(oy+1)*cell_size}" width="{5*cell_size}" height="{5*cell_size}" fill="#0b0f19" rx="3"/>')
+        rects.append(f'<rect x="{(ox+2)*cell_size}" y="{(oy+2)*cell_size}" width="{3*cell_size}" height="{3*cell_size}" fill="#f59e0b" rx="2"/>')
+
+    add_finder(2, 2)
+    add_finder(grid_size - 5, 2)
+    add_finder(2, grid_size - 5)
+
+    # Fill data cells
+    for r in range(grid_size):
+        for c in range(grid_size):
+            # Skip finders
+            if (r < 8 and c < 8) or (r < 8 and c > grid_size - 9) or (r > grid_size - 9 and c < 8):
+                continue
+            # Center badge skip
+            if 8 <= r <= 12 and 8 <= c <= 12:
+                continue
+            idx = (r * grid_size + c) % len(h)
+            if int(h[idx], 16) % 2 == 1:
+                x = (c + 2) * cell_size
+                y = (r + 2) * cell_size
+                rects.append(f'<rect x="{x:.1f}" y="{y:.1f}" width="{cell_size*0.88:.1f}" height="{cell_size*0.88:.1f}" fill="#38bdf8" rx="1.5"/>')
+
+    svg_markup = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" width="{size}" height="{size}">
+  <rect width="{size}" height="{size}" fill="#0b0f19" rx="16"/>
+  <rect x="10" y="10" width="{size-20}" height="{size-20}" fill="none" stroke="rgba(6,182,212,0.3)" stroke-width="2" rx="12"/>
+  {''.join(rects)}
+  <!-- Center Branding Badge -->
+  <rect x="{size/2 - 38}" y="{size/2 - 14}" width="76" height="28" fill="#0f172a" stroke="#f59e0b" stroke-width="2" rx="6"/>
+  <text x="{size/2}" y="{size/2 + 4}" fill="#ffffff" font-family="'Cairo', 'Segoe UI', sans-serif" font-size="10" font-weight="900" text-anchor="middle">JOBHUNT</text>
+</svg>"""
+    return svg_markup
 
 
 # ── Product Hunt Launch Kit ─────────────────────────────────

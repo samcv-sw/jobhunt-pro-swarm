@@ -1,0 +1,230 @@
+<div class="interview-arena-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+  
+  <!-- Header -->
+  <div style="text-align:center; margin-block-end:32px;">
+    <span style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:13px; font-weight:800; padding:6px 16px; border-radius:20px; border:1px solid rgba(6,182,212,0.3);">
+      🎙️ LIVE GCC MOCK INTERVIEW ARENA
+    </span>
+    <h1 style="color:#fff; font-size:2.2em; font-weight:900; margin:14px 0 8px 0;">Practice Executive Hiring Interviews with Top Gulf Committees</h1>
+    <p style="color:#94a3b8; font-size:1.05em; max-inline-size:700px; margin:0 auto;">
+      Select an executive persona (Saudi, Emirati, Qatari), respond via text/voice, and get instant STAR framework scoring.
+    </p>
+  </div>
+
+  <!-- Persona Selection Cards -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:18px; margin-block-end:30px;">
+    <!-- Saudi Executive -->
+    <div class="persona-select-card active" id="card_saudi" onclick="selectPersona('saudi_executive', this)" style="background:rgba(15,23,42,0.85); border:2px solid var(--green); border-radius:18px; padding:20px; cursor:pointer; transition:all 0.3s ease;">
+      <div style="display:flex; align-items:center; gap:12px; margin-block-end:10px;">
+        <span style="font-size:32px;">🇸🇦</span>
+        <div>
+          <h4 style="color:#fff; font-size:16px; font-weight:800; margin:0;">Eng. Fahad Al-Otaibi</h4>
+          <span style="color:var(--green); font-size:12px; font-weight:700;">Executive Director — Riyadh (Mega Projects / PIF)</span>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:0;">Focus: Vision 2030 Alignment, Local Content, Strategic Scale, and Leadership.</p>
+    </div>
+
+    <!-- Emirati Tech Lead -->
+    <div class="persona-select-card" id="card_emirati" onclick="selectPersona('emirati_tech_lead', this)" style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:20px; cursor:pointer; transition:all 0.3s ease;">
+      <div style="display:flex; align-items:center; gap:12px; margin-block-end:10px;">
+        <span style="font-size:32px;">🇦🇪</span>
+        <div>
+          <h4 style="color:#fff; font-size:16px; font-weight:800; margin:0;">Rashid Al-Nuaimi</h4>
+          <span style="color:var(--cyan); font-size:12px; font-weight:700;">Head of Engineering — Dubai (Digital Unicorns)</span>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:0;">Focus: High-Scale Cloud Architecture, Delivery Velocity, Incident Mitigation, and KPIs.</p>
+    </div>
+
+    <!-- Qatari FinTech Director -->
+    <div class="persona-select-card" id="card_qatari" onclick="selectPersona('qatari_fintech_director', this)" style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:20px; cursor:pointer; transition:all 0.3s ease;">
+      <div style="display:flex; align-items:center; gap:12px; margin-block-end:10px;">
+        <span style="font-size:32px;">🇶🇦</span>
+        <div>
+          <h4 style="color:#fff; font-size:16px; font-weight:800; margin:0;">Dr. Hamad Al-Kuwari</h4>
+          <span style="color:var(--gold); font-size:12px; font-weight:700;">Director of FinTech & Security — Doha</span>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:0;">Focus: Cybersecurity Compliance, Banking Regulations, and Cloud Risk Governance.</p>
+    </div>
+  </div>
+
+  <!-- Role Input & Chamber Launch -->
+  <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(6,182,212,0.3); border-radius:22px; padding:28px; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-block-end:24px;">
+      <div style="flex:1; min-inline-size:260px;">
+        <label style="color:var(--cyan); font-size:13px; font-weight:700; display:block; margin-block-end:6px;">Target Job Title</label>
+        <input type="text" id="targetInterviewRole" value="Senior Cloud & Systems Architect" style="inline-size:100%; padding:12px 16px; border-radius:12px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px;" dir="auto">
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <button class="primary" onclick="launchInterviewRound()" style="padding:13px 28px; border-radius:12px; font-weight:800; font-size:15px; background:linear-gradient(135deg, var(--cyan), #0284c7); color:#0a0a1a; border:none; cursor:pointer;">
+          🎙️ Launch Mock Interview Chamber
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Interview Chamber Box -->
+    <div id="interviewChamber" style="display:none; border-block-start:1px solid rgba(255,255,255,0.1); padding-block-start:24px;">
+      <!-- Greeting & Persona Speech -->
+      <div style="display:flex; gap:16px; align-items:flex-start; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:20px; margin-block-end:20px;">
+        <div style="font-size:36px;" id="chamberAvatar">🇸🇦</div>
+        <div>
+          <strong id="chamberInterviewerName" style="color:#fff; font-size:16px;">Eng. Fahad Al-Otaibi</strong>
+          <div id="chamberGreeting" style="font-size:14px; color:var(--muted); margin:4px 0 10px 0;"></div>
+          <div style="background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:12px; padding:14px; color:var(--cyan); font-weight:700; font-size:15px;" id="chamberQuestion"></div>
+        </div>
+      </div>
+
+      <!-- Candidate Answer Area -->
+      <div style="margin-block-end:20px;">
+        <label style="color:#cbd5e1; font-size:13px; font-weight:700; display:block; margin-block-end:6px;">Your Response (Provide detailed response using STAR method):</label>
+        <textarea id="candidateAnswerInput" placeholder="Describe the Situation, Task, your direct Actions, and the quantified Results..." style="inline-size:100%; min-block-size:120px; padding:14px; border-radius:14px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:15px; resize:vertical;" dir="auto"></textarea>
+      </div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button id="btnSubmitAnswer" onclick="submitCandidateAnswer()" class="primary" style="padding:12px 28px; border-radius:12px; font-weight:800; background:var(--green); color:#052e16; border:none; cursor:pointer;">
+          ⚡ Evaluate My Answer & STAR Breakdown
+        </button>
+        <button id="btnNextQuestion" onclick="nextQuestionRound()" style="display:none; padding:12px 24px; border-radius:12px; font-weight:700; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.2); cursor:pointer;">
+          🔄 Next Question Round
+        </button>
+      </div>
+
+      <!-- Live STAR Evaluation Results -->
+      <div id="evaluationResultsBox" style="display:none; margin-block-start:24px; padding:22px; background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.3); border-radius:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
+          <div>
+            <span id="verdictBadge" style="background:var(--green); color:#052e16; font-size:12px; font-weight:800; padding:4px 12px; border-radius:20px;">STRONG HIRE</span>
+            <h4 style="color:#fff; font-size:18px; margin:6px 0 0 0;">Evaluation Score: <span id="evalScoreNumber" style="color:var(--cyan);">92/100</span></h4>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-block-end:16px;">
+          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:11px; color:#94a3b8;">Situation</div>
+            <strong id="starSit" style="color:var(--cyan); font-size:16px;">20/20</strong>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:11px; color:#94a3b8;">Task</div>
+            <strong id="starTask" style="color:var(--cyan); font-size:16px;">20/20</strong>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:11px; color:#94a3b8;">Action</div>
+            <strong id="starAct" style="color:var(--cyan); font-size:16px;">30/30</strong>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:11px; color:#94a3b8;">Result</div>
+            <strong id="starRes" style="color:var(--cyan); font-size:16px;">30/30</strong>
+          </div>
+        </div>
+
+        <div style="font-size:14px; color:#cbd5e1; line-height:1.7;">
+          <strong style="color:var(--gold);">💡 Committee Feedback:</strong>
+          <span id="evalFeedbackText"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPersonaKey = 'saudi_executive';
+let currentRoundNumber = 1;
+let currentQuestionText = '';
+
+function selectPersona(key, cardEl) {
+  currentPersonaKey = key;
+  document.querySelectorAll('.persona-select-card').forEach(c => {
+    c.style.borderColor = 'rgba(255,255,255,0.1)';
+  });
+  if (cardEl) cardEl.style.borderColor = key === 'saudi_executive' ? 'var(--green)' : key === 'emirati_tech_lead' ? 'var(--cyan)' : 'var(--gold)';
+}
+
+async function launchInterviewRound() {
+  const role = document.getElementById('targetInterviewRole')?.value || 'Technical Specialist';
+  const chamber = document.getElementById('interviewChamber');
+  const evalBox = document.getElementById('evaluationResultsBox');
+  if (evalBox) evalBox.style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/interview-arena/start-round', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        persona_key: currentPersonaKey,
+        candidate_role: role,
+        round_number: currentRoundNumber
+      })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      const r = data.round;
+      currentQuestionText = r.current_question;
+      document.getElementById('chamberAvatar').textContent = currentPersonaKey === 'saudi_executive' ? '🇸🇦' : currentPersonaKey === 'emirati_tech_lead' ? '🇦🇪' : '🇶🇦';
+      document.getElementById('chamberInterviewerName').textContent = r.interviewer_name;
+      document.getElementById('chamberGreeting').textContent = r.greeting_text_en || r.greeting_text;
+      document.getElementById('chamberQuestion').textContent = '❓ ' + r.current_question;
+      if (chamber) chamber.style.display = 'block';
+      chamber.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  } catch(e) {
+    alert('Failed to launch interview: ' + e.message);
+  }
+}
+
+async function submitCandidateAnswer() {
+  const ans = document.getElementById('candidateAnswerInput')?.value || '';
+  const role = document.getElementById('targetInterviewRole')?.value || 'Technical Specialist';
+  const btn = document.getElementById('btnSubmitAnswer');
+  const evalBox = document.getElementById('evaluationResultsBox');
+
+  if (!ans || ans.trim().length < 10) {
+    alert('Please provide a detailed answer for STAR scoring.');
+    return;
+  }
+
+  if (btn) btn.disabled = true;
+  try {
+    const resp = await fetch('/api/interview-arena/evaluate-answer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        persona_key: currentPersonaKey,
+        question: currentQuestionText,
+        answer: ans,
+        candidate_role: role
+      })
+    });
+    const res = await resp.json();
+    if (res.success) {
+      document.getElementById('evalScoreNumber').textContent = res.overall_score + '/100';
+      document.getElementById('verdictBadge').textContent = res.hiring_verdict;
+      
+      const s = res.star_breakdown || {};
+      document.getElementById('starSit').textContent = (s.situation || 0) + '/20';
+      document.getElementById('starTask').textContent = (s.task || 0) + '/20';
+      document.getElementById('starAct').textContent = (s.action || 0) + '/30';
+      document.getElementById('starRes').textContent = (s.result || 0) + '/30';
+      document.getElementById('evalFeedbackText').textContent = res.persona_feedback_en || res.persona_feedback_ar;
+
+      if (evalBox) evalBox.style.display = 'block';
+      document.getElementById('btnNextQuestion').style.display = 'inline-block';
+      evalBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      alert(res.error || 'Evaluation failed.');
+    }
+  } catch(e) {
+    alert('Communication error: ' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function nextQuestionRound() {
+  currentRoundNumber += 1;
+  document.getElementById('candidateAnswerInput').value = '';
+  document.getElementById('evaluationResultsBox').style.display = 'none';
+  launchInterviewRound();
+}
+</script>

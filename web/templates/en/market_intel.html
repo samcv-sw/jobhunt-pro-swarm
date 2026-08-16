@@ -1,0 +1,158 @@
+<div class="market-intel-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Segoe UI', sans-serif;">
+  
+  <!-- Header -->
+  <div style="text-align:center; margin-block-end:32px;">
+    <span style="background:rgba(6,182,212,0.15); color:var(--cyan); font-size:13px; font-weight:800; padding:6px 16px; border-radius:20px; border:1px solid rgba(6,182,212,0.3);">
+      📊 GCC LABOR MARKET INTELLIGENCE RADAR
+    </span>
+    <h1 style="color:#fff; font-size:2.2em; font-weight:900; margin:14px 0 8px 0;">Live Tracking of In-Demand Tech Skills & Compensation in the Gulf</h1>
+    <p style="color:#94a3b8; font-size:1.05em; max-inline-size:700px; margin:0 auto;">
+      Real-time data on hiring velocity, average monthly tech salaries, and active enterprise hiring across Riyadh, Dubai, and Doha.
+    </p>
+  </div>
+
+  <!-- Macro KPI Summary Bar -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-block-end:28px;">
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px; text-align:center;">
+      <div style="font-size:12px; color:#94a3b8;">Total Active Tracked Vacancies</div>
+      <div style="font-size:28px; font-weight:900; color:var(--cyan); margin-block-start:4px;">22,770+</div>
+    </div>
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px; text-align:center;">
+      <div style="font-size:12px; color:#94a3b8;">Average Time to Offer</div>
+      <div style="font-size:28px; font-weight:900; color:var(--green); margin-block-start:4px;">17 Days</div>
+    </div>
+    <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px; text-align:center;">
+      <div style="font-size:12px; color:#94a3b8;">AI Systems Demand Growth</div>
+      <div style="font-size:28px; font-weight:900; color:var(--gold); margin-block-start:4px;">+65% YoY</div>
+    </div>
+  </div>
+
+  <!-- City Selector Tabs -->
+  <div style="display:flex; justify-content:center; gap:10px; margin-block-end:24px; flex-wrap:wrap;">
+    <button onclick="switchCityRadar('riyadh', this)" class="city-tab-btn active" style="padding:10px 24px; border-radius:12px; font-weight:800; font-size:14px; background:var(--green); color:#052e16; border:none; cursor:pointer;">
+      🇸🇦 Riyadh (Saudi Arabia)
+    </button>
+    <button onclick="switchCityRadar('dubai', this)" class="city-tab-btn" style="padding:10px 24px; border-radius:12px; font-weight:800; font-size:14px; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.15); cursor:pointer;">
+      🇦🇪 Dubai (UAE)
+    </button>
+    <button onclick="switchCityRadar('doha', this)" class="city-tab-btn" style="padding:10px 24px; border-radius:12px; font-weight:800; font-size:14px; background:rgba(255,255,255,0.08); color:#fff; border:1px solid rgba(255,255,255,0.15); cursor:pointer;">
+      🇶🇦 Doha (Qatar)
+    </button>
+  </div>
+
+  <!-- City Detail Card -->
+  <div id="cityRadarCard" style="background:rgba(15,23,42,0.9); border:1px solid rgba(6,182,212,0.3); border-radius:22px; padding:28px; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-block-end:20px; border-block-end:1px solid rgba(255,255,255,0.08); padding-block-end:16px;">
+      <div>
+        <h3 id="cityRadarTitle" style="color:#fff; font-size:1.4em; font-weight:800; margin:0 0 4px 0;">🇸🇦 Riyadh — Hiring Velocity & Salary Indices</h3>
+        <span id="cityRadarSubtitle" style="color:var(--cyan); font-size:13px; font-weight:700;">8,420 Active Roles • Avg Salary: 31,500 SAR/mo</span>
+      </div>
+      <a href="/en/register" class="btn" style="background:linear-gradient(135deg, var(--cyan), #0284c7); color:#0a0a1a !important; -webkit-text-fill-color:#0a0a1a !important; padding:10px 22px; border-radius:20px; font-weight:800; text-decoration:none; font-size:13px;">
+        🚀 Auto-Apply to Open Positions in this Hub
+      </a>
+    </div>
+
+    <!-- Skills Demand Grid -->
+    <h4 style="color:#fff; font-size:15px; font-weight:800; margin:0 0 12px 0;">🎯 Highest Demand Technical Skills:</h4>
+    <div id="skillsDemandGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-block-end:24px;">
+      <!-- Generated via JS -->
+    </div>
+
+    <!-- Top Enterprises Hiring -->
+    <h4 style="color:#fff; font-size:15px; font-weight:800; margin:0 0 12px 0;">🏢 Key Enterprises Actively Hiring:</h4>
+    <div id="topCompaniesList" style="display:flex; gap:10px; flex-wrap:wrap;">
+      <!-- Generated via JS -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+const citiesDataCache = {
+  riyadh: {
+    title: "🇸🇦 Riyadh (Saudi Arabia)",
+    sub: "8,420 Active Openings • Avg Salary: 31,500 SAR/mo • Time to Offer: 18 Days",
+    skills: [
+      { skill: "Cloud Infrastructure & AWS", growth: "+42%", lvl: "Extreme" },
+      { skill: "AI Systems & Python", growth: "+65%", lvl: "Extreme" },
+      { skill: "Cybersecurity & GRC", growth: "+38%", lvl: "High" },
+      { skill: "DevOps & Kubernetes", growth: "+31%", lvl: "High" }
+    ],
+    companies: ["NEOM", "Aramco Digital", "PIF Sovereign Tech", "Tamara", "STC Solutions"]
+  },
+  dubai: {
+    title: "🇦🇪 Dubai (United Arab Emirates)",
+    sub: "11,250 Active Openings • Avg Salary: 34,800 AED/mo • Time to Offer: 14 Days",
+    skills: [
+      { skill: "Full-Stack Architecture (React/Node)", growth: "+29%", lvl: "High" },
+      { skill: "Distributed Systems & Golang", growth: "+52%", lvl: "Extreme" },
+      { skill: "AI Agents & Autonomous Workflows", growth: "+78%", lvl: "Extreme" },
+      { skill: "FinTech Compliance & Blockchain", growth: "+24%", lvl: "Moderate" }
+    ],
+    companies: ["Careem", "Tabby", "Emirates Group IT", "noon", "Dubai Future Foundation"]
+  },
+  doha: {
+    title: "🇶🇦 Doha (Qatar)",
+    sub: "3,100 Active Openings • Avg Salary: 33,000 QAR/mo • Time to Offer: 21 Days",
+    skills: [
+      { skill: "Enterprise Cloud Migration", growth: "+35%", lvl: "High" },
+      { skill: "Network Security & Zero Trust", growth: "+44%", lvl: "Extreme" },
+      { skill: "Data Engineering & Snowflake", growth: "+30%", lvl: "High" }
+    ],
+    companies: ["Qatar Airways IT", "QNB Digital", "Ooredoo", "Qatar Foundation"]
+  }
+};
+
+function switchCityRadar(cityKey, btnEl) {
+  document.querySelectorAll('.city-tab-btn').forEach(b => {
+    b.style.background = 'rgba(255,255,255,0.08)';
+    b.style.color = '#fff';
+    b.style.border = '1px solid rgba(255,255,255,0.15)';
+  });
+  if (btnEl) {
+    btnEl.style.background = 'var(--green)';
+    btnEl.style.color = '#052e16';
+    btnEl.style.border = 'none';
+  }
+
+  const d = citiesDataCache[cityKey] || citiesDataCache.riyadh;
+  document.getElementById('cityRadarTitle').textContent = d.title;
+  document.getElementById('cityRadarSubtitle').textContent = d.sub;
+
+  const sGrid = document.getElementById('skillsDemandGrid');
+  sGrid.innerHTML = '';
+  d.skills.forEach(s => {
+    const card = document.createElement('div');
+    card.style.background = 'rgba(255,255,255,0.03)';
+    card.style.border = '1px solid rgba(255,255,255,0.08)';
+    card.style.borderRadius = '12px';
+    card.style.padding = '12px 16px';
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:#fff; font-size:13px;">${s.skill}</strong>
+        <span style="background:rgba(16,185,129,0.15); color:var(--green); font-size:11px; font-weight:800; padding:2px 8px; border-radius:6px;">${s.growth}</span>
+      </div>
+      <div style="font-size:11px; color:#94a3b8; margin-block-start:4px;">Demand: <span style="color:var(--cyan); font-weight:700;">${s.lvl}</span></div>
+    `;
+    sGrid.appendChild(card);
+  });
+
+  const cList = document.getElementById('topCompaniesList');
+  cList.innerHTML = '';
+  d.companies.forEach(c => {
+    const pill = document.createElement('span');
+    pill.style.background = 'rgba(6,182,212,0.1)';
+    pill.style.border = '1px solid rgba(6,182,212,0.25)';
+    pill.style.color = 'var(--cyan)';
+    pill.style.padding = '6px 14px';
+    pill.style.borderRadius = '20px';
+    pill.style.fontSize = '12px';
+    pill.style.fontWeight = '700';
+    pill.textContent = '🏢 ' + c;
+    cList.appendChild(pill);
+  });
+}
+
+// Init with Riyadh
+switchCityRadar('riyadh', document.querySelector('.city-tab-btn'));
+</script>

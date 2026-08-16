@@ -58,6 +58,23 @@ def generate_sitemap_xml(
             priority_elem = ET.SubElement(url_elem, "priority")
             priority_elem.text = "0.7"
 
+    # Add programmatic SEO job URLs if available
+    try:
+        from core.pseo_job_farm import pseo_job_farm
+        pseo_urls = pseo_job_farm.get_programmatic_sitemap_urls()
+        for p_url in pseo_urls:
+            url_elem = ET.SubElement(urlset, "url")
+            loc_elem = ET.SubElement(url_elem, "loc")
+            loc_elem.text = p_url
+            lastmod_elem = ET.SubElement(url_elem, "lastmod")
+            lastmod_elem.text = now_iso
+            changefreq_elem = ET.SubElement(url_elem, "changefreq")
+            changefreq_elem.text = "weekly"
+            priority_elem = ET.SubElement(url_elem, "priority")
+            priority_elem.text = "0.8"
+    except Exception:
+        pass
+
     xml_declaration = '<?xml version="1.0" encoding="UTF-8"?>\n'
     raw_xml = ET.tostring(urlset, encoding="utf-8").decode("utf-8")
     return xml_declaration + raw_xml

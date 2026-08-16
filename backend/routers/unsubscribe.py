@@ -40,6 +40,17 @@ router = APIRouter(tags=["Unsubscribe & Tracking"])
 @router.get("/api/v1/unsubscribe/{token}")
 async def unsubscribe(token: str, request: Request = None) -> dict:
     """Validate signed unsubscribe token and mark user as unsubscribed — IMP-225."""
+    return await _process_unsubscribe(token)
+
+
+@router.post("/api/v1/unsubscribe/{token}")
+async def unsubscribe_post(token: str, request: Request = None) -> dict:
+    """RFC 8058 One-Click Unsubscribe POST handler for automated mail clients (Gmail/Yahoo)."""
+    return await _process_unsubscribe(token)
+
+
+async def _process_unsubscribe(token: str) -> dict:
+    """Core logic to validate unsubscribe token and persist unsubscription in DB."""
     try:
         from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
@@ -65,8 +76,8 @@ async def unsubscribe(token: str, request: Request = None) -> dict:
         except Exception as e:
             logger.warning(f"Failed to update unsubscribe in DB: {e}")
 
-        logger.info(f"[Unsubscribe] {email} unsubscribed successfully")
-        return {"status": "unsubscribed", "email": email}
+        logger.info(f"[Unsubscribe] {email} unsubscribed successfully via RFC 8058")
+        return {"status": "unsubscribed", "email": email, "rfc8058_compliant": True}
     except HTTPException:
         raise
     except Exception as e:

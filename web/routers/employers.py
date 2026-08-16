@@ -505,3 +505,41 @@ def api_b2b_recruiter_add_lead(
     except Exception as e:
         logger.error(f"[api_b2b_recruiter_add_lead] Error: {e}")
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@router.post("/api/employers/calculate-roi")
+async def calculate_agency_roi(request: Request):
+    """Calculate direct time & cost savings for GCC recruitment agencies and enterprise employers."""
+    from fastapi.responses import JSONResponse
+    try:
+        data = await request.json() if request.headers.get("content-type") == "application/json" else {}
+        if not data:
+            form = await request.form()
+            data = dict(form)
+
+        open_roles = max(1, int(data.get("open_roles", 5)))
+        hours_per_role = max(1, int(data.get("hours_per_role", 25)))
+        recruiter_hourly_rate = max(15.0, float(data.get("hourly_rate", 45.0)))
+
+        manual_monthly_cost = open_roles * hours_per_role * recruiter_hourly_rate
+        jobhunt_pro_cost = 299.0  # Enterprise Agency Tier
+        monthly_savings = max(0.0, manual_monthly_cost - jobhunt_pro_cost)
+        hours_saved = open_roles * int(hours_per_role * 0.85)
+        roi_percentage = int((monthly_savings / jobhunt_pro_cost) * 100) if jobhunt_pro_cost > 0 else 1000
+
+        return JSONResponse({
+            "success": True,
+            "open_roles": open_roles,
+            "hours_saved_monthly": hours_saved,
+            "manual_cost_usd": round(manual_monthly_cost, 2),
+            "jobhunt_cost_usd": jobhunt_pro_cost,
+            "monthly_savings_usd": round(monthly_savings, 2),
+            "annual_savings_usd": round(monthly_savings * 12, 2),
+            "roi_percentage": roi_percentage,
+            "pitch_summary_en": f"Save {hours_saved} sourcing hours and ${round(monthly_savings, 2):,} every month with JobHunt Pro Enterprise Swarm.",
+            "pitch_summary_ar": f"وفّر {hours_saved} ساعة عمل و ${round(monthly_savings, 2):,} شهرياً عبر سرب الذكاء الاصطناعي من JobHunt Pro."
+        })
+    except Exception as e:
+        logger.error(f"Error calculating ROI: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+

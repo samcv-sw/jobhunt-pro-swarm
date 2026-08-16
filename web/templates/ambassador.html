@@ -1,0 +1,136 @@
+<div class="ambassador-portal-container" style="max-inline-size:1100px; margin:30px auto; padding:0 20px; font-family:'Cairo', 'Tajawal', sans-serif;">
+
+  <!-- Header -->
+  <div style="text-align:center; margin-block-end:36px;">
+    <span style="background:rgba(245,158,11,0.15); color:var(--gold); font-size:13px; font-weight:800; padding:6px 16px; border-radius:20px; border:1px solid rgba(245,158,11,0.3);">
+      👑 برنامج السفراء والمسوقين بالعمولة العالمي
+    </span>
+    <h1 style="color:#fff; font-size:2.4em; font-weight:900; margin:14px 0 8px 0;">شارك النجاح واكسب عمولة شهرية متكررة تصل إلى 50%</h1>
+    <p style="color:#94a3b8; font-size:1.1em; max-inline-size:750px; margin:0 auto;">
+      انضم إلى شبكة سفراء JobHunt Pro واحصل على أرباح متكررة مدى الحياة مع سحب فوري عبر USDT (العملات الرقمية) أو التحويل البنكي الخليجي.
+    </p>
+  </div>
+
+  <!-- 3 Pillars Grid -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px; margin-block-end:40px;">
+    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,27,75,0.7)); border:1px solid rgba(245,158,11,0.3); border-radius:20px; padding:24px; text-align:center;">
+      <div style="font-size:36px; margin-block-end:10px;">💰</div>
+      <h3 style="color:var(--gold); font-size:18px; font-weight:800; margin:0 0 8px 0;">عمولة متكررة مدى الحياة</h3>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin:0;">
+        اكسب من 30% إلى 50% من كل تجديد شهري أو سنوي للمشتركين الذين انضموا عبر رابطك.
+      </p>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.85), rgba(6,78,59,0.7)); border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:24px; text-align:center;">
+      <div style="font-size:36px; margin-block-end:10px;">⚡</div>
+      <h3 style="color:var(--green); font-size:18px; font-weight:800; margin:0 0 8px 0;">سحب فوري ومتعدد القنوات</h3>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin:0;">
+        سحب فوري بدون تأخير عبر USDT (TRC-20, Polygon, TON)، أو تحويل بنكي محلي (SAR, AED)، أو PayPal.
+      </p>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.85), rgba(12,74,110,0.7)); border:1px solid rgba(6,182,212,0.3); border-radius:20px; padding:24px; text-align:center;">
+      <div style="font-size:36px; margin-block-end:10px;">📊</div>
+      <h3 style="color:var(--cyan); font-size:18px; font-weight:800; margin:0 0 8px 0;">لوحة تتبع حية ودقيقة</h3>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin:0;">
+        تتبع النقرات والتسجيلات والأرباح لحظة بلحظة مع مواد تسويقية وبطاقات QR جاهزة للنشر.
+      </p>
+    </div>
+  </div>
+
+  <!-- Interactive Commission Calculator & Link Generator -->
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:24px; margin-block-end:40px;">
+    
+    <!-- Calculator -->
+    <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:28px;">
+      <h3 style="color:#fff; font-size:18px; font-weight:800; margin:0 0 16px 0;">🧮 حاسبة الدخل الشهري المتوقع</h3>
+      
+      <div style="margin-block-end:20px;">
+        <div style="display:flex; justify-content:space-between; color:#cbd5e1; font-size:14px; margin-block-end:8px;">
+          <span>عدد المشتركين المحالين شهرياً:</span>
+          <strong id="refCountVal" style="color:var(--gold); font-size:16px;">50 مشترك</strong>
+        </div>
+        <input type="range" id="refSlider" min="5" max="500" value="50" step="5" oninput="calcEarnings()" style="inline-size:100%; accent-color:var(--gold);">
+      </div>
+
+      <div style="background:rgba(0,0,0,0.4); border:1px solid rgba(245,158,11,0.2); border-radius:14px; padding:18px; text-align:center;">
+        <div style="color:#94a3b8; font-size:13px; margin-block-end:4px;">الدخل الشهري التقريبي المتوقع</div>
+        <div id="monthlyEarn" style="color:var(--gold); font-size:32px; font-weight:900;">$1,225 / شهرياً</div>
+        <div id="annualEarn" style="color:var(--green); font-size:14px; font-weight:700; margin-block-start:4px;">($14,700 سنوياً متكررة)</div>
+      </div>
+    </div>
+
+    <!-- 1-Click Link & QR Generator -->
+    <div style="background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:28px;">
+      <h3 style="color:#fff; font-size:18px; font-weight:800; margin:0 0 16px 0;">🔗 إنشاء رابط الإحالة ورمز الـ QR الخاص بك</h3>
+      
+      <div style="display:flex; flex-direction:column; gap:12px; margin-block-end:16px;">
+        <input type="text" id="affiliateCodeInput" placeholder="أدخل اسمك أو كودك المفضل (مثلاً: SAM2026)..." style="padding:14px 18px; border-radius:12px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:15px;" dir="auto">
+        <button onclick="generateAffiliateLink()" style="padding:14px; border-radius:12px; font-weight:800; font-size:15px; background:linear-gradient(135deg, var(--cyan), #0284c7); color:#fff; border:none; cursor:pointer;">
+          ⚡ إنشاء رابط التسويق ورمز الـ QR
+        </button>
+      </div>
+
+      <div id="affResultBox" style="display:none; background:rgba(0,0,0,0.4); border:1px solid rgba(6,182,212,0.3); border-radius:14px; padding:16px;">
+        <div style="color:#94a3b8; font-size:12px; margin-block-end:6px;">رابطك التسويقي الحصري:</div>
+        <div id="affLinkText" style="color:var(--cyan); font-size:13px; font-weight:700; word-break:break-all; margin-block-end:10px;"></div>
+        <div style="display:flex; gap:10px;">
+          <button onclick="copyAffLink()" style="flex:1; padding:8px; border-radius:8px; background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); font-size:12px; cursor:pointer;">📋 نسخ الرابط</button>
+          <a id="affQrDownload" href="#" target="_blank" style="flex:1; padding:8px; border-radius:8px; background:rgba(245,158,11,0.2); color:var(--gold); border:1px solid rgba(245,158,11,0.4); font-size:12px; text-decoration:none; text-align:center; font-weight:700;">📱 عرض الـ QR Code</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Live Ambassador Leaderboard -->
+  <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:28px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:18px;">
+      <h3 style="color:#fff; font-size:18px; font-weight:800; margin:0;">🏆 لوحة شرف كبار السفراء (أعلى المسوقين تحقيقاً للأرباح)</h3>
+      <span style="color:var(--green); font-size:12px; font-weight:800; background:rgba(16,185,129,0.15); padding:4px 10px; border-radius:12px;">محدثة لحظياً</span>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:rgba(255,255,255,0.03); border-radius:12px; font-size:14px;">
+        <div><strong style="color:var(--gold);">👑 1. طارق ك. (الإمارات)</strong> <span style="color:#94a3b8; font-size:12px; margin-inline-start:8px;">312 مشترك نشط</span></div>
+        <div style="color:var(--gold); font-weight:800;">$4,820.00 <span style="color:#94a3b8; font-size:11px; font-weight:normal;">(USDT)</span></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:rgba(255,255,255,0.03); border-radius:12px; font-size:14px;">
+        <div><strong style="color:#38bdf8;">💎 2. ليلى م. (السعودية)</strong> <span style="color:#94a3b8; font-size:12px; margin-inline-start:8px;">245 مشترك نشط</span></div>
+        <div style="color:var(--green); font-weight:800;">$3,910.00 <span style="color:#94a3b8; font-size:11px; font-weight:normal;">(تحويل بنكي)</span></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 18px; background:rgba(255,255,255,0.03); border-radius:12px; font-size:14px;">
+        <div><strong style="color:var(--cyan);">🥇 3. كريم ح. (قطر)</strong> <span style="color:#94a3b8; font-size:12px; margin-inline-start:8px;">188 مشترك نشط</span></div>
+        <div style="color:var(--cyan); font-weight:800;">$2,740.00 <span style="color:#94a3b8; font-size:11px; font-weight:normal;">(USDT)</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function calcEarnings() {
+  const count = parseInt(document.getElementById('refSlider').value);
+  document.getElementById('refCountVal').textContent = count + ' مشترك';
+  // Average pro plan $49/mo, 50% commission = $24.5 per sub/mo
+  const monthly = count * 24.5;
+  const annual = monthly * 12;
+  document.getElementById('monthlyEarn').textContent = '$' + monthly.toLocaleString() + ' / شهرياً';
+  document.getElementById('annualEarn').textContent = '($' + annual.toLocaleString() + ' سنوياً متكررة)';
+}
+
+function generateAffiliateLink() {
+  const code = (document.getElementById('affiliateCodeInput')?.value || 'PARTNER').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const url = window.location.origin + '/?ref=' + code;
+  document.getElementById('affResultBox').style.display = 'block';
+  document.getElementById('affLinkText').textContent = url;
+  document.getElementById('affQrDownload').href = '/api/growth/qr-code?url=' + encodeURIComponent(url);
+}
+
+function copyAffLink() {
+  const text = document.getElementById('affLinkText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('تم نسخ رابط الإحالة بنجاح!');
+  }).catch(() => {});
+}
+</script>

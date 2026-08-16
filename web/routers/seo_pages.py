@@ -2,7 +2,7 @@
 Web Router for Dynamic Programmatic SEO Pages & Sitemap.
 """
 
-from fastapi import APIRouter, Response, HTTPException
+from fastapi import APIRouter, Response, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from core.autonomous_seo_generator import seo_generator
 
@@ -58,45 +58,26 @@ async def get_ar_seo_landing_page(slug: str):
 
 
 @router.get("/jobs/{slug}", response_class=HTMLResponse)
-async def get_seo_landing_page(slug: str):
-    """Serves programmatic English SEO landing page based on URL slug."""
-    if slug.startswith("ar-"):
-        return await get_ar_seo_landing_page(slug)
+async def get_seo_landing_page(slug: str, request: Request):
+    """Serves programmatic SEO landing page based on URL slug with Schema.org JSON-LD."""
+    from web.routers.pseo_web_router import get_pseo_job_page
+    
+    # Handle slug formats: role-in-city or role/city
+    if "-in-" in slug:
+        parts = slug.split("-in-")
+        role_slug = parts[0]
+        city_slug = parts[1]
+    else:
+        parts = slug.split("-")
+        if len(parts) >= 2:
+            city_slug = parts[-1]
+            role_slug = "-".join(parts[:-1])
+        else:
+            role_slug = slug
+            city_slug = "riyadh"
 
-    parts = slug.split("-")
-    if len(parts) < 2:
-        raise HTTPException(status_code=404, detail="Page not found")
-        
-    city = parts[-1].title()
-    role = " ".join(parts[:-1]).title()
+    return get_pseo_job_page(role_slug=role_slug, city_slug=city_slug, request=request)
 
-    meta = seo_generator.generate_page_metadata(role, city, lang="en")
-
-    html_content = f"""<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{meta['title']}</title>
-    <meta name="description" content="{meta['description']}">
-    <link rel="canonical" href="{meta['canonical_url']}">
-    <style>
-        body {{ font-family: 'Inter', system-ui, sans-serif; background: #0b0f19; color: #f8fafc; margin: 0; padding: 2rem; }}
-        .container {{ max-width: 900px; margin: 0 auto; text-align: center; }}
-        h1 {{ font-size: 2.5rem; color: #38bdf8; }}
-        p {{ font-size: 1.2rem; color: #94a3b8; line-height: 1.7; }}
-        .cta-btn {{ display: inline-block; background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 1.5rem; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>{meta['role']} Jobs in {meta['city']}</h1>
-        <p>Explore verified {meta['role']} job openings in {meta['city']}. Automatically tailor your resume and beat the ATS with JobHunt Pro's autonomous AI engine.</p>
-        <a href="/register" class="cta-btn">Apply Now with AI</a>
-    </div>
-</body>
-</html>"""
-    return HTMLResponse(content=html_content)
 
 
 
