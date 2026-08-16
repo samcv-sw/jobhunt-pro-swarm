@@ -184,13 +184,20 @@ async def lifespan(app: FastAPI):
         try:
             from core.telegram.bot import TelegramBot
         except Exception:
-            from core.telegram import TelegramBot
+            try:
+                from core.telegram import TelegramBot
+            except Exception:
+                TelegramBot = None
 
-            bot_instance = TelegramBot()
-            app.state.bot_instance = bot_instance
-            if bot_instance.enabled:
-                logger.info("Initializing Telegram bot...")
-                bot_instance.notifier.start()
+        if TelegramBot:
+            try:
+                bot_instance = TelegramBot()
+                app.state.bot_instance = bot_instance
+                if bot_instance.enabled:
+                    logger.info("Initializing Telegram bot...")
+                    bot_instance.notifier.start()
+            except Exception as e:
+                logger.error(f"Error initializing TelegramBot: {e}")
 
                 from . import config
 
