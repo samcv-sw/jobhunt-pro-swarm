@@ -326,16 +326,24 @@ class AegisShieldMiddleware:
 
         # ── 1.5 USER-AGENT VALIDATION ────────────────────────────────────────
         path = request.url.path
-        is_keepalive = path in ("/ping", "/healthz", "/api/ping", "/health", "/api/v1/health")
-        user_agent = request.headers.get("user-agent", "").lower()
-        is_tool_ua = (
-            not user_agent
-            or "python-requests" in user_agent
-            or "curl" in user_agent
-            or "urllib" in user_agent
-            or "bot" in user_agent
+        is_exempt_path = (
+            path in ("/ping", "/healthz", "/api/ping", "/health", "/api/v1/health")
+            or path.startswith("/webhook")
+            or path.startswith("/tma")
+            or path.startswith("/telegram")
+            or path.startswith("/api/v1/ipn")
         )
-        if is_tool_ua and client_ip not in ("127.0.0.1", "localhost", "testserver", "testclient", "unknown") and not is_keepalive:
+        user_agent = request.headers.get("user-agent", "").lower()
+        is_telegram = "telegram" in user_agent or "telegrambot" in user_agent
+        
+        is_tool_ua = (
+            (not user_agent)
+            or ("python-requests" in user_agent and not is_exempt_path)
+            or ("curl" in user_agent and not is_exempt_path)
+            or ("urllib" in user_agent and not is_exempt_path)
+            or ("bot" in user_agent and not is_telegram and not is_exempt_path)
+        )
+        if is_tool_ua and client_ip not in ("127.0.0.1", "localhost", "testserver", "testclient", "unknown") and not is_exempt_path and not is_telegram:
             logger.warning(f"[AEGIS WAF] Bad UA from {client_ip}: '{user_agent}'")
             await _reject("Forbidden", 403)
             return
