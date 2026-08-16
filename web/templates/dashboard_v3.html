@@ -663,17 +663,17 @@
   </div>
 
   <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-    {% set disc_val = pipeline_counts.discovered | default(154) %}
-    {% set app_val = pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) %}
-    {% set fol_val = pipeline_counts.followed_up | default(24) %}
-    {% set int_val = pipeline_counts.interview | default(6) %}
-    {% set off_val = pipeline_counts.offer | default(2) %}
+    {% set disc_val = pipeline_counts.discovered | default(0) %}
+    {% set app_val = pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(0))) %}
+    {% set fol_val = pipeline_counts.followed_up | default(0) %}
+    {% set int_val = pipeline_counts.interview | default(0) %}
+    {% set off_val = pipeline_counts.offer | default(0) %}
 
     {% set disc_pct = 100 %}
-    {% set app_pct = [100, ((app_val / disc_val * 100) if disc_val > 0 else 25) | round | int] | min %}
-    {% set fol_pct = [100, ((fol_val / app_val * 100) if app_val > 0 else 63) | round | int] | min %}
-    {% set int_pct = [100, ((int_val / app_val * 100) if app_val > 0 else 16) | round | int] | min %}
-    {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 5) | round | int] | min %}
+    {% set app_pct = [100, ((app_val / disc_val * 100) if disc_val > 0 else 0) | round | int] | min %}
+    {% set fol_pct = [100, ((fol_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
+    {% set int_pct = [100, ((int_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
+    {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
 
     <!-- STAGE 1: DISCOVERED -->
     <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50">
@@ -1541,11 +1541,11 @@ function initChart() {
       datasets: [{
         label: 'المرشحون',
         data: [
-          {{ pipeline_counts.discovered | default(154) }},
-          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) }},
-          {{ pipeline_counts.followed_up | default(24) }},
-          {{ pipeline_counts.interview | default(6) }},
-          {{ pipeline_counts.offer | default(2) }}
+          {{ pipeline_counts.discovered | default(0) }},
+          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(0))) }},
+          {{ pipeline_counts.followed_up | default(0) }},
+          {{ pipeline_counts.interview | default(0) }},
+          {{ pipeline_counts.offer | default(0) }}
         ],
         backgroundColor: gradient,
         borderColor: '#818cf8',
@@ -1615,11 +1615,11 @@ function switchChart(type, btn) {
       datasets: [{
         label: 'الفرص الوظيفية',
         data: [
-          {{ pipeline_counts.discovered | default(154) }},
-          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(38))) }},
-          {{ pipeline_counts.followed_up | default(24) }},
-          {{ pipeline_counts.interview | default(6) }},
-          {{ pipeline_counts.offer | default(2) }}
+          {{ pipeline_counts.discovered | default(0) }},
+          {{ pipeline_counts.applied | default(stats.companies_dispatched | default(stats.total_sent | default(0))) }},
+          {{ pipeline_counts.followed_up | default(0) }},
+          {{ pipeline_counts.interview | default(0) }},
+          {{ pipeline_counts.offer | default(0) }}
         ],
         backgroundColor: bgColor,
         borderColor: type === 'doughnut' ? 'rgba(15,23,42,0.8)' : '#818cf8',

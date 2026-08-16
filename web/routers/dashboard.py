@@ -48,19 +48,24 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
     bounced_count = get_unified_bounced_count(conn, user_id=user_id)
 
     try:
-        unapplied_cnt = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'unapplied'").fetchone()[0] or 0
+        unapplied_cnt = conn.execute("SELECT COUNT(*) FROM jobs WHERE status = 'unapplied' OR status IS NULL").fetchone()[0] or 0
     except Exception:
-        unapplied_cnt = 350
+        unapplied_cnt = 0
 
-    total_target_companies = max(companies_dispatched + unapplied_cnt + 650, 2500)
+    total_target_companies = max(companies_dispatched + unapplied_cnt, companies_dispatched)
     today_sent = total_sent
+
+    try:
+        offer_count = conn.execute("SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.status = 'offer'", (user_id,)).fetchone()[0] or 0
+    except Exception:
+        offer_count = 0
 
     pipeline_counts = {
         "discovered": total_target_companies,
         "applied": companies_dispatched,
         "followed_up": opened_count,
         "interview": interview_count,
-        "offer": responded_count,
+        "offer": offer_count,
     }
 
     from web.shared import SAM_USER_IDS
@@ -248,14 +253,6 @@ def api_live_dispatches_router(request: Request):
                 conn.execute("SELECT user_id FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_c79c498bf9314555")
-
-        # Trigger real-time autonomous application dispatch for candidate user
-        try:
-            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-            start_continuous_dispatcher()
-            dispatch_single_application(user_id=user_id)
-        except Exception as d_exc:
-            logger.debug(f"[LiveDispatches] Auto-dispatch pulse: {d_exc}")
 
         data = _get_dashboard_live_dispatches_data(conn, user_id)
         res = JSONResponse(data)
@@ -576,14 +573,6 @@ def battle_station_page(request: Request):
         conn = get_db()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         u = dict(user_row) if user_row else {}
-
-        # Trigger real-time autonomous application dispatch for candidate user
-        try:
-            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-            start_continuous_dispatcher()
-            dispatch_single_application(user_id=user_id)
-        except Exception as d_exc:
-            logger.debug(f"[BattleStation] Auto-dispatch pulse: {d_exc}")
 
         campaigns_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC", (user_id,)).fetchall()
         campaigns = [dict(r) for r in campaigns_rows] if campaigns_rows else []

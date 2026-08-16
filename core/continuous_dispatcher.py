@@ -1035,46 +1035,20 @@ def _get_active_target_pool(conn, user_id):
     return None
 
 def _evolve_candidate_engagement_telemetry(conn, user_id: str):
-    """
-    Sub-millisecond engagement simulator:
-    Gradually evolves a small percentage of older sent applications into 'opened', 'responded', or 'interview'
-    to ensure the live pipeline funnel dynamically advances in real time.
-    """
-    try:
-        # 1. Promote a sent email from >= 30 seconds ago to 'opened'
-        opened_target = conn.execute("""
-            SELECT ce.id FROM campaign_emails ce
-            JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE c.user_id = ? AND ce.status = 'sent' AND ce.opened_at IS NULL
-            AND ce.sent_at <= datetime('now', '-20 seconds')
-            ORDER BY ce.id ASC LIMIT 1
-        """, (user_id,)).fetchone()
-        
-        if opened_target and opened_target[0]:
-            conn.execute("""
-                UPDATE campaign_emails 
-                SET status = 'opened', opened_at = CURRENT_TIMESTAMP, pipeline_stage = 'followed_up'
-                WHERE id = ?
-            """, (opened_target[0],))
+    """Real engagement telemetry — preserves actual recorded user event statuses without fabricating artificial transitions."""
+    pass
 
-        # 2. Occasionally promote an opened email from >= 2 minutes ago to 'responded' / 'interview'
-        if random.random() < 0.35:
-            resp_target = conn.execute("""
-                SELECT ce.id FROM campaign_emails ce
-                JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                WHERE c.user_id = ? AND ce.status = 'opened' AND ce.responded_at IS NULL
-                AND ce.sent_at <= datetime('now', '-60 seconds')
-                ORDER BY ce.id ASC LIMIT 1
-            """, (user_id,)).fetchone()
-            
-            if resp_target and resp_target[0]:
-                conn.execute("""
-                    UPDATE campaign_emails 
-                    SET status = 'responded', responded_at = CURRENT_TIMESTAMP, pipeline_stage = 'interview'
-                    WHERE id = ?
-                """, (resp_target[0],))
-    except Exception as eng_err:
-        logger.debug(f"[Dispatcher] Engagement evolution notice: {eng_err}")
+def _continuous_dispatcher_thread_worker():
+    """Background thread worker idle daemon (strictly on-demand, no artificial loop)."""
+    logger.info("[CONTINUOUS DISPATCHER] Background Worker Ready (Real Execution Mode).")
+
+async def _continuous_dispatcher_loop():
+    """Background loop daemon (strictly on-demand, no artificial loop)."""
+    logger.info("[CONTINUOUS DISPATCHER] Async Loop Ready (Real Execution Mode).")
+
+def start_continuous_dispatcher():
+    """Initialize continuous dispatcher state in real execution mode."""
+    logger.info("[CONTINUOUS DISPATCHER] Initialized in Real & Accurate Execution Mode.")
 
 def dispatch_single_application(user_id: str = None):
     """Dispatch one verified enterprise job application for active running users and update database state."""
@@ -1246,68 +1220,3 @@ def dispatch_batch_applications(count: int = 2) -> list:
 
 _dispatcher_thread = None
 _dispatcher_thread_lock = threading.Lock()
-
-def _continuous_dispatcher_thread_worker():
-    """Continuous 24/7 background autonomous thread worker."""
-    logger.info("[CONTINUOUS DISPATCHER] Dedicated 24/7 Background Thread Worker Started.")
-    import time
-    # Kickoff initial dispatch immediately
-    try:
-        dispatch_single_application()
-    except Exception as ie:
-        logger.debug(f"[CONTINUOUS DISPATCHER] Initial kickoff: {ie}")
-
-    while True:
-        try:
-            time.sleep(2.0)
-            dispatch_batch_applications(2)
-        except Exception as err:
-            logger.warning(f"[CONTINUOUS DISPATCHER] Thread worker iteration error: {err}")
-            time.sleep(3.0)
-
-async def _continuous_dispatcher_loop():
-    """Continuous 24/7 background autonomous application dispatcher (Non-blocking background loop)."""
-    logger.info("[CONTINUOUS DISPATCHER] Background Loop Activated — Continuous Application Dispatcher Running")
-    try:
-        await asyncio.to_thread(dispatch_single_application)
-    except Exception as ie:
-        logger.debug(f"[CONTINUOUS DISPATCHER] Initial kickoff error: {ie}")
-
-    while True:
-        try:
-            await asyncio.sleep(2.0)
-            await asyncio.to_thread(dispatch_batch_applications, 2)
-        except asyncio.CancelledError:
-            logger.info("[CONTINUOUS DISPATCHER] Loop cancelled")
-            break
-        except Exception as err:
-            logger.warning(f"[CONTINUOUS DISPATCHER] Loop iteration error: {err}")
-            await asyncio.sleep(2.0)
-
-def start_continuous_dispatcher():
-    """Start the 24/7 continuous dispatcher background daemon immediately."""
-    global _dispatcher_thread, _dispatcher_task
-    
-    # 1. Start dedicated background OS thread
-    with _dispatcher_thread_lock:
-        if _dispatcher_thread is None or not _dispatcher_thread.is_alive():
-            try:
-                _dispatcher_thread = threading.Thread(
-                    target=_continuous_dispatcher_thread_worker,
-                    daemon=True,
-                    name="JobHunt-Continuous-Dispatcher"
-                )
-                _dispatcher_thread.start()
-                logger.info("[CONTINUOUS DISPATCHER] Background 24/7 daemon thread launched.")
-            except Exception as te:
-                logger.warning(f"[CONTINUOUS DISPATCHER] Could not launch background thread: {te}")
-
-    # 2. Also register in asyncio event loop if available
-    if _dispatcher_task is None or _dispatcher_task.done():
-        try:
-            loop = asyncio.get_running_loop()
-            _dispatcher_task = loop.create_task(_continuous_dispatcher_loop())
-            logger.info("[CONTINUOUS DISPATCHER] Task scheduled in running event loop.")
-        except Exception:
-            pass
-

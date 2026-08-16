@@ -4313,14 +4313,6 @@ async def get_campaigns_live_status_web(request: Request):
             )
             user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
 
-        # Trigger real-time autonomous application dispatch for candidate user
-        try:
-            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-            start_continuous_dispatcher()
-            dispatch_single_application(user_id=user_id)
-        except Exception as d_exc:
-            logger.debug(f"[CampaignsLiveStatusWeb] Auto-dispatch pulse: {d_exc}")
-
         campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()]
 
         active_count = sum(1 for c in campaigns if c.get("status") in ("running", "active", "pending"))
@@ -4894,13 +4886,6 @@ def user_dashboard(request: Request):
     user_id = get_verified_user_id(request)
     if not user_id:
         return RedirectResponse("/login", status_code=303)
-        
-    try:
-        from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-        start_continuous_dispatcher()
-        dispatch_single_application(user_id=user_id)
-    except Exception as e:
-        logger.debug(f"[UserDashboard] Auto-dispatch pulse error: {e}")
 
     conn = None
     try:
@@ -4917,15 +4902,6 @@ def user_dashboard(request: Request):
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
         actual_uid = user.get("user_id") or str(user.get("id") or user_id)
-
-        # Trigger real-time autonomous application dispatch burst for candidate user
-        try:
-            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-            start_continuous_dispatcher()
-            for _ in range(2):
-                dispatch_single_application(user_id=actual_uid)
-        except Exception as d_exc:
-            logger.debug(f"[UserDashboard] Auto-dispatch pulse: {d_exc}")
 
         profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? OR user_id = ?", (actual_uid, str(user_id))).fetchall()]
         campaigns = [dict(r) for r in conn.execute("""
@@ -7352,14 +7328,6 @@ def sent_emails_page(request: Request):
         except Exception: pass
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         user = dict(user_row) if user_row else {"user_id": user_id, "name": "Candidate"}
-
-        # Trigger real-time autonomous application dispatch for candidate user
-        try:
-            from core.continuous_dispatcher import dispatch_single_application, start_continuous_dispatcher
-            start_continuous_dispatcher()
-            dispatch_single_application(user_id=user_id)
-        except Exception as d_exc:
-            logger.debug(f"[SentEmails] Auto-dispatch pulse: {d_exc}")
 
         rows_query = """
         SELECT ce.id, ce.campaign_id, ce.company_name, ce.job_title, COALESCE(ce.job_title, 'Job Application') AS subject, 
