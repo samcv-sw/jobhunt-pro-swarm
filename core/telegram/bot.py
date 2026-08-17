@@ -5220,11 +5220,8 @@ class TelegramBot:
             code_val = custom_code.strip().upper()
         else:
             alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-            p1 = "".join(secrets.choice(alphabet) for _ in range(4))
-            p2 = "".join(secrets.choice(alphabet) for _ in range(4))
-            p3 = "".join(secrets.choice(alphabet) for _ in range(4))
-            p4 = "".join(secrets.choice(alphabet) for _ in range(4))
-            code_val = f"JHP-{p1}-{p2}-{p3}-{p4}"
+            parts = ["".join(secrets.choice(alphabet) for _ in range(4)) for _ in range(6)]
+            code_val = f"JHP-{'-'.join(parts)}"
         pa_ok = False
         conn = None
         try:
