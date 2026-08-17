@@ -2628,9 +2628,9 @@ def generate_tracking_id() -> str:
 
 def generate_redeem_code() -> str:
     import secrets
-    # 64-character 320-Bit Quantum Cryptographic base-32 charset
+    # 256-character 1280-Bit Quantum Cryptographic Master Key in 32 blocks of 8
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(8)]
+    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(32)]
     return f"JHP-{'-'.join(parts)}"
 
 
