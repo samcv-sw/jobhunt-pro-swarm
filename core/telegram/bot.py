@@ -5223,7 +5223,8 @@ class TelegramBot:
             p1 = "".join(secrets.choice(alphabet) for _ in range(4))
             p2 = "".join(secrets.choice(alphabet) for _ in range(4))
             p3 = "".join(secrets.choice(alphabet) for _ in range(4))
-            code_val = f"JHP-{p1}-{p2}-{p3}"
+            p4 = "".join(secrets.choice(alphabet) for _ in range(4))
+            code_val = f"JHP-{p1}-{p2}-{p3}-{p4}"
         pa_ok = False
         conn = None
         try:

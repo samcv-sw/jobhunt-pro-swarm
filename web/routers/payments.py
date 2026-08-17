@@ -92,12 +92,13 @@ def _check_redeem_rate_limit(user_id: str, ip_address: str) -> tuple[bool, str]:
     now = time.time()
     key = f"{user_id}:{ip_address}"
     attempts = _redeem_failed_attempts.get(key, [])
-    attempts = [t for t in attempts if now - t < 900]
+    # 30-minute rolling security inspection window
+    attempts = [t for t in attempts if now - t < 1800]
     _redeem_failed_attempts[key] = attempts
-    if len(attempts) >= 5:
-        remaining_sec = int(900 - (now - attempts[0]))
+    if len(attempts) >= 3:
+        remaining_sec = int(1800 - (now - attempts[0]))
         min_rem = max(1, remaining_sec // 60)
-        return False, f"Security Lock: Too many failed attempts. Please wait {min_rem} minute(s)."
+        return False, f"🛡️ Military Security Lock: 3 failed attempts detected. Access blocked for {min_rem} minute(s)."
     return True, ""
 
 def _record_failed_attempt(user_id: str, ip_address: str):
