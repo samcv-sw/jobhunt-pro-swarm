@@ -454,15 +454,7 @@ function applyZeroIdeaToCv(title, skills, presetKey) {
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  // Zero-Touch Zero-Click Automatic Campaign Auto-Resume on Session / Page Load
-  fetch('/api/v2/auto-applier/auto-resume', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-    .then(res => res.json())
-    .then(data => {
-      if (data && data.auto_started) {
-        console.log('⚡ Paid Campaign Zero-Touch Auto-Resumed in Background:', data);
-      }
-    })
-    .catch(err => console.debug('Zero-Touch auto-resume ping:', err));
+  // Automatic icons initialization
 
   const urlParams = new URLSearchParams(window.location.search);
   const successParam = urlParams.get('success');

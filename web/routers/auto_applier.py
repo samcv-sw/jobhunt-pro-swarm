@@ -360,17 +360,34 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
 
     u_id = (req.user_id if req and req.user_id and req.user_id != "default_user" else None) or get_verified_user_id(request)
     if not u_id or u_id == "guest":
-        try:
-            with get_db() as conn:
-                sam_row = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') LIMIT 1").fetchone()
-                u_id = sam_row[0] if sam_row else "user_1b73747a6e9a41d6"
-        except Exception:
-            u_id = "user_1b73747a6e9a41d6"
+        return {"status": "unauthorized", "message": "Authentication required."}
+
+    # ── Strict Paywall Check ──
+    ADMIN_EMAILS = {'samatou683@gmail.com', 'samsalameh.cv@gmail.com'}
+    try:
+        with get_db() as conn:
+            u_row = conn.execute("SELECT is_admin, tokens, email FROM users WHERE user_id = ?", (u_id,)).fetchone()
+            if not u_row:
+                return {"status": "blocked", "message": "User not found"}
+            is_admin = bool(u_row[0]) or (str(u_row[2] or '').lower().strip() in ADMIN_EMAILS) or (u_id == 'user_c79c498bf9314555')
+            tokens = int(u_row[1] or 0)
+            
+            if not is_admin and tokens <= 0:
+                camp_row = conn.execute(
+                    "SELECT campaign_id, sent_count, total_companies FROM campaigns WHERE user_id = ? AND status IN ('active', 'running') AND total_companies < 900000 AND sent_count < total_companies",
+                    (u_id,)
+                ).fetchone()
+                if not camp_row:
+                    logger.info(f"[AUTO-RESUME PAYWALL] User {u_id} has 0 tokens and no paid campaign. Auto-resume aborted.")
+                    return {"status": "unpaid", "message": "Payment required: No active paid campaign or tokens."}
+    except Exception as e:
+        logger.error(f"[AUTO-RESUME] User lookup error: {e}")
+        return {"status": "error", "message": "Database error"}
 
     job_id = f"auto_resume_{int(time.time())}"
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # 1. Check or create active campaign for user (auto-generate fresh campaign if old one is completed/deduped)
+    # 1. Check or create active campaign for user ONLY if authorized
     campaign_id = None
     try:
         with get_db() as conn:
@@ -381,18 +398,19 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
 
             if camp_row:
                 campaign_id = camp_row[0]
-            else:
-                # Create a fresh campaign with uncontacted target roles
-                campaign_id = f"camp_{int(time.time())}_{uuid.uuid4().hex[:6]}"
-                order_id = f"auto_{u_id[:12]}"
+            elif is_admin:
+                campaign_id = f"admin_camp_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+                order_id = f"admin_{u_id[:12]}"
                 conn.execute(
                     "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at) VALUES (?, ?, ?, 'running', 999999, 0, ?)",
                     (campaign_id, u_id, order_id, now_str)
                 )
                 conn.commit()
-                logger.info(f"[AUTO-RESUME] Launched fresh campaign '{campaign_id}' for user '{u_id}'")
+            else:
+                return {"status": "unpaid", "message": "No active paid campaign found."}
     except Exception as e:
         logger.error(f"[AUTO-RESUME] Campaign lookup/create failed: {e}")
+        return {"status": "error", "message": "Campaign initialization error"}
 
     # 2. Enqueue active campaign tasks in auto_apply_engine & save to user's application tables
     enqueued_cnt = 0
