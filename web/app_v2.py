@@ -2052,6 +2052,15 @@ def _create_billing_tables(conn):
     CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
     CREATE INDEX IF NOT EXISTS idx_purchased_services_user_id ON purchased_services(user_id);
     CREATE INDEX IF NOT EXISTS idx_purchased_services_status ON purchased_services(status);
+    CREATE TABLE IF NOT EXISTS redeem_lockouts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        ip_address TEXT,
+        locked_until DATETIME,
+        reason TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_redeem_lockouts_user_ip ON redeem_lockouts(user_id, ip_address);
     """)
 
 def _create_campaign_tables(conn):

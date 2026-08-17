@@ -88,25 +88,65 @@ def redeem_page(request: Request):
 
 _redeem_failed_attempts = {}
 
-def _check_redeem_rate_limit(user_id: str, ip_address: str) -> tuple[bool, str]:
+def _check_redeem_rate_limit(user_id: str, ip_address: str, conn=None) -> tuple[bool, str]:
     now = time.time()
+    six_months_sec = 180 * 86400  # 180 days = 6 months
     key = f"{user_id}:{ip_address}"
     attempts = _redeem_failed_attempts.get(key, [])
-    # 30-minute rolling security inspection window
-    attempts = [t for t in attempts if now - t < 1800]
+    attempts = [t for t in attempts if now - t < six_months_sec]
     _redeem_failed_attempts[key] = attempts
+
+    # 1. Database persistent lockout check
+    if conn:
+        try:
+            lock = conn.execute(
+                """SELECT locked_until FROM redeem_lockouts 
+                   WHERE (user_id = ? OR ip_address = ?) 
+                     AND locked_until > datetime('now') 
+                   ORDER BY id DESC LIMIT 1""",
+                (user_id, ip_address)
+            ).fetchone()
+            if lock:
+                return False, "🛡️ تم تجميد وحظر ميزة الاسترداد لمدة 6 أشهر بسبب تكرار 3 محاولات خاطئة (Security Lockout: 180 Days)."
+        except Exception:
+            pass
+
+    # 2. In-memory check
     if len(attempts) >= 3:
-        remaining_sec = int(1800 - (now - attempts[0]))
-        min_rem = max(1, remaining_sec // 60)
-        return False, f"🛡️ Military Security Lock: 3 failed attempts detected. Access blocked for {min_rem} minute(s)."
+        remaining_sec = int(six_months_sec - (now - attempts[0]))
+        rem_days = max(1, remaining_sec // 86400)
+        return False, f"🛡️ تم تجميد وحظر ميزة الاسترداد لمدة {rem_days} يوماً (6 أشهر) بسبب 3 محاولات خاطئة."
     return True, ""
 
-def _record_failed_attempt(user_id: str, ip_address: str):
+def _record_failed_attempt(user_id: str, ip_address: str, conn=None):
     now = time.time()
+    six_months_sec = 180 * 86400
     key = f"{user_id}:{ip_address}"
     attempts = _redeem_failed_attempts.get(key, [])
     attempts.append(now)
+    attempts = [t for t in attempts if now - t < six_months_sec]
     _redeem_failed_attempts[key] = attempts
+
+    if len(attempts) >= 3 and conn:
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS redeem_lockouts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    ip_address TEXT,
+                    locked_until DATETIME,
+                    reason TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.execute(
+                """INSERT INTO redeem_lockouts (user_id, ip_address, locked_until, reason) 
+                   VALUES (?, ?, datetime('now', '+180 days'), '3 failed redeem attempts')""",
+                (user_id, ip_address)
+            )
+            conn.commit()
+        except Exception:
+            pass
 
 
 @router.post("/redeem")
@@ -140,19 +180,30 @@ async def redeem_code(request: Request):
             return JSONResponse({"error": err_msg}, status_code=400)
         return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
 
-    allowed, rate_err = _check_redeem_rate_limit(str(user_id), client_ip)
-    if not allowed:
-        import asyncio
-        await asyncio.sleep(1.0)  # Choke bot / AI multi-threaded attack sockets
-        if is_ajax:
-            return JSONResponse({"error": rate_err}, status_code=429)
-        return RedirectResponse(f"/wallet?error={urllib.parse.quote(rate_err)}", status_code=303)
-
     with get_db() as conn:
         try:
             conn.row_factory = sqlite3.Row
         except Exception:
             pass
+
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS redeem_lockouts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT,
+                ip_address TEXT,
+                locked_until DATETIME,
+                reason TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        allowed, rate_err = _check_redeem_rate_limit(str(user_id), client_ip, conn)
+        if not allowed:
+            import asyncio
+            await asyncio.sleep(1.0)  # Choke bot / AI multi-threaded attack sockets
+            if is_ajax:
+                return JSONResponse({"error": rate_err}, status_code=429)
+            return RedirectResponse(f"/wallet?error={urllib.parse.quote(rate_err)}", status_code=303)
 
         conn.execute("""
             CREATE TABLE IF NOT EXISTS redeem_attempts (
@@ -180,7 +231,7 @@ async def redeem_code(request: Request):
                 break
 
         if not matched_row:
-            _record_failed_attempt(str(user_id), client_ip)
+            _record_failed_attempt(str(user_id), client_ip, conn)
             conn.execute(
                 "INSERT INTO redeem_attempts (user_id, ip_address, code_entered, success) VALUES (?, ?, ?, 0)",
                 (str(user_id), client_ip, clean_code[:32] + "...")
