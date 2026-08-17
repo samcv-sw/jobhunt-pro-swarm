@@ -313,16 +313,38 @@ from starlette.requests import Request
 
 
 class LanguageMiddleware(BaseHTTPMiddleware):
-    """Middleware to detect and set language from request."""
+    """Middleware to detect and set language from request based on URL, Cookies, or Browser Accept-Language header."""
 
     async def dispatch(self, request: Request, call_next):
-        lang = request.query_params.get("lang") or request.cookies.get("lang") or "ar"
-        clean_lang = lang.split('-')[0].lower()
-        if not clean_lang.isalpha() or len(clean_lang) > 10:
+        path = request.url.path
+        if path.startswith("/en/") or path == "/en":
+            lang = "en"
+        elif path.startswith("/ar/") or path == "/ar":
             lang = "ar"
+        elif path.startswith("/zh/") or path == "/zh":
+            lang = "zh"
+        else:
+            lang = request.query_params.get("lang") or request.cookies.get("jobhunt_lang") or request.cookies.get("lang")
+            if not lang:
+                # Automatic Browser & Geo Language Detection via Accept-Language header
+                accept_lang = (request.headers.get("accept-language") or "").lower()
+                if "ar" in accept_lang:
+                    lang = "ar"
+                elif "zh" in accept_lang:
+                    lang = "zh"
+                elif "en" in accept_lang:
+                    lang = "en"
+                elif "fr" in accept_lang or "de" in accept_lang or "es" in accept_lang:
+                    lang = "en"  # default international users to English
+                else:
+                    lang = "ar"  # default primary market
+
+        clean_lang = lang.split('-')[0].lower()
+        if clean_lang not in SUPPORTED_LANGUAGES and clean_lang not in ("ar", "en", "zh"):
             clean_lang = "ar"
-        request.state.lang = lang
-        request.state.locale = lang
+            lang = "ar"
+        request.state.lang = clean_lang
+        request.state.locale = clean_lang
         request.state.dir = "rtl" if clean_lang in ("ar", "fa", "ur", "he") else "ltr"
         response = await call_next(request)
         return response

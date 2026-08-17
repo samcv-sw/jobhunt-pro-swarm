@@ -894,6 +894,7 @@ def pricing(request: Request):
             request.query_params.get("lang") or
             request.cookies.get("lang") or
             request.cookies.get("jobhunt_lang") or
+            getattr(request.state, "lang", None) or
             "ar"
         )
         clean_lang = str(req_lang).split("-")[0].lower()
