@@ -924,18 +924,48 @@ def pricing(request: Request):
 @router.get("/referral", response_class=HTMLResponse)
 def referral_page(request: Request, ref: str = ""):
     get_db, get_verified_user_id, templates, config, _, _, _public_shell, render_template = _deps()
+    conn = None
     try:
         user_id = get_verified_user_id(request)
+        user_stats = {}
+        referral_link = ""
+        referral_code = ref or ""
+        
         if user_id:
-            return RedirectResponse("/dashboard", status_code=303)
-        content = render_template("referral.html", request=request, ref_code=ref)
-        html = _public_shell(content, "You are invited to JobHunt Pro!", request=request)
+            try:
+                from core.referral_engine import get_user_referral_stats
+                user_stats = get_user_referral_stats(user_id)
+                referral_code = user_stats.get("referral_code", user_id[:8])
+                base_url = str(request.base_url).rstrip("/")
+                referral_link = f"{base_url}/register?ref={referral_code}"
+                user_stats["referral_link"] = referral_link
+            except Exception as _ref_err:
+                logger.debug(f"Referral stats load skip: {_ref_err}")
+                base_url = str(request.base_url).rstrip("/")
+                referral_link = f"{base_url}/register?ref={user_id[:8]}"
+                user_stats = {"referral_code": user_id[:8], "referral_link": referral_link, "total_referred": 0, "total_earned": 0}
+
+        content = render_template(
+            "referral.html", 
+            request=request, 
+            ref_code=referral_code,
+            user_id=user_id,
+            user_stats=user_stats,
+            referral_link=referral_link,
+            VERSION=config.VERSION
+        )
+        page_title = "برنامج الإحالة والمكافآت | JobHunt Pro" if user_id else "أنت مدعو إلى JobHunt Pro!"
+        html = _public_shell(content, page_title, request=request)
         response = HTMLResponse(content=html)
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         return response
     except Exception as e:
         logger.error(f"Error rendering referral landing: {e}", exc_info=True)
         return RedirectResponse("/register", status_code=303)
+    finally:
+        if conn is not None:
+            try: conn.close()
+            except Exception: pass
 
 @router.get("/faq", response_class=HTMLResponse)
 def faq_page(request: Request):

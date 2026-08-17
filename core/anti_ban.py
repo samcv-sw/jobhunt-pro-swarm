@@ -191,9 +191,9 @@ class AntiBanProtection:
 
         # 1. Check strict permanent company blocklist & in-memory blacklist
         comp_lower = (company or "").lower().strip()
-        blocked_keywords = ["idm lebanon", "idm", "inconet data management", "inconet"]
+        blocked_keywords = ["idm lebanon", "idm", "inconet data management", "inconet", "idm.net.lb", "idm.com.lb", "internet diamond"]
         if any(kw in comp_lower for kw in blocked_keywords):
-            logger.warning(f"🚫 SYSTEM BLOCKLIST: Company '{company}' is permanently blocked by user directive.")
+            logger.warning(f"🚫 SYSTEM BLOCKLIST: Company '{company}' (IDM Lebanon) is permanently blocked by user directive.")
             return False, f"Company '{company}' (IDM Lebanon) is permanently blacklisted across all users."
 
         if user_key in self.suspicious_companies or company_key in self.suspicious_companies:

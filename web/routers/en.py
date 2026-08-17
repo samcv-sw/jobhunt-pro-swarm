@@ -255,10 +255,28 @@ def en_services(request: Request):
 def en_referral(request: Request, ref: str = ""):
     _, get_verified_user_id, templates, config = _deps()
     user_id = get_verified_user_id(request)
+    user_stats = {}
+    referral_link = ""
+    referral_code = ref or ""
+    
     if user_id:
-        return RedirectResponse("/dashboard", status_code=303)
+        try:
+            from core.referral_engine import get_user_referral_stats
+            user_stats = get_user_referral_stats(user_id)
+            referral_code = user_stats.get("referral_code", user_id[:8])
+            base_url = str(request.base_url).rstrip("/")
+            referral_link = f"{base_url}/en/register?ref={referral_code}"
+            user_stats["referral_link"] = referral_link
+        except Exception:
+            base_url = str(request.base_url).rstrip("/")
+            referral_link = f"{base_url}/en/register?ref={user_id[:8]}"
+            user_stats = {"referral_code": user_id[:8], "referral_link": referral_link, "total_referred": 0, "total_earned": 0}
+
     return templates.TemplateResponse(request, "en/referral.html", {
-        "ref_code": ref,
+        "ref_code": referral_code,
+        "user_id": user_id,
+        "user_stats": user_stats,
+        "referral_link": referral_link,
         "VERSION": config.VERSION,
     })
 

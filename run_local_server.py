@@ -32,18 +32,46 @@ def _free_port(port=8000):
     if sys.platform == "win32":
         try:
             import subprocess
-            cmd = (
-                f'powershell -NoProfile -NonInteractive -Command "'
-                f'Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | '
-                f'Select-Object -ExpandProperty OwningProcess | Select-Object -Unique | '
-                f'ForEach-Object {{ Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }}; '
-                f'Remove-Item -Path \\"$env:TEMP\\jobhunt_*.lock\\" -Force -ErrorAction SilentlyContinue'
-                f'"'
+            # Method 1: Pure netstat + taskkill (100% reliable across all Windows builds)
+            res = subprocess.run(
+                f'netstat -ano | findstr /r /c:":{port} .*LISTENING"',
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=3
             )
-            subprocess.run(cmd, shell=True, capture_output=True, timeout=5)
-            time.sleep(0.4)
+            for line in res.stdout.strip().splitlines():
+                parts = line.strip().split()
+                if len(parts) >= 5:
+                    pid = parts[-1]
+                    if pid.isdigit() and int(pid) > 0 and int(pid) != os.getpid():
+                        subprocess.run(f"taskkill /f /pid {pid}", shell=True, capture_output=True, timeout=3)
         except Exception:
             pass
+        try:
+            # Clean temporary stale locks
+            import tempfile, glob
+            for lock_f in glob.glob(os.path.join(tempfile.gettempdir(), "jobhunt_*.lock")):
+                try: os.remove(lock_f)
+                except Exception: pass
+        except Exception:
+            pass
+
+
+def _optimize_sqlite_engine():
+    """Configures high-speed WAL mode, memory temp store, and 64MB cache for SQLite."""
+    try:
+        import sqlite3
+        db_path = os.path.join(ROOT_DIR, "data", "jobhunt_saas_v2.db")
+        if os.path.exists(db_path):
+            with sqlite3.connect(db_path, timeout=5.0) as conn:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute("PRAGMA synchronous=NORMAL;")
+                conn.execute("PRAGMA cache_size=-64000;")
+                conn.execute("PRAGMA temp_store=MEMORY;")
+                conn.execute("PRAGMA mmap_size=268435456;") # 256MB memory map
+    except Exception:
+        pass
 
 
 def _open_browser_when_ready(port=8000):
@@ -52,12 +80,13 @@ def _open_browser_when_ready(port=8000):
         time.sleep(0.3)
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=0.5):
-                time.sleep(0.5)
+                time.sleep(0.4)
                 webbrowser.open_new_tab(f"http://127.0.0.1:{port}/user-dashboard")
-                time.sleep(0.3)
-                webbrowser.open_new_tab(f"http://127.0.0.1:{port}/free-ats-score")
+                time.sleep(0.2)
+                webbrowser.open_new_tab(f"http://127.0.0.1:{port}/battle-station")
                 return
         except Exception:
+            continue
             continue
 
 
@@ -66,7 +95,7 @@ def main():
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on (default: 8000)")
     parser.add_argument("--reload", action="store_true", help="Enable hot reload on code changes")
     parser.add_argument("--no-browser", action="store_true", help="Do not automatically launch browser tabs")
-    parser.add_argument("--log-level", type=str, default="warning", choices=["debug", "info", "warning", "error"], help="Uvicorn logging level")
+    parser.add_argument("--log-level", type=str, default="info", choices=["debug", "info", "warning", "error"], help="Uvicorn logging level")
     args = parser.parse_args()
 
     # Pre-flight: Ensure target port is completely clear of stale processes
@@ -74,6 +103,14 @@ def main():
 
     data_dir = os.path.join(ROOT_DIR, "data")
     os.makedirs(data_dir, exist_ok=True)
+    _optimize_sqlite_engine()
+
+    # Launch Turbo Autonomous Background Dispatcher Thread
+    try:
+        from core.continuous_dispatcher import start_continuous_dispatcher
+        start_continuous_dispatcher()
+    except Exception as _t_err:
+        pass
 
     mode_label = "🔥 HOT RELOAD (DEVELOPMENT)" if args.reload else "⚡ HIGH-PERFORMANCE (PRODUCTION)"
 

@@ -188,10 +188,11 @@ async def tma_ats_roast(request: Request):
     )
     referral_code = f"TMA-REF-{int(time.time()) % 100000}"
 
+    tg_bot = os.getenv("TELEGRAM_BOT_USERNAME", "cvbots_bot")
     return {
         "score": roast_score,
         "verdict": "🔥 High Potential • ATS Ready",
         "feedback": roast_feedback,
-        "referral_link": f"https://t.me/JobHuntProBot?start={referral_code}",
+        "referral_link": f"https://t.me/{tg_bot}?start={referral_code}",
         "viral_incentive": "Invite 3 friends to get 50 Free AI Auto-Applies!",
     }

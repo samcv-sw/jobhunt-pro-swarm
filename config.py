@@ -27,7 +27,8 @@ IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHER
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Alex Johnson")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
 CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "candidate.demo@example.com")
-SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jobhuntpro.app")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jhpro.eu.org")
+APP_BASE_URL = os.getenv("APP_BASE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Secret key — Fallback provided for cloud deployment
@@ -180,9 +181,10 @@ PA_API_TOKEN = os.getenv("PA_API_TOKEN", "")
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
 BREVO_ACCOUNT_EMAIL = os.getenv("BREVO_ACCOUNT_EMAIL", "")
 JSEARCH_API_KEY = os.getenv("JSEARCH_API_KEY", "")
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
-SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8679211757:AAF_6HZaYRaVG-kCshDe9yqV9o_zL1nFhik")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "6639482672")
+TELEGRAM_BOT_USERNAME = os.getenv("TELEGRAM_BOT_USERNAME", "cvbots_bot")
+SITE_URL = os.getenv("SITE_URL", "https://jhfguf.pythonanywhere.com")
 NOWPAYMENTS_API_KEY = os.getenv("NOWPAYMENTS_API_KEY", "")
 NOWPAYMENTS_IPN_SECRET = os.getenv("NOWPAYMENTS_IPN_SECRET", "")
 NOWPAYMENTS_PUBLIC_KEY = os.getenv("NOWPAYMENTS_PUBLIC_KEY", "")

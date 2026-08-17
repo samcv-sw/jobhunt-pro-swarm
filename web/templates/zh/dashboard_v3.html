@@ -984,11 +984,11 @@
 
                     if (window.pipelineChart && window.pipelineChart.data && window.pipelineChart.data.datasets && window.pipelineChart.data.datasets[0]) {
                         window.pipelineChart.data.datasets[0].data = [
-                            p.discovered || 154,
-                            p.applied || data.companies_dispatched || 42,
-                            p.followed_up || 24,
-                            p.interview || 6,
-                            p.offer || 2
+                            p.discovered || 0,
+                            p.applied || data.companies_dispatched || 0,
+                            p.followed_up || 0,
+                            p.interview || 0,
+                            p.offer || 0
                         ];
                         window.pipelineChart.update('none');
                     }

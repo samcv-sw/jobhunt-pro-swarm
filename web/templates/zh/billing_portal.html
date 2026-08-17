@@ -3,109 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JobHunt Pro - Billing & Monetization Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>JobHunt Pro - 账单与订阅中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
     <style>
         :root {
             --bg: #090b10;
             --card-bg: #111520;
             --gold: #ffd700;
             --green: #00e676;
+            --cyan: #00f0ff;
+            --magenta: #ff007f;
             --text: #f0f4f8;
             --muted: #8899ac;
             --border: #1d2638;
         }
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 2rem;
-            direction: rtl;
+            padding: 2rem 1rem;
+            direction: ltr;
         }
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
+            max-inline-size: 1200px;
+            margin-inline: auto;
         }
         .header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-block-end: 2.5rem;
         }
         .header h1 {
             color: var(--gold);
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-block-end: 0.5rem;
+            background: linear-gradient(135deg, #00f0ff 0%, #ffd700 50%, #00e676 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            margin: 0;
         }
         .plans-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
         }
         .plan-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 2rem;
+            padding: 1.8rem 1.4rem;
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 240, 255, 0.4);
         }
         .plan-card.featured {
             border-color: var(--gold);
+            box-shadow: 0 10px 35px rgba(255, 215, 0, 0.15);
+        }
+        .plan-card.enterprise {
+            border-color: var(--magenta);
+            box-shadow: 0 10px 35px rgba(255, 0, 127, 0.15);
+        }
+        .badge {
+            position: absolute;
+            inset-block-start: -12px;
+            inset-inline-start: 18px;
+            background: var(--gold);
+            color: #000;
+            padding: 3px 12px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        .badge.enterprise-badge {
+            background: var(--magenta);
+            color: #fff;
+        }
+        .plan-card h2 {
+            font-size: 1.35rem;
+            margin-block-start: 0.5rem;
+            margin-block-end: 0.2rem;
+            color: #fff;
+        }
+        .plan-sub {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-block-end: 1rem;
         }
         .price {
-            font-size: 2.5rem;
-            font-weight: 800;
+            font-size: 2.2rem;
+            font-weight: 900;
             color: var(--green);
-            margin: 1rem 0;
+            margin-block: 0.5rem 1rem;
+        }
+        .price-type {
+            font-size: 0.88rem;
+            color: var(--muted);
+            font-weight: 400;
+        }
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.5rem 0;
+            line-height: 1.8;
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            flex-grow: 1;
+        }
+        .features-list li {
+            position: relative;
+            padding-inline-start: 22px;
+            margin-block-end: 0.4rem;
+        }
+        .features-list li::before {
+            content: '✓';
+            position: absolute;
+            inset-inline-start: 0;
+            color: var(--green);
+            font-weight: 800;
         }
         .btn-buy {
-            background: linear-gradient(135deg, #ffd700, #ff9800);
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            background: linear-gradient(135deg, #00f0ff, #00e676);
             color: #000;
-            font-weight: 800;
+            font-weight: 900;
             border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            width: 100%;
+            padding: 0.85rem 1.2rem;
+            border-radius: 10px;
+            inline-size: 100%;
             cursor: pointer;
-            font-size: 1.1rem;
-            font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;
+            font-size: 1.05rem;
+            font-family: inherit;
+            transition: opacity 0.2s ease, transform 0.1s ease;
         }
         .btn-buy:hover {
-            opacity: 0.9;
+            opacity: 0.92;
+            transform: scale(1.01);
+        }
+        .btn-buy.featured-btn {
+            background: linear-gradient(135deg, #ffd700, #ff9800);
+        }
+        .btn-buy.enterprise-btn {
+            background: linear-gradient(135deg, #ff007f, #7000ff);
+            color: #fff;
+        }
+        .footer-note {
+            text-align: center;
+            margin-block-start: 2.5rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        .footer-note a {
+            color: var(--cyan);
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>💳 بوابة الدفع والاشتراكات الذاتية</h1>
-            <p style="color: var(--muted)">اختر باقة الاشتراك المناسبة لإطلاق أتمتة البحث عن عمل بكامل القوة</p>
+            <h1>💳 JobHunt Pro 官方统一套餐</h1>
+            <p>选择最适合您的 AI 自动求职方案 — 支持银行卡与加密货币安全结算</p>
         </div>
 
         <div class="plans-grid">
+            <!-- Tier 1: Starter -->
             <div class="plan-card">
-                <h2>Pro Automation</h2>
-                <div class="price">$29 <span style="font-size: 1rem; color: var(--muted)">/ شهر</span></div>
-                <ul style="line-height: 2;">
-                    <li>100 تقديم تلقائي يومياً</li>
-                    <li>تحسين السيرة الذاتية بالذكاء الاصطناعي</li>
-                    <li>إشعارات تلقائية عبر تلغرام</li>
+                <h2>Starter</h2>
+                <div class="plan-sub">25 家目标企业 — 快速开启投递</div>
+                <div class="price">$9 <span class="price-type">/ 单次活动</span></div>
+                <ul class="features-list">
+                    <li>投递 25 家精选企业</li>
+                    <li>AI 定制求职信 (Cover Letter)</li>
+                    <li>实时 MX 邮箱有效性验证</li>
+                    <li>基础邮件追踪</li>
+                    <li>社区即时支持</li>
                 </ul>
-                <button class="btn-buy" style="background: #1e293b; color: #fff;">اشتراك الآن</button>
+                <a href="/checkout?tier=starter" class="btn-buy">立即开始 – $9</a>
             </div>
 
+            <!-- Tier 2: Basic -->
             <div class="plan-card featured">
-                <span style="position: absolute; top: -12px; inset-inline-start: 20px; background: var(--gold); color: #000; padding: 2px 12px; border-radius: 10px; font-weight: 800; font-size: 0.85rem;">الأكثر شعبية</span>
-                <h2>God-Mode Empire</h2>
-                <div class="price">$99 <span style="font-size: 1rem; color: var(--muted)">/ شهر</span></div>
-                <ul style="line-height: 2;">
-                    <li>تقديم غير محدود للوظائف</li>
-                    <li>المقابلات الصوتية الذكية Voice AI</li>
-                    <li>إضافة كروم Auto-Applier V2</li>
-                    <li>شبكة جلب العملاء Lead Swarm</li>
+                <span class="badge">最受欢迎 ⭐</span>
+                <h2>Basic</h2>
+                <div class="plan-sub">100 家目标企业 — 适合积极求职者</div>
+                <div class="price">$19 <span class="price-type">/ 单次活动</span></div>
+                <ul class="features-list">
+                    <li>投递 100 家精选企业</li>
+                    <li>全方位 CV 与求职信定制优化</li>
+                    <li>邮件打开与点击率实时追踪</li>
+                    <li>自动化跟进 (7天与14天 Follow-up)</li>
+                    <li>实时转化率分析看板</li>
+                    <li>专属邮件支持</li>
                 </ul>
-                <button class="btn-buy">اشتراك الفوري 🔥</button>
+                <a href="/checkout?tier=basic" class="btn-buy featured-btn">选择 Basic – $19</a>
             </div>
+
+            <!-- Tier 3: Pro -->
+            <div class="plan-card">
+                <h2>Pro</h2>
+                <div class="plan-sub">500 家目标企业 — 全面覆盖海湾地区</div>
+                <div class="price">$49 <span class="price-type">/ 单次活动</span></div>
+                <ul class="features-list">
+                    <li>投递 500 家精选企业</li>
+                    <li>200 个 AI Agent 协同运作</li>
+                    <li>多邮箱通道分流调度 (0% 退信 SLA)</li>
+                    <li>投递前深度企业背调</li>
+                    <li>高级分析看板与实时提醒</li>
+                    <li>最高优先级技术支持</li>
+                </ul>
+                <a href="/checkout?tier=pro" class="btn-buy">选择 Pro – $49</a>
+            </div>
+
+            <!-- Tier 4: Enterprise / B2B SDR Swarm -->
+            <div class="plan-card enterprise">
+                <span class="badge enterprise-badge">B2B & 企业级</span>
+                <h2>Enterprise SDR</h2>
+                <div class="plan-sub">2,500 线索 — 猎头与招聘机构首选</div>
+                <div class="price">$149 <span class="price-type">/ 每月</span></div>
+                <ul class="features-list">
+                    <li>2,500 决策者自动化 AI SDR 触达</li>
+                    <li>实时 MX 校验与 365 天防重复机制</li>
+                    <li>完整 CRM 对接与实时 Webhooks</li>
+                    <li>专属 AI 模型定制训练</li>
+                    <li>专属客户经理 + SLA 服务保障</li>
+                    <li>全功能 REST API 权限</li>
+                </ul>
+                <a href="/checkout?tier=enterprise" class="btn-buy enterprise-btn">企业版 – $149/月</a>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <p>所有支付均经过 100% 加密与安全认证。需要定制需求？ <a href="/contact">联系支持团队</a></p>
         </div>
     </div>
 </body>

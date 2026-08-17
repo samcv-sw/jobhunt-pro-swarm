@@ -1050,7 +1050,7 @@ def api_campaigns_live_status(request: Request):
         return res
     except Exception as e:
         logger.error(f"[api_campaigns_live_status] Error: {e}")
-        return JSONResponse({"status": "error", "error": str(e), "total_sent": 414, "total_companies": 612, "campaigns": [], "recent_emails": []})
+        return JSONResponse({"status": "error", "error": str(e), "total_sent": 0, "total_companies": 0, "campaigns": [], "recent_emails": []})
     finally:
         if conn is not None:
             try: conn.close()

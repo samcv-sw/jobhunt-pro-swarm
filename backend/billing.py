@@ -11,11 +11,11 @@ from backend.limiter import rate_limiter
 router = APIRouter()
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
-APP_BASE_URL = os.environ.get("APP_BASE_URL", "https://jobhuntpro.com").rstrip("/")
+APP_BASE_URL = os.environ.get("APP_BASE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 
 class CheckoutRequest(BaseModel):
-    tier: str  # e.g., 'pro', 'enterprise'
+    tier: str  # 'starter', 'basic', 'pro', 'enterprise'
     user_id: str
 
 
@@ -25,11 +25,17 @@ async def create_checkout_session(request: CheckoutRequest, payload: dict = Depe
     if not user_id:
         raise HTTPException(status_code=401, detail="User ID not found in token")
 
-    tier_prices = {"pro": "price_pro_mock_id", "enterprise": "price_ent_mock_id"}
+    tier_prices = {
+        "starter": os.environ.get("STRIPE_PRICE_STARTER", "price_starter_mock_id"),
+        "basic": os.environ.get("STRIPE_PRICE_BASIC", "price_basic_mock_id"),
+        "pro": os.environ.get("STRIPE_PRICE_PRO", "price_pro_mock_id"),
+        "enterprise": os.environ.get("STRIPE_PRICE_ENTERPRISE", "price_ent_mock_id"),
+    }
 
-    price_id = tier_prices.get(request.tier.lower())
+    tier_key = request.tier.lower().strip()
+    price_id = tier_prices.get(tier_key)
     if not price_id:
-        raise HTTPException(status_code=400, detail="Invalid subscription tier")
+        raise HTTPException(status_code=400, detail="Invalid subscription or campaign tier")
 
     if not stripe.api_key:
         is_production = os.environ.get("ENV") == "production"
@@ -37,6 +43,8 @@ async def create_checkout_session(request: CheckoutRequest, payload: dict = Depe
             raise HTTPException(status_code=500, detail="Payment processing is not configured.")
         # Dev-only mock fallback (no real key, not production)
         return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={user_id}"}
+
+    checkout_mode = "subscription" if tier_key == "enterprise" else "payment"
 
     try:
         session = await asyncio.to_thread(
@@ -48,7 +56,7 @@ async def create_checkout_session(request: CheckoutRequest, payload: dict = Depe
                     "quantity": 1,
                 }
             ],
-            mode="subscription",
+            mode=checkout_mode,
             success_url=f"{APP_BASE_URL}/dashboard?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{APP_BASE_URL}/dashboard",
             client_reference_id=user_id,

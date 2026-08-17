@@ -1,5 +1,5 @@
 database is locked
 Traceback (most recent call last):
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1070, in run_campaign
-    conn.execute(
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1151, in run_campaign
+    except Exception as kq_err:
 sqlite3.OperationalError: database is locked

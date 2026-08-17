@@ -107,7 +107,7 @@ def create_ton_crypto_invoice(req: TonInvoiceRequest):
         "amount_ton": plan["price_ton"],
         "recipient_wallet": recipient_address,
         "ton_transfer_url": f"ton://transfer/{recipient_address}?amount={int(plan['price_ton'] * 1e9)}&text={invoice_id}",
-        "telegram_pay_link": f"https://t.me/JobHuntProBot?start=pay_{invoice_id}",
+        "telegram_pay_link": f"https://t.me/{os.getenv('TELEGRAM_BOT_USERNAME', 'cvbots_bot')}?start=pay_{invoice_id}",
         "expires_in_seconds": 900
     }
 
@@ -158,11 +158,12 @@ def get_referral_link(user_id: str):
 def get_landing_ab_variant(user_ip: Optional[str] = "127.0.0.1"):
     """Returns dynamic A/B landing page variant to maximize conversion."""
     variant_id = "variant_hero_ai" if hash(user_ip) % 2 == 0 else "variant_hero_ats"
+    tg_bot = os.getenv("TELEGRAM_BOT_USERNAME", "cvbots_bot")
     return {
         "variant_id": variant_id,
         "headline": "Land 3.2x More Interviews with 200+ Autonomous AI Agents" if variant_id == "variant_hero_ai" else "1-Click ATS Resume Matcher & Automated Job Finder",
         "cta_text": "Claim Your Free Trial Ticket on Telegram",
-        "telegram_link": "https://t.me/JobHuntProBot/app"
+        "telegram_link": f"https://t.me/{tg_bot}/app"
     }
 
 @router.get("/plans/crypto")

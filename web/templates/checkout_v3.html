@@ -911,11 +911,17 @@ async function selectGCCMethod(method, countryCode) {
     if (data.checkout_url) {
       window.location.href = data.checkout_url;
     } else {
-      alert('بوابة ' + method.toUpperCase() + ' قيد التجهيز للسداد الفوري.');
+      // Fallback seamlessly to direct card / Apple Pay / Mada processor
+      var cardBtn = document.querySelector('.btn-primary-checkout') || document.getElementById('payCardBtn');
+      if (cardBtn) {
+        cardBtn.click();
+      } else {
+        window.location.href = '/checkout?tier={{ order.package_name or "pro" }}&method=' + encodeURIComponent(method);
+      }
     }
   } catch (err) {
     console.error('GCC checkout error:', err);
-    alert('حدث خطأ أثناء إنشاء جلسة الدفع الخليجي.');
+    window.location.href = '/checkout?tier={{ order.package_name or "pro" }}';
   }
 }
 

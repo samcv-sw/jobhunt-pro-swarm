@@ -333,13 +333,7 @@ CURATED_CONTACTS: list[dict] = [
         "title": "Senior Network Engineer",
         "location": "Remote",
     },
-    # ISPs & ISPs in Lebanon
-    {
-        "company": "IDM (Internet Diamond)",
-        "email": "hr@idm.net.lb",
-        "title": "Network Engineer",
-        "location": "Beirut, Lebanon",
-    },
+
     {
         "company": "Cyberia",
         "email": "careers@cyberia.net.lb",
@@ -421,12 +415,7 @@ CURATED_CONTACTS: list[dict] = [
         "title": "IT Engineer",
         "location": "Beirut, Lebanon",
     },
-    {
-        "company": "IDM Lebanon",
-        "email": "hr@idm.net.lb",
-        "title": "Network Engineer",
-        "location": "Beirut, Lebanon",
-    },
+
     {
         "company": "Cyberia Lebanon",
         "email": "careers@cyberia.net.lb",

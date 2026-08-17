@@ -15,6 +15,7 @@ cd /d "!ROOT_DIR!"
 REM 1. Initialize High-Performance Environment Variables and Directories
 set "PYTHONPATH=!ROOT_DIR!"
 set "FORCE_SQLITE=1"
+set "PYTHONOPTIMIZE=1"
 set "PYTHONUNBUFFERED=1"
 set "PYTHONIOENCODING=utf-8"
 set "PYTHONUTF8=1"
@@ -31,11 +32,11 @@ if not exist "!ROOT_DIR!\.env" (
     )
 )
 
-REM 2. Clean any stale processes holding port 8000 safely & purge old locks
-powershell -NoProfile -NonInteractive -Command "Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Select-Object -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Remove-Item -Path \"$env:TEMP\jobhunt_*.lock\" -Force -ErrorAction SilentlyContinue" >nul 2>nul
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr /c:":8000 " ^| findstr /i "LISTENING" 2^>nul') do (
-    taskkill /f /pid %%a >nul 2>nul
+REM 2. Clean any stale processes holding port 8000 safely & purge old locks using 100% Native Windows Commands
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>nul') do (
+    if "%%a" neq "0" taskkill /f /pid %%a >nul 2>nul
 )
+del /f /q "%TEMP%\jobhunt_*.lock" >nul 2>nul
 
 REM 3. Detect Optimal Python interpreter (Priority: Local .venv -> Local .venv2 -> AppData Python312 -> Global PATH)
 set "PY_EXE="
@@ -101,7 +102,7 @@ echo   [*] Deliverability  : 100%% Live MX and 365-Day Cooldown Guard (Active)
 echo   [*] Latency Profile : Sub-Millisecond In-Memory Fast Cache
 echo ================================================================================
 echo.
-echo   [1] Launch Sovereign Engine (Production / Fast Background - Auto in 4s)
+echo   [1] Launch Sovereign Engine (Production / Ultra-Fast - Auto in 3s)
 echo   [2] Launch Engine in Live Dev / Hot-Reload Mode (--reload)
 echo   [3] Run Viral GTM Swarm Pre-Flight Audit and Lead Magnet Check
 echo   [4] Export Captured Leads to CSV / Excel Report
@@ -113,7 +114,7 @@ echo   [9] Purge Cache and Clear Stale Temporary Locks
 echo   [0] Exit
 echo.
 echo ================================================================================
-choice /c 1234567890 /t 4 /d 1 /m "Select option (Auto-starts in 4s):"
+choice /c 1234567890 /t 3 /d 1 /m "Select option (Auto-starts in 3s):"
 set "OPT=!ERRORLEVEL!"
 
 if "!OPT!"=="1" goto :ACTION_LAUNCH_PROD
@@ -140,7 +141,9 @@ echo   [*] Battle Station  : http://127.0.0.1:8000/battle-station
 echo   [*] Interactive Docs: http://127.0.0.1:8000/docs
 echo ================================================================================
 echo.
-powershell -NoProfile -NonInteractive -Command "Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Select-Object -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }" >nul 2>nul
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>nul') do (
+    if "%%a" neq "0" taskkill /f /pid %%a >nul 2>nul
+)
 "!PY_EXE!" "!ROOT_DIR!\run_local_server.py"
 if errorlevel 1 (
     echo.
@@ -161,7 +164,9 @@ echo   [*] User Dashboard  : http://127.0.0.1:8000/user-dashboard
 echo   [*] Live Reload     : ENABLED (Auto-reloads on file edits)
 echo ================================================================================
 echo.
-powershell -NoProfile -NonInteractive -Command "Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Select-Object -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }" >nul 2>nul
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>nul') do (
+    if "%%a" neq "0" taskkill /f /pid %%a >nul 2>nul
+)
 "!PY_EXE!" "!ROOT_DIR!\run_local_server.py" --reload --log-level info
 if errorlevel 1 (
     echo.
@@ -252,7 +257,10 @@ echo ===========================================================================
 echo   PURGING CACHE AND TEMPORARY LOCK FILES
 echo ================================================================================
 echo.
-powershell -NoProfile -NonInteractive -Command "Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess | Select-Object -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Remove-Item -Path \"$env:TEMP\jobhunt_*.lock\" -Force -ErrorAction SilentlyContinue" >nul 2>nul
+for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>nul') do (
+    if "%%a" neq "0" taskkill /f /pid %%a >nul 2>nul
+)
+del /f /q "%TEMP%\jobhunt_*.lock" >nul 2>nul
 "!PY_EXE!" "!ROOT_DIR!\scripts\clean_project_cache.py"
 echo.
 echo Press any key to return to menu...
