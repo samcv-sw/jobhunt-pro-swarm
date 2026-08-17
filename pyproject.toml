@@ -21,7 +21,7 @@ select = ["E", "F"]
 name = "jobhunt-pro"
 version = "0.1.0"
 description = "JobHunt Pro Enterprise SaaS Engine"
-authors = ["Sam Salameh <samsalameh.cv@gmail.com>"]
+authors = ["JobHunt Pro Global Technologies <support@jobhunt-pro.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.12"

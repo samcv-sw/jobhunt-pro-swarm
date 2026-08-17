@@ -165,11 +165,13 @@ def get_db(max_retries: int = 4):
                 if is_pa:
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=30000")
+                    conn.execute("PRAGMA busy_timeout=60000")
+                    conn.execute("PRAGMA read_uncommitted=1")
                 else:
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=30000")
+                    conn.execute("PRAGMA busy_timeout=60000")
+                    conn.execute("PRAGMA read_uncommitted=1")
             except Exception:
                 pass
             return conn
@@ -200,13 +202,15 @@ def get_verified_user_id(request: Request):
         pass
     return None
 
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")
 
 def is_admin_email(email: str) -> bool:
     if not email:
         return False
     e = email.strip().lower()
-    admins = {"samatou683@gmail.com"}
+    admins = {
+        "samatou683@gmail.com"
+    }
     raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
     if raw_env:
         for item in raw_env.replace(" ", ",").split(","):

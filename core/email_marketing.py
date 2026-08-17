@@ -35,8 +35,8 @@ RE_ENGAGE_AFTER_DAYS = 7
 POST_PURCHASE_AFTER_HOURS = 24
 
 # ── Sender info ────────────────────────────────────────────────
-SENDER_NAME = os.getenv("SENDER_NAME", "Sam Salameh")
-SENDER_EMAIL = os.getenv("GMAIL_SMTP_USER", "samsalameh.cv@gmail.com")
+SENDER_NAME = os.getenv("SENDER_NAME", "JobHunt Pro Team")
+SENDER_EMAIL = os.getenv("GMAIL_SMTP_USER", "notifications@jobhunt-pro.com")
 BASE_URL = config.SITE_URL
 
 
@@ -46,7 +46,7 @@ BASE_URL = config.SITE_URL
 
 
 def _send_via_gmail_smtp(
-    to_email: str, subject: str, html_body: str, sender_name: str = "Sam Salameh"
+    to_email: str, subject: str, html_body: str, sender_name: str = "JobHunt Pro Team"
 ) -> bool:
     """Send email via Gmail SMTP. Uses GMAIL_SMTP_USER + GMAIL_APP_PASSWORD_1."""
     gmail_user = os.getenv("GMAIL_SMTP_USER", "").strip()

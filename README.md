@@ -85,7 +85,7 @@ JobHunt Pro replaces the repetitive, soul-crushing work of job hunting with a fu
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/sam-salameh/jobhunt-pro.git
+git clone https://github.com/jobhunt-pro/jobhunt-pro.git
 cd jobhunt-pro
 pip install -r requirements.txt
 
@@ -220,5 +220,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-Built with ❤️ by <a href="https://github.com/sam-salameh">Sam Salameh</a> - Beirut, Lebanon 🇱🇧
+Built with ❤️ by <strong>JobHunt Pro Global Team</strong>
 </div>

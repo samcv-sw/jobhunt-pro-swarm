@@ -150,7 +150,7 @@
           <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">AI Autonomous Engine Active 24/7</span>
         </div>
         <h1 class="bg-gradient-to-r from-white to-indigo-300 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent sm:text-4xl">
-          Welcome back, {{ user.name.split(' ')[0] if user.name else 'Hunter' }}
+          Welcome back, {{ user.name if user.name else 'Candidate' }}
         </h1>
         <p class="mt-2 text-base text-slate-400">
           Your AI agents are actively hunting and negotiating the best roles for you. You currently have <strong class="text-indigo-400">{{ stats.emails_sent }}</strong> active applications in the market.
@@ -312,6 +312,92 @@
           </div>
         </div>
       </div>
+
+      <!-- Sender Settings Button -->
+      <button onclick="openSenderConfigModal()" id="enSenderConfigBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs transition-all border border-indigo-500/40 flex items-center gap-2 shadow-md">
+        <span>⚙️ Sender & SMTP Settings</span>
+      </button>
+
+      <!-- Live Test Send Button -->
+      <button onclick="openTestSendModal()" id="enTestSendBtn" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs transition-all border border-emerald-500/40 flex items-center gap-2 shadow-md">
+        <span>📨 Live Test Send</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SENDER CONFIG MODAL (ENGLISH) -->
+  <div id="enSenderConfigModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left" dir="ltr">
+      <button onclick="closeSenderConfigModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">⚙️</div>
+        <div>
+          <h3 class="text-base font-bold text-white">Sender & Delivery Engine Configuration</h3>
+          <p class="text-xs text-slate-400">Control email routing, Reply-To headers, and daily application limits</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+          <div class="font-bold text-cyan-300 mb-1">📬 Automatic Reply-To Routing:</div>
+          <div class="text-slate-300">All applications are dispatched with Reply-To pointed to your account email: <span id="enModalUserEmail" class="font-mono text-emerald-400 font-bold"></span> so recruiter replies land directly in your inbox.</div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block font-bold text-slate-200">Daily Outreach Cap (Applications/day):</label>
+          <input type="number" id="enModalDailyCap" min="1" max="10000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="480">
+          <p class="text-[11px] text-slate-400">Recommended default: 480 apps/day for maximum deliverability and domain reputation.</p>
+        </div>
+
+        <div class="border-t border-slate-800 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-200">Direct Account Connection (BYO-SMTP - Optional):</span>
+            <span id="enModalSmtpBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Verified Cloud Pool</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-3">If you prefer sending 100% directly through your Gmail account, enter your credentials below with a Gmail App Password.</p>
+          
+          <div class="space-y-2">
+            <input type="email" id="enModalSmtpEmail" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Your Email Address (e.g. name@gmail.com)">
+            <input type="password" id="enModalSmtpPass" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="Gmail App Password (16 characters)">
+          </div>
+        </div>
+
+        <div id="enSenderConfigStatus" class="text-center font-bold text-xs py-1"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="clearEnSmtpConfig()" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 font-bold transition-all border border-rose-500/30">Reset to Cloud Pool</button>
+          <button onclick="saveEnSenderConfig()" id="enSaveSenderBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/30">Save & Test Connection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE TEST SEND MODAL (ENGLISH) -->
+  <div id="enTestSendModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-left" dir="ltr">
+      <button onclick="closeTestSendModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">📨</div>
+        <div>
+          <h3 class="text-base font-bold text-white">Live Deliverability Test Pulse</h3>
+          <p class="text-xs text-slate-400">Send an instant test email to verify live delivery and Reply-To headers</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-200 mb-1">Target Test Email:</label>
+          <input type="email" id="enTestSendTargetEmail" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="your_email@gmail.com">
+          <p class="text-[11px] text-slate-400 mt-1">We will send a diagnostic email to test real-time inbox reception.</p>
+        </div>
+
+        <div id="enTestSendResult" class="p-3 rounded-xl bg-slate-950 border border-slate-800 hidden font-mono text-[11px] text-slate-300"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="closeTestSendModal()" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">Cancel</button>
+          <button onclick="executeEnTestSend()" id="enExecTestSendBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-emerald-600/30">🚀 Send Test Pulse Now</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -337,7 +423,7 @@
     fetch('/api/v1/settings/daily-cap', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ daily_cap: parseInt(val) || 100 })
+      body: JSON.stringify({ daily_cap: parseInt(val) || 480 })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -346,6 +432,158 @@
     })
     .catch(function() {
       if (status) status.innerText = '❌ Save failed';
+    });
+  }
+
+  function openSenderConfigModal() {
+    var modal = document.getElementById('enSenderConfigModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    fetch('/api/v2/user/sender-config')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'success') {
+          var em = document.getElementById('enModalUserEmail');
+          if (em) em.innerText = data.email || 'Not configured';
+          var dc = document.getElementById('enModalDailyCap');
+          if (dc) dc.value = data.daily_cap || 480;
+          var badge = document.getElementById('enModalSmtpBadge');
+          if (badge) {
+            if (data.has_byo_smtp) {
+              badge.innerText = '✅ Connected to ' + (data.byo_smtp_email || 'Custom SMTP');
+              badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            } else {
+              badge.innerText = 'Cloud Pool (' + data.pool_active_accounts + ' active accounts)';
+              badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+            }
+          }
+          var testIn = document.getElementById('enTestSendTargetEmail');
+          if (testIn && !testIn.value) testIn.value = data.email || '';
+        }
+      });
+  }
+
+  function closeSenderConfigModal() {
+    var modal = document.getElementById('enSenderConfigModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function saveEnSenderConfig() {
+    var btn = document.getElementById('enSaveSenderBtn');
+    var status = document.getElementById('enSenderConfigStatus');
+    var dc = parseInt(document.getElementById('enModalDailyCap').value) || 480;
+    var semail = document.getElementById('enModalSmtpEmail').value;
+    var spass = document.getElementById('enModalSmtpPass').value;
+
+    if (btn) btn.innerText = '⌛ Testing & Saving...';
+    if (status) { status.innerText = ''; status.className = 'text-center font-bold text-xs py-1 text-slate-400'; }
+
+    fetch('/api/v2/user/sender-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: dc, smtp_email: semail, smtp_pass: spass })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (btn) btn.innerText = 'Save & Test Connection';
+      if (data.status === 'success') {
+        var testRes = data.connection_test || {};
+        if (testRes.success) {
+          status.innerText = '✅ Saved successfully: ' + (testRes.message || 'Connection verified!');
+          status.className = 'text-center font-bold text-xs py-1 text-emerald-400';
+        } else {
+          status.innerText = '⚠️ Saved with warning: ' + (testRes.message || '');
+          status.className = 'text-center font-bold text-xs py-1 text-amber-400';
+        }
+        var inp = document.getElementById('dailyCapInput');
+        if (inp) inp.value = dc;
+        setTimeout(closeSenderConfigModal, 2500);
+      } else {
+        status.innerText = '❌ Error: ' + (data.message || 'Save failed');
+        status.className = 'text-center font-bold text-xs py-1 text-rose-400';
+      }
+    })
+    .catch(function(err) {
+      if (btn) btn.innerText = 'Save & Test Connection';
+      if (status) { status.innerText = '❌ Server communication error'; status.className = 'text-center font-bold text-xs py-1 text-rose-400'; }
+    });
+  }
+
+  function clearEnSmtpConfig() {
+    var status = document.getElementById('enSenderConfigStatus');
+    var dc = parseInt(document.getElementById('enModalDailyCap').value) || 480;
+    fetch('/api/v2/user/sender-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: dc, clear_smtp: true })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (status) {
+        status.innerText = '✅ Reset to verified cloud pool successfully!';
+        status.className = 'text-center font-bold text-xs py-1 text-cyan-400';
+      }
+      var emailIn = document.getElementById('enModalSmtpEmail');
+      var passIn = document.getElementById('enModalSmtpPass');
+      if (emailIn) emailIn.value = '';
+      if (passIn) passIn.value = '';
+      openSenderConfigModal();
+    });
+  }
+
+  function openTestSendModal() {
+    var modal = document.getElementById('enTestSendModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    fetch('/api/v2/user/sender-config')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var inp = document.getElementById('enTestSendTargetEmail');
+        if (inp && data.email) inp.value = data.email;
+      });
+  }
+
+  function closeTestSendModal() {
+    var modal = document.getElementById('enTestSendModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function executeEnTestSend() {
+    var target = document.getElementById('enTestSendTargetEmail').value;
+    var btn = document.getElementById('enExecTestSendBtn');
+    var resBox = document.getElementById('enTestSendResult');
+
+    if (!target) { alert('Please enter target email address'); return; }
+    if (btn) btn.innerText = '⌛ Dispatching Pulse...';
+    if (resBox) { resBox.classList.remove('hidden'); resBox.innerText = 'Connecting to delivery engine and checking MX records...'; }
+
+    fetch('/api/v2/email/test-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to_email: target })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (btn) btn.innerText = '🚀 Send Test Pulse Now';
+      if (data.status === 'success') {
+        resBox.innerHTML = '<span class="text-emerald-400 font-bold">✅ ' + data.message + '</span><br><span class="text-slate-400">Reply-To Header: ' + data.reply_to + '</span><br><span class="text-slate-500">Tracking ID: ' + data.tracking_id + '</span>';
+      } else {
+        resBox.innerHTML = '<span class="text-amber-400 font-bold">⚠️ ' + (data.message || 'Request processed') + '</span>';
+      }
+    })
+    .catch(function(err) {
+      if (btn) btn.innerText = '🚀 Send Test Pulse Now';
+      if (resBox) resBox.innerHTML = '<span class="text-rose-400 font-bold">❌ Error: ' + err.message + '</span>';
     });
   }
   </script>
@@ -1142,7 +1380,9 @@
     }
 
     fetchAndRenderDispatches();
-    setInterval(fetchAndRenderDispatches, 2500);
+    setInterval(function() {
+        if (!document.hidden) fetchAndRenderDispatches();
+    }, 5000);
     document.addEventListener('visibilitychange', function() { if (!document.hidden) fetchAndRenderDispatches(); });
     window.addEventListener('focus', function() { fetchAndRenderDispatches(); });
 })();
@@ -1760,7 +2000,11 @@ async function connectSmtp() {
         <label class="block text-xs font-bold text-slate-300 mb-1">👤 Select Target CV Profile <span class="text-emerald-400">*</span></label>
         <div class="relative">
           <select id="selectTestProfile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
+            {% for p in profiles %}
+            <option value="{{ p.id }}">{{ p.profile_name }}</option>
+            {% else %}
             <option value="">Choose a loaded profile...</option>
+            {% endfor %}
           </select>
           <div class="pointer-events-none absolute inset-y-0 end-0 flex items-center px-3 text-emerald-400">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>

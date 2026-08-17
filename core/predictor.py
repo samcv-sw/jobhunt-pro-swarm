@@ -153,9 +153,9 @@ class ResponsePredictor:
             scores["personalization"] = 0
             scores["unresolved_gate"] = 0  # 0 denotes a critical failure gate
         else:
-            # Good personalization check: check if it features the candidate's name or is custom-tailored
-            has_candidate_name = "sam" in body.lower() or "salameh" in body.lower()
-            scores["personalization"] = 100 if has_candidate_name else 70
+            # Good personalization check: check if it features a sign-off or custom-tailored body
+            has_signoff = any(w in body.lower() for w in ["regards", "sincerely", "best", "thanks"])
+            scores["personalization"] = 100 if has_signoff else 80
 
         # Check for call to action
         cta_words = [

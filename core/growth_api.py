@@ -533,7 +533,7 @@ async def graph_blaster_test(request: Request):
     """Test send one email via Graph API."""
     try:
         data = await request.json()
-        to_email = data.get("to", "samsalameh.cv@gmail.com")
+        to_email = data.get("to", "candidate.demo@jobhunt-pro.com")
         idx = data.get("index", 0)
 
         from core.graph_sender import init as gs_init

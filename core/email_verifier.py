@@ -99,7 +99,7 @@ from contextlib import contextmanager
 def _get_db_context(db_path: Optional[str] = None):
     if db_path:
         import sqlite3
-        conn = sqlite3.connect(db_path, timeout=5.0)
+        conn = sqlite3.connect(db_path, timeout=60.0)
         try:
             yield conn
         finally:
@@ -121,7 +121,7 @@ def _get_db_context(db_path: Optional[str] = None):
                     os.makedirs(db_dir, exist_ok=True)
                 except Exception:
                     pass
-            conn = sqlite3.connect(db_file, timeout=5.0)
+            conn = sqlite3.connect(db_file, timeout=60.0)
             try:
                 yield conn
             finally:

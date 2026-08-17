@@ -1564,7 +1564,7 @@ class TelegramBot:
             f"In my previous roles, I successfully architected production-grade platforms, streamlined development pipelines, and collaborated across cross-functional teams to solve critical technical challenges under tight deadlines.\n\n"
             f"I look forward to discussing how my background, technical skill set, and passion for excellence align with your company's growth goals.\n\n"
             f"Sincerely,\n"
-            f"<b>Sam Salameh</b>\n"
+            f"<b>Candidate</b>\n"
             f"───────────────────────────\n"
             f"<i>💡 Type <code>/cover_letter_gen Company Name</code> to customize for any target company!</i>"
         )
@@ -1830,7 +1830,7 @@ class TelegramBot:
                 lines.append(c)
         lines.append("")
         lines.append(
-            "<i>💡 Use /features to explore all capabilities • Made with ❤️ by Sam Salameh | JobHunt Pro v16.88</i>"
+            "<i>💡 Use /features to explore all capabilities • JobHunt Pro Global SaaS v16.88</i>"
         )
         msg = "\n".join(lines)
         # Truncate if over 4096 chars
@@ -2777,7 +2777,7 @@ class TelegramBot:
             "• Referral program with 10% commission\n"
             "• Crypto wallet support (BTC, ETH, USDT, LTC)\n"
             "• Commands: /sales, /pricing, /referral, /wallet\n\n"
-            "<i>Use /help for the full command list • Made with ❤️ by Sam Salameh</i>"
+            "<i>Use /help for the full command list • JobHunt Pro Global Team</i>"
         )
         if len(msg) > 4000:
             msg = msg[:3950] + "\n\n...(truncated — use /help for full command list)"
@@ -5001,7 +5001,7 @@ class TelegramBot:
             '• Run referral contests: "Top referrer gets free Enterprise"\n'
             "• Telegram is your cash register — fastest path to sale\n"
             "• Full guide: profit_strategy.md\n\n"
-            "<b>Made with ❤️ by Sam Salameh — MAXIMUM PROFIT MODE</b>"
+            "<b>JobHunt Pro Global Team — MAXIMUM PROFIT MODE</b>"
         )
         if len(msg) > 4000:
             msg = msg[:3950] + "\n\n...(truncated — use /strategy for full guide)"

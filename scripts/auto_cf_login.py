@@ -50,8 +50,8 @@ async def automate_wrangler_login():
 
             # Wait for email input
             await page.wait_for_selector('input[name="email"]', timeout=15000)
-            await page.fill('input[name="email"]', "samsalameh.cv@gmail.com")
-            await page.fill('input[name="password"]', "JHGHjhfg^%^%*6853^%*%^tdhgHJF^%#")
+            await page.fill('input[name="email"]', os.getenv("CLOUDFLARE_EMAIL", "admin@jobhunt-pro.com"))
+            await page.fill('input[name="password"]', os.getenv("CLOUDFLARE_PASSWORD", ""))
 
             # Click login
             await page.click('button[type="submit"]')

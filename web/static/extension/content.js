@@ -349,12 +349,12 @@
 
           <div class="form-group">
             <label>Full Name</label>
-            <input type="text" id="jh-prof-name" value="${escapeAttr(p.name || '')}" placeholder="Sam Salameh">
+            <input type="text" id="jh-prof-name" value="${escapeAttr(p.name || '')}" placeholder="Alex Johnson">
           </div>
 
           <div class="form-group">
             <label>Email</label>
-            <input type="email" id="jh-prof-email" value="${escapeAttr(p.email || '')}" placeholder="sam@example.com">
+            <input type="email" id="jh-prof-email" value="${escapeAttr(p.email || '')}" placeholder="alex@example.com">
           </div>
 
           <div class="form-group">
@@ -369,12 +369,12 @@
 
           <div class="form-group">
             <label>Resume File Name (for reference)</label>
-            <input type="text" id="jh-prof-resume" value="${escapeAttr(p.resumeFileName || '')}" placeholder="Sam_Salameh_CV.pdf">
+            <input type="text" id="jh-prof-resume" value="${escapeAttr(p.resumeFileName || '')}" placeholder="Resume.pdf">
           </div>
 
           <div class="form-group">
             <label>Summary / Tagline</label>
-            <textarea id="jh-prof-summary" rows="3" placeholder="Senior Network Engineer | CCNA, Fortinet NSE...">${escapeAttr(p.summary || '')}</textarea>
+            <textarea id="jh-prof-summary" rows="3" placeholder="Senior Software & Cloud Architect...">${escapeAttr(p.summary || '')}</textarea>
           </div>
 
           <div class="modal-actions">

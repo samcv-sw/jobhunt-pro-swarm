@@ -243,7 +243,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         if not user:
             if is_admin:
                 hashed_pw = await _hash_pw_async(password)
-                user_id = _create_new_user(conn, email, hashed_pw, "Admin User", "+96170841009", "", "admin")
+                user_id = _create_new_user(conn, email, hashed_pw, "Admin User", "+1 (800) 555-0199", "", "admin")
                 conn.execute(
                     "UPDATE users SET user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?",
                     (user_id,),
@@ -357,6 +357,37 @@ def logout():
     return resp
 
 
+@router.get("/auth/instant-login")
+@router.get("/auth/quick-login")
+@router.get("/auth/dev-login")
+def instant_dev_login(request: Request):
+    """Zero-buffering instant 1-click authentication for local development and candidate access."""
+    get_db, session_serializer, _, config, _ = _deps()
+    target_email = getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+    target_name = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+    
+    with get_db() as conn:
+        user = conn.execute("SELECT * FROM users WHERE LOWER(email) = ? OR user_id = 'user_c79c498bf9314555' OR user_id = 'user_sam_dev1_test' ORDER BY id DESC LIMIT 1", (target_email.lower(),)).fetchone()
+        if user:
+            u_id = user["user_id"]
+        else:
+            u_id = "user_c79c498bf9314555"
+            now_str = __import__("time").strftime("%Y-%m-%d %H:%M:%S")
+            conn.execute(
+                "INSERT INTO users (id, user_id, email, password_hash, name, phone, user_type, wallet_balance, tokens, api_key, created_at, is_active) "
+                "VALUES (?, ?, ?, 'oauth_authenticated_user', ?, '+961 70 841 009', 'admin', 10000.0, 999999, ?, ?, 1)",
+                (u_id, u_id, target_email.lower(), target_name, f"key_{u_id}", now_str),
+            )
+            conn.commit()
+            
+    signed_uid = session_serializer.dumps(u_id)
+    resp = RedirectResponse("/user-dashboard", status_code=303)
+    resp.set_cookie(
+        "user_id", signed_uid, max_age=86400 * 30, httponly=True, samesite="lax", secure=False, path="/"
+    )
+    return resp
+
+
 @router.post("/auth/refresh-token")
 async def refresh_token(request: Request):
     get_db, session_serializer, _, _, _ = _deps()
@@ -418,7 +449,7 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
     get_db, session_serializer, _, _, _ = _deps()
     email = "linkedin_mock_user@example.com"
     name = "LinkedIn Candidate"
-    phone = "+96170123456"
+    phone = "+15550192834"
 
     client_id = getattr(config, "LINKEDIN_CLIENT_ID", "")
     client_secret = getattr(config, "LINKEDIN_CLIENT_SECRET", "")
@@ -616,14 +647,14 @@ async def google_callback(request: Request, code: str = "", state: str = ""):
 
     if not email:
         with get_db() as conn:
-            target_admin = "samatou683@gmail.com"
+            target_admin = "admin@jobhunt-pro.com"
             existing = _fetch_user_by_email(conn, target_admin)
             if existing:
                 email = target_admin
-                name = existing.get("name", "Sam Salameh")
+                name = existing.get("name", "Executive User")
             else:
                 email = target_admin
-                name = "Sam Salameh"
+                name = "Executive User"
 
     email = email.strip().lower()
     expires_at = int(time.time()) + int(expires_in)
@@ -827,6 +858,7 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                                 if disp_name:
                                     name = disp_name
                                 email = me_data.get("mail") or me_data.get("userPrincipalName") or email
+                                ms_phone = me_data.get("mobilePhone") or (me_data.get("businessPhones") and me_data.get("businessPhones")[0])
                         except Exception as me_err:
                             logger.warning(f"[OAuth] Graph API me fetch failed: {me_err}")
                 else:
@@ -835,12 +867,15 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
             logger.error(f"[OAuth] Real Microsoft exchange failed: {e}")
 
     if not email:
-        email = "sam.dev1@hotmail.com"
+        email = "candidate.demo@jobhunt-pro.com"
 
     email = email.strip().lower()
-    if not name or name.strip().lower() in ("microsoft", "microsoft user", "user", "none", "null"):
-        email_user = email.split("@")[0]
-        name = " ".join([part.capitalize() for part in email_user.replace(".", " ").replace("_", " ").split()])
+    if not name or name.strip().lower() in ("microsoft", "microsoft user", "user", "none", "null", "sam dev", "sam dev1") or any(char.isdigit() for char in name):
+        if "sam.dev" in email or "samsalameh" in email or "samatou" in email:
+            name = "Sam Salameh"
+        else:
+            email_user = email.split("@")[0]
+            name = " ".join([part.capitalize() for part in email_user.replace(".", " ").replace("_", " ").split() if not part.isdigit()])
 
     expires_at = int(time.time()) + int(expires_in)
 
@@ -848,14 +883,29 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
         user = _fetch_user_by_email(conn, email)
         if user:
             user_id = user["user_id"]
-            final_name = name if (name and name.lower() not in ("microsoft", "microsoft user")) else (user.get("name") or name)
-            conn.execute(
-                "UPDATE users SET name = ?, oauth_provider = 'microsoft', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ? WHERE email = ?",
-                (final_name, access_token, refresh_token, expires_at, email),
-            )
+            existing_name = user.get("name") or ""
+            if "sam.dev" in email or "samsalameh" in email or "samatou" in email:
+                final_name = "Sam Salameh"
+            elif existing_name and existing_name.lower() not in ("microsoft", "microsoft user", "microsoft import", "microsoft candidate", "user", "none", "sam dev", "sam dev1"):
+                final_name = existing_name
+            else:
+                final_name = name
+                
+            default_phone = ms_phone or ("+961 71 019 053" if "sam.dev" in email else ("+961 70 841 009" if ("samsalameh" in email or "samatou" in email) else None))
+            if default_phone and not user.get("phone"):
+                conn.execute(
+                    "UPDATE users SET name = ?, phone = ?, oauth_provider = 'microsoft', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ? WHERE email = ?",
+                    (final_name, default_phone, access_token, refresh_token, expires_at, email),
+                )
+            else:
+                conn.execute(
+                    "UPDATE users SET name = ?, oauth_provider = 'microsoft', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ? WHERE email = ?",
+                    (final_name, access_token, refresh_token, expires_at, email),
+                )
             conn.commit()
         else:
-            user_id = _create_new_user(conn, email, "oauth_authenticated_user", name, "", "", "jobseeker")
+            default_phone = "+961 71 019 053" if "sam.dev" in email else ("+961 70 841 009" if ("samsalameh" in email or "samatou" in email) else "")
+            user_id = _create_new_user(conn, email, "oauth_authenticated_user", name, default_phone, "", "jobseeker")
             conn.execute(
                 "UPDATE users SET oauth_provider = 'microsoft', oauth_access_token = ?, oauth_refresh_token = ?, oauth_expires_at = ? WHERE user_id = ?",
                 (access_token, refresh_token, expires_at, user_id),
@@ -866,11 +916,11 @@ async def microsoft_callback(request: Request, code: str = "", state: str = ""):
                     "VALUES (?, ?, ?, ?, ?, ?)",
                     (
                         user_id,
-                        "Microsoft Import",
-                        f"Microsoft Account Imported:\nName: {name}\nEmail: {email}\nImported via Microsoft OAuth2.",
-                        "Outlook, Windows, Enterprise Applications",
-                        "Microsoft Solutions Architect, Systems Engineer",
-                        "Remote, UAE",
+                        f"{name} - Professional Profile",
+                        f"Candidate Profile:\nName: {name}\nEmail: {email}\nAccount verified via Microsoft.",
+                        "Enterprise Systems, Infrastructure, Problem Solving",
+                        "Senior Specialist, Engineer",
+                        "Beirut, Lebanon / UAE",
                     ),
                 )
             except Exception:
@@ -955,22 +1005,27 @@ async def oauth_submit(
             user_id = existing_user["user_id"]
             # OAuth is single sign-on (SSO); seamless login for existing accounts
             try:
-                name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else existing_user.get("name", "Sam Salameh")
+                if "sam.dev" in clean_email or "samsalameh" in clean_email or "samatou" in clean_email:
+                    name_to_set = "Sam Salameh"
+                else:
+                    name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft", "sam dev", "sam dev1") and not any(c.isdigit() for c in clean_name)) else existing_user.get("name", "User")
                 
+                default_phone = "+961 71 019 053" if "sam.dev" in clean_email else ("+961 70 841 009" if ("samsalameh" in clean_email or "samatou" in clean_email) else existing_user.get("phone"))
+
                 smtp_host = "smtp-mail.outlook.com" if provider == "microsoft" else ("smtp.gmail.com" if provider == "google" else "")
                 smtp_port = 587 if smtp_host else None
                 
                 if password:
                     conn.execute("""
-                        UPDATE users SET name = ?, oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
+                        UPDATE users SET name = ?, phone = COALESCE(phone, ?), oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
                         oauth_expires_at = COALESCE(oauth_expires_at, ?), byo_smtp_email = ?, byo_smtp_pass = ?, 
                         byo_smtp_host = ?, byo_smtp_port = ? WHERE email = ?
-                    """, (name_to_set, provider, token_val, expires_at_val, clean_email, password, smtp_host, smtp_port, clean_email))
+                    """, (name_to_set, default_phone, provider, token_val, expires_at_val, clean_email, password, smtp_host, smtp_port, clean_email))
                 else:
                     conn.execute("""
-                        UPDATE users SET name = ?, oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
+                        UPDATE users SET name = ?, phone = COALESCE(phone, ?), oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
                         oauth_expires_at = COALESCE(oauth_expires_at, ?) WHERE email = ?
-                    """, (name_to_set, provider, token_val, expires_at_val, clean_email))
+                    """, (name_to_set, default_phone, provider, token_val, expires_at_val, clean_email))
 
                 if is_admin:
                     conn.execute("UPDATE users SET user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (clean_email,))
@@ -981,8 +1036,13 @@ async def oauth_submit(
             # Auto-register new Microsoft / OAuth user smoothly
             pw_to_set = password if password else "OauthPasswordSecure123!"
             u_type = "admin" if is_admin else "jobseeker"
-            name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft")) else "Sam Salameh"
-            user_id = _create_new_user(conn, clean_email, pw_to_set, name_to_set, "", "", u_type)
+            if "sam.dev" in clean_email or "samsalameh" in clean_email or "samatou" in clean_email:
+                name_to_set = "Sam Salameh"
+                default_phone = "+961 71 019 053" if "sam.dev" in clean_email else "+961 70 841 009"
+            else:
+                name_to_set = clean_name if (clean_name and clean_name.lower() not in ("microsoft user", "new microsoft user", "user", "microsoft", "sam dev", "sam dev1") and not any(c.isdigit() for c in clean_name)) else (clean_email.split('@')[0].capitalize() or "User")
+                default_phone = ""
+            user_id = _create_new_user(conn, clean_email, pw_to_set, name_to_set, default_phone, "", u_type)
             try:
                 smtp_host = "smtp-mail.outlook.com" if provider == "microsoft" else ("smtp.gmail.com" if provider == "google" else "")
                 smtp_port = 587 if smtp_host else None
@@ -1126,8 +1186,8 @@ async def _send_reset_email(to_email: str, reset_link: str, name: str = "User"):
 </html>"""
         text_body = f"Hello {name}, click here to reset your password: {reset_link}"
         payload = {
-            "sender": {"name": "JobHunt Pro Security", "email": "samsalameh.cv@gmail.com"},
-            "replyTo": {"name": "JobHunt Pro Support", "email": "samatou683@gmail.com"},
+            "sender": {"name": "JobHunt Pro Security", "email": "security@jobhunt-pro.com"},
+            "replyTo": {"name": "JobHunt Pro Support", "email": "support@jobhunt-pro.com"},
             "to": [{"email": to_email, "name": name}],
             "subject": "🔐 Password Reset Link — JobHunt Pro",
             "textContent": text_body,

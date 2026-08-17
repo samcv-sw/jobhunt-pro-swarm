@@ -1526,11 +1526,11 @@ class AutoApplyOrchestrator:
     def _default_cv_data() -> dict[str, Any]:
         """Build CV data from config."""
         return {
-            "name": getattr(config, "CANDIDATE_NAME", "Sam Salameh"),
-            "email": getattr(config, "CANDIDATE_EMAIL", ""),
-            "phone": getattr(config, "CANDIDATE_PHONE", ""),
-            "title": getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer"),
-            "location": getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon"),
+            "name": getattr(config, "CANDIDATE_NAME", "Alex Johnson"),
+            "email": getattr(config, "CANDIDATE_EMAIL", "candidate.demo@jobhunt-pro.com"),
+            "phone": getattr(config, "CANDIDATE_PHONE", "+1 (555) 019-2834"),
+            "title": getattr(config, "CANDIDATE_TITLE", "Senior Software Engineer"),
+            "location": getattr(config, "CANDIDATE_ADDRESS", "Dubai, UAE"),
             "skills": getattr(config, "SKILLS", []),
             "experience_years": getattr(config, "YEARS_EXPERIENCE", 15),
             "linkedin": getattr(config, "CANDIDATE_LINKEDIN", ""),

@@ -1,25 +1,39 @@
 <meta property="og:title" content="لوحة الإدارة التنفيذية | JobHunt Pro Enterprise"/>
-<meta name="description" content="لوحة تحكم المسؤولين لإدارة المستخدمين، المحافظ، الحملات والأكواد."/>
+<meta name="description" content="لوحة تحكم المسؤولين لإدارة المستخدمين، المحافظ، الحملات، عروض الفلاش والأكواد."/>
 <title>لوحة الإدارة التنفيذية | JobHunt Pro Enterprise</title>
 
 <style>
+  /* ==========================================================================
+     نظام التصميم التنفيذي الراقي (APEX GLASSMORPHISM, TOOLTIPS & ARABIC TYPOGRAPHY)
+     ========================================================================== */
   .admin-dashboard-wrap {
-    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', system-ui, -apple-system, sans-serif;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', system-ui, -apple-system, sans-serif;
     color: #f8fafc;
-    padding-bottom: 40px;
+    padding-block-end: 48px;
+    line-height: 1.65;
   }
 
-  /* Header Section */
+  /* رأس الصفحة */
   .admin-header {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
-    padding: 24px 30px;
-    margin-bottom: 28px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px 32px;
+    margin-block-end: 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .admin-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .admin-title-group h1 {
@@ -28,42 +42,82 @@
     color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    margin: 0;
   }
 
   .admin-title-group p {
-    font-size: 14px;
+    font-size: 14.5px;
     color: #94a3b8;
-    margin-top: 4px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .live-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.28);
     color: #34d399;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 14px;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 13.5px;
     font-weight: 700;
   }
 
   .live-dot {
-    width: 8px;
-    height: 8px;
+    inline-size: 8px;
+    block-size: 8px;
     background-color: #10b981;
     border-radius: 50%;
-    box-shadow: 0 0 8px #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: livePulseAr 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
   }
 
-  /* Alerts */
+  @keyframes livePulseAr {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.15); }
+  }
+
+  .header-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .header-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
+  }
+
+  /* التنبيهات */
   .alert-box {
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px 20px;
-    margin-bottom: 24px;
-    font-size: 14px;
+    margin-block-end: 24px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
   .alert-success {
@@ -73,90 +127,137 @@
   }
 
   .alert-error {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #f87171;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #fb7185;
   }
 
-  /* KPI Grid */
+  /* شبكة المؤشرات الرئيسية KPI */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 16px;
-    margin-bottom: 32px;
+    margin-block-end: 32px;
   }
 
   .kpi-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 14px;
-    padding: 20px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px 22px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .kpi-card:hover {
-    border-color: #334155;
+    border-color: rgba(255, 255, 255, 0.18);
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .kpi-card:hover::before {
+    opacity: 1;
   }
 
   .kpi-val {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
     color: #ffffff;
-    margin-bottom: 4px;
+    margin-block-end: 6px;
+    line-height: 1.2;
   }
 
   .kpi-lbl {
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  /* Action Cards Grid */
+  /* أقسام الإدارة */
   .admin-section {
-    margin-bottom: 36px;
+    margin-block-end: 36px;
+  }
+
+  .section-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-block-end: 16px;
   }
 
   .section-title-text {
-    font-size: 17px;
+    font-size: 18px;
     font-weight: 800;
     color: #f1f5f9;
-    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 0;
   }
 
+  /* شبكة بطاقات الإجراءات */
   .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
     gap: 20px;
   }
 
   .action-real-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
     padding: 24px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
   }
 
   .action-real-card:hover {
-    border-color: #334155;
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.4);
+  }
+
+  .action-card-featured {
+    grid-column: 1 / -1;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 27, 45, 0.88) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    box-shadow: 0 12px 36px -6px rgba(0, 0, 0, 0.45);
   }
 
   .action-real-card h3 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 16.5px;
+    font-weight: 800;
     color: #f8fafc;
-    margin-bottom: 6px;
+    margin: 0 0 6px 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -165,197 +266,427 @@
   .action-real-card p {
     font-size: 14px;
     color: #94a3b8;
-    margin-bottom: 18px;
-    line-height: 1.5;
+    margin: 0 0 18px 0;
+    line-height: 1.6;
   }
 
+  /* النماذج والمدخلات */
   .input-form-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
+  }
+
+  .form-field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-block-end: 2px;
   }
 
   .admin-input, .admin-select, .admin-textarea {
-    width: 100%;
-    background: #020617;
-    border: 1px solid #1e293b;
+    inline-size: 100%;
+    box-sizing: border-box;
+    background: rgba(2, 6, 23, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 11px 14px;
+    padding: 10px 14px;
     color: #ffffff;
     font-size: 14px;
+    font-family: inherit;
     transition: all 0.2s ease;
     outline: none;
   }
 
   .admin-input:focus, .admin-select:focus, .admin-textarea:focus {
     border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    background: #020617;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    background: rgba(2, 6, 23, 0.9);
   }
 
+  .admin-input::placeholder, .admin-textarea::placeholder {
+    color: #64748b;
+  }
+
+  .field-hint-text {
+    font-size: 12px;
+    color: #64748b;
+    margin-block-start: 3px;
+    line-height: 1.4;
+  }
+
+  /* محرك التلميحات التفاعلية Tooltip Engine */
+  .has-tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 18px;
+    block-size: 18px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #a5b4fc;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: help;
+    transition: all 0.2s ease;
+    margin-inline-start: 6px;
+    user-select: none;
+  }
+
+  .tooltip-trigger:hover {
+    background: rgba(99, 102, 241, 0.4);
+    color: #ffffff;
+    transform: scale(1.15);
+  }
+
+  .tooltip-bubble {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    inset-block-end: 130%;
+    inset-inline-start: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #e2e8f0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.55;
+    inline-size: max-content;
+    max-inline-size: 290px;
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(99, 102, 241, 0.2);
+    z-index: 100;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    text-align: start;
+    font-weight: 500;
+  }
+
+  .has-tooltip:hover .tooltip-bubble, .has-tooltip:focus-within .tooltip-bubble {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* أزرار الحزم السريعة */
   .preset-pill-group {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-block-end: 14px;
   }
 
   .preset-pill {
-    background: #1e1b4b;
-    border: 1px solid #312e81;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     color: #a5b4fc;
-    padding: 5px 12px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
   }
 
-  .preset-pill:hover {
-    background: #312e81;
+  .preset-pill:hover, .preset-pill.active {
+    background: rgba(99, 102, 241, 0.22);
     color: #ffffff;
+    border-color: rgba(99, 102, 241, 0.45);
+    transform: translateY(-1px);
   }
 
+  /* الأزرار الرئيسية */
   .btn-real {
     padding: 11px 20px;
     border: none;
     border-radius: 10px;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: #ffffff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
+    inline-size: 100%;
+    font-family: inherit;
   }
 
   .btn-real:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   }
 
-  .btn-indigo { background: #4f46e5; }
-  .btn-emerald { background: #059669; }
-  .btn-purple { background: #7c3aed; }
-  .btn-rose { background: #e11d48; }
+  .btn-real:active {
+    transform: translateY(0);
+  }
 
-  /* Modern Clean Tables */
+  .btn-indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+  .btn-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .btn-purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  .btn-rose {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  }
+
+  .btn-amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  /* الجداول */
   .table-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.75) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .table-responsive {
+    inline-size: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-table {
-    width: 100%;
+    inline-size: 100%;
     border-collapse: collapse;
     font-size: 14px;
-    text-align: end;
+    text-align: start;
   }
 
   .admin-table th {
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.85);
     padding: 14px 18px;
     color: #94a3b8;
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 800;
     text-transform: uppercase;
-    
-    border-bottom: 1px solid #334155;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
   }
 
   .admin-table td {
     padding: 14px 18px;
-    border-bottom: 1px solid #1e293b;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.05);
     color: #cbd5e1;
     vertical-align: middle;
   }
 
   .admin-table tr:last-child td {
-    border-bottom: none;
+    border-block-end: none;
   }
 
   .admin-table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.03);
     color: #ffffff;
   }
 
+  /* مؤشرات الحالة */
   .status-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 9999px;
+    font-size: 12.5px;
+    font-weight: 800;
+    white-space: nowrap;
   }
 
-  .pill-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-  .pill-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
-  .pill-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-  .pill-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-  .pill-slate { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+  .pill-emerald {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    color: #34d399;
+  }
 
+  .pill-rose {
+    background: rgba(244, 63, 94, 0.14);
+    border: 1px solid rgba(244, 63, 94, 0.28);
+    color: #fb7185;
+  }
+
+  .pill-indigo {
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    color: #818cf8;
+  }
+
+  .pill-amber {
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.28);
+    color: #fbbf24;
+  }
+
+  .pill-slate {
+    background: rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    color: #94a3b8;
+  }
+
+  /* شرائح الأكواد */
   .code-chip {
-    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'SFMono-Regular', Consolas, monospace;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
-    color: #c4b5fd;
-    background: #1e1b4b;
+    font-size: 13px;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.1);
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid #312e81;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    direction: ltr;
+    display: inline-block;
   }
 
+  /* أزرار الإجراءات المصغرة */
   .btn-sm-action {
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 700;
     border: none !important;
     outline: none !important;
-    box-shadow: none !important;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    text-decoration: none;
+    font-family: inherit;
+    white-space: nowrap;
   }
 
-  .btn-sm-copy { background: #6366f1 !important; color: #ffffff !important; }
-  .btn-sm-copy:hover { background: #4f46e5 !important; transform: translateY(-1px); }
+  .btn-sm-action:hover {
+    transform: translateY(-1px);
+  }
 
-  .btn-sm-link { background: #0284c7 !important; color: #ffffff !important; }
-  .btn-sm-link:hover { background: #0369a1 !important; transform: translateY(-1px); }
+  .btn-sm-copy {
+    background: rgba(99, 102, 241, 0.2) !important;
+    border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    color: #c7d2fe !important;
+  }
+
+  .btn-sm-copy:hover {
+    background: rgba(99, 102, 241, 0.35) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-link {
+    background: rgba(14, 165, 233, 0.2) !important;
+    border: 1px solid rgba(14, 165, 233, 0.4) !important;
+    color: #bae6fd !important;
+  }
+
+  .btn-sm-link:hover {
+    background: rgba(14, 165, 233, 0.35) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-danger {
+    background: rgba(244, 63, 94, 0.15) !important;
+    border: 1px solid rgba(244, 63, 94, 0.3) !important;
+    color: #fca5a5 !important;
+  }
+
+  .btn-sm-danger:hover {
+    background: rgba(244, 63, 94, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-success {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #86efac !important;
+  }
+
+  .btn-sm-success:hover {
+    background: rgba(16, 185, 129, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-amber {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    color: #fde68a !important;
+  }
+
+  .btn-sm-amber:hover {
+    background: rgba(245, 158, 11, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  /* مربعات الاختيار */
+  input[type="checkbox"] {
+    accent-color: #6366f1;
+    inline-size: 16px;
+    block-size: 16px;
+    cursor: pointer;
+  }
 </style>
 
-<div class="admin-dashboard-wrap">
+<div class="admin-dashboard-wrap" dir="rtl">
   
-  <!-- Header -->
+  <!-- رأس الصفحة -->
   <div class="admin-header">
     <div class="admin-title-group">
-      <h1>🛡️ لوحة التحكم والإدارة التنفيذية</h1>
-      <p>إدارة الحسابات، المحافظ، الحملات وتوليد الأكواد في الوقت الفعلي</p>
+      <h1>🛡️ مركز الإدارة والتحكم التنفيذي</h1>
+      <p>المؤشرات اللحظية للنظام، إدارة المستخدمين، السجلات المالية، عروض الفلاش ومحرك الأكواد الحصرية</p>
     </div>
-    <div class="live-pill">
-      <span class="live-dot"></span>
-      <span>النظام حي ونشط</span>
+    <div class="admin-header-actions">
+      <a href="/admin/analytics" class="header-nav-btn" title="عرض التحليلات المتقدمة وإحصائيات المبيعات">📊 التحليلات المتقدمة</a>
+      <a href="/admin/sys-logs" class="header-nav-btn" title="استعراض سجلات النظام والأحداث">📜 سجلات النظام</a>
+      <a href="/user-dashboard" class="header-nav-btn" title="الانتقال إلى واجهة المستخدم وتجربة المنصة">🚀 لوحة المستخدم</a>
+      <div class="live-pill" title="محرك النظام يعمل بتناغم وجاهز لتنفيذ المهام">
+        <span class="live-dot"></span>
+        <span>المحرك نشط ومتصل</span>
+      </div>
     </div>
   </div>
 
-  <!-- Alerts -->
+  <!-- التنبيهات -->
   {% if request.query_params.get('success') %}
   <div class="alert-box alert-success">
-    <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">✅ تم تنفيذ الإجراء بنجاح:</div>
+    <div style="font-weight: 800; font-size: 15px; margin-block-end: 6px; display:flex; align-items:center; gap:8px;">
+      <span>✅</span> <span>تم تنفيذ الإجراء بنجاح:</span>
+    </div>
     <div>{{ request.query_params.get('success') }}</div>
     
     {% if 'codes:' in request.query_params.get('success') %}
-      <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;"></div>
+      <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-block-start:14px;"></div>
       <script dir="auto">
         document.addEventListener('DOMContentLoaded', () => {
           const rawSuccess = "{{ request.query_params.get('success') }}";
@@ -365,10 +696,10 @@
             const container = document.getElementById('generatedCodesContainer');
             if (container && codes.length > 0) {
               container.innerHTML = codes.map(code => `
-                <div style="background:#020617; border:1px solid #1e293b; border-radius:10px; padding:8px 14px; display:flex; align-items:center; gap:10px;">
-                  <span class="code-chip" style="color:#34d399; font-size:14px; background:#0f172a; border:1px solid #334155;">${code}</span>
-                  <button class="btn-sm-action btn-sm-copy" style="background:#6366f1; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyCodeText('${code}', this)">📋 نسخ الكود</button>
-                  <button class="btn-sm-action btn-sm-link" style="background:#0284c7; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyRedeemLink('${code}', this)">🔗 رابط الشحن</button>
+                <div style="background:rgba(2,6,23,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px;">
+                  <span class="code-chip">${code}</span>
+                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('${code}', this)" title="نسخ كود التفعيل إلى الحافظة">📋 نسخ الكود</button>
+                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('${code}', this)" title="نسخ رابط الاسترداد الفوري المباشر">🔗 رابط مباشر</button>
                 </div>
               `).join('');
             }
@@ -376,21 +707,21 @@
         });
         function copyCodeText(text, btn) {
           navigator.clipboard.writeText(text).then(() => {
-            const orig = btn.innerText;
-            btn.innerText = '✨ تم النسخ!';
-            btn.style.background = '#10b981';
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✨ تم النسخ!';
+            btn.style.background = 'rgba(16, 185, 129, 0.4)';
             btn.style.color = '#ffffff';
-            setTimeout(() => { btn.innerText = orig; btn.style.background = '#312e81'; btn.style.color = '#c4b5fd'; }, 2000);
+            setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
           });
         }
         function copyRedeemLink(code, btn) {
           const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
           navigator.clipboard.writeText(link).then(() => {
-            const orig = btn.innerText;
-            btn.innerText = '✨ تم نسخ الرابط!';
-            btn.style.background = '#0284c7';
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✨ تم نسخ الرابط!';
+            btn.style.background = 'rgba(14, 165, 233, 0.4)';
             btn.style.color = '#ffffff';
-            setTimeout(() => { btn.innerText = orig; btn.style.background = '#075985'; btn.style.color = '#38bdf8'; }, 2000);
+            setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
           });
         }
       </script>
@@ -404,135 +735,252 @@
   </div>
   {% endif %}
 
-  <!-- KPI Overview Cards -->
+  <!-- شبكة مؤشرات الأداء الرئيسية KPI -->
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card" title="إجمالي عدد حسابات المرشحين المسجلة في المنصة">
       <div class="kpi-val" style="color:#818cf8;">{{ stats.total_users }}</div>
       <div class="kpi-lbl">👥 إجمالي المستخدمين</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="عدد حملات التقديم التي يتم تنفيذها أو المجدولة حالياً">
       <div class="kpi-val" style="color:#34d399;">{{ stats.total_campaigns }}</div>
       <div class="kpi-lbl">🚀 الحملات النشطة</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="إجمالي رسائل التقديم المخصصة الجاهزة في خط الإرسال">
       <div class="kpi-val" style="color:#c084fc;">{{ stats.total_emails }}</div>
-      <div class="kpi-lbl">📧 الرسائل المجهزة</div>
+      <div class="kpi-lbl">📧 رسائل قيد التجهيز</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val" style="color:#22d3ee;">{{ stats.emails_sent }}</div>
+    <div class="kpi-card" title="عدد الرسائل التي تم التحقق من deliverability وإرسالها بنجاح لمسؤولي التوظيف">
+      <div class="kpi-val" style="color:#38bdf8;">{{ stats.emails_sent }}</div>
       <div class="kpi-lbl">⚡ الرسائل المرسلة</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="إجمالي الإيرادات المالية المحققة من شراء الباقات">
       <div class="kpi-val" style="color:#fbbf24;">${{ stats.total_revenue }}</div>
-      <div class="kpi-lbl">💰 إجمالي الأرباح</div>
+      <div class="kpi-lbl">💰 إجمالي الإيرادات</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="مجموع الأرصدة المتوفرة داخل محافظ المستخدمين">
       <div class="kpi-val" style="color:#fb7185;">${{ stats.total_wallets }}</div>
       <div class="kpi-lbl">💳 أرصدة المحافظ</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div>
-      <div class="kpi-lbl">🪙 مدفوعات الكريبتو</div>
+    <div class="kpi-card" title="عدد المعاملات التي تمت عبر بوابات الدفع بالعملات الرقمية">
+      <div class="kpi-val" style="color:#f59e0b;">{{ payment_stats.total_payments }}</div>
+      <div class="kpi-lbl">🪙 معاملات العملات المشفرة</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="إجمالي القيمة المالية بالدولار للعملات الرقمية المستلمة">
       <div class="kpi-val" style="color:#34d399;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div>
-      <div class="kpi-lbl">📊 المستلم كريبتو</div>
+      <div class="kpi-lbl">📊 حجم تداول الكريبتو</div>
     </div>
   </div>
 
-  <!-- Admin Actions Section -->
+  <!-- جدول إدارة عروض الفلاش والتخفيضات الترويجية -->
   <div class="admin-section">
-    <div class="section-title-text">🛠️ إجراءات الإدارة المباشرة</div>
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>⚡ عروض الفلاش والتخفيضات الترويجية ({{ flash_sales|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">إدارة شريط العد التنازلي الترويجي الذي يظهر للمستخدمين في لوحة التحكم ويطبق خصماً تلقائياً على كافة الباقات.</div>
+        </div>
+      </div>
+      <div>
+        <button id="btnDeleteSelectedSales" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('salesForm', 'هل أنت متأكد من حذف عروض الفلاش المحددة نهائياً؟', 'عروض الفلاش')">🗑️ حذف المحدد (<span id="countSelectedSales">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <form id="salesForm" action="/admin/delete-flash-sales" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="تحديد الكل"></th>
+                <th>عنوان العرض</th>
+                <th>نسبة الخصم</th>
+                <th>الحالة الحية</th>
+                <th>تاريخ الانتهاء</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات والتحكم</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in flash_sales %}
+              {% set s_active = (s.active == 1 or s.active == '1' or s.active is sameas true) if s.active is defined else true %}
+              {% set s_end_str = (s.end_time|string) if (s.end_time is defined and s.end_time) else '' %}
+              {% set s_now_str = (now.isoformat() if (now is defined and now) else '2026-08-17T00:00:00') %}
+              {% set s_is_time_valid = (s_end_str > s_now_str) if s_end_str else false %}
+              {% set is_live = s.is_live if (s.is_live is defined and s.is_live is not none) else (s_active and s_is_time_valid) %}
+              {% set is_paused = s.is_paused if (s.is_paused is defined and s.is_paused is not none) else (not s_active) %}
+              {% set is_expired = s.is_expired if (s.is_expired is defined and s.is_expired is not none) else (s_active and not s_is_time_valid) %}
+              {% set display_end = s.formatted_end if (s.formatted_end is defined and s.formatted_end) else ((s_end_str|replace('T', ' '))[:16] if s_end_str else '—') %}
+              {% set display_created = s.formatted_created if (s.formatted_created is defined and s.formatted_created) else ((s.created_at|string)[:16] if (s.created_at is defined and s.created_at) else '—') %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="sale-checkbox" name="sale_ids" value="{{ s.id }}" onclick="updateSelectCount('sale-checkbox', 'btnDeleteSelectedSales', 'countSelectedSales', 'selectAllSalesCheckbox')"></td>
+                <td style="font-weight:700; color:#f8fafc;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span>⚡ {{ s.title }}</span>
+                  </div>
+                </td>
+                <td style="color:#fb7185; font-weight:800; font-size:14px; direction:ltr; text-align:start;">{{ s.discount_percent }}% OFF</td>
+                <td>
+                  {% if is_live %}
+                    <span class="status-pill pill-emerald" title="العرض نشط حالياً ويظهر لجميع المستخدمين">🟢 نشط / مباشر</span>
+                  {% elif is_paused %}
+                    <span class="status-pill pill-slate" title="العرض متوقف مؤقتاً بواسطة الإدارة">⏸️ متوقف مؤقتاً</span>
+                  {% else %}
+                    <span class="status-pill pill-rose" title="انتهت مدة العد التنازلي لهذا العرض">⏳ منتهي الصلاحية</span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#38bdf8; font-size:12.5px; direction:ltr; text-align:start;">{{ display_end }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ display_created }}</td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    {% if is_live %}
+                      <button type="button" class="btn-sm-action btn-sm-amber" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إيقاف العرض مؤقتاً لإخفائه عن المستخدمين">⏸️ إيقاف مؤقت</button>
+                    {% else %}
+                      <button type="button" class="btn-sm-action btn-sm-success" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إعادة تنشيط العرض وتمديده لمدة 24 ساعة إضافية">▶️ استئناف (+24س)</button>
+                    {% endif %}
+                    <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="حذف هذا العرض نهائياً من قاعدة البيانات">🗑️ حذف</button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not flash_sales %}
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">لا توجد عروض فلاش حالياً. استخدم نموذج "مدير عروض التخفيضات الفلاش" أدناه لإطلاق عرض جديد.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم العمليات التنفيذية الفورية -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🛠️ العمليات والإجراءات التنفيذية المباشرة</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">إطلاق العروض الترويجية، توليد الأكواد الحصرية، شحن أرصدة المحافظ وإرسال الرسائل الرسمية.</div>
+        </div>
+      </div>
+    </div>
 
     <div class="actions-grid">
       
-      <!-- Card 1: Add Credits -->
-      <div class="action-real-card">
+      <!-- بطاقة 1 المميزة: مولد ومصدر أكواد VIP المجمعة (Xianyu / B2B) -->
+      <div class="action-real-card action-card-featured">
         <div>
-          <h3>💳 إضافة رصيد للمستخدم</h3>
-          <p>إضافة رصيد يدوياً وبشكل مباشر لأي محفظة مستخدم</p>
-        </div>
-        <form dir="auto" action="/admin/add-credits" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
-          <div style="display:flex; gap:10px;">
-            <input dir="auto" class="admin-input" min="0.01" name="amount" placeholder="المبلغ $" required step="0.01" type="number" dir="auto">
-            <input dir="auto" class="admin-input" name="note" type="text" value="رصيد إداري" dir="auto">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
+            <h3 style="color:#a5b4fc; font-size:17.5px; margin:0;">
+              <span>💎 المولد الكمومي للأكواد المجمعة وتصدير إكسل (Xianyu / Taobao / B2B)</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">توليد آلاف المفاتيح التشفيرية وتصدير ملف Excel/CSV مهيأ تلقائياً للربط مع روبوتات التسليم الفوري في المتاجر الإلكترونية.</div>
+              </div>
+            </h3>
+            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">تشفير 256-بت كمومي</span>
           </div>
-          <button class="btn-real btn-emerald" type="submit">إضافة الرصيد الآن</button>
-        </form>
-      </div>
-
-      <!-- Card 2: VIP Bulk Key Generator & Excel Exporter -->
-      <div class="action-real-card" style="border-color:rgba(0,240,255,0.3); background:linear-gradient(145deg, rgba(17,24,39,0.85), rgba(15,23,42,0.95));">
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:8px;">
-            <h3 style="color:#00f0ff; margin:0;">💎 مولّد الحزم الضخمة وتصدير Excel (Xianyu / B2B)</h3>
-            <span style="font-size:11px; background:rgba(0,240,255,0.15); color:#00f0ff; padding:3px 8px; border-radius:20px; font-weight:800; border:1px solid rgba(0,240,255,0.3);">256-Bit Quantum</span>
-          </div>
-          <p style="margin-block-end:14px; font-size:13px; color:#94a3b8;">توليد آلاف الأكواد المشفرة بدفعة واحدة وتنزيلها فوراً كملف Excel/CSV جاهز لربطه ببرامج الإرسال التلقائي في Xianyu و Taobao.</p>
+          <p style="margin-block-end:16px; font-size:14px; color:#94a3b8;">توليد آلاف أكواد التفعيل الحصرية في دفعة واحدة وتنزيل ملف Excel / CSV جاهز ومخصص لمنصات التسليم التلقائي في Xianyu و Taobao والمبيعات المباشرة.</p>
           
-          <!-- Package Selector Buttons -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; margin-block-end:14px;">
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('starter', 9, 100)">⚡ Starter ($9 / 100)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('basic', 19, 350)">🚀 Basic ($19 / 350)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('pro', 49, 1000)">💎 Pro ($49 / 1,000)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('enterprise', 149, 3000)">👑 B2B ($149 / 3,000)</button>
+          <!-- أزرار اختيار الباقة -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin-block-end:14px;">
+            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" title="باقة المبتدئ: بقيمة 9$ تتيح التقديم إلى 100 شركة مستهدفة">⚡ المبتدئ ($9 / 100)</button>
+            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" title="الباقة الأساسية: بقيمة 19$ تتيح التقديم إلى 350 شركة مستهدفة">🚀 الأساسي ($19 / 350)</button>
+            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" title="الباقة الاحترافية VIP: بقيمة 49$ تتيح التقديم إلى 1,000 شركة مستهدفة">💎 الاحترافي VIP ($49 / 1,000)</button>
+            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" title="باقة الشركات B2B: بقيمة 149$ تتيح الوصول إلى 3,000 جهة اتصال">👑 الشركات B2B ($149 / 3,000)</button>
           </div>
         </div>
 
-        <form dir="auto" action="/admin/generate-bulk-codes-export" method="POST" class="input-form-group" style="gap:10px;">
+        <form dir="auto" action="/admin/generate-bulk-codes-export" method="POST" class="input-form-group">
           <input type="hidden" id="bulkTierInput" name="tier" value="starter">
           
-          <div style="display:flex; gap:8px;">
-            <div style="flex:1;">
-              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">الباقة المختارة:</label>
-              <input id="bulkPlanDisplay" dir="auto" class="admin-input" readonly value="Starter Plan ($9 / 100 شركة)" style="background:rgba(0,0,0,0.3); color:#00f0ff; font-weight:700; font-size:13px;">
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>الباقة المحددة:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">نوع الباقة التي سيتم ربط قيمة الأكواد المولدة بها تلقائياً.</div>
+                </div>
+              </div>
+              <input id="bulkPlanDisplay" dir="auto" class="admin-input" readonly value="باقة المبتدئ ($9 / 100 شركة)" style="background:rgba(0,0,0,0.3); color:#818cf8; font-weight:700;">
+              <span class="field-hint-text">اضغط على أزرار الباقات في الأعلى لتغيير نوع الباقة.</span>
             </div>
-            <div style="inline-size:120px;">
-              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">عدد الأكواد:</label>
-              <input id="bulkCountInput" dir="auto" class="admin-input" max="5000" min="1" name="count" placeholder="العدد" type="number" value="100" style="font-weight:700; color:#ffffff; font-size:14px; text-align:center;">
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>عدد الأكواد:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">إجمالي عدد الأكواد الفريدة التي سيتم إنشاؤها في هذه الدفعة (من 1 إلى 5000 كود).</div>
+                </div>
+              </div>
+              <input id="bulkCountInput" dir="auto" class="admin-input" max="5000" min="1" name="count" placeholder="العدد" type="number" value="100" style="font-weight:700; color:#ffffff; text-align:center;">
+              <span class="field-hint-text">حجم الدفعة (مثال: 100 كود).</span>
             </div>
           </div>
 
-          <!-- Quick Quantity Buttons -->
-          <div style="display:flex; gap:6px; align-items:center;">
-            <span style="font-size:11px; color:#64748b;">كمية سريعة:</span>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(25)">25</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(50)">50</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(100)">100</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(200)">200</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(500)">500</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(1000)">1000</button>
+          <!-- أزرار الأعداد السريعة -->
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <span style="font-size:12.5px; color:#64748b; font-weight:700;">أعداد سريعة:</span>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" title="تحديد كمية 25 كود">25</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" title="تحديد كمية 50 كود">50</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" title="تحديد كمية 100 كود">100</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" title="تحديد كمية 200 كود">200</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" title="تحديد كمية 500 كود">500</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" title="تحديد كمية 1000 كود">1000</button>
           </div>
 
-          <div style="display:flex; gap:8px;">
-            <input dir="auto" class="admin-input" name="batch_tag" placeholder="وسم الدفعة (مثال: Xianyu-Starter-Batch-1)" type="text" style="font-size:12px;">
-            <select dir="auto" class="admin-select" name="code_type" style="inline-size:140px; font-size:12px;">
-              <option value="sale">💳 بيع (إيرادات)</option>
-              <option value="admin_free">🆓 مجاني (إدارة)</option>
-            </select>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>وسم الدفعة (Batch Tag):</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">وسم اختياري لتمييز قناة البيع أو المتجر (مثل: Xianyu-Store-1 أو Taobao-Promo-Batch).</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" name="batch_tag" placeholder="مثال: Xianyu-Starter-Batch-1" type="text">
+              <span class="field-hint-text">تسمية مميزة للدفعة لتسهيل الفلترة.</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>نوع القيد المالي للأكواد:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">مبيعات مدفوعة: تُحتسب قيمتها ضمن إيرادات المنصة الإجمالية. مجاني إداري: أكواد ترويجية لا تضاف للإيرادات.</div>
+                </div>
+              </div>
+              <select dir="auto" class="admin-select" name="code_type">
+                <option value="sale">💳 مبيعات مدفوعة (يُحتسب في الإيرادات)</option>
+                <option value="admin_free">🆓 مجاني إداري (بدون احتساب إيراد)</option>
+              </select>
+              <span class="field-hint-text">تصنيف القيد المحاسبي في السجلات.</span>
+            </div>
           </div>
 
-          <div style="display:flex; align-items:center; gap:8px; background:rgba(0,240,255,0.06); padding:8px 12px; border-radius:8px; border:1px solid rgba(0,240,255,0.15);">
-            <input type="checkbox" id="exportExcelCheck" name="export_excel" value="true" checked style="cursor:pointer; inline-size:16px; block-size:16px;">
-            <label for="exportExcelCheck" style="font-size:12px; color:#cbd5e1; cursor:pointer; font-weight:600;">📥 تحميل فوري كملف Excel / CSV جاهز لـ Xianyu و Taobao</label>
+          <div style="display:flex; align-items:center; gap:10px; background:rgba(99,102,241,0.06); padding:10px 14px; border-radius:10px; border:1px solid rgba(99,102,241,0.18);">
+            <input type="checkbox" id="exportExcelCheck" name="export_excel" value="true" checked>
+            <label for="exportExcelCheck" style="font-size:13.5px; color:#cbd5e1; cursor:pointer; font-weight:700;">📥 تنزيل فوري كملف Excel / CSV (مهيأ لـ Xianyu & Taobao)</label>
           </div>
 
-          <button class="btn-real btn-purple" type="submit" style="background:linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%); color:#050515; font-weight:900; font-size:14px; box-shadow:0 0 20px rgba(0,240,255,0.35); border:none; padding:12px;">
-            ⚡ توليد الأكواد وتصدير ملف Excel فوراً 📥
+          <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:15px; padding:13px 20px;" title="بدء التوليد وتنزيل الملف مباشرة">
+            ⚡ توليد الدفعة وتنزيل ملف الإكسل 📥
           </button>
         </form>
 
         <script dir="auto">
-          function selectBulkPackage(tier, price, companies) {
+          function selectBulkPackage(tier, price, companies, btn) {
             document.getElementById('bulkTierInput').value = tier;
             const names = {
-              'starter': 'Starter Plan ($9 / 100 شركة)',
-              'basic': 'Basic Plan ($19 / 350 شركة)',
-              'pro': 'Pro VIP Plan ($49 / 1,000 شركة)',
-              'enterprise': 'Enterprise SDR ($149 / 3,000 فرصة)'
+              'starter': 'باقة المبتدئ ($9 / 100 شركة)',
+              'basic': 'الباقة الأساسية ($19 / 350 شركة)',
+              'pro': 'الباقة الاحترافية VIP ($49 / 1,000 شركة)',
+              'enterprise': 'باقة الشركات B2B ($149 / 3,000 جهة اتصال)'
             };
             document.getElementById('bulkPlanDisplay').value = names[tier] || `${tier} ($${price})`;
+            document.querySelectorAll('.action-card-featured .preset-pill').forEach(el => el.classList.remove('active'));
+            if (btn) btn.classList.add('active');
           }
           function setBulkCount(cnt) {
             document.getElementById('bulkCountInput').value = cnt;
@@ -540,54 +988,922 @@
         </script>
       </div>
 
-      <!-- Card 3: Free Campaign -->
+      <!-- بطاقة 2: مدير عروض التخفيضات الفلاش -->
       <div class="action-real-card">
         <div>
-          <h3>🚀 منح حملة مجانية</h3>
-          <p>إنشاء حملة إرسال كاملة لمستخدم دون الخصم من رصيده</p>
-        </div>
-        <form dir="auto" action="/admin/free-campaign" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
-          <input dir="auto" class="admin-input" min="5" name="company_count" type="number" value="100" dir="auto">
-          <button class="btn-real btn-indigo" type="submit">منح الحملة المجانية</button>
-        </form>
-      </div>
-
-      <!-- Card 4: Send Manual Email -->
-      <div class="action-real-card">
-        <div>
-          <h3>✉️ إرسال رسالة يدوية موجهة</h3>
-          <p>إرسال رسالة بريدية مباشرة عبر الخادم لأي عنوان</p>
-        </div>
-        <form dir="auto" action="/admin/send-manual-email" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="to_email" placeholder="recipient@email.com" required type="email" dir="auto">
-          <input dir="auto" class="admin-input" name="subject" placeholder="موضوع الرسالة..." required type="text" dir="auto">
-          <textarea dir="auto" class="admin-textarea" name="body" placeholder="محتوى الرسالة (HTML أو نص)..." required style="height: 70px;" dir="auto"></textarea>
-          <button class="btn-real btn-emerald" type="submit">إرسال الرسالة الآن</button>
-        </form>
-      </div>
-
-      <!-- Card 5: Flash Sale Manager -->
-      <div class="action-real-card">
-        <div>
-          <h3>⚡ إدارة مبيعات الفلاش</h3>
-          <p>إطلاق خصومات لفترة محدودة لتنشيط مبيعات الشحن</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>⚡ مدير عروض الفلاش المؤقتة</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">إنشاء شريط ترويجي مع عداد زمني تنازلي يظهر لجميع المستخدمين ويخصم تلقائياً من أسعار جميع باقات التقديم.</div>
+              </div>
+            </h3>
+          </div>
+          <p>إطلاق عداد خصومات زمني مؤقت لتعزيز معدل الشراء والتحويل لدى المستخدمين.</p>
         </div>
         <form dir="auto" action="/admin/create-flash-sale" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="title" placeholder="عنوان التخفيض..." required type="text" value="عرض فلاش خاص" dir="auto">
-          <div style="display:flex; gap:10px;">
-            <input dir="auto" class="admin-input" max="99" min="1" name="discount_percent" placeholder="الخصم %" required type="number" value="25" dir="auto">
-            <input dir="auto" class="admin-input" max="168" min="1" name="duration_hours" placeholder="الساعات" required type="number" value="24" dir="auto">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>🏷️ اسم عرض التخفيض:</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">العنوان الذي سيظهر كشريط بارز في لوحة المستخدم (مثال: 'عرض نهاية الأسبوع 25% خصم').</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="title" placeholder="مثال: عرض التخفيض الحصري" required type="text" value="Special Flash Sale">
+            <span class="field-hint-text">النص الظاهر في شريط الإعلان للمستخدم.</span>
           </div>
-          <button class="btn-real btn-rose" type="submit">إطلاق عرض الفلاش</button>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>🎯 نسبة الخصم %:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">النسبة المئوية التي سيتم خصمها تلقائياً من سعر جميع الباقات (من 1% إلى 99%).</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" max="99" min="1" name="discount_percent" placeholder="نسبة الخصم %" required type="number" value="25">
+              <span class="field-hint-text">مثال: 25 لخصم 25%.</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>⏱️ المدة بالساعات:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">عدد الساعات التي سيظل فيها العرض والعداد التنازلي فعالاً قبل العودة للأسعار الأصلية.</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" max="168" min="1" name="duration_hours" placeholder="المدة بالساعات" required type="number" value="24">
+              <span class="field-hint-text">عمر العداد التنازلي (1 إلى 168س).</span>
+            </div>
+          </div>
+
+          <button class="btn-real btn-rose" type="submit" title="نشر وتفعيل هذا العرض فوراً في لوحة التحكم لكافة المستخدمين">
+            ⚡ إطلاق عرض التخفيض الآن
+          </button>
+        </form>
+      </div>
+
+      <!-- بطاقة 3: شحن رصيد مستخدم -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>💳 شحن رصيد محفظة</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">إيداع رصيد مالي فوري بالدولار الأمريكي في المحفظة الرقمية لأي مرشح مسجل.</div>
+              </div>
+            </h3>
+          </div>
+          <p>إضافة رصيد فوري لمحفظة أي مستخدم مع تدوين ملاحظة محاسبية إدارية.</p>
+        </div>
+        <form dir="auto" action="/admin/add-credits" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 البريد الإلكتروني للمستخدم:</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">البريد المسجل به حساب المرشح المستفيد من الإيداع.</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email">
+            <span class="field-hint-text">البريد الإلكتروني بدقة.</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>💰 المبلغ بالدولار ($):</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">قيمة الرصيد المراد إضافتها بالدولار.</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" min="0.01" name="amount" placeholder="المبلغ $" required step="0.01" type="number" value="20.00">
+              <span class="field-hint-text">المبلغ المراد شحنه.</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>📝 ملاحظة العملية:</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">سبب المعاملة المحاسبي ويظهر في سجل فواتير المستخدم (مثل: مكافأة VIP، تعويض).</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" name="note" type="text" value="مكافأة إدارية">
+              <span class="field-hint-text">بيان العملية في السجل.</span>
+            </div>
+          </div>
+
+          <button class="btn-real btn-emerald" type="submit" title="شحن المحفظة فوراً">
+            💳 إضافة الرصيد الآن
+          </button>
+        </form>
+      </div>
+
+      <!-- بطاقة 4: منح حملة مجانية -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>🚀 منح حملة توظيف مجانية</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">إنشاء وإطلاق حملة توظيف ذكية بالذكاء الاصطناعي للمستخدم وإرسال سيرته الذاتية دون خصم رصيد من محفظته.</div>
+              </div>
+            </h3>
+          </div>
+          <p>إنشاء وإطلاق حملة توظيف كاملة للمستخدم دون خصم من رصيده المالي.</p>
+        </div>
+        <form dir="auto" action="/admin/free-campaign" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 بريد المستخدم المستهدف:</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">حساب المرشح الذي سيتم إطلاق الحملة وإرسال سيرته الذاتية بناءً على ملفه.</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email">
+            <span class="field-hint-text">بريد المرشح المستفيد.</span>
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>🏢 عدد الشركات المستهدفة:</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">عدد الشركات ومسؤولي التوظيف المعتمدين الذين سيتم مراسلتهم في هذه الحملة.</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" min="5" name="company_count" placeholder="عدد الشركات" type="number" value="100">
+            <span class="field-hint-text">نطاق الاستهداف (مثال: 100 شركة).</span>
+          </div>
+
+          <button class="btn-real btn-indigo" type="submit" title="إطلاق الحملة التوظيفية فوراً">
+            🚀 منح الحملة فوراً
+          </button>
+        </form>
+      </div>
+
+      <!-- بطاقة 5: إرسال بريد يدوي مباشر -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>✉️ إرسال بريد رسمي مباشر</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">إرسال رسالة رسمية موثوقة من خوادم النظام المعتمدة إلى أي مستلم خارجي مع فحص deliverability فوري.</div>
+              </div>
+            </h3>
+          </div>
+          <p>إرسال بريد موثق من خادم النظام إلى أي بريد إلكتروني مخصص.</p>
+        </div>
+        <form dir="auto" action="/admin/send-manual-email" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 بريد المستلم:</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">عنوان البريد الإلكتروني للمرشح أو الشركة المستلمة.</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="to_email" placeholder="recipient@email.com" required type="email">
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📝 عنوان الرسالة (Subject):</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">موضوع الرسالة الذي يظهر في صندوق الوارد لدى المستلم.</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="subject" placeholder="عنوان الرسالة..." required type="text">
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📄 نص الرسالة (HTML أو نص عادي):</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">محتوى البريد، ويدعم التنسيق النصي وتنسيقات HTML الكاملة.</div>
+              </div>
+            </div>
+            <textarea dir="auto" class="admin-textarea" name="body" placeholder="محتوى الرسالة (نص عادي أو HTML)..." required style="height: 65px; resize:vertical;"></textarea>
+          </div>
+
+          <button class="btn-real btn-emerald" type="submit" title="إرسال الرسالة فوراً عبر خادم البريد">
+            ✉️ إرسال البريد الآن
+          </button>
         </form>
       </div>
 
     </div>
   </div>
 
-  <!-- JavaScript Helper Functions for Bulk Selection -->
+  <!-- جدول أكواد التفعيل والمكافآت -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🎟️ أكواد الخصم والتفعيل ({{ redeem_codes|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">قائمة بجميع أكواد التفعيل المولدة مع بيان حالتها والمستخدم المستفيد وروابط الاسترداد المباشرة.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير الأكواد المتاحة غير المستخدمة فقط إلى Excel">📥 تصدير المتاح (Excel)</a>
+        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير جميع الأكواد المستخدمة وغير المستخدمة إلى Excel">📥 تصدير الكل (Excel)</a>
+        <button id="btnDeleteSelectedCodes" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('codesForm', 'هل أنت متأكد من حذف أكواد التفعيل المحددة؟', 'أكواد التفعيل')">🗑️ حذف المحدد (<span id="countSelectedCodes">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <form id="codesForm" action="/admin/delete-codes" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="تحديد كل الأكواد"></th>
+                <th>كود التفعيل</th>
+                <th>القيمة</th>
+                <th>النوع</th>
+                <th>الحالة</th>
+                <th>المستخدم المستفيد</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in redeem_codes %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')"></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span class="code-chip">{{ r.code }}</span>
+                    {% if not r.is_used %}
+                      <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)" title="نسخ الكود">📋 نسخ</button>
+                      <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="نسخ رابط الاسترداد الفوري">🔗 رابط</button>
+                    {% endif %}
+                  </div>
+                </td>
+                <td style="color:#34d399; font-weight:800; font-size:14px; direction:ltr; text-align:start;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+                <td>
+                  {% if r.code_type == 'admin_free' %}
+                    <span class="status-pill pill-emerald">🆓 مجاني إداري</span>
+                  {% else %}
+                    <span class="status-pill pill-indigo">💳 مدفوع</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if r.is_used %}
+                    <span class="status-pill pill-slate">مُستخدم</span>
+                  {% else %}
+                    <span class="status-pill pill-emerald">متاح</span>
+                  {% endif %}
+                </td>
+                <td style="color:#94a3b8; font-size:13.5px;">{{ r.used_by or '—' }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (r.created_at or '')[:16] }}</td>
+                <td>
+                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCode('{{ r.code }}')" title="حذف الكود نهائياً">🗑️ حذف</button>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not redeem_codes %}
+              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">لا توجد أكواد تفعيل مولدة حتى الآن.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول المستخدمين المسجلين -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>👥 المستخدمون المسجلون ({{ users|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">قائمة حسابات المرشحين مع أرصدة المحافظ وإجمالي الإنفاق وأدوات التفعيل والتعطيل.</div>
+        </div>
+      </div>
+      <div>
+        <button id="btnDeleteSelectedUsers" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('usersForm', 'هل أنت متأكد من حذف حسابات المستخدمين المحددة نهائياً؟', 'المستخدمين')">🗑️ حذف المحدد (<span id="countSelectedUsers">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <form id="usersForm" action="/admin/delete-users" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="تحديد كل المستخدمين"></th>
+                <th>البريد الإلكتروني</th>
+                <th>الاسم</th>
+                <th>الدور</th>
+                <th>الرصيد</th>
+                <th>إجمالي الإنفاق</th>
+                <th>الحالة</th>
+                <th>تاريخ الانضمام</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in users %}
+              <tr>
+                <td style="text-align:center;">
+                  {% if u.user_type != 'admin' %}
+                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
+                  {% else %}
+                    <span title="حساب إدارة محمي">🔒</span>
+                  {% endif %}
+                </td>
+                <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:700; text-decoration:none; direction:ltr; display:inline-block;" title="فتح الملف الشخصي وتفاصيل الحساب">{{ u.email }}</a></td>
+                <td style="font-weight:700; color:#f1f5f9;">{{ u.name or '—' }}</td>
+                <td><span class="status-pill pill-indigo">{{ u.user_type or 'باحث عن عمل' }}</span></td>
+                <td style="color:#34d399; font-weight:800; direction:ltr; text-align:start;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+                <td style="color:#94a3b8; direction:ltr; text-align:start;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
+                <td>
+                  {% if u.is_active %}
+                    <span class="status-pill pill-emerald">🟢 نشط</span>
+                  {% else %}
+                    <span class="status-pill pill-rose">🔴 معطل</span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (u.created_at or '')[:10] }}</td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="btn-sm-action {% if u.is_active %}btn-sm-danger{% else %}btn-sm-success{% endif %}" onclick="handleToggleUser('{{ u.user_id }}')" title="تغيير حالة الحساب (تفعيل / تعطيل)">
+                      {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}
+                    </button>
+                    {% if u.user_type != 'admin' %}
+                      <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteUser('{{ u.user_id }}', '{{ u.email }}')" title="حذف حساب المستخدم نهائياً">🗑️ حذف</button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول الحملات الحديثة -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🚀 الحملات التوظيفية الحديثة ({{ campaigns|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">متابعة الحملات التوظيفية الجارية والمكتملة وأعداد الشركات والرسائل المرسلة لكل مرشح.</div>
+        </div>
+      </div>
+      <div>
+        <button id="btnDeleteSelectedCampaigns" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('campaignsForm', 'هل أنت متأكد من حذف الحملات المحددة نهائياً؟', 'الحملات')">🗑️ حذف المحدد (<span id="countSelectedCampaigns">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <form id="campaignsForm" action="/admin/delete-campaigns" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="تحديد كل الحملات"></th>
+                <th>معرف الحملة</th>
+                <th>حساب المستخدم</th>
+                <th>الحالة</th>
+                <th>الشركات المستهدفة</th>
+                <th>المرسل</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in campaigns %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
+                <td style="font-family:monospace; color:#a5b4fc; font-size:12.5px; direction:ltr; text-align:start;">{{ c.campaign_id[:18] }}...</td>
+                <td style="font-weight:700; color:#f1f5f9; direction:ltr; text-align:start;">{{ c.email or c.user_id[:12] }}</td>
+                <td>
+                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
+                    {% if c.status == 'completed' %}مكتملة
+                    {% elif c.status == 'running' %}جارية
+                    {% elif c.status == 'failed' %}فشلت
+                    {% else %}{{ c.status }}{% endif %}
+                  </span>
+                </td>
+                <td style="font-weight:800; color:#ffffff;">{{ c.total_companies }}</td>
+                <td style="color:#34d399; font-weight:800;">{{ c.sent_count }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (c.created_at or '')[:16] }}</td>
+                <td>
+                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCampaign('{{ c.campaign_id }}')" title="حذف الحملة نهائياً">🗑️ حذف</button>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not campaigns %}
+              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">لا توجد حملات توظيف حتى الآن.</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       APEX LUXURY GLASSMORPHIC CONFIRMATION MODAL & TOAST NOTIFICATION ENGINE
+       ========================================================================= -->
+  <style>
+    .apex-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      background: rgba(4, 7, 20, 0.82);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apex-modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .apex-modal-card {
+      position: relative;
+      inline-size: 100%;
+      max-inline-size: 470px;
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.97) 0%, rgba(15, 23, 42, 0.99) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.85), 0 0 45px var(--modal-glow, rgba(239, 68, 68, 0.25));
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    }
+    .apex-modal-backdrop.active .apex-modal-card {
+      transform: scale(1) translateY(0);
+    }
+    .apex-modal-close-btn {
+      position: absolute;
+      inset-block-start: 16px;
+      inset-inline-end: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-size: 18px;
+      line-height: 1;
+      inline-size: 32px;
+      block-size: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .apex-modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .apex-modal-icon-glow {
+      inline-size: 68px;
+      block-size: 68px;
+      border-radius: 50%;
+      margin-block: 0 16px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: var(--icon-bg, rgba(239, 68, 68, 0.15));
+      border: 1px solid var(--icon-border, rgba(239, 68, 68, 0.35));
+      box-shadow: 0 0 30px var(--icon-glow, rgba(239, 68, 68, 0.35));
+      animation: apexIconPop 2s infinite ease-in-out;
+    }
+    @keyframes apexIconPop {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .apex-modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-block-end: 10px;
+      line-height: 1.35;
+    }
+    .apex-modal-item-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+      margin-block-end: 14px;
+      word-break: break-all;
+      max-inline-size: 100%;
+    }
+    .apex-modal-item-badge.danger {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+    }
+    .apex-modal-item-badge.warning {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+    .apex-modal-item-badge.success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+    .apex-modal-item-badge.info {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+    }
+    .apex-modal-desc {
+      color: #94a3b8;
+      font-size: 14.5px;
+      line-height: 1.7;
+      margin-block-end: 26px;
+    }
+    .apex-modal-btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .apex-modal-btn {
+      flex: 1;
+      padding: 13px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .apex-modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+    }
+    .apex-modal-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+    .apex-modal-btn-action {
+      background: var(--btn-grad, linear-gradient(135deg, #ef4444 0%, #dc2626 100%));
+      color: #ffffff;
+      box-shadow: 0 6px 20px var(--btn-glow, rgba(239, 68, 68, 0.4));
+    }
+    .apex-modal-btn-action:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+    .apex-modal-btn-action:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* TOAST NOTIFICATIONS */
+    #apexToastContainer {
+      position: fixed;
+      inset-block-start: 24px;
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      z-index: 100001;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .apex-toast {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      padding: 12px 22px;
+      color: #f8fafc;
+      font-size: 14.5px;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 24px var(--toast-glow, rgba(56, 189, 248, 0.35));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      animation: toastSlideDown 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+    }
+    @keyframes toastSlideDown {
+      from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+
+  <div id="apexConfirmModal" class="apex-modal-backdrop" onclick="handleApexBackdropClick(event)">
+    <div class="apex-modal-card" role="dialog" aria-modal="true" aria-labelledby="apexModalTitle">
+      <button type="button" class="apex-modal-close-btn" onclick="closeApexModal()" title="إغلاق">&times;</button>
+      <div class="apex-modal-icon-glow" id="apexModalIconWrap">
+        <span id="apexModalIcon">🗑️</span>
+      </div>
+      <h3 id="apexModalTitle" class="apex-modal-title">تأكيد الإجراء التنفيذي</h3>
+      <div id="apexModalBadge" class="apex-modal-item-badge" style="display:none;"></div>
+      <p id="apexModalMessage" class="apex-modal-desc">هل أنت متأكد من رغبتك في متابعة هذا الإجراء؟ لا يمكن التراجع عنه.</p>
+      <div class="apex-modal-btn-row">
+        <button type="button" id="apexModalCancelBtn" class="apex-modal-btn apex-modal-btn-cancel" onclick="closeApexModal()">إلغاء الأمر</button>
+        <button type="button" id="apexModalConfirmBtn" class="apex-modal-btn apex-modal-btn-action">
+          <span id="apexModalConfirmText">تأكيد الحذف</span>
+          <span id="apexModalSpinner" style="display:none; inline-size:16px; block-size:16px; border:2px solid #fff; border-inline-start-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite;"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="apexToastContainer"></div>
+
+  <!-- دوال الجافاسكريبت للتحكم والتحديد المجمع والمودال الراقي -->
   <script dir="auto">
+    let _apexConfirmCallback = null;
+
+    function openApexConfirmModal(options) {
+      const modal = document.getElementById('apexConfirmModal');
+      const icon = document.getElementById('apexModalIcon');
+      const title = document.getElementById('apexModalTitle');
+      const badge = document.getElementById('apexModalBadge');
+      const msg = document.getElementById('apexModalMessage');
+      const confirmBtn = document.getElementById('apexModalConfirmBtn');
+      const confirmText = document.getElementById('apexModalConfirmText');
+      const cancelBtn = document.getElementById('apexModalCancelBtn');
+      const spinner = document.getElementById('apexModalSpinner');
+
+      if (!modal) return;
+
+      const type = options.type || 'danger'; // danger | warning | success | info
+      icon.innerText = options.icon || (type === 'danger' ? '🗑️' : (type === 'warning' ? '⏸️' : (type === 'success' ? '▶️' : '⚡')));
+      title.innerText = options.title || 'تأكيد الإجراء التنفيذي';
+      msg.innerText = options.message || 'هل أنت متأكد من المتابعة؟';
+      confirmText.innerText = options.confirmText || 'تأكيد';
+      cancelBtn.innerText = options.cancelText || 'إلغاء';
+
+      if (options.badge) {
+        badge.innerText = options.badge;
+        badge.className = 'apex-modal-item-badge ' + type;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      if (type === 'danger') {
+        modal.style.setProperty('--modal-glow', 'rgba(239, 68, 68, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(239, 68, 68, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(239, 68, 68, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(239, 68, 68, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(239, 68, 68, 0.4)');
+      } else if (type === 'warning') {
+        modal.style.setProperty('--modal-glow', 'rgba(245, 158, 11, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(245, 158, 11, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(245, 158, 11, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(245, 158, 11, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(245, 158, 11, 0.4)');
+      } else if (type === 'success') {
+        modal.style.setProperty('--modal-glow', 'rgba(16, 185, 129, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(16, 185, 129, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(16, 185, 129, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(16, 185, 129, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(16, 185, 129, 0.4)');
+      } else {
+        modal.style.setProperty('--modal-glow', 'rgba(99, 102, 241, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(99, 102, 241, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(99, 102, 241, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(99, 102, 241, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(99, 102, 241, 0.4)');
+      }
+
+      confirmBtn.disabled = false;
+      spinner.style.display = 'none';
+
+      _apexConfirmCallback = async () => {
+        try {
+          confirmBtn.disabled = true;
+          spinner.style.display = 'inline-block';
+          if (options.onConfirm) {
+            await options.onConfirm();
+          }
+          closeApexModal();
+        } catch (err) {
+          console.error(err);
+          showApexToast(err.message || 'حدث خطأ أثناء تنفيذ الإجراء', 'danger');
+          confirmBtn.disabled = false;
+          spinner.style.display = 'none';
+        }
+      };
+
+      confirmBtn.onclick = _apexConfirmCallback;
+      modal.classList.add('active');
+    }
+
+    function closeApexModal() {
+      const modal = document.getElementById('apexConfirmModal');
+      if (modal) modal.classList.remove('active');
+      _apexConfirmCallback = null;
+    }
+
+    function handleApexBackdropClick(e) {
+      if (e.target.id === 'apexConfirmModal') {
+        closeApexModal();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeApexModal();
+    });
+
+    function showApexToast(message, type = 'success') {
+      const container = document.getElementById('apexToastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'apex-toast';
+      const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+      const glow = type === 'success' ? 'rgba(16, 185, 129, 0.4)' : (type === 'danger' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(56, 189, 248, 0.4)');
+      toast.style.setProperty('--toast-glow', glow);
+      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    async function executeApexAction(url, bodyData, successMsg, onDomUpdate) {
+      try {
+        const formData = new FormData();
+        if (bodyData) {
+          for (const [k, v] of Object.entries(bodyData)) {
+            if (Array.isArray(v)) {
+              v.forEach(item => formData.append(k, item));
+            } else {
+              formData.append(k, v);
+            }
+          }
+        }
+        const resp = await fetch(url, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!resp.ok && resp.status !== 303 && resp.status !== 200) {
+          throw new Error(`Server returned HTTP ${resp.status}`);
+        }
+        showApexToast(successMsg || 'تم تنفيذ الإجراء بنجاح', 'success');
+        if (onDomUpdate) {
+          onDomUpdate();
+        } else {
+          setTimeout(() => window.location.reload(), 650);
+        }
+      } catch (e) {
+        console.error('Action error:', e);
+        showApexToast('فشل تنفيذ الإجراء: ' + e.message, 'danger');
+      }
+    }
+
+    function handlePauseFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'warning',
+        icon: '⏸️',
+        title: 'إيقاف العرض الترويجي مؤقتاً',
+        badge: title ? `عرض: ${title}` : `Sale #${saleId}`,
+        message: 'هل تريد إيقاف هذا العرض مؤقتاً؟ سيتم إخفاء شريط الخصم فوراً عن جميع الزوار.',
+        confirmText: '⏸️ إيقاف مؤقت',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/pause-flash-sale', { sale_id: saleId }, 'تم إيقاف العرض الترويجي مؤقتاً')
+      });
+    }
+
+    function handleResumeFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'success',
+        icon: '▶️',
+        title: 'استئناف وتمديد العرض الترويجي',
+        badge: title ? `عرض: ${title}` : `Sale #${saleId}`,
+        message: 'هل تريد إعادة تفعيل هذا العرض الترويجي وتمديده للزوار لمدة 24 ساعة إضافية؟',
+        confirmText: '▶️ استئناف (+24س)',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/resume-flash-sale', { sale_id: saleId, extend_hours: 24 }, 'تم استئناف وتمديد العرض بنجاح')
+      });
+    }
+
+    function handleDeleteFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: 'حذف العرض الترويجي نهائياً',
+        badge: title ? `عرض: ${title}` : `Sale #${saleId}`,
+        message: 'هل أنت متأكد من رغبتك في حذف هذا العرض نهائياً من قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: '🗑️ تأكيد الحذف',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/delete-flash-sale', { sale_id: saleId }, 'تم حذف العرض الترويجي نهائياً')
+      });
+    }
+
+    function handleDeleteCode(code) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: 'حذف كود التفعيل',
+        badge: `كود: ${code}`,
+        message: 'هل أنت متأكد من حذف كود التفعيل هذا نهائياً؟ لن يتمكن أي مستخدم من استخدامه.',
+        confirmText: '🗑️ حذف الكود',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/delete-code', { code: code }, 'تم حذف كود التفعيل بنجاح')
+      });
+    }
+
+    function handleDeleteUser(userId, email) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: 'حذف حساب المستخدم نهائياً',
+        badge: email || userId,
+        message: 'هل أنت متأكد من رغبتك في حذف هذا المستخدم وسجلاته بالكامل؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: '🗑️ حذف المستخدم',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: userId }, 'تم حذف حساب المستخدم بنجاح')
+      });
+    }
+
+    function handleDeleteCampaign(campaignId) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: 'حذف سجل حملة التوظيف',
+        badge: `حملة #${campaignId.substring(0, 16)}`,
+        message: 'هل أنت متأكد من حذف سجل هذه الحملة التوظيفية نهائياً من قاعدة البيانات؟',
+        confirmText: '🗑️ حذف الحملة',
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction('/admin/delete-campaign', { campaign_id: campaignId }, 'تم حذف الحملة بنجاح')
+      });
+    }
+
+    function handleToggleUser(userId) {
+      executeApexAction('/admin/toggle-user', { target_user_id: userId }, 'تم تحديث حالة المستخدم بنجاح');
+    }
+
+    function handleBulkDelete(formId, promptMsg, itemLabel) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const checked = form.querySelectorAll('input[type="checkbox"]:checked:not([id^="selectAll"])');
+      if (checked.length === 0) {
+        showApexToast('يرجى تحديد عنصر واحد على الأقل للحذف.', 'danger');
+        return;
+      }
+      const values = Array.from(checked).map(c => c.value);
+      const fieldName = checked[0].name;
+
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: `حذف مجمع (${checked.length} ${itemLabel || 'عناصر'})`,
+        badge: `تم تحديد ${checked.length} عنصر`,
+        message: promptMsg || `هل أنت متأكد من حذف ${checked.length} عنصر(عناصر) محددة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`,
+        confirmText: `🗑️ حذف المحدد (${checked.length})`,
+        cancelText: 'إلغاء',
+        onConfirm: () => executeApexAction(form.action, { [fieldName]: values }, `تم حذف ${checked.length} عنصر بنجاح`)
+      });
+    }
+
     function toggleSelectAll(className, masterCheckbox, btnId, countId) {
       const checkboxes = document.querySelectorAll('.' + className);
       checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
@@ -605,200 +1921,5 @@
       if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
       if (master && all.length > 0) master.checked = (checked.length === all.length);
     }
-
-    function submitBulkDelete(formId, promptMsg) {
-      const form = document.getElementById(formId);
-      if (!form) return;
-      const checked = form.querySelectorAll('input[type="checkbox"]:checked');
-      if (checked.length === 0) {
-        alert('الرجاء تحديد عنصر واحد على الأقل للحذف.');
-        return;
-      }
-      if (confirm(promptMsg || `هل أنت تأكد من حذف ${checked.length} من العناصر المحددة؟ لا يمكن التراجع عن هذا الإجراء.`)) {
-        form.submit();
-      }
-    }
   </script>
-
-  <!-- Redeem Codes Table -->
-  <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">🎟️ أكواد الاسترداد والتفعيل ({{ redeem_codes|length }})</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(0,240,255,0.15); color:#00f0ff; border:1px solid rgba(0,240,255,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 تصدير المتاح (Unused) Excel</a>
-        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 تصدير الكل (All) Excel</a>
-        <button id="btnDeleteSelectedCodes" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('codesForm', 'هل أنت تأكد من حذف الأكواد المحددة؟')">🗑️ حذف الأكواد المحددة (<span id="countSelectedCodes">0</span>)</button>
-      </div>
-    </div>
-    <div class="table-card">
-      <form id="codesForm" action="/admin/delete-codes" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" dir="auto"></th>
-              <th>الكود</th>
-              <th>القيمة</th>
-              <th>النوع</th>
-              <th>الحالة</th>
-              <th>استخدم بواسطة</th>
-              <th>تاريخ الإنشاء</th>
-              <th>إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for r in redeem_codes %}
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')" dir="auto"></td>
-              <td>
-                <span class="code-chip">{{ r.code }}</span>
-                {% if not r.is_used %}
-                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)">📋 نسخ</button>
-                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)">🔗 الرابط</button>
-                {% endif %}
-              </td>
-              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
-              <td>
-                {% if r.code_type == 'admin_free' %}
-                  <span class="status-pill pill-emerald">🆓 مجاني</span>
-                {% else %}
-                  <span class="status-pill pill-indigo">💳 بيع</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if r.is_used %}
-                  <span class="status-pill pill-slate">مُستخدم</span>
-                {% else %}
-                  <span class="status-pill pill-emerald">متاح</span>
-                {% endif %}
-              </td>
-              <td style="color:#94a3b8;">{{ r.used_by or '—' }}</td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
-              <td>
-                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('حذف الكود {{ r.code }}؟')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-code'; const i=document.createElement('input'); i.name='code'; i.value='{{ r.code }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ حذف</button>
-              </td>
-            </tr>
-            {% endfor %}
-            {% if not redeem_codes %}
-            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">لا توجد أكواد مضافة بعد.</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </form>
-    </div>
-  </div>
-
-  <!-- Users Table -->
-  <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">👥 قائمة المستخدمين ({{ users|length }})</div>
-      <div>
-        <button id="btnDeleteSelectedUsers" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('usersForm', 'هل أنت تأكد من حذف المستخدمين المحددين؟')">🗑️ حذف المستخدمين المحددين (<span id="countSelectedUsers">0</span>)</button>
-      </div>
-    </div>
-    <div class="table-card">
-      <form id="usersForm" action="/admin/delete-users" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" dir="auto"></th>
-              <th>البريد الإلكتروني</th>
-              <th>الاسم</th>
-              <th>النوع</th>
-              <th>الرصيد</th>
-              <th>إجمالي المنفق</th>
-              <th>الحالة</th>
-              <th>انضم في</th>
-              <th>إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for u in users %}
-            <tr>
-              <td style="text-align:center;">
-                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
-                  <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')" dir="auto">
-                {% else %}
-                  🔒
-                {% endif %}
-              </td>
-              <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:600; text-decoration:none;">{{ u.email }}</a></td>
-              <td style="font-weight:600; color:#f1f5f9;">{{ u.name or '—' }}</td>
-              <td><span class="status-pill pill-indigo">{{ u.user_type or 'JOBSEEKER' }}</span></td>
-              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
-              <td style="color:#94a3b8;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
-              <td>
-                {% if u.is_active %}
-                  <span class="status-pill pill-emerald">🟢 نشط</span>
-                {% else %}
-                  <span class="status-pill pill-rose">🔴 معطل</span>
-                {% endif %}
-              </td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (u.created_at or '')[:10] }}</td>
-              <td style="display:flex; gap:6px; align-items:center;">
-                <button type="button" class="btn-sm-action {% if u.is_active %}btn-rose{% else %}btn-emerald{% endif %}" style="padding:5px 10px; border-radius:6px; border:none; cursor:pointer;" onclick="const f=document.createElement('form'); f.method='POST'; f.action='/admin/toggle-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit();">
-                  {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}
-                </button>
-                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
-                  <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('حذف المستخدم {{ u.email }} نهائياً؟')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ حذف</button>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </form>
-    </div>
-  </div>
-
-  <!-- Recent Campaigns Table -->
-  <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">🚀 الحملات الأخيرة ({{ campaigns|length }})</div>
-      <div>
-        <button id="btnDeleteSelectedCampaigns" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('campaignsForm', 'هل أنت تأكد من حذف الحملات المحددة؟')">🗑️ حذف الحملات المحددة (<span id="countSelectedCampaigns">0</span>)</button>
-      </div>
-    </div>
-    <div class="table-card">
-      <form id="campaignsForm" action="/admin/delete-campaigns" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" dir="auto"></th>
-              <th>معرف الحملة</th>
-              <th>المستخدم</th>
-              <th>الحالة</th>
-              <th>الشركات</th>
-              <th>المرسلة</th>
-              <th>التاريخ</th>
-              <th>إجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in campaigns %}
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')" dir="auto"></td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#c4b5fd;">{{ c.campaign_id[:20] }}...</td>
-              <td>{{ c.email or c.user_id[:12] }}</td>
-              <td>
-                <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
-                  {{ c.status }}
-                </span>
-              </td>
-              <td style="font-weight:700;">{{ c.total_companies }}</td>
-              <td style="color:#34d399; font-weight:700;">{{ c.sent_count }}</td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (c.created_at or '')[:16] }}</td>
-              <td>
-                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('حذف هذه الحملة نهائياً؟')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-campaign'; const i=document.createElement('input'); i.name='campaign_id'; i.value='{{ c.campaign_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ حذف</button>
-              </td>
-            </tr>
-            {% endfor %}
-            {% if not campaigns %}
-            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">لا توجد حملات مسجلة بعد.</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </form>
-    </div>
-  </div>
-
 </div>

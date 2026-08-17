@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 
-WORKER_URL = "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
+WORKER_URL = os.getenv("WORKER_URL", "https://router.jobhunt-pro.com")
 
 # Global thread-safe dictionary to track last send time per account
 last_send_times = {}
@@ -42,7 +42,7 @@ def send_smtp_email(to_email, subject, body, smtp_email, smtp_password):
     log(f"[{smtp_email}] Connecting to SMTP: {host}:{port}...")
 
     msg = MIMEMultipart()
-    msg['From'] = f"Sam Salameh <{smtp_email}>"
+    msg['From'] = f"Candidate <{smtp_email}>"
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'html'))

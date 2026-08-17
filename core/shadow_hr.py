@@ -39,7 +39,7 @@ try:
 except ImportError:
     db_name = "jobhunt_saas_v2.db"
 DB_PATH = str(Path(__file__).resolve().parent.parent / db_name)
-PAYMENT_LINK = "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/checkout"  # B2B Unlock Link
+PAYMENT_LINK = os.getenv("PAYMENT_LINK", "https://api.jobhunt-pro.com/api/v1/b2b/checkout")  # B2B Unlock Link
 
 
 def get_target_jobs(limit=10):

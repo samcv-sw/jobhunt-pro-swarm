@@ -48,7 +48,7 @@
                 <span class="text-sm font-bold">智能薪资谈判助手</span>
             </a>
 
-            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
             <!-- SERVICES & OFFERS SECTION (ADMIN ONLY) -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-extrabold text-pink-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Services & Offers</span>
@@ -148,17 +148,17 @@
                 <i data-lucide="pie-chart" class="w-4 h-4"></i>
                 <span class="text-sm">Statistics</span>
             </a>
-            <a href="/growth-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'growth_station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
-                <i data-lucide="megaphone" class="w-4 h-4"></i>
-                <span class="text-sm">Growth Station & Leads</span>
-            </a>
 
             <!-- SYSTEM SECTION -->
             <div class="px-3 pt-3 pb-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">System</div>
-            {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
+            {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
             <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-red-400 hover:bg-red-500/10">
                 <i data-lucide="shield-alert" class="w-4 h-4"></i>
                 <span class="text-sm font-semibold">Admin Panel</span>
+            </a>
+            <a href="/growth-station" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'growth_station' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">
+                <i data-lucide="megaphone" class="w-4 h-4"></i>
+                <span class="text-sm">Growth Station & Leads</span>
             </a>
             {% endif %}
             <a href="/contact" class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all {{ 'bg-indigo-500/10 text-indigo-400 font-bold' if active_page == 'contact' else 'text-slate-400 hover:text-white hover:bg-white/5' }}">

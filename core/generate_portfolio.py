@@ -12,8 +12,8 @@ import re
 logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = os.path.join("docs", "portfolios")
-B2B_CHECKOUT_LINK = (
-    "https://olympus-webhook.samsalameh-cv.workers.dev/api/v1/b2b/candidates"
+B2B_CHECKOUT_LINK = os.getenv(
+    "B2B_CHECKOUT_LINK", "https://api.jobhunt-pro.com/api/v1/b2b/candidates"
 )
 
 
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     # Test generation
     generate_trojan_portfolio(
         user_id="demo123",
-        name="Sam Salameh",
+        name="Alex Johnson",
         title="Senior AI Architect & Python Engineer",
         skills=[
             "Python",

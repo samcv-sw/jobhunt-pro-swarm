@@ -331,7 +331,7 @@ class PAJobScraper:
         # Filter out unset keys so rotation never sends None
         self.jsearch_keys = [k for k in (JSEARCH_KEY, JSEARCH_BACKUP) if k]
         self._key_idx = 0
-        self._hhru_user_agent = "JobHuntPro/17.0 (samsalameh.cv@gmail.com)"
+        self._hhru_user_agent = "JobHuntPro/17.0 (support@jobhunt-pro.com)"
 
     def _fetch_url(
         self, url: str, headers: dict = None, timeout: int = 15, retries: int = 3
@@ -1455,7 +1455,7 @@ class PAJobScraper:
             res_text = self._fetch_url(
                 url,
                 headers={
-                    "User-Agent": "JobHuntPro/18.0 (samsalameh.cv@gmail.com)",
+                    "User-Agent": "JobHuntPro/18.0 (support@jobhunt-pro.com)",
                     "Accept": "application/json",
                 },
                 timeout=15,

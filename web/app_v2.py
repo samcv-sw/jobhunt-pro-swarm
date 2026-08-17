@@ -129,7 +129,7 @@ from payments import get_payment_addresses
 from services.catalog import BOUQUET_CATALOG, SERVICE_CATALOG
 from services.fulfillment import ServiceFulfillment
 
-SECRET_KEY = "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
+SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None) or "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
 session_serializer = URLSafeTimedSerializer(SECRET_KEY)
 
 # JWT verification for security controls
@@ -456,7 +456,7 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page, requ
 
     is_admin = False
     if user and isinstance(user, dict):
-        is_admin = bool(user.get("is_admin")) or is_admin_email(user.get("email", ""))
+        is_admin = bool(user.get("is_admin")) or user.get("user_type") == "admin" or is_admin_email(user.get("email", ""))
     elif user_id:
         is_admin = is_admin_email(str(user_id))
 
@@ -482,14 +482,16 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page, requ
                            current_year=datetime.now().year,
                            request=request)
 
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")
 
 def is_admin_email(email: str) -> bool:
     """Check if an email belongs to an administrator."""
     if not email:
         return False
     e = email.strip().lower()
-    admins = {"samatou683@gmail.com"}
+    admins = {
+        "samatou683@gmail.com"
+    }
     raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
     if raw_env:
         for item in raw_env.replace(" ", ",").split(","):
@@ -670,8 +672,8 @@ async def _campaign_self_tick_loop():
                     _conn.execute("""
                         UPDATE campaigns 
                         SET status = 'running', started_at = CURRENT_TIMESTAMP 
-                        WHERE (user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')
-                               OR user_id IN (SELECT user_id FROM users WHERE LOWER(email) IN ('sam.dev1@hotmail.com', 'samatou683@gmail.com')))
+                        WHERE (user_id IN ('user_1b73747a6e9a41d6', 'user_c79c498bf9314555', 'user_72a63be2aeb5')
+                               OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'))
                         AND status IN ('pending', 'running', 'failed', 'completed')
                     """)
                     _stuck_res = []
@@ -1853,6 +1855,7 @@ def get_db(max_retries: int = 3):
                 conn.execute("PRAGMA journal_mode=WAL")
                 conn.execute("PRAGMA synchronous=NORMAL")
                 conn.execute("PRAGMA busy_timeout=60000")
+                conn.execute("PRAGMA read_uncommitted=1")
                 conn.execute("PRAGMA cache_size=-64000")
                 conn.execute("PRAGMA temp_store=MEMORY")
                 conn.execute("PRAGMA mmap_size=268435456")
@@ -2482,7 +2485,7 @@ def auto_seed_cloud_db(conn):
     """Auto-seeds master admin users, credits, and CV profiles for zero-configuration cloud operations."""
     try:
         admin_emails = [
-            ("samatou683@gmail.com", "user_c79c498bf9314555", "Sam Salameh"),
+            ("admin@jobhunt-pro.com", "user_c79c498bf9314555", "JobHunt Pro Admin"),
         ]
         candidate_emails = [
             ("sam.dev1@hotmail.com", "user_1b73747a6e9a41d6", "Sam Salameh"),
@@ -2510,8 +2513,8 @@ def auto_seed_cloud_db(conn):
             if existing:
                 u_id = dict(existing).get("user_id") or user_id
                 conn.execute(
-                    "UPDATE users SET user_type = 'candidate', is_admin = 0 WHERE user_id = ? OR LOWER(email) = ?",
-                    (u_id, email.lower()),
+                    "UPDATE users SET user_type = 'candidate', is_admin = 0, name = ? WHERE user_id = ? OR LOWER(email) = ?",
+                    (name, u_id, email.lower()),
                 )
             else:
                 conn.execute(
@@ -2521,39 +2524,41 @@ def auto_seed_cloud_db(conn):
                 )
                 u_id = user_id
 
-            # Ensure CV profile exists for admin user
+            # Ensure CV profile exists for candidate user
             profile_row = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? OR user_id = ?", (u_id, user_id)).fetchone()
             if not profile_row:
                 sample_cv = """SAM SALAMEH
-Senior Software Engineer & Cloud Architect
-samatou683@gmail.com | +961 70 841 009 | Beirut, Lebanon / Dubai, UAE
+Senior Network Engineer
+sam.dev1@hotmail.com | +961 70 841 009 | Beirut, Lebanon
 https://www.linkedin.com/in/sam-salameh
 
 SUMMARY
-Senior Software Engineer and Systems Architect with 10+ years of experience building high-scale Python/FastAPI web platforms, distributed cloud swarms, automated outreach engines, and real-time AI dashboards. Expert in network engineering, microservices, and database optimization.
+Accomplished Network Engineer with 15+ years of progressive experience designing, implementing, configuring, and troubleshooting enterprise-grade networking infrastructure. Proven expertise in managing complex network environments, optimizing performance, and ensuring high availability across diverse platforms including Cisco, MikroTik, Ubiquiti, and Fortinet.
 
 CORE SKILLS
-Python, FastAPI, Next.js, SQLite/PostgreSQL, Cloud Infrastructure, Docker, Microservices, AI/LLM Integration, Network Security, REST APIs, System Automation.
+Network Design, Cisco IOS, MikroTik RouterOS, Ubiquiti UniFi, Fortinet, Fiber Optic, Firewalls & VPN, TCP/IP, VLAN, Routing & Switching, QoS, OSPF, BGP, Wireshark, SolarWinds, PRTG, Linux, Python.
 
 EXPERIENCE
-Senior Cloud Architect | JobHunt Pro SaaS (2022 - Present)
-- Designed and deployed high-performance autonomous lead generation and email outreach engine.
-- Built multi-tenant SaaS architecture supporting concurrent campaign dispatching.
+Senior Network Engineer | Enterprise Infrastructure (2010 - Present)
+- Designed and deployed enterprise-grade networks for 20+ clients.
+- Implemented secure VPN solutions and advanced firewall configurations.
+- Maintained 99.99% network uptime across critical enterprise operations.
 
 EDUCATION
-B.S. Computer Engineering & Network Infrastructure
+Dekwene Technical School - B3 Information Technology
 """
                 conn.execute(
-                    "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, experience_years, target_titles, target_locations, min_local_salary, min_international_salary, created_at) "
-                    "VALUES (?, ?, ?, ?, 10, ?, ?, 2500, 6000, ?)",
+                    "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, experience_years, target_titles, target_locations, min_local_salary, min_international_salary, created_at, phone) "
+                    "VALUES (?, ?, ?, ?, 15, ?, ?, 2500, 6000, ?, ?)",
                     (
                         u_id,
-                        "Sam Salameh - Senior Software & Cloud Architect",
+                        "Sam Salameh - Senior Network Engineer (15+ yrs exp)",
                         sample_cv,
-                        "Python, FastAPI, Next.js, Cloud Architecture, PostgreSQL, SQLite, AI Tailoring, Network Security",
-                        "Senior Software Engineer, Cloud Architect, Systems Engineer, Lead Developer",
-                        "Lebanon, UAE, Saudi Arabia, Qatar, Remote, Worldwide",
+                        "Network Design, Cisco IOS, MikroTik RouterOS, Ubiquiti UniFi, Fortinet, Fiber Optic, Firewalls & VPN, TCP/IP, VLAN, Routing & Switching, QoS, OSPF, BGP, Wireshark, SolarWinds, PRTG, Linux, Python",
+                        "Senior Network Engineer, Network Security Engineer, Network Infrastructure Engineer, Network Solutions Architect",
+                        "Lebanon, UAE, Saudi Arabia, Qatar, Kuwait, GCC, Remote, Worldwide",
                         now_str,
+                        "+961 70 841 009",
                     ),
                 )
         conn.commit()
@@ -2875,7 +2880,9 @@ def deploy_from_github(request: Request, key: str = Query("")):
 
 
 @app.get("/clean_disk_cloud_admin")
-async def clean_disk_cloud_admin():
+async def clean_disk_cloud_admin(request: Request):
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
     import shutil
     import os
     results = []
@@ -2939,8 +2946,10 @@ def health_check_main():
 
 @app.get("/admin/telemetry")
 @app.get("/api/v1/telemetry")
-def get_admin_telemetry():
+def get_admin_telemetry(request: Request):
     """Real-time system telemetry and zero-dependency monitoring."""
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
     from core.max_performance_engine import get_system_telemetry
     return get_system_telemetry()
 
@@ -3178,12 +3187,11 @@ def api_live_dispatches(request: Request, response: Response):
         user_id = get_verified_user_id(request)
         conn = get_db()
         if not user_id:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+            admin_user = (
+                conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+            user_id = admin_user["user_id"] if isinstance(admin_user, dict) else (admin_user[0] if admin_user else "user_1b73747a6e9a41d6")
 
         from web.routers.dashboard import _get_dashboard_live_dispatches_data
         return _get_dashboard_live_dispatches_data(conn, user_id)
@@ -3427,7 +3435,9 @@ def pipeline_counts(request: Request):
 
 # === STATS PAGE ===
 @app.get("/debug-db")
-def debug_db():
+def debug_db(request: Request):
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
     try:
         with get_db() as conn:
                     orders_info = [r[1] for r in conn.execute("PRAGMA table_info(orders)").fetchall()]
@@ -3828,7 +3838,9 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page, requ
 
 @app.get("/email-test", response_class=HTMLResponse)
 def email_test(request: Request):
-    return HTMLResponse("<h1>Email Test</h1><p>Premium access required.</p>")
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
+    return HTMLResponse("<h1>Email Test</h1><p>Admin authorized.</p>")
 
 # ==================== MIGRATED TO ROUTER — START (lines 2657-2705) ====================
 # @app.get("/pricing", response_class=HTMLResponse)
@@ -4319,12 +4331,11 @@ async def get_campaigns_live_status_web(request: Request):
 
     with get_db() as conn:
         if not user_id:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+            admin_user = (
+                conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+            user_id = admin_user["user_id"] if isinstance(admin_user, dict) else (admin_user[0] if admin_user else "user_1b73747a6e9a41d6")
 
         campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()]
 
@@ -4377,22 +4388,21 @@ async def create_campaign_web(
     with get_db() as conn:
         try:
             if not user_id:
-                sam_user = (
-                    conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
-                    conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
+                admin_user = (
+                    conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
                     conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
                 )
-                if sam_user:
-                    user_id = sam_user["user_id"] if isinstance(sam_user, dict) else sam_user[0]
+                if admin_user:
+                    user_id = admin_user["user_id"] if isinstance(admin_user, dict) else admin_user[0]
                 else:
                     user_id = "user_1b73747a6e9a41d6"
 
             user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
             if not user:
-                default_email = "sam.dev1@hotmail.com" if user_id == "user_1b73747a6e9a41d6" else "samatou683@gmail.com"
+                default_email = "admin@jobhunt-pro.com" if user_id == "user_c79c498bf9314555" else "sam.dev1@hotmail.com"
                 conn.execute(
                     "INSERT OR IGNORE INTO users (user_id, email, full_name, wallet_balance) VALUES (?,?,?,?)",
-                    (user_id, default_email, "Sam Salameh", 10000.0)
+                    (user_id, default_email, getattr(config, "CANDIDATE_NAME", "Sam Salameh"), 10000.0)
                 )
                 conn.commit()
                 user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
@@ -4462,10 +4472,27 @@ async def create_campaign_web(
                 except Exception as ex:
                     logger.warning(f"Error parsing cart_services_data: {ex}")
 
-            user_bal = float(user.get("wallet_balance", 0) or 0)
-            is_admin = bool(user.get("is_admin")) or user.get("email") in ("samatou683@gmail.com", "samsalameh.cv@gmail.com")
+            calculated_base_price = total_price
+            override_cost = form_data.get("total_deployment_cost", "")
+            if override_cost:
+                try:
+                    val = float(override_cost)
+                    if val > 0:
+                        total_price = val
+                    elif val == 0 and company_count > 0 and calculated_base_price > 0:
+                        total_price = calculated_base_price
+                except Exception:
+                    pass
 
-            if not is_admin and user_bal < total_price:
+            if company_count <= 0 and not selected_bouquets and not cart_json:
+                total_price = 0.0
+
+            user_bal = float(user.get("wallet_balance", 0) or 0)
+            from web.shared import is_admin_email
+            user_email = (user.get("email") or "").strip().lower()
+            is_admin = bool(user.get("is_admin")) or user.get("user_type") == "admin" or is_admin_email(user_email)
+
+            if total_price > 0 and not is_admin and user_bal < total_price:
                 return JSONResponse({
                     "success": False,
                     "error": "insufficient_funds",
@@ -4911,24 +4938,71 @@ def user_dashboard(request: Request):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         if not user_row:
             user_row = (
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                conn.execute("SELECT * FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
+                conn.execute("SELECT * FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
                 conn.execute("SELECT * FROM users ORDER BY id DESC LIMIT 1").fetchone()
             )
         if not user_row:
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
         actual_uid = user.get("user_id") or str(user.get("id") or user_id)
+        if not user.get("name") or user.get("name") in ("Network Master", "Hunter", "Candidate", "Jobseeker", "User", "default_user"):
+            cv_prof = conn.execute("SELECT profile_name FROM cv_profiles WHERE user_id = ? OR user_id = ? ORDER BY id DESC LIMIT 1", (actual_uid, str(user_id))).fetchone()
+            if cv_prof and cv_prof["profile_name"]:
+                import re as _re_p
+                clean_n = cv_prof["profile_name"].split(" - ")[0].split(" | ")[0].strip()
+                user["name"] = _re_p.sub(r'\(.*?\)', '', clean_n).strip()
+                try:
+                    conn.execute("UPDATE users SET name = ? WHERE user_id = ?", (user["name"], actual_uid))
+                    conn.commit()
+                except Exception:
+                    pass
+        elif " - " in user.get("name", "") or " | " in user.get("name", ""):
+            import re as _re_p
+            clean_n = user["name"].split(" - ")[0].split(" | ")[0].strip()
+            user["name"] = _re_p.sub(r'\(.*?\)', '', clean_n).strip()
+            try:
+                conn.execute("UPDATE users SET name = ? WHERE user_id = ?", (user["name"], actual_uid))
+                conn.commit()
+            except Exception:
+                pass
 
         try:
-            import threading
-            from core.continuous_dispatcher import dispatch_single_application
-            threading.Thread(target=dispatch_single_application, args=(actual_uid,), daemon=True).start()
+            from core.continuous_dispatcher import trigger_user_dispatch_pulse
+            trigger_user_dispatch_pulse(actual_uid)
         except Exception as _disp_err:
             logger.debug(f"[user_dashboard] dispatch pulse skip: {_disp_err}")
 
-        profiles = [dict(r) for r in conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? OR user_id = ?", (actual_uid, str(user_id))).fetchall()]
+        rows = conn.execute(
+            """SELECT * FROM cv_profiles 
+               WHERE user_id = ? OR user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
+               ORDER BY id DESC""", (actual_uid, str(user_id))
+        ).fetchall()
+        formatted_profiles = []
+        seen_names = set()
+        for r in rows:
+            p = dict(r)
+            raw_name = p.get("profile_name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+            raw_titles = p.get("target_titles") or "Senior Network Engineer, Network Security Engineer, Solutions Architect"
+            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Network Engineer"
+            exp = p.get("experience_years") or 15
+            ats_score = p.get("ats_score") or 95
+            skills = p.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark, SolarWinds, PRTG"
+
+            clean_name = raw_name
+            if " - " not in clean_name:
+                clean_name = f"{raw_name} - {first_title} ({exp}+ yrs exp)"
+            elif not clean_name.endswith("exp)") and not clean_name.endswith("exp"):
+                clean_name = f"{clean_name} ({exp}+ yrs exp)"
+
+            if clean_name not in seen_names:
+                seen_names.add(clean_name)
+                p["profile_name"] = clean_name
+                p["experience_years"] = exp
+                p["target_titles"] = raw_titles
+                p["ats_score"] = ats_score
+                p["skills"] = skills
+                formatted_profiles.append(p)
+        profiles = formatted_profiles
         campaigns = [dict(r) for r in conn.execute("""
             SELECT c.*, COUNT(ce.id) as total_emails,
             SUM(CASE WHEN ce.status IN ('sent', 'delivered') THEN 1 ELSE 0 END) as sent,
@@ -5107,6 +5181,76 @@ def app_admin_page(request: Request):
     from web.routers.admin import admin_panel
     return admin_panel(request)
 
+@app.post('/admin/pause-flash-sale')
+@app.get('/admin/pause-flash-sale')
+@app.post('/admin/end-flash-sale')
+@app.get('/admin/end-flash-sale')
+async def direct_admin_pause_flash_sale(request: Request, sale_id: int = None):
+    from web.routers.admin import admin_pause_flash_sale
+    return await admin_pause_flash_sale(request, sale_id=sale_id)
+
+@app.post('/admin/resume-flash-sale')
+@app.get('/admin/resume-flash-sale')
+async def direct_admin_resume_flash_sale(request: Request, sale_id: int = None, extend_hours: float = None):
+    from web.routers.admin import admin_resume_flash_sale
+    return await admin_resume_flash_sale(request, sale_id=sale_id, extend_hours=extend_hours)
+
+@app.post('/admin/delete-flash-sale')
+@app.get('/admin/delete-flash-sale')
+async def direct_admin_delete_flash_sale(request: Request, sale_id: int = None):
+    from web.routers.admin import admin_delete_flash_sale
+    return await admin_delete_flash_sale(request, sale_id=sale_id)
+
+@app.post('/admin/delete-flash-sales')
+async def direct_admin_delete_flash_sales(request: Request):
+    from web.routers.admin import admin_delete_flash_sales
+    return await admin_delete_flash_sales(request)
+
+@app.post('/admin/create-flash-sale')
+@app.get('/admin/create-flash-sale')
+async def direct_admin_create_flash_sale(request: Request, title: str = None, discount_percent: float = None, duration_hours: float = None):
+    from web.routers.admin import admin_create_flash_sale
+    return await admin_create_flash_sale(request, title=title, discount_percent=discount_percent, duration_hours=duration_hours)
+
+@app.post('/admin/delete-code')
+@app.get('/admin/delete-code')
+async def direct_admin_delete_code(request: Request, code: str = None):
+    from web.routers.admin import admin_delete_single_code
+    return await admin_delete_single_code(request, code=code)
+
+@app.post('/admin/delete-codes')
+async def direct_admin_delete_codes(request: Request):
+    from web.routers.admin import admin_delete_codes
+    return await admin_delete_codes(request)
+
+@app.post('/admin/delete-user')
+@app.get('/admin/delete-user')
+async def direct_admin_delete_user(request: Request, target_user_id: str = None):
+    from web.routers.admin import admin_delete_single_user
+    return await admin_delete_single_user(request, target_user_id=target_user_id)
+
+@app.post('/admin/delete-users')
+async def direct_admin_delete_users(request: Request):
+    from web.routers.admin import admin_delete_users
+    return await admin_delete_users(request)
+
+@app.post('/admin/delete-campaign')
+@app.get('/admin/delete-campaign')
+async def direct_admin_delete_campaign(request: Request, campaign_id: str = None):
+    from web.routers.admin import admin_delete_single_campaign
+    return await admin_delete_single_campaign(request, campaign_id=campaign_id)
+
+@app.post('/admin/delete-campaigns')
+async def direct_admin_delete_campaigns(request: Request):
+    from web.routers.admin import admin_delete_campaigns
+    return await admin_delete_campaigns(request)
+
+@app.post('/admin/toggle-user')
+@app.get('/admin/toggle-user')
+async def direct_admin_toggle_user(request: Request, target_user_id: str = None):
+    from web.routers.admin import admin_toggle_user
+    return await admin_toggle_user(request, target_user_id=target_user_id)
+
 @app.get('/setting')
 def settings_redirect():
     """Redirect /setting to /settings (common typo)."""
@@ -5122,6 +5266,83 @@ def settings_page(request: Request, success: str = None, error: str = None):
         if not user_row:
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
+        actual_uid = user.get("user_id") or str(user.get("id") or user_id)
+        email_val = (user.get("email") or "").strip().lower()
+        
+        # 1. Smart Name Auto-Resolution & Cleaning
+        import re as _re_clean_n
+        current_name = (user.get("name") or "").strip()
+        if " - " in current_name or " | " in current_name or "(" in current_name:
+            current_name = current_name.split(" - ")[0].split(" | ")[0].strip()
+            current_name = _re_clean_n.sub(r'\(.*?\)', '', current_name).strip()
+            user["name"] = current_name
+            try:
+                conn.execute("UPDATE users SET name = ? WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (current_name, actual_uid, actual_uid, email_val))
+                conn.commit()
+            except Exception:
+                pass
+
+        # Check if name is generic, placeholder, or contains trailing digits (e.g. 'Sam Dev1', 'Sam Dev', 'User')
+        is_generic_name = (
+            not current_name or 
+            bool(_re_clean_n.search(r'\d+$', current_name)) or
+            current_name.lower() in ("sam dev", "sam dev1", "network master", "hunter", "candidate", "jobseeker", "user", "default_user", "microsoft import", "microsoft candidate", "microsoft user", "none", "null")
+        )
+
+        if is_generic_name:
+            resolved_name = ""
+            if "sam.dev" in email_val or "samsalameh" in email_val or "samatou" in email_val:
+                resolved_name = "Sam Salameh"
+            else:
+                cv_prof = conn.execute("SELECT profile_name, cv_text FROM cv_profiles WHERE (user_id = ? OR user_id = ?) AND profile_name NOT LIKE '%Microsoft%' ORDER BY id DESC LIMIT 1", (actual_uid, str(user_id))).fetchone()
+                if cv_prof and cv_prof["profile_name"]:
+                    resolved_name = cv_prof["profile_name"].split(" - ")[0].split(" | ")[0].strip()
+                    resolved_name = _re_clean_n.sub(r'\(.*?\)', '', resolved_name).strip()
+                if not resolved_name and cv_prof and cv_prof["cv_text"]:
+                    m_cn = _re_clean_n.search(r'\b([A-Z]{2,}(?:\s+[A-Z]{2,}){1,3})\b', cv_prof["cv_text"][:500])
+                    if m_cn:
+                        resolved_name = " ".join(w.capitalize() for w in m_cn.group(1).split())
+                if not resolved_name:
+                    em_prefix = email_val.split("@")[0].replace(".", " ").replace("_", " ")
+                    resolved_name = " ".join(p.capitalize() for p in em_prefix.split() if not p.isdigit())
+            
+            if resolved_name and resolved_name.lower() not in ("microsoft", "import", "none"):
+                user["name"] = resolved_name
+                try:
+                    conn.execute("UPDATE users SET name = ? WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (resolved_name, actual_uid, actual_uid, email_val))
+                    conn.commit()
+                except Exception:
+                    pass
+
+        # 2. Smart Phone Auto-Resolution
+        current_phone = (user.get("phone") or "").strip()
+        if not current_phone:
+            resolved_phone = ""
+            if "sam.dev" in email_val:
+                resolved_phone = "+961 71 019 053"
+            elif "samatou" in email_val or "samsalameh" in email_val:
+                resolved_phone = "+961 70 841 009"
+            else:
+                cv_prof = conn.execute("SELECT phone, cv_text FROM cv_profiles WHERE (user_id = ? OR user_id = ?) ORDER BY id DESC LIMIT 1", (actual_uid, str(user_id))).fetchone()
+                if cv_prof:
+                    if cv_prof["phone"]:
+                        resolved_phone = cv_prof["phone"].strip()
+                    elif cv_prof["cv_text"]:
+                        from core.validators import clean_phone_number
+                        import re as _re_ph
+                        m_ph = _re_ph.search(r'(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|81|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}', cv_prof["cv_text"])
+                        if not m_ph:
+                            m_ph = _re_ph.search(r'\+?\d{1,3}[\s\-\.\(]*\d{2,4}[\s\-\.\)]*\d{3,4}[\s\-\.]*\d{3,4}', cv_prof["cv_text"])
+                        if m_ph:
+                            resolved_phone = clean_phone_number(m_ph.group(0).strip())
+
+            if resolved_phone:
+                user["phone"] = resolved_phone
+                try:
+                    conn.execute("UPDATE users SET phone = ? WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (resolved_phone, actual_uid, actual_uid, email_val))
+                    conn.commit()
+                except Exception:
+                    pass
         
     content = render_template("settings.html", request=request, user=user, success=success, error=error)
     return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Settings", "settings", request=request))
@@ -5137,13 +5358,11 @@ async def update_settings(
     user_id = get_verified_user_id(request)
     if not user_id:
         with get_db() as conn:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samsalameh.cv@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'sam.dev1@hotmail.com'").fetchone() or
+            admin_user = (
+                conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
                 conn.execute("SELECT user_id FROM users WHERE wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
             )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_1b73747a6e9a41d6")
+            user_id = admin_user["user_id"] if isinstance(admin_user, dict) else (admin_user[0] if admin_user else "user_1b73747a6e9a41d6")
         
     name = name.strip()
     phone = phone.strip()
@@ -5172,6 +5391,10 @@ async def update_settings(
                 "UPDATE users SET name = ?, phone = ? WHERE user_id = ?",
                 (name, phone, user_id)
             )
+        try:
+            conn.execute("UPDATE cv_profiles SET profile_name = ? WHERE user_id = ?", (name, user_id))
+        except Exception:
+            pass
         conn.commit()
         
     return RedirectResponse("/settings?success=Settings updated successfully!", status_code=303)
@@ -5369,7 +5592,7 @@ async def purchase_services_bulk(request: Request):
 #     """API endpoint for Telegram bot to sync redeem codes to PA DB."""
 #     # Security: only admins can generate redeem codes
 #     session_user = request.session.get("user")
-#     admin_emails = ["samsalameh.cv@gmail.com"]
+#     admin_emails = ["admin@jobhunt-pro.com"]
 #     if not session_user or session_user.get("email") not in admin_emails:
 #         return JSONResponse({"ok": False, "error": "Admin access required"}, status_code=403)
 #     try:
@@ -5530,9 +5753,8 @@ def api_campaigns_live_status_fixed(request: Request):
 
     # ── Non-Blocking Live Auto-Dispatch Pulse ──
     try:
-        import threading
-        from core.continuous_dispatcher import dispatch_single_application
-        threading.Thread(target=dispatch_single_application, args=(user_id,), daemon=True).start()
+        from core.continuous_dispatcher import trigger_user_dispatch_pulse
+        trigger_user_dispatch_pulse(user_id)
     except Exception as _disp_err:
         logger.debug(f"[api_campaigns_live_status_fixed] dispatch pulse skip: {_disp_err}")
 
@@ -6496,7 +6718,7 @@ def email_test_page(request: Request, success: str = "", error: str = "", to_ema
         except Exception:
             last = None
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone() if user_id else None
-        user = dict(user_row) if user_row else {"name": "زائر", "email": "samsalameh.cv@gmail.com", "wallet_balance": 100, "user_id": "guest", "is_admin": False}
+        user = dict(user_row) if user_row else {"name": "زائر", "email": "candidate.demo@jobhunt-pro.com", "wallet_balance": 100, "user_id": "guest", "is_admin": False}
         if not user_id:
             user_id = "guest"
         pass  # conn.close()
@@ -6508,7 +6730,7 @@ def email_test_page(request: Request, success: str = "", error: str = "", to_ema
             "error": error,
             "to_email": to_email,
             "company_name": company_name or "Test Company",
-            "job_title": job_title or "Senior Network Engineer",
+            "job_title": job_title or "Senior Software Engineer",
             "cv_text": "",
             "cover_letter": "",
             "email_body": "",
@@ -6541,8 +6763,8 @@ def email_test_send(request: Request, background_tasks: BackgroundTasks, to_emai
         profile = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
         user_row = conn.execute("SELECT email, name FROM users WHERE user_id = ?", (user_id,)).fetchone()
         pass  # conn.close()
-        sender_name = user_row["name"] if user_row and user_row["name"] else "Sam Salameh"
-        sender_email_user = user_row["email"] if user_row and user_row["email"] else "samsalameh.cv@gmail.com"
+        sender_name = user_row["name"] if user_row and user_row["name"] else getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+        sender_email_user = user_row["email"] if user_row and user_row["email"] else getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
         cover = cover_letter or (profile["cover_letter_template"] or "" if profile else "")
         email_content = email_body or (profile["email_template"] or "" if profile else "")
         cv_summary = cv_text[:800] if cv_text else (profile["cv_text"][:800] if profile and profile["cv_text"] else "")
@@ -7353,9 +7575,8 @@ def sent_emails_page(request: Request):
     
     # ── Non-Blocking Live Auto-Dispatch Pulse ──
     try:
-        import threading
-        from core.continuous_dispatcher import dispatch_single_application
-        threading.Thread(target=dispatch_single_application, args=(user_id,), daemon=True).start()
+        from core.continuous_dispatcher import trigger_user_dispatch_pulse
+        trigger_user_dispatch_pulse(user_id)
     except Exception as _disp_err:
         logger.debug(f"[sent_emails_page] dispatch pulse skip: {_disp_err}")
 
@@ -7399,7 +7620,7 @@ def sent_emails_page(request: Request):
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Sent Emails", "sent-emails", request=request), headers={"Cache-Control": "no-cache, no-store, must-revalidate, max-age=0", "Pragma": "no-cache", "Expires": "0"})
     except Exception as e:
         logger.error(f"[sent_emails_page] Exception: {e}")
-        user = {"user_id": user_id, "name": "Sam Salameh", "email": "sam.dev1@hotmail.com"}
+        user = {"user_id": user_id, "name": "Candidate", "email": "candidate.demo@jobhunt-pro.com"}
         content = render_template("sent_emails.html", request=request, user=user, user_id=user_id,
                                   total=0, delivered_count=0, opened_count=0, responded_count=0,
                                   bounced_count=0, companies_dispatched=0, rows=[], campaigns=[])
@@ -7428,7 +7649,7 @@ def _extract_cv_contact_details(cv_text: str, cv_lower: str) -> tuple:
     phone_m = _re2.search(r'(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}', cv_text_clean)
     if not phone_m:
         phone_m = _re2.search(r'(?:\+?\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{2,4}[\s\-]?\d{2,4}[\s\-]?\d{0,4}', cv_text_clean)
-    phone = clean_phone_number(phone_m.group(0).strip()) if phone_m else "+961 70 841 009"
+    phone = clean_phone_number(phone_m.group(0).strip()) if phone_m else "+1 (555) 019-2834"
 
     li_m = _re2.search(r'linkedin\.com/in/([\w\-]+)', cv_lower)
     if not li_m:
@@ -7655,41 +7876,114 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
             if n not in [c.upper() for c in known_certs]:
                 known_certs.append(n)
 
-    def _fallback_parse_cv_text(raw_text: str, certs: list) -> dict:
+    def _fallback_parse_cv_text(raw_text: str, certs: list, filename: str = "", logged_in_name: str = "") -> dict:
         import re
-        m_email = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', raw_text)
-        email = m_email.group(0).strip() if m_email else "samatou683@gmail.com"
+        text_clean = raw_text.replace("\r", "\n")
 
-        raw_text_clean = re.sub(r'(?:\+?961[\s\-]*){2,}', '+961 ', raw_text)
-        m_phone = re.search(r'(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}', raw_text_clean)
+        # 1. Email extraction
+        m_email = re.search(r'[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}', text_clean)
+        email = m_email.group(0).strip() if m_email else ""
+
+        # 2. Phone extraction
+        phone_clean = re.sub(r'[^\w\s\+\-\(\)\.]', ' ', text_clean)
+        phone_clean = re.sub(r'(?:\+?961[\s\-]*){2,}', '+961 ', phone_clean)
+        m_phone = re.search(r'(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|81|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}', phone_clean)
         if not m_phone:
-            m_phone = re.search(r'\+?\d[\d\s-]{8,20}', raw_text_clean)
-        phone = clean_phone_number(m_phone.group(0).strip()) if m_phone else "+961 70 841 009"
+            m_phone = re.search(r'\+?\d{1,3}[\s\-\.\(]*\d{2,4}[\s\-\.\)]*\d{3,4}[\s\-\.]*\d{3,4}', phone_clean)
+        phone = clean_phone_number(m_phone.group(0).strip()) if m_phone else ""
 
-        m_name = re.search(r'([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)+)', raw_text[:300])
-        full_name = m_name.group(1).strip() if (m_name and len(m_name.group(1).split()) <= 4) else "Sam Salameh"
+        # 3. Candidate Name extraction
+        full_name = ""
+        ignore_words = {
+            "senior", "junior", "lead", "principal", "staff", "head", "director", "manager", "engineer",
+            "developer", "architect", "specialist", "technician", "consultant", "analyst", "executive",
+            "curriculum", "vitae", "resume", "cv", "summary", "profile", "contact", "about", "me",
+            "experience", "skills", "education", "projects", "certifications", "achievements", "work",
+            "network", "software", "cloud", "security", "full", "stack", "frontend", "backend", "devops"
+        }
 
+        # Attempt A: Search for ALL-CAPS names (e.g. SAM SALAMEH) in first 500 chars
+        for match in re.finditer(r'\b([A-Z]{2,}(?:\s+[A-Z]{2,}){1,3})\b', text_clean[:500]):
+            cand = match.group(1).strip()
+            words = cand.lower().split()
+            if not any(w in ignore_words for w in words) and len(words) >= 2:
+                full_name = " ".join(w.capitalize() for w in words)
+                break
+
+        # Attempt B: Look for Title-cased name in first 500 chars
+        if not full_name:
+            for match in re.finditer(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\b', text_clean[:500]):
+                cand = match.group(1).strip()
+                words = cand.lower().split()
+                if not any(w in ignore_words for w in words) and len(words) >= 2:
+                    full_name = cand
+                    break
+
+        # Attempt C: Extract name from filename (e.g. "Sam_Salameh_CV (1).pdf" -> "Sam Salameh")
+        if not full_name and filename:
+            clean_fn = re.sub(r'[\(\)\d_\-\.]+', ' ', Path(filename).stem)
+            fn_words = [w for w in clean_fn.split() if w.lower() not in ignore_words and len(w) > 1]
+            if len(fn_words) >= 2:
+                full_name = " ".join(w.capitalize() for w in fn_words[:3])
+
+        # Attempt D: Fallback to logged-in user name
+        if not full_name and logged_in_name and logged_in_name.lower() not in ("user", "guest", "default_user", "alex johnson", "network master"):
+            full_name = logged_in_name
+
+        # 4. Location extraction
         location = "Beirut, Lebanon"
-        if "lebanon" in raw_text.lower() or "beirut" in raw_text.lower():
+        if "dubai" in text_clean.lower() or "uae" in text_clean.lower():
+            location = "Dubai, UAE"
+        elif "riyadh" in text_clean.lower() or "saudi" in text_clean.lower():
+            location = "Riyadh, Saudi Arabia"
+        elif "doha" in text_clean.lower() or "qatar" in text_clean.lower():
+            location = "Doha, Qatar"
+        elif "kuwait" in text_clean.lower():
+            location = "Kuwait City, Kuwait"
+        elif "beirut" in text_clean.lower() or "lebanon" in text_clean.lower():
             location = "Beirut, Lebanon"
 
-        m_li = re.search(r'linkedin\.com/in/[\w-]+', raw_text)
-        linkedin = "https://" + m_li.group(0).strip() if m_li else "https://linkedin.com/in/sam-salameh"
+        # 5. LinkedIn extraction
+        m_li = re.search(r'linkedin\.com/in/([a-zA-Z0-9\-_ ]+)', text_clean)
+        linkedin = ""
+        if m_li:
+            handle = m_li.group(1).strip().replace(" ", "")
+            handle = re.split(r'[\s\n\r\t]+', handle)[0]
+            linkedin = f"https://linkedin.com/in/{handle}"
 
+        # 6. Target Titles
         target_titles = ["Senior Network Engineer", "Network Security Specialist", "IT Infrastructure Lead"]
-        if "full stack" in raw_text.lower() or "developer" in raw_text.lower():
-            target_titles = ["Senior Full Stack Developer", "Software Engineer", "Technical Lead"]
+        if "network" in text_clean.lower():
+            target_titles = ["Senior Network Engineer", "Network Security Specialist", "IT Infrastructure Lead", "IT Manager"]
+        elif "full stack" in text_clean.lower() or "python" in text_clean.lower() or "developer" in text_clean.lower():
+            target_titles = ["Senior Full Stack Developer", "Software Engineer", "Solutions Architect"]
 
-        skills = ["Network Design", "Cisco IOS", "MikroTik", "Fortinet", "Firewalls", "Routing & Switching", "BGP", "OSPF"]
+        # 7. Skills
+        skills = []
+        skill_keywords = [
+            "Network Design", "Cisco IOS", "MikroTik", "RouterOS", "Ubiquiti", "UniFi",
+            "Fortinet", "FortiGate", "Fiber Optic", "Firewalls", "VPN", "IPSec", "SSL VPN",
+            "BGP", "OSPF", "EIGRP", "VLAN", "Routing & Switching", "TCP/IP", "QoS",
+            "Wireshark", "SolarWinds", "PRTG", "Nagios", "Cacti", "Linux", "Python",
+            "Security", "Access Control", "Intrusion Detection", "Traffic Analysis"
+        ]
+        for sk in skill_keywords:
+            if re.search(rf'\b{re.escape(sk)}\b', text_clean, re.IGNORECASE):
+                skills.append(sk)
         if certs:
-            skills.extend(certs)
+            for c in certs:
+                if c not in skills:
+                    skills.append(c)
+        if not skills:
+            skills = ["Network Design", "Cisco IOS", "MikroTik", "Fortinet", "Firewalls", "VPN"]
 
-        m_exp = re.search(r'(\d{1,2})\+?\s*(?:years?|yrs)', raw_text, re.IGNORECASE)
-        exp = int(m_exp.group(1)) if m_exp and 1 <= int(m_exp.group(1)) <= 50 else 15
+        # 8. Experience Years
+        m_exp = re.search(r'(\d{1,2})\+?\s*(?:years?|yrs)(?:\s+of)?(?:\s+progressive)?(?:\s+experience)?', text_clean, re.IGNORECASE)
+        exp = int(m_exp.group(1)) if m_exp and 1 <= int(m_exp.group(1)) <= 50 else 10
 
         return {
-            "full_name": full_name,
-            "name": full_name,
+            "full_name": full_name or "Candidate",
+            "name": full_name or "Candidate",
             "email": email,
             "phone": phone,
             "location": location,
@@ -7698,8 +7992,19 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
             "skills": list(dict.fromkeys(skills)),
             "experience_years": exp,
             "certifications": certs or ["CCNA", "Fortinet NSE"],
-            "summary": raw_text[:400].strip() if raw_text else "Senior IT candidate profile."
+            "summary": text_clean[:400].strip() if text_clean else ""
         }
+
+    logged_in_name = ""
+    try:
+        user_id = get_verified_user_id(request)
+        if user_id:
+            with get_db() as conn:
+                u_row = conn.execute("SELECT name FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)).fetchone()
+                if u_row and u_row["name"]:
+                    logged_in_name = u_row["name"]
+    except Exception:
+        pass
 
     profile_data = {}
     try:
@@ -7707,10 +8012,10 @@ async def api_parse_cv_file(cv_file: UploadFile = File(...)):
     except Exception as e:
         logger.warning(f"AI profile parsing optional step warning: {e}")
 
-    if not profile_data or not profile_data.get("full_name") or not profile_data.get("email"):
-        fallback = _fallback_parse_cv_text(cv_text, known_certs)
+    if not profile_data or not profile_data.get("full_name") or profile_data.get("full_name") in ("Alex Johnson", "Candidate Full Name", "Sample Candidate", "Candidate"):
+        fallback = _fallback_parse_cv_text(cv_text, known_certs, filename=cv_file.filename, logged_in_name=logged_in_name)
         for k, v in fallback.items():
-            if not profile_data.get(k):
+            if not profile_data.get(k) or profile_data.get(k) in ("Alex Johnson", "Candidate Full Name", "Sample Candidate", "Candidate"):
                 profile_data[k] = v
 
     return {
@@ -7861,10 +8166,33 @@ CV TEXT:
                     else:
                         last_error = resp.text[:200]
                         break
-        if resp is None or resp.status_code != 200:
-            raise HTTPException(502, f"Groq (all keys): {last_error}")
+            # Fallback to Gemini Flash if Groq failed
+            raw_g_key = getattr(config, "GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", "")).strip()
+            gemini_keys = [k.strip() for k in raw_g_key.split(",") if k.strip()]
+            if (resp is None or resp.status_code != 200) and gemini_keys:
+                for gk in gemini_keys:
+                    try:
+                        g_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gk}"
+                        g_payload = {
+                            "contents": [{"parts": [{"text": prompt}]}],
+                            "generationConfig": {"temperature": 0.1, "maxOutputTokens": 1000}
+                        }
+                        g_resp = await client.post(g_url, json=g_payload, timeout=20.0)
+                        if g_resp.status_code == 200:
+                            g_data = g_resp.json()
+                            candidates = g_data.get("candidates", [])
+                            if candidates:
+                                result_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                                resp = g_resp
+                                break
+                    except Exception as ge:
+                        logger.warning(f"Gemini fallback warning in CV parse: {ge}")
 
-        result_text = resp.json()["choices"][0]["message"]["content"].strip()
+        if not result_text and (resp is None or resp.status_code != 200):
+            raise HTTPException(502, f"Groq/Gemini AI: {last_error}")
+
+        if not result_text and resp is not None:
+            result_text = resp.json()["choices"][0]["message"]["content"].strip()
         data = _extract_json(result_text)
         # Merge regex-found certs with AI-found certs
         if known_certs and "certifications" in data:
@@ -7892,12 +8220,21 @@ CV TEXT:
                     val = int(m.group(1))
         # Smart regex extraction fallback if AI missed full_name, email, phone, location, linkedin
         import re as _re_meta
-        if not data.get("full_name") or data.get("full_name") in ("Candidate Full Name", "Sample Candidate", "Candidate"):
-            m_name = _re_meta.search(r'([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)+)', cv_text[:300])
-            if m_name and len(m_name.group(1).split()) <= 4:
-                data["full_name"] = m_name.group(1).strip()
-            else:
-                data["full_name"] = "Sam Salameh"
+        if not data.get("full_name") or data.get("full_name") in ("Candidate Full Name", "Sample Candidate", "Candidate", "Alex Johnson"):
+            ignore_n_words = {"senior", "junior", "lead", "principal", "staff", "head", "director", "manager", "engineer", "developer", "architect", "specialist", "technician", "consultant", "analyst", "executive", "curriculum", "vitae", "resume", "cv", "summary", "profile", "contact", "about", "me", "network", "software", "cloud", "security"}
+            cand_fn = ""
+            for match in _re_meta.finditer(r'\b([A-Z]{2,}(?:\s+[A-Z]{2,}){1,3})\b', cv_text[:500]):
+                wds = match.group(1).strip().lower().split()
+                if not any(w in ignore_n_words for w in wds) and len(wds) >= 2:
+                    cand_fn = " ".join(w.capitalize() for w in wds)
+                    break
+            if not cand_fn:
+                for match in _re_meta.finditer(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\b', cv_text[:500]):
+                    wds = match.group(1).strip().lower().split()
+                    if not any(w in ignore_n_words for w in wds) and len(wds) >= 2:
+                        cand_fn = match.group(1).strip()
+                        break
+            data["full_name"] = cand_fn or "Candidate"
 
         if not data.get("email"):
             m_email = _re_meta.search(r'[\w\.-]+@[\w\.-]+\.\w+', cv_text)
@@ -9047,7 +9384,7 @@ if __name__ == "__main__":
 
 
 # ============================================================
-# ADMIN PANEL &#x2014; Only for Sam (samsalameh.cv@gmail.com)
+# ADMIN PANEL
 # ============================================================
 
 def require_admin(request: Request):
@@ -9063,6 +9400,8 @@ def require_admin(request: Request):
             row = None
 
         if not row:
+            if is_admin_email(str(user_id)):
+                return user_id
             return None
 
         user_dict = dict(row)
@@ -9070,7 +9409,9 @@ def require_admin(request: Request):
         user_type = str(user_dict.get("user_type") or "").strip().lower()
         is_admin_val = bool(user_dict.get("is_admin"))
 
-        if is_admin_email(email) or user_type == "admin" or is_admin_val:
+        if is_admin_email(email) or is_admin_email(str(user_id)):
+            return user_id
+        if (user_type == "admin" or is_admin_val) and is_admin_email(email):
             return user_id
         return None
 
@@ -9139,25 +9480,49 @@ def api_social_proof():
 
 @app.get("/api/flash-sales")
 def api_flash_sales():
-    """Return active flash sales with computed pricing."""
-    from datetime import datetime as dt
+    """Return active flash sales with computed pricing from database or time-of-day fallback."""
+    from datetime import datetime as dt, timedelta
     now = dt.now()
-    hour = now.hour
+    now_iso = now.isoformat()
 
-    # Auto-generated flash sale based on time of day
-    if hour >= 23 or hour < 2:
-        flash_pct = 40; label = "MIDNIGHT FLASH SALE - 40% OFF"
-    elif 2 <= hour < 6:
-        flash_pct = 30; label = "NIGHT OWL DEAL - 30% OFF"
-    elif 20 <= hour < 23:
-        flash_pct = 25; label = "EVENING FLASH - 25% OFF"
-    elif 6 <= hour < 10:
-        flash_pct = 20; label = "MORNING SURGE - 20% OFF"
+    custom_sale = None
+    try:
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY id DESC LIMIT 1",
+                (now_iso, now_iso)
+            ).fetchone()
+            if row:
+                custom_sale = dict(row)
+    except Exception:
+        pass
+
+    if custom_sale:
+        flash_pct = float(custom_sale.get("discount_percent", 25))
+        label = f"⚡ {custom_sale.get('title', 'FLASH SALE')} - {int(flash_pct) if flash_pct.is_integer() else flash_pct}% OFF"
+        try:
+            end_dt = dt.fromisoformat(custom_sale["end_time"])
+        except Exception:
+            end_dt = now + timedelta(hours=24)
+        seconds_left = max(0, int((end_dt - now).total_seconds()))
+        ends_at_iso = custom_sale.get("end_time") or (now + timedelta(hours=24)).isoformat()
     else:
-        flash_pct = 15; label = "DAILY DEAL - 15% OFF"
+        # Auto-generated flash sale based on time of day
+        hour = now.hour
+        if hour >= 23 or hour < 2:
+            flash_pct = 40; label = "MIDNIGHT FLASH SALE - 40% OFF"
+        elif 2 <= hour < 6:
+            flash_pct = 30; label = "NIGHT OWL DEAL - 30% OFF"
+        elif 20 <= hour < 23:
+            flash_pct = 25; label = "EVENING FLASH - 25% OFF"
+        elif 6 <= hour < 10:
+            flash_pct = 20; label = "MORNING SURGE - 20% OFF"
+        else:
+            flash_pct = 15; label = "DAILY DEAL - 15% OFF"
 
-    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0) + __import__('datetime').timedelta(days=1)
-    seconds_left = max(0, int((midnight - now).total_seconds()))
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        seconds_left = max(0, int((midnight - now).total_seconds()))
+        ends_at_iso = midnight.isoformat()
 
     # Compute flash prices for all tiers
     tiers_pricing = []
@@ -9180,7 +9545,7 @@ def api_flash_sales():
             "label": label,
             "discount_pct": flash_pct,
             "seconds_left": seconds_left,
-            "ends_at": midnight.isoformat(),
+            "ends_at": ends_at_iso,
         },
         "tiers": tiers_pricing,
     }
@@ -9327,12 +9692,12 @@ async def api_debug_test_email(request: Request):
         from core.email_engine import EmailEngine
         engine = EmailEngine()
         success, result = await engine.send_application(
-            to_email="samsalameh.cv@gmail.com",
+            to_email="sam.dev1@hotmail.com",
             company="DebugTest",
-            title="Network Engineer v16.322",
+            title="Senior Network Engineer",
             cover_html="<p>Debug test email from PA pipeline</p>",
             cv_path=None,
-            user_details={"name": "Sam Salameh"}
+            user_details={"name": getattr(config, "CANDIDATE_NAME", "Sam Salameh")}
         )
         return JSONResponse({
             "success": success,
@@ -10584,16 +10949,16 @@ Return ONLY a JSON object with this exact structure:
 
         parsed = _extract_json(raw_res or "")
         if not parsed or "tailored_resume" not in parsed:
-            tailored_text = f"Senior Engineer ALEX JOHNSON\nEmail: candidate.demo@example.com | Phone: +1 (555) 019-2831 | Dubai, UAE\nLinkedIn: linkedin.com/in/alex-johnson-demo\n\nExecutive Summary:\nAccomplished Senior Engineer with 15+ years of experience targeting {job_title or 'Technical Specialist'}. Expert in infrastructure optimization, cloud architecture, and high availability.\n\nWork Experience:\n• Implemented and maintained enterprise-grade routing, switching, and security infrastructure.\n• Optimized system performance and ensured 99.99% high availability across enterprise platforms.\n\nTarget Job Match:\n{job_desc[:500]}"
-            cover_letter_text = f"Dear Hiring Manager,\n\nI am writing to express my strong interest in the {job_title or 'Technical Support'} role. With over 15 years of hands-on experience managing complex engineering environments, I am confident in my ability to deliver immediate value to your team.\n\nSincerely,\nAlex Johnson"
+            tailored_text = f"Senior Network Engineer SAM SALAMEH\nEmail: sam.dev1@hotmail.com | Phone: +961 70 841 009 | Beirut, Lebanon\nLinkedIn: linkedin.com/in/sam-salameh\n\nExecutive Summary:\nAccomplished Network Engineer with 15+ years of experience targeting {job_title or 'Senior Network Engineer'}. Expert in network infrastructure optimization, firewall security, and high availability.\n\nWork Experience:\n• Implemented and maintained enterprise-grade routing, switching, and security infrastructure.\n• Optimized system performance and ensured 99.99% high availability across enterprise platforms.\n\nTarget Job Match:\n{job_desc[:500]}"
+            cover_letter_text = f"Dear Hiring Manager,\n\nI am writing to express my strong interest in the {job_title or 'Senior Network Engineer'} role. With over 15 years of hands-on experience managing complex engineering environments, I am confident in my ability to deliver immediate value to your team.\n\nSincerely,\nSam Salameh"
             parsed = {
                 "tailored_resume": tailored_text,
-                "tailored_resume_ar": f"ألكس جونسون — مهندس بنية تحتية وحماية أول\nالبريد: candidate.demo@example.com | الهاتف: +1 (555) 019-2831 | دبي، الإمارات\n\nالملخص المهني:\nمهندس بنية تحتية أول بخبرة 15+ سنة في تصميم وتشغيل النظم المعقدة. متخصص في ضمان استمرارية التشغيل بنسبة 99.99%.",
-                "tailored_resume_fr": f"ALEX JOHNSON — Ingénieur Infrastructure Senior\nEmail: candidate.demo@example.com | Tel: +1 (555) 019-2831 | Dubaï, Émirats Arabes Unis\n\nRésumé Exécutif:\nIngénieur d'entreprise avec 15+ ans d'expérience dans la conception et la sécurisation des infrastructures.",
+                "tailored_resume_ar": f"سام سلامة — مهندس شبكات وبنية تحتية أول\nالبريد: sam.dev1@hotmail.com | الهاتف: +961 70 841 009 | بيروت، لبنان\n\nالملخص المهني:\nمهندس شبكات أول بخبرة 15+ سنة في تصميم وتشغيل الشبكات المؤسسية والأمن السيبراني. متخصص في ضمان استمرارية التشغيل بنسبة 99.99%.",
+                "tailored_resume_fr": f"SAM SALAMEH — Ingénieur Réseau et Infrastructure Senior\nEmail: sam.dev1@hotmail.com | Tel: +961 70 841 009 | Beyrouth, Liban\n\nRésumé Exécutif:\nIngénieur d'entreprise avec 15+ ans d'expérience dans la conception et la sécurisation des infrastructures réseaux.",
                 "cover_letter": cover_letter_text,
-                "recruiter_cold_email": f"Subject: Application for {job_title or 'Technical Support Engineer'} - Alex Johnson\n\nDear Hiring Manager,\n\nI recently came across your opening for {job_title or 'Technical Support Engineer'} and wanted to reach out directly. With 15+ years of experience engineering infrastructure with 99.99% uptime, I would love to contribute to your engineering goals.\n\nBest regards,\nAlex Johnson",
-                "linkedin_inmail": f"Hi! I noticed your team is hiring for {job_title or 'Technical Support Engineer'}. Having managed enterprise networks for 15+ years, I'd love to connect and share how I can support your infrastructure.",
-                "counter_offer_script": f"Subject: Job Offer Discussion - {job_title or 'Technical Specialist'} - Alex Johnson\n\nDear Hiring Team,\n\nThank you very much for extending the offer for the {job_title or 'Technical Specialist'} position! I am genuinely thrilled about the opportunity to join your team.\n\nBased on my 15+ years of senior engineering experience and track record of delivering 99.99% high availability, I would like to explore adjusting the base compensation to reflect the specialized value I will bring.\n\nBest regards,\nAlex Johnson",
+                "recruiter_cold_email": f"Subject: Application for {job_title or 'Senior Network Engineer'} - Sam Salameh\n\nDear Hiring Manager,\n\nI recently came across your opening for {job_title or 'Senior Network Engineer'} and wanted to reach out directly. With 15+ years of experience engineering infrastructure with 99.99% uptime, I would love to contribute to your engineering goals.\n\nBest regards,\nSam Salameh",
+                "linkedin_inmail": f"Hi! I noticed your team is hiring for {job_title or 'Senior Network Engineer'}. Having managed enterprise networks for 15+ years, I'd love to connect and share how I can support your infrastructure.",
+                "counter_offer_script": f"Subject: Job Offer Discussion - {job_title or 'Senior Network Engineer'} - Sam Salameh\n\nDear Hiring Team,\n\nThank you very much for extending the offer for the {job_title or 'Senior Network Engineer'} position! I am genuinely thrilled about the opportunity to join your team.\n\nBased on my 15+ years of senior engineering experience and track record of delivering 99.99% high availability, I would like to explore adjusting the base compensation to reflect the specialized value I will bring.\n\nBest regards,\nSam Salameh",
                 "match_score": 95,
                 "keywords_added": 14,
                 "bullet_points_optimized": 8,
@@ -10634,7 +10999,7 @@ Return ONLY a JSON object with this exact structure:
             "recruiter_cold_email": parsed.get("recruiter_cold_email", ""),
             "linkedin_inmail": parsed.get("linkedin_inmail", ""),
             "counter_offer_script": parsed.get("counter_offer_script", ""),
-            "elevator_pitch": parsed.get("elevator_pitch", "Hi, I'm Sam Salameh, a Senior Network & Security Engineer with over 15 years of experience architecting Cisco, Fortinet, and MikroTik infrastructure with 99.99% high availability. I specialize in rapid network troubleshooting and multi-vendor firewall integration, and I'm excited to help scale your network operations."),
+            "elevator_pitch": parsed.get("elevator_pitch", "Hi, I'm Sam Salameh, a Senior Network Engineer with over 15 years of experience architecting enterprise networks, firewalls, and high-availability infrastructure."),
             "red_flag_audit": parsed.get("red_flag_audit", [
                 {"risk": "LOW RISK", "flag": "Ensure all certifications (CCNP, Fortinet NSE) show exact renewal dates.", "fix": "Verified dates active."}
             ]),
@@ -10730,8 +11095,8 @@ async def api_generate_job_description(req: JobGenAPIRequest):
         })
 
 class ContractGenReq(BaseModel):
-    candidate_name: str = "Sam Salameh"
-    job_title: str = "Senior Network Engineer"
+    candidate_name: str = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+    job_title: str = getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
     company_name: str = "Global Tech Corp"
     monthly_salary: str = "$3,500"
     start_date: str = "2026-08-01"
@@ -10778,20 +11143,20 @@ class HeadhunterRadarReq(BaseModel):
 @app.post("/api/v1/headhunter-radar")
 async def api_headhunter_radar(req: HeadhunterRadarReq):
     """Mines passive candidate portfolios & DB for real matching talent."""
-    query = req.skills_query.strip() or "Software Engineer"
+    query = req.skills_query.strip() or "Network Engineer"
     q_lower = query.lower()
 
     candidates = [
         {
-            "name": "Sam Salameh",
+            "name": getattr(config, "CANDIDATE_NAME", "Sam Salameh"),
             "title": f"Senior {query} Specialist" if "senior" not in q_lower else query,
             "match": "98%",
-            "exp": "7+ years",
-            "skills": "Cisco CCIE, Fortinet, BGP Routing, IPsec VPN, AWS Cloud",
-            "location": "Beirut / Remote Worldwide",
-            "email": "sam.salameh@example.com",
-            "phone": "+961 70 123 456",
-            "summary": "Proven track record in high-availability enterprise infrastructure, zero-trust security, and cloud migration."
+            "exp": "15+ years",
+            "skills": "Network Design, Cisco, MikroTik, Fortinet, Ubiquiti, VPN, OSPF, BGP, Firewalls",
+            "location": "Beirut, Lebanon / Remote GCC & Worldwide",
+            "email": "sam.dev1@hotmail.com",
+            "phone": "+961 70 841 009",
+            "summary": "Accomplished Senior Network Engineer with 15+ years of progressive experience designing, implementing, and securing enterprise network infrastructure."
         },
         {
             "name": "Karim Haddad",
@@ -10820,8 +11185,8 @@ async def api_headhunter_radar(req: HeadhunterRadarReq):
     return JSONResponse({"status": "success", "query": query, "candidates": candidates})
 
 class DnaFitReq(BaseModel):
-    candidate_name: str = "Sam Salameh"
-    job_title: str = "Senior Network Engineer"
+    candidate_name: str = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+    job_title: str = getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
     culture_style: str = "High-Growth Startup"
 
 @app.post("/api/v1/behavioral-dna-fit")

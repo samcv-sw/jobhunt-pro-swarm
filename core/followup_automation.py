@@ -520,7 +520,7 @@ class FollowUpAutomation:
         title: str,
         followup_number: int,
         days_since: int,
-        user_name: str = "Sam Salameh",
+        user_name: str = "Candidate",
     ) -> str:
         """Generate AI-powered follow-up email body using Groq. Falls back to templates."""
         tone = FOLLOWUP_TONES.get(followup_number, FOLLOWUP_TONES[1])

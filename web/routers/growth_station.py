@@ -58,16 +58,15 @@ def run_scrape_background(agent: str, keyword: str, location: str, max_leads: in
 
 @router.get("/growth-station", response_class=HTMLResponse)
 def growth_station_page(request: Request):
-    """Renders the main Swarm Leads / Growth Station page."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse("/login", status_code=303)
+    """Renders the main Swarm Leads / Growth Station page (Admin only)."""
+    from web.app_v2 import require_admin
+    admin_id = require_admin(request)
+    if not admin_id:
+        return RedirectResponse("/user-dashboard", status_code=303)
 
     with get_db() as conn:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if not user_row:
-            return RedirectResponse("/login", status_code=303)
-        user = dict(user_row)
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (admin_id, admin_id)).fetchone()
+        user = dict(user_row) if user_row else {"user_id": admin_id, "name": "Admin", "email": "admin@jobhunt-pro.com", "user_type": "admin", "wallet_balance": 1000.0}
 
         # Get initial count of leads in database
         leads_count = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]
@@ -92,7 +91,7 @@ def growth_station_page(request: Request):
     return HTMLResponse(
         _build_dashboard_shell(
             user, 
-            user_id, 
+            admin_id, 
             content.body.decode("utf-8"), 
             "محطة النمو & leads" if request.state.locale == "ar" else "Growth Station & Leads", 
             "growth_station", 
@@ -110,10 +109,10 @@ def get_leads(
     location: Optional[str] = Query(None),
     search: Optional[str] = Query(None)
 ):
-    """Retrieve harvested leads with pagination and filters."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    """Retrieve harvested leads with pagination and filters (Admin only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
 
     offset = (page - 1) * limit
     where_clauses = []
@@ -164,10 +163,10 @@ def get_leads(
 
 @router.post("/api/growth/scrape")
 def trigger_scrape(request: Request, body: ScrapeRequest, background_tasks: BackgroundTasks):
-    """Triggers a background scraping agent task."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    """Triggers a background scraping agent task (Admin only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
 
     # Limit max leads to 100 for safety
     max_leads = min(body.max_leads or 25, 100)
@@ -203,10 +202,10 @@ def trigger_scrape(request: Request, body: ScrapeRequest, background_tasks: Back
 
 @router.post("/api/growth/blast")
 def trigger_blast(request: Request, body: BlastRequest):
-    """Triggers cold email campaign for selected lead IDs."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    """Triggers cold email campaign for selected lead IDs (Admin only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
 
     if not body.lead_ids:
         raise HTTPException(status_code=400, detail="No lead IDs provided")

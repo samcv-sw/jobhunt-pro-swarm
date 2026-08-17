@@ -758,12 +758,14 @@ class SqliteConnectionWrapper:
                 self.conn.execute("PRAGMA journal_mode=DELETE")
                 logger.warning(f"[DB] WAL mode failed ({wal_err}), fallback to DELETE journal mode")
             self.conn.execute("PRAGMA synchronous=NORMAL")
+            self.conn.execute("PRAGMA read_uncommitted=1")
             self.conn.execute("PRAGMA mmap_size=268435456")
             logger.debug(f"[DB] Connected to SQLite fallback: {_safe_str(db_path)}")
 
         try:
             self.conn.execute("PRAGMA cache_size=-64000")
             self.conn.execute("PRAGMA temp_store=MEMORY")
+            self.conn.execute("PRAGMA read_uncommitted=1")
             self.conn.execute("PRAGMA wal_autocheckpoint=1000")
         except Exception:
             pass

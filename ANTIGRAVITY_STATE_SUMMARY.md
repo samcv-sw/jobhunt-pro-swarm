@@ -1496,9 +1496,7 @@
 ?? archive/vercel.json
 ?? archive/wallet_real.png
 ?? archive/wrangler.toml
-?? assets/generated/Cover_Letter_Sam_Salameh_1783358259.pdf
-?? assets/generated/Cover_Letter_Sam_Salameh_1783358355.pdf
-?? assets/generated/Cover_Letter_Sam_Salameh_1783359217.pdf
+
 ?? docs/PROJECT.md
 ?? infra/Caddyfile
 ?? infra/init.sql

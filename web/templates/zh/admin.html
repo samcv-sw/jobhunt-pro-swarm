@@ -1,25 +1,39 @@
-<meta property="og:title" content="Executive Admin Portal | JobHunt Pro Enterprise"/>
-<meta name="description" content="Executive Admin Dashboard for user management, wallets, campaigns, and codes."/>
-<title>Executive Admin Portal | JobHunt Pro Enterprise</title>
+<meta property="og:title" content="执行管理中心 | JobHunt Pro Enterprise"/>
+<meta name="description" content="管理控制台：用户管理、钱包、活动、限时秒杀与专属激活码。"/>
+<title>执行管理中心 | JobHunt Pro Enterprise</title>
 
 <style>
+  /* ==========================================================================
+     EXECUTIVE ADMIN DESIGN SYSTEM (APEX GLASSMORPHISM, TOOLTIPS & TYPOGRAPHY)
+     ========================================================================== */
   .admin-dashboard-wrap {
-    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'PingFang SC', 'Microsoft YaHei', 'Inter', system-ui, -apple-system, sans-serif;
     color: #f8fafc;
-    padding-bottom: 40px;
+    padding-block-end: 48px;
+    letter-spacing: -0.01em;
   }
 
   /* Header Section */
   .admin-header {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
-    padding: 24px 30px;
-    margin-bottom: 28px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px 32px;
+    margin-block-end: 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    flex-wrap: wrap;
+    gap: 16px;
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .admin-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .admin-title-group h1 {
@@ -28,42 +42,82 @@
     color: #ffffff;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    margin: 0;
   }
 
   .admin-title-group p {
     font-size: 14px;
     color: #94a3b8;
-    margin-top: 4px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .live-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.28);
     color: #34d399;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 14px;
+    padding: 7px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
     font-weight: 700;
   }
 
   .live-dot {
-    width: 8px;
-    height: 8px;
+    inline-size: 8px;
+    block-size: 8px;
     background-color: #10b981;
     border-radius: 50%;
-    box-shadow: 0 0 8px #10b981;
+    box-shadow: 0 0 10px #10b981;
+    animation: livePulseZh 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+  }
+
+  @keyframes livePulseZh {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.15); }
+  }
+
+  .header-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .header-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-1px);
   }
 
   /* Alerts */
   .alert-box {
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px 20px;
-    margin-bottom: 24px;
+    margin-block-end: 24px;
     font-size: 14px;
+    line-height: 1.5;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }
 
   .alert-success {
@@ -73,265 +127,534 @@
   }
 
   .alert-error {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #f87171;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #fb7185;
   }
 
   /* KPI Grid */
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 16px;
-    margin-bottom: 32px;
+    margin-block-end: 32px;
   }
 
   .kpi-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 14px;
-    padding: 20px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px 22px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .kpi-card:hover {
-    border-color: #334155;
+    border-color: rgba(255, 255, 255, 0.18);
     transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .kpi-card:hover::before {
+    opacity: 1;
   }
 
   .kpi-val {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 800;
     color: #ffffff;
-    margin-bottom: 4px;
+    margin-block-end: 6px;
+    line-height: 1.1;
   }
 
   .kpi-lbl {
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  /* Action Cards Grid */
+  /* Section Styling */
   .admin-section {
-    margin-bottom: 36px;
+    margin-block-end: 36px;
+  }
+
+  .section-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-block-end: 16px;
   }
 
   .section-title-text {
     font-size: 17px;
     font-weight: 800;
     color: #f1f5f9;
-    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    margin: 0;
   }
 
+  /* Action Cards Grid */
   .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
     gap: 20px;
   }
 
   .action-real-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
     padding: 24px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
   }
 
   .action-real-card:hover {
-    border-color: #334155;
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.4);
+  }
+
+  .action-card-featured {
+    grid-column: 1 / -1;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 27, 45, 0.88) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    box-shadow: 0 12px 36px -6px rgba(0, 0, 0, 0.45);
   }
 
   .action-real-card h3 {
     font-size: 16px;
     font-weight: 700;
     color: #f8fafc;
-    margin-bottom: 6px;
+    margin: 0 0 6px 0;
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
   .action-real-card p {
-    font-size: 14px;
+    font-size: 13.5px;
     color: #94a3b8;
-    margin-bottom: 18px;
-    line-height: 1.5;
+    margin: 0 0 18px 0;
+    line-height: 1.55;
   }
 
+  /* Form & Controls */
   .input-form-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
+  }
+
+  .form-field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-block-end: 2px;
   }
 
   .admin-input, .admin-select, .admin-textarea {
-    width: 100%;
-    background: #020617;
-    border: 1px solid #1e293b;
+    inline-size: 100%;
+    box-sizing: border-box;
+    background: rgba(2, 6, 23, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 11px 14px;
+    padding: 10px 14px;
     color: #ffffff;
-    font-size: 14px;
+    font-size: 13.5px;
+    font-family: inherit;
     transition: all 0.2s ease;
     outline: none;
   }
 
   .admin-input:focus, .admin-select:focus, .admin-textarea:focus {
     border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    background: #020617;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    background: rgba(2, 6, 23, 0.9);
   }
 
+  .admin-input::placeholder, .admin-textarea::placeholder {
+    color: #64748b;
+  }
+
+  .field-hint-text {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-block-start: 3px;
+    line-height: 1.4;
+  }
+
+  /* Tooltip Engine */
+  .has-tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 16px;
+    block-size: 16px;
+    border-radius: 50%;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #a5b4fc;
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: help;
+    transition: all 0.2s ease;
+    margin-inline-start: 6px;
+    user-select: none;
+  }
+
+  .tooltip-trigger:hover {
+    background: rgba(99, 102, 241, 0.4);
+    color: #ffffff;
+    transform: scale(1.15);
+  }
+
+  .tooltip-bubble {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    inset-block-end: 130%;
+    inset-inline-start: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #e2e8f0;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    inline-size: max-content;
+    max-inline-size: 290px;
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.5), 0 0 16px rgba(99, 102, 241, 0.2);
+    z-index: 100;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    text-align: start;
+    font-weight: 500;
+  }
+
+  .has-tooltip:hover .tooltip-bubble, .has-tooltip:focus-within .tooltip-bubble {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Preset Pills */
   .preset-pill-group {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
-    margin-bottom: 12px;
+    margin-block-end: 14px;
   }
 
   .preset-pill {
-    background: #1e1b4b;
-    border: 1px solid #312e81;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
     color: #a5b4fc;
-    padding: 5px 12px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 12.5px;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
   }
 
-  .preset-pill:hover {
-    background: #312e81;
+  .preset-pill:hover, .preset-pill.active {
+    background: rgba(99, 102, 241, 0.22);
     color: #ffffff;
+    border-color: rgba(99, 102, 241, 0.45);
+    transform: translateY(-1px);
   }
 
+  /* Buttons */
   .btn-real {
     padding: 11px 20px;
     border: none;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: #ffffff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
+    inline-size: 100%;
+    font-family: inherit;
   }
 
   .btn-real:hover {
     filter: brightness(1.1);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   }
 
-  .btn-indigo { background: #4f46e5; }
-  .btn-emerald { background: #059669; }
-  .btn-purple { background: #7c3aed; }
-  .btn-rose { background: #e11d48; }
+  .btn-real:active {
+    transform: translateY(0);
+  }
 
-  /* Modern Clean Tables */
+  .btn-indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+  .btn-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  }
+
+  .btn-purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+
+  .btn-rose {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  }
+
+  .btn-amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  }
+
+  /* Tables Section */
   .table-card {
-    background: #0f172a;
-    border: 1px solid #1e293b;
-    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.75) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.35);
+  }
+
+  .table-responsive {
+    inline-size: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-table {
-    width: 100%;
+    inline-size: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13.5px;
     text-align: start;
   }
 
   .admin-table th {
-    background: #1e293b;
+    background: rgba(30, 41, 59, 0.85);
     padding: 14px 18px;
     color: #94a3b8;
-    font-size: 14px;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
-    
-    border-bottom: 1px solid #334155;
+    letter-spacing: 0.05em;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
   }
 
   .admin-table td {
     padding: 14px 18px;
-    border-bottom: 1px solid #1e293b;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.05);
     color: #cbd5e1;
     vertical-align: middle;
   }
 
   .admin-table tr:last-child td {
-    border-bottom: none;
+    border-block-end: none;
   }
 
   .admin-table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.03);
     color: #ffffff;
   }
 
+  /* Status Pills */
   .status-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .pill-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-  .pill-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
-  .pill-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-  .pill-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-  .pill-slate { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
-
-  .code-chip {
-    font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'SFMono-Regular', Consolas, monospace;
-    font-weight: 700;
-    color: #c4b5fd;
-    background: #1e1b4b;
     padding: 4px 10px;
-    border-radius: 6px;
-    border: 1px solid #312e81;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
+  .pill-emerald {
+    background: rgba(16, 185, 129, 0.14);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    color: #34d399;
+  }
+
+  .pill-rose {
+    background: rgba(244, 63, 94, 0.14);
+    border: 1px solid rgba(244, 63, 94, 0.28);
+    color: #fb7185;
+  }
+
+  .pill-indigo {
+    background: rgba(99, 102, 241, 0.14);
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    color: #818cf8;
+  }
+
+  .pill-amber {
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.28);
+    color: #fbbf24;
+  }
+
+  .pill-slate {
+    background: rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    color: #94a3b8;
+  }
+
+  /* Code Chips */
+  .code-chip {
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 4px 9px;
+    border-radius: 6px;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+  }
+
+  /* Mini Buttons */
   .btn-sm-action {
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     border: none !important;
     outline: none !important;
-    box-shadow: none !important;
     cursor: pointer;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
+    text-decoration: none;
+    font-family: inherit;
+    white-space: nowrap;
   }
 
-  .btn-sm-copy { background: #6366f1 !important; color: #ffffff !important; }
-  .btn-sm-copy:hover { background: #4f46e5 !important; transform: translateY(-1px); }
+  .btn-sm-action:hover {
+    transform: translateY(-1px);
+  }
 
-  .btn-sm-link { background: #0284c7 !important; color: #ffffff !important; }
-  .btn-sm-link:hover { background: #0369a1 !important; transform: translateY(-1px); }
+  .btn-sm-copy {
+    background: rgba(99, 102, 241, 0.2) !important;
+    border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    color: #c7d2fe !important;
+  }
+
+  .btn-sm-copy:hover {
+    background: rgba(99, 102, 241, 0.35) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-link {
+    background: rgba(14, 165, 233, 0.2) !important;
+    border: 1px solid rgba(14, 165, 233, 0.4) !important;
+    color: #bae6fd !important;
+  }
+
+  .btn-sm-link:hover {
+    background: rgba(14, 165, 233, 0.35) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-danger {
+    background: rgba(244, 63, 94, 0.15) !important;
+    border: 1px solid rgba(244, 63, 94, 0.3) !important;
+    color: #fca5a5 !important;
+  }
+
+  .btn-sm-danger:hover {
+    background: rgba(244, 63, 94, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-success {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #86efac !important;
+  }
+
+  .btn-sm-success:hover {
+    background: rgba(16, 185, 129, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .btn-sm-amber {
+    background: rgba(245, 158, 11, 0.15) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    color: #fde68a !important;
+  }
+
+  .btn-sm-amber:hover {
+    background: rgba(245, 158, 11, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  /* Custom Checkbox */
+  input[type="checkbox"] {
+    accent-color: #6366f1;
+    inline-size: 16px;
+    block-size: 16px;
+    cursor: pointer;
+  }
 </style>
 
 <div class="admin-dashboard-wrap">
@@ -339,23 +662,30 @@
   <!-- Header -->
   <div class="admin-header">
     <div class="admin-title-group">
-      <h1>🛡️ Executive Admin Dashboard</h1>
-      <p>Real-time system telemetry, user management, financial ledgers, and promo codes</p>
+      <h1>🛡️ 执行管理指令中心</h1>
+      <p>实时系统监控、用户管理、财务账本、限时促销与专属激活码批量生成引擎</p>
     </div>
-    <div class="live-pill">
-      <span class="live-dot"></span>
-      <span>Engine Live</span>
+    <div class="admin-header-actions">
+      <a href="/admin/analytics" class="header-nav-btn" title="查看完整数据分析图表与营收指标">📊 数据分析</a>
+      <a href="/admin/sys-logs" class="header-nav-btn" title="查看后端系统事件与运行日志">📜 系统日志</a>
+      <a href="/user-dashboard" class="header-nav-btn" title="进入用户端界面体验投递功能">🚀 用户主页</a>
+      <div class="live-pill" title="后台调度引擎运行顺畅">
+        <span class="live-dot"></span>
+        <span>系统引擎运行中</span>
+      </div>
     </div>
   </div>
 
   <!-- Alerts -->
   {% if request.query_params.get('success') %}
   <div class="alert-box alert-success">
-    <div style="font-weight: 700; font-size: 15px; margin-bottom: 6px;">✅ Action Executed Successfully:</div>
+    <div style="font-weight: 700; font-size: 14.5px; margin-block-end: 6px; display:flex; align-items:center; gap:8px;">
+      <span>✅</span> <span>操作成功执行：</span>
+    </div>
     <div>{{ request.query_params.get('success') }}</div>
     
     {% if 'codes:' in request.query_params.get('success') %}
-      <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;"></div>
+      <div id="generatedCodesContainer" style="display:flex; flex-wrap:wrap; gap:10px; margin-block-start:14px;"></div>
       <script dir="auto">
         document.addEventListener('DOMContentLoaded', () => {
           const rawSuccess = "{{ request.query_params.get('success') }}";
@@ -365,10 +695,10 @@
             const container = document.getElementById('generatedCodesContainer');
             if (container && codes.length > 0) {
               container.innerHTML = codes.map(code => `
-                <div style="background:#020617; border:1px solid #1e293b; border-radius:10px; padding:8px 14px; display:flex; align-items:center; gap:10px;">
-                  <span class="code-chip" style="color:#34d399; font-size:14px; background:#0f172a; border:1px solid #334155;">${code}</span>
-                  <button class="btn-sm-action btn-sm-copy" style="background:#6366f1; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyCodeText('${code}', this)">📋 Copy Code</button>
-                  <button class="btn-sm-action btn-sm-link" style="background:#0284c7; color:#ffffff; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;" onclick="copyRedeemLink('${code}', this)">🔗 Direct Link</button>
+                <div style="background:rgba(2,6,23,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px;">
+                  <span class="code-chip">${code}</span>
+                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('${code}', this)" title="复制激活码到剪贴板">📋 复制激活码</button>
+                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('${code}', this)" title="复制一键直达兑换链接">🔗 直达链接</button>
                 </div>
               `).join('');
             }
@@ -376,21 +706,21 @@
         });
         function copyCodeText(text, btn) {
           navigator.clipboard.writeText(text).then(() => {
-            const orig = btn.innerText;
-            btn.innerText = '✨ Copied!';
-            btn.style.background = '#10b981';
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✨ 已复制!';
+            btn.style.background = 'rgba(16, 185, 129, 0.4)';
             btn.style.color = '#ffffff';
-            setTimeout(() => { btn.innerText = orig; btn.style.background = '#312e81'; btn.style.color = '#c4b5fd'; }, 2000);
+            setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
           });
         }
         function copyRedeemLink(code, btn) {
           const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
           navigator.clipboard.writeText(link).then(() => {
-            const orig = btn.innerText;
-            btn.innerText = '✨ Link Copied!';
-            btn.style.background = '#0284c7';
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✨ 链接已复制!';
+            btn.style.background = 'rgba(14, 165, 233, 0.4)';
             btn.style.color = '#ffffff';
-            setTimeout(() => { btn.innerText = orig; btn.style.background = '#075985'; btn.style.color = '#38bdf8'; }, 2000);
+            setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
           });
         }
       </script>
@@ -406,133 +736,250 @@
 
   <!-- KPI Overview Cards -->
   <div class="kpi-grid">
-    <div class="kpi-card">
+    <div class="kpi-card" title="平台所有注册求职者账户总数">
       <div class="kpi-val" style="color:#818cf8;">{{ stats.total_users }}</div>
-      <div class="kpi-lbl">👥 Total Users</div>
+      <div class="kpi-lbl">👥 用户总数</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="当前排队或正在执行的求职投递活动">
       <div class="kpi-val" style="color:#34d399;">{{ stats.total_campaigns }}</div>
-      <div class="kpi-lbl">🚀 Active 投递活动</div>
+      <div class="kpi-lbl">🚀 活跃投递活动</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="邮件分发流水线中已生成待投递的邮件总数">
       <div class="kpi-val" style="color:#c084fc;">{{ stats.total_emails }}</div>
-      <div class="kpi-lbl">📧 Emails Staged</div>
+      <div class="kpi-lbl">📧 待发送邮件</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val" style="color:#22d3ee;">{{ stats.emails_sent }}</div>
-      <div class="kpi-lbl">⚡ 已发邮件</div>
+    <div class="kpi-card" title="通过实时MX验证并成功发送给招聘负责人的邮件总数">
+      <div class="kpi-val" style="color:#38bdf8;">{{ stats.emails_sent }}</div>
+      <div class="kpi-lbl">⚡ 已发送邮件</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="用户购买套餐与充值的累计平台总收入">
       <div class="kpi-val" style="color:#fbbf24;">${{ stats.total_revenue }}</div>
-      <div class="kpi-lbl">💰 Total Revenue</div>
+      <div class="kpi-lbl">💰 总营收</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="所有注册用户当前持有的未消费钱包余额总和">
       <div class="kpi-val" style="color:#fb7185;">${{ stats.total_wallets }}</div>
-      <div class="kpi-lbl">💳 Wallet Balances</div>
+      <div class="kpi-lbl">💳 用户钱包总额</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-val" style="color:#fbbf24;">{{ payment_stats.total_payments }}</div>
-      <div class="kpi-lbl">🪙 Crypto Txns</div>
+    <div class="kpi-card" title="加密货币支付网关成功完成的链上充值交易笔数">
+      <div class="kpi-val" style="color:#f59e0b;">{{ payment_stats.total_payments }}</div>
+      <div class="kpi-lbl">🪙 加密货币交易</div>
     </div>
-    <div class="kpi-card">
+    <div class="kpi-card" title="加密货币网关结算的累计美元总额">
       <div class="kpi-val" style="color:#34d399;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div>
-      <div class="kpi-lbl">📊 Crypto Volume</div>
+      <div class="kpi-lbl">📊 加密交易总额</div>
     </div>
   </div>
 
-  <!-- Admin 操作 Section -->
+  <!-- 限时秒杀促销管理列表 -->
   <div class="admin-section">
-    <div class="section-title-text">🛠️ Instant Executive 操作</div>
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>⚡ 限时秒杀与促销折扣管理 ({{ flash_sales|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">管理在用户控制台与充值页面显示的限时倒计时促销横幅，自动对所有套餐享受折扣。</div>
+        </div>
+      </div>
+      <div>
+        <button id="btnDeleteSelectedSales" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('salesForm', '确定要永久删除选中的限时秒杀活动吗？', '秒杀活动')">🗑️ 删除选中项 (<span id="countSelectedSales">0</span>)</button>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-responsive">
+        <form id="salesForm" action="/admin/delete-flash-sales" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="全选所有秒杀活动"></th>
+                <th>活动标题</th>
+                <th>折扣幅度</th>
+                <th>实时状态</th>
+                <th>结束倒计时</th>
+                <th>创建时间</th>
+                <th>操作与控制</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in flash_sales %}
+              {% set s_active = (s.active == 1 or s.active == '1' or s.active is sameas true) if s.active is defined else true %}
+              {% set s_end_str = (s.end_time|string) if (s.end_time is defined and s.end_time) else '' %}
+              {% set s_now_str = (now.isoformat() if (now is defined and now) else '2026-08-17T00:00:00') %}
+              {% set s_is_time_valid = (s_end_str > s_now_str) if s_end_str else false %}
+              {% set is_live = s.is_live if (s.is_live is defined and s.is_live is not none) else (s_active and s_is_time_valid) %}
+              {% set is_paused = s.is_paused if (s.is_paused is defined and s.is_paused is not none) else (not s_active) %}
+              {% set is_expired = s.is_expired if (s.is_expired is defined and s.is_expired is not none) else (s_active and not s_is_time_valid) %}
+              {% set display_end = s.formatted_end if (s.formatted_end is defined and s.formatted_end) else ((s_end_str|replace('T', ' '))[:16] if s_end_str else '—') %}
+              {% set display_created = s.formatted_created if (s.formatted_created is defined and s.formatted_created) else ((s.created_at|string)[:16] if (s.created_at is defined and s.created_at) else '—') %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="sale-checkbox" name="sale_ids" value="{{ s.id }}" onclick="updateSelectCount('sale-checkbox', 'btnDeleteSelectedSales', 'countSelectedSales', 'selectAllSalesCheckbox')"></td>
+                <td style="font-weight:700; color:#f8fafc;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span>⚡ {{ s.title }}</span>
+                  </div>
+                </td>
+                <td style="color:#fb7185; font-weight:800; font-size:14px;">{{ s.discount_percent }}% OFF</td>
+                <td>
+                  {% if is_live %}
+                    <span class="status-pill pill-emerald" title="活动正在生效并实时向用户展示倒计时">🟢 进行中 (实时生效)</span>
+                  {% elif is_paused %}
+                    <span class="status-pill pill-slate" title="活动已被管理员临时暂停">⏸️ 已暂停</span>
+                  {% else %}
+                    <span class="status-pill pill-rose" title="活动倒计时已结束">⏳ 已过期</span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#38bdf8; font-size:12.5px;">{{ display_end }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ display_created }}</td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    {% if is_live %}
+                      <button type="button" class="btn-sm-action btn-sm-amber" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="暂停活动并隐藏用户端横幅">⏸️ 暂停活动</button>
+                    {% else %}
+                      <button type="button" class="btn-sm-action btn-sm-success" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="重新激活活动并自动延长24小时">▶️ 恢复并延时(+24h)</button>
+                    {% endif %}
+                    <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="永久删除此秒杀活动">🗑️ 删除</button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not flash_sales %}
+              <tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">暂无限时促销记录。请使用下方的“限时秒杀促销管理”模块启动新活动。</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Actions Section -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🛠️ 快速执行操作中心</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">批量制卡、活动开通、用户钱包充值与官方直发邮件工具。</div>
+        </div>
+      </div>
+    </div>
 
     <div class="actions-grid">
       
-      <!-- Card 1: Add Credits -->
-      <div class="action-real-card">
+      <!-- Card 1 (Featured): VIP Bulk Key Generator & Excel Exporter -->
+      <div class="action-real-card action-card-featured">
         <div>
-          <h3>💳 Add User Credits</h3>
-          <p>Instantly credit any user wallet balance</p>
-        </div>
-        <form dir="auto" action="/admin/add-credits" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
-          <div style="display:flex; gap:10px;">
-            <input dir="auto" class="admin-input" min="0.01" name="amount" placeholder="Amount $" required step="0.01" type="number" dir="auto">
-            <input dir="auto" class="admin-input" name="note" type="text" value="Admin Bonus" dir="auto">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
+            <h3 style="color:#a5b4fc; font-size:17px; margin:0;">
+              <span>💎 VIP 批量激活码生成与 Excel 导出（闲鱼 / 淘宝 / B2B 专用）</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">一键生成数千张256位量子加密激活码，并导出可直接导入闲鱼、淘宝、Shopify自动发货机器人的Excel/CSV格式文件。</div>
+              </div>
+            </h3>
+            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">256位量子加密</span>
           </div>
-          <button class="btn-real btn-emerald" type="submit">Add Credits Now</button>
-        </form>
-      </div>
-
-      <!-- Card 2: VIP Bulk Key Generator & Excel Exporter -->
-      <div class="action-real-card" style="border-color:rgba(0,240,255,0.3); background:linear-gradient(145deg, rgba(17,24,39,0.85), rgba(15,23,42,0.95));">
-        <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:8px;">
-            <h3 style="color:#00f0ff; margin:0;">💎 批量卡密生成器与 Excel 导出 (闲鱼/淘系/B2B 专用)</h3>
-            <span style="font-size:11px; background:rgba(0,240,255,0.15); color:#00f0ff; padding:3px 8px; border-radius:20px; font-weight:800; border:1px solid rgba(0,240,255,0.3);">256-Bit Quantum</span>
-          </div>
-          <p style="margin-block-end:14px; font-size:13px; color:#94a3b8;">一键批量生成数千个 256 位高强度安全卡密，直接下载格式化 Excel/CSV 文件，可直接导入闲鱼阿奇索、店管家等自动发货软件。</p>
+          <p style="margin-block-end:16px; font-size:13.5px; color:#94a3b8;">单次批量生成成千上万个 256 位专属激活码，一键下载适配闲鱼与淘宝自动发货机器人的标准 Excel/CSV 文件。</p>
           
           <!-- Package Selector Buttons -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; margin-block-end:14px;">
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('starter', 9, 100)">⚡ 入门版 ($9 / 100家)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('basic', 19, 350)">🚀 进阶版 ($19 / 350家)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('pro', 49, 1000)">💎 专业版 ($49 / 1,000家)</button>
-            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('enterprise', 149, 3000)">👑 企业版 ($149 / 3,000条)</button>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin-block-end:14px;">
+            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" title="新手版套餐：价值$9，支持投递100家目标企业">⚡ 新手版 ($9 / 100家)</button>
+            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" title="基础版套餐：价值$19，支持投递350家目标企业">🚀 基础版 ($19 / 350家)</button>
+            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" title="专业VIP套餐：价值$49，支持投递1,000家目标企业">💎 专业VIP ($49 / 1,000家)</button>
+            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" title="企业B2B套餐：价值$149，支持投递3,000家客户线索">👑 企业B2B ($149 / 3,000家)</button>
           </div>
         </div>
 
-        <form dir="auto" action="/admin/generate-bulk-codes-export" method="POST" class="input-form-group" style="gap:10px;">
+        <form dir="auto" action="/admin/generate-bulk-codes-export" method="POST" class="input-form-group">
           <input type="hidden" id="bulkTierInput" name="tier" value="starter">
           
-          <div style="display:flex; gap:8px;">
-            <div style="flex:1;">
-              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">所选套餐:</label>
-              <input id="bulkPlanDisplay" dir="auto" class="admin-input" readonly value="Starter 入门版 ($9 / 100家企业)" style="background:rgba(0,0,0,0.3); color:#00f0ff; font-weight:700; font-size:13px;">
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>已选套餐类型：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">当前激活码所绑定的套餐权益与额度。</div>
+                </div>
+              </div>
+              <input id="bulkPlanDisplay" dir="auto" class="admin-input" readonly value="新手版套餐 ($9 / 100 家企业)" style="background:rgba(0,0,0,0.3); color:#818cf8; font-weight:700;">
+              <span class="field-hint-text">点击上方快捷药丸按钮可切换套餐类型。</span>
             </div>
-            <div style="inline-size:120px;">
-              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">生成数量:</label>
-              <input id="bulkCountInput" dir="auto" class="admin-input" max="5000" min="1" name="count" placeholder="数量" type="number" value="100" style="font-weight:700; color:#ffffff; font-size:14px; text-align:center;">
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>生成数量：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">本批次生成的激活码总数量（1 - 5,000 张）。</div>
+                </div>
+              </div>
+              <input id="bulkCountInput" dir="auto" class="admin-input" max="5000" min="1" name="count" placeholder="数量" type="number" value="100" style="font-weight:700; color:#ffffff; text-align:center;">
+              <span class="field-hint-text">批次张数（例如 100 张）。</span>
             </div>
           </div>
 
           <!-- Quick Quantity Buttons -->
-          <div style="display:flex; gap:6px; align-items:center;">
-            <span style="font-size:11px; color:#64748b;">快捷数量:</span>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(25)">25</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(50)">50</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(100)">100</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(200)">200</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(500)">500</button>
-            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(1000)">1000</button>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <span style="font-size:12px; color:#64748b; font-weight:600;">快捷数量：</span>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" title="快速设定生成 25 张">25</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" title="快速设定生成 50 张">50</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" title="快速设定生成 100 张">100</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" title="快速设定生成 200 张">200</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" title="快速设定生成 500 张">500</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" title="快速设定生成 1000 张">1000</button>
           </div>
 
-          <div style="display:flex; gap:8px;">
-            <input dir="auto" class="admin-input" name="batch_tag" placeholder="批次标签 (如: Xianyu-Starter-Batch-1)" type="text" style="font-size:12px;">
-            <select dir="auto" class="admin-select" name="code_type" style="inline-size:140px; font-size:12px;">
-              <option value="sale">💳 正常销售 (计入收益)</option>
-              <option value="admin_free">🆓 管理员赠送 (不计收益)</option>
-            </select>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>批次标识 (Batch Tag)：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">用于追踪销售渠道或活动归属的自定义标签（如 Xianyu-Store-1 或 Taobao-Batch）。</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" name="batch_tag" placeholder="例如 Xianyu-Starter-Batch-1" type="text">
+              <span class="field-hint-text">方便后续筛选和统计的标签。</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>账目类型：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">付费销售：计入平台总营业额。管理员赠送：属于免费赠品，不计入营收。</div>
+                </div>
+              </div>
+              <select dir="auto" class="admin-select" name="code_type">
+                <option value="sale">💳 付费销售（计入系统总营收）</option>
+                <option value="admin_free">🆓 管理员赠送（不计营收）</option>
+              </select>
+              <span class="field-hint-text">财务台账归类方式。</span>
+            </div>
           </div>
 
-          <div style="display:flex; align-items:center; gap:8px; background:rgba(0,240,255,0.06); padding:8px 12px; border-radius:8px; border:1px solid rgba(0,240,255,0.15);">
-            <input type="checkbox" id="exportExcelCheck" name="export_excel" value="true" checked style="cursor:pointer; inline-size:16px; block-size:16px;">
-            <label for="exportExcelCheck" style="font-size:12px; color:#cbd5e1; cursor:pointer; font-weight:600;">📥 立即导出并下载 Excel / CSV 文件 (适配闲鱼/淘宝格式)</label>
+          <div style="display:flex; align-items:center; gap:10px; background:rgba(99,102,241,0.06); padding:10px 14px; border-radius:10px; border:1px solid rgba(99,102,241,0.18);">
+            <input type="checkbox" id="exportExcelCheck" name="export_excel" value="true" checked>
+            <label for="exportExcelCheck" style="font-size:13px; color:#cbd5e1; cursor:pointer; font-weight:600;">📥 生成后立即下载 Excel / CSV 文件（适配闲鱼/淘宝自动发货机器人）</label>
           </div>
 
-          <button class="btn-real btn-purple" type="submit" style="background:linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%); color:#050515; font-weight:900; font-size:14px; box-shadow:0 0 20px rgba(0,240,255,0.35); border:none; padding:12px;">
-            ⚡ 立即生成并导出 Excel 卡密文件 📥
+          <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:14.5px; padding:13px 20px;" title="立即执行批量生成并导出文件">
+            ⚡ 批量生成并下载 Excel 文件 📥
           </button>
         </form>
 
         <script dir="auto">
-          function selectBulkPackage(tier, price, companies) {
+          function selectBulkPackage(tier, price, companies, btn) {
             document.getElementById('bulkTierInput').value = tier;
             const names = {
-              'starter': 'Starter 入门版 ($9 / 100家企业)',
-              'basic': 'Basic 进阶版 ($19 / 350家企业)',
-              'pro': 'Pro 专业版 ($49 / 1,000家企业)',
-              'enterprise': 'Enterprise 企业版 ($149 / 3,000条线索)'
+              'starter': '新手版套餐 ($9 / 100 家企业)',
+              'basic': '基础版套餐 ($19 / 350 家企业)',
+              'pro': '专业VIP套餐 ($49 / 1,000 家企业)',
+              'enterprise': '企业B2B套餐 ($149 / 3,000 客户线索)'
             };
             document.getElementById('bulkPlanDisplay').value = names[tier] || `${tier} ($${price})`;
+            document.querySelectorAll('.action-card-featured .preset-pill').forEach(el => el.classList.remove('active'));
+            if (btn) btn.classList.add('active');
           }
           function setBulkCount(cnt) {
             document.getElementById('bulkCountInput').value = cnt;
@@ -540,46 +987,224 @@
         </script>
       </div>
 
-      <!-- Card 3: Free Campaign -->
+      <!-- Card 2: Flash Sale Manager -->
       <div class="action-real-card">
         <div>
-          <h3>🚀 Grant Free Campaign</h3>
-          <p>Create a full outreach campaign without charging user balance</p>
-        </div>
-        <form dir="auto" action="/admin/free-campaign" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email" dir="auto">
-          <input dir="auto" class="admin-input" min="5" name="company_count" type="number" value="100" dir="auto">
-          <button class="btn-real btn-indigo" type="submit">Grant Campaign</button>
-        </form>
-      </div>
-
-      <!-- Card 4: Send Manual Email -->
-      <div class="action-real-card">
-        <div>
-          <h3>✉️ Direct Manual Dispatch</h3>
-          <p>Send a targeted server email to any custom recipient</p>
-        </div>
-        <form dir="auto" action="/admin/send-manual-email" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="to_email" placeholder="recipient@email.com" required type="email" dir="auto">
-          <input dir="auto" class="admin-input" name="subject" placeholder="Email Subject..." required type="text" dir="auto">
-          <textarea dir="auto" class="admin-textarea" name="body" placeholder="Message content (HTML or Plain)..." required style="height: 70px;" dir="auto"></textarea>
-          <button class="btn-real btn-emerald" type="submit">Dispatch Email Now</button>
-        </form>
-      </div>
-
-      <!-- Card 5: Flash Sale Manager -->
-      <div class="action-real-card">
-        <div>
-          <h3>⚡ Flash Sale Manager</h3>
-          <p>Launch time-limited discount timers to boost user purchases</p>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>⚡ 限时秒杀促销管理</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">在用户端顶部激活全局促销横幅与实时倒计时，直接对所有求职套餐自动执行折价。</div>
+              </div>
+            </h3>
+          </div>
+          <p>启动倒计时折扣活动，大幅提升用户购买与充值转化率。</p>
         </div>
         <form dir="auto" action="/admin/create-flash-sale" method="POST" class="input-form-group">
-          <input dir="auto" class="admin-input" name="title" placeholder="Sale Title..." required type="text" value="Special Flash Sale" dir="auto">
-          <div style="display:flex; gap:10px;">
-            <input dir="auto" class="admin-input" max="99" min="1" name="discount_percent" placeholder="Discount %" required type="number" value="25" dir="auto">
-            <input dir="auto" class="admin-input" max="168" min="1" name="duration_hours" placeholder="Hours" required type="number" value="24" dir="auto">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>🏷️ 活动标题名称：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">显示在用户端顶部醒目横幅上的促销文案（例如：'周末特惠限时 25% OFF'）。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="title" placeholder="例如：限时特惠促销" required type="text" value="Special Flash Sale">
+            <span class="field-hint-text">用户端横幅标题文案。</span>
           </div>
-          <button class="btn-real btn-rose" type="submit">Launch Flash Sale</button>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>🎯 折扣比例 %：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">全平台所有套餐享受的自动扣减百分比（1% 至 99%）。</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" max="99" min="1" name="discount_percent" placeholder="折扣比例 %" required type="number" value="25">
+              <span class="field-hint-text">例如填 25 代表立减 25%。</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>⏱️ 持续小时数：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">倒计时的有效持续时间（小时），结束后自动恢复原价。</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" max="168" min="1" name="duration_hours" placeholder="持续小时数" required type="number" value="24">
+              <span class="field-hint-text">活动时长（1 到 168 小时）。</span>
+            </div>
+          </div>
+
+          <button class="btn-real btn-rose" type="submit" title="立即激活并向所有用户全屏展示倒计时促销">
+            ⚡ 立即启动秒杀促销
+          </button>
+        </form>
+      </div>
+
+      <!-- Card 3: Add Credits -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>💳 为用户充值余额</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">直接向指定注册求职者的数字钱包内注资美元余额，实时到账。</div>
+              </div>
+            </h3>
+          </div>
+          <p>即时向指定用户钱包充值，支持自定义财务流水备注。</p>
+        </div>
+        <form dir="auto" action="/admin/add-credits" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 用户账户邮箱：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">需要充值余额的目标用户注册邮箱地址。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email">
+            <span class="field-hint-text">准确的注册邮箱。</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>💰 充值金额 ($)：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">需充入用户钱包的具体美元数值。</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" min="0.01" name="amount" placeholder="金额 $" required step="0.01" type="number" value="20.00">
+              <span class="field-hint-text">美元充值额度。</span>
+            </div>
+
+            <div class="form-field-block">
+              <div class="field-label-row">
+                <span>📝 管理员备注：</span>
+                <div class="has-tooltip">
+                  <span class="tooltip-trigger">ℹ️</span>
+                  <div class="tooltip-bubble">财务记账原因（如：VIP赠送、售后补偿等）。</div>
+                </div>
+              </div>
+              <input dir="auto" class="admin-input" name="note" type="text" value="管理员充值">
+              <span class="field-hint-text">流水记录说明。</span>
+            </div>
+          </div>
+
+          <button class="btn-real btn-emerald" type="submit" title="确认充值并立即更新用户钱包">
+            💳 立即充值余额
+          </button>
+        </form>
+      </div>
+
+      <!-- Card 4: Free Campaign -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>🚀 免费开通投递活动</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">基于用户的简历与求职意向，直接免费为其生成并启动完整的AI投递活动。</div>
+              </div>
+            </h3>
+          </div>
+          <p>为用户直接创建完整投递活动，不扣除用户钱包余额。</p>
+        </div>
+        <form dir="auto" action="/admin/free-campaign" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 目标用户邮箱：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">需要赠送并启动投递活动的用户邮箱。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="target_email" placeholder="user@email.com" required type="email">
+            <span class="field-hint-text">受益用户的注册账号。</span>
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>🏢 目标企业数量：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">本次活动将精准匹配并投递的经过验证的企业HR数量。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" min="5" name="company_count" placeholder="目标企业数量" type="number" value="100">
+            <span class="field-hint-text">投递企业规模（例如 100 家）。</span>
+          </div>
+
+          <button class="btn-real btn-indigo" type="submit" title="立即安排并启动AI投递队列">
+            🚀 立即开通活动
+          </button>
+        </form>
+      </div>
+
+      <!-- Card 5: Send Manual Email -->
+      <div class="action-real-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>
+              <span>✉️ 直接发送官方邮件</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">通过系统认证的企业邮件服务器直接向任意自定义收件人发送官方邮件。</div>
+              </div>
+            </h3>
+          </div>
+          <p>由系统认证服务器直接向指定收件人投递邮件。</p>
+        </div>
+        <form dir="auto" action="/admin/send-manual-email" method="POST" class="input-form-group">
+          
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📧 收件人邮箱：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">接收此封官方邮件的目标收件人地址。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="to_email" placeholder="recipient@email.com" required type="email">
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📝 邮件主题 (Subject)：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">收件人收件箱中看到的邮件标题。</div>
+              </div>
+            </div>
+            <input dir="auto" class="admin-input" name="subject" placeholder="邮件主题..." required type="text">
+          </div>
+
+          <div class="form-field-block">
+            <div class="field-label-row">
+              <span>📄 邮件正文 (HTML 或 纯文本)：</span>
+              <div class="has-tooltip">
+                <span class="tooltip-trigger">ℹ️</span>
+                <div class="tooltip-bubble">支持直接输入普通文本或富文本 HTML 代码。</div>
+              </div>
+            </div>
+            <textarea dir="auto" class="admin-textarea" name="body" placeholder="邮件正文（支持 HTML 或 纯文本）..." required style="height: 65px; resize:vertical;"></textarea>
+          </div>
+
+          <button class="btn-real btn-emerald" type="submit" title="立即通过服务器通道发送邮件">
+            ✉️ 立即投递邮件
+          </button>
         </form>
       </div>
 
@@ -611,10 +1236,10 @@
       if (!form) return;
       const checked = form.querySelectorAll('input[type="checkbox"]:checked');
       if (checked.length === 0) {
-        alert('Please select at least one item to delete.');
+        alert('请至少选择一个项目。');
         return;
       }
-      if (confirm(promptMsg || `Are you sure you want to delete ${checked.length} selected item(s)? This action cannot be undone.`)) {
+      if (confirm(promptMsg || `确定要删除选中的 ${checked.length} 个项目吗？此操作无法撤回。`)) {
         form.submit();
       }
     }
@@ -622,183 +1247,712 @@
 
   <!-- Redeem Codes Table -->
   <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">🎟️ Promo & Redeem Codes ({{ redeem_codes|length }})</div>
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🎟️ 优惠券与激活码列表 ({{ redeem_codes|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">已生成的所有256位加密优惠券与兑换码，支持一键导出和查看使用状态。</div>
+        </div>
+      </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(0,240,255,0.15); color:#00f0ff; border:1px solid rgba(0,240,255,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 导出未使用卡密 Excel</a>
-        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 导出全部卡密 Excel</a>
-        <button id="btnDeleteSelectedCodes" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('codesForm', 'Are you sure you want to delete the selected redeem codes?')">🗑️ Delete Selected (<span id="countSelectedCodes">0</span>)</button>
+        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="仅导出未被兑换的激活码">📥 导出未使用激活码 (Excel)</a>
+        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="导出包含已使用和未使用的全部激活码">📥 导出全部激活码 (Excel)</a>
+        <button id="btnDeleteSelectedCodes" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('codesForm', '确定要永久删除选中的激活码吗？', '激活码')">🗑️ 删除选中项 (<span id="countSelectedCodes">0</span>)</button>
       </div>
     </div>
     <div class="table-card">
-      <form id="codesForm" action="/admin/delete-codes" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" dir="auto"></th>
-              <th>Code</th>
-              <th>Value</th>
-              <th>Type</th>
-              <th>状态</th>
-              <th>Used By</th>
-              <th>Created At</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for r in redeem_codes %}
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')" dir="auto"></td>
-              <td>
-                <span class="code-chip">{{ r.code }}</span>
-                {% if not r.is_used %}
-                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)">📋 Copy</button>
-                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)">🔗 Link</button>
-                {% endif %}
-              </td>
-              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
-              <td>
-                {% if r.code_type == 'admin_free' %}
-                  <span class="status-pill pill-emerald">🆓 Admin Free</span>
-                {% else %}
-                  <span class="status-pill pill-indigo">💳 Paid</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if r.is_used %}
-                  <span class="status-pill pill-slate">Used</span>
-                {% else %}
-                  <span class="status-pill pill-emerald">Available</span>
-                {% endif %}
-              </td>
-              <td style="color:#94a3b8;">{{ r.used_by or '—' }}</td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (r.created_at or '')[:16] }}</td>
-              <td>
-                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete code {{ r.code }}?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-code'; const i=document.createElement('input'); i.name='code'; i.value='{{ r.code }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
-              </td>
-            </tr>
-            {% endfor %}
-            {% if not redeem_codes %}
-            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">No redeem codes generated yet.</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </form>
+      <div class="table-responsive">
+        <form id="codesForm" action="/admin/delete-codes" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="全选所有激活码"></th>
+                <th>激活码</th>
+                <th>面额价值</th>
+                <th>类型</th>
+                <th>状态</th>
+                <th>使用者</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in redeem_codes %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')"></td>
+                <td>
+                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span class="code-chip">{{ r.code }}</span>
+                    {% if not r.is_used %}
+                      <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)" title="复制激活码">📋 复制</button>
+                      <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="复制一键直达兑换链接">🔗 链接</button>
+                    {% endif %}
+                  </div>
+                </td>
+                <td style="color:#34d399; font-weight:800; font-size:14px;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+                <td>
+                  {% if r.code_type == 'admin_free' %}
+                    <span class="status-pill pill-emerald">🆓 管理员赠送</span>
+                  {% else %}
+                    <span class="status-pill pill-indigo">💳 付费激活码</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if r.is_used %}
+                    <span class="status-pill pill-slate">已使用</span>
+                  {% else %}
+                    <span class="status-pill pill-emerald">未使用</span>
+                  {% endif %}
+                </td>
+                <td style="color:#94a3b8; font-size:13px;">{{ r.used_by or '—' }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (r.created_at or '')[:16] }}</td>
+                <td>
+                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCode('{{ r.code }}')" title="永久删除激活码">🗑️ 删除</button>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not redeem_codes %}
+              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">暂无已生成的激活码。</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
     </div>
   </div>
 
   <!-- Users Table -->
   <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">👥 Registered Users ({{ users|length }})</div>
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>👥 注册用户列表 ({{ users|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">所有已注册用户账户信息、钱包余额、历史消费与账号启用/禁用状态。</div>
+        </div>
+      </div>
       <div>
-        <button id="btnDeleteSelectedUsers" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('usersForm', 'Are you sure you want to delete the selected users?')">🗑️ Delete Selected (<span id="countSelectedUsers">0</span>)</button>
+        <button id="btnDeleteSelectedUsers" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('usersForm', '确定要永久删除选中的用户吗？', '用户账户')">🗑️ 删除选中项 (<span id="countSelectedUsers">0</span>)</button>
       </div>
     </div>
     <div class="table-card">
-      <form id="usersForm" action="/admin/delete-users" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" dir="auto"></th>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Balance</th>
-              <th>Total Spent</th>
-              <th>状态</th>
-              <th>Joined</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for u in users %}
-            <tr>
-              <td style="text-align:center;">
-                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
-                  <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')" dir="auto">
-                {% else %}
-                  🔒
-                {% endif %}
-              </td>
-              <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:600; text-decoration:none;">{{ u.email }}</a></td>
-              <td style="font-weight:600; color:#f1f5f9;">{{ u.name or '—' }}</td>
-              <td><span class="status-pill pill-indigo">{{ u.user_type or 'JOBSEEKER' }}</span></td>
-              <td style="color:#34d399; font-weight:700;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
-              <td style="color:#94a3b8;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
-              <td>
-                {% if u.is_active %}
-                  <span class="status-pill pill-emerald">🟢 Active</span>
-                {% else %}
-                  <span class="status-pill pill-rose">🔴 Disabled</span>
-                {% endif %}
-              </td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (u.created_at or '')[:10] }}</td>
-              <td style="display:flex; gap:6px; align-items:center;">
-                <button type="button" class="btn-sm-action {% if u.is_active %}btn-rose{% else %}btn-emerald{% endif %}" style="padding:5px 10px; border-radius:6px; border:none; cursor:pointer;" onclick="const f=document.createElement('form'); f.method='POST'; f.action='/admin/toggle-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit();">
-                  {% if u.is_active %}Disable{% else %}Enable{% endif %}
-                </button>
-                {% if u.user_type != 'admin' and u.email != 'sam.dev1@hotmail.com' %}
-                  <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete user {{ u.email }} permanently?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-user'; const i=document.createElement('input'); i.name='target_user_id'; i.value='{{ u.user_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </form>
+      <div class="table-responsive">
+        <form id="usersForm" action="/admin/delete-users" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="全选所有用户"></th>
+                <th>邮箱</th>
+                <th>姓名</th>
+                <th>身份角色</th>
+                <th>钱包余额</th>
+                <th>累计消费</th>
+                <th>账户状态</th>
+                <th>注册时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for u in users %}
+              <tr>
+                <td style="text-align:center;">
+                  {% if u.user_type != 'admin' %}
+                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
+                  {% else %}
+                    <span title="受保护的管理员账户">🔒</span>
+                  {% endif %}
+                </td>
+                <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:600; text-decoration:none;" title="查看用户详细资料与操作日志">{{ u.email }}</a></td>
+                <td style="font-weight:600; color:#f1f5f9;">{{ u.name or '—' }}</td>
+                <td><span class="status-pill pill-indigo">{{ u.user_type or '求职者' }}</span></td>
+                <td style="color:#34d399; font-weight:800;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+                <td style="color:#94a3b8;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
+                <td>
+                  {% if u.is_active %}
+                    <span class="status-pill pill-emerald">🟢 正常</span>
+                  {% else %}
+                    <span class="status-pill pill-rose">🔴 禁用</span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (u.created_at or '')[:10] }}</td>
+                <td>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="btn-sm-action {% if u.is_active %}btn-sm-danger{% else %}btn-sm-success{% endif %}" onclick="handleToggleUser('{{ u.user_id }}')" title="切换账号状态（启用 / 禁用）">
+                      {% if u.is_active %}禁用{% else %}启用{% endif %}
+                    </button>
+                    {% if u.user_type != 'admin' %}
+                      <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteUser('{{ u.user_id }}', '{{ u.email }}')" title="永久删除用户账户">🗑️ 删除</button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </form>
+      </div>
     </div>
   </div>
 
-  <!-- Recent 投递活动 Table -->
+  <!-- Recent Campaigns Table -->
   <div class="admin-section">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
-      <div class="section-title-text" style="margin-block-end:0;">🚀 Recent 投递活动 ({{ campaigns|length }})</div>
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🚀 近期投递活动 ({{ campaigns|length }})</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">所有求职投递活动实时状态、目标企业数量与邮件投递结果。</div>
+        </div>
+      </div>
       <div>
-        <button id="btnDeleteSelected投递活动" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('campaignsForm', 'Are you sure you want to delete the selected campaigns?')">🗑️ Delete Selected (<span id="countSelected投递活动">0</span>)</button>
+        <button id="btnDeleteSelectedCampaigns" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('campaignsForm', '确定要删除选中的活动记录吗？', '投递活动')">🗑️ 删除选中项 (<span id="countSelectedCampaigns">0</span>)</button>
       </div>
     </div>
     <div class="table-card">
-      <form id="campaignsForm" action="/admin/delete-campaigns" method="POST">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width:36px; text-align:center;"><input type="checkbox" id="selectAll投递活动Checkbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelected投递活动', 'countSelected投递活动')" dir="auto"></th>
-              <th>Campaign ID</th>
-              <th>User</th>
-              <th>状态</th>
-              <th>Target Companies</th>
-              <th>Sent</th>
-              <th>Created At</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in campaigns %}
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelected投递活动', 'countSelected投递活动', 'selectAll投递活动Checkbox')" dir="auto"></td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#c4b5fd;">{{ c.campaign_id[:20] }}...</td>
-              <td>{{ c.email or c.user_id[:12] }}</td>
-              <td>
-                <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
-                  {{ c.status }}
-                </span>
-              </td>
-              <td style="font-weight:700;">{{ c.total_companies }}</td>
-              <td style="color:#34d399; font-weight:700;">{{ c.sent_count }}</td>
-              <td style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; color:#64748b;">{{ (c.created_at or '')[:16] }}</td>
-              <td>
-                <button type="button" class="btn-sm-action" style="background:#e11d48; color:#ffffff; border:none; padding:5px 10px; border-radius:6px; font-weight:700; cursor:pointer;" onclick="if(confirm('Delete this campaign permanently?')){ const f=document.createElement('form'); f.method='POST'; f.action='/admin/delete-campaign'; const i=document.createElement('input'); i.name='campaign_id'; i.value='{{ c.campaign_id }}'; f.appendChild(i); document.body.appendChild(f); f.submit(); }">🗑️ Delete</button>
-              </td>
-            </tr>
-            {% endfor %}
-            {% if not campaigns %}
-            <tr><td colspan="8" style="text-align:center; padding:24px; color:#64748b;">No campaigns found.</td></tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </form>
+      <div class="table-responsive">
+        <form id="campaignsForm" action="/admin/delete-campaigns" method="POST">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="全选所有投递活动"></th>
+                <th>活动 ID</th>
+                <th>所属用户</th>
+                <th>状态</th>
+                <th>目标企业数</th>
+                <th>已发送</th>
+                <th>创建时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in campaigns %}
+              <tr>
+                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
+                <td style="font-family:monospace; color:#a5b4fc; font-size:12.5px;">{{ c.campaign_id[:18] }}...</td>
+                <td style="font-weight:600; color:#f1f5f9;">{{ c.email or c.user_id[:12] }}</td>
+                <td>
+                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
+                    {% if c.status == 'completed' %}已完成
+                    {% elif c.status == 'running' %}进行中
+                    {% elif c.status == 'failed' %}失败
+                    {% else %}{{ c.status }}{% endif %}
+                  </span>
+                </td>
+                <td style="font-weight:800; color:#ffffff;">{{ c.total_companies }}</td>
+                <td style="color:#34d399; font-weight:800;">{{ c.sent_count }}</td>
+                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (c.created_at or '')[:16] }}</td>
+                <td>
+                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCampaign('{{ c.campaign_id }}')" title="永久删除此活动记录">🗑️ 删除</button>
+                </td>
+              </tr>
+              {% endfor %}
+              {% if not campaigns %}
+              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">暂无投递活动记录。</td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
     </div>
   </div>
 
+  <!-- =========================================================================
+       APEX LUXURY GLASSMORPHIC CONFIRMATION MODAL & TOAST NOTIFICATION ENGINE
+       ========================================================================= -->
+  <style>
+    .apex-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      background: rgba(4, 7, 20, 0.82);
+      backdrop-filter: blur(14px) saturate(180%);
+      -webkit-backdrop-filter: blur(14px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apex-modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .apex-modal-card {
+      position: relative;
+      inline-size: 100%;
+      max-inline-size: 470px;
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.97) 0%, rgba(15, 23, 42, 0.99) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.85), 0 0 45px var(--modal-glow, rgba(239, 68, 68, 0.25));
+      transform: scale(0.92) translateY(12px);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    .apex-modal-backdrop.active .apex-modal-card {
+      transform: scale(1) translateY(0);
+    }
+    .apex-modal-close-btn {
+      position: absolute;
+      inset-block-start: 16px;
+      inset-inline-end: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-size: 18px;
+      line-height: 1;
+      inline-size: 32px;
+      block-size: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .apex-modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+    .apex-modal-icon-glow {
+      inline-size: 68px;
+      block-size: 68px;
+      border-radius: 50%;
+      margin-block: 0 16px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: var(--icon-bg, rgba(239, 68, 68, 0.15));
+      border: 1px solid var(--icon-border, rgba(239, 68, 68, 0.35));
+      box-shadow: 0 0 30px var(--icon-glow, rgba(239, 68, 68, 0.35));
+      animation: apexIconPop 2s infinite ease-in-out;
+    }
+    @keyframes apexIconPop {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .apex-modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-block-end: 10px;
+      line-height: 1.35;
+    }
+    .apex-modal-item-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13.5px;
+      margin-block-end: 14px;
+      word-break: break-all;
+      max-inline-size: 100%;
+    }
+    .apex-modal-item-badge.danger {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+    }
+    .apex-modal-item-badge.warning {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+    .apex-modal-item-badge.success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+    .apex-modal-item-badge.info {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38bdf8;
+    }
+    .apex-modal-desc {
+      color: #94a3b8;
+      font-size: 14.5px;
+      line-height: 1.7;
+      margin-block-end: 26px;
+    }
+    .apex-modal-btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .apex-modal-btn {
+      flex: 1;
+      padding: 13px 18px;
+      font-size: 14.5px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .apex-modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+    }
+    .apex-modal-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+    .apex-modal-btn-action {
+      background: var(--btn-grad, linear-gradient(135deg, #ef4444 0%, #dc2626 100%));
+      color: #ffffff;
+      box-shadow: 0 6px 20px var(--btn-glow, rgba(239, 68, 68, 0.4));
+    }
+    .apex-modal-btn-action:hover {
+      filter: brightness(1.12);
+      transform: translateY(-1px);
+    }
+    .apex-modal-btn-action:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* TOAST NOTIFICATIONS */
+    #apexToastContainer {
+      position: fixed;
+      inset-block-start: 24px;
+      inset-inline-start: 50%;
+      transform: translateX(-50%);
+      z-index: 100001;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .apex-toast {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      padding: 12px 22px;
+      color: #f8fafc;
+      font-size: 14.5px;
+      font-weight: 700;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 24px var(--toast-glow, rgba(56, 189, 248, 0.35));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      animation: toastSlideDown 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    @keyframes toastSlideDown {
+      from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+
+  <div id="apexConfirmModal" class="apex-modal-backdrop" onclick="handleApexBackdropClick(event)">
+    <div class="apex-modal-card" role="dialog" aria-modal="true" aria-labelledby="apexModalTitle">
+      <button type="button" class="apex-modal-close-btn" onclick="closeApexModal()" title="关闭">&times;</button>
+      <div class="apex-modal-icon-glow" id="apexModalIconWrap">
+        <span id="apexModalIcon">🗑️</span>
+      </div>
+      <h3 id="apexModalTitle" class="apex-modal-title">确认操作</h3>
+      <div id="apexModalBadge" class="apex-modal-item-badge" style="display:none;"></div>
+      <p id="apexModalMessage" class="apex-modal-desc">确定要执行此操作吗？此操作无法撤回。</p>
+      <div class="apex-modal-btn-row">
+        <button type="button" id="apexModalCancelBtn" class="apex-modal-btn apex-modal-btn-cancel" onclick="closeApexModal()">取消</button>
+        <button type="button" id="apexModalConfirmBtn" class="apex-modal-btn apex-modal-btn-action">
+          <span id="apexModalConfirmText">确认删除</span>
+          <span id="apexModalSpinner" style="display:none; inline-size:16px; block-size:16px; border:2px solid #fff; border-inline-start-color:transparent; border-radius:50%; animation:spin 0.6s linear infinite;"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="apexToastContainer"></div>
+
+  <!-- JavaScript Functions for Bulk Actions and Modal Engine -->
+  <script dir="auto">
+    let _apexConfirmCallback = null;
+
+    function openApexConfirmModal(options) {
+      const modal = document.getElementById('apexConfirmModal');
+      const icon = document.getElementById('apexModalIcon');
+      const title = document.getElementById('apexModalTitle');
+      const badge = document.getElementById('apexModalBadge');
+      const msg = document.getElementById('apexModalMessage');
+      const confirmBtn = document.getElementById('apexModalConfirmBtn');
+      const confirmText = document.getElementById('apexModalConfirmText');
+      const cancelBtn = document.getElementById('apexModalCancelBtn');
+      const spinner = document.getElementById('apexModalSpinner');
+
+      if (!modal) return;
+
+      const type = options.type || 'danger'; // danger | warning | success | info
+      icon.innerText = options.icon || (type === 'danger' ? '🗑️' : (type === 'warning' ? '⏸️' : (type === 'success' ? '▶️' : '⚡')));
+      title.innerText = options.title || '确认操作';
+      msg.innerText = options.message || '确定要继续吗？';
+      confirmText.innerText = options.confirmText || '确认';
+      cancelBtn.innerText = options.cancelText || '取消';
+
+      if (options.badge) {
+        badge.innerText = options.badge;
+        badge.className = 'apex-modal-item-badge ' + type;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+
+      if (type === 'danger') {
+        modal.style.setProperty('--modal-glow', 'rgba(239, 68, 68, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(239, 68, 68, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(239, 68, 68, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(239, 68, 68, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(239, 68, 68, 0.4)');
+      } else if (type === 'warning') {
+        modal.style.setProperty('--modal-glow', 'rgba(245, 158, 11, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(245, 158, 11, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(245, 158, 11, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(245, 158, 11, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(245, 158, 11, 0.4)');
+      } else if (type === 'success') {
+        modal.style.setProperty('--modal-glow', 'rgba(16, 185, 129, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(16, 185, 129, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(16, 185, 129, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(16, 185, 129, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #10b981 0%, #059669 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(16, 185, 129, 0.4)');
+      } else {
+        modal.style.setProperty('--modal-glow', 'rgba(99, 102, 241, 0.35)');
+        modal.style.setProperty('--icon-bg', 'rgba(99, 102, 241, 0.15)');
+        modal.style.setProperty('--icon-border', 'rgba(99, 102, 241, 0.4)');
+        modal.style.setProperty('--icon-glow', 'rgba(99, 102, 241, 0.35)');
+        modal.style.setProperty('--btn-grad', 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)');
+        modal.style.setProperty('--btn-glow', 'rgba(99, 102, 241, 0.4)');
+      }
+
+      confirmBtn.disabled = false;
+      spinner.style.display = 'none';
+
+      _apexConfirmCallback = async () => {
+        try {
+          confirmBtn.disabled = true;
+          spinner.style.display = 'inline-block';
+          if (options.onConfirm) {
+            await options.onConfirm();
+          }
+          closeApexModal();
+        } catch (err) {
+          console.error(err);
+          showApexToast(err.message || '执行操作失败', 'danger');
+          confirmBtn.disabled = false;
+          spinner.style.display = 'none';
+        }
+      };
+
+      confirmBtn.onclick = _apexConfirmCallback;
+      modal.classList.add('active');
+    }
+
+    function closeApexModal() {
+      const modal = document.getElementById('apexConfirmModal');
+      if (modal) modal.classList.remove('active');
+      _apexConfirmCallback = null;
+    }
+
+    function handleApexBackdropClick(e) {
+      if (e.target.id === 'apexConfirmModal') {
+        closeApexModal();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeApexModal();
+    });
+
+    function showApexToast(message, type = 'success') {
+      const container = document.getElementById('apexToastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'apex-toast';
+      const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+      const glow = type === 'success' ? 'rgba(16, 185, 129, 0.4)' : (type === 'danger' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(56, 189, 248, 0.4)');
+      toast.style.setProperty('--toast-glow', glow);
+      toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    async function executeApexAction(url, bodyData, successMsg, onDomUpdate) {
+      try {
+        const formData = new FormData();
+        if (bodyData) {
+          for (const [k, v] of Object.entries(bodyData)) {
+            if (Array.isArray(v)) {
+              v.forEach(item => formData.append(k, item));
+            } else {
+              formData.append(k, v);
+            }
+          }
+        }
+        const resp = await fetch(url, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if (!resp.ok && resp.status !== 303 && resp.status !== 200) {
+          throw new Error(`Server returned HTTP ${resp.status}`);
+        }
+        showApexToast(successMsg || '操作成功完成', 'success');
+        if (onDomUpdate) {
+          onDomUpdate();
+        } else {
+          setTimeout(() => window.location.reload(), 650);
+        }
+      } catch (e) {
+        console.error('Action error:', e);
+        showApexToast('操作失败: ' + e.message, 'danger');
+      }
+    }
+
+    function handlePauseFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'warning',
+        icon: '⏸️',
+        title: '暂停限时秒杀活动',
+        badge: title ? `活动: ${title}` : `Sale #${saleId}`,
+        message: '确定要暂停此秒杀活动吗？暂停后横幅将对所有访问用户隐藏。',
+        confirmText: '⏸️ 暂停活动',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/pause-flash-sale', { sale_id: saleId }, '限时秒杀活动已成功暂停')
+      });
+    }
+
+    function handleResumeFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'success',
+        icon: '▶️',
+        title: '恢复并延长秒杀活动',
+        badge: title ? `活动: ${title}` : `Sale #${saleId}`,
+        message: '确定要重新激活此秒杀活动并自动延长24小时吗？',
+        confirmText: '▶️ 恢复 (+24h)',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/resume-flash-sale', { sale_id: saleId, extend_hours: 24 }, '秒杀活动已恢复并成功延期')
+      });
+    }
+
+    function handleDeleteFlashSale(saleId, title) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: '永久删除秒杀活动',
+        badge: title ? `活动: ${title}` : `Sale #${saleId}`,
+        message: '确定要从数据库中永久删除此秒杀活动吗？此操作无法撤销。',
+        confirmText: '🗑️ 确认删除',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/delete-flash-sale', { sale_id: saleId }, '秒杀活动已成功删除')
+      });
+    }
+
+    function handleDeleteCode(code) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: '删除激活码',
+        badge: `激活码: ${code}`,
+        message: '确定要永久删除此激活码吗？用户将无法再兑换此码。',
+        confirmText: '🗑️ 删除激活码',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/delete-code', { code: code }, '激活码已成功删除')
+      });
+    }
+
+    function handleDeleteUser(userId, email) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: '永久删除用户账户',
+        badge: email || userId,
+        message: '确定要永久删除此用户及其所有关联数据吗？此操作无法撤回。',
+        confirmText: '🗑️ 删除用户',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: userId }, '用户账户已成功删除')
+      });
+    }
+
+    function handleDeleteCampaign(campaignId) {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: '删除投递活动记录',
+        badge: `活动 #${campaignId.substring(0, 16)}`,
+        message: '确定要永久删除此投递活动及发送记录吗？',
+        confirmText: '🗑️ 删除活动',
+        cancelText: '取消',
+        onConfirm: () => executeApexAction('/admin/delete-campaign', { campaign_id: campaignId }, '投递活动记录已成功删除')
+      });
+    }
+
+    function handleToggleUser(userId) {
+      executeApexAction('/admin/toggle-user', { target_user_id: userId }, '用户状态更新成功');
+    }
+
+    function handleBulkDelete(formId, promptMsg, itemLabel) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const checked = form.querySelectorAll('input[type="checkbox"]:checked:not([id^="selectAll"])');
+      if (checked.length === 0) {
+        showApexToast('请至少选择一项进行删除。', 'danger');
+        return;
+      }
+      const values = Array.from(checked).map(c => c.value);
+      const fieldName = checked[0].name;
+
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🗑️',
+        title: `批量删除 (${checked.length} 项 ${itemLabel || '数据'})`,
+        badge: `已选中 ${checked.length} 项`,
+        message: promptMsg || `确定要永久删除选中的 ${checked.length} 项数据吗？此操作无法撤销。`,
+        confirmText: `🗑️ 删除选中项 (${checked.length})`,
+        cancelText: '取消',
+        onConfirm: () => executeApexAction(form.action, { [fieldName]: values }, `已成功删除 ${checked.length} 项数据`)
+      });
+    }
+
+    function toggleSelectAll(className, masterCheckbox, btnId, countId) {
+      const checkboxes = document.querySelectorAll('.' + className);
+      checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+      updateSelectCount(className, btnId, countId, masterCheckbox.id);
+    }
+
+    function updateSelectCount(className, btnId, countId, masterId) {
+      const checked = document.querySelectorAll('.' + className + ':checked');
+      const all = document.querySelectorAll('.' + className);
+      const btn = document.getElementById(btnId);
+      const countSpan = document.getElementById(countId);
+      const master = document.getElementById(masterId);
+      
+      if (countSpan) countSpan.innerText = checked.length;
+      if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
+      if (master && all.length > 0) master.checked = (checked.length === all.length);
+    }
+  </script>
 </div>

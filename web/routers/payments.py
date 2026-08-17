@@ -1873,9 +1873,10 @@ async def offers_buy(request: Request, offer_id: str):
         except Exception as e:
             logger.error(f"Failed to send Telegram alert: {e}")
 
-        # 2. Gmail notification to samatou683@gmail.com
+        # 2. Notification to admin email
         try:
             from web.app_v2 import _send_via_gmail_smtp
+            admin_target = os.getenv("ADMIN_NOTIFICATION_EMAIL") or getattr(config, "SUPPORT_EMAIL", "support@jobhunt-pro.com")
             email_body = f"""
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #334155; border-radius: 12px; background-color: #0f172a; color: #f8fafc;">
                 <h2 style="color: #f43f5e; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-top: 0;">🛍️ New Special Offer Purchased</h2>
@@ -1913,7 +1914,7 @@ async def offers_buy(request: Request, offer_id: str):
             </div>
             """
             sent_ok = _send_via_gmail_smtp(
-                to_email="samatou683@gmail.com",
+                to_email=admin_target,
                 subject=f"New Purchase: {offer_title}",
                 html_body=email_body,
                 sender_name="JobHunt Pro Offers"
@@ -1921,7 +1922,7 @@ async def offers_buy(request: Request, offer_id: str):
             if not sent_ok:
                 from core.email_engine import send_email_via_brevo_http
                 send_email_via_brevo_http(
-                    to_email="samatou683@gmail.com",
+                    to_email=admin_target,
                     company_name="Special Offers",
                     custom_body=email_body,
                     sender_name="JobHunt Pro Offers",
@@ -1945,13 +1946,13 @@ def get_wallet_page(request: Request):
             user_row = None
 
         if not user_row:
-            sam_user = conn.execute("SELECT user_id, email, name, wallet_balance, api_key, tokens FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
-            if sam_user:
-                user_row = sam_user
-                user_id = sam_user["user_id"]
+            admin_user = conn.execute("SELECT user_id, email, name, wallet_balance, api_key, tokens FROM users WHERE user_type = 'admin' OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
+            if admin_user:
+                user_row = admin_user
+                user_id = admin_user["user_id"]
             else:
-                user_row = {"user_id": "user_1b73747a6e9a41d6", "email": "sam.dev1@hotmail.com", "name": "Sam Salameh", "wallet_balance": 50.0, "api_key": "key_demo", "tokens": 1000}
-                user_id = "user_1b73747a6e9a41d6"
+                user_row = {"user_id": "user_c79c498bf9314555", "email": "sam.dev1@hotmail.com", "name": "Sam Salameh", "wallet_balance": 50.0, "api_key": "key_demo", "tokens": 1000}
+                user_id = "user_c79c498bf9314555"
 
         user = dict(user_row)
 

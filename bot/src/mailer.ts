@@ -47,10 +47,10 @@ export async function sendColdEmail(toEmail: string, subject: string, htmlBody: 
         });
 
         const attachments = [];
-        const cvPath = path.join(process.cwd(), '..', 'assets', 'Sam_Salameh_CV.pdf'); // bot/../assets
+        const cvPath = path.join(process.cwd(), '..', 'assets', 'candidate_resume.pdf'); // bot/../assets
         if (fs.existsSync(cvPath)) {
             attachments.push({
-                filename: 'Sam_Salameh_CV.pdf',
+                filename: 'Resume.pdf',
                 path: cvPath
             });
             console.log(`📎 Attached CV: ${cvPath}`);

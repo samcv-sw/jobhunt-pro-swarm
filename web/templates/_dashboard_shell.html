@@ -59,7 +59,7 @@
       <a href="/interview-copilot" class="sb-link {{ 'sb-active' if active_page == 'interview-copilot' else '' }}" style="color:#c4b5fd;font-weight:700;"><i data-lucide="mic" class="sb-icon"></i><span>مساعد المقابلات (AI Copilot)</span></a>
       <a href="/salary-negotiator" class="sb-link {{ 'sb-active' if active_page == 'salary-negotiator' else '' }}" style="color:#fbbf24;font-weight:700;"><i data-lucide="dollar-sign" class="sb-icon"></i><span>حاسبة الراتب والتفاوض</span></a>
 
-      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
       <div class="sb-section-label" style="color:#ec4899;font-weight:800;display:flex;align-items:center;justify-content:space-between;">
         <span>🔥 عروض واشتراكات الذكاء والمواقع</span>
         <span style="font-size: 14px;background:rgba(236,72,153,0.2);color:#f472b6;padding:2px 6px;border-radius:4px;border:1px solid rgba(236,72,153,0.4);">عروض</span>
@@ -92,11 +92,11 @@
       <a href="/wallet" class="sb-link {{ 'sb-active' if active_page == 'wallet' else '' }}"><i data-lucide="wallet" class="sb-icon"></i><span>المحفظة</span></a>
       <a href="/my-purchases" class="sb-link {{ 'sb-active' if active_page == 'my-purchases' else '' }}"><i data-lucide="package" class="sb-icon"></i><span>اشتراكاتي</span></a>
       <a href="/stats" class="sb-link {{ 'sb-active' if active_page == 'stats' else '' }}"><i data-lucide="pie-chart" class="sb-icon"></i><span>الإحصائيات</span></a>
-      <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
 
       <div class="sb-section-label">النظام</div>
-      {% if is_admin or (user and (user.is_admin or user.email in ['samatou683@gmail.com'])) %}
+      {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
       <a href="/admin" class="sb-link sb-danger"><i data-lucide="shield-alert" class="sb-icon"></i><span>لوحة الإدارة</span></a>
+      <a href="/growth-station" class="sb-link {{ 'sb-active' if active_page == 'growth_station' else '' }}"><i data-lucide="megaphone" class="sb-icon"></i><span>محطة النمو & Leads</span></a>
       {% endif %}
       <a href="/contact" class="sb-link {{ 'sb-active' if active_page == 'contact' else '' }}"><i data-lucide="message-square" class="sb-icon"></i><span>الدعم الفني</span></a>
       <a href="/settings" class="sb-link {{ 'sb-active' if active_page == 'settings' else '' }}"><i data-lucide="settings" class="sb-icon"></i><span>الإعدادات</span></a>

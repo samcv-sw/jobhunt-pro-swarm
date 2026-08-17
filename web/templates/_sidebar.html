@@ -286,16 +286,22 @@
 
     <div class="nav-divider"></div>
     <a href="/stats" {{ 'class=active' if active_page == 'stats' else '' }}><span class="nav-icon">📈</span>الإحصائيات</a>
-    <a href="/growth-station" {{ 'class=active' if active_page == 'growth_station' else '' }}><span class="nav-icon">📢</span>محطة النمو & Leads</a>
     <a href="/referrals" {{ 'class=active' if active_page == 'referral' else '' }}><span class="nav-icon">👥</span>الإحالات</a>
-    <a href="/email-test" {{ 'class=active' if active_page == 'email-test' else '' }}><span class="nav-icon">🧪</span>اختبار البريد</a>
     <a href="/export" {{ 'class=active' if active_page == 'export' else '' }}><span class="nav-icon">📥</span>تصدير</a>
     <a href="/api-docs" {{ 'class=active' if active_page == 'api' else '' }}><span class="nav-icon">🔌</span>مستندات API</a>
 
     <div class="nav-divider"></div>
     <a href="/contact" {{ 'class=active' if active_page == 'contact' else '' }}><span class="nav-icon">💬</span>اتصل بنا</a>
     <a href="https://wa.me/12494985866?text=مرحبا%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
-    <a href="/admin/sys-logs" {{ 'class=active' if active_page == 'sys-logs' else '' }} style="{{ '' if active_page == 'sys-logs' else 'color:#ef4444;' }}"><span class="nav-icon">📜</span>سجلات النظام</a>
+
+    {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
+    <div class="nav-divider"></div>
+    <div class="nav-section-label" style="color:#ef4444;">🛡️ لوحة وتحكم الإدارة</div>
+    <a href="/admin" {{ 'class=active' if active_page == 'admin' else '' }} style="color:#ef4444;"><span class="nav-icon">🛡️</span>لوحة الإدارة</a>
+    <a href="/growth-station" {{ 'class=active' if active_page == 'growth_station' else '' }}><span class="nav-icon">📢</span>محطة النمو & Leads</a>
+    <a href="/admin/sys-logs" {{ 'class=active' if active_page == 'sys-logs' else '' }} style="color:#f87171;"><span class="nav-icon">📜</span>سجلات النظام</a>
+    <a href="/email-test" {{ 'class=active' if active_page == 'email-test' else '' }}><span class="nav-icon">🧪</span>اختبار البريد</a>
+    {% endif %}
 
     <div class="nav-gap"></div>
     <div class="nav-divider"></div>

@@ -208,7 +208,7 @@
       </div>
       
       <h1 style="background:linear-gradient(135deg,#ffffff 0%,#f0c040 35%,#c4b5fd 70%,#00f0ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:clamp(26px,4.5vw,42px);font-weight:900;line-height:1.25;margin:0;">
-        أهلاً بك، {{ user.name.split(' ')[0] if user.name else 'الباحث المتميز' }} ✨
+        أهلاً بك، {{ user.name if user.name else 'الباحث المتميز' }} ✨
       </h1>
       
       <p class="mt-2.5 text-sm sm:text-base text-slate-300 leading-relaxed font-medium">
@@ -379,6 +379,117 @@
           </div>
         </div>
       </div>
+
+      <span id="arDailyCapStatus" class="text-[11px] font-semibold text-slate-400 ms-2"></span>
+    </div>
+
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
+      <!-- زر إعدادات البريد والمرسل BYO-SMTP & Sender Mode -->
+      <button onclick="openArSenderConfigModal()" id="arSenderConfigBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs transition-all border border-indigo-500/40 flex items-center gap-2 shadow-md">
+        <span>⚙️ إعدادات المرسل والبريد (Sender & SMTP)</span>
+      </button>
+
+      <!-- زر فحص الإرسال المباشر Live Test Send -->
+      <button onclick="openArTestSendModal()" id="arTestSendBtn" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs transition-all border border-emerald-500/40 flex items-center gap-2 shadow-md">
+        <span>📨 تجربة إرسال مباشر (Test Send)</span>
+      </button>
+
+      <!-- زر تفريغ الكاش مع نافذة الشرح عند التمرير -->
+      <div class="ctrl-tooltip-container">
+        <button onclick="purgeArSystemCache()" id="arPurgeCacheBtn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs transition-all border border-cyan-500/30 flex items-center gap-2 shadow-md">
+          <span>🧹 تفريغ الذاكرة (Cache)</span>
+        </button>
+        <div class="kpi-tooltip-popover" dir="rtl" style="inline-size: 300px;">
+          <div class="kpi-tooltip-header">
+            <div class="kpi-tooltip-title">
+              <span>🧹 تفريغ الذاكرة المؤقتة</span>
+            </div>
+            <span class="kpi-tooltip-badge">تسريع الأداء</span>
+          </div>
+          <div class="kpi-tooltip-body">
+            يقوم فوراً بتفريغ الذاكرة المؤقتة للمخاطبات وسجلات الـ MX المخبأة. يُسرّع استجابة اللوحة ويُحدّث مؤشرات الأداء بضغطة واحدة دون الحاجة لإعادة تشغيل السيرفر.
+          </div>
+          <div class="kpi-tooltip-footer">
+            <span>⚡ تحديث سريع وآمن 100% بدون أي فقدان للبيانات</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SENDER CONFIG MODAL (ARABIC) -->
+  <div id="arSenderConfigModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-right" dir="rtl">
+      <button onclick="closeArSenderConfigModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">⚙️</div>
+        <div>
+          <h3 class="text-base font-bold text-white">إعدادات المرسل والبريد (Sender & SMTP)</h3>
+          <p class="text-xs text-slate-400">تحكم بآلية توجيه الإيميلات، الردود، والحد اليومي للتقديمات</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+          <div class="font-bold text-cyan-300 mb-1">📬 مسار الرد التلقائي (Reply-To Routing):</div>
+          <div class="text-slate-300">يتم إرسال كل التقديمات مع توجيه الرد تلقائياً إلى بريدك المسجل: <span id="arModalUserEmail" class="font-mono text-emerald-400 font-bold"></span>، لتصل ردود مسؤولي التوظيف لصندوقك مباشرة.</div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block font-bold text-slate-200">الحد اليومي للتقديمات (Daily Outreach Cap):</label>
+          <input type="number" id="arModalDailyCap" min="1" max="10000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="480">
+          <p class="text-[11px] text-slate-400">الافتراضي الموصى به: 480 تقديم/يوم لضمان أعلى موثوقية وجودة وصول.</p>
+        </div>
+
+        <div class="border-t border-slate-800 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-200">ربط بريدك المباشر (BYO-SMTP - اختياري):</span>
+            <span id="arModalSmtpBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">المجمّع السحابي المعتمد</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-3">إذا كنت ترغب بالإرسال من حساب Gmail الخاص بك مباشرة 100%، أدخل بريدك ورمز التطبيق (App Password).</p>
+          
+          <div class="space-y-2">
+            <input type="email" id="arModalSmtpEmail" dir="auto" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="بريدك الإلكتروني (e.g. name@gmail.com)">
+            <input type="password" id="arModalSmtpPass" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="رمز التطبيق (Gmail App Password - 16 حرفاً)">
+          </div>
+        </div>
+
+        <div id="arSenderConfigStatus" class="text-center font-bold text-xs py-1"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="clearArSmtpConfig()" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 font-bold transition-all border border-rose-500/30">إلغاء الربط والاعتماد على المجمّع</button>
+          <button onclick="saveArSenderConfig()" id="arSaveSenderBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/30">حفظ الإعدادات وفحص الاتصال</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE TEST SEND MODAL (ARABIC) -->
+  <div id="arTestSendModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-right" dir="rtl">
+      <button onclick="closeArTestSendModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">📨</div>
+        <div>
+          <h3 class="text-base font-bold text-white">تجربة إرسال إيميل مباشر</h3>
+          <p class="text-xs text-slate-400">إرسال نبضة فحص فورية للتأكد من وصول الإيميل ورؤوس الـ Reply-To</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-200 mb-1">البريد المستلم للتجربة:</label>
+          <input type="email" id="arTestSendTargetEmail" dir="auto" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="your_email@gmail.com">
+          <p class="text-[11px] text-slate-400 mt-1">سنقوم بإرسال إيميل فحص فوري للتأكد من وصول الرسالة لصندوق الوارد (Inbox).</p>
+        </div>
+
+        <div id="arTestSendResult" class="p-3 rounded-xl bg-slate-950 border border-slate-800 hidden font-mono text-[11px] text-slate-300"></div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button onclick="closeArTestSendModal()" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">إغلاق</button>
+          <button onclick="executeArTestSend()" id="arExecTestSendBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-emerald-600/30">🚀 إرسال الفحص الآن</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -390,10 +501,10 @@
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (btn) btn.innerText = '✅ تم تفريغ الذاكرة بنجاح!';
-        setTimeout(function() { if (btn) btn.innerText = '🧹 تفريغ الذاكرة المؤقتة (Cache Purge)'; }, 3000);
+        setTimeout(function() { if (btn) btn.innerText = '🧹 تفريغ الذاكرة (Cache)'; }, 3000);
       })
       .catch(function() {
-        if (btn) btn.innerText = '🧹 تفريغ الذاكرة المؤقتة (Cache Purge)';
+        if (btn) btn.innerText = '🧹 تفريغ الذاكرة (Cache)';
       });
   }
 
@@ -404,7 +515,7 @@
     fetch('/api/v1/settings/daily-cap', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ daily_cap: parseInt(val) || 100 })
+      body: JSON.stringify({ daily_cap: parseInt(val) || 480 })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -413,6 +524,158 @@
     })
     .catch(function() {
       if (status) status.innerText = '❌ فشل الحفظ';
+    });
+  }
+
+  function openArSenderConfigModal() {
+    var modal = document.getElementById('arSenderConfigModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    fetch('/api/v2/user/sender-config')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'success') {
+          var em = document.getElementById('arModalUserEmail');
+          if (em) em.innerText = data.email || 'غير معرّف';
+          var dc = document.getElementById('arModalDailyCap');
+          if (dc) dc.value = data.daily_cap || 480;
+          var badge = document.getElementById('arModalSmtpBadge');
+          if (badge) {
+            if (data.has_byo_smtp) {
+              badge.innerText = '✅ متصل بـ ' + (data.byo_smtp_email || 'SMTP خاص');
+              badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            } else {
+              badge.innerText = 'المجمّع السحابي (' + data.pool_active_accounts + ' حساب نشط)';
+              badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+            }
+          }
+          var testIn = document.getElementById('arTestSendTargetEmail');
+          if (testIn && !testIn.value) testIn.value = data.email || '';
+        }
+      });
+  }
+
+  function closeArSenderConfigModal() {
+    var modal = document.getElementById('arSenderConfigModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function saveArSenderConfig() {
+    var btn = document.getElementById('arSaveSenderBtn');
+    var status = document.getElementById('arSenderConfigStatus');
+    var dc = parseInt(document.getElementById('arModalDailyCap').value) || 480;
+    var semail = document.getElementById('arModalSmtpEmail').value;
+    var spass = document.getElementById('arModalSmtpPass').value;
+
+    if (btn) btn.innerText = '⌛ جاري الفحص والحفظ...';
+    if (status) { status.innerText = ''; status.className = 'text-center font-bold text-xs py-1 text-slate-400'; }
+
+    fetch('/api/v2/user/sender-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: dc, smtp_email: semail, smtp_pass: spass })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (btn) btn.innerText = 'حفظ الإعدادات وفحص الاتصال';
+      if (data.status === 'success') {
+        var testRes = data.connection_test || {};
+        if (testRes.success) {
+          status.innerText = '✅ تم الحفظ بنجاح: ' + (testRes.message || 'تم اختبار الاتصال!');
+          status.className = 'text-center font-bold text-xs py-1 text-emerald-400';
+        } else {
+          status.innerText = '⚠️ تم الحفظ ولكن فشل الاتصال: ' + (testRes.message || '');
+          status.className = 'text-center font-bold text-xs py-1 text-amber-400';
+        }
+        var inp = document.getElementById('arDailyCapInput');
+        if (inp) inp.value = dc;
+        setTimeout(closeArSenderConfigModal, 2500);
+      } else {
+        status.innerText = '❌ خطأ: ' + (data.message || 'فشل الحفظ');
+        status.className = 'text-center font-bold text-xs py-1 text-rose-400';
+      }
+    })
+    .catch(function(err) {
+      if (btn) btn.innerText = 'حفظ الإعدادات وفحص الاتصال';
+      if (status) { status.innerText = '❌ فشل الاتصال بالسيرفر'; status.className = 'text-center font-bold text-xs py-1 text-rose-400'; }
+    });
+  }
+
+  function clearArSmtpConfig() {
+    var status = document.getElementById('arSenderConfigStatus');
+    var dc = parseInt(document.getElementById('arModalDailyCap').value) || 480;
+    fetch('/api/v2/user/sender-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ daily_cap: dc, clear_smtp: true })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (status) {
+        status.innerText = '✅ تم العودة إلى مجمّع الإرسال السحابي المعتمد بنجاح!';
+        status.className = 'text-center font-bold text-xs py-1 text-cyan-400';
+      }
+      var emailIn = document.getElementById('arModalSmtpEmail');
+      var passIn = document.getElementById('arModalSmtpPass');
+      if (emailIn) emailIn.value = '';
+      if (passIn) passIn.value = '';
+      openArSenderConfigModal();
+    });
+  }
+
+  function openArTestSendModal() {
+    var modal = document.getElementById('arTestSendModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    fetch('/api/v2/user/sender-config')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var inp = document.getElementById('arTestSendTargetEmail');
+        if (inp && data.email) inp.value = data.email;
+      });
+  }
+
+  function closeArTestSendModal() {
+    var modal = document.getElementById('arTestSendModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  function executeArTestSend() {
+    var target = document.getElementById('arTestSendTargetEmail').value;
+    var btn = document.getElementById('arExecTestSendBtn');
+    var resBox = document.getElementById('arTestSendResult');
+
+    if (!target) { alert('يرجى كتابة البريد الإلكتروني'); return; }
+    if (btn) btn.innerText = '⌛ جاري الإرسال والفحص...';
+    if (resBox) { resBox.classList.remove('hidden'); resBox.innerText = 'جاري الاتصال بمحرك الإرسال وفحص سجلات الـ MX...'; }
+
+    fetch('/api/v2/email/test-send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to_email: target })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (btn) btn.innerText = '🚀 إرسال الفحص الآن';
+      if (data.status === 'success') {
+        resBox.innerHTML = '<span class="text-emerald-400 font-bold">✅ ' + data.message + '</span><br><span class="text-slate-400">Reply-To Header: ' + data.reply_to + '</span><br><span class="text-slate-500">Tracking: ' + data.tracking_id + '</span>';
+      } else {
+        resBox.innerHTML = '<span class="text-amber-400 font-bold">⚠️ ' + (data.message || 'تم معالجة الطلب') + '</span>';
+      }
+    })
+    .catch(function(err) {
+      if (btn) btn.innerText = '🚀 إرسال الفحص الآن';
+      if (resBox) resBox.innerHTML = '<span class="text-rose-400 font-bold">❌ فشل الإرسال: ' + err.message + '</span>';
     });
   }
   </script>
@@ -1124,7 +1387,9 @@
       }
 
       fetchAndRenderArDispatches();
-      setInterval(fetchAndRenderArDispatches, 3000);
+      setInterval(function() {
+          if (!document.hidden) fetchAndRenderArDispatches();
+      }, 5000);
       document.addEventListener('visibilitychange', function() { if (!document.hidden) fetchAndRenderArDispatches(); });
       window.addEventListener('focus', function() { fetchAndRenderArDispatches(); });
   })();
@@ -1814,7 +2079,11 @@ document.addEventListener("DOMContentLoaded", () => {
         <label class="block text-xs font-bold text-slate-300 mb-1">👤 اختر ملف السيرة الذاتية المستهدف (Select Target CV Profile) <span class="text-emerald-400">*</span></label>
         <div class="relative">
           <select id="selectTestProfile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
-            <option value="">Choose a loaded profile...</option>
+            {% for p in profiles %}
+            <option value="{{ p.id }}">{{ p.profile_name }}</option>
+            {% else %}
+            <option value="">اختر الملف الوظيفي المستهدف...</option>
+            {% endfor %}
           </select>
           <div class="pointer-events-none absolute inset-y-0 start-0 flex items-center px-3 text-emerald-400">
             <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
@@ -1868,7 +2137,7 @@ async function openTestEmailModal() {
     const sel = document.getElementById('selectTestProfile');
     if (sel && data.profiles && data.profiles.length > 0) {
       sel.innerHTML = data.profiles.map(p => 
-        `<option value="${p.id}">${p.profile_name || 'Sam Salameh - Senior Network Engineer (15+ yrs exp)'}</option>`
+        `<option value="${p.id}">${p.profile_name || 'Executive Profile - Senior Software Engineer (10+ yrs exp)'}</option>`
       ).join('');
     }
   } catch(e) {

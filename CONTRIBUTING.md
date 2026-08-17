@@ -5,7 +5,7 @@ Thank you for considering contributing to JobHunt Pro! 🎉
 ## Development Setup
 
 ```bash
-git clone https://github.com/sam-salameh/jobhunt-pro.git
+git clone https://github.com/jobhunt-pro/jobhunt-pro.git
 cd jobhunt-pro
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate

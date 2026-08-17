@@ -26,7 +26,7 @@ class EmailTracker:
         """
         if not tracking_id:
             return ""
-        return f'<img src="https://track.sam-salameh.com/pixel/{tracking_id}" width="1" height="1" style="display:none" />'
+        return f'<img src="https://track.jobhunt-pro.com/pixel/{tracking_id}" width="1" height="1" style="display:none" />'
 
     def generate_tracking_link(self, tracking_id: str, original_url: str) -> str:
         """Wrap a URL with a click-tracking redirect.
@@ -35,7 +35,7 @@ class EmailTracker:
         """
         if not tracking_id or not original_url:
             return original_url or ""
-        return f"https://track.sam-salameh.com/click/{tracking_id}?url={original_url}"
+        return f"https://track.jobhunt-pro.com/click/{tracking_id}?url={original_url}"
 
     def record_open(self, tracking_id: str) -> bool:
         """Mark an email as opened in the database.

@@ -217,7 +217,7 @@ class FreeSMTPPool:
                 # Fallback to next provider
                 if len(available) > 1:
                     fallback = available[1]
-                    actual_sender_name = from_name or "Sam Salameh"
+                    actual_sender_name = from_name or getattr(config, "CANDIDATE_NAME", "JobHunt Pro Applicant")
                     self._stats.setdefault(fallback["name"], {"sent": 0, "failed": 0})
                     fb_success = self._send_via_provider(
                         fallback["name"],
@@ -249,7 +249,7 @@ class FreeSMTPPool:
         attachments: list[dict[str, Any]] | None = None,
     ) -> bool:
         """Route to specific provider implementation."""
-        name = from_name or "Sam Salameh"
+        name = from_name or getattr(config, "CANDIDATE_NAME", "JobHunt Pro Applicant")
         text = text_body or html_body
 
         dispatch = {
@@ -669,8 +669,8 @@ try:
         from core.email_warmup import warmup
 
         recipients = [
-            os.getenv("WARMUP_RECIPIENT") or getattr(config, "CANDIDATE_EMAIL", "samatou683@gmail.com"),
-            "samatou683@gmail.com"
+            os.getenv("WARMUP_RECIPIENT") or getattr(config, "CANDIDATE_EMAIL", "warmup@jobhunt-pro.com"),
+            "warmup@jobhunt-pro.com"
         ]
         recipient = recipients[0]
 

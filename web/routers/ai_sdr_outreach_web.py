@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
@@ -10,6 +10,9 @@ templates = Jinja2Templates(directory="web/templates")
 
 @router.get("/ai-sdr-outreach", response_class=HTMLResponse)
 async def get_ai_sdr_outreach_page(request: Request):
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
     return templates.TemplateResponse(request, "ai_sdr_outreach.html", {"title": "AI SDR Recruiter Outreach | JobHunt Pro"})
 
 @router.post("/api/outreach/generate-sequence")

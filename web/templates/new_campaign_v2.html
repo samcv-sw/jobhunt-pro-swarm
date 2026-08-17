@@ -456,15 +456,6 @@
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-        <label class="pricing-option relative cursor-pointer group">
-          <input dir="auto" type="radio" name="company_count" value="0" id="pkg_none" class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-400 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_25px_rgba(16,185,129,0.25)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
-            <div class="text-slate-400 mb-2">—</div>
-            <div class="text-2xl font-black text-white mb-1">$0</div>
-            <div class="text-xs text-slate-300 font-extrabold uppercase tracking-wider">تخطي / مخصص</div>
-          </div>
-        </label>
-
         {% for tier in pricing.tiers %}
         <label class="pricing-option relative cursor-pointer group">
           <input dir="auto" type="radio" name="company_count" value="{{ tier.companies }}" {% if tier.companies == 100 %}checked{% endif %} class="peer sr-only" dir="auto">
@@ -502,13 +493,14 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10 mb-6">
         <label class="bouquet-option relative cursor-pointer group">
           <input dir="auto" type="radio" name="bouquet" value="" id="bouquet_none" checked class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-slate-400 peer-checked:bg-slate-800/60 group-hover:border-slate-600">
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all group-has-[:checked]:border-purple-400 group-has-[:checked]:bg-purple-500/10 group-has-[:checked]:shadow-[0_0_25px_rgba(168,85,247,0.25)] group-hover:border-slate-600">
             <div class="flex justify-between items-start mb-2">
               <h4 class="font-bold text-white text-base">التسليم القياسي</h4>
-              <i data-lucide="circle" class="w-5 h-5 text-slate-500 peer-checked:hidden"></i>
-              <i data-lucide="check-circle-2" class="w-5 h-5 text-slate-200 hidden peer-checked:block"></i>
+              <div class="w-5 h-5 rounded-full border-2 border-slate-600 group-has-[:checked]:border-purple-400 group-has-[:checked]:bg-purple-500 flex items-center justify-center transition-all shrink-0">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></i>
+              </div>
             </div>
-            <div class="text-2xl font-black text-slate-300 mb-2">$0</div>
+            <div class="text-2xl font-black text-purple-400 mb-2">$0</div>
             <p class="text-xs text-slate-300 font-medium leading-relaxed">بدون ترقيات تخفي إضافية. تُطبق أوقات معالجة وطوابير الذكاء الاصطناعي القياسية.</p>
           </div>
         </label>
@@ -516,7 +508,7 @@
         <!-- SMART AUTO-FOLLOWUP INCLUDED CARD -->
         <label class="bouquet-option relative cursor-pointer group">
           <input dir="auto" type="checkbox" name="smart_followup" value="1" checked class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/60 border-2 border-cyan-500/40 rounded-2xl p-5 transition-all peer-checked:border-cyan-400 peer-checked:bg-cyan-500/10 peer-checked:shadow-[0_0_25px_rgba(0,240,255,0.25)] group-hover:border-cyan-400">
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all group-has-[:checked]:border-cyan-400 group-has-[:checked]:bg-cyan-500/10 group-has-[:checked]:shadow-[0_0_25px_rgba(0,240,255,0.25)] group-hover:border-cyan-400">
             <div class="flex justify-between items-start mb-2">
               <h4 class="font-black text-white text-base flex items-center gap-1.5">⚡ المتابعة الآلية الذكية</h4>
               <span class="text-[10px] font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-0.5 rounded-full border border-cyan-400/40">مجانية مدمجة</span>
@@ -529,11 +521,11 @@
         {% for bouquet in pricing.bouquets %}
         <label class="bouquet-option relative cursor-pointer group">
           <input dir="auto" type="checkbox" name="bouquets" value="{{ bouquet.bouquet }}" data-label="{{ bouquet.name }}" class="peer sr-only" dir="auto">
-          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-purple-400 peer-checked:bg-purple-500/10 peer-checked:shadow-[0_0_25px_rgba(168,85,247,0.25)] group-hover:border-slate-600">
+          <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all group-has-[:checked]:border-purple-400 group-has-[:checked]:bg-purple-500/10 group-has-[:checked]:shadow-[0_0_25px_rgba(168,85,247,0.25)] group-hover:border-slate-600">
             <div class="flex justify-between items-start mb-2">
               <h4 class="font-bold text-white text-base">{{ bouquet.name }}</h4>
-              <div class="w-5 h-5 rounded border-2 border-slate-600 peer-checked:bg-purple-500 peer-checked:border-purple-400 flex items-center justify-center transition-colors shrink-0">
-                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity"></i>
+              <div class="w-5 h-5 rounded-lg border-2 border-slate-600 group-has-[:checked]:bg-purple-500 group-has-[:checked]:border-purple-400 flex items-center justify-center transition-colors shrink-0">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-white opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></i>
               </div>
             </div>
             <div class="text-2xl font-black text-purple-400 mb-2">${{ "%.0f"|format(bouquet['price_usd']) }}</div>
@@ -815,19 +807,31 @@
     if (e.target.name === 'bouquets') {
       const noneRadio = document.getElementById('bouquet_none');
       const anyChecked = document.querySelectorAll('input[name="bouquets"]:checked').length > 0;
-      if (anyChecked && noneRadio) noneRadio.checked = false;
+      if (noneRadio) {
+        noneRadio.checked = !anyChecked;
+      }
       updateTotal();
     }
   });
 
-  document.getElementById('bouquet_none')?.addEventListener('change', function() {
-    if (this.checked) {
+  const noneRadio = document.getElementById('bouquet_none');
+  if (noneRadio) {
+    noneRadio.addEventListener('change', function() {
+      if (this.checked) {
+        document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) {
+          cb.checked = false;
+        });
+        updateTotal();
+      }
+    });
+    noneRadio.closest('label')?.addEventListener('click', function() {
+      noneRadio.checked = true;
       document.querySelectorAll('input[name="bouquets"]').forEach(function(cb) {
         cb.checked = false;
       });
       updateTotal();
-    }
-  });
+    });
+  }
 
   document.querySelectorAll('input[name="company_count"]').forEach(function(r) {
     r.addEventListener('change', function() {
@@ -875,7 +879,7 @@
       const formData = new FormData(form);
       formData.set('engine_type', 'cloud');
 
-      const totalCostText = document.getElementById('footerTotalCost')?.innerText || document.getElementById('totalPriceFooter')?.innerText || '$0.00';
+      const totalCostText = document.getElementById('total-price')?.innerText || document.getElementById('footerTotalCost')?.innerText || document.getElementById('totalPriceFooter')?.innerText || '$0.00';
       const cleanCostStr = totalCostText.replace(/[^0-9.]/g, '');
       const parsedAmount = cleanCostStr ? (parseFloat(cleanCostStr) || 0.0) : 0.0;
       formData.set('total_deployment_cost', parsedAmount.toFixed(2));
@@ -900,20 +904,22 @@
               console.warn("Endpoint", ep, "returned non-JSON:", rawText);
               continue;
             }
-            if (parsed && typeof parsed === 'object' && parsed.success === true) {
-              parsed.amount_spent = (typeof parsed.amount_spent === 'number') ? parsed.amount_spent : parsedAmount;
-              return parsed;
+            if (parsed && typeof parsed === 'object') {
+              if (parsed.success === true) {
+                parsed.amount_spent = (typeof parsed.amount_spent === 'number') ? parsed.amount_spent : parsedAmount;
+                return parsed;
+              } else {
+                return parsed;
+              }
             }
           } catch(err) {
             console.warn("Fetch failed for endpoint", ep, err);
           }
         }
         return {
-          success: true,
-          campaign_id: 'camp_' + Math.random().toString(36).substring(2, 12),
-          company_count: parseInt(formData.get('company_count') || '0', 10),
-          amount_spent: parsedAmount,
-          redirect_url: '/dashboard?success=campaign_started'
+          success: false,
+          error: "network_error",
+          message: "Failed to connect to campaign server. Please check your network or try again."
         };
       }
 

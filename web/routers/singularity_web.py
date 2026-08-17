@@ -5,7 +5,7 @@ Renders the Jinja2 glassmorphism control hub for all 6 next-gen features.
 
 import logging
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["singularity_web"])
@@ -17,7 +17,10 @@ def _deps():
 @router.get("/singularity/dashboard", response_class=HTMLResponse)
 @router.get("/emperor/singularity", response_class=HTMLResponse)
 def singularity_dashboard_page(request: Request):
-    """Renders the master 6-feature Singularity Dashboard."""
+    """Renders the master 6-feature Singularity Dashboard (Admin only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
     get_db, templates, config = _deps()
     context = {
         "request": request,

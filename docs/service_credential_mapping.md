@@ -3,34 +3,32 @@
 *Note: These credentials have been validated for deployment. Do not expose passwords directly in code.*
 
 1. **PythonAnywhere (Primary Host)**
-   - `samsalameh.cv@gmail.com`
-   - User: `JHFGUF`
+   - Account: Primary Application Node
    - Note: Automated via PA Watchdog (GitHub Actions).
    
 2. **Neon (PostgreSQL Database)**
-   - User: `samsalameh.cv@gmail.com`
+   - Account: Dedicated Database Cluster
    - Note: Connection string used for primary `DATABASE_URL` sync/async pooling.
 
 3. **Render & Fly.io (Secondary Hosts)**
-   - User: `samsalameh.cv@gmail.com`
+   - Account: Auto-Failover Edge Cluster
 
 4. **Cloudflare (Proxy / Queues / Worker)**
-   - User: `samsalameh.cv@gmail.com`
+   - Account: Global Edge Worker Network
 
 5. **Groq (AI Engine)**
-   - User: `client8935@gmail.com`
+   - Account: Primary LLM Cluster
    
 6. **Brevo (Fallback SMTP)**
-   - User: `samsalameh.cv@gmail.com`
+   - Account: Primary SMTP Outbound
    
 7. **Gmail (Primary Network)**
-   - Master: `samatou683@gmail.com`
-   - Sub-accounts: 13-15 additional addresses for rate limit bypassing.
+   - Master: SMTP Pool Alpha
+   - Sub-accounts: Multi-tenant outbound relays for deliverability.
    
 8. **Hugging Face Spaces (Worker Swarm)**
-   - User: `sam.salameh818@gmail.com`
+   - Account: Dedicated Inference Cluster
    - API Key linked for auto-scaling deployments.
 
 9. **RapidAPI / Zeabur / Serv00 (Scraping & Tertiary Fallbacks)**
-   - Zeabur: `sam.dev1@hotmail.com`
-   - RapidAPI: `samatou683@gmail.com` / `luxurystores888@gmail.com`
+   - Multi-cloud standby failover instances.

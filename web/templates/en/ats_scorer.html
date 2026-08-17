@@ -876,7 +876,7 @@ function optimizeResumeTo100() {
         break;
       }
     }
-    if (!candidateName) candidateName = 'SAM SALAMEH';
+    if (!candidateName) candidateName = 'EXECUTIVE_CANDIDATE';
 
     let rawPhoneStr = phoneMatch ? phoneMatch[0] : '';
     let phoneStr = rawPhoneStr ? rawPhoneStr.replace(/^(?:\+?961[\s\-]*)+/gi, '+961 ').trim() : '';
@@ -1015,7 +1015,7 @@ async function downloadAsFormat(fmt) {
     const blob = new Blob([resumeText], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.doc';
+    link.download = 'ATS_Optimized_Resume.doc';
     link.click();
     return;
   }
@@ -1023,20 +1023,20 @@ async function downloadAsFormat(fmt) {
     const resp = await fetch('/api/export-ats-cv', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cv_text: resumeText, filename: 'SAM_SALAMEH_ATS_Optimized_Resume.pdf', format: 'pdf' })
+      body: JSON.stringify({ cv_text: resumeText, filename: 'ATS_Optimized_Resume.pdf', format: 'pdf' })
     });
     if (resp.ok) {
       const blob = await resp.blob();
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.pdf';
+      link.download = 'ATS_Optimized_Resume.pdf';
       link.click();
     }
   } catch (err) {
     const blob = new Blob([resumeText], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'SAM_SALAMEH_ATS_Optimized_Resume.txt';
+    link.download = 'ATS_Optimized_Resume.txt';
     link.click();
   }
 }

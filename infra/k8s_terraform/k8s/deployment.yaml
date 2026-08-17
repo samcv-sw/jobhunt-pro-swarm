@@ -43,7 +43,7 @@ stringData:
   GROQ_API_KEY: "CHANGE_ME"
   TELEGRAM_BOT_TOKEN: "CHANGE_ME"
   TELEGRAM_CHAT_ID: "CHANGE_ME"
-  CANDIDATE_EMAIL: "samsalameh.cv@gmail.com"
+  CANDIDATE_EMAIL: "candidate.demo@jobhunt-pro.com"
 
 ---
 # ─── Web Deployment (FastAPI) ────────────────────────────────

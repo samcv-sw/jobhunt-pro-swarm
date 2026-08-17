@@ -33,6 +33,19 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+def _safe_conn_execute(conn: Any, sql: str, params: tuple | list | dict = (), max_retries: int = 10) -> Any:
+    """Safely execute a query on a database connection with exponential backoff on lock contention."""
+    for attempt in range(max_retries):
+        try:
+            return conn.execute(sql, params) if params else conn.execute(sql)
+        except Exception as e:
+            if "locked" in str(e).lower() or "busy" in str(e).lower():
+                if attempt < max_retries - 1:
+                    time.sleep(0.05 * (2 ** attempt))
+                    continue
+            raise
+
+
 # ── PA Detection ─────────────────────────────────────────────────────────────
 
 
@@ -741,8 +754,8 @@ def _setup_campaign_and_user_details(
         "phone": clean_phone_number(user.get("phone") or (getattr(config, "CANDIDATE_PHONE", "+961 70 841 009") if config else "+961 70 841 009")),
         "linkedin": (getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh") if config else "https://www.linkedin.com/in/sam-salameh"),
         "profession": profession,
-        "skills": profile.get("skills") or "",
-        "experience_years": profile.get("experience_years") or 5,
+        "skills": profile.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark",
+        "experience_years": profile.get("experience_years") or 15,
         "cv_text": profile.get("cv_text") or "",
         "oauth_provider": user.get("oauth_provider"),
         "oauth_access_token": user.get("oauth_access_token"),
@@ -780,13 +793,13 @@ def _get_unlocked_weapons(campaign: dict[str, Any]) -> set:
             f"[CampaignRunner] Failed to fetch purchased services for {campaign['user_id']}: {e}"
         )
 
-    # Force-unlock all premium weapons for Sam Salameh (admin / owner) to maximize his job search yield!
+    # Force-unlock all premium weapons for admin user
     if campaign["user_id"] in [
         "admin-f31809ba",
         "1ceba8d3-3660-4d40-a984-b147a91c9eb8",
     ]:
         logger.info(
-            f"[CampaignRunner] ⚡ ADMIN BYPASS: Unlocking ALL premium features for Sam Salameh's campaign: {campaign['campaign_id']}"
+            f"[CampaignRunner] ⚡ ADMIN BYPASS: Unlocking ALL premium features for campaign: {campaign['campaign_id']}"
         )
         unlocked_weapons.update(
             [
@@ -1069,11 +1082,21 @@ async def run_campaign(
 
         unlocked_weapons = _get_unlocked_weapons(campaign)
 
-        conn.execute(
+        try:
+            conn.execute("PRAGMA busy_timeout=60000")
+            conn.execute("PRAGMA journal_mode=WAL")
+        except Exception:
+            pass
+
+        _safe_conn_execute(
+            conn,
             "UPDATE campaigns SET status='running', started_at=CURRENT_TIMESTAMP WHERE campaign_id=?",
             (campaign_id,),
         )
-        conn.commit()
+        try:
+            conn.commit()
+        except Exception:
+            pass
 
         job_title, job_location, profile_titles, profile_locations = _resolve_targets(campaign, profile)
 
@@ -1212,11 +1235,15 @@ async def run_campaign(
             f"[CampaignRunner] ⏱️ Campaign {campaign_id} cancelled (tick timeout), saving progress"
         )
         try:
-            conn.execute(
+            _safe_conn_execute(
+                conn,
                 "UPDATE campaigns SET status='pending' WHERE campaign_id=?",
                 (campaign_id,),
             )
-            conn.commit()
+            try:
+                conn.commit()
+            except Exception:
+                pass
         except Exception as e:
             logger.warning(f"[CampaignRunner] Failed to set campaign {campaign_id} back to pending: {e}")
         return {"status": "timeout", "campaign_id": campaign_id, "sent": sent_count}
@@ -1229,11 +1256,15 @@ async def run_campaign(
             f.write(str(e) + "\n")
             traceback.print_exc(file=f)
         try:
-            conn.execute(
+            _safe_conn_execute(
+                conn,
                 "UPDATE campaigns SET status='failed' WHERE campaign_id=?",
                 (campaign_id,),
             )
-            conn.commit()
+            try:
+                conn.commit()
+            except Exception:
+                pass
         except Exception as db_err:
             logger.warning(f"[CampaignRunner] Failed to set campaign {campaign_id} to failed: {db_err}")
 

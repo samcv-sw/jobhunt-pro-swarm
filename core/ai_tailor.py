@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 # ── Candidate profile (single source of truth) ──────────────────────────────
 CANDIDATE_PROFILE = {
-    "name": "Sam Salameh",
+    "name": getattr(config, "CANDIDATE_NAME", "Sam Salameh"),
     "title": "Senior Network Engineer",
     "years": 15,
     "core_skills": [
@@ -616,7 +616,7 @@ REQUIREMENTS:
 6. Close with a clear call to action
 7. Do NOT use generic phrases like "I am writing to express my interest" — start with something compelling
 8. Embed the company name ({company}) naturally throughout the letter — in the opening, middle body, and closing — at least 3 distinct mentions
-9. Sign as: Sam Salameh, {config.CANDIDATE_EMAIL}, {config.CANDIDATE_PHONE}
+9. Sign as: {getattr(config, "CANDIDATE_NAME", "Sam Salameh")}, {config.CANDIDATE_EMAIL}, {config.CANDIDATE_PHONE}
 10. Absolutely NEVER output placeholder brackets, comments, or TODOs (e.g., "[Insert Date]", "[Your Address]", "[Hiring Manager's Name]"). Every single sentence must be complete, fully populated with realistic context, and ready to send directly to the employer."""
 
         result = await self._call_ai(prompt, max_tokens=1500, temperature=0.7)

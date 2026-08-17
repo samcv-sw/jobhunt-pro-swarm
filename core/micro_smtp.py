@@ -95,7 +95,7 @@ def send_via_brevo(
         return False
     try:
         sender_email = from_email or os.getenv(
-            "BREVO_ACCOUNT_EMAIL", "samsalameh.cv@gmail.com"
+            "BREVO_ACCOUNT_EMAIL", "candidate.demo@jobhunt-pro.com"
         )
         data = _json.dumps(
             {

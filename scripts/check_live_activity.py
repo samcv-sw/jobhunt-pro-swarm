@@ -40,12 +40,12 @@ c.execute("""
 for r in c.fetchall():
     print(f"  • User '{r['user_id']}': {r['cnt']:,} applications")
 
-# 3. Latest 10 applications for user_sam_salameh_cv / samatou683@gmail.com
-print("\n--- Latest 10 Applications specifically for Sam ---")
+# 3. Latest 10 applications for admin / primary candidate
+print("\n--- Latest 10 Applications for Primary User ---")
 c.execute("""
     SELECT id, user_id, platform, company, job_title, status, applied_at 
     FROM multi_platform_apps 
-    WHERE user_id LIKE '%sam%' 
+    WHERE user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR is_admin = 1)
     ORDER BY id DESC 
     LIMIT 10
 """)
@@ -54,7 +54,7 @@ if sam_apps:
     for r in sam_apps:
         print(f"  [⚡ {r['applied_at']}] {r['company']} — {r['job_title']} | Platform: {r['platform']} | Status: {r['status']}")
 else:
-    print("  (No direct 'sam' username prefix, checking general latest)")
+    print("  (Checking general latest)")
 
 # 4. Latest 10 across all users
 print("\n--- Latest 10 Live Dispatched Applications Across System ---")

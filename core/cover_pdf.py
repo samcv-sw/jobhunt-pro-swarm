@@ -11,11 +11,11 @@ from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
 
-CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Alex Johnson")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "candidate.demo@example.com")
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2831")
-CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "www.linkedin.com/in/alex-johnson-demo")
-CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
+CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
+CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "www.linkedin.com/in/sam-salameh")
+CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
 CV_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
 
 
@@ -50,13 +50,13 @@ class CoverPDF(FPDF):
         # Name
         self.set_font("Helvetica", "B", 22)
         self.set_text_color(30, 41, 59)  # #1e293b dark slate
-        self.cell(0, 10, "SAM SALAMEH", align="C", new_x="LMARGIN", new_y="NEXT")
+        self.cell(0, 10, CANDIDATE_NAME.upper(), align="C", new_x="LMARGIN", new_y="NEXT")
 
         # Title
         self.set_font("Helvetica", "", 10)
         self.set_text_color(100, 116, 139)  # #64748b slate
         self.cell(
-            0, 5, "SENIOR NETWORK ENGINEER", align="C", new_x="LMARGIN", new_y="NEXT"
+            0, 5, CANDIDATE_TITLE.upper(), align="C", new_x="LMARGIN", new_y="NEXT"
         )
         self.ln(3)
 

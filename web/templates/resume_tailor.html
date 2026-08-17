@@ -1101,7 +1101,7 @@ function downloadTailoredDocx() {
   const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'Tailored_Resume_Sam_Salameh.doc';
+  a.download = 'Tailored_Resume.doc';
   a.click();
 }
 

@@ -24,9 +24,9 @@ else:
 
 IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHERE_DOMAIN") or ""
 
-CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Alex Johnson")
-CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Software Engineer")
-CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "candidate.demo@example.com")
+CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
+CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
+CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
 SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jhpro.eu.org")
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
@@ -38,9 +38,9 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "")
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2831")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
 CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
-CANDIDATE_LINKEDIN = "https://www.linkedin.com/in/alex-johnson-demo"
+CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh")
 YEARS_EXPERIENCE = 15
 
 SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint", "sd-wan", "sase", "ztna", "zero trust", "sdn", "network automation", "netdevops", "nfv", "vxlan", "evpn", "segment routing", "ipv6", "multicast", "qos", "load balancing", "f5", "nginx", "docker", "kubernetes", "istio", "prometheus", "grafana", "elk stack", "splunk", "servicenow", "itil", "iso 27001", "nist", "gdpr compliance", "business continuity", "disaster recovery", "sd-wan orchestration", "silver peak", "vmware nsx", "cisco aci", "meraki", "aruba", "ruckus", "extremenetworks", "riverbed", "blue coat", "zscaler", "cloudflare", "akamai"]
@@ -165,7 +165,7 @@ BANNED_TITLES = [
     "radiologist", "tutor", "nanny", "mason", "carpenter", "plumber", "electrician", "welder", "painter", "construction worker"
 ]
 
-CV_PATH = os.getenv("CV_PATH", "assets/Sam_Salameh_CV.pdf")
+CV_PATH = os.getenv("CV_PATH", "assets/candidate_resume.pdf")
 # Verify CV file exists, fall back to None if missing
 if not os.path.exists(CV_PATH):
     logger.warning(f"CV file not found at {CV_PATH}, will send without attachment")
@@ -296,7 +296,7 @@ HHRU_LOCATIONS = [
     "remote",
 ]
 OPTIMAL_SEND_HOUR = int(os.getenv("OPTIMAL_SEND_HOUR", "10"))
-UNSUBSCRIBE_EMAIL = os.getenv("UNSUBSCRIBE_EMAIL", "unsubscribe@sam-salameh.com")
+UNSUBSCRIBE_EMAIL = os.getenv("UNSUBSCRIBE_EMAIL", "unsubscribe@jobhunt-pro.com")
 MIN_SALARY_EXPECTATION = float(os.getenv("MIN_SALARY_EXPECTATION", "40000"))
 MIN_SALARY = float(os.getenv("MIN_SALARY", "2000"))  # Monthly minimum (USD) used by negotiator_agent
 
@@ -412,7 +412,7 @@ JOBICY_API_URL = "https://jobicy.com/api/v2/remote-jobs"
 JSEARCH_API_URL = "https://jsearch.p.rapidapi.com/search"
 WEWORKREMOTELY_DEV_RSS = "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss"
 WEWORKREMOTELY_PROG_RSS = "https://weworkremotely.com/categories/remote-programming-jobs.rss"
-WORKER_URL = "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
+WORKER_URL = os.getenv("WORKER_URL", "https://router.jobhunt-pro.com")
 HH_RU_VACANCY_BASE_URL = "https://hh.ru/vacancy"
 ARBEITNOW_VIEW_BASE_URL = "https://www.arbeitnow.com/view"
 REMOTEOK_VIEW_BASE_URL = "https://remoteok.com/remote-jobs"

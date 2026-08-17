@@ -318,15 +318,15 @@ My CV is attached. I'd welcome 15 minutes to discuss how this experience maps to
         if isinstance(raw_s, list):
             skills_val = ", ".join([str(x) for x in raw_s])
         else:
-            skills_val = str(raw_s or "Networking, Cloud, Security, Automation")
-        name_val = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Job Applicant")
-        email_val = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "")
+            skills_val = str(raw_s or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark")
+        name_val = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+        email_val = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
         from core.validators import clean_phone_number
-        phone_val = clean_phone_number(ud.get("phone") or getattr(config, "CANDIDATE_PHONE", ""))
-        address_val = ud.get("address") or getattr(config, "CANDIDATE_ADDRESS", "")
-        linkedin_val = ud.get("linkedin") or getattr(config, "CANDIDATE_LINKEDIN", "")
-        profession_val = ud.get("profession") or getattr(config, "PROFESSION", "Software Engineer")
-        exp_val = str(ud.get("experience_years") or getattr(config, "EXPERIENCE_YEARS", "3"))
+        phone_val = clean_phone_number(ud.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009"))
+        address_val = ud.get("address") or getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon")
+        linkedin_val = ud.get("linkedin") or getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh")
+        profession_val = ud.get("profession") or getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
+        exp_val = str(ud.get("experience_years") or getattr(config, "YEARS_EXPERIENCE", "15"))
 
         return template.format(
             title=title,
@@ -543,24 +543,20 @@ Best regards,
         import re
         ud = user_details or {}
         cand_name = ud.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh") or "Sam Salameh"
-        if cand_name.lower() in ("sam", "candidate", "executive", ""):
-            cand_name = "Sam Salameh"
         
         cand_email = ud.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") or "sam.dev1@hotmail.com"
-        if not cand_email or "samatou" in cand_email.lower() or "samsalameh.cv" in cand_email.lower():
-            cand_email = "sam.dev1@hotmail.com"
         from core.validators import clean_phone_number
         cand_phone = clean_phone_number(ud.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009"))
         
-        cand_title = ud.get("profession") or "Senior Software Engineer"
-        if not cand_title or "network" in cand_title.lower() or cand_title.lower() in ("professional", ""):
-            cand_title = "Senior Software Engineer"
+        cand_title = ud.get("profession") or getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
+        if not cand_title or cand_title.lower() in ("professional", ""):
+            cand_title = "Senior Network Engineer"
         elif not cand_title.lower().startswith("senior"):
             cand_title = f"Senior {cand_title}"
-        exp_years = str(ud.get("experience_years") or "15")
+        exp_years = str(ud.get("experience_years") or getattr(config, "YEARS_EXPERIENCE", "15"))
 
-        # Strip any trailing plain-text signatures (e.g. Best regards, Sam Salameh...) to prevent double signature
-        pattern_sig = r'\n+(?:Best regards|Sincerely|Kind regards|Regards|Best)?[\s,]*\n?(?:' + re.escape(cand_name) + r'|Sam Salameh|sam\.dev1).*$'
+        # Strip any trailing plain-text signatures to prevent double signature
+        pattern_sig = r'\n+(?:Best regards|Sincerely|Kind regards|Regards|Best)?[\s,]*\n?(?:' + re.escape(cand_name) + r').*$'
         text = re.sub(pattern_sig, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
 
         is_bilingual = language in ("bilingual", "ar")
@@ -589,29 +585,27 @@ Best regards,
                 p_str = p.strip()
                 if not p_str:
                     continue
-                # Skip raw redundant signature lines (e.g. "Best regards, Sam Salameh sam.dev1@hotmail.com...")
-                if re.match(r'^(?:Best regards|Sincerely|Kind regards|Regards|Best)[,\s]*\n?.*(?:Sam Salameh|sam\.dev1)', p_str, re.IGNORECASE):
+                # Skip raw redundant signature lines
+                if re.match(r'^(?:Best regards|Sincerely|Kind regards|Regards|Best)[,\s]*\n?.*(?:Best regards|Sincerely)', p_str, re.IGNORECASE):
                     continue
                 cleaned_paragraphs.append(p_str)
 
             for p in cleaned_paragraphs:
                 html_parts.append(cls._format_paragraph(p, accent, bg_accent))
 
-        body_content = "".join(html_parts)
-        
-        # Build Skill Pills if skills exist
-        raw_skills = ud.get("skills") or "Python, Software Engineering, Cloud Systems"
-        if "cisco" in str(raw_skills).lower() or "mikrotik" in str(raw_skills).lower() or "network engineering" in str(raw_skills).lower():
-            raw_skills = "Python, Software Engineering, Cloud Systems"
-        if isinstance(raw_skills, list):
-            skills_list = [str(s).strip() for s in raw_skills if str(s).strip()][:8]
-        else:
-            skills_list = [s.strip() for s in str(raw_skills).split(",") if s.strip()][:8]
-        skill_pills = "".join(
-            f'<span style="display:inline-block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;'
-            f'padding:4px 10px;border-radius:14px;font-size:12px;font-weight:600;margin:3px 3px 3px 0;">{s}</span>'
-            for s in skills_list
-        )
+            body_content = "".join(html_parts)
+            
+            # Build Skill Pills if skills exist
+            raw_skills = ud.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark, SolarWinds, PRTG"
+            if isinstance(raw_skills, list):
+                skills_list = [str(s).strip() for s in raw_skills if str(s).strip()][:8]
+            else:
+                skills_list = [s.strip() for s in str(raw_skills).split(",") if s.strip()][:8]
+            skill_pills = "".join(
+                f'<span style="display:inline-block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe;'
+                f'padding:4px 10px;border-radius:14px;font-size:12px;font-weight:600;margin:3px 3px 3px 0;">{s}</span>'
+                for s in skills_list
+            )
 
         # Executive Header Banner
         header_banner = (
@@ -633,13 +627,14 @@ Best regards,
         )
 
         # Executive Footer Signature Card
+        cand_initials = "".join([w[0].upper() for w in cand_name.split() if w])[:2] or "SS"
         footer_card = (
             f'<div style="margin-top: 28px; padding: 20px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">'
             f'<table width="100%" cellpadding="0" cellspacing="0" border="0">'
             f'<tr>'
             f'<td width="48" style="vertical-align: middle;">'
             f'<div style="width: 44px; height: 44px; background: #2563eb; color: #ffffff; border-radius: 50%; '
-            f'font-size: 16px; font-weight: 700; text-align: center; line-height: 44px; font-family: Arial, sans-serif;">SS</div>'
+            f'font-size: 16px; font-weight: 700; text-align: center; line-height: 44px; font-family: Arial, sans-serif;">{cand_initials}</div>'
             f'</td>'
             f'<td style="padding-left: 14px; vertical-align: middle;">'
             f'<strong style="font-size: 15px; color: #0f172a; display: block; font-family: Arial, sans-serif;">{cand_name}</strong>'

@@ -9,20 +9,31 @@ router = APIRouter(prefix="/admin", tags=["emperor_dashboard"])
 
 @router.get("/emperor-dashboard", response_class=HTMLResponse)
 def emperor_dashboard_page(request: Request):
-    """Renders the Emperor Sovereign God-Mode Control & Telemetry Center."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        return RedirectResponse(url="/login", status_code=303)
+    """Renders the Emperor Sovereign God-Mode Control & Telemetry Center (Admin only)."""
+    from web.app_v2 import require_admin
+    admin_id = require_admin(request)
+    if not admin_id:
+        return RedirectResponse(url="/user-dashboard", status_code=303)
 
     with get_db() as conn:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        if not user_row:
-            user_row = conn.execute("SELECT * FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone()
-        user = dict(user_row) if user_row else {"user_id": user_id, "name": "Sam Salameh", "email": "samatou683@gmail.com", "user_type": "admin", "wallet_balance": 10000.0}
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (admin_id, admin_id)).fetchone()
+        user = dict(user_row) if user_row else {"user_id": admin_id, "name": "Admin", "email": "admin@jobhunt-pro.com", "user_type": "admin", "wallet_balance": 10000.0}
 
-        total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        total_leads = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]
-        total_resumes = conn.execute("SELECT COUNT(*) FROM resumes").fetchone()[0]
+        try:
+            total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        except Exception:
+            total_users = 0
+        try:
+            total_leads = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]
+        except Exception:
+            total_leads = 0
+        try:
+            total_resumes = conn.execute("SELECT COUNT(*) FROM user_cvs").fetchone()[0]
+        except Exception:
+            try:
+                total_resumes = conn.execute("SELECT COUNT(*) FROM resumes").fetchone()[0]
+            except Exception:
+                total_resumes = 0
 
     telemetry = {
         "mrr_usd": 12450.00,
@@ -49,7 +60,7 @@ def emperor_dashboard_page(request: Request):
     return HTMLResponse(
         _build_dashboard_shell(
             user,
-            user_id,
+            admin_id,
             content.body.decode("utf-8"),
             "لوحة الإمبراطور القيادية" if request.state.locale == "ar" else "Emperor Sovereign Command",
             "emperor_dashboard",
@@ -59,10 +70,10 @@ def emperor_dashboard_page(request: Request):
 
 @router.get("/api/emperor/telemetry")
 def get_emperor_telemetry(request: Request):
-    """Live JSON telemetry feed for real-time dashboard updates."""
-    user_id = get_verified_user_id(request)
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    """Live JSON telemetry feed for real-time dashboard updates (Admin only)."""
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        raise HTTPException(status_code=403, detail="Admin authorization required")
 
     return JSONResponse({
         "status": "success",

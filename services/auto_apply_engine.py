@@ -74,12 +74,12 @@ class AutoApplyEngine:
                     from core.ghost_applicant import GhostApplicant
                     applicant = GhostApplicant()
                     profile = task.user_profile or {
-                        "full_name": "Sami El-Hassan",
-                        "email": "sami.developer@example.com",
-                        "phone": "+96170123456",
-                        "linkedin": "https://linkedin.com/in/samielhassan",
-                        "github": "https://github.com/samielhassan",
-                        "portfolio": "https://samielhassan.dev"
+                        "full_name": "Sam Salameh",
+                        "email": "sam.dev1@hotmail.com",
+                        "phone": "+961 70 841 009",
+                        "linkedin": "https://linkedin.com/in/sam-salameh",
+                        "github": "",
+                        "portfolio": ""
                     }
                     cv_file = task.cv_path or ""
                     

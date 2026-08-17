@@ -28,15 +28,21 @@
         <a href="/wallet"{{ ' class="active"' if active_page == 'wallet' else '' }}><span class="nav-icon">&#x1F4B0;</span>Wallet</a>
         <div class="nav-divider"></div>
         <a href="/stats"{{ ' class="active"' if active_page == 'stats' else '' }}><span class="nav-icon">&#x1F4C8;</span>Stats</a>
-        <a href="/growth-station"{{ ' class="active"' if active_page == 'growth_station' else '' }}><span class="nav-icon">&#x1F4E2;</span>Growth Station</a>
         <a href="/referrals"{{ ' class="active"' if active_page == 'referral' else '' }}><span class="nav-icon">&#x1F465;</span>Referrals</a>
-        <a href="/email-test"{{ ' class="active"' if active_page == 'email-test' else '' }}><span class="nav-icon">&#x1F9EA;</span>Email Test</a>
         <a href="/export"{{ ' class="active"' if active_page == 'export' else '' }}><span class="nav-icon">&#x1F4E5;</span>Export</a>
         <a href="/api-docs"{{ ' class="active"' if active_page == 'api' else '' }}><span class="nav-icon">&#x1F50C;</span>API Docs</a>
         <div class="nav-divider"></div>
         <a href="/contact"{{ ' class="active"' if active_page == 'contact' else '' }}><span class="nav-icon">&#x1F4AC;</span>Contact</a>
         <a href="https://wa.me/12494985866?text=Hi%20JobHuntPro%21%20JobHunt%20Pro%20Support" target="_blank" style="color:#25D366;"><span class="nav-icon">&#x1F7E2;</span>WhatsApp</a>
-        <a href="/admin/sys-logs"{{ ' class="active"' if active_page == 'sys-logs' else '' }} style="color:#ef4444;"><span class="nav-icon">&#x1F4DC;</span>System Logs</a>
+
+        {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
+        <div class="nav-divider"></div>
+        <div class="nav-section-label" style="color:#ef4444;padding: 10px 8px 3px;font-size: 14px;font-weight:700;">🛡️ ADMIN AUTHORITY</div>
+        <a href="/admin"{{ ' class="active"' if active_page == 'admin' else '' }} style="color:#ef4444;"><span class="nav-icon">🛡️</span>Admin Panel</a>
+        <a href="/growth-station"{{ ' class="active"' if active_page == 'growth_station' else '' }}><span class="nav-icon">&#x1F4E2;</span>Growth Station</a>
+        <a href="/admin/sys-logs"{{ ' class="active"' if active_page == 'sys-logs' else '' }} style="color:#f87171;"><span class="nav-icon">&#x1F4DC;</span>System Logs</a>
+        <a href="/email-test"{{ ' class="active"' if active_page == 'email-test' else '' }}><span class="nav-icon">&#x1F9EA;</span>Email Test</a>
+        {% endif %}
         <div class="nav-gap"></div>
         <div class="nav-divider"></div>
         <a href="javascript:void(0)" id="notif-bell-link" onclick="toggleNotifPanel();return false;" style="position:relative;">

@@ -1,7 +1,7 @@
 // JobHunt Pro — Cloudflare Pages Function (_worker.js)
 // $0 — 100k req/day free. Routes: Pages static → Worker → PA → D1
 
-const WORKER_URL = 'https://jobhunt-pro-router.samsalameh-cv.workers.dev';
+const WORKER_URL = 'https://router.jobhunt-pro.com';
 
 const PROXY_PATHS = ['/api/', '/_/pa/', '/scrape', '/health'];
 

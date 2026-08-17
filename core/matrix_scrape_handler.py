@@ -154,7 +154,7 @@ def main():
     page = args.page
 
     worker_url = os.environ.get(
-        "WORKER_URL", "https://jobhunt-pro-router.samsalameh-cv.workers.dev"
+        "WORKER_URL", "https://router.jobhunt-pro.com"
     )
     try:
         import config

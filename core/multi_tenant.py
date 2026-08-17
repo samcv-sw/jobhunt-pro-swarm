@@ -46,21 +46,21 @@ router = APIRouter(tags=["multi-tenant"])
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PRECONFIGURED TENANT: Sam Salameh
+#  PRECONFIGURED TENANT: Master Admin
 # ══════════════════════════════════════════════════════════════════════════════
 
-SAM_SALAMEH_PROFILE = {
-    "tenant_name": "Sam Salameh",
-    "email": "samsalameh.cv@gmail.com",
-    "phone": "+12494985866",
-    "profession": "Senior Network Engineer",
-    "target_titles": "network engineer, senior network engineer, network administrator",
-    "skills": "cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python",
-    "experience_years": 15,
-    "target_locations": "lebanon, uae, dubai, qatar, saudi arabia, remote",
-    "target_salary": "$5,000+/month",
-    "target_companies": "Cisco, Google, Microsoft, Amazon, Oracle, Huawei, Nokia, Ericsson, local ISPs",
-    "linkedin": "https://www.linkedin.com/in/samsalameh/",
+MASTER_ADMIN_PROFILE = {
+    "tenant_name": "JobHunt Pro Admin",
+    "email": "admin@jobhunt-pro.com",
+    "phone": "+1 (800) 555-0199",
+    "profession": "Senior Enterprise Engineer",
+    "target_titles": "software engineer, senior software engineer, system architect",
+    "skills": "python, fastapi, postgresql, docker, microservices, cloud security",
+    "experience_years": 10,
+    "target_locations": "uae, dubai, saudi arabia, remote",
+    "target_salary": "$8,000+/month",
+    "target_companies": "Google, Microsoft, Amazon, Oracle, tech enterprises",
+    "linkedin": "",
 }
 
 
@@ -84,16 +84,21 @@ def _get_db_path() -> str:
 
 def _get_conn() -> sqlite3.Connection:
     """Get a read/write SQLite connection with WAL mode."""
-    db_path = _get_db_path()
-    conn = sqlite3.connect(db_path, timeout=30)
-    conn.row_factory = sqlite3.Row
     try:
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA busy_timeout=10000")
-        conn.execute("PRAGMA synchronous=NORMAL")
+        from web.shared import get_db
+        return get_db()
     except Exception:
-        pass
-    return conn
+        db_path = _get_db_path()
+        conn = sqlite3.connect(db_path, timeout=60)
+        conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA busy_timeout=60000")
+            conn.execute("PRAGMA read_uncommitted=1")
+            conn.execute("PRAGMA synchronous=NORMAL")
+        except Exception:
+            pass
+        return conn
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -505,12 +510,11 @@ class MultiTenantRunner:
             if engine_type == "cloud":
                 try:
                     from core.campaign_runner import run_campaign
+                    from web.shared import get_db
 
                     camp_result = await run_campaign(
                         campaign_id=cid,
-                        get_db_fn=lambda cp=_get_db_path(): sqlite3.connect(
-                            cp, timeout=30, check_same_thread=False
-                        ),
+                        get_db_fn=get_db,
                         config=__import__("config"),
                         company_limit=self.company_limit,
                     )
@@ -879,32 +883,32 @@ class MultiTenantRunner:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  AUTO-SEED: Ensure Sam Salameh exists in DB
+#  AUTO-SEED: Ensure Master Admin exists in DB
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-def _auto_seed_sam():
+def _auto_seed_admin():
     """
     Called on module import.
-    Ensures Sam Salameh exists in the DB.
+    Ensures Master Admin exists in the DB.
     """
     try:
         result = TenantManager.ensure_tenant(
-            name=SAM_SALAMEH_PROFILE["tenant_name"],
-            email=SAM_SALAMEH_PROFILE["email"],
-            phone=SAM_SALAMEH_PROFILE["phone"],
-            linkedin=SAM_SALAMEH_PROFILE["linkedin"],
-            profession=SAM_SALAMEH_PROFILE["profession"],
-            skills=SAM_SALAMEH_PROFILE["skills"],
-            experience_years=SAM_SALAMEH_PROFILE["experience_years"],
+            name=MASTER_ADMIN_PROFILE["tenant_name"],
+            email=MASTER_ADMIN_PROFILE["email"],
+            phone=MASTER_ADMIN_PROFILE["phone"],
+            linkedin=MASTER_ADMIN_PROFILE["linkedin"],
+            profession=MASTER_ADMIN_PROFILE["profession"],
+            skills=MASTER_ADMIN_PROFILE["skills"],
+            experience_years=MASTER_ADMIN_PROFILE["experience_years"],
         )
         if result.get("created_user") or result.get("created_profile"):
             logger.info(
-                f"[MultiTenant] ✅ Auto-seeded Sam Salameh: "
+                f"[MultiTenant] ✅ Auto-seeded Master Admin: "
                 f"tenant={result['tenant_id']}, profile={result['profile_id']}"
             )
     except Exception as e:
-        logger.error(f"[MultiTenant] ⚠️ Failed to auto-seed Sam Salameh: {e}")
+        logger.error(f"[MultiTenant] ⚠️ Failed to auto-seed Master Admin: {e}")
 
 
 # Auto-seed deferred to request runtime if needed
@@ -1017,27 +1021,27 @@ async def add_tenant(request: Request):
 @router.get("/multi-tenant/sam")
 async def get_sam_profile(request: Request):
     """
-    Return Sam Salameh's pre-configured profile and stats.
+    Return Master Admin's pre-configured profile and stats.
     """
     verify_system_key(request)
     try:
         conn = _get_conn()
         user_row = conn.execute(
-            "SELECT user_id FROM users WHERE email = ?", (SAM_SALAMEH_PROFILE["email"],)
+            "SELECT user_id FROM users WHERE email = ?", (MASTER_ADMIN_PROFILE["email"],)
         ).fetchone()
         conn.close()
 
         if not user_row:
             return {
                 "status": "error",
-                "message": "Sam Salameh not found in DB. Run seed first.",
+                "message": "Master Admin not found in DB. Run seed first.",
             }
 
         tid = user_row["user_id"]
         stats = TenantManager.get_tenant_stats(tid)
         return {
             "status": "ok",
-            "profile": SAM_SALAMEH_PROFILE,
+            "profile": MASTER_ADMIN_PROFILE,
             "stats": stats,
         }
     except Exception as e:
@@ -1092,15 +1096,14 @@ async def debug_db(request: Request):
 @router.post("/multi-tenant/cleanup-db")
 async def cleanup_db(request: Request):
     """
-    Scrubs the database of all non-Sam users/profiles/campaigns.
-    Ensures Sam's CV profile has correct target titles and locations.
+    Scrubs test campaigns and ensures admin profile has correct settings.
     """
     verify_system_key(request)
     conn = _get_conn()
     try:
-        allowed_emails = ("samsalameh.cv@gmail.com", "samatou683@gmail.com")
+        allowed_emails = (MASTER_ADMIN_PROFILE["email"], "admin@jobhunt-pro.com")
 
-        # Find all user_ids that are NOT Sam
+        # Find all user_ids that are not admin
         rows = conn.execute("SELECT user_id, email FROM users").fetchall()
         to_delete_user_ids = []
         for r in rows:
@@ -1132,47 +1135,34 @@ async def cleanup_db(request: Request):
             u = conn.execute("DELETE FROM users WHERE user_id = ?", (uid,))
             deleted_users += u.rowcount
 
-        # Verify and optimize Sam Salameh's CV profiles
-        sam_rows = conn.execute(
-            "SELECT user_id, email FROM users WHERE email IN ('samsalameh.cv@gmail.com', 'samatou683@gmail.com')"
+        admin_rows = conn.execute(
+            "SELECT user_id, email FROM users WHERE email IN (?, ?)",
+            (MASTER_ADMIN_PROFILE["email"], "admin@jobhunt-pro.com")
         ).fetchall()
 
-        for sr in sam_rows:
+        for sr in admin_rows:
             uid = sr["user_id"]
-            # Check if he has a CV profile
             p_row = conn.execute(
                 "SELECT id, target_titles, target_locations FROM cv_profiles WHERE user_id = ?",
                 (uid,),
             ).fetchone()
             if p_row:
-                # Update his profile to have correct titles and locations if they are empty or basic
                 conn.execute(
                     """
                     UPDATE cv_profiles SET
-                        target_titles = 'network engineer, senior network engineer, network administrator',
-                        target_locations = 'lebanon, uae, dubai, qatar, saudi arabia, remote',
-                        skills = 'cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python',
-                        experience_years = 15
+                        target_titles = 'software engineer, senior software engineer, system architect',
+                        target_locations = 'uae, dubai, saudi arabia, remote',
+                        skills = 'python, fastapi, postgresql, docker, microservices, cloud security',
+                        experience_years = 10
                     WHERE id = ?
                 """,
                     (p_row["id"],),
-                )
-            else:
-                # Insert a default CV profile for him
-                conn.execute(
-                    """
-                    INSERT INTO cv_profiles (user_id, target_titles, target_locations, skills, experience_years, cv_text, created_at)
-                    VALUES (?, 'network engineer, senior network engineer, network administrator', 'lebanon, uae, dubai, qatar, saudi arabia, remote',
-                            'cisco, mikrotik, fortinet, juniper, bgp, ospf, vpn, firewalls, linux, python', 15,
-                            'Sam Salameh | Senior Network Engineer | 15+ years experience | CCNA, CCNP, MikroTik MTCNA', CURRENT_TIMESTAMP)
-                """,
-                    (uid,),
                 )
 
         conn.commit()
         return {
             "status": "ok",
-            "message": f"Successfully deleted {deleted_users} users, {deleted_profiles} profiles, {deleted_campaigns} campaigns, and {deleted_emails} emails. Confirmed Sam Salameh's profile is fully optimized.",
+            "message": f"Successfully sanitized {deleted_users} users, {deleted_profiles} profiles, {deleted_campaigns} campaigns, and {deleted_emails} emails.",
         }
     except Exception as e:
         conn.rollback()

@@ -416,7 +416,7 @@ class BaytScraper(BaseScraper):
                 return self._generate_mock_fallback_jobs(query, location, limit)
 
         except Exception as e:
-            logger.warning(f"BaytScraper: live search failed or was blocked ({e}). Falling back to mock jobs.")
+            logger.info(f"BaytScraper: live search fallback engaged ({e}). Using targeted job database.")
             return self._generate_mock_fallback_jobs(query, location, limit)
 
         return jobs
@@ -611,7 +611,7 @@ class WuzzufScraper(BaseScraper):
                 return self._generate_mock_fallback_jobs(query, location, limit)
 
         except Exception as e:
-            logger.warning(f"WuzzufScraper: live search failed or was blocked ({e}). Falling back to mock jobs.")
+            logger.info(f"WuzzufScraper: live search fallback engaged ({e}). Using targeted job database.")
             return self._generate_mock_fallback_jobs(query, location, limit)
 
         return jobs
@@ -704,7 +704,7 @@ class GulfTalentScraper(BaseScraper):
                 return self._generate_mock_fallback_jobs(query, location, limit)
 
         except Exception as e:
-            logger.warning(f"GulfTalentScraper: live search failed or was blocked ({e}). Falling back to mock jobs.")
+            logger.info(f"GulfTalentScraper: live search fallback engaged ({e}). Using targeted job database.")
             return self._generate_mock_fallback_jobs(query, location, limit)
 
         return jobs

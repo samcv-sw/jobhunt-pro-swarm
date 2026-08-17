@@ -33,7 +33,7 @@ I understand you're likely reviewing many applications, and I just wanted to mak
 Thank you for your time and consideration.
 
 Best regards,
-Sam Salameh
+Candidate Executive
 CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
     7: {
@@ -56,7 +56,7 @@ I'm confident I could make an immediate impact on your network infrastructure an
 I'd welcome the opportunity to discuss this further at your convenience.
 
 Best regards,
-Sam Salameh
+Candidate Executive
 CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
     14: {
@@ -73,7 +73,7 @@ I'm flexible regarding start date and open to discussing the role in whatever fo
 Thank you for considering my application.
 
 Best regards,
-Sam Salameh
+Candidate Executive
 CCNP | NSE 4-7 | AWS Certified | 15+ Years Network Engineering""",
     },
 }

@@ -64,9 +64,10 @@ def _optimize_sqlite_engine():
         import sqlite3
         db_path = os.path.join(ROOT_DIR, "data", "jobhunt_saas_v2.db")
         if os.path.exists(db_path):
-            with sqlite3.connect(db_path, timeout=5.0) as conn:
+            with sqlite3.connect(db_path, timeout=60.0) as conn:
                 conn.execute("PRAGMA journal_mode=WAL;")
                 conn.execute("PRAGMA synchronous=NORMAL;")
+                conn.execute("PRAGMA busy_timeout=60000;")
                 conn.execute("PRAGMA cache_size=-64000;")
                 conn.execute("PRAGMA temp_store=MEMORY;")
                 conn.execute("PRAGMA mmap_size=268435456;") # 256MB memory map
@@ -93,10 +94,14 @@ def _open_browser_when_ready(port=8000):
 def main():
     parser = argparse.ArgumentParser(description="JobHunt Pro Sovereign Server & Swarm Launcher")
     parser.add_argument("--port", type=int, default=8000, help="Port to listen on (default: 8000)")
-    parser.add_argument("--reload", action="store_true", help="Enable hot reload on code changes")
+    parser.add_argument("--reload", action="store_true", default=False, help="Enable hot reload on code changes (default: False for maximum stability)")
+    parser.add_argument("--dev", action="store_true", help="Run in dev mode with hot reload")
     parser.add_argument("--no-browser", action="store_true", help="Do not automatically launch browser tabs")
     parser.add_argument("--log-level", type=str, default="info", choices=["debug", "info", "warning", "error"], help="Uvicorn logging level")
     args = parser.parse_args()
+
+    # If --dev flag passed, enable reload
+    enable_reload = args.reload or args.dev
 
     # Pre-flight: Ensure target port is completely clear of stale processes
     _free_port(args.port)
@@ -107,7 +112,7 @@ def main():
 
     # Autonomous background dispatching is managed directly by FastAPI lifespan daemon in web.app_v2
 
-    mode_label = "🔥 HOT RELOAD (DEVELOPMENT)" if args.reload else "⚡ HIGH-PERFORMANCE (PRODUCTION)"
+    mode_label = "🔥 HOT RELOAD (DEVELOPMENT)" if enable_reload else "⚡ HIGH-PERFORMANCE (PRODUCTION)"
 
     print("\n====================================================================", flush=True)
     print(f" ⚡ JobHunt Pro Sovereign Engine — {mode_label}", flush=True)
@@ -117,7 +122,7 @@ def main():
     print(f" 🎯 Free ATS Magnet : http://127.0.0.1:{args.port}/free-ats-score", flush=True)
     print(f" ⚔️ Battle Station  : http://127.0.0.1:{args.port}/battle-station", flush=True)
     print(f" 📱 Telegram App    : http://127.0.0.1:{args.port}/telegram/app", flush=True)
-    print(" 👑 Admin Authority : samatou683@gmail.com", flush=True)
+    print(" 👑 Admin Authority : admin@jobhunt-pro.com", flush=True)
     print(" 🛡️ Deliverability  : 100% Live MX & 365-Day Cooldown Active", flush=True)
     print(" ⚡ Sub-ms Cache    : 0.015ms Latency (Active)", flush=True)
     print(" 🤖 Autonomous Loop : 24/7 AI Client Acquisition Active", flush=True)
@@ -127,18 +132,24 @@ def main():
     if not args.no_browser:
         threading.Thread(target=_open_browser_when_ready, args=(args.port,), daemon=True).start()
 
-    # Launch Uvicorn server with graceful shutdown and automatic recovery
+    # Launch Uvicorn server with safe reload exclusions (never reload on DB or log writes)
+    uvicorn_kwargs = {
+        "app": "web.app_v2:app",
+        "host": "127.0.0.1",
+        "port": args.port,
+        "log_level": args.log_level,
+        "access_log": enable_reload,
+        "timeout_keep_alive": 60,
+        "reload": enable_reload,
+    }
+    if enable_reload:
+        uvicorn_kwargs["reload_dirs"] = [os.path.join(ROOT_DIR, "web"), os.path.join(ROOT_DIR, "core"), os.path.join(ROOT_DIR, "backend")]
+        uvicorn_kwargs["reload_excludes"] = ["*.db*", "*.log", "data/*", "logs/*", ".git/*", ".agents/*", "tests/*", "archive/*", "cache/*"]
+        uvicorn_kwargs["reload_includes"] = ["*.py", "*.html", "*.js", "*.css"]
+
     try:
         import uvicorn
-        uvicorn.run(
-            "web.app_v2:app",
-            host="127.0.0.1",
-            port=args.port,
-            log_level=args.log_level,
-            access_log=args.reload,
-            timeout_keep_alive=30,
-            reload=args.reload
-        )
+        uvicorn.run(**uvicorn_kwargs)
     except KeyboardInterrupt:
         print("\n====================================================================", flush=True)
         print(" 🛑 JobHunt Pro Local Engine stopped cleanly by user (Ctrl+C).", flush=True)
@@ -148,15 +159,7 @@ def main():
             print(f"\n[*] Port {args.port} was occupied. Re-clearing and restarting...", flush=True)
             _free_port(args.port)
             import uvicorn
-            uvicorn.run(
-                "web.app_v2:app",
-                host="127.0.0.1",
-                port=args.port,
-                log_level=args.log_level,
-                access_log=args.reload,
-                timeout_keep_alive=30,
-                reload=args.reload
-            )
+            uvicorn.run(**uvicorn_kwargs)
         else:
             print(f"\n[!] Server error: {oe}", flush=True)
     except Exception as exc:

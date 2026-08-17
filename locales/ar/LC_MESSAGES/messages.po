@@ -547,7 +547,7 @@ msgid "JobHunt Pro — إتمام الدفع"
 msgstr ""
 
 #: web/templates/checkout.html:182
-msgid "samsalameh.cv@gmail.com"
+msgid "support@jobhunt-pro.com"
 msgstr ""
 
 #: web/templates/checkout.html:182

@@ -36,7 +36,7 @@ class ParseResult:
     calendar_link: str
 
 
-CALENDLY_LINK = os.getenv("CALENDLY_LINK", "https://calendly.com/samsalameh.cv/30min")
+CALENDLY_LINK = os.getenv("CALENDLY_LINK", "https://calendly.com/candidate-demo/30min")
 
 CALENDLY_REPLY = """Dear Hiring Team,
 
@@ -353,7 +353,7 @@ class AntiGhostingFollowup:
             self._template_3,
         ]
 
-    def _template_1(self, company: str, title: str, days: int) -> str:
+    def _template_1(self, company: str, title: str, days: int, name: str = "Candidate") -> str:
         return f"""Dear {company} Hiring Team,
 
 I hope this message finds you well. I am writing to follow up on my application for the {title} position, submitted {days} days ago.
@@ -361,31 +361,31 @@ I hope this message finds you well. I am writing to follow up on my application 
 I remain very interested in this opportunity and would appreciate any update on the status of my application.
 
 Best regards,
-Sam Salameh"""
+{name}"""
 
-    def _template_2(self, company: str, title: str, days: int) -> str:
+    def _template_2(self, company: str, title: str, days: int, name: str = "Candidate") -> str:
         return f"""Dear Hiring Team,
 
 I wanted to check in regarding my application for {title} at {company}.
 
-With over 15 years of network engineering experience, I believe I could make a significant contribution to your team. I would welcome the chance to discuss my qualifications further.
+I believe I could make a significant contribution to your team and would welcome the chance to discuss my qualifications further.
 
 Thank you for your time and consideration.
 
 Best regards,
-Sam Salameh"""
+{name}"""
 
-    def _template_3(self, company: str, title: str, days: int) -> str:
+    def _template_3(self, company: str, title: str, days: int, name: str = "Candidate") -> str:
         return f"""Dear {company} Team,
 
 I am reaching out to follow up on my {title} application from {days} days ago.
 
-I understand you are likely reviewing many applications, but I wanted to reiterate my strong interest in joining your team. My experience with Cisco, MikroTik, and cloud infrastructure aligns well with this role.
+I understand you are likely reviewing many applications, but I wanted to reiterate my strong interest in joining your team.
 
 Please let me know if you need any additional information.
 
 Best regards,
-Sam Salameh"""
+{name}"""
 
     def get_followup(
         self,

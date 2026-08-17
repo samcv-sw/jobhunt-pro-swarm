@@ -130,7 +130,7 @@ class AIConversationEngine:
             recruiter_name="John",
             company="Google",
             position="Network Engineer",
-            candidate_name="Sam Salameh",
+            candidate_name="Alex Johnson",
             candidate_skills=["Cisco", "Fortinet", "AWS"]
         )
     """
@@ -168,7 +168,7 @@ class AIConversationEngine:
         recruiter_name: str,
         company: str,
         position: str,
-        candidate_name: str = "Sam Salameh",
+        candidate_name: str = "Alex Johnson",
         candidate_skills: list[str] | None = None,
         job_url: str = "",
         years_of_experience: int | None = None,
@@ -681,7 +681,7 @@ def format_conversation_for_telegram(
             recruiter_name=name,
             company=company,
             position=role,
-            candidate_name="Sam Salameh",
+            candidate_name="Alex Johnson",
             candidate_skills=[
                 "Cisco",
                 "Fortinet",
@@ -708,7 +708,7 @@ def format_conversation_for_telegram(
         suggestion = eng.suggest_reply(
             recruiter_message=message,
             context={
-                "name": "Sam Salameh",
+                "name": "Alex Johnson",
                 "title": "Senior Network Engineer",
                 "skills": ["Cisco", "Fortinet", "MikroTik", "AWS"],
             },
@@ -739,7 +739,7 @@ def format_conversation_for_telegram(
 
 def generate_batch_greetings(
     recruiters: list[dict],
-    candidate_name: str = "Sam Salameh",
+    candidate_name: str = "Alex Johnson",
     candidate_skills: list[str] | None = None,
     engine: AIConversationEngine | None = None,
 ) -> list[dict]:
@@ -796,7 +796,7 @@ def api_generate_greeting(
     recruiter_name: str,
     company: str,
     position: str,
-    candidate_name: str = "Sam Salameh",
+    candidate_name: str = "Alex Johnson",
     candidate_skills: list[str] | None = None,
     groq_key: str = "",
 ) -> dict:

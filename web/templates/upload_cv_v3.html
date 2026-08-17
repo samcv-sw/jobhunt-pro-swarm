@@ -369,13 +369,13 @@
         <div id="cvPaperView" class="bg-white text-slate-900 rounded-xl p-8 shadow-[0_15px_45px_rgba(0,0,0,0.25)] max-h-[480px] overflow-y-auto custom-scrollbar border-2 border-slate-300/80 font-sans text-xs space-y-6 relative" dir="auto">
           <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-start" id="paperHeaderBlock">
             <div>
-              <h2 class="text-2xl font-black text-slate-950 tracking-tight uppercase" id="paperFullName">أحمد خليل</h2>
+              <h2 class="text-2xl font-black text-slate-950 tracking-tight uppercase" id="paperFullName">{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else 'ملف المرشح' }}</h2>
               <div class="text-sm font-bold text-blue-700 tracking-wide mt-1 uppercase" id="paperTargetTitle">Senior Network & Security Engineer</div>
             </div>
             <div class="text-start text-[11px] text-slate-600 font-medium space-y-0.5" id="paperContactDetails">
-              <div>بيروت، لبنان • +961 70 000000</div>
-              <div>ahmad.khalil.demo@example.com</div>
-              <div>linkedin.com/in/ahmad-khalil-demo</div>
+              <div>{{ user.location if user and user.location else 'بيروت، لبنان' }} • {{ user.phone if user and user.phone else '+961 70 841 009' }}</div>
+              <div>{{ user.email if user and user.email else 'sam.dev1@hotmail.com' }}</div>
+              <div>{{ user.linkedin if user and user.linkedin else 'linkedin.com/in/sam-salameh' }}</div>
             </div>
           </div>
 
@@ -725,17 +725,17 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">الاسم الكامل</label>
-        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="fullNameInput" placeholder="مثال: أحمد خليل (مرشح نموذج)" type="text" value="" dir="auto">
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="fullNameInput" placeholder="مثال: أحمد خليل" type="text" value="{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">البريد الإلكتروني</label>
-        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="emailInput" placeholder="candidate.demo@example.com" type="email" value="" dir="auto">
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="emailInput" placeholder="your.email@example.com" type="email" value="{{ user.email if user and user.email else '' }}" dir="auto">
       </div>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">رقم الهاتف</label>
-        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="phoneInput" placeholder="+961 70 000 000" type="tel" dir="auto">
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="phoneInput" placeholder="+961 70 000 000" type="tel" value="{{ user.phone if user and user.phone else '' }}" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">الموقع / البلد</label>
@@ -2060,7 +2060,7 @@ async function processFile(file) {
 }
 
 function cleanPhoneNumber(str) {
-  if (!str) return '+961 70 841 009';
+  if (!str) return '+961 70 000 000';
   let s = String(str).trim();
   s = s.replace(/(?:\+?961[\s\-]*)+/gi, ' ').trim();
   let digits = s.replace(/\D/g, '');
@@ -2076,7 +2076,7 @@ function cleanPhoneNumber(str) {
   } else if (digits.length >= 6) {
     return `+961 ${digits.slice(0, 2)} ${digits.slice(2)}`;
   }
-  return '+961 70 841 009';
+  return '+961 70 000 000';
 }
 
 function autoFillProfile(p, filename) {
@@ -2092,22 +2092,22 @@ function autoFillProfile(p, filename) {
       p.skills = p.skills.split(',').map(s => s.trim()).filter(Boolean);
     }
 
-    const nameVal = p.full_name || p.name || p.candidate_name || 'Alex Johnson';
-    if (document.getElementById('fullNameInput')) document.getElementById('fullNameInput').value = nameVal;
-    if (document.getElementById('hiddenProfileName')) document.getElementById('hiddenProfileName').value = nameVal;
-    if (document.getElementById('paperFullName')) document.getElementById('paperFullName').textContent = nameVal;
+    const nameVal = p.full_name || p.name || p.candidate_name || document.getElementById('fullNameInput')?.value || '';
+    if (document.getElementById('fullNameInput') && nameVal) document.getElementById('fullNameInput').value = nameVal;
+    if (document.getElementById('hiddenProfileName') && nameVal) document.getElementById('hiddenProfileName').value = nameVal;
+    if (document.getElementById('paperFullName')) document.getElementById('paperFullName').textContent = nameVal || 'ملف المرشح';
 
-    const emailVal = p.email || 'candidate.demo@example.com';
-    if (document.getElementById('emailInput')) document.getElementById('emailInput').value = emailVal;
+    const emailVal = p.email || document.getElementById('emailInput')?.value || '';
+    if (document.getElementById('emailInput') && emailVal) document.getElementById('emailInput').value = emailVal;
 
-    const phoneVal = cleanPhoneNumber(p.phone || '+1 (555) 019-2831');
-    if (document.getElementById('phoneInput')) document.getElementById('phoneInput').value = phoneVal;
+    const phoneVal = cleanPhoneNumber(p.phone || document.getElementById('phoneInput')?.value || '');
+    if (document.getElementById('phoneInput') && phoneVal) document.getElementById('phoneInput').value = phoneVal;
 
-    const locVal = p.location || 'بيروت، لبنان';
-    if (document.getElementById('locationInput')) document.getElementById('locationInput').value = locVal;
+    const locVal = p.location || document.getElementById('locationInput')?.value || 'بيروت، لبنان';
+    if (document.getElementById('locationInput') && locVal) document.getElementById('locationInput').value = locVal;
 
-    const liVal = p.linkedin || 'https://linkedin.com/in/sam-salameh';
-    if (document.getElementById('linkedinInput')) document.getElementById('linkedinInput').value = liVal;
+    const liVal = p.linkedin || document.getElementById('linkedinInput')?.value || '';
+    if (document.getElementById('linkedinInput') && liVal) document.getElementById('linkedinInput').value = liVal;
 
     // Paper Header Contact
     if (document.getElementById('paperContactDetails')) {
@@ -2261,9 +2261,9 @@ async function triggerAIAutoFill(e) {
       if (data.profiles && data.profiles.length > 0) {
         const prof = data.profiles[0];
         autoFillProfile({
-          full_name: prof.profile_name || 'Alex Johnson',
-          email: prof.email || 'candidate.demo@example.com',
-          phone: prof.phone || '+1 (555) 019-2831',
+          full_name: prof.profile_name || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}",
+          email: prof.email || "{{ user.email if user and user.email else '' }}",
+          phone: prof.phone || "{{ user.phone if user and user.phone else '' }}",
           location: prof.target_locations || 'بيروت، لبنان',
           target_titles: prof.target_titles || 'Senior Network Engineer',
           skills: prof.skills || 'Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls'
@@ -2365,9 +2365,9 @@ async function showPreview(initialTab = 'cv') {
   loading.classList.remove('hidden');
   ['tabContentEmail', 'tabContentCv', 'tabContentCl'].forEach(id => document.getElementById(id).classList.add('hidden'));
 
-  const name = document.getElementById('fullNameInput').value || 'أحمد خليل';
-  const email = document.getElementById('emailInput').value || 'ahmad.khalil.demo@example.com';
-  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || '+961 70 841 009');
+  const name = document.getElementById('fullNameInput').value || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else 'المرشح' }}";
+  const email = document.getElementById('emailInput').value || "{{ user.email if user and user.email else 'candidate@example.com' }}";
+  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || "{{ user.phone if user and user.phone else '+961 70 841 009' }}");
   const skills = document.getElementById('hiddenSkills').value || 'Network Design, Cisco IOS, MikroTik, Fortinet, Fiber Optic, Security';
   const location = document.getElementById('locationInput').value || 'بيروت، لبنان';
   const style = document.getElementById('hiddenCvStyle').value;
@@ -2460,7 +2460,7 @@ async function testSendEmail() {
   showToast("🚀 جاري إرسال البريد الإلكتروني التجريبي إلى " + targetEmail + "...");
 
   try {
-    const candName = document.getElementById('fullNameInput')?.value || "أحمد خليل";
+    const candName = document.getElementById('fullNameInput')?.value || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else 'المرشح' }}";
     const jobTitle = document.getElementById('hiddenTargetTitles')?.value || "أخصائي دعم فني وتجارة إلكترونية";
 
     const res = await fetch('/api/send-test-email', {

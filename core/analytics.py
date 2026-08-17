@@ -182,7 +182,7 @@ h1 {{ color: #0ea5e9; text-align: center; }}
 .funnel-fill {{ background: linear-gradient(90deg, #0ea5e9, #0284c7); height: 100%; border-radius: 5px; transition: width 0.5s; }}
 </style></head><body>
 <div class="container">
-<h1>Sam Salameh - Job Hunt Dashboard</h1>
+<h1>Executive Job Hunt Dashboard</h1>
 <div class="stats">
 <div class="stat"><div class="stat-value">{funnel["found"]}</div><div class="stat-label">Jobs Found</div></div>
 <div class="stat"><div class="stat-value">{funnel["applied"]}</div><div class="stat-label">Applied</div></div>

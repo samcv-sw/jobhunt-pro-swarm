@@ -1241,9 +1241,9 @@ Senior Specialist — ${targetTitle}
 
 function getCandidateCleanName() {
   const resumeEl = document.getElementById('ats-resume');
-  if (!resumeEl) return 'SAM SALAMEH';
+  if (!resumeEl) return 'EXECUTIVE_CANDIDATE';
   const text = resumeEl.value.trim();
-  if (!text) return 'SAM SALAMEH';
+  if (!text) return 'EXECUTIVE_CANDIDATE';
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   for (let line of lines) {
     let clean = line.replace(/^(=|-|_|#|\*)+/, '').trim();
@@ -1251,7 +1251,7 @@ function getCandidateCleanName() {
       return clean.replace(/[^a-zA-Z0-9\u0600-\u06FF\s_-]/g, '').trim().replace(/\s+/g, '_');
     }
   }
-  return 'SAM SALAMEH';
+  return 'EXECUTIVE_CANDIDATE';
 }
 
 function loadSampleCvPreset() {

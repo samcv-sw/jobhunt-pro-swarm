@@ -488,26 +488,28 @@ def _get_active_target_pool(conn, user_id):
         sent_emails_set = set(user_session_claimed)
         sent_comps_set = set(user_session_comps)
         try:
-            # Load all sent emails and company names to guarantee zero duplicate dispatches
+            # 1-Year Cooldown Deduplication Window per user (PERMANENT RULE)
             user_ce_rows = conn.execute(
-                """SELECT LOWER(COALESCE(ce.email_address, '')) as email, LOWER(COALESCE(ce.company_name, '')) as comp
+                """SELECT LOWER(COALESCE(ce.email_address, '')), LOWER(COALESCE(ce.company_name, ''))
                    FROM campaign_emails ce 
-                   WHERE ce.email_address IS NOT NULL AND ce.email_address != ''"""
+                   JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                   WHERE c.user_id = ? AND ce.sent_at >= datetime('now', '-365 days')
+                     AND ce.email_address IS NOT NULL AND ce.email_address != ''""",
+                (str(user_id),)
             ).fetchall()
             for r in user_ce_rows:
-                em = r[0] if r else None
-                cp = r[1] if r else None
-                if em: sent_emails_set.add(str(em).strip().lower())
-                if cp: sent_comps_set.add(str(cp).strip().lower())
+                if r and r[0]: sent_emails_set.add(str(r[0]).strip().lower())
+                if r and r[1]: sent_comps_set.add(str(r[1]).strip().lower())
 
             mpa_rows = conn.execute(
-                """SELECT LOWER(COALESCE(company, '')) as comp 
+                """SELECT LOWER(COALESCE(company, '')) 
                    FROM multi_platform_apps 
-                   WHERE company IS NOT NULL AND company != ''"""
+                   WHERE user_id = ? AND applied_at >= datetime('now', '-365 days')
+                     AND company IS NOT NULL AND company != ''""",
+                (str(user_id),)
             ).fetchall()
             for r in mpa_rows:
-                val = r[0] if r else None
-                if val: sent_comps_set.add(str(val).strip().lower())
+                if r and r[0]: sent_comps_set.add(str(r[0]).strip().lower())
         except Exception as d_err:
             logger.debug(f"[Dispatcher] Dedup batch fetch error: {d_err}")
 
@@ -521,9 +523,6 @@ def _get_active_target_pool(conn, user_id):
             if email and email in sent_emails_set:
                 continue
             if comp_name and comp_name in sent_comps_set:
-                continue
-
-            if not is_deliverable_email(email):
                 continue
 
             if email: user_session_claimed.add(email)
@@ -1087,210 +1086,241 @@ def start_continuous_dispatcher():
         t.start()
         logger.info("[CONTINUOUS DISPATCHER] 24/7 Autonomous Background Dispatch Thread Spawned.")
 
+_single_dispatch_lock = threading.Lock()
+_last_page_pulse: dict[str, float] = {}
+
+def trigger_user_dispatch_pulse(user_id: str = None) -> None:
+    """Debounced live dispatch pulse triggered on page visits (min 6s interval per user)."""
+    import threading, time
+    target_uid = str(user_id or "user_c79c498bf9314555")
+    now = time.time()
+    if now - _last_page_pulse.get(target_uid, 0.0) < 6.0:
+        return
+    _last_page_pulse[target_uid] = now
+    threading.Thread(target=dispatch_single_application, args=(target_uid,), daemon=True, name="DispatchPulseWorker").start()
+
 def dispatch_single_application(user_id: str = None):
-    """Dispatch one verified enterprise job application for active running users and update database state."""
-    db_path = get_db_path()
-    if not os.path.exists(db_path):
+    """Dispatch one verified enterprise job application for active running users with sub-millisecond DB locks."""
+    # Non-blocking lock to prevent thread stampedes during navigation
+    if not _single_dispatch_lock.acquire(blocking=False):
+        logger.debug("[CONTINUOUS DISPATCHER] Dispatch already in progress; skipping duplicate pulse.")
         return None
-    
-    # ── Phase 1: Sub-millisecond Target Selection (Short DB Lock) ──
-    target = None
-    uid = None
-    campaign_id = None
+
     try:
-        with sqlite3.connect(db_path, timeout=10.0) as conn:
-            conn.row_factory = sqlite3.Row
-            try:
-                conn.execute("PRAGMA journal_mode=WAL;")
-                conn.execute("PRAGMA synchronous=NORMAL;")
-            except Exception:
-                pass
-            ADMIN_USERS = {'user_c79c498bf9314555'}
-            MASTER_ADMIN_EMAILS = {'samatou683@gmail.com', 'samsalameh.cv@gmail.com'}
-            
-            if user_id:
-                target_uid = user_id
-            else:
-                # Select ONLY active users with legitimate paid running campaigns or Master Admin
-                eligible_rows = conn.execute("""
-                    SELECT DISTINCT c.user_id 
-                    FROM campaigns c
-                    JOIN users u ON c.user_id = u.user_id
-                    WHERE c.status IN ('running', 'active')
-                      AND c.campaign_id NOT LIKE 'auto_camp_%'
-                      AND (
-                          (c.sent_count < c.total_companies AND c.total_companies < 900000)
-                          OR u.user_id = 'user_c79c498bf9314555'
-                          OR LOWER(u.email) IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com')
-                      )
-                      AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
-                """).fetchall()
-                eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
-                if not eligible_uids:
-                    eligible_uids = ['user_c79c498bf9314555']
-                global _user_rr_idx
-                if '_user_rr_idx' not in globals():
-                    _user_rr_idx = 0
-                target_uid = eligible_uids[_user_rr_idx % len(eligible_uids)]
-                _user_rr_idx += 1
-
-            uid = str(target_uid or 'user_c79c498bf9314555')
-
-            # ── Check User Admin & Paywall Authorization ──
-            u_info = conn.execute("SELECT is_admin, tokens, daily_cap, email FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
-            is_admin = False
-            user_tokens = 0
-            daily_cap = 999999
-            user_email = ""
-            if u_info:
-                u_email = str(u_info[3] or '').lower().strip()
-                is_admin = bool(u_info[0]) or (uid in ADMIN_USERS) or (u_email in MASTER_ADMIN_EMAILS)
-                user_tokens = int(u_info[1] or 0)
-                daily_cap = int(u_info[2] or 999999)
-                user_email = u_email
-
-            # If user is NOT admin: Strictly enforce active paid campaign & available tokens!
-            if not is_admin:
-                camp_row = conn.execute("""
-                    SELECT campaign_id, status, total_companies, sent_count 
-                    FROM campaigns 
-                    WHERE user_id = ? 
-                      AND status IN ('running', 'active')
-                      AND campaign_id NOT LIKE 'auto_camp_%'
-                      AND total_companies < 900000
-                    ORDER BY id DESC LIMIT 1
-                """, (uid,)).fetchone()
-                
-                if not camp_row:
-                    if user_tokens <= 0:
-                        logger.info(f"[PAYWALL GUARD] User {uid} has no active paid campaign and 0 tokens. Dispatch rejected.")
-                        return None
-                    else:
-                        camp_row = conn.execute("SELECT campaign_id, status, total_companies, sent_count FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
-                        if camp_row:
-                            campaign_id = camp_row[0]
-                        else:
-                            campaign_id = f"token_camp_{uuid.uuid4().hex[:8]}"
-                            conn.execute(
-                                "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, 'token_paid', 'running', ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                                (campaign_id, uid, user_tokens)
-                            )
-                else:
-                    c_id, c_status, c_total, c_sent = camp_row[0], camp_row[1], int(camp_row[2] or 0), int(camp_row[3] or 0)
-                    if c_sent >= c_total and user_tokens <= 0:
-                        conn.execute("UPDATE campaigns SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (c_id,))
-                        conn.commit()
-                        logger.info(f"[PAYWALL GUARD] User {uid} completed their quota ({c_sent}/{c_total}). Campaign completed.")
-                        return None
-                    campaign_id = c_id
-            else:
-                # Admin user handling
-                camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
-                if camp_row:
-                    campaign_id = camp_row[0]
-                    conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
-                else:
-                    campaign_id = f"admin_camp_{uuid.uuid4().hex[:8]}"
-                    order_id = f"admin_{(uid or 'sam')[:12]}"
-                    conn.execute(
-                        "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                        (campaign_id, uid, order_id)
-                    )
-
-            if daily_cap < 999999:
-                today_res = conn.execute("""
-                    SELECT count(ce.id) FROM campaign_emails ce
-                    JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                    WHERE c.user_id = ? AND ce.sent_at >= date('now', 'start of day')
-                """, (uid,)).fetchone()
-                today_count = (today_res[0] if today_res else 0) or 0
-                if today_count >= daily_cap:
-                    logger.info(f"[CONTINUOUS DISPATCHER] User {uid} reached daily application cap ({today_count}/{daily_cap}). Skipping.")
-                    return None
-            comp = None
-            title = None
-            email = None
-            platform = None
-            for _try in range(8):
-                target = _get_active_target_pool(conn, uid)
-                if not target:
-                    break
-                cand_comp = target.get("company")
-                cand_title = target.get("title")
-                cand_email = (target.get("email") or "").strip().lower()
-                cand_platform = target.get("platform", "Verified Enterprise Gateway")
-
-                if not cand_email or '@' not in cand_email:
-                    continue
-                if (
-                    re.match(r"^careers-(?:hub-)?[0-9a-fA-F]{4,32}@", cand_email)
-                    or re.match(r"^test[0-9a-fA-F]{2,}@", cand_email)
-                    or cand_email.startswith("test@")
-                    or "@demo" in cand_email
-                    or "sample@" in cand_email
-                ):
-                    continue
-
+        db_path = get_db_path()
+        if not os.path.exists(db_path):
+            return None
+        
+        # ── Phase 1: Sub-millisecond Target Candidate Selection (Ultra-Fast DB Read) ──
+        candidate_pool = []
+        uid = None
+        campaign_id = None
+        is_admin = False
+        user_tokens = 0
+        try:
+            with sqlite3.connect(db_path, timeout=60.0) as conn:
+                conn.row_factory = sqlite3.Row
                 try:
-                    if not is_deliverable_email(cand_email):
-                        continue
+                    conn.execute("PRAGMA journal_mode=WAL;")
+                    conn.execute("PRAGMA synchronous=NORMAL;")
+                    conn.execute("PRAGMA busy_timeout=60000;")
                 except Exception:
                     pass
+                ADMIN_USERS = {'user_c79c498bf9314555'}
+                MASTER_ADMIN_EMAILS = {'admin@jobhunt-pro.com'}
+                
+                if user_id:
+                    target_uid = user_id
+                else:
+                    # Select ONLY active users with legitimate paid running campaigns or Master Admin
+                    eligible_rows = conn.execute("""
+                        SELECT DISTINCT c.user_id 
+                        FROM campaigns c
+                        JOIN users u ON c.user_id = u.user_id
+                        WHERE c.status IN ('running', 'active')
+                          AND c.campaign_id NOT LIKE 'auto_camp_%'
+                          AND (
+                              (c.sent_count < c.total_companies AND c.total_companies < 900000)
+                              OR u.user_id = 'user_c79c498bf9314555'
+                              OR u.user_type = 'admin'
+                              OR u.is_admin = 1
+                              OR LOWER(u.email) IN ('admin@jobhunt-pro.com')
+                          )
+                          AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
+                    """).fetchall()
+                    eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
+                    if not eligible_uids:
+                        eligible_uids = ['user_c79c498bf9314555']
+                    global _user_rr_idx
+                    if '_user_rr_idx' not in globals():
+                        _user_rr_idx = 0
+                    target_uid = eligible_uids[_user_rr_idx % len(eligible_uids)]
+                    _user_rr_idx += 1
 
-                comp = cand_comp
-                title = cand_title
-                email = cand_email
-                platform = cand_platform
-                break
-    except Exception as fetch_err:
-        logger.warning(f"[CONTINUOUS DISPATCHER] Target selection error: {fetch_err}")
-        return None
+                uid = str(target_uid or 'user_c79c498bf9314555')
 
-    if not email:
-        return None
+                # Check User Admin & Paywall Authorization
+                u_info = conn.execute("SELECT is_admin, tokens, daily_cap, email FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
+                daily_cap = 999999
+                if u_info:
+                    u_email = str(u_info[3] or '').lower().strip()
+                    is_admin = bool(u_info[0]) or (uid in ADMIN_USERS) or (u_email in MASTER_ADMIN_EMAILS)
+                    user_tokens = int(u_info[1] or 0)
+                    daily_cap = int(u_info[2] or 999999)
 
-    tracking_id = f"tr_{uuid.uuid4().hex[:10]}"
-    sent_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                # If user is NOT admin: Strictly enforce active paid campaign & available tokens!
+                if not is_admin:
+                    camp_row = conn.execute("""
+                        SELECT campaign_id, status, total_companies, sent_count 
+                        FROM campaigns 
+                        WHERE user_id = ? 
+                          AND status IN ('running', 'active')
+                          AND campaign_id NOT LIKE 'auto_camp_%'
+                          AND total_companies < 900000
+                        ORDER BY id DESC LIMIT 1
+                    """, (uid,)).fetchone()
+                    
+                    if not camp_row:
+                        if user_tokens <= 0:
+                            logger.info(f"[PAYWALL GUARD] User {uid} has no active paid campaign and 0 tokens. Dispatch rejected.")
+                            return None
+                        else:
+                            camp_row = conn.execute("SELECT campaign_id, status, total_companies, sent_count FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
+                            if camp_row:
+                                campaign_id = camp_row[0]
+                            else:
+                                campaign_id = f"token_camp_{uuid.uuid4().hex[:8]}"
+                                conn.execute(
+                                    "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, 'token_paid', 'running', ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                                    (campaign_id, uid, user_tokens)
+                                )
+                    else:
+                        c_id, c_status, c_total, c_sent = camp_row[0], camp_row[1], int(camp_row[2] or 0), int(camp_row[3] or 0)
+                        if c_sent >= c_total and user_tokens <= 0:
+                            conn.execute("UPDATE campaigns SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (c_id,))
+                            conn.commit()
+                            logger.info(f"[PAYWALL GUARD] User {uid} completed their quota ({c_sent}/{c_total}). Campaign completed.")
+                            return None
+                        campaign_id = c_id
+                else:
+                    camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
+                    if camp_row:
+                        campaign_id = camp_row[0]
+                        conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
+                    else:
+                        campaign_id = f"admin_camp_{uuid.uuid4().hex[:8]}"
+                        order_id = f"admin_{(uid or 'sam')[:12]}"
+                        conn.execute(
+                            "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                            (campaign_id, uid, order_id)
+                        )
 
-    # ── Phase 3: Sub-millisecond Result Logging (Short DB Lock) ──
-    dispatched_result = None
-    try:
-        with sqlite3.connect(db_path, timeout=5.0) as conn:
-            conn.execute("""
-                INSERT OR IGNORE INTO campaign_emails 
-                (campaign_id, company_name, job_title, email_address, status, tracking_id, pipeline_stage, sent_at, followup_count)
-                VALUES (?, ?, ?, ?, 'sent', ?, 'applied', ?, 0)
-            """, (campaign_id, comp, title, email, tracking_id, sent_time))
+                if daily_cap < 999999:
+                    today_res = conn.execute("""
+                        SELECT count(ce.id) FROM campaign_emails ce
+                        JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                        WHERE c.user_id = ? AND ce.sent_at >= date('now', 'start of day')
+                    """, (uid,)).fetchone()
+                    today_count = (today_res[0] if today_res else 0) or 0
+                    if today_count >= daily_cap:
+                        logger.info(f"[CONTINUOUS DISPATCHER] User {uid} reached daily application cap ({today_count}/{daily_cap}). Skipping.")
+                        return None
+
+                # Select prospective target directly
+                cand = _get_active_target_pool(conn, uid)
+                if cand:
+                    candidate_pool.append(cand)
+        except Exception as fetch_err:
+            logger.warning(f"[CONTINUOUS DISPATCHER] Target selection error: {fetch_err}")
+            return None
+
+        # ── Phase 2: Live DNS MX & Deliverability Verification (OUTSIDE DB LOCK) ──
+        comp = None
+        title = None
+        email = None
+        platform = None
+        for cand in candidate_pool:
+            cand_comp = cand.get("company")
+            cand_title = cand.get("title")
+            cand_email = (cand.get("email") or "").strip().lower()
+            cand_platform = cand.get("platform", "Verified Enterprise Gateway")
+
+            if not cand_email or '@' not in cand_email:
+                continue
+            if (
+                re.match(r"^careers-(?:hub-)?[0-9a-fA-F]{4,32}@", cand_email)
+                or re.match(r"^test[0-9a-fA-F]{2,}@", cand_email)
+                or cand_email.startswith("test@")
+                or "@demo" in cand_email
+                or "sample@" in cand_email
+            ):
+                continue
 
             try:
-                job_uid = f"job_{uuid.uuid4().hex[:8]}"
+                if not is_deliverable_email(cand_email):
+                    continue
+            except Exception:
+                pass
+
+            comp = cand_comp
+            title = cand_title
+            email = cand_email
+            platform = cand_platform
+            break
+
+        if not email:
+            return None
+
+        tracking_id = f"tr_{uuid.uuid4().hex[:10]}"
+        sent_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # ── Phase 3: Sub-millisecond Result Logging (Ultra-Fast DB Write) ──
+        dispatched_result = None
+        try:
+            with sqlite3.connect(db_path, timeout=60.0) as conn:
+                try:
+                    conn.execute("PRAGMA journal_mode=WAL;")
+                    conn.execute("PRAGMA synchronous=NORMAL;")
+                    conn.execute("PRAGMA busy_timeout=60000;")
+                except Exception:
+                    pass
                 conn.execute("""
-                    INSERT OR IGNORE INTO multi_platform_apps
-                    (user_id, campaign_id, platform, job_id, job_title, company, location, status, applied_at)
-                    VALUES (?, ?, ?, ?, ?, ?, 'GCC & Global', 'applied', ?)
-                """, (uid, campaign_id, platform, job_uid, title, comp, sent_time))
-            except Exception as mpa_err:
-                logger.debug(f"MPA insert skip: {mpa_err}")
+                    INSERT OR IGNORE INTO campaign_emails 
+                    (campaign_id, company_name, job_title, email_address, status, tracking_id, pipeline_stage, sent_at, followup_count)
+                    VALUES (?, ?, ?, ?, 'sent', ?, 'applied', ?, 0)
+                """, (campaign_id, comp, title, email, tracking_id, sent_time))
 
-            # Evolve engagement telemetry
-            _evolve_candidate_engagement_telemetry(conn, uid)
+                try:
+                    job_uid = f"job_{uuid.uuid4().hex[:8]}"
+                    conn.execute("""
+                        INSERT OR IGNORE INTO multi_platform_apps
+                        (user_id, campaign_id, platform, job_id, job_title, company, location, status, applied_at)
+                        VALUES (?, ?, ?, ?, ?, ?, 'GCC & Global', 'applied', ?)
+                    """, (uid, campaign_id, platform, job_uid, title, comp, sent_time))
+                except Exception as mpa_err:
+                    logger.debug(f"MPA insert skip: {mpa_err}")
 
-            conn.execute("UPDATE campaigns SET sent_count = (SELECT count(id) FROM campaign_emails WHERE campaign_id = ?), status = 'running' WHERE campaign_id = ?", (campaign_id, campaign_id))
-            conn.commit()
+                # Evolve engagement telemetry
+                _evolve_candidate_engagement_telemetry(conn, uid)
 
-            dispatched_result = {
-                "user_id": uid,
-                "company": comp,
-                "job_title": title,
-                "email": email,
-                "platform": platform,
-                "sent_at": sent_time
-            }
-            logger.info(f"[CONTINUOUS DISPATCHER] Dispatched for user {uid} -> {comp} ({title}) -> {email}")
-    except Exception as log_err:
-        logger.warning(f"[CONTINUOUS DISPATCHER] Result logging error: {log_err}")
+                conn.execute("UPDATE campaigns SET sent_count = (SELECT count(id) FROM campaign_emails WHERE campaign_id = ?), status = 'running' WHERE campaign_id = ?", (campaign_id, campaign_id))
+                conn.commit()
 
-    return dispatched_result
+                dispatched_result = {
+                    "user_id": uid,
+                    "company": comp,
+                    "job_title": title,
+                    "email": email,
+                    "platform": platform,
+                    "sent_at": sent_time
+                }
+                logger.info(f"[CONTINUOUS DISPATCHER] Dispatched for user {uid} -> {comp} ({title}) -> {email}")
+        except Exception as log_err:
+            logger.warning(f"[CONTINUOUS DISPATCHER] Result logging error: {log_err}")
+
+        return dispatched_result
+    finally:
+        _single_dispatch_lock.release()
 
 def dispatch_batch_applications(count: int = 2) -> list:
     """Dispatches a batch of new job applications sequentially inside atomic DB transactions."""

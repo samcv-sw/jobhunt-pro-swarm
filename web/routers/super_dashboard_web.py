@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import os
 
@@ -11,13 +11,12 @@ templates = Jinja2Templates(directory=templates_dir)
 @router.get("/1000", response_class=HTMLResponse)
 async def get_1000_super_dashboard(request: Request):
     """
-    Renders the 1000% Super-SaaS Apex Glassmorphism Command Center featuring:
-    1. Real-time Live SSE / WebSocket Feed
-    2. AI Sentiment Classifier & Auto-Drafting Console
-    3. Multi-Tenant RBAC Workspace Switcher
-    4. Domain Health & Deliverability Meter (SPF/DKIM/DMARC)
-    5. Outbound Webhooks & CRM Sync Manager
+    Renders the 1000% Super-SaaS Apex Glassmorphism Command Center (Admin only).
     """
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
+
     return templates.TemplateResponse(request, "1000_super_dashboard.html", {
         "title": "1000% Super-SaaS Command Center | JobHunt Pro",
         "current_tenant": "GCC Enterprise (Owner)",

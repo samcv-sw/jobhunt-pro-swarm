@@ -957,7 +957,13 @@ def harvest_fresh_jobs_to_db(max_jobs: int = 50) -> int:
             return 0
 
         inserted = 0
-        with sqlite3.connect(db_path, timeout=5.0) as conn:
+        with sqlite3.connect(db_path, timeout=60.0) as conn:
+            try:
+                conn.execute("PRAGMA journal_mode=WAL;")
+                conn.execute("PRAGMA synchronous=NORMAL;")
+                conn.execute("PRAGMA busy_timeout=60000;")
+            except Exception:
+                pass
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS jobs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,

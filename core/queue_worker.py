@@ -14,7 +14,7 @@ import config
 from core.campaign_runner import run_campaign
 from core.job_queue import complete_task, dequeue_task, fail_task
 from core.telegram.bot import send_telegram_message_sync
-from web.app import get_db
+from web.shared import get_db
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s: [%(levelname)s] %(message)s"

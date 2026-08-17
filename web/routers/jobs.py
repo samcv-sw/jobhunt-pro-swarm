@@ -202,20 +202,46 @@ async def upload_cv(
             raise
         except Exception as e:
             logger.warning(f"CV file parse error: {e}")
-    cand_name = "Sam Salameh"
+    cand_name = ""
     cv_data = cv_full_text.strip() or extracted_text.strip() or cv_text.strip()
     cl_data = cover_letter_text.strip() or cover_letter_template.strip()
     email_data = email_body.strip() or email_template.strip()
 
+    if cv_data:
+        import re as _re_cand
+        ignore_words = {
+            "senior", "junior", "lead", "principal", "staff", "head", "director", "manager", "engineer",
+            "developer", "architect", "specialist", "technician", "consultant", "analyst", "executive",
+            "curriculum", "vitae", "resume", "cv", "summary", "profile", "contact", "about", "me",
+            "experience", "skills", "education", "projects", "certifications", "achievements", "work",
+            "network", "software", "cloud", "security"
+        }
+        for match in _re_cand.finditer(r'\b([A-Z]{2,}(?:\s+[A-Z]{2,}){1,3})\b', cv_data[:500]):
+            wds = match.group(1).strip().lower().split()
+            if not any(w in ignore_words for w in wds) and len(wds) >= 2:
+                cand_name = " ".join(w.capitalize() for w in wds)
+                break
+        if not cand_name:
+            for match in _re_cand.finditer(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\b', cv_data[:500]):
+                wds = match.group(1).strip().lower().split()
+                if not any(w in ignore_words for w in wds) and len(wds) >= 2:
+                    cand_name = match.group(1).strip()
+                    break
+
+    if not cand_name and cv_file and cv_file.filename:
+        import re as _re_fn
+        from pathlib import Path
+        clean_fn = _re_fn.sub(r'[\(\)\d_\-\.]+', ' ', Path(cv_file.filename).stem)
+        fn_words = [w for w in clean_fn.split() if w.lower() not in {"cv", "resume", "curriculum", "vitae", "senior", "engineer"} and len(w) > 1]
+        if len(fn_words) >= 2:
+            cand_name = " ".join(w.capitalize() for w in fn_words[:3])
+
+    if not cand_name:
+        cand_name = "Candidate"
+
     if profile_name.strip():
         clean_profile_name = profile_name.strip()
     else:
-        if cv_data:
-            import re as _re_cand
-            m_n = _re_cand.search(r'([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+)+)', cv_data[:300])
-            if m_n and len(m_n.group(1).split()) <= 4:
-                cand_name = m_n.group(1).strip()
-
         first_title = target_titles.split(",")[0].strip() if target_titles else "Senior Network Engineer"
         if not first_title:
             first_title = "Senior Network Engineer"

@@ -8,7 +8,7 @@ on:
     # Allows manual trigger from GitHub UI
 
 env:
-  WORKER_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev'
+  WORKER_URL: 'https://router.jobhunt-pro.com'
   PA_URL: 'https://jhfguf.pythonanywhere.com'
 
 jobs:

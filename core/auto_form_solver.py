@@ -46,7 +46,7 @@ class AutoFormSolver:
         if "email" in raw_html.lower():
             detected_fields.append({"field": "email", "value": candidate_profile.get("email", "candidate@jobhuntpro.io")})
         if "phone" in raw_html.lower() or "mobile" in raw_html.lower():
-            detected_fields.append({"field": "phone", "value": candidate_profile.get("phone", "+96170123456")})
+            detected_fields.append({"field": "phone", "value": candidate_profile.get("phone", "+15550192834")})
         if "resume" in raw_html.lower() or "file" in raw_html.lower():
             detected_fields.append({"field": "resume", "action": "upload_pdf"})
 

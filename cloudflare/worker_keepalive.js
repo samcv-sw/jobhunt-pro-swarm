@@ -14,7 +14,7 @@ export default {
       env.PRIMARY_APP_URL || 'https://jobhunt-pro.com',
       env.RENDER_APP_URL || 'https://jobhunt-pro.onrender.com',
       env.FLY_APP_URL || 'https://jobhunt-pro.fly.dev',
-      env.PA_APP_URL || 'https://samatou.pythonanywhere.com'
+      env.PA_APP_URL || 'https://api.jobhunt-pro.com'
     ].filter(Boolean);
 
     const results = [];

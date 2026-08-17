@@ -3,7 +3,7 @@ Web Router for Deliverability Health & Domain Warm-Up
 """
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
@@ -19,9 +19,12 @@ class DomainCheckRequest(BaseModel):
 @router.get("/dashboard", response_class=HTMLResponse)
 async def get_domain_health_page(request: Request):
     """
-    Renders Domain Deliverability Health Dashboard UI.
+    Renders Domain Deliverability Health Dashboard UI (Admin only).
     """
-    return templates.TemplateResponse("domain_health.html", {"request": request, "title": "Deliverability Health Center"})
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
+    return templates.TemplateResponse(request, "domain_health.html", {"title": "Deliverability Health Center"})
 
 @router.post("/audit")
 async def audit_domain(req: DomainCheckRequest):

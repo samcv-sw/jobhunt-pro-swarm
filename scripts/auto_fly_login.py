@@ -46,8 +46,8 @@ async def automate_fly_login():
 
             # Wait for email input
             await page.wait_for_selector('input[type="email"]', timeout=15000)
-            await page.fill('input[type="email"]', "samsalameh.cv@gmail.com")
-            await page.fill('input[type="password"]', "GFKHGFKH*^%$84854hgf")
+            await page.fill('input[type="email"]', os.getenv("FLY_EMAIL", "admin@jobhunt-pro.com"))
+            await page.fill('input[type="password"]', os.getenv("FLY_PASSWORD", ""))
 
             # Click sign in
             await page.click('button[type="submit"]')

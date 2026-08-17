@@ -136,7 +136,7 @@ def validate_url(url: str) -> bool:
 def clean_phone_number(phone_str: str) -> str:
     """Clean and format Lebanese and international phone numbers cleanly, eliminating duplicated country codes (+961)."""
     if not phone_str:
-        return "+961 70 841 009"
+        return "+1 (555) 019-2834"
     import re as _re_p
     s = str(phone_str).strip()
     # Completely eliminate repeated +961 or 961 prefixes
@@ -151,5 +151,5 @@ def clean_phone_number(phone_str: str) -> str:
         return f"+{digits}"
     elif len(digits) >= 6:
         return f"+961 {digits[:2]} {digits[2:]}"
-    return "+961 70 841 009"
+    return "+1 (555) 019-2834"
 

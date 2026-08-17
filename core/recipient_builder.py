@@ -225,7 +225,7 @@ COMMON_LAST_NAMES = [
     "jackson",
     "white",
     "harris",
-    "salameh",
+    "saliba",
     "khoury",
     "haddad",
     "nassar",

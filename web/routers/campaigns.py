@@ -240,7 +240,7 @@ def new_campaign_page(request: Request, plan: str = ""):
     with get_db() as conn:
         rows = conn.execute(
             """SELECT * FROM cv_profiles
-               WHERE user_id = ? OR user_id IN (SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com'))
+               WHERE user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
                ORDER BY id DESC""", (user_id,)
         ).fetchall()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
@@ -250,12 +250,12 @@ def new_campaign_page(request: Request, plan: str = ""):
         seen_names = set()
         for r in rows:
             p = dict(r)
-            raw_name = p.get("profile_name") or "Sam Salameh"
-            raw_titles = p.get("target_titles") or "Senior Network Engineer, IT Manager, Systems Architect"
+            raw_name = p.get("profile_name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+            raw_titles = p.get("target_titles") or "Senior Network Engineer, Network Security Engineer, Solutions Architect"
             first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Network Engineer"
             exp = p.get("experience_years") or 15
-            ats_score = p.get("ats_score") or 92
-            skills = p.get("skills") or "Networking, System Architecture, Cloud Security, Infrastructure"
+            ats_score = p.get("ats_score") or 95
+            skills = p.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark, SolarWinds, PRTG"
 
             clean_name = raw_name
             if " - " not in clean_name:
@@ -277,28 +277,28 @@ def new_campaign_page(request: Request, plan: str = ""):
             try:
                 cursor = conn.execute(
                     """INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, experience_years, target_titles, target_locations)
-                       VALUES (?, 'Sam Salameh - Senior Network Engineer', 'Senior Network & Infrastructure Architect', 'Cisco, Fortinet, BGP, Cloud Security', 15, 'Senior Network Engineer, IT Manager, Infrastructure Lead', 'Lebanon, UAE, Saudi Arabia, Remote')""",
+                       VALUES (?, 'Executive Candidate - Senior Software Engineer', 'Senior Systems & Cloud Architect', 'Distributed Systems, Cloud Architecture, APIs, Security', 10, 'Senior Software Engineer, Tech Lead, Systems Architect', 'Dubai, UAE, Remote')""",
                     (user_id,)
                 )
                 conn.commit()
                 new_id = cursor.lastrowid
                 profiles = [{
                     "id": new_id,
-                    "profile_name": "Sam Salameh - Senior Network Engineer (15+ yrs exp)",
-                    "target_titles": "Senior Network Engineer, IT Manager, Systems Architect",
-                    "experience_years": 15,
-                    "ats_score": 94,
-                    "skills": "Cisco, Networking, Cloud Infrastructure, Security, System Administration"
+                    "profile_name": "Executive Candidate - Senior Software Engineer (10+ yrs exp)",
+                    "target_titles": "Senior Software Engineer, Tech Lead, Systems Architect",
+                    "experience_years": 10,
+                    "ats_score": 95,
+                    "skills": "Distributed Systems, Cloud Architecture, APIs, Security"
                 }]
             except Exception as prof_err:
                 logger.warning(f"Could not auto-create fallback cv_profile: {prof_err}")
                 profiles = [{
                     "id": 25,
-                    "profile_name": "Sam Salameh - Senior Network Engineer (15+ yrs exp)",
-                    "target_titles": "Senior Network Engineer, IT Manager, Systems Architect",
-                    "experience_years": 15,
-                    "ats_score": 94,
-                    "skills": "Cisco, Networking, Cloud Infrastructure, Security, System Administration"
+                    "profile_name": "Executive Candidate - Senior Software Engineer (10+ yrs exp)",
+                    "target_titles": "Senior Software Engineer, Tech Lead, Systems Architect",
+                    "experience_years": 10,
+                    "ats_score": 95,
+                    "skills": "Distributed Systems, Cloud Architecture, APIs, Security"
                 }]
 
     pricing_data = get_all_pricing()
@@ -337,9 +337,9 @@ async def create_campaign_router_api(
     with get_db() as conn:
         try:
             if not user_id:
-                sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com', 'sam.dev1@hotmail.com') OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
-                if sam_user:
-                    user_id = sam_user["user_id"] if isinstance(sam_user, dict) else sam_user[0]
+                admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR wallet_balance > 0 ORDER BY id DESC LIMIT 1").fetchone()
+                if admin_user:
+                    user_id = admin_user["user_id"] if isinstance(admin_user, dict) else admin_user[0]
                 else:
                     user_id = "user_1b73747a6e9a41d6"
 
@@ -347,7 +347,7 @@ async def create_campaign_router_api(
             if not user_row:
                 conn.execute(
                     "INSERT OR IGNORE INTO users (user_id, email, full_name, wallet_balance) VALUES (?,?,?,?)",
-                    (user_id, "samatou683@gmail.com", "Sam Salameh", 10000.0)
+                    (user_id, "admin@jobhunt-pro.com", "JobHunt Pro Admin", 10000.0)
                 )
                 conn.commit()
                 user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
@@ -418,12 +418,15 @@ async def create_campaign_router_api(
                 except Exception:
                     pass
 
+            calculated_base_price = total_price
             override_cost = form_data.get("total_deployment_cost", "")
             if override_cost:
                 try:
                     val = float(override_cost)
-                    if val >= 0:
+                    if val > 0:
                         total_price = val
+                    elif val == 0 and company_count > 0 and calculated_base_price > 0:
+                        total_price = calculated_base_price
                 except Exception:
                     pass
 
@@ -431,7 +434,9 @@ async def create_campaign_router_api(
                 total_price = 0.0
 
             user_bal = float(user.get("wallet_balance", 0) or 0)
-            is_admin = bool(user.get("is_admin")) or user.get("email") in ("samatou683@gmail.com", "samsalameh.cv@gmail.com")
+            from web.shared import is_admin_email
+            user_email = (user.get("email") or "").strip().lower()
+            is_admin = bool(user.get("is_admin")) or user.get("user_type") == "admin" or is_admin_email(user_email)
 
             if total_price > 0 and not is_admin and user_bal < total_price:
                 return JSONResponse({
@@ -532,10 +537,10 @@ async def delete_cv_profile(request: Request):
 
     try:
         with get_db() as conn:
-            # Query if profile exists and belongs to user or linked emails
+            # Query if profile exists and belongs to user
             row = conn.execute(
                 """SELECT id FROM cv_profiles 
-                   WHERE id = ? AND (user_id = ? OR user_id IN (SELECT user_id FROM users WHERE email IN ('sam.dev1@hotmail.com', 'samatou683@gmail.com', 'samsalameh.cv@gmail.com')))""",
+                   WHERE id = ? AND (user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'))""",
                 (profile_id, user_id)
             ).fetchone()
             if row:
@@ -1151,22 +1156,18 @@ async def api_send_test_email(request: Request):
             if clean_prof.lower().startswith("senior "):
                 clean_prof = clean_prof[7:].strip()
             
-            cand_name = user_dict.get("name") or "Sam Salameh"
-            if cand_name.lower() in ("sam", "candidate", "executive", ""):
-                cand_name = "Sam Salameh"
+            cand_name = user_dict.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
 
-            cand_email = user_dict.get("email") or prof.get("email") or "sam.dev1@hotmail.com"
-            if not cand_email or "samatou" in cand_email.lower() or "samsalameh.cv" in cand_email.lower():
-                cand_email = "sam.dev1@hotmail.com"
+            cand_email = user_dict.get("email") or prof.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
 
             user_details = {
                 "name": cand_name,
                 "email": cand_email,
-                "phone": prof.get("phone") or "+961 70 841 009",
-                "address": prof.get("target_locations") or "Lebanon / Gulf Region",
-                "skills": prof.get("skills") or "Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls, Routing & Switching",
+                "phone": prof.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009"),
+                "address": prof.get("target_locations") or "Beirut, Lebanon",
+                "skills": prof.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark",
                 "experience_years": str(prof.get("experience_years") or "15"),
-                "profession": clean_prof or "Network Engineer"
+                "profession": clean_prof or "Senior Network Engineer"
             }
             
             # Check if custom cover letter template was provided
@@ -1196,7 +1197,7 @@ async def api_send_test_email(request: Request):
                 cv_path = p_path
         if not cv_path:
             from web.shared import config
-            for cand in ["assets/Sam_Salameh_CV.pdf", getattr(config, "CV_PATH", None)]:
+            for cand in ["assets/candidate_resume.pdf", "assets/sample_cv.pdf", getattr(config, "CV_PATH", None)]:
                 if cand and os.path.exists(cand):
                     cv_path = cand
                     break
@@ -1205,13 +1206,11 @@ async def api_send_test_email(request: Request):
         dispatch_msg_id = None
         from web.shared import config
 
-        # 2. Try Gmail SMTP Pool FIRST (prioritizing matching candidate email samsalameh.cv@gmail.com)
+        # 2. Try Gmail SMTP Pool FIRST
         try:
             from core.email_engine import send_email_via_gmail_smtp
             from config import ACTIVE_EMAIL_PROVIDERS
             gmail_accs = [p for p in ACTIVE_EMAIL_PROVIDERS if p.get("password") and "gmail" in p.get("server", "")]
-            # Sort to place samatou683@gmail.com or samsalameh.cv@gmail.com first
-            gmail_accs.sort(key=lambda x: 0 if ("samatou" in x.get("user", "").lower() or "samsalameh" in x.get("user", "").lower() or cand_email.lower() in x.get("user", "").lower()) else 1)
 
             for acc in gmail_accs:
                 u = acc.get("user")
@@ -1243,8 +1242,8 @@ async def api_send_test_email(request: Request):
             if api_key:
                 try:
                     import httpx
-                    sender_email = "samsalameh.cv@gmail.com"
-                    sender_name = user_details.get("name") or "Sam Salameh"
+                    sender_email = cand_email or os.getenv("BREVO_ACCOUNT_EMAIL") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+                    sender_name = cand_name or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
                     
                     payload = {
                         "sender": {"email": sender_email, "name": sender_name},
@@ -1326,7 +1325,7 @@ async def api_send_test_email(request: Request):
             "job_title": job_title,
             "deducted_usd": cost,
             "new_balance_usd": new_balance,
-            "preview_url": f"/api/v2/campaigns/test-email-preview?file={preview_filename}"
+                "preview_url": f"/api/v2/campaigns/test-email-preview?file={preview_filename}"
         })
 
 @router.get("/api/v2/campaigns/test-email-preview")
@@ -1344,26 +1343,35 @@ def api_preview_test_email(file: str):
 @router.get("/api/v2/campaigns/user-profiles")
 def api_get_user_profiles(request: Request):
     """Retrieve list of candidate CV profiles for test email modal and campaign creation select boxes."""
-    get_db, config, _, _, _ = _deps()
+    from web.shared import get_db, config, get_verified_user_id
+    user_id = get_verified_user_id(request)
     with get_db() as conn:
-        cookie_user = request.cookies.get("user_id", "")
-        sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') LIMIT 1").fetchone()
-        target_uid = cookie_user or (sam_user["user_id"] if sam_user else "user_1b73747a6e9a41d6")
-        
+        if not user_id:
+            admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com' LIMIT 1").fetchone()
+            user_id = admin_user["user_id"] if admin_user else "user_1b73747a6e9a41d6"
+
         rows = conn.execute(
             """SELECT id, profile_name, target_titles, skills, experience_years
                FROM cv_profiles
-               WHERE user_id = ? OR user_id IN (SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com'))
-               ORDER BY id DESC""", (target_uid,)
+               WHERE user_id = ? OR user_id = ?
+               ORDER BY id DESC""", (user_id, str(user_id))
         ).fetchall()
+
+        if not rows:
+            rows = conn.execute(
+                """SELECT id, profile_name, target_titles, skills, experience_years
+                   FROM cv_profiles
+                   WHERE user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
+                   ORDER BY id DESC"""
+            ).fetchall()
 
         formatted_profiles = []
         seen_names = set()
         for r in rows:
             p = dict(r)
-            raw_name = p.get("profile_name") or "Sam Salameh"
-            raw_titles = p.get("target_titles") or "Senior Network Engineer"
-            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Network Engineer"
+            raw_name = p.get("profile_name") or getattr(config, "CANDIDATE_NAME", "Alex Johnson")
+            raw_titles = p.get("target_titles") or "Senior Software Engineer, IT Manager, Systems Architect"
+            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Software Engineer"
             exp = p.get("experience_years") or 15
             
             clean_name = raw_name
@@ -1378,18 +1386,21 @@ def api_get_user_profiles(request: Request):
                 formatted_profiles.append(p)
 
         if not formatted_profiles:
-            formatted_profiles = [{"id": 1, "profile_name": "Sam Salameh - Senior Network Engineer (15+ yrs exp)", "target_titles": "Senior Network Engineer", "experience_years": 15}]
+            formatted_profiles = [{"id": 1, "profile_name": "Executive Profile - Senior Software Engineer (10+ yrs exp)", "target_titles": "Senior Software Engineer", "experience_years": 10}]
 
         return JSONResponse({"success": True, "profiles": formatted_profiles})
 
 @router.post("/api/v2/campaigns/user-profiles")
 async def api_create_or_update_user_profile(request: Request):
     """Create or update a CV profile dynamically via JSON API."""
-    get_db, config, _, _, _ = _deps()
-    cookie_user = request.cookies.get("user_id", "")
+    from web.shared import get_db, config, get_verified_user_id
+    user_id = get_verified_user_id(request)
     with get_db() as conn:
-        sam_user = conn.execute("SELECT user_id FROM users WHERE email IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com') LIMIT 1").fetchone()
-        target_uid = cookie_user or (sam_user["user_id"] if sam_user else "user_1b73747a6e9a41d6")
+        if not user_id:
+            admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com' LIMIT 1").fetchone()
+            target_uid = admin_user["user_id"] if admin_user else "user_1b73747a6e9a41d6"
+        else:
+            target_uid = user_id
         
         try:
             body = await request.json()

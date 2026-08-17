@@ -13,18 +13,6 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["admin"])
 
-def _require_admin_or_fallback(request: Request):
-    from web.shared import get_db, get_verified_user_id
-    user_id = get_verified_user_id(request)
-    with get_db() as conn:
-        if not user_id:
-            sam_user = (
-                conn.execute("SELECT user_id FROM users WHERE LOWER(email) = 'samatou683@gmail.com'").fetchone() or
-                conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' ORDER BY id DESC LIMIT 1").fetchone()
-            )
-            user_id = sam_user["user_id"] if isinstance(sam_user, dict) else (sam_user[0] if sam_user else "user_c79c498bf9314555")
-    return user_id
-
 def _deps():
     from web.app_v2 import _build_dashboard_shell, render_template
     from web.shared import config, get_db, get_verified_user_id, templates
@@ -33,35 +21,22 @@ def _deps():
 @router.post("/admin/panic-toggle")
 def admin_panic_toggle(request: Request):
     """Toggles the Iron Cloak Panic Mode on or off."""
-    get_db, get_verified_user_id, _, _, _, _ = _deps()
-    user_id = get_verified_user_id(request)
-    if not user_id:
+    from web.app_v2 import require_admin
+    if not require_admin(request):
         return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
 
-    with get_db() as conn:
-        user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        pass  # conn.close()
-
-        if not user or user.get("user_type") != "admin":
-            return JSONResponse({"status": "error", "error": "Forbidden"}, status_code=403)
-
-        from core.panic_mode import toggle_panic_mode
-        new_state = toggle_panic_mode()
-        return JSONResponse({"status": "success", "panic_mode_active": new_state})
+    from core.panic_mode import toggle_panic_mode
+    new_state = toggle_panic_mode()
+    return JSONResponse({"status": "success", "panic_mode_active": new_state})
 
 @router.get("/admin/viral-factory", response_class=HTMLResponse)
 def admin_viral_factory(request: Request):
     """View and download generated viral MP4 videos."""
-    get_db, get_verified_user_id, _, _, _, _ = _deps()
-    user_id = _require_admin_or_fallback(request)
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
 
     with get_db() as conn:
-        user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        pass  # conn.close()
-
-        if not user or user.get("user_type") != "admin":
-            return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-
         viral_dir = "cache/viral_videos"
         files = []
         if os.path.exists(viral_dir):
@@ -92,6 +67,9 @@ def admin_viral_factory(request: Request):
 
 @router.get("/admin/viral-factory/download/{filename}")
 def download_viral_video(request: Request, filename: str):
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
     from fastapi.responses import FileResponse
     file_path = os.path.join("cache/viral_videos", filename)
     if os.path.exists(file_path):
@@ -101,16 +79,11 @@ def download_viral_video(request: Request, filename: str):
 @router.get("/admin/logs", response_class=HTMLResponse)
 def admin_logs(request: Request):
     """Secure Log Viewer - Only accessible by admins."""
-    get_db, get_verified_user_id, _, _, _, _ = _deps()
-    user_id = _require_admin_or_fallback(request)
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/user-dashboard", status_code=303)
 
     with get_db() as conn:
-        user = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        pass  # conn.close()
-
-        if not user or user.get("user_type") != "admin":
-            return HTMLResponse("<h2>403 Forbidden</h2><p>You do not have permission to view this page.</p>", status_code=403)
-
         pa_domain = os.getenv("PA_DOMAIN", "jhfguf.pythonanywhere.com")
         error_log_path = f"/var/log/{pa_domain}.error.log"
         server_log_path = f"/var/log/{pa_domain}.server.log"
@@ -173,9 +146,12 @@ def admin_logs(request: Request):
 @router.get("/admin/analytics", response_class=HTMLResponse)
 def admin_analytics(req: Request):
     """Admin analytics dashboard — revenue, users, campaigns, A/B testing."""
+    from web.app_v2 import require_admin
     get_db, get_verified_user_id, _, _, render_template, _build_dashboard_shell = _deps()
     try:
-        admin_id = _require_admin_or_fallback(req)
+        admin_id = require_admin(req)
+        if not admin_id:
+            return RedirectResponse("/user-dashboard", status_code=303)
 
         with get_db() as db:
             user_admin = db.execute("SELECT * FROM users WHERE user_id = ?", (admin_id,)).fetchone()
@@ -345,8 +321,20 @@ def admin_panel(request: Request):
 
         try:
             flash_sales = [dict(r) for r in conn.execute(
-                "SELECT * FROM flash_sales ORDER BY created_at DESC LIMIT 20"
+                "SELECT * FROM flash_sales ORDER BY created_at DESC LIMIT 50"
             ).fetchall()]
+            now_iso = datetime.now().isoformat()
+            for s in flash_sales:
+                s_end = str(s.get("end_time") or "")
+                s_start = str(s.get("start_time") or "")
+                is_active_flag = bool(s.get("active", 1))
+                is_time_valid = s_end > now_iso
+                s["is_live"] = is_active_flag and is_time_valid
+                s["is_paused"] = not is_active_flag
+                s["is_expired"] = is_active_flag and not is_time_valid
+                s["formatted_end"] = s_end.replace("T", " ")[:16] if s_end else "—"
+                s["formatted_start"] = s_start.replace("T", " ")[:16] if s_start else "—"
+                s["formatted_created"] = str(s.get("created_at") or "")[:16]
         except Exception:
             flash_sales = []
 
@@ -379,7 +367,7 @@ def admin_panel(request: Request):
         )
         is_en = request and (request.query_params.get("lang") == "en" or getattr(request.state, "lang", None) == "en" or request.cookies.get("lang") == "en")
         title = "Admin Panel" if is_en else "لوحة الإدارة"
-        admin_user_dict = {"name": "Sam Salameh", "email": "samatou683@gmail.com", "wallet_balance": 10000.0, "is_admin": True}
+        admin_user_dict = {"name": "Executive Admin", "email": "admin@jobhunt-pro.com", "wallet_balance": 10000.0, "is_admin": True}
         return HTMLResponse(_build_dashboard_shell(admin_user_dict, admin_user_id, content_html, title, "admin", request=request))
 
 
@@ -444,12 +432,11 @@ def admin_reset_pw(token: str = ""):
     if not admin_hash:
         return JSONResponse({"error": "ADMIN_PW_HASH not set in env"}, status_code=503)
     with get_db() as conn:
-        conn.execute("UPDATE users SET password_hash = ? WHERE email = ?",
-                     (admin_hash, "samatou683@gmail.com"))
+        conn.execute("UPDATE users SET password_hash = ? WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'",
+                     (admin_hash,))
         conn.commit()
-        pass  # conn.close()
-        logger.info("Password reset for samatou683@gmail.com via admin-reset-pw")
-        return {"status": "password updated for samatou683@gmail.com"}
+        logger.info("Password reset for admin users via admin-reset-pw")
+        return {"status": "password updated for admin account"}
 
 
 @router.post("/api/admin/run-design-scan")
@@ -761,17 +748,57 @@ async def admin_export_codes(request: Request, status: str = "all"):
     )
 
 
+def _is_json_request(request: Request) -> bool:
+    """Detect if client prefers or expects JSON response."""
+    accept = request.headers.get("accept", "").lower()
+    content_type = request.headers.get("content-type", "").lower()
+    x_req = request.headers.get("x-requested-with", "").lower()
+    return "application/json" in accept or "application/json" in content_type or x_req == "xmlhttprequest" or request.query_params.get("format") == "json"
+
+async def _extract_param_value(request: Request, name: str, default=None):
+    """Extracts a parameter from query string, form data, or json body."""
+    if name in request.query_params:
+        return request.query_params[name]
+    try:
+        data = await request.json()
+        if isinstance(data, dict) and name in data:
+            return data[name]
+    except Exception:
+        pass
+    try:
+        form = await request.form()
+        if name in form:
+            return form[name]
+    except Exception:
+        pass
+    return default
+
+
 @router.post("/admin/delete-code")
-async def admin_delete_single_code(request: Request, code: str = Form(...)):
+@router.get("/admin/delete-code")
+async def admin_delete_single_code(request: Request, code: str = None):
     """Delete a single redeem code."""
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
+    
+    target_code = code or await _extract_param_value(request, "code")
+    if not target_code:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing code"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+code", status_code=303)
+
+    target_code = str(target_code).strip()
     with get_db() as conn:
-        conn.execute("DELETE FROM redeem_codes WHERE code = ?", (code.strip(),))
+        conn.execute("DELETE FROM redeem_codes WHERE code = ?", (target_code,))
         conn.commit()
-    return RedirectResponse(f"/admin?success=Deleted+code+{code}", status_code=303)
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": f"Code {target_code} deleted successfully", "code": target_code})
+    return RedirectResponse(f"/admin?success=Deleted+code+{target_code}", status_code=303)
 
 
 @router.post("/admin/delete-codes")
@@ -780,35 +807,70 @@ async def admin_delete_codes(request: Request):
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
 
-    form = await request.form()
-    codes_list = form.getlist("codes")
+    codes_list = []
+    try:
+        data = await request.json()
+        if isinstance(data, dict):
+            codes_list = data.get("codes", [])
+        elif isinstance(data, list):
+            codes_list = data
+    except Exception:
+        pass
+
     if not codes_list:
-        raw = form.get("codes", "")
-        if raw:
-            codes_list = [c.strip() for c in str(raw).split(",") if c.strip()]
+        try:
+            form = await request.form()
+            codes_list = form.getlist("codes")
+            if not codes_list:
+                raw = form.get("codes", "")
+                if raw:
+                    codes_list = [c.strip() for c in str(raw).split(",") if c.strip()]
+        except Exception:
+            pass
 
     if codes_list:
         with get_db() as conn:
             placeholders = ",".join("?" for _ in codes_list)
             conn.execute(f"DELETE FROM redeem_codes WHERE code IN ({placeholders})", tuple(codes_list))
             conn.commit()
+        if _is_json_request(request):
+            return JSONResponse({"status": "success", "message": f"Deleted {len(codes_list)} redeem codes", "deleted_count": len(codes_list)})
         return RedirectResponse(f"/admin?success=Deleted+{len(codes_list)}+redeem+codes", status_code=303)
+    
+    if _is_json_request(request):
+        return JSONResponse({"status": "error", "error": "No codes selected"}, status_code=400)
     return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/admin/delete-user")
-async def admin_delete_single_user(request: Request, target_user_id: str = Form(...)):
+@router.get("/admin/delete-user")
+async def admin_delete_single_user(request: Request, target_user_id: str = None):
     """Delete a single user."""
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
+
+    target_id = target_user_id or await _extract_param_value(request, "target_user_id") or await _extract_param_value(request, "user_id")
+    if not target_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing user_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+user_id", status_code=303)
+
+    target_id = str(target_id).strip()
     with get_db() as conn:
-        conn.execute("DELETE FROM users WHERE user_id = ? AND user_type != 'admin'", (target_user_id.strip(),))
+        conn.execute("DELETE FROM users WHERE user_id = ? AND user_type != 'admin'", (target_id,))
         conn.commit()
-    return RedirectResponse(f"/admin?success=User+deleted+successfully", status_code=303)
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": "User deleted successfully", "user_id": target_id})
+    return RedirectResponse("/admin?success=User+deleted+successfully", status_code=303)
 
 
 @router.post("/admin/delete-users")
@@ -817,35 +879,70 @@ async def admin_delete_users(request: Request):
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
 
-    form = await request.form()
-    user_ids = form.getlist("user_ids")
+    user_ids = []
+    try:
+        data = await request.json()
+        if isinstance(data, dict):
+            user_ids = data.get("user_ids", [])
+        elif isinstance(data, list):
+            user_ids = data
+    except Exception:
+        pass
+
     if not user_ids:
-        raw = form.get("user_ids", "")
-        if raw:
-            user_ids = [u.strip() for u in str(raw).split(",") if u.strip()]
+        try:
+            form = await request.form()
+            user_ids = form.getlist("user_ids")
+            if not user_ids:
+                raw = form.get("user_ids", "")
+                if raw:
+                    user_ids = [u.strip() for u in str(raw).split(",") if u.strip()]
+        except Exception:
+            pass
 
     if user_ids:
         with get_db() as conn:
             placeholders = ",".join("?" for _ in user_ids)
             conn.execute(f"DELETE FROM users WHERE user_id IN ({placeholders}) AND user_type != 'admin'", tuple(user_ids))
             conn.commit()
+        if _is_json_request(request):
+            return JSONResponse({"status": "success", "message": f"Deleted {len(user_ids)} users", "deleted_count": len(user_ids)})
         return RedirectResponse(f"/admin?success=Deleted+{len(user_ids)}+users", status_code=303)
+    
+    if _is_json_request(request):
+        return JSONResponse({"status": "error", "error": "No users selected"}, status_code=400)
     return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/admin/delete-campaign")
-async def admin_delete_single_campaign(request: Request, campaign_id: str = Form(...)):
+@router.get("/admin/delete-campaign")
+async def admin_delete_single_campaign(request: Request, campaign_id: str = None):
     """Delete a single campaign."""
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
+
+    c_id = campaign_id or await _extract_param_value(request, "campaign_id")
+    if not c_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing campaign_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+campaign_id", status_code=303)
+
+    c_id = str(c_id).strip()
     with get_db() as conn:
-        conn.execute("DELETE FROM campaigns WHERE campaign_id = ?", (campaign_id.strip(),))
+        conn.execute("DELETE FROM campaigns WHERE campaign_id = ?", (c_id,))
         conn.commit()
-    return RedirectResponse(f"/admin?success=Campaign+deleted+successfully", status_code=303)
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": "Campaign deleted successfully", "campaign_id": c_id})
+    return RedirectResponse("/admin?success=Campaign+deleted+successfully", status_code=303)
 
 
 @router.post("/admin/delete-campaigns")
@@ -854,129 +951,280 @@ async def admin_delete_campaigns(request: Request):
     get_db, get_verified_user_id, _, _, _, _ = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
 
-    form = await request.form()
-    campaign_ids = form.getlist("campaign_ids")
+    campaign_ids = []
+    try:
+        data = await request.json()
+        if isinstance(data, dict):
+            campaign_ids = data.get("campaign_ids", [])
+        elif isinstance(data, list):
+            campaign_ids = data
+    except Exception:
+        pass
+
     if not campaign_ids:
-        raw = form.get("campaign_ids", "")
-        if raw:
-            campaign_ids = [c.strip() for c in str(raw).split(",") if c.strip()]
+        try:
+            form = await request.form()
+            campaign_ids = form.getlist("campaign_ids")
+            if not campaign_ids:
+                raw = form.get("campaign_ids", "")
+                if raw:
+                    campaign_ids = [c.strip() for c in str(raw).split(",") if c.strip()]
+        except Exception:
+            pass
 
     if campaign_ids:
         with get_db() as conn:
             placeholders = ",".join("?" for _ in campaign_ids)
             conn.execute(f"DELETE FROM campaigns WHERE campaign_id IN ({placeholders})", tuple(campaign_ids))
             conn.commit()
+        if _is_json_request(request):
+            return JSONResponse({"status": "success", "message": f"Deleted {len(campaign_ids)} campaigns", "deleted_count": len(campaign_ids)})
         return RedirectResponse(f"/admin?success=Deleted+{len(campaign_ids)}+campaigns", status_code=303)
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "error", "error": "No campaigns selected"}, status_code=400)
     return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/admin/toggle-user")
-def admin_toggle_user(request: Request, target_user_id: str = Form(...)):
+@router.get("/admin/toggle-user")
+async def admin_toggle_user(request: Request, target_user_id: str = None):
     """Activate or deactivate a user."""
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
 
+    target_id = target_user_id or await _extract_param_value(request, "target_user_id") or await _extract_param_value(request, "user_id")
+    if not target_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing user_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+user_id", status_code=303)
+
+    target_id = str(target_id).strip()
+    new_status = 1
     with get_db() as conn:
-        row = conn.execute("SELECT is_active FROM users WHERE user_id = ?", (target_user_id,)).fetchone()
+        row = conn.execute("SELECT is_active FROM users WHERE user_id = ?", (target_id,)).fetchone()
         if row:
-            new_status = 0 if row["is_active"] else 1
-            conn.execute("UPDATE users SET is_active = ? WHERE user_id = ?", (new_status, target_user_id))
+            row_dict = dict(row)
+            new_status = 0 if row_dict.get("is_active") else 1
+            conn.execute("UPDATE users SET is_active = ? WHERE user_id = ?", (new_status, target_id))
             conn.commit()
-        pass  # conn.close()
-        return RedirectResponse("/admin", status_code=303)
 
-
-@router.post("/admin/free-campaign")
-def admin_free_campaign(
-    request: Request,
-    target_email: str = Form(...),
-    company_count: int = Form(100),
-):
-    """Give a user a free campaign."""
-    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
-    from web.app_v2 import require_admin
-    if not require_admin(request):
-        return RedirectResponse("/login", status_code=303)
-
-    with get_db() as conn:
-        user_row = conn.execute("SELECT user_id FROM users WHERE email = ?", (target_email,)).fetchone()
-        if not user_row:
-            pass  # conn.close()
-            return RedirectResponse("/admin?error=user_not_found", status_code=303)
-
-        user_id = user_row["user_id"]
-        profile_row = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? LIMIT 1", (user_id,)).fetchone()
-        if not profile_row:
-            conn.execute(
-                "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?)",
-                (user_id, "Admin Created Profile", "Professional profile created by admin")
-            )
-            conn.commit()
-            profile_row = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? LIMIT 1", (user_id,)).fetchone()
-
-        campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
-        order_id = f"ord_{uuid.uuid4().hex[:16]}"
-
-        conn.execute(
-            "INSERT INTO orders (order_id, user_id, order_type, package_name, company_count, amount_usd, payment_method, payment_status) VALUES (?,?,?,?,?,?,?,?)",
-            (order_id, user_id, "campaign", "admin_free", company_count, 0, "admin", "completed")
-        )
-        conn.execute(
-            "INSERT INTO campaigns (campaign_id, user_id, order_id, profile_id, total_companies) VALUES (?,?,?,?,?)",
-            (campaign_id, user_id, order_id, profile_row["id"], company_count)
-        )
-        conn.commit()
-        pass  # conn.close()
-
-        from core.job_queue import enqueue_task
-        try:
-            enqueue_task("run_campaign", {"campaign_id": campaign_id})
-        except Exception as e:
-            logger.error(f"[QUEUE] Error enqueuing admin campaign {campaign_id}: {e}")
-
-        return RedirectResponse(f"/admin?success=Free+campaign+created+for+{target_email}", status_code=303)
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "user_id": target_id, "is_active": new_status, "message": f"User status changed to {'Active' if new_status else 'Inactive'}"})
+    return RedirectResponse("/admin", status_code=303)
 
 
 @router.post("/admin/create-flash-sale")
-def admin_create_flash_sale(
+@router.get("/admin/create-flash-sale")
+async def admin_create_flash_sale(
     request: Request,
-    title: str = Form(...),
-    discount_percent: float = Form(...),
-    duration_hours: float = Form(24),
+    title: str = None,
+    discount_percent: float = None,
+    duration_hours: float = None,
 ):
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
     from datetime import timedelta
-
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
+
+    sale_title = title or await _extract_param_value(request, "title") or "VIP Exclusive Deal"
+    sale_discount = discount_percent if discount_percent is not None else await _extract_param_value(request, "discount_percent", 50)
+    sale_duration = duration_hours if duration_hours is not None else await _extract_param_value(request, "duration_hours", 24)
+
+    try:
+        sale_discount = float(sale_discount)
+    except Exception:
+        sale_discount = 50.0
+    try:
+        sale_duration = float(sale_duration)
+    except Exception:
+        sale_duration = 24.0
+
     with get_db() as conn:
         now = datetime.now()
-        end_time = now + timedelta(hours=duration_hours)
-        conn.execute(
-            "INSERT INTO flash_sales (title, discount_percent, start_time, end_time) VALUES (?, ?, ?, ?)",
-            (title, discount_percent, now.isoformat(), end_time.isoformat())
+        end_time = now + timedelta(hours=sale_duration)
+        cursor = conn.execute(
+            "INSERT INTO flash_sales (title, discount_percent, start_time, end_time, active) VALUES (?, ?, ?, ?, 1)",
+            (sale_title, sale_discount, now.isoformat(), end_time.isoformat())
         )
         conn.commit()
-        pass  # conn.close()
-        return RedirectResponse(f"/admin?success=Flash+sale+created:+{title}+({discount_percent}%+off,+{duration_hours}h)", status_code=303)
+        new_id = cursor.lastrowid
+
+    if _is_json_request(request):
+        return JSONResponse({
+            "status": "success",
+            "message": f"Flash sale activated: {sale_title} ({sale_discount}% off, {sale_duration}h)",
+            "sale": {
+                "id": new_id,
+                "title": sale_title,
+                "discount_percent": sale_discount,
+                "duration_hours": sale_duration,
+                "start_time": now.isoformat(),
+                "end_time": end_time.isoformat(),
+                "active": 1
+            }
+        })
+    return RedirectResponse(f"/admin?success=Flash+sale+activated:+{sale_title}+({sale_discount}%+off,+{sale_duration}h)", status_code=303)
 
 
 @router.post("/admin/end-flash-sale")
-def admin_end_flash_sale(request: Request, sale_id: int = Form(...)):
+@router.post("/admin/pause-flash-sale")
+@router.get("/admin/pause-flash-sale")
+async def admin_pause_flash_sale(request: Request, sale_id: int = None):
     get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
     from web.app_v2 import require_admin
     if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
         return RedirectResponse("/login", status_code=303)
+
+    target_id = sale_id or await _extract_param_value(request, "sale_id") or await _extract_param_value(request, "id")
+    if not target_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing sale_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+sale_id", status_code=303)
+
     with get_db() as conn:
-        conn.execute("UPDATE flash_sales SET active = 0 WHERE id = ?", (sale_id,))
+        conn.execute("UPDATE flash_sales SET active = 0 WHERE id = ?", (int(target_id),))
         conn.commit()
-        pass  # conn.close()
-        return RedirectResponse(f"/admin?success=Flash+sale+{sale_id}+ended", status_code=303)
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": f"Flash sale #{target_id} paused successfully", "sale_id": int(target_id), "active": 0})
+    return RedirectResponse(f"/admin?success=Flash+sale+{target_id}+paused+successfully", status_code=303)
+
+
+@router.post("/admin/resume-flash-sale")
+@router.get("/admin/resume-flash-sale")
+async def admin_resume_flash_sale(
+    request: Request,
+    sale_id: int = None,
+    extend_hours: float = None
+):
+    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
+    from datetime import timedelta
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
+        return RedirectResponse("/login", status_code=303)
+
+    target_id = sale_id or await _extract_param_value(request, "sale_id") or await _extract_param_value(request, "id")
+    if not target_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing sale_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+sale_id", status_code=303)
+
+    hours = extend_hours if extend_hours is not None else await _extract_param_value(request, "extend_hours", 24)
+    try:
+        hours = float(hours)
+    except Exception:
+        hours = 24.0
+
+    target_id = int(target_id)
+    with get_db() as conn:
+        now = datetime.now()
+        row = conn.execute("SELECT * FROM flash_sales WHERE id = ?", (target_id,)).fetchone()
+        if row:
+            row_dict = dict(row)
+            end_t = str(row_dict.get("end_time") or "")
+            # If expired or in the past, extend from now
+            if not end_t or end_t <= now.isoformat():
+                new_end = now + timedelta(hours=hours)
+                conn.execute(
+                    "UPDATE flash_sales SET active = 1, start_time = ?, end_time = ? WHERE id = ?",
+                    (now.isoformat(), new_end.isoformat(), target_id)
+                )
+            else:
+                conn.execute("UPDATE flash_sales SET active = 1 WHERE id = ?", (target_id,))
+            conn.commit()
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": f"Flash sale #{target_id} resumed and extended by +{hours}h", "sale_id": target_id, "active": 1})
+    return RedirectResponse(f"/admin?success=Flash+sale+{target_id}+resumed+and+activated", status_code=303)
+
+
+@router.post("/admin/delete-flash-sale")
+@router.get("/admin/delete-flash-sale")
+async def admin_delete_flash_sale(request: Request, sale_id: int = None):
+    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
+        return RedirectResponse("/login", status_code=303)
+
+    target_id = sale_id or await _extract_param_value(request, "sale_id") or await _extract_param_value(request, "id")
+    if not target_id:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Missing sale_id"}, status_code=400)
+        return RedirectResponse("/admin?error=Missing+sale_id", status_code=303)
+
+    target_id = int(target_id)
+    with get_db() as conn:
+        conn.execute("DELETE FROM flash_sales WHERE id = ?", (target_id,))
+        conn.commit()
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": f"Flash sale #{target_id} deleted successfully", "sale_id": target_id})
+    return RedirectResponse(f"/admin?success=Flash+sale+{target_id}+deleted", status_code=303)
+
+
+@router.post("/admin/delete-flash-sales")
+async def admin_delete_flash_sales(request: Request):
+    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "Unauthorized"}, status_code=403)
+        return RedirectResponse("/login", status_code=303)
+
+    sale_ids = []
+    try:
+        data = await request.json()
+        if isinstance(data, dict):
+            sale_ids = data.get("sale_ids", [])
+        elif isinstance(data, list):
+            sale_ids = data
+    except Exception:
+        pass
+
+    if not sale_ids:
+        try:
+            form = await request.form()
+            sale_ids = form.getlist("sale_ids")
+            if not sale_ids:
+                raw = form.get("sale_ids", "")
+                if raw:
+                    sale_ids = [s.strip() for s in str(raw).split(",") if s.strip()]
+        except Exception:
+            pass
+
+    if not sale_ids:
+        if _is_json_request(request):
+            return JSONResponse({"status": "error", "error": "No flash sales selected"}, status_code=400)
+        return RedirectResponse("/admin?error=No+flash+sales+selected+for+deletion", status_code=303)
+
+    cleaned_ids = [int(s) for s in sale_ids if str(s).isdigit()]
+    if cleaned_ids:
+        with get_db() as conn:
+            placeholders = ",".join(["?"] * len(cleaned_ids))
+            conn.execute(f"DELETE FROM flash_sales WHERE id IN ({placeholders})", cleaned_ids)
+            conn.commit()
+
+    if _is_json_request(request):
+        return JSONResponse({"status": "success", "message": f"{len(cleaned_ids)} flash sales deleted successfully", "deleted_count": len(cleaned_ids)})
+    return RedirectResponse(f"/admin?success={len(cleaned_ids)}+flash+sales+deleted+successfully", status_code=303)
 
 
 @router.post("/admin/send-manual-email")
@@ -1073,7 +1321,9 @@ def _require_admin(request: Request):
         user_type = str(user_dict.get("user_type") or "").strip().lower()
         is_admin_val = bool(user_dict.get("is_admin"))
 
-        if is_admin_email(email) or user_type == "admin" or is_admin_val:
+        if is_admin_email(email) or is_admin_email(str(user_id)):
+            return user_id
+        if (user_type == "admin" or is_admin_val) and is_admin_email(email):
             return user_id
 
     raise HTTPException(status_code=403, detail="Admin privileges required")

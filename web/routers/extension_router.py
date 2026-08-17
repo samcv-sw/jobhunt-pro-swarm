@@ -44,11 +44,11 @@ def get_autofill_profile(req: AutoFillRequest):
     return {
         "status": "success",
         "profile": {
-            "full_name": "Sam Candidate",
-            "email": "sam@example.com",
-            "phone": "+96170000000",
-            "linkedin": "https://linkedin.com/in/example",
+            "full_name": "Sam Salameh",
+            "email": "sam.dev1@hotmail.com",
+            "phone": "+961 70 841 009",
+            "linkedin": "https://linkedin.com/in/sam-salameh",
             "portfolio": "https://jobhunt-pro.com",
-            "suggested_cover_letter": "I am writing to express my strong interest in the open position..."
+            "suggested_cover_letter": "I am writing to express my strong interest in the open Senior Network Engineer position..."
         }
     }

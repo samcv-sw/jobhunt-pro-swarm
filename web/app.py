@@ -99,13 +99,30 @@ if os.path.isabs(_db_val):
 else:
     db_path = str(BASE_DIR.parent / _db_val)
 
-def get_db():
-    conn = sqlite3.connect(db_path, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+def get_db(max_retries: int = 5):
+    import time
+    for attempt in range(max_retries):
+        try:
+            conn = sqlite3.connect(db_path, check_same_thread=False, timeout=60.0, isolation_level=None)
+            conn.row_factory = sqlite3.Row
+            try:
+                conn.execute("PRAGMA journal_mode=WAL")
+                conn.execute("PRAGMA synchronous=NORMAL")
+                conn.execute("PRAGMA busy_timeout=60000")
+                conn.execute("PRAGMA cache_size=-64000")
+                conn.execute("PRAGMA temp_store=MEMORY")
+            except Exception:
+                pass
+            return conn
+        except sqlite3.OperationalError as e:
+            if "locked" in str(e).lower() or "busy" in str(e).lower():
+                if attempt < max_retries - 1:
+                    time.sleep(0.05 * (2 ** attempt))
+                    continue
+            raise
 
 def init_saas_db():
-    with sqlite3.connect(db_path) as conn:
+    with get_db() as conn:
         conn.executescript("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

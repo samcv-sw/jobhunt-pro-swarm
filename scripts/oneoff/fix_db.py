@@ -26,7 +26,7 @@ print(f"Updated invalid profile_ids in campaigns. Rows affected: {cur.rowcount}"
 
 # 3. Activate all campaigns for user_1b73747a6e9a41d6
 cur.execute("UPDATE campaigns SET status = 'running' WHERE user_id = 'user_1b73747a6e9a41d6'")
-print(f"Activated campaigns for Sam Salameh. Rows affected: {cur.rowcount}")
+print(f"Activated campaigns for user. Rows affected: {cur.rowcount}")
 
 # 4. Activate all auto campaigns
 cur.execute("UPDATE campaigns SET status = 'running' WHERE status IN ('pending', 'paused', 'failed')")

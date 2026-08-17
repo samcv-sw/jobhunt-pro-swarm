@@ -391,15 +391,15 @@ def _extract_highlight_title(text: str) -> str:
 
 
 def _get_initials(full_name: str) -> str:
-    """Compute initials dynamically (e.g. Sam Salameh -> SS)."""
+    """Compute initials dynamically (e.g. Alex Johnson -> AJ)."""
     if not full_name:
-        return "SS"
+        return "AJ"
     parts = [p.strip() for p in full_name.split() if p.strip()]
     if len(parts) >= 2:
         return (parts[0][0] + parts[-1][0]).upper()
     elif len(parts) == 1:
         return parts[0][:2].upper()
-    return "SS"
+    return "AJ"
 
 
 def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str, str, str, str]:
@@ -424,7 +424,7 @@ def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str
         profession = (
             user_details.get("profession")
             or user_details.get("target_title")
-            or "Senior Software Engineer"
+            or getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
         )
         candidate_address = user_details.get("address") or (getattr(
             config, "CANDIDATE_ADDRESS", "Beirut, Lebanon"
@@ -434,7 +434,7 @@ def _resolve_candidate_details(user_details: dict | None) -> tuple[str, str, str
         candidate_email = getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") if config else "sam.dev1@hotmail.com"
         phone = getattr(config, "CANDIDATE_PHONE", "+961 70 841 009") if config else "+961 70 841 009"
         linkedin = getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh") if config else "https://www.linkedin.com/in/sam-salameh"
-        profession = "Senior Software Engineer"
+        profession = getattr(config, "CANDIDATE_TITLE", "Senior Network Engineer")
         candidate_address = getattr(config, "CANDIDATE_ADDRESS", "Beirut, Lebanon") if config else "Beirut, Lebanon"
     return name, candidate_email, phone, linkedin, profession, candidate_address
 
@@ -2491,7 +2491,8 @@ def send_email_via_brevo_http(
 
     sender_email = (
         os.getenv("BREVO_ACCOUNT_EMAIL", "").strip()
-        or os.getenv("GMAIL_SMTP_USER", "samsalameh.cv@gmail.com").strip()
+        or os.getenv("GMAIL_SMTP_USER", "").strip()
+        or getattr(config, "CANDIDATE_EMAIL", "candidate.demo@jobhunt-pro.com")
     )
     if not sender_email:
         logger.warning("[BREVO-HTTP] No sender email configured")

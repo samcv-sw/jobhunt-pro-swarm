@@ -407,14 +407,45 @@ _last_revival_attempt = 0
 _REVIVAL_INTERVAL = 7200  # Try every 2 hours
 
 
-def try_revive_dead_accounts(force: bool = False) -> int:
-    """Try to refresh tokens for dead accounts.
+def _check_and_refresh_account(acct: dict, session) -> bool:
+    """Helper to check and refresh a single dead account."""
+    try:
+        resp = session.post(
+            TOKEN_URL,
+            data={
+                "client_id": acct.get("epp", ""),
+                "grant_type": "refresh_token",
+                "refresh_token": acct.get("refresh", ""),
+                "scope": "https://graph.microsoft.com/Mail.Send offline_access",
+            },
+            timeout=(3.05, 8),
+        )
+        if resp.status_code == 200:
+            acct["dead"] = False
+            acct["dead_reason"] = ""
+            acct["revived_at"] = time.strftime("%Y-%m-%d %H:%M")
+            logger.info(f"[HOTMAIL-REVIVE] Revived {acct.get('email', '')[:35]}")
+            return True
+        else:
+            try:
+                err_data = resp.json()
+                acct["dead_reason"] = err_data.get("error_description", f"HTTP {resp.status_code}")[:100]
+            except Exception:
+                acct["dead_reason"] = f"HTTP {resp.status_code}"
+    except Exception as e:
+        acct["dead_reason"] = str(e)[:100]
+    return False
+
+
+def try_revive_dead_accounts(force: bool = False, max_workers: int = 25) -> int:
+    """Try to refresh tokens for dead accounts in parallel using ThreadPoolExecutor.
 
     Microsoft sometimes lifts abuse flags (AADSTS70000) after 24-48 hours.
     This function periodically checks if dead accounts can be revived.
 
     Args:
         force: If True, attempt revival regardless of time since last check.
+        max_workers: Number of concurrent worker threads.
 
     Returns:
         Number of accounts successfully revived.
@@ -430,7 +461,6 @@ def try_revive_dead_accounts(force: bool = False) -> int:
         return 0
 
     _last_revival_attempt = now
-    import requests
 
     try:
         data = safe_load_json(POOL_FILE)
@@ -446,39 +476,57 @@ def try_revive_dead_accounts(force: bool = False) -> int:
         if not dead_accounts:
             return 0
 
+        session = get_http_session()
         revived = 0
-        for acct in dead_accounts:
-            try:
-                resp = requests.post(
-                    TOKEN_URL,
-                    data={
-                        "client_id": acct.get("epp", ""),
-                        "grant_type": "refresh_token",
-                        "refresh_token": acct["refresh"],
-                        "scope": "https://graph.microsoft.com/Mail.Send offline_access",
-                    },
-                    timeout=(3.05, 10),  # hard 3s connect timeout so TLS blackholes can't hang the pool
-                )
+        from concurrent.futures import ThreadPoolExecutor, as_completed
 
-                if resp.status_code == 200:
-                    acct["dead"] = False
-                    acct["dead_reason"] = ""
-                    acct["revived_at"] = time.strftime("%Y-%m-%d %H:%M")
-                    revived += 1
-                    logger.info(f"[HOTMAIL-REVIVE] Revived {acct['email'][:35]}")
-            except Exception:
-                pass
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(_check_and_refresh_account, acct, session): acct
+                for acct in dead_accounts
+            }
+            for future in as_completed(futures):
+                try:
+                    if future.result():
+                        revived += 1
+                except Exception:
+                    pass
 
-        if revived > 0:
-            with open(POOL_FILE, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-            global _pool_cache
-            _pool_cache = None
-            logger.info(
-                f"[HOTMAIL-REVIVE] Revived {revived}/{len(dead_accounts)} accounts"
-            )
+        # Persist updated accounts state
+        with open(POOL_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        global _pool_cache
+        _pool_cache = None
+        logger.info(
+            f"[HOTMAIL-REVIVE] Finished revival pass: {revived}/{len(dead_accounts)} accounts revived"
+        )
 
         return revived
     except Exception as e:
         logger.error(f"[HOTMAIL-REVIVE] Revival check failed: {e}")
         return 0
+
+
+def get_pool_health_diagnostics() -> dict:
+    """Return comprehensive health statistics of the account rotator pool."""
+    pool = load_pool()
+    total = len(pool)
+    active = sum(1 for a in pool if not a.get("dead", False) and a.get("refresh"))
+    dead = total - active
+    
+    dead_reasons = {}
+    for a in pool:
+        if a.get("dead", False):
+            reason = (a.get("dead_reason") or "Unknown / Suspended")[:60]
+            dead_reasons[reason] = dead_reasons.get(reason, 0) + 1
+
+    return {
+        "total_accounts": total,
+        "active_accounts": active,
+        "dead_accounts": dead,
+        "daily_capacity_active": active * DAILY_CAP_PER_ACCOUNT,
+        "daily_cap_per_account": DAILY_CAP_PER_ACCOUNT,
+        "dead_reasons_breakdown": dead_reasons,
+        "pool_file_present": os.path.exists(POOL_FILE),
+    }
+

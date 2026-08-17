@@ -6,7 +6,7 @@
 const CONFIG = {
   PA_BASE: 'https://jhfguf.pythonanywhere.com',
   TIMEOUT_MS: 15000,
-  CRON_SELF_URL: 'https://jobhunt-pro-router.samsalameh-cv.workers.dev',
+  CRON_SELF_URL: 'https://router.jobhunt-pro.com',
 };
 
 const CORS = {
@@ -30,7 +30,7 @@ function fnv1a(str) {
 async function executeTurso(env, userId, sql, params = []) {
   const shardIndex = fnv1a(userId || 'default') % 500;
   const dbName = `jh-shard-${shardIndex}`;
-  const userName = env.TURSO_USER_NAME || "samsalameh";
+  const userName = env.TURSO_USER_NAME || "jobhunt-pro";
   const url = `https://${dbName}-${userName}.turso.io/v2/pipeline`;
   const token = env.TURSO_AUTH_TOKEN;
 

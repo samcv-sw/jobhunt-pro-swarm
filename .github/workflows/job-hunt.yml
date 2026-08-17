@@ -15,7 +15,7 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt
       - run: mkdir -p assets
-      - run: echo "${{ secrets.CV_BASE64 }}" | base64 -d > assets/Sam_Salameh_CV.pdf
+      - run: echo "${{ secrets.CV_BASE64 }}" | base64 -d > assets/candidate_resume.pdf
       - run: |
           cat > .env << EOF
           CANDIDATE_EMAIL=${{ secrets.CANDIDATE_EMAIL }}

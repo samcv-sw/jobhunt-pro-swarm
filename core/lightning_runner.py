@@ -383,7 +383,7 @@ async def run_campaign_lightning(campaign_id: str, company_limit: int = 3) -> di
             }
 
         tenant_name = tenant_row.get("name", "Candidate") if tenant_row else "Candidate"
-        tenant_email = tenant_row.get("email", "samatou683@gmail.com") if tenant_row else "samatou683@gmail.com"
+        tenant_email = tenant_row.get("email", "candidate.demo@jobhunt-pro.com") if tenant_row else "candidate.demo@jobhunt-pro.com"
         job_title = "Professional"
         if profile:
             titles = (profile.get("target_titles") or "").strip()

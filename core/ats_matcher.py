@@ -1612,7 +1612,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     sample_resume = """
-    Sam Salameh — Senior Network Engineer
+    Alex Johnson — Senior Network Engineer
     Skills: Cisco routing/switching, Fortinet Firewalls, MikroTik, Ubiquiti,
     Python automation, Linux administration, AWS Cloud, VPN, VLAN, OSPF, BGP.
     Certifications: CCNA, Fortinet NSE, MikroTik MTCNA, Ubiquiti UBWA.

@@ -36,13 +36,13 @@ class AutoApplyRequest(BaseModel):
 
 class DirectApplyRequest(BaseModel):
     job_url: str
-    job_title: Optional[str] = "Software Engineer"
+    job_title: Optional[str] = "Senior Network Engineer"
     company_name: Optional[str] = "Target Company"
     platform: Optional[str] = "Direct ATS / Web Portal"
-    location: Optional[str] = "Remote"
-    full_name: Optional[str] = "Sami El-Hassan"
-    email: Optional[str] = "sami.developer@example.com"
-    phone: Optional[str] = "+96170123456"
+    location: Optional[str] = "Beirut, Lebanon / Remote"
+    full_name: Optional[str] = "Sam Salameh"
+    email: Optional[str] = "sam.dev1@hotmail.com"
+    phone: Optional[str] = "+961 70 841 009"
 
 @router.get("/auto-applier", response_class=HTMLResponse)
 async def get_auto_applier_dashboard(request: Request):
@@ -239,14 +239,14 @@ async def get_extension_autofill_payload(user_id: Optional[str] = None):
         "status": "success",
         "user_id": user_id or "demo_candidate",
         "profile": {
-            "full_name": "Sami El-Hassan",
-            "email": "sami.developer@example.com",
-            "phone": "+96170123456",
-            "linkedin_url": "https://linkedin.com/in/samielhassan",
-            "github_url": "https://github.com/samielhassan",
-            "portfolio_url": "https://samielhassan.dev",
-            "summary": "Experienced Full Stack Python & AI Engineer with 6+ years delivering scalable SaaS apps.",
-            "work_authorization": "Authorized to work remotely and in MENA/GCC regions."
+            "full_name": "Sam Salameh",
+            "email": "sam.dev1@hotmail.com",
+            "phone": "+961 70 841 009",
+            "linkedin_url": "https://linkedin.com/in/sam-salameh",
+            "github_url": "",
+            "portfolio_url": "",
+            "summary": "Accomplished Senior Network Engineer with 15+ years of progressive experience designing, implementing, configuring, and troubleshooting enterprise-grade networking infrastructure.",
+            "work_authorization": "Authorized to work remotely and globally."
         },
         "form_selectors_map": {
             "first_name": ["input[name*='first']", "input[id*='first']", "input[data-qa*='first-name']"],
@@ -363,13 +363,12 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
         return {"status": "unauthorized", "message": "Authentication required."}
 
     # ── Strict Paywall Check ──
-    ADMIN_EMAILS = {'samatou683@gmail.com', 'samsalameh.cv@gmail.com'}
     try:
         with get_db() as conn:
-            u_row = conn.execute("SELECT is_admin, tokens, email FROM users WHERE user_id = ?", (u_id,)).fetchone()
+            u_row = conn.execute("SELECT is_admin, tokens, email, user_type FROM users WHERE user_id = ?", (u_id,)).fetchone()
             if not u_row:
                 return {"status": "blocked", "message": "User not found"}
-            is_admin = bool(u_row[0]) or (str(u_row[2] or '').lower().strip() in ADMIN_EMAILS) or (u_id == 'user_c79c498bf9314555')
+            is_admin = bool(u_row["is_admin"] if isinstance(u_row, dict) else u_row[0]) or ((u_row["user_type"] if isinstance(u_row, dict) else u_row[3]) == "admin") or ((u_row["email"] if isinstance(u_row, dict) else u_row[2]) == "admin@jobhunt-pro.com")
             tokens = int(u_row[1] or 0)
             
             if not is_admin and tokens <= 0:

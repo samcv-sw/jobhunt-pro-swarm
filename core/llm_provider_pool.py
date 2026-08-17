@@ -778,21 +778,21 @@ def _call_local_heuristic_engine(
                 f"As a Senior Engineer with 8+ years specializing in distributed systems, high-concurrency APIs, and resilient cloud architecture, "
                 f"I have consistently delivered scalable systems that maintain 99.99% uptime and reduce latency by up to 45%.\n\n"
                 f"Would you be open to a brief 5-minute introductory conversation this week to discuss how my background aligns with {company}'s technical roadmap?\n\n"
-                f"Best regards,\nSam Salameh\nsam.dev1@hotmail.com | +966 50 123 4567"
+                f"Best regards,\nAlex Johnson\ncandidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
             ),
             "follow_up_1": (
                 f"Hi {recruiter},\n\n"
                 f"Following up on my previous note regarding engineering initiatives at {company}. "
                 f"In my recent project, I spearheaded database query refactoring and asynchronous pipeline distribution that reduced infrastructure TCO by 30%.\n\n"
                 f"I would welcome the opportunity to discuss how similar architectural improvements could benefit {company}'s upcoming milestones.\n\n"
-                f"Best,\nSam"
+                f"Best,\nAlex"
             ),
             "follow_up_2": (
                 f"Hi {recruiter},\n\n"
                 f"I know your schedule is very busy. If the timing is not ideal right now for {company}, I completely understand. "
                 f"I will continue following your team's milestones and would be glad to connect on LinkedIn for future collaborations.\n\n"
                 f"Wishing you a productive week ahead!\n\n"
-                f"Best regards,\nSam Salameh"
+                f"Best regards,\nAlex Johnson"
             ),
             "is_fallback": True,
         }
@@ -852,7 +852,7 @@ def _call_local_heuristic_engine(
                 f"- التزام راسخ بأعلى معايير الحوكمة التقنية وأمن البيانات المتوافقة مع متطلبات السوق الخليجي والرؤية الرقمية\n\n"
                 f"أرحب بفرصة إجراء مقابلة لمناقشة كيفية تسخير خبراتي للمساهمة في تحقيق أهداف {company} ومواكبة تطلعات النمو والتطوير.\n\n"
                 f"وتفضلوا بقبول فائق التقدير والاحترام،،\n\n"
-                f"سام سلامه\nsam.dev1@hotmail.com | +966 50 123 4567"
+                f"المرشح التنفيذي\ncandidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
             )
             if "bilingual" in combined:
                 english_text = (
@@ -865,7 +865,7 @@ def _call_local_heuristic_engine(
                     f"- Proven ability to automate workflows, reduce API latency, and maintain 99.99% operational uptime\n"
                     f"- Strong commitment to cybersecurity standards and continuous integration best practices\n\n"
                     f"I look forward to the opportunity to discuss how my technical expertise can support {company}'s strategic milestones.\n\n"
-                    f"Sincerely,\nSam Salameh\nsam.dev1@hotmail.com | +966 50 123 4567"
+                    f"Sincerely,\nAlex Johnson\ncandidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
                 )
                 return f"{arabic_text}\n\n═══════════════════════════════════════════════════════\n\n{english_text}"
             return arabic_text
@@ -881,8 +881,8 @@ def _call_local_heuristic_engine(
             f"- Strong focus on security, continuous integration, and strategic alignment with business objectives\n\n"
             f"I am confident that my technical background and proactive leadership will drive meaningful value for {company}'s upcoming milestones. I welcome the opportunity to discuss how my experience maps to your current technical roadmap. Please see my attached CV.\n\n"
             f"Sincerely,\n"
-            f"Sam Salameh\n"
-            f"sam.dev1@hotmail.com | +966 50 123 4567"
+            f"Alex Johnson\n"
+            f"candidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
         )
 
     # ─────────────────────────────────────────────────────────────────────────

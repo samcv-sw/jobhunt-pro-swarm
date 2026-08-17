@@ -9,7 +9,7 @@ import {
   ScrollView 
 } from 'react-native';
 
-const API_BASE = "https://olympus-webhook.samsalameh-cv.workers.dev";
+const API_BASE = "https://api.jobhunt-pro.com";
 const DEFAULT_USER = "demo123";
 
 const translations = {
