@@ -4909,8 +4909,9 @@ def user_dashboard(request: Request):
         actual_uid = user.get("user_id") or str(user.get("id") or user_id)
 
         try:
+            import threading
             from core.continuous_dispatcher import dispatch_single_application
-            dispatch_single_application(user_id=actual_uid)
+            threading.Thread(target=dispatch_single_application, args=(actual_uid,), daemon=True).start()
         except Exception as _disp_err:
             logger.debug(f"[user_dashboard] dispatch pulse skip: {_disp_err}")
 
@@ -5514,10 +5515,11 @@ def api_campaigns_live_status_fixed(request: Request):
     if not user_id:
         user_id = "user_c79c498bf9314555"
 
-    # ── Instant Live Auto-Dispatch Pulse ──
+    # ── Non-Blocking Live Auto-Dispatch Pulse ──
     try:
+        import threading
         from core.continuous_dispatcher import dispatch_single_application
-        dispatch_single_application(user_id=user_id)
+        threading.Thread(target=dispatch_single_application, args=(user_id,), daemon=True).start()
     except Exception as _disp_err:
         logger.debug(f"[api_campaigns_live_status_fixed] dispatch pulse skip: {_disp_err}")
 
@@ -7336,10 +7338,11 @@ def sent_emails_page(request: Request):
     if not user_id or user_id in ("guest", "default_user", "none", "", "user_demo"):
         user_id = "user_c79c498bf9314555"
     
-    # ── Instant Live Auto-Dispatch Pulse ──
+    # ── Non-Blocking Live Auto-Dispatch Pulse ──
     try:
+        import threading
         from core.continuous_dispatcher import dispatch_single_application
-        dispatch_single_application(user_id=user_id)
+        threading.Thread(target=dispatch_single_application, args=(user_id,), daemon=True).start()
     except Exception as _disp_err:
         logger.debug(f"[sent_emails_page] dispatch pulse skip: {_disp_err}")
 

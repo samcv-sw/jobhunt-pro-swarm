@@ -529,10 +529,11 @@ def battle_station_page(request: Request):
     if not user_id:
         user_id = "user_c79c498bf9314555"
 
-    # ── Instant Live Auto-Dispatch Pulse ──
+    # ── Non-Blocking Live Auto-Dispatch Pulse ──
     try:
+        import threading
         from core.continuous_dispatcher import dispatch_single_application
-        dispatch_single_application(user_id=user_id)
+        threading.Thread(target=dispatch_single_application, args=(user_id,), daemon=True).start()
     except Exception as _disp_err:
         logger.debug(f"[battle_station_page] dispatch pulse skip: {_disp_err}")
 

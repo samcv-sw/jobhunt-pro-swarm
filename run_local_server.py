@@ -105,12 +105,7 @@ def main():
     os.makedirs(data_dir, exist_ok=True)
     _optimize_sqlite_engine()
 
-    # Launch Turbo Autonomous Background Dispatcher Thread
-    try:
-        from core.continuous_dispatcher import start_continuous_dispatcher
-        start_continuous_dispatcher()
-    except Exception as _t_err:
-        pass
+    # Autonomous background dispatching is managed directly by FastAPI lifespan daemon in web.app_v2
 
     mode_label = "🔥 HOT RELOAD (DEVELOPMENT)" if args.reload else "⚡ HIGH-PERFORMANCE (PRODUCTION)"
 
