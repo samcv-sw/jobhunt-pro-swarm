@@ -1111,13 +1111,18 @@ def dispatch_single_application(user_id: str = None):
             if user_id:
                 target_uid = user_id
             else:
-                # Select only active users with paid running campaigns or admins
+                # Select ONLY active users with legitimate paid running campaigns or Master Admin
                 eligible_rows = conn.execute("""
                     SELECT DISTINCT c.user_id 
                     FROM campaigns c
                     JOIN users u ON c.user_id = u.user_id
                     WHERE c.status IN ('running', 'active')
-                      AND (c.sent_count < c.total_companies OR u.is_admin = 1 OR u.tokens > 0)
+                      AND c.campaign_id NOT LIKE 'auto_camp_%'
+                      AND (
+                          (c.sent_count < c.total_companies AND c.total_companies < 900000)
+                          OR u.user_id = 'user_c79c498bf9314555'
+                          OR LOWER(u.email) IN ('samatou683@gmail.com', 'samsalameh.cv@gmail.com')
+                      )
                       AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
                 """).fetchall()
                 eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
