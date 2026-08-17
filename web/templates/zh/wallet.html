@@ -266,7 +266,7 @@ function toggleApiKey() {
   <h3>🎁 Redeem Code</h3>
   <p>Got a gift card or promo code? Enter it below to instantly add credit to your wallet.</p>
   <form dir="auto" class="redeem-form" method="POST" action="/redeem" onsubmit="handleRedeem(event)">
-    <input dir="auto" class="redeem-input" type="text" id="redeemCodeInput" name="code" placeholder="JHP-XXXXXXXX-XXXXXXXX... (256-Char Master Key)" required autocomplete="off" dir="auto">
+    <input dir="auto" class="redeem-input" type="text" id="redeemCodeInput" name="code" placeholder="输入兑换码或礼品卡..." required autocomplete="off" dir="auto">
     <button class="btn-redeem" id="btnRedeemSubmit" type="submit">✨ Redeem</button>
   </form>
   <div id="redeem状态Alert" style="display:none;margin-block-start:12px;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;"></div>
