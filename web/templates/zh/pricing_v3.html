@@ -427,18 +427,19 @@
         <div>
           <div class="tier-name-v3">STARTER</div>
           <h3>Starter Plan</h3>
-          <div class="companies-v3">10 <span>companies</span></div>
-          <div class="price-v3">$2</div>
-          <div class="original-price-v3">Was $4</div>
-          <div class="per-v3">$0.20 / company</div>
+          <div class="companies-v3">200 <span>companies</span></div>
+          <div class="price-v3">$9</div>
+          <div class="original-price-v3">Was $18</div>
+          <div class="per-v3">$0.045 / company</div>
           <ul>
-            <li>10 automated applications</li>
-            <li>AI-tailored cover letters</li>
+            <li>200 automated applications</li>
+            <li>AI-tailored cover letters (Gemini + Groq)</li>
+            <li>Live MX email verification</li>
             <li>Email open & click tracking</li>
             <li>Community support access</li>
           </ul>
         </div>
-        <a class="btn btn-starter" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Starter — $2</a>
+        <a class="btn btn-starter" href="javascript:void(0)" onclick="openCryptoCheckoutModal(9.0, 'Starter Plan')">Get Starter — $9 ⚡</a>
       </div>
 
       <!-- Basic Tier (Best Value) -->
@@ -447,20 +448,20 @@
         <div>
           <div class="tier-name-v3">BASIC</div>
           <h3>Basic Plan</h3>
-          <div class="companies-v3">100 <span>companies</span></div>
-          <div class="price-v3">$5</div>
-          <div class="original-price-v3">Was $10</div>
-          <div class="per-v3">$0.05 / company</div>
+          <div class="companies-v3">300 <span>companies</span></div>
+          <div class="price-v3">$19</div>
+          <div class="original-price-v3">Was $38</div>
+          <div class="per-v3">$0.063 / company</div>
           <ul>
-            <li>100 automated applications</li>
-            <li>AI cover letters (Gemini + Groq)</li>
+            <li>300 automated applications</li>
+            <li>AI cover letters & CV tailoring (Gemini + Groq)</li>
             <li>Live open & click tracking</li>
             <li>Auto follow-up (7 + 14 days)</li>
             <li>Real-time analytics dashboard</li>
             <li>Direct email support</li>
           </ul>
         </div>
-        <a class="btn btn-basic" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Basic — $5</a>
+        <a class="btn btn-basic" href="javascript:void(0)" onclick="openCryptoCheckoutModal(19.0, 'Basic Plan')">Get Basic — $19 🚀</a>
       </div>
 
       <!-- Pro Tier (High Impact) -->
@@ -469,12 +470,12 @@
         <div>
           <div class="tier-name-v3">PRO</div>
           <h3>Pro Plan</h3>
-          <div class="companies-v3">500 <span>companies</span></div>
-          <div class="price-v3">$15</div>
-          <div class="original-price-v3">Was $30</div>
-          <div class="per-v3">$0.03 / company</div>
+          <div class="companies-v3">800 <span>companies</span></div>
+          <div class="price-v3">$49</div>
+          <div class="original-price-v3">Was $98</div>
+          <div class="per-v3">$0.061 / company</div>
           <ul>
-            <li>500 automated applications</li>
+            <li>800 automated applications</li>
             <li>All Basic Plan features included</li>
             <li>200 automated Swarm agents</li>
             <li>20 email providers for max inbox delivery</li>
@@ -483,30 +484,30 @@
             <li>Priority VIP support</li>
           </ul>
         </div>
-        <a class="btn btn-pro" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Pro — $15</a>
+        <a class="btn btn-pro" href="javascript:void(0)" onclick="openCryptoCheckoutModal(49.0, 'Pro Plan')">Get Pro — $49 💎</a>
       </div>
 
       <!-- Enterprise Tier -->
       <div class="pricing-card-v3">
-        <div class="badge-v3 gold">👑 EXECUTIVE & CORPORATE</div>
+        <div class="badge-v3 gold">👑 B2B & RECRUITER SUITE</div>
         <div>
-          <div class="tier-name-v3">ENTERPRISE</div>
-          <h3>Enterprise Plan</h3>
-          <div class="companies-v3">2,000 <span>companies</span></div>
-          <div class="price-v3">$50</div>
-          <div class="original-price-v3">Was $100</div>
-          <div class="per-v3">$0.025 / company</div>
+          <div class="tier-name-v3">ENTERPRISE / B2B</div>
+          <h3>Agency & Recruiter Suite</h3>
+          <div class="companies-v3">2,500 <span>leads / companies</span></div>
+          <div class="price-v3">$149</div>
+          <div class="original-price-v3">Was $299</div>
+          <div class="per-v3">$0.059 / lead</div>
           <ul>
-            <li>2,000 automated applications</li>
-            <li>All Pro Plan features included</li>
-            <li>Custom AI model trained on your CV</li>
-            <li>Dedicated personal account manager</li>
-            <li>SLA performance guarantee</li>
-            <li>Full White-Label option</li>
-            <li>Full system API access</li>
+            <li>2,500 company / lead applications</li>
+            <li>Autonomous AI SDR cold outreach swarm</li>
+            <li>Live MX verification & 365d deduplication</li>
+            <li>Full CRM & webhook integration</li>
+            <li>Custom AI model fine-tuning</li>
+            <li>Dedicated account manager & SLA guarantee</li>
+            <li>Full REST API access</li>
           </ul>
         </div>
-        <a class="btn btn-enterprise" href="{{ '/new-campaign' if is_logged_in else '/register' }}">Get Enterprise — $50</a>
+        <a class="btn btn-enterprise" href="javascript:void(0)" onclick="openCryptoCheckoutModal(149.0, 'Enterprise B2B Plan')">Get Enterprise — $149 🏢</a>
       </div>
 
     </div>
