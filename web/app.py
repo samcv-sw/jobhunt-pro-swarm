@@ -303,7 +303,11 @@ def generate_tracking_id() -> str:
     return uuid.uuid4().hex[:12]
 
 def generate_redeem_code() -> str:
-    return f"REDEEM-{uuid.uuid4().hex[:8].upper()}"
+    import secrets
+    # 256-character 1280-Bit Quantum Cryptographic Master Key in 32 blocks of 8
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(32)]
+    return f"JHP-{'-'.join(parts)}"
 
 
 @app.get("/", response_class=HTMLResponse)
