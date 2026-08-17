@@ -413,23 +413,22 @@ def _verify_api_key(api_key: str):
         return None
 
 
-SAM_USER_IDS = ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')
+SAM_USER_IDS = ('user_c79c498bf9314555',)
 
 def get_unified_dispatches_count(conn, user_id=None) -> int:
     """Return single source of truth for total job application emails and multi-platform dispatches."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT 
                     (SELECT COUNT(*) FROM campaign_emails ce 
                      LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id 
-                     WHERE c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
+                     WHERE c.user_id = ?)
                     +
                     (SELECT COUNT(*) FROM multi_platform_apps mpa
-                     WHERE mpa.user_id = ? OR (? AND mpa.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5', 'active-user-123', 'authorized-user')))
+                     WHERE mpa.user_id = ?)
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0, user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id, user_id)).fetchone()
             return res[0] if res else 0
         
         mpa_cnt = (conn.execute("SELECT COUNT(*) FROM multi_platform_apps").fetchone() or [0])[0] or 0
@@ -442,24 +441,21 @@ def get_unified_companies_count(conn, user_id=None) -> int:
     """Return single source of truth for total unique target companies dispatched for a user."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT COUNT(DISTINCT company_clean) FROM (
                     SELECT LOWER(TRIM(ce.company_name)) AS company_clean 
                     FROM campaign_emails ce 
                     LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id 
-                    WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
-                    AND ce.company_name IS NOT NULL AND ce.company_name != ''
+                    WHERE c.user_id = ? AND ce.company_name IS NOT NULL AND ce.company_name != ''
                     
                     UNION
                     
                     SELECT LOWER(TRIM(mpa.company)) AS company_clean
                     FROM multi_platform_apps mpa
-                    WHERE (mpa.user_id = ? OR (? AND mpa.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5', 'active-user-123', 'authorized-user')))
-                    AND mpa.company IS NOT NULL AND mpa.company != ''
+                    WHERE mpa.user_id = ? AND mpa.company IS NOT NULL AND mpa.company != ''
                 )
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0, user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id, user_id)).fetchone()
             return res[0] if res else 0
         query = """
             SELECT COUNT(DISTINCT company_clean) FROM (
@@ -477,14 +473,12 @@ def get_unified_opened_count(conn, user_id=None) -> int:
     """Return single source of truth for total opened email applications."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT COUNT(*) FROM campaign_emails ce
                 JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
-                AND (ce.opened_at IS NOT NULL OR ce.status IN ('opened', 'read'))
+                WHERE c.user_id = ? AND (ce.opened_at IS NOT NULL OR ce.status IN ('opened', 'read'))
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id,)).fetchone()
             return res[0] if res else 0
         res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE opened_at IS NOT NULL OR status IN ('opened', 'read')").fetchone()
         return res[0] if res else 0
@@ -495,14 +489,12 @@ def get_unified_responded_count(conn, user_id=None) -> int:
     """Return single source of truth for total recruiter responses."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT COUNT(*) FROM campaign_emails ce
                 JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
-                AND (ce.responded_at IS NOT NULL OR ce.status IN ('responded', 'replied'))
+                WHERE c.user_id = ? AND (ce.responded_at IS NOT NULL OR ce.status IN ('responded', 'replied'))
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id,)).fetchone()
             return res[0] if res else 0
         res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE responded_at IS NOT NULL OR status IN ('responded', 'replied')").fetchone()
         return res[0] if res else 0
@@ -513,14 +505,12 @@ def get_unified_bounced_count(conn, user_id=None) -> int:
     """Return single source of truth for failed/bounced applications."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT COUNT(*) FROM campaign_emails ce
                 JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
-                AND ce.status IN ('bounced', 'failed', 'rejected')
+                WHERE c.user_id = ? AND ce.status IN ('bounced', 'failed', 'rejected')
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id,)).fetchone()
             return res[0] if res else 0
         res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status IN ('bounced', 'failed', 'rejected')").fetchone()
         return res[0] if res else 0
@@ -531,14 +521,12 @@ def get_unified_interview_count(conn, user_id=None) -> int:
     """Return single source of truth for interview stage applications."""
     try:
         if user_id:
-            sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
             query = """
                 SELECT COUNT(*) FROM campaign_emails ce
                 LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
-                AND (ce.status = 'interview' OR ce.pipeline_stage = 'interview')
+                WHERE c.user_id = ? AND (ce.status = 'interview' OR ce.pipeline_stage = 'interview')
             """
-            res = conn.execute(query, (user_id, 1 if sam_match else 0)).fetchone()
+            res = conn.execute(query, (user_id,)).fetchone()
             return res[0] if res else 0
         res = conn.execute("SELECT COUNT(*) FROM campaign_emails WHERE status = 'interview' OR pipeline_stage = 'interview'").fetchone()
         return res[0] if res else 0

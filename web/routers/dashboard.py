@@ -68,9 +68,6 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
         "offer": offer_count,
     }
 
-    from web.shared import SAM_USER_IDS
-    sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
-
     rows_query = """
     SELECT * FROM (
         SELECT 
@@ -87,7 +84,7 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
             'Direct Executive Email' AS platform
         FROM campaign_emails ce 
         JOIN campaigns c ON ce.campaign_id = c.campaign_id 
-        WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5')))
+        WHERE c.user_id = ?
         
         UNION ALL
         
@@ -104,22 +101,13 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
             NULL AS responded_at,
             COALESCE(mpa.platform, 'Direct Corporate Gateway') AS platform
         FROM multi_platform_apps mpa
-        WHERE (mpa.user_id = ? OR (? AND mpa.user_id IN ('user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_c79c498bf9314555', 'user_72a63be2aeb5', 'active-user-123', 'authorized-user')))
+        WHERE mpa.user_id = ?
     ) combined
     ORDER BY sent_at DESC, id DESC
     LIMIT 35
     """
     try:
-        db_dispatches = [dict(r) for r in conn.execute(rows_query, (user_id, 1 if sam_match else 0, user_id, 1 if sam_match else 0)).fetchall()]
-        if not db_dispatches:
-            alt_query = """
-            SELECT * FROM (
-                SELECT ce.id, ce.campaign_id, ce.company_name, ce.job_title, COALESCE(ce.job_title, 'Job Application') AS subject, ce.email_address, ce.status, ce.sent_at, ce.opened_at, ce.responded_at, 'Direct Executive Email' AS platform FROM campaign_emails ce
-                UNION ALL
-                SELECT id, campaign_id, company AS company_name, job_title, 'Job Application' AS subject, '' AS email_address, status, applied_at AS sent_at, NULL AS opened_at, NULL AS responded_at, platform FROM multi_platform_apps
-            ) combined ORDER BY sent_at DESC, id DESC LIMIT 35
-            """
-            db_dispatches = [dict(r) for r in conn.execute(alt_query).fetchall()]
+        db_dispatches = [dict(r) for r in conn.execute(rows_query, (user_id, user_id)).fetchall()]
     except Exception as d_err:
         logger.debug(f"[LiveDispatches] Query error: {d_err}")
         db_dispatches = []
@@ -583,9 +571,7 @@ def battle_station_page(request: Request):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         u = dict(user_row) if user_row else {"user_id": user_id, "name": "Candidate"}
 
-        sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower()) or (u.get("email") in ('samatou683@gmail.com', 'sam.dev1@hotmail.com', 'samsalameh.cv@gmail.com'))
-
-        campaigns_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? OR (? AND user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5')) ORDER BY id DESC", (user_id, 1 if sam_match else 0)).fetchall()
+        campaigns_rows = conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC", (user_id,)).fetchall()
         campaigns = [dict(r) for r in campaigns_rows] if campaigns_rows else []
 
         running_count = sum(1 for c in campaigns if c.get("status") in ("running", "active", "processing", "pending"))
@@ -598,13 +584,13 @@ def battle_station_page(request: Request):
         companies_dispatched = get_unified_companies_count(conn, user_id=user_id)
 
         total_opened = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5'))) AND (ce.opened_at IS NOT NULL OR ce.status = 'opened')",
-            (user_id, 1 if sam_match else 0)
+            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND (ce.opened_at IS NOT NULL OR ce.status = 'opened')",
+            (user_id,)
         ).fetchone()[0] or 0
 
         total_responses = conn.execute(
-            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5'))) AND (ce.responded_at IS NOT NULL OR ce.status IN ('responded', 'replied'))",
-            (user_id, 1 if sam_match else 0)
+            "SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND (ce.responded_at IS NOT NULL OR ce.status IN ('responded', 'replied'))",
+            (user_id,)
         ).fetchone()[0] or 0
 
         response_rate = round((total_responses / total_sent * 100), 1) if total_sent > 0 else 0.0
@@ -612,8 +598,8 @@ def battle_station_page(request: Request):
         recent_emails = []
         try:
             email_rows = conn.execute(
-                "SELECT ce.*, c.campaign_id FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5'))) ORDER BY ce.id DESC LIMIT 15",
-                (user_id, 1 if sam_match else 0)
+                "SELECT ce.*, c.campaign_id FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? ORDER BY ce.id DESC LIMIT 15",
+                (user_id,)
             ).fetchall()
             recent_emails = [dict(r) for r in email_rows] if email_rows else []
         except Exception:

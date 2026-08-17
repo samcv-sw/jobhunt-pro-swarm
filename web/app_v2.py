@@ -5530,9 +5530,7 @@ def api_campaigns_live_status_fixed(request: Request):
             get_unified_bounced_count,
             SAM_USER_IDS,
         )
-        sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower())
-
-        campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? OR (? AND user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5')) ORDER BY id DESC LIMIT 20", (user_id, 1 if sam_match else 0)).fetchall()]
+        campaigns = [dict(r) for r in conn.execute("SELECT * FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()]
 
         active_count = sum(1 for c in campaigns if c.get("status") in ("running", "active", "pending"))
         running_count = active_count
@@ -7353,20 +7351,18 @@ def sent_emails_page(request: Request):
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         user = dict(user_row) if user_row else {"user_id": user_id, "name": "Candidate"}
 
-        sam_match = (user_id in SAM_USER_IDS) or ('sam' in str(user_id).lower()) or (user.get("email") in ('samatou683@gmail.com', 'sam.dev1@hotmail.com', 'samsalameh.cv@gmail.com'))
-
         rows_query = """
         SELECT ce.id, ce.campaign_id, ce.company_name, ce.job_title, COALESCE(ce.job_title, 'Job Application') AS subject, 
                ce.email_address, ce.status, ce.sent_at, ce.opened_at, ce.responded_at
         FROM campaign_emails ce
         JOIN campaigns c ON ce.campaign_id = c.campaign_id
-        WHERE (c.user_id = ? OR (? AND c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5')))
+        WHERE c.user_id = ?
         AND ce.email_address IS NOT NULL AND ce.email_address != ''
         ORDER BY ce.id DESC
         LIMIT 100
         """
         
-        rows_data = conn.execute(rows_query, (user_id, 1 if sam_match else 0)).fetchall()
+        rows_data = conn.execute(rows_query, (user_id,)).fetchall()
         rows = [dict(r) for r in rows_data]
 
         total = get_unified_dispatches_count(conn, user_id=user_id)
@@ -7376,7 +7372,7 @@ def sent_emails_page(request: Request):
         responded_count = get_unified_responded_count(conn, user_id=user_id)
         bounced_count = get_unified_bounced_count(conn, user_id=user_id)
 
-        campaigns_data = conn.execute("SELECT DISTINCT campaign_id FROM campaigns WHERE user_id = ? OR (? AND user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5')) ORDER BY id DESC", (user_id, 1 if sam_match else 0)).fetchall()
+        campaigns_data = conn.execute("SELECT DISTINCT campaign_id FROM campaigns WHERE user_id = ? ORDER BY id DESC", (user_id,)).fetchall()
         campaigns = [{"campaign_id": c["campaign_id"], "campaign_name": f"حملة #{c['campaign_id']}"} for c in campaigns_data if c["campaign_id"]]
 
         content = render_template("sent_emails.html", request=request, user=user, user_id=user_id,
