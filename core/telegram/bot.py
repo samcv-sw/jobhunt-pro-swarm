@@ -5215,9 +5215,15 @@ class TelegramBot:
             await self.send(f"<b>Error generating code menu:</b> {e}")
 
     async def _create_redeem_code(self, val, custom_code=None):
-        import uuid
-
-        code_val = custom_code if custom_code else uuid.uuid4().hex[:32].upper()
+        import uuid, secrets
+        if custom_code:
+            code_val = custom_code.strip().upper()
+        else:
+            alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+            p1 = "".join(secrets.choice(alphabet) for _ in range(4))
+            p2 = "".join(secrets.choice(alphabet) for _ in range(4))
+            p3 = "".join(secrets.choice(alphabet) for _ in range(4))
+            code_val = f"JHP-{p1}-{p2}-{p3}"
         pa_ok = False
         conn = None
         try:

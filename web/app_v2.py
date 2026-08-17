@@ -2627,7 +2627,13 @@ def generate_tracking_id() -> str:
     return uuid.uuid4().hex[:12]
 
 def generate_redeem_code() -> str:
-    return f"REDEEM-{uuid.uuid4().hex[:8].upper()}"
+    import secrets
+    # Cryptographic base-32 charset (excludes ambiguous 0/O, 1/I)
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    part1 = "".join(secrets.choice(alphabet) for _ in range(4))
+    part2 = "".join(secrets.choice(alphabet) for _ in range(4))
+    part3 = "".join(secrets.choice(alphabet) for _ in range(4))
+    return f"JHP-{part1}-{part2}-{part3}"
 
 
 # === DAILY LOGIN REWARD (Gacha Retention Loop) ===
