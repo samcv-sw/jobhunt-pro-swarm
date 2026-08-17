@@ -229,10 +229,10 @@ def init_saas_db():
                 has_active = "is_active" in cols
                 if "tier_name" in cols:
                     pricing = [
-                        ("starter", 200, 9.00, "200 companies - Kickstart your campaign"),
-                        ("basic", 300, 19.00, "300 companies - Perfect for active seekers"),
-                        ("pro", 800, 49.00, "800 companies - For serious job seekers"),
-                        ("enterprise", 2500, 149.00, "2,500 leads - Autonomous AI SDR Outreach Swarm"),
+                        ("starter", 100, 9.00, "100 companies - Kickstart your campaign"),
+                        ("basic", 350, 19.00, "350 companies - Perfect for active seekers"),
+                        ("pro", 1000, 49.00, "1,000 companies - For serious job seekers"),
+                        ("enterprise", 3000, 149.00, "3,000 leads - Autonomous AI SDR Outreach Swarm"),
                     ]
                     if has_active:
                         conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description, is_active) VALUES (?, ?, ?, ?, 1)", pricing)
@@ -240,10 +240,10 @@ def init_saas_db():
                         conn.executemany("INSERT INTO pricing_tiers (tier_name, company_count, price_usd, description) VALUES (?, ?, ?, ?)", pricing)
                 elif "tier" in cols:
                     pricing = [
-                        ("starter", "Starter", 200, 9.00, "200 companies - Kickstart your campaign"),
-                        ("basic", "Basic", 300, 19.00, "300 companies - Perfect for active seekers"),
-                        ("pro", "Pro", 800, 49.00, "800 companies - For serious job seekers"),
-                        ("enterprise", "Enterprise B2B", 2500, 149.00, "2,500 leads - Autonomous AI SDR Outreach Swarm"),
+                        ("starter", "Starter", 100, 9.00, "100 companies - Kickstart your campaign"),
+                        ("basic", "Basic", 350, 19.00, "350 companies - Perfect for active seekers"),
+                        ("pro", "Pro", 1000, 49.00, "1,000 companies - For serious job seekers"),
+                        ("enterprise", "Enterprise B2B", 3000, 149.00, "3,000 leads - Autonomous AI SDR Outreach Swarm"),
                     ]
                     if has_active:
                         conn.executemany("INSERT INTO pricing_tiers (tier, name, companies, price_usd, description, is_active) VALUES (?, ?, ?, ?, ?, 1)", pricing)
