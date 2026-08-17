@@ -462,35 +462,80 @@
         </form>
       </div>
 
-      <!-- Card 2: Code Generator -->
-      <div class="action-real-card">
+      <!-- Card 2: VIP Bulk Key Generator & Excel Exporter -->
+      <div class="action-real-card" style="border-color:rgba(0,240,255,0.3); background:linear-gradient(145deg, rgba(17,24,39,0.85), rgba(15,23,42,0.95));">
         <div>
-          <h3>🎟️ مولّد الأكواد المتقدّم</h3>
-          <p>توليد أكواد شحن سريعة بقيم محددة ورابط استرداد مباشر</p>
-          <div class="preset-pill-group">
-            <button type="button" class="preset-pill" onclick="setPresetValue(5)">$5</button>
-            <button type="button" class="preset-pill" onclick="setPresetValue(10)">$10</button>
-            <button type="button" class="preset-pill" onclick="setPresetValue(25)">$25</button>
-            <button type="button" class="preset-pill" onclick="setPresetValue(50)">$50</button>
-            <button type="button" class="preset-pill" onclick="setPresetValue(100)">$100</button>
-            <button type="button" class="preset-pill" onclick="setPresetValue(500)">$500</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:8px;">
+            <h3 style="color:#00f0ff; margin:0;">💎 مولّد الحزم الضخمة وتصدير Excel (Xianyu / B2B)</h3>
+            <span style="font-size:11px; background:rgba(0,240,255,0.15); color:#00f0ff; padding:3px 8px; border-radius:20px; font-weight:800; border:1px solid rgba(0,240,255,0.3);">256-Bit Quantum</span>
+          </div>
+          <p style="margin-block-end:14px; font-size:13px; color:#94a3b8;">توليد آلاف الأكواد المشفرة بدفعة واحدة وتنزيلها فوراً كملف Excel/CSV جاهز لربطه ببرامج الإرسال التلقائي في Xianyu و Taobao.</p>
+          
+          <!-- Package Selector Buttons -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:6px; margin-block-end:14px;">
+            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('starter', 9, 100)">⚡ Starter ($9 / 100)</button>
+            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('basic', 19, 350)">🚀 Basic ($19 / 350)</button>
+            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('pro', 49, 1000)">💎 Pro ($49 / 1,000)</button>
+            <button type="button" class="preset-pill" style="padding:8px 6px; font-size:12px;" onclick="selectBulkPackage('enterprise', 149, 3000)">👑 B2B ($149 / 3,000)</button>
           </div>
         </div>
-        <form dir="auto" action="/admin/generate-code" method="POST" class="input-form-group">
-          <div style="display:flex; gap:10px;">
-            <input id="codeValueInput" dir="auto" class="admin-input" min="0.01" name="value" placeholder="القيمة $" required step="0.01" type="number" dir="auto">
-            <input dir="auto" class="admin-input" max="50" min="1" name="count" placeholder="العدد" type="number" value="1" dir="auto">
+
+        <form dir="auto" action="/admin/generate-bulk-codes-export" method="POST" class="input-form-group" style="gap:10px;">
+          <input type="hidden" id="bulkTierInput" name="tier" value="starter">
+          
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1;">
+              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">الباقة المختارة:</label>
+              <input id="bulkPlanDisplay" dir="auto" class="admin-input" readonly value="Starter Plan ($9 / 100 شركة)" style="background:rgba(0,0,0,0.3); color:#00f0ff; font-weight:700; font-size:13px;">
+            </div>
+            <div style="inline-size:120px;">
+              <label style="font-size:11px; color:#94a3b8; display:block; margin-block-end:4px;">عدد الأكواد:</label>
+              <input id="bulkCountInput" dir="auto" class="admin-input" max="5000" min="1" name="count" placeholder="العدد" type="number" value="100" style="font-weight:700; color:#ffffff; font-size:14px; text-align:center;">
+            </div>
           </div>
-          <select dir="auto" class="admin-select" name="code_type">
-            <option value="sale">💳 كود بيع (يُحسب كإيرادات)</option>
-            <option value="admin_free">🆓 كود مجاني للإدارة (بدون إيرادات)</option>
-          </select>
-          <button class="btn-real btn-purple" type="submit">إنشاء وتوليد الأكواد</button>
+
+          <!-- Quick Quantity Buttons -->
+          <div style="display:flex; gap:6px; align-items:center;">
+            <span style="font-size:11px; color:#64748b;">كمية سريعة:</span>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(25)">25</button>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(50)">50</button>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(100)">100</button>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(200)">200</button>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(500)">500</button>
+            <button type="button" class="preset-pill" style="padding:3px 8px; font-size:11px;" onclick="setBulkCount(1000)">1000</button>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <input dir="auto" class="admin-input" name="batch_tag" placeholder="وسم الدفعة (مثال: Xianyu-Starter-Batch-1)" type="text" style="font-size:12px;">
+            <select dir="auto" class="admin-select" name="code_type" style="inline-size:140px; font-size:12px;">
+              <option value="sale">💳 بيع (إيرادات)</option>
+              <option value="admin_free">🆓 مجاني (إدارة)</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; background:rgba(0,240,255,0.06); padding:8px 12px; border-radius:8px; border:1px solid rgba(0,240,255,0.15);">
+            <input type="checkbox" id="exportExcelCheck" name="export_excel" value="true" checked style="cursor:pointer; inline-size:16px; block-size:16px;">
+            <label for="exportExcelCheck" style="font-size:12px; color:#cbd5e1; cursor:pointer; font-weight:600;">📥 تحميل فوري كملف Excel / CSV جاهز لـ Xianyu و Taobao</label>
+          </div>
+
+          <button class="btn-real btn-purple" type="submit" style="background:linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%); color:#050515; font-weight:900; font-size:14px; box-shadow:0 0 20px rgba(0,240,255,0.35); border:none; padding:12px;">
+            ⚡ توليد الأكواد وتصدير ملف Excel فوراً 📥
+          </button>
         </form>
+
         <script dir="auto">
-          function setPresetValue(val) {
-            const inp = document.getElementById('codeValueInput');
-            if (inp) inp.value = val;
+          function selectBulkPackage(tier, price, companies) {
+            document.getElementById('bulkTierInput').value = tier;
+            const names = {
+              'starter': 'Starter Plan ($9 / 100 شركة)',
+              'basic': 'Basic Plan ($19 / 350 شركة)',
+              'pro': 'Pro VIP Plan ($49 / 1,000 شركة)',
+              'enterprise': 'Enterprise SDR ($149 / 3,000 فرصة)'
+            };
+            document.getElementById('bulkPlanDisplay').value = names[tier] || `${tier} ($${price})`;
+          }
+          function setBulkCount(cnt) {
+            document.getElementById('bulkCountInput').value = cnt;
           }
         </script>
       </div>
@@ -579,7 +624,9 @@
   <div class="admin-section">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:16px;">
       <div class="section-title-text" style="margin-block-end:0;">🎟️ أكواد الاسترداد والتفعيل ({{ redeem_codes|length }})</div>
-      <div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(0,240,255,0.15); color:#00f0ff; border:1px solid rgba(0,240,255,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 تصدير المتاح (Unused) Excel</a>
+        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:6px 12px; border-radius:8px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📥 تصدير الكل (All) Excel</a>
         <button id="btnDeleteSelectedCodes" class="btn-sm-action" style="display:none; background:#e11d48; color:#ffffff; font-weight:700; padding:6px 14px; border-radius:8px; border:none; cursor:pointer;" onclick="submitBulkDelete('codesForm', 'هل أنت تأكد من حذف الأكواد المحددة؟')">🗑️ حذف الأكواد المحددة (<span id="countSelectedCodes">0</span>)</button>
       </div>
     </div>

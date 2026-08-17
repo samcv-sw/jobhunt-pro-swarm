@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 
 from fastapi import APIRouter, Request, Form, BackgroundTasks, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["admin"])
@@ -594,6 +594,171 @@ def admin_generate_code(
         pass  # conn.close()
         codes_str = ', '.join(codes)
         return RedirectResponse(f"/admin?success=Generated+{len(codes)}+codes:+{codes_str}", status_code=303)
+
+
+@router.post("/admin/generate-bulk-codes-export")
+async def admin_generate_bulk_codes_export(
+    request: Request,
+    tier: str = Form("starter"),
+    custom_value: float = Form(0.0),
+    count: int = Form(100),
+    code_type: str = Form("sale"),
+    batch_tag: str = Form(""),
+    export_excel: bool = Form(True)
+):
+    """Generate bulk redeem codes and optionally export them directly as an Excel/CSV file with full Xianyu automation formatting."""
+    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
+    from web.app_v2 import generate_redeem_code, require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+
+    import csv
+    import io
+
+    tier_info = {
+        "starter": {"name": "Starter Plan", "price": 9.00, "companies": 100},
+        "basic": {"name": "Basic Plan", "price": 19.00, "companies": 350},
+        "pro": {"name": "Pro VIP Plan", "price": 49.00, "companies": 1000},
+        "enterprise": {"name": "Enterprise SDR Suite", "price": 149.00, "companies": 3000},
+        "custom": {"name": "Custom Plan", "price": max(0.01, custom_value), "companies": int(custom_value * 10)},
+    }
+    
+    selected_tier = tier_info.get(tier.lower(), tier_info["starter"])
+    value_usd = selected_tier["price"] if tier != "custom" else max(0.01, custom_value)
+    plan_name = selected_tier["name"]
+    companies_cnt = selected_tier["companies"]
+    tag = batch_tag.strip() or f"Xianyu-{tier.upper()}-{datetime.now().strftime('%Y%m%d')}"
+    
+    total_count = max(1, min(count, 5000))
+    generated_records = []
+    
+    with get_db() as conn:
+        for _ in range(total_count):
+            for _attempt in range(15):
+                code = generate_redeem_code()
+                existing = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (code,)).fetchone()
+                if not existing:
+                    conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type) VALUES (?, ?, ?)", (code, value_usd, code_type))
+                    generated_records.append({
+                        "code": code,
+                        "tier": plan_name,
+                        "value_usd": value_usd,
+                        "companies": companies_cnt,
+                        "batch_tag": tag,
+                        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    })
+                    break
+        conn.commit()
+
+    if export_excel:
+        output = io.StringIO()
+        output.write('\ufeff') # UTF-8 BOM for Microsoft Excel & WPS Office compatibility
+        writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+        
+        # Header Row
+        writer.writerow([
+            "Code (卡密激活码)",
+            "Package (套餐类型)",
+            "Value USD (金额 $)",
+            "Companies (企业数量)",
+            "Activation URL (激活网址)",
+            "Xianyu Auto-Message (闲鱼自动发货文本)",
+            "Batch Tag (批次标签)",
+            "Status (状态)",
+            "Created At (创建时间)"
+        ])
+        
+        domain = getattr(config, "DOMAIN", "jobhunt-pro-mve3.onrender.com")
+        if not domain.startswith("http"):
+            base_url = f"https://{domain}" if "localhost" not in domain else f"http://{domain}"
+        else:
+            base_url = domain
+            
+        for r in generated_records:
+            c = r["code"]
+            redeem_url = f"{base_url}/redeem?lang=zh&code={c}"
+            auto_msg = f"亲，感谢购买！您的专属256位激活卡密为：{c} 请前往 {base_url}/redeem?lang=zh 输入邮箱和卡密立即自动投递！"
+            writer.writerow([
+                c,
+                r["tier"],
+                f"${r['value_usd']:.2f}",
+                r["companies"],
+                redeem_url,
+                auto_msg,
+                r["batch_tag"],
+                "Unused / 未使用",
+                r["created_at"]
+            ])
+            
+        csv_bytes = output.getvalue().encode('utf-8-sig')
+        filename = f"JobHunt_Codes_{tier}_{len(generated_records)}pcs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        return Response(
+            content=csv_bytes,
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename=\"{filename}\""}
+        )
+
+    return RedirectResponse(f"/admin?success=Generated+{len(generated_records)}+bulk+codes+for+{tier}", status_code=303)
+
+
+@router.get("/admin/export-codes")
+async def admin_export_codes(request: Request, status: str = "all"):
+    """Export existing redeem codes to Excel/CSV."""
+    get_db, get_verified_user_id, templates, config, render_template, _build_dashboard_shell = _deps()
+    from web.app_v2 import require_admin
+    if not require_admin(request):
+        return RedirectResponse("/login", status_code=303)
+
+    import csv
+    import io
+
+    with get_db() as conn:
+        if status == "unused":
+            rows = conn.execute("SELECT code, value_usd, code_type, is_used, used_by, created_at, used_at FROM redeem_codes WHERE is_used = 0 OR is_used IS NULL ORDER BY created_at DESC").fetchall()
+        elif status == "used":
+            rows = conn.execute("SELECT code, value_usd, code_type, is_used, used_by, created_at, used_at FROM redeem_codes WHERE is_used = 1 ORDER BY used_at DESC").fetchall()
+        else:
+            rows = conn.execute("SELECT code, value_usd, code_type, is_used, used_by, created_at, used_at FROM redeem_codes ORDER BY created_at DESC").fetchall()
+
+    output = io.StringIO()
+    output.write('\ufeff')
+    writer = csv.writer(output, quoting=csv.QUOTE_MINIMAL)
+    writer.writerow([
+        "Code (卡密)",
+        "Value USD (金额 $)",
+        "Type (类型)",
+        "Status (状态)",
+        "Used By (使用者)",
+        "Created At (创建时间)",
+        "Used At (使用时间)",
+        "Redeem URL (激活链接)"
+    ])
+
+    domain = getattr(config, "DOMAIN", "jobhunt-pro-mve3.onrender.com")
+    base_url = f"https://{domain}" if "http" not in domain and "localhost" not in domain else domain
+
+    for r in rows:
+        c = r["code"]
+        is_u = bool(r["is_used"])
+        st_text = "Used / 已使用" if is_u else "Available / 未使用"
+        writer.writerow([
+            c,
+            f"${float(r['value_usd'] or 0):.2f}",
+            r["code_type"] or "sale",
+            st_text,
+            r["used_by"] or "—",
+            r["created_at"] or "—",
+            r["used_at"] or "—",
+            f"{base_url}/redeem?code={c}"
+        ])
+
+    csv_bytes = output.getvalue().encode('utf-8-sig')
+    filename = f"JobHunt_All_Codes_{status}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    return Response(
+        content=csv_bytes,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename=\"{filename}\""}
+    )
 
 
 @router.post("/admin/delete-code")
