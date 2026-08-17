@@ -107,84 +107,91 @@ async def xianyu_faka_auto_fulfill_webhook(request: Request):
     order_id = str(payload.get("order_id") or payload.get("trade_no") or payload.get("out_trade_no") or uuid.uuid4().hex[:12]).strip()
     tier = str(payload.get("tier") or payload.get("package") or payload.get("title") or "starter").lower()
     amount = float(payload.get("amount") or payload.get("price") or payload.get("money") or 0.0)
+    qty = max(1, min(int(payload.get("quantity") or payload.get("count") or payload.get("num") or 1), 500))
 
-    # Determine Tier & Value
-    if "3000" in tier or "enterprise" in tier or "b2b" in tier or amount >= 140 or amount >= 900:
+    # Determine Tier & Value per unit
+    if "3000" in tier or "enterprise" in tier or "b2b" in tier or (amount / qty) >= 140 or (amount / qty) >= 900:
         plan_name = "Enterprise SDR Suite"
         tier_key = "enterprise"
-        value_usd = 149.00
+        unit_value_usd = 149.00
         companies = 3000
-    elif "1000" in tier or "pro" in tier or "vip" in tier or amount >= 45 or amount >= 300:
+    elif "1000" in tier or "pro" in tier or "vip" in tier or (amount / qty) >= 45 or (amount / qty) >= 300:
         plan_name = "Pro VIP Plan"
         tier_key = "pro"
-        value_usd = 49.00
+        unit_value_usd = 49.00
         companies = 1000
-    elif "350" in tier or "basic" in tier or "进阶" in tier or amount >= 18 or amount >= 120:
+    elif "350" in tier or "basic" in tier or "进阶" in tier or (amount / qty) >= 18 or (amount / qty) >= 120:
         plan_name = "Basic Plan"
         tier_key = "basic"
-        value_usd = 19.00
+        unit_value_usd = 19.00
         companies = 350
     else:
         plan_name = "Starter Plan"
         tier_key = "starter"
-        value_usd = 9.00
+        unit_value_usd = 9.00
         companies = 100
 
-    # 2. Idempotency Check (Check if order_id already exists to prevent duplicate generation)
     tag = f"Xianyu-Order-{order_id}"
     domain = getattr(config, "DOMAIN", "jobhunt-pro-mve3.onrender.com")
     base_url = f"https://{domain}" if "http" not in domain and "localhost" not in domain else domain
 
+    codes_list = []
     with get_db() as conn:
-        existing = conn.execute("SELECT code, value_usd FROM redeem_codes WHERE code_type = ?", (tag,)).fetchone()
-        if existing:
-            code = existing["code"]
-            redeem_url = f"{base_url}/redeem?lang=zh&code={code}"
-            auto_msg = (
-                f"亲，感谢购买 JobHunt Pro AI 自动求职神器！\n"
-                f"🔑 您的专属 256 位激活卡密：\n{code}\n\n"
-                f"🔗 立即激活网址：{redeem_url}\n"
-                f"💡 使用方法：点击上方链接输入您的邮箱和卡密，即可立即开始 {companies} 家企业 AI 自动精准投递！"
-            )
-            return JSONResponse({
-                "code": 200,
-                "status": "success",
-                "is_duplicate": True,
-                "order_id": order_id,
-                "card_code": code,
-                "tier": plan_name,
-                "companies": companies,
-                "value_usd": value_usd,
-                "redeem_url": redeem_url,
-                "auto_reply_message": auto_msg
-            })
+        existing_rows = conn.execute("SELECT code, value_usd FROM redeem_codes WHERE code_type = ?", (tag,)).fetchall()
+        if existing_rows:
+            codes_list = [r["code"] for r in existing_rows]
+            is_dup = True
+        else:
+            is_dup = False
+            for _ in range(qty):
+                for _attempt in range(15):
+                    c = generate_redeem_code()
+                    chk = conn.execute("SELECT id FROM redeem_codes WHERE code = ?", (c,)).fetchone()
+                    if not chk:
+                        conn.execute(
+                            "INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)",
+                            (c, unit_value_usd, tag)
+                        )
+                        codes_list.append(c)
+                        break
+            conn.commit()
 
-        code = generate_redeem_code()
-        conn.execute(
-            "INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)",
-            (code, value_usd, tag)
+    # Format Chinese Response Message for Buyer / Reseller
+    if len(codes_list) == 1:
+        single_code = codes_list[0]
+        redeem_url = f"{base_url}/redeem?lang=zh&code={single_code}"
+        auto_msg = (
+            f"亲，感谢购买 JobHunt Pro AI 自动求职神器！\n"
+            f"🔑 您的专属 256 位激活卡密：\n{single_code}\n\n"
+            f"🔗 立即激活网址：{redeem_url}\n"
+            f"💡 使用方法：点击上方链接输入您的邮箱和卡密，即可立即开始 {companies} 家企业 AI 自动精准投递！"
         )
-        conn.commit()
+    else:
+        lines = [f"亲，感谢批发/多件购买！您共获得 {len(codes_list)} 个【{plan_name}】专属 256 位激活卡密：\n"]
+        for idx, c in enumerate(codes_list, 1):
+            r_url = f"{base_url}/redeem?lang=zh&code={c}"
+            lines.append(f"{idx}. {c}\n   🔗 激活链接: {r_url}")
+        lines.append(f"\n💡 每个卡密支持 {companies} 家企业投递，可自由分发给客户转售或自用！")
+        auto_msg = "\n".join(lines)
+        single_code = codes_list[0]
+        redeem_url = f"{base_url}/redeem?lang=zh"
 
-    redeem_url = f"{base_url}/redeem?lang=zh&code={code}"
-    auto_msg = (
-        f"亲，感谢购买 JobHunt Pro AI 自动求职神器！\n"
-        f"🔑 您的专属 256 位激活卡密：\n{code}\n\n"
-        f"🔗 立即激活网址：{redeem_url}\n"
-        f"💡 使用方法：点击上方链接输入您的邮箱和卡密，即可立即开始 {companies} 家企业 AI 自动精准投递！"
-    )
-    
-    logger.info(f"[XIANYU-WEBHOOK] Auto-fulfilled order {order_id} ({plan_name} - {companies} companies) -> {code}")
-    
+    logger.info(f"[XIANYU-WEBHOOK] Auto-fulfilled order {order_id} (qty={qty}, {plan_name}) -> {len(codes_list)} codes issued")
+
     return JSONResponse({
         "code": 200,
         "status": "success",
+        "is_duplicate": is_dup,
         "order_id": order_id,
-        "card_code": code,
+        "quantity": len(codes_list),
+        "card_code": single_code,
+        "codes": codes_list,
         "tier": plan_name,
         "tier_key": tier_key,
-        "companies": companies,
-        "value_usd": value_usd,
+        "companies_per_code": companies,
+        "total_companies": companies * len(codes_list),
+        "unit_value_usd": unit_value_usd,
+        "total_value_usd": unit_value_usd * len(codes_list),
         "redeem_url": redeem_url,
         "auto_reply_message": auto_msg,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
