@@ -1105,39 +1105,90 @@ def dispatch_single_application(user_id: str = None):
                 conn.execute("PRAGMA synchronous=NORMAL;")
             except Exception:
                 pass
+            ADMIN_USERS = {'user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5'}
+            
             if user_id:
                 target_uid = user_id
             else:
-                # Dynamic candidate user accounts excluding mock test handles
-                candidate_rows = conn.execute("""
-                    SELECT DISTINCT user_id FROM cv_profiles 
-                    WHERE user_id IS NOT NULL AND user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
-                    UNION 
-                    SELECT user_id FROM users 
-                    WHERE is_active = 1 AND user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
+                # Select only active users with paid running campaigns or admins
+                eligible_rows = conn.execute("""
+                    SELECT DISTINCT c.user_id 
+                    FROM campaigns c
+                    JOIN users u ON c.user_id = u.user_id
+                    WHERE c.status IN ('running', 'active')
+                      AND (c.sent_count < c.total_companies OR u.is_admin = 1 OR u.tokens > 0)
+                      AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
                 """).fetchall()
-                candidate_uids = [
-                    str(r[0]).strip()
-                    for r in candidate_rows if r and r[0] and str(r[0]).strip() != ""
-                ]
-                if not candidate_uids:
-                    candidate_uids = ['user_c79c498bf9314555']
+                eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
+                if not eligible_uids:
+                    eligible_uids = ['user_c79c498bf9314555', 'user_1b73747a6e9a41d6']
                 global _user_rr_idx
                 if '_user_rr_idx' not in globals():
                     _user_rr_idx = 0
-                target_uid = candidate_uids[_user_rr_idx % len(candidate_uids)]
+                target_uid = eligible_uids[_user_rr_idx % len(eligible_uids)]
                 _user_rr_idx += 1
 
             uid = str(target_uid or 'user_c79c498bf9314555')
 
-            # ── Check Daily Application Cap ──
+            # ── Check User Admin & Paywall Authorization ──
+            u_info = conn.execute("SELECT is_admin, tokens, daily_cap, email FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
+            is_admin = False
+            user_tokens = 0
             daily_cap = 999999
-            try:
-                u_row = conn.execute("SELECT daily_cap FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
-                if u_row and u_row[0]:
-                    daily_cap = int(u_row[0])
-            except Exception:
-                pass
+            user_email = ""
+            if u_info:
+                is_admin = bool(u_info[0]) or (uid in ADMIN_USERS) or ('sam' in str(u_info[3] or '').lower())
+                user_tokens = int(u_info[1] or 0)
+                daily_cap = int(u_info[2] or 999999)
+                user_email = str(u_info[3] or '')
+
+            # If user is NOT admin: Strictly enforce active paid campaign & available tokens!
+            if not is_admin:
+                camp_row = conn.execute("""
+                    SELECT campaign_id, status, total_companies, sent_count 
+                    FROM campaigns 
+                    WHERE user_id = ? 
+                      AND status IN ('running', 'active')
+                      AND campaign_id NOT LIKE 'auto_camp_%'
+                      AND total_companies < 900000
+                    ORDER BY id DESC LIMIT 1
+                """, (uid,)).fetchone()
+                
+                if not camp_row:
+                    if user_tokens <= 0:
+                        logger.info(f"[PAYWALL GUARD] User {uid} has no active paid campaign and 0 tokens. Dispatch rejected.")
+                        return None
+                    else:
+                        camp_row = conn.execute("SELECT campaign_id, status, total_companies, sent_count FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
+                        if camp_row:
+                            campaign_id = camp_row[0]
+                        else:
+                            campaign_id = f"token_camp_{uuid.uuid4().hex[:8]}"
+                            conn.execute(
+                                "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, 'token_paid', 'running', ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                                (campaign_id, uid, user_tokens)
+                            )
+                else:
+                    c_id, c_status, c_total, c_sent = camp_row[0], camp_row[1], int(camp_row[2] or 0), int(camp_row[3] or 0)
+                    if c_sent >= c_total and user_tokens <= 0:
+                        conn.execute("UPDATE campaigns SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (c_id,))
+                        conn.commit()
+                        logger.info(f"[PAYWALL GUARD] User {uid} completed their quota ({c_sent}/{c_total}). Campaign completed.")
+                        return None
+                    campaign_id = c_id
+            else:
+                # Admin user handling
+                camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
+                if camp_row:
+                    campaign_id = camp_row[0]
+                    conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
+                else:
+                    campaign_id = f"admin_camp_{uuid.uuid4().hex[:8]}"
+                    order_id = f"admin_{(uid or 'sam')[:12]}"
+                    conn.execute(
+                        "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                        (campaign_id, uid, order_id)
+                    )
 
             if daily_cap < 999999:
                 today_res = conn.execute("""
@@ -1149,19 +1200,6 @@ def dispatch_single_application(user_id: str = None):
                 if today_count >= daily_cap:
                     logger.info(f"[CONTINUOUS DISPATCHER] User {uid} reached daily application cap ({today_count}/{daily_cap}). Skipping.")
                     return None
-
-            camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
-            
-            if camp_row:
-                campaign_id = camp_row[0] if isinstance(camp_row, (tuple, list)) else (camp_row["campaign_id"] if hasattr(camp_row, "__getitem__") else str(camp_row[0]))
-                conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
-            else:
-                campaign_id = f"auto_camp_{uuid.uuid4().hex[:8]}"
-                order_id = f"auto_{(uid or 'candidate')[:12]}"
-                conn.execute(
-                    "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                    (campaign_id, uid, order_id)
-                )
             comp = None
             title = None
             email = None
