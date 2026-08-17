@@ -848,9 +848,10 @@
       const formData = new FormData(form);
       formData.set('engine_type', 'cloud');
 
-      const totalCostText = document.getElementById('footerTotalCost')?.innerText || document.getElementById('totalPriceFooter')?.innerText || '$795.00';
-      const parsedAmount = parseFloat(totalCostText.replace(/[^0-9.]/g, '')) || 795.0;
-      formData.set('total_deployment_cost', parsedAmount.toString());
+      const totalCostText = document.getElementById('footerTotalCost')?.innerText || document.getElementById('totalPriceFooter')?.innerText || '$0.00';
+      const cleanCostStr = totalCostText.replace(/[^0-9.]/g, '');
+      const parsedAmount = cleanCostStr ? (parseFloat(cleanCostStr) || 0.0) : 0.0;
+      formData.set('total_deployment_cost', parsedAmount.toFixed(2));
 
       async function submitCampaign() {
         const endpoints = ['/api/campaigns', '/api/v1/campaigns', '/api/campaign/create'];
@@ -873,9 +874,7 @@
               continue;
             }
             if (parsed && typeof parsed === 'object' && parsed.success === true) {
-              if (!parsed.amount_spent || parsed.amount_spent === 0) {
-                parsed.amount_spent = parsedAmount;
-              }
+              parsed.amount_spent = (typeof parsed.amount_spent === 'number') ? parsed.amount_spent : parsedAmount;
               return parsed;
             }
           } catch(err) {
@@ -885,7 +884,7 @@
         return {
           success: true,
           campaign_id: 'camp_' + Math.random().toString(36).substring(2, 12),
-          company_count: parseInt(formData.get('company_count') || '100', 10),
+          company_count: parseInt(formData.get('company_count') || '0', 10),
           amount_spent: parsedAmount,
           redirect_url: '/dashboard?success=campaign_started'
         };

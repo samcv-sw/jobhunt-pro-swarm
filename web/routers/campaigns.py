@@ -422,15 +422,18 @@ async def create_campaign_router_api(
             if override_cost:
                 try:
                     val = float(override_cost)
-                    if val > 0:
+                    if val >= 0:
                         total_price = val
                 except Exception:
                     pass
 
+            if company_count <= 0 and not selected_bouquets and not cart_json:
+                total_price = 0.0
+
             user_bal = float(user.get("wallet_balance", 0) or 0)
             is_admin = bool(user.get("is_admin")) or user.get("email") in ("samatou683@gmail.com", "samsalameh.cv@gmail.com")
 
-            if not is_admin and user_bal < total_price:
+            if total_price > 0 and not is_admin and user_bal < total_price:
                 return JSONResponse({
                     "success": False,
                     "error": "insufficient_funds",
@@ -473,12 +476,13 @@ async def create_campaign_router_api(
                 (campaign_id, user_id, order_id, pid_val, company_count, bouquets_payload)
             )
 
-            new_balance = user.get("wallet_balance", 0) - total_price
-            conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
-            conn.execute(
-                "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
-                (user_id, "spend", -total_price, new_balance, f"Campaign {campaign_id}: {company_count} companies")
-            )
+            if total_price > 0:
+                new_balance = max(0.0, user.get("wallet_balance", 0) - total_price)
+                conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+                conn.execute(
+                    "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
+                    (user_id, "spend", -total_price, new_balance, f"Campaign {campaign_id}: {company_count} companies")
+                )
             conn.commit()
 
             try:
