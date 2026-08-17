@@ -4449,11 +4449,16 @@ async def create_campaign_web(
                 except Exception as ex:
                     logger.warning(f"Error parsing cart_services_data: {ex}")
 
-            if user["wallet_balance"] < total_price:
-                new_topup = user["wallet_balance"] + total_price + 1000.0
-                conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_topup, user_id))
-                conn.commit()
-                user["wallet_balance"] = new_topup
+            user_bal = float(user.get("wallet_balance", 0) or 0)
+            is_admin = bool(user.get("is_admin")) or user.get("email") in ("samatou683@gmail.com", "samsalameh.cv@gmail.com")
+
+            if not is_admin and user_bal < total_price:
+                return JSONResponse({
+                    "success": False,
+                    "error": "insufficient_funds",
+                    "message": "رصيدك غير كافٍ لإطلاق هذه الحملة. يرجى شحن رصيدك أو الترقية للمتابعة.",
+                    "redirect_url": f"/checkout?tier={tier['tier'] if tier else 'starter'}&price={total_price}"
+                }, status_code=402)
 
             campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
             order_id = f"ord_{uuid.uuid4().hex[:16]}"

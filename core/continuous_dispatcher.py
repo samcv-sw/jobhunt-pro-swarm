@@ -1105,7 +1105,8 @@ def dispatch_single_application(user_id: str = None):
                 conn.execute("PRAGMA synchronous=NORMAL;")
             except Exception:
                 pass
-            ADMIN_USERS = {'user_c79c498bf9314555', 'user_1b73747a6e9a41d6', 'user_sam_salameh_cv', 'user_72a63be2aeb5'}
+            ADMIN_USERS = {'user_c79c498bf9314555'}
+            MASTER_ADMIN_EMAILS = {'samatou683@gmail.com', 'samsalameh.cv@gmail.com'}
             
             if user_id:
                 target_uid = user_id
@@ -1121,7 +1122,7 @@ def dispatch_single_application(user_id: str = None):
                 """).fetchall()
                 eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
                 if not eligible_uids:
-                    eligible_uids = ['user_c79c498bf9314555', 'user_1b73747a6e9a41d6']
+                    eligible_uids = ['user_c79c498bf9314555']
                 global _user_rr_idx
                 if '_user_rr_idx' not in globals():
                     _user_rr_idx = 0
@@ -1137,10 +1138,11 @@ def dispatch_single_application(user_id: str = None):
             daily_cap = 999999
             user_email = ""
             if u_info:
-                is_admin = bool(u_info[0]) or (uid in ADMIN_USERS) or ('sam' in str(u_info[3] or '').lower())
+                u_email = str(u_info[3] or '').lower().strip()
+                is_admin = bool(u_info[0]) or (uid in ADMIN_USERS) or (u_email in MASTER_ADMIN_EMAILS)
                 user_tokens = int(u_info[1] or 0)
                 daily_cap = int(u_info[2] or 999999)
-                user_email = str(u_info[3] or '')
+                user_email = u_email
 
             # If user is NOT admin: Strictly enforce active paid campaign & available tokens!
             if not is_admin:
