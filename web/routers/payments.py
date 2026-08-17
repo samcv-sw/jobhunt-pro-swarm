@@ -142,6 +142,8 @@ async def redeem_code(request: Request):
 
     allowed, rate_err = _check_redeem_rate_limit(str(user_id), client_ip)
     if not allowed:
+        import asyncio
+        await asyncio.sleep(1.0)  # Choke bot / AI multi-threaded attack sockets
         if is_ajax:
             return JSONResponse({"error": rate_err}, status_code=429)
         return RedirectResponse(f"/wallet?error={urllib.parse.quote(rate_err)}", status_code=303)
@@ -163,25 +165,37 @@ async def redeem_code(request: Request):
             )
         """)
 
-        row = conn.execute(
-            """SELECT * FROM redeem_codes 
-               WHERE (REPLACE(REPLACE(UPPER(TRIM(code)), '-', ''), ' ', '') = ?)
-                 AND (is_used = 0 OR is_used IS NULL)""",
-            (clean_code,)
-        ).fetchone()
+        # Fetch active codes and verify with constant-time comparison (defeating AI timing attacks)
+        import hmac, asyncio
+        rows = conn.execute(
+            """SELECT * FROM redeem_codes WHERE is_used = 0 OR is_used IS NULL"""
+        ).fetchall()
 
-        if not row:
+        matched_row = None
+        for r in rows:
+            db_code = str(r["code"] if isinstance(r, dict) else r[1] or "")
+            clean_db_code = db_code.upper().replace(" ", "").replace("-", "")
+            if hmac.compare_digest(clean_db_code, clean_code):
+                matched_row = r
+                break
+
+        if not matched_row:
             _record_failed_attempt(str(user_id), client_ip)
             conn.execute(
                 "INSERT INTO redeem_attempts (user_id, ip_address, code_entered, success) VALUES (?, ?, ?, 0)",
-                (str(user_id), client_ip, clean_code)
+                (str(user_id), client_ip, clean_code[:32] + "...")
             )
             conn.commit()
+
+            # Anti-AI / Anti-Brute-Force Tarpit Delay (throttles automated scripts)
+            await asyncio.sleep(0.5)
 
             err_msg = "Invalid or already used code. Please check and try again."
             if is_ajax:
                 return JSONResponse({"error": err_msg}, status_code=400)
             return RedirectResponse(f"/wallet?error={urllib.parse.quote(err_msg)}", status_code=303)
+
+        row = matched_row
 
         redeem = dict(row)
         code_id = redeem.get("id")
