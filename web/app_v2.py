@@ -2628,9 +2628,9 @@ def generate_tracking_id() -> str:
 
 def generate_redeem_code() -> str:
     import secrets
-    # Quantum-Resistant Cryptographic base-32 charset (excludes ambiguous 0/O, 1/I)
+    # 64-character 320-Bit Quantum Cryptographic base-32 charset
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-    parts = ["".join(secrets.choice(alphabet) for _ in range(4)) for _ in range(6)]
+    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(8)]
     return f"JHP-{'-'.join(parts)}"
 
 
