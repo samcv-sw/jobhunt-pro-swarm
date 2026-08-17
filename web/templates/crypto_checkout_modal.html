@@ -1,98 +1,117 @@
 <!-- Crypto & Card Checkout Modal (MoonPay + ChangeNOW + Direct Web3 QR) -->
-<div id="cryptoCheckoutModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); align-items: center; justify-content: center; padding: 16px;">
-    <div style="position: relative; inline-size: 100%; max-inline-size: 640px; background: rgba(10, 18, 30, 0.96); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 24px; padding: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.15); color: #fff; font-family:{{ 'Cairo, Tajawal, sans-serif' if (lang or 'ar') == 'ar' else 'Inter, system-ui, sans-serif' }};" dir="{{ 'rtl' if (lang or 'ar') == 'ar' else 'ltr' }}">
+<div id="cryptoCheckoutModal" onclick="if(event.target===this)closeCryptoCheckoutModal()" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 16px; transition: all 0.3s ease;">
+    <div style="position: relative; inline-size: 100%; max-inline-size: 600px; background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(10, 15, 29, 0.99)); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 24px; padding: 32px 26px 24px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 240, 255, 0.2); color: #fff; font-family: {{ 'Cairo, Tajawal, system-ui, sans-serif' if (lang or 'ar') == 'ar' else 'Inter, system-ui, sans-serif' }};" dir="{{ 'rtl' if (lang or 'ar') == 'ar' else 'ltr' }}">
         
         <!-- Close Button -->
-        <button onclick="closeCryptoCheckoutModal()" style="position: absolute; inset-block-start: 16px; inset-inline-end: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 16px; inline-size: 32px; block-size: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.color='#fff'; this.style.background='rgba(239, 68, 68, 0.2)';" onmouseout="this.style.color='#94a3b8'; this.style.background='rgba(255, 255, 255, 0.08)';" aria-label="Close">
+        <button onclick="closeCryptoCheckoutModal()" style="position: absolute; inset-block-start: 18px; inset-inline-end: 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 15px; font-weight: 700; inline-size: 34px; block-size: 34px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.color='#fff'; this.style.background='rgba(239, 68, 68, 0.3)'; this.style.borderColor='rgba(239, 68, 68, 0.5)';" onmouseout="this.style.color='#94a3b8'; this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(255, 255, 255, 0.15)';" aria-label="Close">
             ✕
         </button>
 
         <!-- Header -->
-        <div style="text-align: center; margin-block-end: 20px;">
-            <span style="display: inline-block; padding: 4px 12px; font-size: 11px; font-weight: 700; color: #00f0ff; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 9999px; margin-block-end: 8px;">
-                {{ '🌐 بوابة الدفع المباشرة العالمية (MoonPay • ChangeNOW • Web3)' if (lang or 'ar') == 'ar' else '🌐 Direct Global & Regional Payment Portal' }}
-            </span>
-            <h2 style="font-size: 22px; font-weight: 800; background: linear-gradient(135deg, #00f0ff, #0080ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 6px;">
-                {{ 'تفعيل باقة JobHunt Pro فوراً' if (lang or 'ar') == 'ar' else 'Instant JobHunt Pro Activation' }}
+        <div style="text-align: center; margin-block-end: 22px;">
+            <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; font-size: 12px; font-weight: 800; color: #00f0ff; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 9999px; margin-block-end: 12px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);">
+                <span>🌐 {{ 'بوابة الدفع الآمنة • تفعيل فوري خلال 30 ثانية' if (lang or 'ar') == 'ar' else 'Secure Global Payment Portal • Instant 30s Activation' }}</span>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 900; color: #ffffff; margin: 0 0 8px 0; letter-spacing: normal;">
+                {{ 'تفعيل اشتراك JobHunt Pro الفوري' if (lang or 'ar') == 'ar' else 'Instant JobHunt Pro Activation' }}
             </h2>
-            <p style="font-size: 13px; color: #94a3b8; line-height: 1.5;">
-                {{ 'ادفع بأمان عبر بطاقتك الائتمانية (MoonPay) أو تحويل كريبتو فوري آلياً (ChangeNOW & NOWPayments)' if (lang or 'ar') == 'ar' else 'Secure instant checkout via Credit / Debit Card (MoonPay), Instant Crypto Swap (ChangeNOW), or USDT Wallet' }}
+            <p style="font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0 auto; max-inline-size: 480px;">
+                {{ 'اختر وسيلة الدفع المناسبة لك — ادفع بالبطاقة البنكية أو العملات الرقمية مع تفعيل فوري لحسابك.' if (lang or 'ar') == 'ar' else 'Choose your payment method — pay securely via Card or Crypto with instant activation.' }}
             </p>
         </div>
 
-        <!-- Tab Buttons -->
-        <div style="display: flex; border-block-end: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 20px; gap: 8px; overflow-x: auto; padding-block-end: 8px;">
-            <button id="tabMoonPay" onclick="switchCheckoutTab('moonpay')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 700; border: none; border-block-end: 2px solid #00f0ff; color: #00f0ff; background: transparent; cursor: pointer; white-space: nowrap;">
-                💳 {{ 'فيزا / ماستركارد (MoonPay)' if (lang or 'ar') == 'ar' else 'Card (MoonPay)' }}
+        <!-- 3-Column Tab Grid (Zero Clipping) -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-block-end: 20px; background: rgba(0, 0, 0, 0.3); padding: 4px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.06);">
+            <button id="tabMoonPay" onclick="switchCheckoutTab('moonpay')" style="padding: 10px 8px; font-size: 13px; font-weight: 800; border-radius: 10px; border: 1px solid rgba(0, 240, 255, 0.4); color: #00f0ff; background: rgba(0, 240, 255, 0.12); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s ease;">
+                <span style="font-size: 16px;">💳</span>
+                <span>{{ 'بطاقة بنكية (فيزا / مدى)' if (lang or 'ar') == 'ar' else 'Credit Card' }}</span>
             </button>
-            <button id="tabChangeNow" onclick="switchCheckoutTab('changenow')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 600; border: none; border-block-end: 2px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; white-space: nowrap;">
-                ⚡ {{ 'مبادلة كريبتو (ChangeNOW)' if (lang or 'ar') == 'ar' else 'Crypto Swap (ChangeNOW)' }}
+            <button id="tabChangeNow" onclick="switchCheckoutTab('changenow')" style="padding: 10px 8px; font-size: 13px; font-weight: 700; border-radius: 10px; border: 1px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s ease;">
+                <span style="font-size: 16px;">⚡</span>
+                <span>{{ 'تحويل كريبتو فوري' if (lang or 'ar') == 'ar' else 'Crypto Swap' }}</span>
             </button>
-            <button id="tabWeb3QR" onclick="switchCheckoutTab('web3qr')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 600; border: none; border-block-end: 2px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; white-space: nowrap;">
-                📱 {{ 'محفظة USDT (TRC20)' if (lang or 'ar') == 'ar' else 'USDT Wallet (TRC20)' }}
+            <button id="tabWeb3QR" onclick="switchCheckoutTab('web3qr')" style="padding: 10px 8px; font-size: 13px; font-weight: 700; border-radius: 10px; border: 1px solid transparent; color: #94a3b8; background: transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s ease;">
+                <span style="font-size: 16px;">📱</span>
+                <span>{{ 'محفظة USDT' if (lang or 'ar') == 'ar' else 'USDT Wallet' }}</span>
             </button>
         </div>
 
         <!-- MoonPay Content -->
         <div id="contentMoonPay" style="display: block;">
-            <div style="padding: 16px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 8px;">
-                    <span style="font-size: 13px; color: #cbd5e1;">{{ 'الباقة المختارة:' if (lang or 'ar') == 'ar' else 'Selected Plan:' }} <strong id="moonpayPlanName" style="color: #00f0ff;">Basic Plan</strong></span>
-                    <span id="moonpayPriceDisplay" style="font-size: 18px; font-weight: 800; color: #10b981;">$19.00 USD</span>
+            <div style="padding: 18px 20px; border-radius: 16px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0, 240, 255, 0.2); margin-block-end: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 10px;">
+                    <div style="font-size: 14px; color: #cbd5e1;">
+                        <span>{{ 'الباقة المختارة:' if (lang or 'ar') == 'ar' else 'Selected Plan:' }}</span>
+                        <strong id="moonpayPlanName" style="color: #00f0ff; margin-inline-start: 4px;">Basic Plan</strong>
+                    </div>
+                    <div id="moonpayPriceDisplay" style="font-family: 'Space Grotesk', 'Cairo', monospace; font-size: 22px; font-weight: 900; color: #10b981;">
+                        $19.00 USD
+                    </div>
                 </div>
-                <p style="font-size: 12px; color: #94a3b8; line-height: 1.6;">
-                    {{ 'يتيح لك MoonPay الدفع الفوري بأي بطاقة ائتمانية عالمية بأمان مع تفعيل اشتراكك آلياً فور اكتمال المعاملة.' if (lang or 'ar') == 'ar' else 'MoonPay allows instant checkout using any global Visa or Mastercard. Your plan is activated automatically upon confirmation.' }}
+                <p style="font-size: 13px; color: #94a3b8; line-height: 1.6; margin: 0;">
+                    {{ 'دفع مباشر وآمن 100% باستخدام فيزا، ماستركارد، أو Apple Pay — يتم تفعيل رصيدك وحملتك فوراً بعد إتمام الدفع.' if (lang or 'ar') == 'ar' else 'Direct secure checkout using Visa, Mastercard, or Apple Pay. Your campaign activates instantly upon payment.' }}
                 </p>
             </div>
-            <a id="moonpayCheckoutBtn" href="#" target="_blank" style="display: block; inline-size: 100%; padding: 14px; background: linear-gradient(135deg, #00f0ff, #0080ff); color: #000; font-weight: 800; font-size: 14px; border-radius: 12px; text-align: center; text-decoration: none; box-shadow: 0 10px 25px rgba(0, 240, 255, 0.35); transition: transform 0.2s;">
-                {{ 'المتابعة للدفع بالبطاقة عبر MoonPay ↗' if (lang or 'ar') == 'ar' else 'Proceed with Card via MoonPay ↗' }}
+            <a id="moonpayCheckoutBtn" href="#" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; inline-size: 100%; padding: 15px; background: linear-gradient(135deg, #00f0ff, #0284c7); color: #030712; font-weight: 900; font-size: 15px; border-radius: 14px; text-decoration: none; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4); transition: all 0.2s ease;">
+                <span>{{ 'المتابعة للدفع الآمن بالبطاقة عبر MoonPay' if (lang or 'ar') == 'ar' else 'Proceed with Card via MoonPay' }}</span>
+                <span>↗</span>
             </a>
         </div>
 
         <!-- ChangeNOW Content -->
         <div id="contentChangeNow" style="display: none;">
-            <div style="padding: 16px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 16px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 10px;">
-                    <span style="font-size: 13px; color: #cbd5e1;">{{ 'المبلغ المطلوب:' if (lang or 'ar') == 'ar' else 'Required Amount:' }} <strong id="cnowPriceDisplay" style="color: #00f0ff;">$19.00 USD</strong></span>
-                    <span style="font-size: 11px; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.3);">Zero KYC • Fast Swap</span>
+            <div style="padding: 18px 20px; border-radius: 16px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(139, 92, 246, 0.25); margin-block-end: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 12px;">
+                    <div style="font-size: 14px; color: #cbd5e1;">
+                        <span>{{ 'المبلغ المطلوب:' if (lang or 'ar') == 'ar' else 'Required Amount:' }}</span>
+                        <strong id="cnowPriceDisplay" style="color: #c084fc; margin-inline-start: 4px;">$19.00 USD</strong>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.12); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                        ⚡ بدون تسجيل أو توثيق (Zero KYC)
+                    </span>
                 </div>
                 <div>
-                    <label style="display: block; font-size: 12px; color: #94a3b8; margin-block-end: 4px;">{{ 'اختر العملة للدفع:' if (lang or 'ar') == 'ar' else 'Select Payment Cryptocurrency:' }}</label>
-                    <select id="cnowCryptoSelect" onchange="initiateChangeNowSwap()" style="inline-size: 100%; background: #050b14; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 10px; color: #fff; font-size: 13px;" dir="auto">
-                        <option value="usdttrc20">USDT (Tron TRC20)</option>
+                    <label style="display: block; font-size: 13px; font-weight: 700; color: #cbd5e1; margin-block-end: 6px;">
+                        {{ 'اختر العملة الرقمية للدفع:' if (lang or 'ar') == 'ar' else 'Select Payment Cryptocurrency:' }}
+                    </label>
+                    <select id="cnowCryptoSelect" onchange="initiateChangeNowSwap()" style="inline-size: 100%; background: #030712; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 12px; color: #fff; font-size: 14px; font-family: inherit;" dir="auto">
+                        <option value="usdttrc20">USDT (Tron TRC20) — الأكثر سرعة وأقل عمولة</option>
                         <option value="btc">Bitcoin (BTC)</option>
                         <option value="eth">Ethereum (ETH)</option>
-                        <option value="ton">Toncoin (TON)</option>
                         <option value="sol">Solana (SOL)</option>
+                        <option value="ton">Toncoin (TON)</option>
                         <option value="trx">TRON (TRX)</option>
                         <option value="ltc">Litecoin (LTC)</option>
                     </select>
                 </div>
             </div>
-            <iframe id="cnowEmbedFrame" src="" style="display: none; inline-size: 100%; block-size: 280px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: #050b14;"></iframe>
-            <button id="cnowStartBtn" onclick="initiateChangeNowSwap()" style="inline-size: 100%; padding: 14px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; font-weight: 800; font-size: 14px; border-radius: 12px; border: none; cursor: pointer;">
-                {{ 'فتح مبادلة ChangeNOW الفورية ⚡' if (lang or 'ar') == 'ar' else 'Open ChangeNOW Instant Swap ⚡' }}
+            <iframe id="cnowEmbedFrame" src="" style="display: none; inline-size: 100%; block-size: 280px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1); background: #030712; margin-block-end: 14px;"></iframe>
+            <button id="cnowStartBtn" onclick="initiateChangeNowSwap()" style="display: flex; align-items: center; justify-content: center; gap: 8px; inline-size: 100%; padding: 15px; background: linear-gradient(135deg, #8b5cf6, #ec4899); color: #fff; font-weight: 900; font-size: 15px; border-radius: 14px; border: none; cursor: pointer; box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); transition: all 0.2s ease;">
+                <span>{{ 'بدء المبادلة الفورية عبر ChangeNOW' if (lang or 'ar') == 'ar' else 'Open ChangeNOW Instant Swap' }}</span>
+                <span>⚡</span>
             </button>
         </div>
 
         <!-- Direct Web3 QR Content -->
         <div id="contentWeb3QR" style="display: none; text-align: center;">
-            <div style="padding: 16px; border-radius: 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1); margin-block-end: 16px;">
-                <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98" alt="USDT QR Code" style="inline-size: 150px; block-size: 150px; border-radius: 12px; padding: 6px; background: #fff; margin-inline: auto; margin-block-end: 12px; display: block;">
-                <p style="font-size: 12px; font-family:monospace; word-break: break-all; padding: 8px 12px; background: #050b14; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); color: #cbd5e1; margin-block-end: 10px;">
+            <div style="padding: 18px 20px; border-radius: 16px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(251, 191, 36, 0.25); margin-block-end: 18px;">
+                <img id="qrCodeImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98" alt="USDT QR Code" style="inline-size: 140px; block-size: 140px; border-radius: 12px; padding: 6px; background: #fff; margin-inline: auto; margin-block-end: 12px; display: block; box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);">
+                <p style="font-size: 13px; font-family: monospace; word-break: break-all; padding: 10px 14px; background: #030712; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1); color: #38bdf8; margin-block-end: 12px;">
                     <span id="usdtAddressText">TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98</span>
                 </p>
-                <button onclick="copyWalletAddress()" style="padding: 8px 16px; background: rgba(0, 240, 255, 0.12); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">
-                    📋 {{ 'نسخ عنوان USDT TRC20' if (lang or 'ar') == 'ar' else 'Copy USDT TRC20 Address' }}
+                <button onclick="copyWalletAddress()" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: rgba(0, 240, 255, 0.12); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s ease;">
+                    <span>📋</span>
+                    <span>{{ 'نسخ عنوان المحفظة (USDT TRC20)' if (lang or 'ar') == 'ar' else 'Copy USDT TRC20 Address' }}</span>
                 </button>
             </div>
-            <p style="font-size: 12px; color: #94a3b8;">
-                {{ 'أرسل المبلغ إلى العنوان أعلاه وسيتم تفعيل حسابك فور وصول التأكيد على البلوكشين.' if (lang or 'ar') == 'ar' else 'Send the amount to the address above. Your account is credited automatically upon first block confirmation.' }}
+            <p style="font-size: 13px; color: #94a3b8; margin: 0; line-height: 1.6;">
+                {{ 'أرسل المبلغ المطلوب إلى العنوان أعلاه، وسيتم تفعيل حسابك آلياً فور أول تأكيد للبلوكشين.' if (lang or 'ar') == 'ar' else 'Send the amount to the address above. Your account activates automatically upon blockchain confirmation.' }}
             </p>
         </div>
 
-        <div style="margin-block-start: 16px; padding-block-start: 12px; border-block-start: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-size: 11px; color: #64748b;">
-            🔒 256-Bit SSL Encrypted • Direct Global Crypto & Card Support
+        <!-- Security Footer -->
+        <div style="margin-block-start: 18px; padding-block-start: 12px; border-block-start: 1px solid rgba(255, 255, 255, 0.08); text-align: center; font-size: 12px; color: #64748b;">
+            <span>🔒 {{ 'تشفير بنكي 256-Bit SSL • دعم عالمي فوري لجميع البطاقات والعملات' if (lang or 'ar') == 'ar' else '256-Bit SSL Encrypted • Direct Global Crypto & Card Support' }}</span>
         </div>
     </div>
 </div>
@@ -108,12 +127,14 @@ function switchCheckoutTab(tabName) {
         const content = document.getElementById('content' + t);
         if (!btn || !content) return;
         if (t.toLowerCase() === tabName.toLowerCase()) {
-            btn.style.borderBottomColor = '#00f0ff';
+            btn.style.borderColor = 'rgba(0, 240, 255, 0.5)';
             btn.style.color = '#00f0ff';
+            btn.style.background = 'rgba(0, 240, 255, 0.14)';
             content.style.display = 'block';
         } else {
-            btn.style.borderBottomColor = 'transparent';
+            btn.style.borderColor = 'transparent';
             btn.style.color = '#94a3b8';
+            btn.style.background = 'transparent';
             content.style.display = 'none';
         }
     });
@@ -173,7 +194,7 @@ function initiateChangeNowSwap() {
         frame.style.display = 'block';
     }
     if (startBtn) {
-        startBtn.innerText = '⚡ Exchange Ready Below';
+        startBtn.innerHTML = '<span>⚡ المعاملة جاهزة في الأسفل</span>';
     }
 
     fetch('/api/v1/payments/changenow/create-exchange', {
@@ -190,11 +211,11 @@ function initiateChangeNowSwap() {
 function copyWalletAddress() {
     const textEl = document.getElementById('usdtAddressText');
     if (!textEl) return;
-    const text = textEl.innerText;
+    const text = textEl.innerText.trim();
     navigator.clipboard.writeText(text).then(() => {
-        alert('USDT TRC20 Address copied successfully!');
+        alert('تم نسخ عنوان المحفظة USDT TRC20 بنجاح! 📋');
     }).catch(() => {
-        alert('Address: ' + text);
+        alert('العنوان: ' + text);
     });
 }
 </script>
