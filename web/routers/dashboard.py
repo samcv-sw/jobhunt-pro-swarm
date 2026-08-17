@@ -112,19 +112,6 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
         logger.debug(f"[LiveDispatches] Query error: {d_err}")
         db_dispatches = []
 
-    elite_pool = [
-        {"company": "Lean Technologies", "role": "Senior Financial Systems Specialist", "location": "Riyadh, KSA", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 99, "offset_sec": 14},
-        {"company": "Tamara Pay", "role": "Lead Systems Security Architect", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "opened", "match": 98, "offset_sec": 45},
-        {"company": "Tabby Pay", "role": "Senior FinTech Infrastructure Engineer", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 97, "offset_sec": 140},
-        {"company": "Kitopi Tech", "role": "Senior Cloud Systems Engineer", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "interview", "match": 99, "offset_sec": 380},
-        {"company": "Delivery Hero MENA", "role": "Lead Systems Architect", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 98, "offset_sec": 840},
-        {"company": "Dubizzle Group", "role": "Senior Infrastructure Specialist", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 97, "offset_sec": 1450},
-        {"company": "Property Finder", "role": "Lead Platform Engineer", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "opened", "match": 98, "offset_sec": 2700},
-        {"company": "Noon.com", "role": "Senior Systems & Cloud Engineer", "location": "Riyadh, KSA", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 96, "offset_sec": 4200},
-        {"company": "Talabat Tech", "role": "Lead Backend Systems Engineer", "location": "Kuwait City, Kuwait", "platform": "Direct Corporate Gateway", "status": "interview", "match": 99, "offset_sec": 6800},
-        {"company": "Careem Tech", "role": "Senior Cloud Infrastructure Engineer", "location": "Dubai, UAE", "platform": "Direct Corporate Gateway", "status": "delivered", "match": 97, "offset_sec": 9600},
-    ]
-
     now_utc = datetime.now(timezone.utc)
     enriched_dispatches = []
 
@@ -179,22 +166,6 @@ def _get_dashboard_live_dispatches_data(conn, user_id):
                 "platform": platform,
                 "match_score": 96 + (idx % 4),
                 "location": "GCC & Global",
-            })
-    else:
-        for idx, ep in enumerate(elite_pool):
-            sent_dt = now_utc - timedelta(seconds=ep["offset_sec"])
-            enriched_dispatches.append({
-                "id": f"elite_{idx}",
-                "company_name": ep["company"],
-                "company": ep["company"],
-                "job_title": ep["role"],
-                "status": ep["status"],
-                "sent_at": sent_dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "to_email": "",
-                "email_address": "",
-                "platform": ep["platform"],
-                "match_score": ep["match"],
-                "location": ep["location"],
             })
 
     try:

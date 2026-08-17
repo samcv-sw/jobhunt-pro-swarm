@@ -1120,7 +1120,15 @@
                 }
 
                 var list = data.dispatches || [];
-                if (list.length === 0) return;
+                if (list.length === 0) {
+                    container.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center gap-2 rounded-xl border border-white/5 bg-slate-800/30 my-auto">' +
+                        '<span class="text-2xl">🚀</span>' +
+                        '<span class="font-bold text-white text-sm">No applications dispatched yet</span>' +
+                        '<span class="text-slate-400">Launch a campaign or upgrade to activate automated AI applications.</span>' +
+                        '<a href="/pricing" class="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 px-3 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/30 transition-all">Upgrade Account Now &rarr;</a>' +
+                    '</div>';
+                    return;
+                }
 
                 var html = '';
                 list.slice(0, 8).forEach(function(email, idx) {
