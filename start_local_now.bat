@@ -78,8 +78,8 @@ cls
 echo ================================================================================
 echo   JOBHUNT PRO SAAS - 24/7 AUTONOMOUS SOVEREIGN ENGINE
 echo ================================================================================
-echo   [*] Root Workspace  : %~dp0
-echo   [*] Python Runtime  : %PY_EXE%
+echo   [*] Root Workspace  : "!ROOT_DIR!"
+echo   [*] Python Runtime  : "!PY_EXE!"
 echo   [*] Local URL       : http://127.0.0.1:8000
 echo   [*] User Dashboard  : http://127.0.0.1:8000/user-dashboard
 echo   [*] Free ATS Score  : http://127.0.0.1:8000/free-ats-score
@@ -91,7 +91,7 @@ echo.
 echo   Starting server and autonomous swarms...
 echo.
 
-"%PY_EXE%" "%~dp0run_local_server.py"
+"!PY_EXE!" "!ROOT_DIR!\run_local_server.py"
 
 if errorlevel 1 (
     echo.
