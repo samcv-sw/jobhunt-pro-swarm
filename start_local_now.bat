@@ -38,80 +38,60 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>
 )
 del /f /q "%TEMP%\jobhunt_*.lock" >nul 2>nul
 
-REM 3. Detect Optimal Python interpreter (Priority: Local .venv -> Local .venv2 -> AppData Python312 -> Global PATH)
+REM 3. Detect Optimal Python interpreter
 set "PY_EXE="
 
-if exist "%ROOT_DIR%\.venv\Scripts\python.exe" (
-    "%ROOT_DIR%\.venv\Scripts\python.exe" -c "import uvicorn, fastapi" >nul 2>nul
-    if not errorlevel 1 (
-        set "PY_EXE=%ROOT_DIR%\.venv\Scripts\python.exe"
-        goto :START_ENGINE
-    )
+if exist "%~dp0.venv\Scripts\python.exe" (
+    set "PY_EXE=%~dp0.venv\Scripts\python.exe"
+    goto :FOUND_PYTHON
 )
 
-if exist "%ROOT_DIR%\.venv2\Scripts\python.exe" (
-    "%ROOT_DIR%\.venv2\Scripts\python.exe" -c "import uvicorn, fastapi" >nul 2>nul
-    if not errorlevel 1 (
-        set "PY_EXE=%ROOT_DIR%\.venv2\Scripts\python.exe"
-        goto :START_ENGINE
-    )
+if exist "%~dp0.venv2\Scripts\python.exe" (
+    set "PY_EXE=%~dp0.venv2\Scripts\python.exe"
+    goto :FOUND_PYTHON
 )
 
 if exist "C:\Users\samde\AppData\Local\Programs\Python\Python312\python.exe" (
-    "C:\Users\samde\AppData\Local\Programs\Python\Python312\python.exe" -c "import uvicorn, fastapi" >nul 2>nul
-    if not errorlevel 1 (
-        set "PY_EXE=C:\Users\samde\AppData\Local\Programs\Python\Python312\python.exe"
-        goto :START_ENGINE
+    set "PY_EXE=C:\Users\samde\AppData\Local\Programs\Python\Python312\python.exe"
+    goto :FOUND_PYTHON
+)
+
+where python >nul 2>nul
+if not errorlevel 1 (
+    for /f "delims=" %%i in ('where python') do (
+        if not defined PY_EXE set "PY_EXE=%%i"
     )
+    goto :FOUND_PYTHON
 )
 
-python -c "import uvicorn, fastapi" >nul 2>nul
+where py >nul 2>nul
 if not errorlevel 1 (
-    set "PY_EXE=python"
-    goto :START_ENGINE
+    set "PY_EXE=py"
+    goto :FOUND_PYTHON
 )
 
-py -3.12 -c "import uvicorn, fastapi" >nul 2>nul
-if not errorlevel 1 (
-    set "PY_EXE=py -3.12"
-    goto :START_ENGINE
-)
+set "PY_EXE=python"
 
-py -3 -c "import uvicorn, fastapi" >nul 2>nul
-if not errorlevel 1 (
-    set "PY_EXE=py -3"
-    goto :START_ENGINE
-)
-
-REM Fallback if not verified
-if exist "%ROOT_DIR%\.venv\Scripts\python.exe" (
-    set "PY_EXE=%ROOT_DIR%\.venv\Scripts\python.exe"
-) else (
-    set "PY_EXE=python"
-)
-
+:FOUND_PYTHON
 :START_ENGINE
 cls
 echo ================================================================================
 echo   JOBHUNT PRO SAAS - 24/7 AUTONOMOUS SOVEREIGN ENGINE
 echo ================================================================================
-echo   [*] Root Workspace  : "%ROOT_DIR%"
-echo   [*] Python Runtime  : "%PY_EXE%"
+echo   [*] Root Workspace  : %~dp0
+echo   [*] Python Runtime  : %PY_EXE%
 echo   [*] Local URL       : http://127.0.0.1:8000
-echo   [*] Admin Authority : admin@jobhunt-pro.com
-echo   [*] Deliverability  : 100%% Live MX and 365-Day Cooldown Guard (Active)
+echo   [*] User Dashboard  : http://127.0.0.1:8000/user-dashboard
+echo   [*] Free ATS Score  : http://127.0.0.1:8000/free-ats-score
+echo   [*] Battle Station  : http://127.0.0.1:8000/battle-station
+echo   [*] Sovereign Wallet: http://127.0.0.1:8000/wallet
 echo   [*] Auto-Browser    : Enabled (Auto-launches on ready)
 echo ================================================================================
 echo.
 echo   Starting server and autonomous swarms...
 echo.
 
-REM Pre-clear port 8000 again to guarantee 100% clean bind
-for /f "tokens=5" %%a in ('netstat -ano ^| findstr /r /c:":8000 .*LISTENING" 2^>nul') do (
-    if "%%a" neq "0" taskkill /f /pid %%a >nul 2>nul
-)
-
-"%PY_EXE%" "%ROOT_DIR%\run_local_server.py"
+"%PY_EXE%" "%~dp0run_local_server.py"
 
 if errorlevel 1 (
     echo.

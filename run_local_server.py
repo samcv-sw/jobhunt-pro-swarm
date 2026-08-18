@@ -76,18 +76,18 @@ def _optimize_sqlite_engine():
 
 
 def _open_browser_when_ready(port=8000):
-    """Polls port and automatically opens the user dashboard once the server is listening."""
-    for _ in range(40):
-        time.sleep(0.3)
+    """Polls port and automatically opens the application once the server is listening."""
+    for _ in range(50):
+        time.sleep(0.4)
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=0.5):
+                time.sleep(0.5)
+                # Open Main Application Homepage & Dashboard
+                webbrowser.open(f"http://127.0.0.1:{port}/")
                 time.sleep(0.4)
-                webbrowser.open_new_tab(f"http://127.0.0.1:{port}/user-dashboard")
-                time.sleep(0.2)
-                webbrowser.open_new_tab(f"http://127.0.0.1:{port}/battle-station")
+                webbrowser.open(f"http://127.0.0.1:{port}/user-dashboard")
                 return
         except Exception:
-            continue
             continue
 
 
