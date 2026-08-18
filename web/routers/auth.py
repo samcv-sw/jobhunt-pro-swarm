@@ -570,48 +570,32 @@ def _get_google_redirect_uri(request: Request) -> str:
 @router.get("/login/google")
 @router.get("/signup/google")
 async def google_login(request: Request):
-    """Google login entrypoint. Renders authentic 1:1 Google Account Chooser UI or redirects to live Google OAuth if configured."""
+    """Google login entrypoint. Redirects directly to Google's real live Account Chooser & OAuth page."""
     import urllib.parse
-    lang = request.query_params.get("lang") or ("en" if "en" in request.headers.get("referer", "") else "ar")
 
     get_db, session_serializer, templates, config, _check_rate_limit = _deps()
     client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or os.getenv("GOOGLE_CLIENT_ID", "")
-    client_secret = getattr(config, "GOOGLE_CLIENT_SECRET", "") or os.getenv("GOOGLE_CLIENT_SECRET", "")
+    if not client_id or client_id == "mock_google_id":
+        client_id = "785539997205-7ohlp2fgbj96c4bceilmmipmcdi7r0ec.apps.googleusercontent.com"
 
-    # Only redirect to external Google server if custom secret configured and not on local dev
-    if client_id and client_secret and client_id not in ("mock_google_id", "785539997205-7ohlp2fgbj96c4bceilmmipmcdi7r0ec.apps.googleusercontent.com", "") and request.url.hostname not in ("127.0.0.1", "localhost", "testserver", "0.0.0.0", "::1"):
-        redirect_uri = _get_google_redirect_uri(request)
-        req_scope = request.query_params.get("scope", "")
-        if req_scope == "send" or "send" in req_scope or "gmail" in req_scope:
-            scope = "openid email profile https://www.googleapis.com/auth/gmail.send"
-        else:
-            scope = "openid email profile"
+    redirect_uri = _get_google_redirect_uri(request)
+    req_scope = request.query_params.get("scope", "")
+    if req_scope == "send" or "send" in req_scope or "gmail" in req_scope:
+        scope = "openid email profile https://www.googleapis.com/auth/gmail.send"
+    else:
+        scope = "openid email profile"
 
-        params = {
-            "response_type": "code",
-            "client_id": client_id,
-            "redirect_uri": redirect_uri,
-            "scope": scope,
-            "state": "google_state_abc",
-            "access_type": "offline",
-            "prompt": "consent select_account",
-        }
-        auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
-        return RedirectResponse(auth_url)
-
-    # Clean, authentic 1:1 Google Sign-In Account Chooser UI with 0 errors
-    tmpl_file = "en/oauth_prompt.html" if lang == "en" else "oauth_prompt.html"
-    return templates.TemplateResponse(
-        request,
-        tmpl_file,
-        {
-            "lang": lang,
-            "provider": "google",
-            "provider_name": "Google",
-            "default_name": "Sam Salameh",
-            "default_email": "samatou683@gmail.com",
-        }
-    )
+    params = {
+        "response_type": "code",
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "scope": scope,
+        "state": "google_state_abc",
+        "access_type": "offline",
+        "prompt": "select_account",
+    }
+    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+    return RedirectResponse(auth_url, status_code=303)
 
 
 @router.get("/auth/google/callback")
