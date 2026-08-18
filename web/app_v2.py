@@ -128,9 +128,7 @@ _deploy_cooldown = {}
 from payments import get_payment_addresses
 from services.catalog import BOUQUET_CATALOG, SERVICE_CATALOG
 from services.fulfillment import ServiceFulfillment
-
-SECRET_KEY = os.getenv("SECRET_KEY") or getattr(config, "SECRET_KEY", None) or "jobhunt_pro_saas_ultra_secure_stable_secret_key_2026_v1"
-session_serializer = URLSafeTimedSerializer(SECRET_KEY)
+from web.shared import SECRET_KEY, session_serializer
 
 # JWT verification for security controls
 from fastapi import Depends, Security
@@ -507,16 +505,20 @@ def get_verified_user_id(request: Request) -> str:
     if cookie:
         try:
             val = session_serializer.loads(cookie, max_age=86400 * 30)  # 30 days
-            return val
-        except (BadSignature, SignatureExpired):
-            if cookie.startswith("user_") or cookie.startswith("admin-") or len(cookie) >= 5:
+            if val:
+                return str(val)
+        except Exception:
+            if cookie.startswith("user_") or cookie.startswith("admin-") or (len(cookie) >= 5 and "." not in cookie):
                 return cookie
 
     # Method 2: Starlette session (fallback for API clients)
     try:
-        session_user = request.session.get("user")
-        if session_user and session_user.get("id"):
-            return session_user["id"]
+        if hasattr(request, "session"):
+            if request.session.get("user_id"):
+                return str(request.session["user_id"])
+            session_user = request.session.get("user")
+            if session_user and session_user.get("id"):
+                return str(session_user["id"])
     except Exception:
         pass
 
@@ -5077,6 +5079,7 @@ def user_dashboard(request: Request):
             'daily_pct': daily_pct,
         }
 
+        referral_link = f"{str(request.base_url).rstrip('/')}/register?ref={actual_uid}"
         is_admin_flag = is_admin_email(user.get("email", "")) or is_admin_email(str(user_id))
         content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, is_admin=is_admin_flag, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request), headers={"Cache-Control": "no-cache, no-store, must-revalidate, max-age=0", "Pragma": "no-cache", "Expires": "0"})
