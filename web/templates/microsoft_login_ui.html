@@ -62,21 +62,44 @@
       color: #ffffff;
       margin-bottom: 20px;
     }
-    .ms-pill {
-      display: inline-flex;
-      align-items: center;
+    .ms-quick-list {
+      display: flex;
+      flex-direction: column;
       gap: 8px;
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 16px;
-      cursor: pointer;
-      font-size: 14px;
-      color: #e0e0e0;
       margin-bottom: 20px;
-      direction: ltr;
     }
-    .ms-pill:hover {
-      background: rgba(255, 255, 255, 0.12);
+    .account-form {
+      margin: 0;
+      width: 100%;
+    }
+    .ms-quick-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      cursor: pointer;
+      color: #ffffff;
+      font-size: 14px;
+      text-align: start;
+      transition: background 0.15s;
+    }
+    .ms-quick-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .ms-quick-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #0078d4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
     }
     .ms-input-group {
       margin-bottom: 20px;
@@ -97,51 +120,8 @@
     .ms-input:focus {
       border-bottom: 2px solid #0086f0;
     }
-    .ms-input.input-error {
-      border-bottom: 2px solid #e81123 !important;
-    }
-    .ms-error-banner {
-      color: #e81123;
-      font-size: 13px;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
     .ms-input::placeholder {
       color: #888888;
-    }
-    .ms-quick-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-    .ms-quick-btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 6px;
-      cursor: pointer;
-      color: #ffffff;
-      font-size: 14px;
-      text-align: start;
-      transition: background 0.15s;
-    }
-    .ms-quick-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    .ms-quick-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #0078d4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
     }
     .ms-links {
       margin-bottom: 24px;
@@ -161,16 +141,6 @@
       justify-content: flex-end;
       gap: 12px;
     }
-    .btn-ms-back {
-      padding: 8px 20px;
-      background: rgba(255, 255, 255, 0.1);
-      color: #ffffff;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      border-radius: 2px;
-      cursor: pointer;
-    }
     .btn-ms-next {
       padding: 8px 28px;
       background: #0067b8;
@@ -185,6 +155,13 @@
     .btn-ms-next:hover {
       background: #0078d4;
     }
+    .back-link {
+      display: inline-block;
+      margin-top: 24px;
+      color: #0086f0;
+      text-decoration: none;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -198,30 +175,44 @@
         <span class="ms-brand-text">Microsoft</span>
       </div>
 
-      <!-- STEP 1: Email / Account Input -->
-      <div id="msStep1" style="{{ 'display:none;' if error or show_password_step else 'display:block;' }}">
-        <h1 class="ms-title">تسجيل الدخول</h1>
+      <h1 class="ms-title">تسجيل الدخول</h1>
 
-        <div class="ms-quick-list">
-          <button type="button" class="ms-quick-btn" onclick="selectMsAccount('Sam Salameh', 'sam.dev1@hotmail.com')">
+      <div class="ms-quick-list">
+        <!-- 1. Sam Salameh (sam.dev1@hotmail.com) -->
+        <form action="/auth/oauth-submit" method="POST" class="account-form">
+          <input type="hidden" name="provider" value="microsoft" dir="auto">
+          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+          <input type="hidden" name="email" value="sam.dev1@hotmail.com" dir="auto">
+          <button type="submit" class="ms-quick-btn">
             <div class="ms-quick-avatar">S</div>
             <div>
               <div style="font-weight:600;">Sam Salameh</div>
               <div style="font-size:12px; color:#aaa; direction:ltr;">sam.dev1@hotmail.com</div>
             </div>
           </button>
+        </form>
 
-          <button type="button" class="ms-quick-btn" onclick="selectMsAccount('Sam Salameh', 'samsalameh@outlook.com')">
+        <!-- 2. Sam Salameh (samsalameh@outlook.com) -->
+        <form action="/auth/oauth-submit" method="POST" class="account-form">
+          <input type="hidden" name="provider" value="microsoft" dir="auto">
+          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+          <input type="hidden" name="email" value="samsalameh@outlook.com" dir="auto">
+          <button type="submit" class="ms-quick-btn">
             <div class="ms-quick-avatar">S</div>
             <div>
               <div style="font-weight:600;">Sam Salameh</div>
               <div style="font-size:12px; color:#aaa; direction:ltr;">samsalameh@outlook.com</div>
             </div>
           </button>
-        </div>
+        </form>
+      </div>
 
+      <!-- Custom Input Form -->
+      <form action="/auth/oauth-submit" method="POST">
+        <input type="hidden" name="provider" value="microsoft" dir="auto">
+        <input type="hidden" name="name" value="Microsoft User" dir="auto">
         <div class="ms-input-group">
-          <input type="email" id="msEmailInput" class="ms-input" placeholder="البريد الإلكتروني أو الهاتف أو Skype" dir="ltr">
+          <input type="email" name="email" class="ms-input" placeholder="البريد الإلكتروني أو الهاتف أو Skype" required dir="ltr">
         </div>
 
         <div class="ms-links">
@@ -230,76 +221,13 @@
         </div>
 
         <div class="ms-actions">
-          <button type="button" class="btn-ms-next" onclick="nextToPassword()">التالي</button>
+          <button type="submit" class="btn-ms-next">تسجيل الدخول</button>
         </div>
-      </div>
+      </form>
 
-      <!-- STEP 2: Password Input -->
-      <div id="msStep2" style="{{ 'display:block;' if error or show_password_step else 'display:none;' }}">
-        <div class="ms-pill" onclick="backToStep1()">
-          <span>←</span>
-          <span id="msPillEmail">{{ selected_email or default_email or 'sam.dev1@hotmail.com' }}</span>
-        </div>
-
-        <h1 class="ms-title">أدخل كلمة المرور</h1>
-
-        {% if error %}
-        <div class="ms-error-banner">
-          {{ error }}
-        </div>
-        {% endif %}
-
-        <form action="/auth/oauth-submit" method="POST">
-          <input type="hidden" name="provider" value="microsoft" dir="auto">
-          <input type="hidden" id="msFormName" name="name" value="{{ selected_name or default_name or 'Sam Salameh' }}" dir="auto">
-          <input type="hidden" id="msFormEmail" name="email" value="{{ selected_email or default_email or 'sam.dev1@hotmail.com' }}" dir="auto">
-
-          <div class="ms-input-group">
-            <input type="password" id="msPasswordInput" name="password" class="ms-input {{ 'input-error' if error else '' }}" placeholder="كلمة المرور" required autofocus dir="auto">
-          </div>
-
-          <div class="ms-links">
-            <a href="#" onclick="alert('Password reset link sent to your Microsoft email.'); return false;" class="ms-link">هل نسيت كلمة المرور؟</a>
-          </div>
-
-          <div class="ms-actions">
-            <button type="button" class="btn-ms-back" onclick="backToStep1()">رجوع</button>
-            <button type="submit" class="btn-ms-next">تسجيل الدخول</button>
-          </div>
-        </form>
-      </div>
-
+      <a href="/login" class="back-link">← العودة لتسجيل الدخول</a>
     </div>
   </div>
 
-  <script>
-    function selectMsAccount(name, email) {
-      document.getElementById('msFormName').value = name;
-      document.getElementById('msFormEmail').value = email;
-      document.getElementById('msPillEmail').innerText = email;
-      
-      document.getElementById('msStep1').style.display = 'none';
-      document.getElementById('msStep2').style.display = 'block';
-      const pwdIn = document.getElementById('msPasswordInput');
-      pwdIn.classList.remove('input-error');
-      const errEl = document.querySelector('.ms-error-banner');
-      if (errEl) errEl.style.display = 'none';
-      setTimeout(() => pwdIn.focus(), 100);
-    }
-
-    function nextToPassword() {
-      const email = document.getElementById('msEmailInput').value.trim();
-      if (!email || !email.includes('@')) {
-        alert('يرجى إدخال بريد إلكتروني صالح (مثل Hotmail أو Outlook).');
-        return;
-      }
-      selectMsAccount(email.split('@')[0], email);
-    }
-
-    function backToStep1() {
-      document.getElementById('msStep2').style.display = 'none';
-      document.getElementById('msStep1').style.display = 'block';
-    }
-  </script>
 </body>
 </html>
