@@ -182,7 +182,7 @@ def get_db(max_retries: int = 4):
                 raise RuntimeError(f"[DB] All strategies failed: {e}")
 
 def get_verified_user_id(request: Request):
-    """Verify signed cookie or session. Returns user_id or local candidate fallback."""
+    """Verify signed cookie or session. Returns user_id or None if unauthenticated."""
     cookie = request.cookies.get("user_id", "")
     if cookie:
         try:
@@ -198,14 +198,6 @@ def get_verified_user_id(request: Request):
             s = request.session.get("user")
             if isinstance(s, dict) and s.get("id"):
                 return s["id"]
-    except Exception:
-        pass
-
-    # Seamless local developer/owner fallback on localhost
-    try:
-        client_host = request.client.host if request.client else ""
-        if client_host in ("127.0.0.1", "localhost", "::1") or os.getenv("DEV_AUTO_AUTH", "1") == "1":
-            return "user_1b73747a6e9a41d6"
     except Exception:
         pass
 

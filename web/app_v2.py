@@ -500,7 +500,7 @@ def is_admin_email(email: str) -> bool:
     return e in admins
 
 def get_verified_user_id(request: Request) -> str:
-    """Safely verify and extract user_id from signed cookie, session, or local dev fallback."""
+    """Safely verify and extract user_id from signed cookie or session."""
     # Method 1: Signed cookie (primary for web UI)
     cookie = request.cookies.get("user_id", "")
     if cookie:
@@ -516,14 +516,6 @@ def get_verified_user_id(request: Request) -> str:
         session_user = request.session.get("user")
         if session_user and session_user.get("id"):
             return session_user["id"]
-    except Exception:
-        pass
-
-    # Seamless local developer fallback on localhost
-    try:
-        client_host = request.client.host if request.client else ""
-        if client_host in ("127.0.0.1", "localhost", "::1") or os.getenv("DEV_AUTO_AUTH", "1") == "1":
-            return "user_1b73747a6e9a41d6"
     except Exception:
         pass
 

@@ -76,16 +76,13 @@ def _optimize_sqlite_engine():
 
 
 def _open_browser_when_ready(port=8000):
-    """Polls port and automatically opens the application once the server is listening."""
+    """Polls port and automatically opens the homepage once the server is listening."""
     for _ in range(50):
         time.sleep(0.4)
         try:
             with socket.create_connection(("127.0.0.1", port), timeout=0.5):
                 time.sleep(0.5)
-                # Open Main Application Homepage & Dashboard
                 webbrowser.open(f"http://127.0.0.1:{port}/")
-                time.sleep(0.4)
-                webbrowser.open(f"http://127.0.0.1:{port}/user-dashboard")
                 return
         except Exception:
             continue
