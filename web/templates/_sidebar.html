@@ -294,7 +294,7 @@
     <a href="/contact" {{ 'class=active' if active_page == 'contact' else '' }}><span class="nav-icon">💬</span>اتصل بنا</a>
     <a href="https://wa.me/12494985866?text=مرحبا%21%20دعم%20جوبهانت%20برو" style="color:#25D366;" target="_blank"><span class="nav-icon">🟢</span>واتساب</a>
 
-    {% if is_admin or (user and (user.is_admin or user.user_type == 'admin')) %}
+    {% if is_admin %}
     <div class="nav-divider"></div>
     <div class="nav-section-label" style="color:#ef4444;">🛡️ لوحة وتحكم الإدارة</div>
     <a href="/admin" {{ 'class=active' if active_page == 'admin' else '' }} style="color:#ef4444;"><span class="nav-icon">🛡️</span>لوحة الإدارة</a>

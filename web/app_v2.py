@@ -456,7 +456,8 @@ def _build_dashboard_shell(user, user_id, content_html, title, active_page, requ
 
     is_admin = False
     if user and isinstance(user, dict):
-        is_admin = bool(user.get("is_admin")) or user.get("user_type") == "admin" or is_admin_email(user.get("email", ""))
+        user_email = user.get("email", "")
+        is_admin = is_admin_email(user_email)
     elif user_id:
         is_admin = is_admin_email(str(user_id))
 
@@ -4930,11 +4931,6 @@ def user_dashboard(request: Request):
         conn = get_db()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?", (user_id, user_id, str(user_id).lower())).fetchone()
         if not user_row:
-            user_row = (
-                conn.execute("SELECT * FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'").fetchone() or
-                conn.execute("SELECT * FROM users ORDER BY id DESC LIMIT 1").fetchone()
-            )
-        if not user_row:
             return RedirectResponse("/login", status_code=303)
         user = dict(user_row)
         actual_uid = user.get("user_id") or str(user.get("id") or user_id)
@@ -4967,7 +4963,7 @@ def user_dashboard(request: Request):
 
         rows = conn.execute(
             """SELECT * FROM cv_profiles 
-               WHERE user_id = ? OR user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
+               WHERE user_id = ? OR user_id = ?
                ORDER BY id DESC""", (actual_uid, str(user_id))
         ).fetchall()
         formatted_profiles = []
@@ -5081,8 +5077,8 @@ def user_dashboard(request: Request):
             'daily_pct': daily_pct,
         }
 
-        referral_link = f"{config.SITE_URL}/register?ref={user_id}"
-        content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
+        is_admin_flag = is_admin_email(user.get("email", "")) or is_admin_email(str(user_id))
+        content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, is_admin=is_admin_flag, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request), headers={"Cache-Control": "no-cache, no-store, must-revalidate, max-age=0", "Pragma": "no-cache", "Expires": "0"})
     finally:
         if conn is not None:
