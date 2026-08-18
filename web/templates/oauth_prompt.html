@@ -3,121 +3,149 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
-  <title>تسجيل الدخول بواسطة Google — اختر حساباً</title>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3"/>
+  <title>تسجيل الدخول باستخدام حساب Google</title>
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap"/>
 
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Roboto', sans-serif;
-      background-color: #131314;
+      font-family: 'Roboto', 'Cairo', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0f1011;
       color: #e3e3e3;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-    }
-    .page-wrap {
-      flex: 1;
-      display: flex;
       justify-content: center;
       align-items: center;
-      padding: 100px 20px 40px;
+      padding: 24px 16px;
     }
-    .account-picker-card {
-      background: #1e1e1e;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .google-card {
+      background: #18191b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 28px;
       width: 100%;
-      max-width: 520px;
+      max-width: 580px;
       padding: 40px;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
-    .google-header-logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-    .google-logo-svg { width: 32px; height: 32px; }
-    .picker-title {
-      font-size: 28px;
-      font-weight: 700;
-      color: #f1f3f4;
-      margin-bottom: 8px;
-    }
-    .picker-subtitle {
-      font-size: 15px;
-      color: #9aa0a6;
+    .google-header {
       margin-bottom: 28px;
     }
-    .accounts-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .google-logo {
+      width: 44px;
+      height: 44px;
       margin-bottom: 20px;
     }
-    .account-item {
+    .google-title {
+      font-size: 32px;
+      font-weight: 500;
+      color: #f1f3f4;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      font-family: 'Roboto', 'Cairo', sans-serif;
+    }
+    .google-subtitle {
+      font-size: 15px;
+      color: #9aa0a6;
+      margin-bottom: 24px;
+    }
+    .account-list {
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .account-form {
+      margin: 0;
+      width: 100%;
+    }
+    .account-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 12px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: background-color 0.15s ease;
+      text-align: start;
+    }
+    .account-btn:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+    .account-left {
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      background: transparent;
-      border: 1px solid transparent;
-      transition: background-color 0.2s;
-      text-decoration: none;
-      color: inherit;
+      flex: 1;
     }
-    .account-item:hover {
-      background-color: #2d2e31;
-    }
-    .avatar-circle {
+    .account-avatar {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #1a73e8, #8ab4f8);
-      color: #ffffff;
-      font-weight: 700;
-      font-size: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
       flex-shrink: 0;
     }
-    .avatar-circle.sam { background: #34a853; }
-    .avatar-circle.rita { background: #ea4335; }
-    .avatar-circle.luxury { background: #fbbc04; color: #202124; }
-    .avatar-circle.custom { background: #3c4043; }
-    .account-info {
+    .avatar-sam { background: #1b873f; }
+    .avatar-orange { background: #e37400; }
+    .avatar-purple { background: #8430ce; }
+    .avatar-blue { background: #1a73e8; }
+    .avatar-grey { background: #5f6368; }
+    .avatar-red { background: #c5221f; }
+    .avatar-brown { background: #b06000; }
+    .avatar-plus { background: #3c4043; font-size: 22px; }
+
+    .account-details {
       display: flex;
       flex-direction: column;
-      flex: 1;
-      text-align: start;
+      gap: 2px;
     }
     .account-name {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #e8eaed;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-admin {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
     }
     .account-email {
       font-size: 14px;
       color: #9aa0a6;
-      font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Roboto', sans-serif;
+      font-family: 'Roboto', 'Cairo', sans-serif;
     }
-    .divider {
-      height: 1px;
-      background-color: #3c4043;
-      margin: 16px 0;
+    .signed-out-tag {
+      font-size: 13px;
+      color: #9aa0a6;
+      font-weight: 400;
+      padding-inline-start: 12px;
+      flex-shrink: 0;
     }
-    .custom-input-box {
+    .custom-form-container {
       display: none;
-      background: #252629;
-      border: 1px solid #3c4043;
+      background: #202124;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
       padding: 20px;
-      margin-top: 12px;
+      margin-top: 16px;
     }
     .form-group {
       margin-bottom: 14px;
@@ -125,153 +153,211 @@
     }
     .form-group label {
       display: block;
-      font-size: 14px;
+      font-size: 13px;
       color: #bdc1c6;
       margin-bottom: 6px;
-      font-weight: 600;
     }
     .form-group input {
       width: 100%;
       padding: 12px 14px;
-      background: #1e1e1e;
+      background: #131314;
       border: 1px solid #5f6368;
       border-radius: 8px;
       color: #ffffff;
       font-size: 15px;
       outline: none;
+      font-family: inherit;
     }
-    .form-group input:focus { border-color: #8ab4f8; }
+    .form-group input:focus {
+      border-color: #8ab4f8;
+    }
     .btn-submit-custom {
       width: 100%;
       padding: 12px;
       background: #8ab4f8;
-      color: #202124;
+      color: #131314;
       font-weight: 700;
       font-size: 15px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
-    .btn-submit-custom:hover { background: #aecbfa; }
-    .back-btn {
+    .btn-submit-custom:hover {
+      background: #aecbfa;
+    }
+    .back-link {
       display: inline-block;
-      margin-top: 20px;
+      margin-top: 24px;
       color: #8ab4f8;
       text-decoration: none;
       font-size: 14px;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  {% include "_public_nav.html" %}
 
-  <div class="page-wrap">
-    <div class="account-picker-card">
-      <div class="google-header-logo">
-        {% if provider == 'microsoft' %}
-        <svg class="google-logo-svg" viewBox="0 0 23 23" style="width:36px; height:36px;">
-          <path fill="#f35325" d="M1 1h10v10H1z"/>
-          <path fill="#81bc06" d="M12 1h10v10H12z"/>
-          <path fill="#05a6f0" d="M1 12h10v10H1z"/>
-          <path fill="#ffba08" d="M12 12h10v10H1z"/>
-        </svg>
-        <span style="font-size:22px; font-weight:700; color:#ffffff;">Microsoft</span>
-        {% else %}
-        <svg class="google-logo-svg" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        {% endif %}
-      </div>
+  <div class="google-card">
+    <div class="google-header">
+      <svg class="google-logo" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+      </svg>
+      <h1 class="google-title">Choose an account</h1>
+      <p class="google-subtitle">to continue to JobHunt Pro</p>
+    </div>
 
-      {% if error %}
-      <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; color: #fca5a5; font-size: 14px; text-align: start;">
-        ⚠️ {{ error }}
-      </div>
-      {% endif %}
-
-      <h1 class="picker-title">اختر حساباً / Choose an account</h1>
-      <p class="picker-subtitle">ل للمتابعة والتسجيل عبر {{ 'Microsoft' if provider == 'microsoft' else 'Google' }} في JobHunt Pro</p>
-
-      <div class="accounts-list">
-        <!-- Account Option 1: Sam Salameh (Admin / Master) -->
-        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
-          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
-          <input type="hidden" name="email" value="samatou683@gmail.com" dir="auto">
-          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle sam">S</div>
-            <div class="account-info">
-              <span class="account-name">Sam Salameh (Master Admin)</span>
+    <div class="account-list">
+      <!-- 1. sam (Master Admin) -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+        <input type="hidden" name="email" value="samatou683@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-sam">S</div>
+            <div class="account-details">
+              <span class="account-name">sam <span class="badge-admin">Admin</span></span>
               <span class="account-email">samatou683@gmail.com</span>
             </div>
-          </button>
-        </form>
+          </div>
+        </button>
+      </form>
 
-        <!-- Account Option 2: Sam Salameh (Candidate) -->
-        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
-          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
-          <input type="hidden" name="email" value="samsalameh.cv@gmail.com" dir="auto">
-          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle sam">S</div>
-            <div class="account-info">
-              <span class="account-name">Sam Salameh (Candidate Profile)</span>
+      <!-- 2. sam salameh (Candidate) -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+        <input type="hidden" name="email" value="samsalameh.cv@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-orange">S</div>
+            <div class="account-details">
+              <span class="account-name">sam salameh</span>
               <span class="account-email">samsalameh.cv@gmail.com</span>
             </div>
-          </button>
-        </form>
+          </div>
+        </button>
+      </form>
 
-        <!-- Account Option 3: Luxury Stores -->
-        <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
-          <input type="hidden" name="name" value="Luxury Stores" dir="auto">
-          <input type="hidden" name="email" value="luxurystores888@gmail.com" dir="auto">
-          <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle luxury">L</div>
-            <div class="account-info">
-              <span class="account-name">Luxury Stores</span>
-              <span class="account-email">luxurystores888@gmail.com</span>
+      <!-- 3. Nancy Salameh -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Nancy Salameh" dir="auto">
+        <input type="hidden" name="email" value="salamehnancy88@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-purple">N</div>
+            <div class="account-details">
+              <span class="account-name">Nancy Salameh</span>
+              <span class="account-email">salamehnancy88@gmail.com</span>
             </div>
-          </button>
-        </form>
+          </div>
+        </button>
+      </form>
 
-        <div class="divider"></div>
+      <!-- 4. Rita -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Rita" dir="auto">
+        <input type="hidden" name="email" value="ritacordahi2@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-blue">R</div>
+            <div class="account-details">
+              <span class="account-name">Rita</span>
+              <span class="account-email">ritacordahi2@gmail.com</span>
+            </div>
+          </div>
+          <span class="signed-out-tag">Signed out</span>
+        </button>
+      </form>
 
-        <!-- Option 4: Use another account -->
-        <div class="account-item" onclick="toggleCustomForm()">
-          <div class="avatar-circle custom">+</div>
-          <div class="account-info">
-            <span class="account-name">إستخدام حساب آخر / Use another account</span>
-            <span class="account-email">إدخال بريد إلكتروني جديد أو كلمة السر</span>
+      <!-- 5. Angel abou daher -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Angel abou daher" dir="auto">
+        <input type="hidden" name="email" value="angelaboudaher@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-grey">A</div>
+            <div class="account-details">
+              <span class="account-name">Angel abou daher</span>
+              <span class="account-email">angelaboudaher@gmail.com</span>
+            </div>
+          </div>
+          <span class="signed-out-tag">Signed out</span>
+        </button>
+      </form>
+
+      <!-- 6. Heribert Stern -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Heribert Stern" dir="auto">
+        <input type="hidden" name="email" value="heribertstern968@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-red">H</div>
+            <div class="account-details">
+              <span class="account-name">Heribert Stern</span>
+              <span class="account-email">heribertstern968@gmail.com</span>
+            </div>
+          </div>
+          <span class="signed-out-tag">Signed out</span>
+        </button>
+      </form>
+
+      <!-- 7. Kolibar rolami -->
+      <form action="/auth/oauth-submit" method="POST" class="account-form">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <input type="hidden" name="name" value="Kolibar rolami" dir="auto">
+        <input type="hidden" name="email" value="luxurystoresvvip@gmail.com" dir="auto">
+        <button type="submit" class="account-btn">
+          <div class="account-left">
+            <div class="account-avatar avatar-brown">K</div>
+            <div class="account-details">
+              <span class="account-name">Kolibar rolami</span>
+              <span class="account-email">luxurystoresvvip@gmail.com</span>
+            </div>
+          </div>
+          <span class="signed-out-tag">Signed out</span>
+        </button>
+      </form>
+
+      <!-- 8. Use another account -->
+      <div class="account-btn" onclick="toggleCustomForm()" style="border-bottom:none;">
+        <div class="account-left">
+          <div class="account-avatar avatar-plus">+</div>
+          <div class="account-details">
+            <span class="account-name">Use another account</span>
           </div>
         </div>
       </div>
-
-      <!-- Custom Email Form -->
-      <div id="customForm" class="custom-input-box">
-        <form action="/auth/oauth-submit" method="POST">
-          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
-          <div class="form-group">
-            <label for="custom_name">الاسم / Full Name</label>
-            <input type="text" id="custom_name" name="name" placeholder="مثال: Rita Cordahi" required/ dir="auto">
-          </div>
-          <div class="form-group">
-            <label for="custom_email">البريد الإلكتروني / Email</label>
-            <input type="email" id="custom_email" name="email" placeholder="{{ 'name@outlook.com' if provider == 'microsoft' else 'name@gmail.com' }}" required/ dir="auto">
-          </div>
-          <div class="form-group">
-            <label for="custom_password">كلمة السر (للحسابات الموجودة) / Account Password</label>
-            <input type="password" id="custom_password" name="password" placeholder="••••••••"/ dir="auto">
-          </div>
-          <button type="submit" class="btn-submit-custom">تسجيل الدخول الآمن 🚀</button>
-        </form>
-      </div>
-
-      <a href="/login" class="back-btn">← العودة إلى صفحة الدخول</a>
     </div>
+
+    <!-- Custom Account Input Box -->
+    <div id="customForm" class="custom-form-container">
+      <form action="/auth/oauth-submit" method="POST">
+        <input type="hidden" name="provider" value="google" dir="auto">
+        <div class="form-group">
+          <label for="custom_name">Name / الاسم</label>
+          <input type="text" id="custom_name" name="name" placeholder="Full Name" required dir="auto">
+        </div>
+        <div class="form-group">
+          <label for="custom_email">Email / البريد الإلكتروني</label>
+          <input type="email" id="custom_email" name="email" placeholder="name@gmail.com" required dir="auto">
+        </div>
+        <button type="submit" class="btn-submit-custom">Next / التالي</button>
+      </form>
+    </div>
+
+    <a href="/login" class="back-link">← Back to Login</a>
   </div>
 
   <script>
@@ -280,15 +366,5 @@
       box.style.display = box.style.display === 'block' ? 'none' : 'block';
     }
   </script>
-
-  {% include "_public_footer.html" %}
-</body>
-</html>customForm');
-      box.style.display = box.style.display === 'block' ? 'none' : 'block';
-    }
-  </script>
-
-  {% include "_public_footer.html" %}
 </body>
 </html>
-
