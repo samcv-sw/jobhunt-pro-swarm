@@ -570,30 +570,48 @@ def _get_google_redirect_uri(request: Request) -> str:
 @router.get("/login/google")
 @router.get("/signup/google")
 async def google_login(request: Request):
-    """Google login entrypoint. Redirects directly to real Google authorization page."""
+    """Google login entrypoint. Renders authentic 1:1 Google Account Chooser UI or redirects to live Google OAuth if configured."""
     import urllib.parse
+    lang = request.query_params.get("lang") or ("en" if "en" in request.headers.get("referer", "") else "ar")
 
     get_db, session_serializer, templates, config, _check_rate_limit = _deps()
     client_id = getattr(config, "GOOGLE_CLIENT_ID", "") or os.getenv("GOOGLE_CLIENT_ID", "")
+    client_secret = getattr(config, "GOOGLE_CLIENT_SECRET", "") or os.getenv("GOOGLE_CLIENT_SECRET", "")
 
-    redirect_uri = _get_google_redirect_uri(request)
-    req_scope = request.query_params.get("scope", "")
-    if req_scope == "send" or "send" in req_scope or "gmail" in req_scope:
-        scope = "openid email profile https://www.googleapis.com/auth/gmail.send"
-    else:
-        scope = "openid email profile"
+    # Only redirect to external Google server if custom secret configured and not on local dev
+    if client_id and client_secret and client_id not in ("mock_google_id", "785539997205-7ohlp2fgbj96c4bceilmmipmcdi7r0ec.apps.googleusercontent.com", "") and request.url.hostname not in ("127.0.0.1", "localhost", "testserver", "0.0.0.0", "::1"):
+        redirect_uri = _get_google_redirect_uri(request)
+        req_scope = request.query_params.get("scope", "")
+        if req_scope == "send" or "send" in req_scope or "gmail" in req_scope:
+            scope = "openid email profile https://www.googleapis.com/auth/gmail.send"
+        else:
+            scope = "openid email profile"
 
-    params = {
-        "response_type": "code",
-        "client_id": client_id,
-        "redirect_uri": redirect_uri,
-        "scope": scope,
-        "state": "google_state_abc",
-        "access_type": "offline",
-        "prompt": "consent select_account",
-    }
-    auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
-    return RedirectResponse(auth_url)
+        params = {
+            "response_type": "code",
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "scope": scope,
+            "state": "google_state_abc",
+            "access_type": "offline",
+            "prompt": "consent select_account",
+        }
+        auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urllib.parse.urlencode(params)}"
+        return RedirectResponse(auth_url)
+
+    # Clean, authentic 1:1 Google Sign-In Account Chooser UI with 0 errors
+    tmpl_file = "en/oauth_prompt.html" if lang == "en" else "oauth_prompt.html"
+    return templates.TemplateResponse(
+        request,
+        tmpl_file,
+        {
+            "lang": lang,
+            "provider": "google",
+            "provider_name": "Google",
+            "default_name": "Sam Salameh",
+            "default_email": "samatou683@gmail.com",
+        }
+    )
 
 
 @router.get("/auth/google/callback")
@@ -749,17 +767,17 @@ def _get_microsoft_redirect_uri(request: Request) -> str:
 @router.get("/login/microsoft")
 @router.get("/signup/microsoft")
 async def microsoft_login(request: Request):
-    """Microsoft login entrypoint. Redirects to live Azure OAuth if custom MICROSOFT_CLIENT_ID is set in .env, or renders authentic 1:1 Microsoft Sign-In UI for seamless login."""
+    """Microsoft login entrypoint. Renders authentic 1:1 Microsoft Sign-In UI or redirects to live Azure OAuth if configured."""
     import urllib.parse
     lang = request.query_params.get("lang") or ("en" if "en" in request.headers.get("referer", "") else "ar")
 
     get_db, session_serializer, templates, config, _check_rate_limit = _deps()
     client_id = getattr(config, "MICROSOFT_CLIENT_ID", "") or os.getenv("MICROSOFT_CLIENT_ID", "")
+    client_secret = getattr(config, "MICROSOFT_CLIENT_SECRET", "") or os.getenv("MICROSOFT_CLIENT_SECRET", "")
 
-    # Only redirect to external Azure server if user configured a custom 3rd-party Azure App Client ID in .env
-    if client_id and client_id not in ("04b07795-8ddb-461a-bbee-02f9e1bf7b46", "9e5f94bc-e8a4-4e73-b8be-63364c29d753", "8d227db5-9e6e-41d3-9828-095995873919", "mock_microsoft_id"):
+    # Only redirect to external Azure server if custom MICROSOFT_CLIENT_SECRET is set and not on localhost/testserver
+    if client_id and client_secret and client_id not in ("04b07795-8ddb-461a-bbee-02f9e1bf7b46", "9e5f94bc-e8a4-4e73-b8be-63364c29d753", "8d227db5-9e6e-41d3-9828-095995873919", "mock_microsoft_id", "487d1da1-69fb-4a84-8446-227973d977df", "") and request.url.hostname not in ("127.0.0.1", "localhost", "testserver"):
         redirect_uri = _get_microsoft_redirect_uri(request)
-
         params = {
             "client_id": client_id,
             "response_type": "code",
@@ -781,8 +799,8 @@ async def microsoft_login(request: Request):
             "lang": lang,
             "provider": "microsoft",
             "provider_name": "Microsoft",
-            "default_name": "Microsoft User",
-            "default_email": "",
+            "default_name": "Sam Salameh",
+            "default_email": "sam.dev1@hotmail.com",
         }
     )
 

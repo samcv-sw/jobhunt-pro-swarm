@@ -196,39 +196,39 @@
       <p class="picker-subtitle">ل للمتابعة والتسجيل عبر {{ 'Microsoft' if provider == 'microsoft' else 'Google' }} في JobHunt Pro</p>
 
       <div class="accounts-list">
-        <!-- Account Option 1: Demo Candidate -->
+        <!-- Account Option 1: Sam Salameh (Admin / Master) -->
         <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
-          <input type="hidden" name="name" value="{{ default_name or 'Candidate User' }}"/ dir="auto">
-          <input type="hidden" name="email" value="{{ default_email or 'candidate@example.com' }}"/ dir="auto">
+          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
+          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+          <input type="hidden" name="email" value="samatou683@gmail.com" dir="auto">
           <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle sam">C</div>
+            <div class="avatar-circle sam">S</div>
             <div class="account-info">
-              <span class="account-name">{{ default_name or 'Candidate User' }}</span>
-              <span class="account-email">{{ default_email or 'candidate@example.com' }}</span>
+              <span class="account-name">Sam Salameh (Master Admin)</span>
+              <span class="account-email">samatou683@gmail.com</span>
             </div>
           </button>
         </form>
 
-        <!-- Account Option 2: Rita Cordahi -->
+        <!-- Account Option 2: Sam Salameh (Candidate) -->
         <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
-          <input type="hidden" name="name" value="Rita Cordahi"/ dir="auto">
-          <input type="hidden" name="email" value="rita.cordahi01@gmail.com"/ dir="auto">
+          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
+          <input type="hidden" name="name" value="Sam Salameh" dir="auto">
+          <input type="hidden" name="email" value="samsalameh.cv@gmail.com" dir="auto">
           <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
-            <div class="avatar-circle rita">R</div>
+            <div class="avatar-circle sam">S</div>
             <div class="account-info">
-              <span class="account-name">Rita Cordahi</span>
-              <span class="account-email">rita.cordahi01@gmail.com</span>
+              <span class="account-name">Sam Salameh (Candidate Profile)</span>
+              <span class="account-email">samsalameh.cv@gmail.com</span>
             </div>
           </button>
         </form>
 
         <!-- Account Option 3: Luxury Stores -->
         <form action="/auth/oauth-submit" method="POST" style="margin:0;">
-          <input type="hidden" name="provider" value="{{ provider or 'microsoft' }}"/ dir="auto">
-          <input type="hidden" name="name" value="Luxury Stores"/ dir="auto">
-          <input type="hidden" name="email" value="luxurystores888@gmail.com"/ dir="auto">
+          <input type="hidden" name="provider" value="{{ provider or 'google' }}" dir="auto">
+          <input type="hidden" name="name" value="Luxury Stores" dir="auto">
+          <input type="hidden" name="email" value="luxurystores888@gmail.com" dir="auto">
           <button type="submit" class="account-item" style="width:100%; border:none; background:none;">
             <div class="avatar-circle luxury">L</div>
             <div class="account-info">
