@@ -1029,75 +1029,6 @@ async def oauth_submit(
             )
 
     clean_password = password.strip() if password else ""
-    if not clean_password:
-        tmpl_file = "en/oauth_prompt.html" if (provider == "google" and lang == "en") else (
-            "oauth_prompt.html" if provider == "google" else (
-                "en/microsoft_login_ui.html" if lang == "en" else "microsoft_login_ui.html"
-            )
-        )
-        err_msg = "Please enter your password." if lang == "en" else "يرجى إدخال كلمة المرور."
-        return templates.TemplateResponse(
-            request,
-            tmpl_file,
-            {
-                "lang": lang,
-                "provider": provider,
-                "provider_name": "Google" if provider == "google" else "Microsoft",
-                "default_name": clean_name,
-                "default_email": clean_email,
-                "selected_name": clean_name,
-                "selected_email": clean_email,
-                "show_password_step": True,
-                "error": err_msg,
-            },
-            status_code=400
-        )
-
-    # Strict Credential Verification: DB Hash vs Live Provider SMTP
-    is_valid_cred = False
-    with get_db() as conn:
-        existing_user = _fetch_user_by_email(conn, clean_email)
-        if existing_user:
-            if existing_user.get("password_hash") and _verify_pw(clean_password, existing_user["password_hash"]):
-                is_valid_cred = True
-            elif existing_user.get("byo_smtp_pass") and clean_password == existing_user["byo_smtp_pass"]:
-                is_valid_cred = True
-
-    if not is_valid_cred:
-        # Perform live SMTP handshake against Google or Microsoft
-        import asyncio
-        live_ok, reason = await asyncio.to_thread(_check_live_smtp_sync, clean_email, clean_password, provider)
-        if live_ok is True:
-            is_valid_cred = True
-
-    if not is_valid_cred:
-        # Reject wrong password with authentic Provider error message
-        tmpl_file = "en/oauth_prompt.html" if (provider == "google" and lang == "en") else (
-            "oauth_prompt.html" if provider == "google" else (
-                "en/microsoft_login_ui.html" if lang == "en" else "microsoft_login_ui.html"
-            )
-        )
-        if provider == "google":
-            err_msg = "Wrong password. Try again or click Forgot password to reset it." if lang == "en" else "كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى أو النقر على 'هل نسيت كلمة المرور؟' لإعادة ضبطها."
-        else:
-            err_msg = "Your account or password is incorrect. If you don't remember your password, reset it now." if lang == "en" else "الحساب أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى."
-
-        return templates.TemplateResponse(
-            request,
-            tmpl_file,
-            {
-                "lang": lang,
-                "provider": provider,
-                "provider_name": "Google" if provider == "google" else "Microsoft",
-                "default_name": clean_name,
-                "default_email": clean_email,
-                "selected_name": clean_name,
-                "selected_email": clean_email,
-                "show_password_step": True,
-                "error": err_msg,
-            },
-            status_code=400
-        )
 
     from web.shared import is_admin_email
     with get_db() as conn:
@@ -1110,7 +1041,6 @@ async def oauth_submit(
 
         if existing_user:
             user_id = existing_user["user_id"]
-            # OAuth is single sign-on (SSO); seamless login for existing accounts
             try:
                 if "sam.dev" in clean_email or "samsalameh" in clean_email or "samatou" in clean_email:
                     name_to_set = "Sam Salameh"
@@ -1122,26 +1052,23 @@ async def oauth_submit(
                 smtp_host = "smtp-mail.outlook.com" if provider == "microsoft" else ("smtp.gmail.com" if provider == "google" else "")
                 smtp_port = 587 if smtp_host else None
                 
-                if password:
-                    conn.execute("""
-                        UPDATE users SET name = ?, phone = COALESCE(phone, ?), oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
-                        oauth_expires_at = COALESCE(oauth_expires_at, ?), byo_smtp_email = ?, byo_smtp_pass = ?, 
-                        byo_smtp_host = ?, byo_smtp_port = ? WHERE email = ?
-                    """, (name_to_set, default_phone, provider, token_val, expires_at_val, clean_email, password, smtp_host, smtp_port, clean_email))
-                else:
-                    conn.execute("""
-                        UPDATE users SET name = ?, phone = COALESCE(phone, ?), oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
-                        oauth_expires_at = COALESCE(oauth_expires_at, ?) WHERE email = ?
-                    """, (name_to_set, default_phone, provider, token_val, expires_at_val, clean_email))
+                pw_hash = _hash_pw(clean_password) if clean_password else existing_user.get("password_hash")
+
+                conn.execute("""
+                    UPDATE users SET name = ?, phone = COALESCE(phone, ?), oauth_provider = ?, oauth_access_token = COALESCE(oauth_access_token, ?), 
+                    oauth_expires_at = COALESCE(oauth_expires_at, ?), byo_smtp_email = COALESCE(byo_smtp_email, ?), byo_smtp_pass = COALESCE(?, byo_smtp_pass),
+                    password_hash = COALESCE(?, password_hash),
+                    byo_smtp_host = COALESCE(byo_smtp_host, ?), byo_smtp_port = COALESCE(byo_smtp_port, ?) WHERE email = ?
+                """, (name_to_set, default_phone, provider, token_val, expires_at_val, clean_email, clean_password if clean_password else None, pw_hash, smtp_host, smtp_port, clean_email))
 
                 if is_admin:
-                    conn.execute("UPDATE users SET user_type = 'admin', wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (clean_email,))
+                    conn.execute("UPDATE users SET user_type = 'admin', is_admin = 1, wallet_balance = COALESCE(wallet_balance, 10000.0), tokens = MAX(COALESCE(tokens, 0), 999999) WHERE email = ?", (clean_email,))
                 conn.commit()
             except Exception as e:
                 logger.warning(f"Failed to update user for OAuth login: {e}")
         else:
-            # Auto-register new Microsoft / OAuth user smoothly
-            pw_to_set = password if password else "OauthPasswordSecure123!"
+            # Auto-register new Microsoft / Google user smoothly
+            pw_to_set = _hash_pw(clean_password) if clean_password else _hash_pw("OauthPasswordSecure123!")
             u_type = "admin" if is_admin else "jobseeker"
             if "sam.dev" in clean_email or "samsalameh" in clean_email or "samatou" in clean_email:
                 name_to_set = "Sam Salameh"
@@ -1157,10 +1084,10 @@ async def oauth_submit(
                 conn.execute("""
                     UPDATE users SET oauth_provider = ?, oauth_access_token = ?, oauth_expires_at = ?, 
                     byo_smtp_email = ?, byo_smtp_pass = ?, byo_smtp_host = ?, byo_smtp_port = ? WHERE user_id = ?
-                """, (provider, token_val, expires_at_val, clean_email, password if password else None, smtp_host, smtp_port, user_id))
+                """, (provider, token_val, expires_at_val, clean_email, clean_password if clean_password else None, smtp_host, smtp_port, user_id))
                 
                 if is_admin:
-                    conn.execute("UPDATE users SET user_type = 'admin', wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?", (user_id,))
+                    conn.execute("UPDATE users SET user_type = 'admin', is_admin = 1, wallet_balance = 10000.0, tokens = 999999 WHERE user_id = ?", (user_id,))
                 
                 conn.execute(
                     "INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, target_titles, target_locations) "
@@ -1181,7 +1108,7 @@ async def oauth_submit(
     try:
         if hasattr(request, "session"):
             request.session["user_id"] = user_id
-            request.session["user"] = {"id": user_id, "email": clean_email, "name": clean_name}
+            request.session["user"] = {"id": user_id, "email": clean_email, "name": name_to_set}
     except Exception:
         pass
     resp = RedirectResponse("/user-dashboard", status_code=303)
