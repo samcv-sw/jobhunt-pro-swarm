@@ -38,11 +38,12 @@ async def create_checkout_session(request: CheckoutRequest, payload: dict = Depe
         raise HTTPException(status_code=400, detail="Invalid subscription or campaign tier")
 
     if not stripe.api_key:
-        is_production = os.environ.get("ENV") == "production"
-        if is_production:
-            raise HTTPException(status_code=500, detail="Payment processing is not configured.")
-        # Dev-only mock fallback (no real key, not production)
-        return {"checkout_url": f"{APP_BASE_URL}/dashboard?mock_session={user_id}"}
+        # Sovereign MENA / Lebanon Crypto & Direct Card Rails (NOWPayments, ChangeNOW, MoonPay, Wallet)
+        return {
+            "checkout_url": f"{APP_BASE_URL}/wallet?plan={tier_key}&user_id={user_id}",
+            "payment_rails": ["nowpayments", "changenow", "moonpay", "crypto_usdt"],
+            "note": "Routed to sovereign crypto & MoonPay card onramp checkout"
+        }
 
     checkout_mode = "subscription" if tier_key == "enterprise" else "payment"
 

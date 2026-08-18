@@ -255,7 +255,7 @@ function toggleApiKey() {
         </div>
 <div class="crypto-name">{{ coin.upper() }}</div>
 <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.15);background:rgba(0,240,255,.05);color:#0a0a1a !important;-webkit-text-fill-color:#0a0a1a !important;cursor:pointer;font-size: 14px;transition:all .2s;">📋 نسخ</button>
+<button class="btn" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ تم النسخ!';setTimeout(()=>this.innerHTML='📋 نسخ',2000)" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(0,240,255,.3);background:rgba(0,240,255,.1);color:#00f0ff !important;-webkit-text-fill-color:#00f0ff !important;cursor:pointer;font-size: 14px;transition:all .2s;font-weight:600;">📋 نسخ</button>
 </div>
     {% endif %}
     {% endfor %}

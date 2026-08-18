@@ -6,6 +6,7 @@ JobHunt Pro SaaS - Payment Processing, Crypto Web3 & Credit Rewards
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
+import os
 import time
 
 router = APIRouter(prefix="/api/v1/monetization", tags=["Monetization & Referrals"])

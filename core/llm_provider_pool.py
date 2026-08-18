@@ -658,7 +658,74 @@ def _call_local_heuristic_engine(
     combined = f"{s_lower} {p_lower}"
 
     # ─────────────────────────────────────────────────────────────────────────
-    # 1. ATS CV Audit & Scoring Fallback (Strict JSON Schema)
+    # 1. Tailored Bilingual Cover Letter Generation Fallback
+    # ─────────────────────────────────────────────────────────────────────────
+    is_cover_letter = (
+        task_type in ("cover_letter", "cover")
+        or "cover letter" in combined
+        or "hiring team" in combined
+        or ("cover" in combined and "letter" in combined)
+    )
+
+    if is_cover_letter:
+        company = "Target Organization"
+        title = "Senior Software Engineer"
+        m_comp = re.search(r"(?:company|at|for)\s+[:=]?\s*([A-Za-z0-9\s\-]+?)(?:[\n,.]|$)", prompt, re.IGNORECASE)
+        if m_comp and len(m_comp.group(1).strip()) > 1:
+            company = m_comp.group(1).strip()
+
+        is_arabic = bool(re.search(r"[\u0600-\u06FF]", prompt)) or "arabic" in combined or "bilingual" in combined
+
+        import config
+        cand_name = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+        cand_email = getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+        cand_phone = getattr(config, "CANDIDATE_PHONE", "+961 70 841 009")
+
+        english_text = (
+            f"Dear Hiring Team at {company},\n\n"
+            f"I am writing to express my strong enthusiasm for the {title} position. With over 8 years of dedicated experience in distributed systems and backend architecture, "
+            f"I have developed a strong track record in architecting resilient backend systems, optimizing operational throughput, and executing end-to-end technical initiatives.\n\n"
+            f"Key qualifications I bring to {company}:\n"
+            f"- 8+ years leading complex technical implementations and scaling high-availability infrastructure\n"
+            f"- Deep core technical expertise in: Python, FastAPI, PostgreSQL, Docker, Redis, Cloud Architecture\n"
+            f"- Proven ability to reduce operational overhead, automate workflows, and maintain 99.99% system reliability\n"
+            f"- Strong focus on security, continuous integration, and strategic alignment with business objectives\n\n"
+            f"I am confident that my technical background and proactive leadership will drive meaningful value for {company}'s upcoming milestones. I welcome the opportunity to discuss how my experience maps to your current technical roadmap. Please see my attached CV.\n\n"
+            f"Sincerely,\n"
+            f"{cand_name}\n"
+            f"{cand_email} | {cand_phone}"
+        )
+
+        arabic_text = (
+            f"السيد/ة مدير التوظيف المحترم في شركة {company}،\n\n"
+            f"تحية طيبة وبعد،،\n\n"
+            f"يسرني التقدم لشغل منصب ({title}) لدى مؤسستكم الموقرة. أمتلك أكثر من 8 سنوات من الخبرة المتخصصة في هندسة البرمجيات وتطوير الأنظمة السحابية الموسعة، "
+            f"حيث ركزت مسيرتي المهنية على بناء بنى تحتية رقمية عالية الكفاءة والأمان ومطابقة لأعلى المعايير المهنية.\n\n"
+            f"أبرز المهارات والخبرات التي سأضيفها لفريقكم:\n"
+            f"- خبرة عملية تتجاوز 8 سنوات في تصميم وتنفيذ الأنظمة السحابية الموسعة والخدمات المصغرة (Microservices)\n"
+            f"- إتقان تقني عالٍ في: Python, FastAPI, PostgreSQL, Docker, Kubernetes, Cloud Security\n"
+            f"- سجل حافل في أتمتة العمليات التقنية، رفع كفاءة الأداء التشغيلي، وخفض التكاليف بنسب قياسية\n"
+            f"- التزام راسخ بأعلى معايير الحوكمة التقنية وأمن البيانات المتوافقة مع متطلبات السوق الخليجي والرؤية الرقمية\n\n"
+            f"أرحب بفرصة إجراء مقابلة لمناقشة كيفية تسخير خبراتي للمساهمة في تحقيق أهداف {company} ومواكبة تطلعات النمو والتطوير.\n\n"
+            f"وتفضلوا بقبول فائق التقدير والاحترام،،\n\n"
+            f"المرشح التنفيذي: {cand_name} (سام سلامه)\n{cand_email} | {cand_phone}"
+        )
+
+        if "json" in combined or '"subject"' in combined or "schema" in combined:
+            return json.dumps({
+                "subject": f"Application for {title} - {cand_name}",
+                "body": english_text if "english" in combined or not is_arabic else arabic_text
+            }, ensure_ascii=False, indent=2)
+
+        if is_arabic:
+            if "bilingual" in combined:
+                return f"{arabic_text}\n\n═══════════════════════════════════════════════════════\n\n{english_text}"
+            return arabic_text
+
+        return english_text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # 2. ATS CV Audit & Scoring Fallback (Strict JSON Schema)
     # ─────────────────────────────────────────────────────────────────────────
     is_ats = (
         task_type in ("ats", "cv_audit", "resume_scoring", "ats_score")
@@ -667,7 +734,7 @@ def _call_local_heuristic_engine(
         or "ats" in combined
         or ("resume" in combined and "score" in combined)
         or ("cv" in combined and "score" in combined)
-        or ("json" in combined and ("resume" in combined or "cv" in combined or "audit" in combined))
+        or ("json" in combined and ("resume" in combined or "audit" in combined))
     )
 
     if is_ats:
@@ -735,11 +802,10 @@ def _call_local_heuristic_engine(
         return json.dumps(result_dict, ensure_ascii=False, indent=2)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # 2. 3-Touch Recruiter Cold Outreach Sequence (Strict JSON Schema)
+    # 3. 3-Touch Recruiter Cold Outreach Sequence (Strict JSON Schema)
     # ─────────────────────────────────────────────────────────────────────────
     is_outreach = (
         task_type in ("outreach", "cold_outreach", "recruiter_sequence", "sdr")
-        or "recruiter" in combined
         or "outreach" in combined
         or "sequence" in combined
         or "touchpoint" in combined
@@ -799,7 +865,7 @@ def _call_local_heuristic_engine(
         return json.dumps(outreach_data, ensure_ascii=False, indent=2)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # 3. Job Description Parsing & Extraction Fallback (Strict JSON Schema)
+    # 4. Job Description Parsing & Extraction Fallback (Strict JSON Schema)
     # ─────────────────────────────────────────────────────────────────────────
     is_job_parse = (
         task_type in ("job_parsing", "extract_job", "job_summary")
@@ -819,71 +885,6 @@ def _call_local_heuristic_engine(
             "is_fallback": True,
         }
         return json.dumps(job_data, ensure_ascii=False, indent=2)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # 4. Tailored Bilingual Cover Letter Generation Fallback
-    # ─────────────────────────────────────────────────────────────────────────
-    is_cover_letter = (
-        task_type in ("cover_letter", "cover")
-        or "cover letter" in combined
-        or "hiring team" in combined
-        or ("cover" in combined and "letter" in combined)
-    )
-
-    if is_cover_letter:
-        company = "Target Organization"
-        title = "Senior Software Engineer"
-        m_comp = re.search(r"(?:company|at|for)\s+[:=]?\s*([A-Za-z0-9\s\-]+?)(?:[\n,.]|$)", prompt, re.IGNORECASE)
-        if m_comp and len(m_comp.group(1).strip()) > 1:
-            company = m_comp.group(1).strip()
-
-        is_arabic = bool(re.search(r"[\u0600-\u06FF]", prompt)) or "arabic" in combined or "bilingual" in combined
-
-        if is_arabic:
-            arabic_text = (
-                f"السيد/ة مدير التوظيف المحترم في شركة {company}،\n\n"
-                f"تحية طيبة وبعد،،\n\n"
-                f"يسرني التقدم لشغل منصب ({title}) لدى مؤسستكم الموقرة. أمتلك أكثر من 8 سنوات من الخبرة المتخصصة في هندسة البرمجيات وتطوير الأنظمة السحابية الموسعة، "
-                f"حيث ركزت مسيرتي المهنية على بناء بنى تحتية رقمية عالية الكفاءة والأمان ومطابقة لأعلى المعايير المهنية.\n\n"
-                f"أبرز المهارات والخبرات التي سأضيفها لفريقكم:\n"
-                f"- خبرة عملية تتجاوز 8 سنوات في تصميم وتنفيذ الأنظمة السحابية الموسعة والخدمات المصغرة (Microservices)\n"
-                f"- إتقان تقني عالٍ في: Python, FastAPI, PostgreSQL, Docker, Kubernetes, Cloud Security\n"
-                f"- سجل حافل في أتمتة العمليات التقنية، رفع كفاءة الأداء التشغيلي، وخفض التكاليف بنسب قياسية\n"
-                f"- التزام راسخ بأعلى معايير الحوكمة التقنية وأمن البيانات المتوافقة مع متطلبات السوق الخليجي والرؤية الرقمية\n\n"
-                f"أرحب بفرصة إجراء مقابلة لمناقشة كيفية تسخير خبراتي للمساهمة في تحقيق أهداف {company} ومواكبة تطلعات النمو والتطوير.\n\n"
-                f"وتفضلوا بقبول فائق التقدير والاحترام،،\n\n"
-                f"المرشح التنفيذي\ncandidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
-            )
-            if "bilingual" in combined:
-                english_text = (
-                    f"Dear Hiring Team at {company},\n\n"
-                    f"I am writing to express my strong enthusiasm for the {title} position. With over 8 years of dedicated experience in distributed systems and backend architecture, "
-                    f"I have a proven track record of designing high-availability platforms, optimizing system throughput, and delivering robust software solutions.\n\n"
-                    f"Key qualifications I bring to {company}:\n"
-                    f"- 8+ years leading complex technical implementations and scaling high-availability microservices\n"
-                    f"- Deep technical expertise in: Python, FastAPI, PostgreSQL, Docker, Kubernetes, System Architecture\n"
-                    f"- Proven ability to automate workflows, reduce API latency, and maintain 99.99% operational uptime\n"
-                    f"- Strong commitment to cybersecurity standards and continuous integration best practices\n\n"
-                    f"I look forward to the opportunity to discuss how my technical expertise can support {company}'s strategic milestones.\n\n"
-                    f"Sincerely,\nAlex Johnson\ncandidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
-                )
-                return f"{arabic_text}\n\n═══════════════════════════════════════════════════════\n\n{english_text}"
-            return arabic_text
-
-        return (
-            f"Dear Hiring Team at {company},\n\n"
-            f"I am writing to express my strong enthusiasm for the {title} position. With over 8 years of dedicated experience in distributed systems and backend architecture, "
-            f"I have developed a strong track record in architecting resilient backend systems, optimizing operational throughput, and executing end-to-end technical initiatives.\n\n"
-            f"Key qualifications I bring to {company}:\n"
-            f"- 8+ years leading complex technical implementations and scaling high-availability infrastructure\n"
-            f"- Deep core technical expertise in: Python, FastAPI, PostgreSQL, Docker, Redis, Cloud Architecture\n"
-            f"- Proven ability to reduce operational overhead, automate workflows, and maintain 99.99% system reliability\n"
-            f"- Strong focus on security, continuous integration, and strategic alignment with business objectives\n\n"
-            f"I am confident that my technical background and proactive leadership will drive meaningful value for {company}'s upcoming milestones. I welcome the opportunity to discuss how my experience maps to your current technical roadmap. Please see my attached CV.\n\n"
-            f"Sincerely,\n"
-            f"Alex Johnson\n"
-            f"candidate.demo@jobhunt-pro.com | +1 (555) 019-2834"
-        )
 
     # ─────────────────────────────────────────────────────────────────────────
     # 5. Resume Markdown / General Text Analysis Fallback

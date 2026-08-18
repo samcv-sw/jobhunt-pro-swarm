@@ -74,6 +74,8 @@ class SubMillisecondCache:
     def clear(self) -> None:
         """Clears entire cache."""
         self._cache.clear()
+        self.hits = 0
+        self.misses = 0
 
     def get_stats(self) -> Dict[str, Any]:
         """Returns cache telemetry and hit ratio."""

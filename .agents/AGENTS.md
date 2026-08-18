@@ -9,6 +9,14 @@
    - **1-Year Cooldown Deduplication Window**: Deduplication across `campaign_emails`, `jobs`, and `multi_platform_apps` is enforced strictly per user (`user_id`) using a 365-day sliding window (`ce.sent_at >= datetime('now', '-365 days')`). Never scan `campaign_emails` globally without a `user_id` predicate.
    - **Mandatory Live MX & Deliverability Verification**: Every target email MUST pass `is_deliverable_email()` and `ScamDetector` DNS MX checks before selection or dispatch.
    - **Instant Live Auto-Dispatch Pulse**: Visiting `/user-dashboard`, `/sent-emails`, or `/battle-station` MUST trigger an active single-dispatch pulse (`dispatch_single_application(user_id=user_id)`) to ensure candidate metrics and logs update dynamically in real time.
+5. **Sovereign MENA & Lebanon Payment Rails Directives (PERMANENT RULE)**:
+   - **Zero Stripe Policy**: NEVER suggest, require, or default to Stripe for payments or payouts. Stripe is unsupported in Lebanon.
+   - **Supported Payment Engines**:
+     1. **NOWPayments**: Direct multi-crypto gateway (USDT TRC20/BEP20, BTC, SOL, ETH) with instant IPN webhook.
+     2. **ChangeNOW.io**: Non-custodial instant swap and checkout widget.
+     3. **MoonPay**: Direct Card / Apple Pay to Crypto fiat onramp for international clients.
+     4. **Redeem Codes & FaKa**: Instant automated digital keys and wallet vouchers.
+   - **UI & Checkout Presentation**: All pricing tables, checkout buttons, and upgrade modals must route directly to `/wallet`, `/checkout/crypto`, ChangeNOW, or MoonPay flows without dead-end Stripe prompts.
 
 ## Multi-Persona Evaluation Council
 For all complex code generation, especially regarding architecture and UI/UX:

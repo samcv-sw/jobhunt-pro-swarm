@@ -13,7 +13,7 @@ def emperor_dashboard_page(request: Request):
     from web.app_v2 import require_admin
     admin_id = require_admin(request)
     if not admin_id:
-        return RedirectResponse(url="/user-dashboard", status_code=303)
+        return RedirectResponse(url="/login?next=/admin/emperor-dashboard", status_code=303)
 
     with get_db() as conn:
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (admin_id, admin_id)).fetchone()
@@ -73,7 +73,7 @@ def get_emperor_telemetry(request: Request):
     """Live JSON telemetry feed for real-time dashboard updates (Admin only)."""
     from web.app_v2 import require_admin
     if not require_admin(request):
-        raise HTTPException(status_code=403, detail="Admin authorization required")
+        raise HTTPException(status_code=401, detail="Admin authorization required")
 
     return JSONResponse({
         "status": "success",

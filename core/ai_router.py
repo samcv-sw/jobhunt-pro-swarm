@@ -51,7 +51,7 @@ GROQ_API_URL = os.getenv(
 GEMINI_API_BASE = os.getenv(
     "GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta/models"
 )
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 GITHUB_MODELS_API_URL = os.getenv(
     "GITHUB_MODELS_API_URL", "https://models.inference.ai.azure.com/chat/completions"
 )

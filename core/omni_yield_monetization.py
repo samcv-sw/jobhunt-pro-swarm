@@ -35,13 +35,13 @@ class OmniYieldMonetizationEngine:
             "infrastructure_cost_usd": 0.0,
             "net_profit_usd": net_profit,
             "profit_margin_pct": 100.0,
-            "payout_channels": ["Stripe Direct", "Lightning Wallet", "USDC Crypto Anchor"]
+            "payout_channels": ["NOWPayments Instant IPN", "ChangeNOW Non-Custodial", "MoonPay Fiat Onramp", "USDT-TRC20 Sovereign Anchor", "Lightning Wallet"]
         }
 
 def get_omni_yield_status() -> Dict[str, Any]:
     return {
         "status": "operational",
-        "supported_protocols": ["http_402_lightning", "stripe_connect", "ton_smart_contract", "usdc_solana"],
+        "supported_protocols": ["nowpayments_ipn", "changenow_swap", "moonpay_fiat_onramp", "http_402_lightning", "ton_smart_contract", "usdc_solana", "faka_redeem_keys"],
         "margin_efficiency": "100.0% Net",
         "automated_settlement": "instant"
     }

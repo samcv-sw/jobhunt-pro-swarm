@@ -12735,6 +12735,12 @@ try:
 except Exception as _e:
     logger.warning(f"Could not load web_lead_nurture_router: {_e}")
 
+try:
+    from backend.routers.million_scale_router import router as million_scale_router
+    app.include_router(million_scale_router)
+except Exception as _e:
+    logger.warning(f"Could not load million_scale_router: {_e}")
+
 
 
 

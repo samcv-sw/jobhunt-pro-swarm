@@ -153,7 +153,17 @@ def alert_email_sent(
     sent_count: int = 0,
     total: int = 0,
 ) -> bool:
-    """Muted: Silences per-email spam. Real-time alerts are reserved for Payments and Daily Reports."""
+    """Alerts for campaign email sends and milestones."""
+    if sent_count in (1, 25, 50, 100) or (sent_count > 0 and sent_count % 25 == 0):
+        msg = (
+            f"📤 <b>Application Sent #{sent_count}</b>\n"
+            f"<b>Company:</b> {company}\n"
+            f"<b>Role:</b> {job_title}\n"
+            f"<b>To:</b> <code>{email_addr}</code>\n"
+        )
+        if total:
+            msg += f"<b>Progress:</b> {sent_count}/{total}\n"
+        return _send_message(msg)
     return True
 
 

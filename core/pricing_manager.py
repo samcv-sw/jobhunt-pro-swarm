@@ -80,13 +80,13 @@ PRICING_TIERS = [
     {
         "tier": "enterprise",
         "name": "Enterprise / B2B SDR Swarm",
-        "companies": 3000,
+        "companies": 2500,
         "price_usd": 149,
         "original_price": 299,
-        "description": "3,000 leads - Autonomous AI SDR Outreach Swarm & Team CRM",
-        "conversion_headline": "سرب B2B SDR الأوتوماتيكي للوصول الفوري إلى 3,000 صانع قرار ومدير تنفيذي في الخليج",
+        "description": "2,500 leads - Autonomous AI SDR Outreach Swarm & Team CRM",
+        "conversion_headline": "سرب B2B SDR الأوتوماتيكي للوصول الفوري إلى 2,500 صانع قرار ومدير تنفيذي في الخليج",
         "features": [
-            "3,000 company / lead applications",
+            "2,500 company / lead applications",
             "Autonomous AI SDR cold outreach swarm",
             "Live MX verification & 365d deduplication",
             "Full CRM & webhook integration",

@@ -11,7 +11,7 @@ from fastapi import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import ORJSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
@@ -501,8 +501,10 @@ app.include_router(video_avatar_router)
 app.include_router(self_healing_agent_router)
 app.include_router(agent_swarm_router)
 app.include_router(vision_form_filler_router)
-app.include_router(microsite_generator_router)
 app.include_router(edge_cache_router)
+
+from backend.routers.million_scale_router import router as million_scale_router
+app.include_router(million_scale_router)
 
 from backend.routers.singularity_suite import router as singularity_suite_router
 app.include_router(singularity_suite_router)
@@ -1005,3 +1007,9 @@ async def get_system_health_score():
         "cooldown_deduplication": "365-Day Window Enforced",
         "autopilot": growth_autopilot.run_growth_cycle()
     })
+
+
+@app.get("/dashboard/1000", response_class=HTMLResponse)
+async def super_dashboard_1000():
+    """Renders 1000% Super-SaaS Command Center dashboard."""
+    return HTMLResponse("<!DOCTYPE html><html><head><title>1000% Super-SaaS Command Center</title></head><body><h1>1000% Super-SaaS Command Center</h1><p>Active</p></body></html>")

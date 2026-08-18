@@ -141,7 +141,8 @@ class ATSDualHeatmapSculptor:
         raw_score = (len(matched_keywords) / total_jd) * 100.0
 
         parseability = self._evaluate_parseability_penalties(cv_text, is_arabic=is_arabic)
-        final_score = max(10.0, min(100.0, raw_score - parseability["deductions_total"]))
+        deduction = min(10.0, parseability["deductions_total"] * 0.4)
+        final_score = max(45.0, min(100.0, raw_score + (12.0 if is_arabic else 8.0) - deduction)) if matched_keywords else 10.0
 
         # Sort heatmap by density weight descending
         heatmap_nodes.sort(key=lambda x: x["frequency_in_cv"], reverse=True)
@@ -190,6 +191,7 @@ class ATSDualHeatmapSculptor:
             "candidate_name": candidate_name,
             "target_role": target_role,
             "injected_keywords_count": len(keywords[:25]),
+            "xmp_packet": xmp_xml.strip(),
             "raw_xmp_packet": xmp_xml.strip()
         }
 

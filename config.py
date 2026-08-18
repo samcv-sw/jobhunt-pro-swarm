@@ -300,6 +300,13 @@ UNSUBSCRIBE_EMAIL = os.getenv("UNSUBSCRIBE_EMAIL", "unsubscribe@jobhunt-pro.com"
 MIN_SALARY_EXPECTATION = float(os.getenv("MIN_SALARY_EXPECTATION", "40000"))
 MIN_SALARY = float(os.getenv("MIN_SALARY", "2000"))  # Monthly minimum (USD) used by negotiator_agent
 
+SMTP_USER = os.getenv("SMTP_USER", os.getenv("GMAIL_USERNAME", "samatou683@gmail.com"))
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", os.getenv("GMAIL_APP_PASSWORD", ""))
+SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+GMAIL_USERNAME = SMTP_USER
+GMAIL_APP_PASSWORD = SMTP_PASSWORD
+
 # ═══ Cold Blaster Rate Limits (anti-spam safety) ═══
 COLD_BLAST_MIN_DELAY = float(os.getenv("COLD_BLAST_MIN_DELAY", "30.0"))
 COLD_BLAST_MAX_DELAY = float(os.getenv("COLD_BLAST_MAX_DELAY", "45.0"))
@@ -313,7 +320,7 @@ CRYPTO_TRON_ADDRESS = os.getenv("CRYPTO_TRON_ADDRESS", "TSQpfDt3KU6w4CpKDXE6S3jL
 CRYPTO_TON_ADDRESS = os.getenv("CRYPTO_TON_ADDRESS", "UQA8Rk7hv93aWeIAb3j_XqpUqvjC4igQdObtlVLykGyrQ9ux")
 CRYPTO_LTC_ADDRESS = os.getenv("CRYPTO_LTC_ADDRESS", "")
 
-# Ã¢â€â‚¬Ã¢â€â‚¬ Hyper Mode Configuration Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
+# ═══ Hyper Mode Configuration ═══
 HYPER_MODE_ENABLED = os.getenv("HYPER_MODE_ENABLED", "true").lower() == "true"
 HYPER_TEST_MODE = os.getenv("HYPER_TEST_MODE", "false").lower() == "true"
 HYPER_PARALLEL_WORKERS = int(os.getenv("HYPER_PARALLEL_WORKERS", "20"))

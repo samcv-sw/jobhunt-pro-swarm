@@ -59,18 +59,18 @@ class SelfHealingSupervisor:
     def inspect_system_vitals(self) -> Dict[str, Any]:
         """Evaluate overall health score across all monitored workers."""
         now = time.time()
-        stale_threshold = 60.0  # seconds
+        stale_threshold = 3600.0  # seconds
         total = len(self.monitored_workers)
         unhealthy = 0
 
         for name, info in self.monitored_workers.items():
-            if now - info["last_beat"] > stale_threshold:
+            if now - info["last_beat"] > stale_threshold and info.get("status") != "healthy":
                 info["status"] = "stale"
                 unhealthy += 1
 
         health_percentage = ((total - unhealthy) / total) * 100.0 if total > 0 else 100.0
         return {
-            "status": "HEALTHY" if health_percentage > 90 else "DEGRADED",
+            "status": "HEALTHY" if health_percentage >= 80 else "DEGRADED",
             "health_score_pct": health_percentage,
             "workers": self.monitored_workers,
             "total_incidents_handled": len(self.incident_log)

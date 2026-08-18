@@ -5,6 +5,7 @@ Provides high-performance, mobile-first endpoints for running AI campaigns,
 checking real-time harvester telemetry, and generating viral ATS roasts inside Telegram.
 """
 
+import os
 import time
 import hmac
 import hashlib

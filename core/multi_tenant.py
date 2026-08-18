@@ -84,6 +84,12 @@ def _get_db_path() -> str:
 
 def _get_conn() -> sqlite3.Connection:
     """Get a read/write SQLite connection with WAL mode."""
+    db_path = os.environ.get("DB_PATH")
+    if db_path and os.path.exists(db_path):
+        import sqlite3 as real_sqlite3
+        conn = real_sqlite3.connect(db_path, timeout=60)
+        conn.row_factory = real_sqlite3.Row
+        return conn
     try:
         from web.shared import get_db
         return get_db()

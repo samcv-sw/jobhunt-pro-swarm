@@ -60,6 +60,8 @@ async def get_ar_seo_landing_page(slug: str):
 @router.get("/jobs/{slug}", response_class=HTMLResponse)
 async def get_seo_landing_page(slug: str, request: Request):
     """Serves programmatic SEO landing page based on URL slug with Schema.org JSON-LD."""
+    if slug.startswith("ar-"):
+        return await get_ar_seo_landing_page(slug)
     from web.routers.pseo_web_router import get_pseo_job_page
     
     # Handle slug formats: role-in-city or role/city
