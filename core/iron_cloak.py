@@ -14,16 +14,17 @@ from core.panic_mode import is_panic_mode_active, toggle_panic_mode
 
 logger = logging.getLogger(__name__)
 
-# Basic list of known datacenter IP ranges or common scraper User-Agents.
+# List of known vulnerability scanners and malicious automated exploit tools
 BANNED_USER_AGENTS = [
-    "python-requests",
-    "curl",
-    "wget",
-    "scrapy",
-    "bot",
-    "spider",
-    "crawler",
-    "headless",
+    "sqlmap",
+    "nikto",
+    "masscan",
+    "zgrab",
+    "acunetix",
+    "havij",
+    "wpscan",
+    "dirbuster",
+    "gobuster",
 ]
 
 # Track scraper hits per IP: {ip: [timestamp, timestamp, ...]}
@@ -65,9 +66,7 @@ class IronCloakMiddleware:
             if is_exempt_path or is_telegram:
                 is_bot = False
             else:
-                is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS if bot != "bot")
-                if not is_bot and "bot" in user_agent and not is_telegram:
-                    is_bot = True
+                is_bot = any(bot in user_agent for bot in BANNED_USER_AGENTS)
 
             # Allow local testing/audits or authenticated E2E runs to bypass bot checks
             if client_ip in ("127.0.0.1", "localhost", "testserver") or request.headers.get("x-bypass-waf") == "AntigravityE2EKey":
