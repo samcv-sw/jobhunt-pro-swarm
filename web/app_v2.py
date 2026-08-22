@@ -5230,6 +5230,11 @@ def user_dashboard(request: Request):
         is_admin_flag = is_admin_email(user.get("email", "")) or is_admin_email(str(user_id))
         content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=user, is_admin=is_admin_flag, profiles=profiles, profile_count=len(profiles), campaigns=campaigns, campaign_count=len(campaigns), transactions=transactions, referrals=referrals, referral_link=referral_link, pipeline_emails=pipeline_emails, pipeline_counts=pipeline_counts, manual_emails_user=manual_emails_user, login_streak=login_streak, streak_reward=streak_reward, next_milestone=next_milestone, days_to_next=days_to_next, next_reward=next_reward, flash_sales=active_flash_sales, recent_purchases=recent_purchases, stats=stats, candidates=[])
         return HTMLResponse(_build_dashboard_shell(user, user_id, content, "Dashboard", "dashboard", request=request), headers={"Cache-Control": "no-cache, no-store, must-revalidate, max-age=0", "Pragma": "no-cache", "Expires": "0"})
+    except Exception as e:
+        logger.error(f"[user_dashboard] Error during dashboard rendering: {e}", exc_info=True)
+        fallback_user = user if ('user' in locals() and user) else {"name": "Candidate", "email": "user@jobhunt.pro", "wallet_balance": 0.0, "tokens": 100}
+        fallback_content = render_template("dashboard_v3.html", request=request, active_page="dashboard", user=fallback_user, is_admin=False, profiles=[], profile_count=0, campaigns=[], campaign_count=0, transactions=[], referrals=0, referral_link="", pipeline_emails=[], pipeline_counts={}, manual_emails_user=[], login_streak=1, streak_reward=0, next_milestone=7, days_to_next=6, next_reward=10, flash_sales=[], recent_purchases=[], stats={'emails_sent': 0, 'total_sent': 0, 'daily_pct': 0, 'today_sent': 0, 'daily_target': 50, 'open_rate': 0.0, 'response_rate': 0.0, 'deliverability_score': 100}, candidates=[])
+        return HTMLResponse(_build_dashboard_shell(fallback_user, user_id, fallback_content, "Dashboard", "dashboard", request=request))
     finally:
         if conn is not None:
             try: conn.close()
