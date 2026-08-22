@@ -908,6 +908,19 @@ def index_page(request: Request):
 
     tiers = get_all_pricing()
     lang = request.query_params.get("lang", "").lower()
+    if not lang:
+        cookie_lang = request.cookies.get("jobhunt_lang") or request.cookies.get("preferred_lang") or request.cookies.get("lang")
+        if cookie_lang:
+            lang = cookie_lang.lower()
+        else:
+            accept_lang = request.headers.get("accept-language", "").lower()
+            if accept_lang.startswith("en") or "en-" in accept_lang or "en," in accept_lang or "en;" in accept_lang:
+                lang = "en"
+            elif accept_lang.startswith("zh") or "zh-" in accept_lang:
+                lang = "zh"
+            else:
+                lang = "ar"
+
     if lang == "en" or request.url.path.startswith("/en"):
         tmpl = "en/index_v4.html"
     elif lang == "zh" or request.url.path.startswith("/zh"):
