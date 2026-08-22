@@ -260,14 +260,13 @@ except Exception as e:
     logger.critical(f"Failed to setup E2E mocked routes: {e}")
     raise
 
+
 @pytest.fixture(autouse=True)
 def use_mocked_routes() -> Generator[None, None, None]:
     """Fixture to dynamically swap FastAPI routes listing to mock configuration for each E2E test."""
     try:
         app.routes[:] = mocked_routes
         yield
-    except Exception as e:
-        logger.error(f"use_mocked_routes fixture failed: {e}")
-        raise
     finally:
         app.routes[:] = original_routes
+

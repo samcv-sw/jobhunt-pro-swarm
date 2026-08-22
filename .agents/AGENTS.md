@@ -17,6 +17,23 @@
      3. **MoonPay**: Direct Card / Apple Pay to Crypto fiat onramp for international clients.
      4. **Redeem Codes & FaKa**: Instant automated digital keys and wallet vouchers.
    - **UI & Checkout Presentation**: All pricing tables, checkout buttons, and upgrade modals must route directly to `/wallet`, `/checkout/crypto`, ChangeNOW, or MoonPay flows without dead-end Stripe prompts.
+6. **Zero-Risk Judicial Arbitration & Silent Written Defense (PERMANENT RULE)**:
+   - 100% online written dispute rebuttal mode (`full_evidence`) with dynamic SVG QR code & SHA-256 Merkle proof digest.
+   - Zero phone call mentions or foreign disclosure. All dispute defenses cite Article 25 Paragraph 3 of the PRC Consumer Protection Law.
+7. **Triple-Gateway Payment Fortress & Cent-Level Integrity (PERMANENT RULE)**:
+   - NOWPayments, MoonPay, ChangeNOW enforce strict server-side price authority, HMAC signature verification, minimum $9.00 USD floor, and exact cent-level matching. Underpaid attempts (< expected_amount - 0.01) must be rejected with HTTP 400.
+8. **Autonomous Sovereignty & 0$ Cloud Swarm (PERMANENT RULE)**:
+   - Continuous 6-hour AES-256 encrypted database auto-backups (`core/zero_cost_backup_engine.py`).
+   - Auto-refill inventory swarm (`core/auto_refill_inventory.py`) ensuring minimum 25 active codes per tier.
+   - In-memory AI prompt cloaking (`core/ai_prompt_cloaking.py`) protecting proprietary ATS/SDR algorithms.
+   - Native Chinese auto-reply customer service matrix (`core/xianyu_auto_reply_matrix.py`).
+9. **Multi-Store Atomic Inventory Sync & Instant Dispute Interception (PERMANENT RULE)**:
+   - Atomic code reservation (`core/multi_store_sync.py`) preventing double-selling across Xianyu, Taobao, and direct store.
+   - Automated 3-second legal dispute submission bot (`core/xianyu_auto_dispute_submitter.py`) citing Article 25 Paragraph 3.
+10. **Deliverability Warmup & China Edge Shield (PERMANENT RULE)**:
+   - Proactive SMTP health monitoring and auto-quarantine (`core/email_warmup_health_rotator.py`).
+   - Greater China edge fast-path acceleration (`core/china_edge_routing_shield.py`).
+   - Dynamic cryptographic receipts and delivery certificates (`core/digital_receipt_generator.py`).
 
 ## Multi-Persona Evaluation Council
 For all complex code generation, especially regarding architecture and UI/UX:

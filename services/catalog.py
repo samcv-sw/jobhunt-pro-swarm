@@ -1931,6 +1931,278 @@ SERVICE_CATALOG = [
         "delivery_ar": "فوري"
     },
     {
+        "id": "worldwide-visa-sponsorship-swarm",
+        "name": "Worldwide Visa Sponsorship Auto-Applier Swarm (Full Package)",
+        "price": 25,
+        "category": "visa",
+        "description": "Autonomous AI swarm targeting verified enterprise sponsors worldwide offering full relocation: visa + flights + accommodation + meals + transit + top-tier salary",
+        "delivery": "instant",
+        "features": [
+            "100% Work Visa Sponsorship Guarantee",
+            "Round-Trip Flight Tickets Included",
+            "Free Housing / Monthly Accommodation",
+            "Meal & Food Per-Diem Allowance",
+            "Daily Commute & Transit Coverage",
+            "Top-Tier Global High Salary Filtering"
+        ],
+        "what_they_get": "Autonomous AI swarm dispatch to verified worldwide visa-sponsoring employers offering full relocation packages",
+        "name_ar": "سرب التقديم الآلي لكفالة الفيزا العالمية والبكج الكامل",
+        "description_ar": "سرب ذكاء اصطناعي يقدم سيرتك آلياً للشركات العالمية المعتمدة التي تقدم كفالة فيزا وبكج انتقال كامل (تذاكر + سكن + أكل + مواصلات + أعلى الرواتب)",
+        "features_ar": [
+            "كفالة وتأشيرة عمل 100%",
+            "تذاكر طيران ذهاب وعودة",
+            "سكن مؤثث مجاني أو بدل سكن",
+            "بدل طعام ووجبات يومية",
+            "بدل مواصلات وتنقل يومي",
+            "فلترة أعلى الرواتب العالمية"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "relocation-full-package-hunter",
+        "name": "Full Relocation & Benefits Job Matcher (Ticket + Housing + Food + Transit)",
+        "price": 15,
+        "category": "visa",
+        "description": "Scans 150,000+ active global openings to filter only employers providing end-to-end relocation packages and full sponsorship",
+        "delivery": "instant",
+        "features": [
+            "Verified 6-Pillar Relocation Packages",
+            "Flight Ticket & Moving Allowance",
+            "Furnished Apartment / Housing Stipend",
+            "Meal Vouchers & Commute Coverage"
+        ],
+        "what_they_get": "Curated list of verified full-package relocation job openings with direct application URLs",
+        "name_ar": "مطابق الوظائف ذات البكج الكامل (تذاكر + سكن + طعام + مواصلات)",
+        "description_ar": "فحص أكثر من 150,000 شاغر عالمي لفلترة الشركات التي توفر بكج انتقال كامل وتأشيرة عمل وتذاكر وسكن",
+        "features_ar": [
+            "بكجات انتقال متكاملة الأركان",
+            "تذاكر سفر وبدل انتقال نقدي",
+            "شقة مؤثثة أو بدل سكن شهري",
+            "كوبونات طعام وبدل مواصلات"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "global-sponsor-database-access",
+        "name": "Direct Global Visa Sponsor Database (5,000+ Verified Enterprise Employers)",
+        "price": 19,
+        "category": "visa",
+        "description": "Direct spreadsheet & verified contact directory of 5,000+ multinational companies with active government visa sponsorship quotas",
+        "delivery": "instant",
+        "features": [
+            "UK Home Office A-Rated Sponsors",
+            "Germany & EU Blue Card Direct Sponsors",
+            "Gulf (Saudi Qiwa & UAE MOHRE) Quotas",
+            "US H1B / O1 & Canada LMIA Whitelist"
+        ],
+        "what_they_get": "Downloadable verified database of 5,000+ active visa sponsor companies with HR decision-maker emails",
+        "name_ar": "قاعدة بيانات 5,000+ شركة عالمية معتمدة لكفالة الفيزا",
+        "description_ar": "دليل مباشر وقاعدة بيانات لـ 5,000+ شركة عالمية تمتلك حصص تأشيرات وكفالة حكومية رسمية مع إيميلات مسؤولي التوظيف",
+        "features_ar": [
+            "شركات بريطانيا المعتمدة من Home Office",
+            "رعاة البطاقة الزرقاء للاتحاد الأوروبي وألمانيا",
+            "شركات الخليج ذات الحصص المعتمدة (قوى وتسهيل)",
+            "القائمة البيضاء للشركات الأمريكية والكندية"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "visa-sponsorship-cover-letter",
+        "name": "Sovereign Visa Sponsorship Pitch & Relocation Letter",
+        "price": 6,
+        "category": "visa",
+        "description": "AI-engineered cover letter convincing global recruiters to sponsor your work visa and provide a full relocation package without hesitation",
+        "delivery": "instant",
+        "features": [
+            "Zero-Friction Sponsorship Pitch",
+            "Immediate Relocation Readiness",
+            "Relocation ROI Justification",
+            "Bilingual (English / Destination Country)"
+        ],
+        "what_they_get": "Custom relocation & visa sponsorship cover letter in PDF + Word format",
+        "name_ar": "خطاب طلب كفالة الفيزا وعرض الانتقال العالمي",
+        "description_ar": "خطاب تغطية احترافي مصمم لإقناع مسؤولي التوظيف برعاية فيزا العمل وتحمل نفقات السفر والانتقال بالكامل",
+        "features_ar": [
+            "صياغة مقنعة لطلب كفالة الفيزا",
+            "إبراز الجاهزية الفورية للسفر",
+            "إثبات القيمة الاستثمارية لتوظيفك",
+            "ثنائي اللغة (الإنجليزية واللغة المحلية)"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "high-salary-negotiation-expat",
+        "name": "Worldwide Expat High-Salary & Expat Package Negotiator",
+        "price": 12,
+        "category": "visa",
+        "description": "Scripts, data benchmarks, and negotiation strategies to secure top 5% market salaries with full expat benefits worldwide",
+        "delivery": "instant",
+        "features": [
+            "Net vs Gross Tax-Free Modeling",
+            "Expat Housing Allowance Benchmark",
+            "Annual Family Ticket Negotiation",
+            "Relocation Lump-Sum ($10k+) Request"
+        ],
+        "what_they_get": "Global salary benchmarking report & word-for-word expat package negotiation scripts",
+        "name_ar": "مفاوض أعلى الرواتب العالمية وبكجات المغتربين الفاخرة",
+        "description_ar": "أدلة ونصوص تفاوض احترافية للحصول على أعلى رواتب السوق العالمي (Top 5%) مع كامل الامتيازات العائلية",
+        "features_ar": [
+            "حساب الرواتب الصافية المعفاة من الضرائب",
+            "معايير بدلات السكن الفاخر للمغتربين",
+            "تفاوض تذاكر العائلة السنوية",
+            "طلب منحة الانتقال النقدية (10,000$+ )"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "family-relocation-schooling-pack",
+        "name": "Family Relocation, Housing & Schooling Support Blueprint",
+        "price": 10,
+        "category": "visa",
+        "description": "Complete roadmap to secure company-paid family visas, children education stipends, and furnished family apartments",
+        "delivery": "instant",
+        "features": [
+            "Spouse & Dependent Visa Roadmap",
+            "International School Allowance Pitch",
+            "Shipping Container & Pet Relocation",
+            "First 60 Days Settling-In Checklist"
+        ],
+        "what_they_get": "Comprehensive family expat relocation guide + school stipend request templates",
+        "name_ar": "دليل انتقال العائلة، السكن وبدلات المدارس الدولية",
+        "description_ar": "دليل متكامل لضمان تغطية الشركة لكفالة وتأشيرات العائلة، مصاريف مدارس الأبناء، والسكن العائلي",
+        "features_ar": [
+            "خارطة طريق فيزا الزوجة والأبناء",
+            "طلب بدل المدارس الدولية للأطفال",
+            "شحن الأثاث والانتقال العائلي",
+            "قائمة أول 60 يوماً للاستقرار"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "sovereign-relocation-citizenship-swarm",
+        "name": "Sovereign Relocation, Golden Visa & Full Expat Swarm (All-Inclusive)",
+        "price": 25,
+        "category": "visa",
+        "description": "Autonomous AI dispatch targeting 12,000+ verified governments, megaprojects, and multinational sponsors offering full relocation: Flight + Visa + Luxury Villa + Meals + Car + Lucrative Salary + Citizenship/PR Track",
+        "delivery": "instant",
+        "features": [
+            "100% Work Visa Sponsorship & Citizenship/PR Track",
+            "First-Class / Business Moving Tickets & Family Flights",
+            "Luxury Furnished Villa / Apartment (Zero Rent)",
+            "Comprehensive Living & Daily Dining Allowance",
+            "Executive Transportation / Company Vehicle",
+            "Lucrative High-Net / Tax-Free Wealth Multiplier"
+        ],
+        "what_they_get": "Autonomous AI swarm dispatch to verified worldwide employers and sovereign regional development zones offering the complete 7-Pillar Relocation & Wealth Package",
+        "name_ar": "سرب الهجرة الشاملة، الفيزا الذهبية ومسار الجنسية (البكج المتكامل)",
+        "description_ar": "سرب ذكاء اصطناعي يقدم سيرتك آلياً لـ 12,000+ جهة حكومية وشركات عملاقة تقدم بكج انتقال كامل (فيزا + إقامة دائمة ومسار جنسية + تذاكر + فيلا فاخرة + طعام + سيارة + رواتب ضخمة)",
+        "features_ar": [
+            "كفالة فيزا 100% ومسار للحصول على الجنسية / الإقامة الدائمة",
+            "تذاكر سفر وانتقال لك ولعائلتك بالكامل",
+            "سكن مؤثث فاخر أو فيلا بدون تكاليف إيجار",
+            "بدل معيشة ووجبات طعام يومية متكاملة",
+            "سيارة خاصة أو بدل مواصلات تنفيذي",
+            "رواتب ضخمة معفاة من الضرائب لبناء ثروة حقيقية"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "citizenship-pr-fast-track-matcher",
+        "name": "Citizenship & Fast-Track Permanent Residency (PR) Pathway Matcher",
+        "price": 19,
+        "category": "visa",
+        "description": "Match your exact career & profession with countries and economic zones offering fast-track permanent residency and passport citizenship after 3-5 years of qualifying employment",
+        "delivery": "instant",
+        "features": [
+            "Global Citizenship by Employment Matrix",
+            "3 to 5 Year Permanent Residency Roadmaps",
+            "Direct Regional Government Quota Whitelist",
+            "Profession-Specific Legal Pathway Reports"
+        ],
+        "what_they_get": "Comprehensive legal roadmap & verified list of countries granting citizenship/PR based on your exact profession and employment track",
+        "name_ar": "مطابق مسارات الجنسية والإقامة الدائمة السريعة حسب المهنة",
+        "description_ar": "مطابقة مهنتك وتخصصك بالدول والمناطق الاقتصادية التي تمنح إقامة دائمة وجواز سفر / جنسية بعد 3 إلى 5 سنوات من العمل",
+        "features_ar": [
+            "مصفوفة الجنسية العالمية عبر العمل والمهارة",
+            "خارطة طريق الإقامة الدائمة خلال 3-5 سنوات",
+            "القائمة البيضاء للمناطق الاقتصادية ذات الحصص الحكومية",
+            "تقرير قانوني مفصل مخصص لمسارك المهني"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "luxury-relocation-lump-sum-negotiator",
+        "name": "$25k+ Relocation Lump-Sum, Luxury Villa & Executive Car Negotiator",
+        "price": 14,
+        "category": "visa",
+        "description": "Proven negotiation scripts and benchmarks to secure $15,000–$50,000 upfront relocation signing bonuses, company-paid luxury villas, and private vehicle stipends",
+        "delivery": "instant",
+        "features": [
+            "$15k-$50k Relocation Bonus Negotiation Scripts",
+            "Compound / Luxury Villa Allowance Justification",
+            "Company Car & Fuel Coverage Request Clause",
+            "Annual Family Holiday Flight Contracts"
+        ],
+        "what_they_get": "Battle-tested legal clauses & negotiation scripts to demand and secure maximum expat luxury benefits from hiring directors",
+        "name_ar": "مفاوض منحة الانتقال ($25k+)، الفيلا الفاخرة والسيارة الخاصة",
+        "description_ar": "نصوص وصيغ تفاوض معتمدة لطلب والحصول على بونص انتقال نقدي (15,000$ إلى 50,000$)، فيلا سكنية فاخرة وبدل سيارة خاصة",
+        "features_ar": [
+            "نصوص تفاوض منحة الانتقال النقدية الكبرى",
+            "شروط توفير فيلا في المجمعات السكنية الراقية",
+            "بند توفير سيارة خاصة وتغطية الوقود",
+            "عقود تذاكر الإجازة السنوية لكافة أفراد العائلة"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "profession-based-regional-shortage-finder",
+        "name": "Profession-Based Regional Shortage & Sovereign Quota Finder",
+        "price": 15,
+        "category": "visa",
+        "description": "Maps your exact job title and skills to high-demand regional shortage lists across 45+ countries where governments fast-track visas and sponsor full relocation to revitalize their regions",
+        "delivery": "instant",
+        "features": [
+            "45+ Country Critical Shortage Database",
+            "Regional Economic Revitalization Zones (Zero Competition)",
+            "Government Sponsored Fast-Track Quota Match",
+            "Direct Contact Directory of Regional Hiring Boards"
+        ],
+        "what_they_get": "Customized shortage matching report linking your skills to countries actively paying bonuses to attract your profession",
+        "name_ar": "كاشف المهن المطلوبة في المناطق الاقتصادية ذات الكفالة الحكومية",
+        "description_ar": "مطابقة مهاراتك مع قوائم النقص الحرج في 45+ دولة ومناطق التطوير الإقليمي التي تقدم تسهيلات وكفالة كاملة لجذب الكفاءات وتنشيط اقتصادها",
+        "features_ar": [
+            "قاعدة بيانات 45+ دولة للمهن الحرجة",
+            "مناطق التطوير الاقتصادي (فرص توظيف فورية)",
+            "مطابقة الحصص الحكومية السريعة",
+            "دليل التواصل المباشر مع لجان التوظيف الإقليمية"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
+        "id": "sovereign-wealth-taxfree-calculator",
+        "name": "Tax-Free Expat Wealth Accumulation & Savings Blueprint",
+        "price": 9,
+        "category": "visa",
+        "description": "Interactive wealth accumulation model showing how 3 years in a tax-free / high-subsidy expat zone creates $150,000+ in net liquid savings through free housing, food, and high salaries",
+        "delivery": "instant",
+        "features": [
+            "Zero-Expense Expat Lifestyle Budgeting",
+            "Net Savings Projection (1, 3 & 5 Years)",
+            "Tax Optimization & Asset Protection Guide",
+            "Expat Wealth Acceleration Multipliers"
+        ],
+        "what_they_get": "Custom financial blueprint showing how your relocation package turns into substantial generational wealth",
+        "name_ar": "خطة بناء الثروة والادخار المعفى من الضرائب للمغتربين",
+        "description_ar": "نموذج مالي تفاعلي يوضح كيف يحقق الانتقال لباقة متكاملة (سكن + طعام + مواصلات مغطاة) وفر مالي يتجاوز 150,000$ صافي خلال 3 سنوات",
+        "features_ar": [
+            "حساب المعيشة بصفر مصاريف سكن وتنقل",
+            "توقعات الوفر المالي لـ 1 و 3 و 5 سنوات",
+            "دليل حماية الأصول والتخطيط الضريبي المعفى",
+            "مضاعفات نمو الثروة للمغتربين"
+        ],
+        "delivery_ar": "فوري"
+    },
+    {
         "id": "response-tracker",
         "name": "Application Response Tracker",
         "price": 4,
@@ -2473,6 +2745,38 @@ BOUQUET_CATALOG = [
         ],
         "savings": "0% (already best price)",
         "description": "30 days of FULL automation — 3000+ applications, all follow-ups, weekly reports"
+    },
+    {
+        "id": "worldwide-visa-sponsorship-bundle",
+        "name": "Worldwide Visa Sponsorship & Full Relocation Mega Pack",
+        "price": 39,
+        "services": [
+            "worldwide-visa-sponsorship-swarm",
+            "relocation-full-package-hunter",
+            "global-sponsor-database-access",
+            "visa-sponsorship-cover-letter",
+            "high-salary-negotiation-expat",
+            "family-relocation-schooling-pack"
+        ],
+        "savings": "55%",
+        "description": "Ultimate Global Mobility Suite: Visa Swarm + 5,000+ Sponsor Directory + Flight & Housing Matcher + Expat Salary Negotiator + Family Blueprint"
+    },
+    {
+        "id": "sovereign-relocation-citizenship-bundle",
+        "name": "Sovereign Relocation, Golden Visa & Fast-Track Citizenship Flagship Pack",
+        "price": 49,
+        "services": [
+            "sovereign-relocation-citizenship-swarm",
+            "citizenship-pr-fast-track-matcher",
+            "luxury-relocation-lump-sum-negotiator",
+            "profession-based-regional-shortage-finder",
+            "sovereign-wealth-taxfree-calculator",
+            "worldwide-visa-sponsorship-swarm",
+            "relocation-full-package-hunter",
+            "family-relocation-schooling-pack"
+        ],
+        "savings": "65%",
+        "description": "The Master Global Relocation & Wealth Suite: Sovereign AI Swarm + 3-5 Year Citizenship & PR Pathways + $25k+ Relocation Bonus & Villa Negotiator + Tax-Free Wealth Engine + 100% Visa & Family Sponsorship"
     }
 ]
 

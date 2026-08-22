@@ -620,6 +620,10 @@ async def linkedin_callback(request: Request, code: str = "", state: str = ""):
 
 
 def _get_google_redirect_uri(request: Request) -> str:
+    override_uri = os.getenv("GOOGLE_REDIRECT_URI", "")
+    if override_uri:
+        return override_uri
+
     host = (request.headers.get("x-forwarded-host", "") or request.headers.get("host", "") or request.url.netloc or "").lower()
     port = request.url.port or 8000
     scheme = request.headers.get("x-forwarded-proto", "") or request.url.scheme or "http"

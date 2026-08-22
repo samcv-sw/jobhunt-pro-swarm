@@ -24,11 +24,11 @@ export default function Home() {
   const hashValue = fnv1a(tenantNameInput || "default");
   const shardIndex = hashValue % 500;
 
-  // BYO SMTP simulator state
-  const [smtpEmail, setSmtpEmail] = useState<string>("");
-  const [smtpPass, setSmtpPass] = useState<string>("");
-  const [smtpStatus, setSmtpStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
-  const [smtpMsgKey, setSmtpMsgKey] = useState<string>("");
+  // Direct Mailbox simulator state
+  const [mailboxEmail, setMailboxEmail] = useState<string>("");
+  const [mailboxPass, setMailboxPass] = useState<string>("");
+  const [mailboxStatus, setMailboxStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [mailboxMsgKey, setMailboxMsgKey] = useState<string>("");
 
   // Sync / DB statistics state
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(5);
@@ -116,24 +116,24 @@ export default function Home() {
     }, 600);
   }, []);
 
-  // Run SMTP test simulator
-  const handleTestSmtp = (e: React.FormEvent) => {
+  // Run Direct Mailbox test simulator
+  const handleTestMailbox = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!smtpEmail || !smtpPass) {
-      setSmtpStatus("error");
-      setSmtpMsgKey("landing.alertSmtpFields");
+    if (!mailboxEmail || !mailboxPass) {
+      setMailboxStatus("error");
+      setMailboxMsgKey("landing.alertSmtpFields");
       return;
     }
-    setSmtpStatus("testing");
-    setSmtpMsgKey("landing.statusSmtpChecking");
+    setMailboxStatus("testing");
+    setMailboxMsgKey("landing.statusSmtpChecking");
     
     setTimeout(() => {
-      if (smtpPass.length < 8) {
-        setSmtpStatus("error");
-        setSmtpMsgKey("landing.statusSmtpAppPass");
+      if (mailboxPass.length < 8) {
+        setMailboxStatus("error");
+        setMailboxMsgKey("landing.statusSmtpAppPass");
       } else {
-        setSmtpStatus("success");
-        setSmtpMsgKey("landing.statusSmtpSuccess");
+        setMailboxStatus("success");
+        setMailboxMsgKey("landing.statusSmtpSuccess");
       }
     }, 1500);
   };
@@ -367,7 +367,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BYO SMTP Setup Card */}
+        {/* Direct Mailbox Connection Card */}
         <section className="glass-panel p-6 lg:col-span-2 flex flex-col justify-between" style={{ minBlockSize: "380px" }}>
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -376,18 +376,18 @@ export default function Home() {
             </div>
             <p className="text-sm text-zinc-400 leading-[1.8] mb-6">{t("landing.smtpDesc")}</p>
 
-            <form onSubmit={handleTestSmtp} className="space-y-4">
+            <form onSubmit={handleTestMailbox} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-zinc-500 font-semibold mb-1">
                     {t("landing.emailLabel")}
                   </label>
                   <input
-                    id="smtp-email-input"
+                    id="mailbox-email-input"
                     type="email"
                     dir="auto"
-                    value={smtpEmail}
-                    onChange={(e) => setSmtpEmail(e.target.value)}
+                    value={mailboxEmail}
+                    onChange={(e) => setMailboxEmail(e.target.value)}
                     placeholder={t("landing.emailPlaceholder")}
                     className="input-field"
                   />
@@ -397,11 +397,11 @@ export default function Home() {
                     {t("landing.passLabel")}
                   </label>
                   <input
-                    id="smtp-pass-input"
+                    id="mailbox-pass-input"
                     type="password"
                     dir="auto"
-                    value={smtpPass}
-                    onChange={(e) => setSmtpPass(e.target.value)}
+                    value={mailboxPass}
+                    onChange={(e) => setMailboxPass(e.target.value)}
                     placeholder={t("landing.passPlaceholder")}
                     className="input-field"
                   />
@@ -410,12 +410,12 @@ export default function Home() {
 
               <div className="flex justify-between items-center gap-4 mt-2">
                 <button
-                  id="smtp-test-btn"
+                  id="mailbox-test-btn"
                   type="submit"
-                  disabled={smtpStatus === "testing"}
+                  disabled={mailboxStatus === "testing"}
                   className="btn-gold"
                 >
-                  {smtpStatus === "testing" ? "..." : t("landing.testBtn")}
+                  {mailboxStatus === "testing" ? "..." : t("landing.testBtn")}
                 </button>
                 <span className="text-sm text-zinc-500 block leading-[1.8]" style={{ maxInlineSize: "28rem" }}>
                   {t("landing.smtpNote")}
@@ -425,17 +425,17 @@ export default function Home() {
           </div>
 
           {/* Test Status Messages */}
-          {smtpStatus !== "idle" && (
+          {mailboxStatus !== "idle" && (
             <div className={`mt-6 p-4 rounded-xl text-sm border ${
-              smtpStatus === "testing" ? "bg-blue-500/5 border-blue-500/20 text-blue-400" :
-              smtpStatus === "success" ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" :
+              mailboxStatus === "testing" ? "bg-blue-500/5 border-blue-500/20 text-blue-400" :
+              mailboxStatus === "success" ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400" :
               "bg-red-500/5 border-red-500/20 text-red-400"
             }`}>
               <div className="flex items-center gap-2">
-                {smtpStatus === "testing" && <div className="rounded-full bg-blue-500 animate-ping" style={{ inlineSize: "0.5rem", blockSize: "0.5rem" }} />}
-                {smtpStatus === "success" && <span>✓</span>}
-                {smtpStatus === "error" && <span>✗</span>}
-                <p className="font-semibold leading-[1.8]">{t(smtpMsgKey)}</p>
+                {mailboxStatus === "testing" && <div className="rounded-full bg-blue-500 animate-ping" style={{ inlineSize: "0.5rem", blockSize: "0.5rem" }} />}
+                {mailboxStatus === "success" && <span>✓</span>}
+                {mailboxStatus === "error" && <span>✗</span>}
+                <p className="font-semibold leading-[1.8]">{t(mailboxMsgKey)}</p>
               </div>
             </div>
           )}

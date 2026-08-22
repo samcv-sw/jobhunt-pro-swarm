@@ -1,5 +1,9 @@
-database is locked
+name 'clean_phone_number' is not defined
 Traceback (most recent call last):
-  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1085, in run_campaign
-    try:
-sqlite3.OperationalError: database is locked
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 1077, in run_campaign
+    from core.job_search import MultiSourceSearch
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\samde\Desktop\📂 Folders & Projects\cv sam new ma3 kimi\core\campaign_runner.py", line 766, in _setup_campaign_and_user_details
+    cand_email = "sam.dev1@hotmail.com"
+         ^^^^^^^^^^^^^^^^^^
+NameError: name 'clean_phone_number' is not defined

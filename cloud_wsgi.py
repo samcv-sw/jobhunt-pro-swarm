@@ -95,54 +95,17 @@ class LazyASGIApp:
                     # Start continuous background job applier thread on PythonAnywhere
                     def _start_cloud_background_applier():
                         import time
-                        import sqlite3
-                        import asyncio
-                        # Wait 30s after WSGI start so web app responds instantly to user requests without slow_startup_error
-                        time.sleep(30)
-                        logger.info("[PA WORKER] 🚀 Continuous Background Applier Daemon Started.")
+                        time.sleep(10)
+                        logger.info("[PA WORKER] 🚀 Continuous Autonomous Dispatcher Daemon Started.")
                         while True:
                             try:
-                                from web.app_v2 import get_db
-                                from core.job_queue import dequeue_task, complete_task
-                                from core.campaign_runner import run_campaign
-
-                                task = dequeue_task()
-                                if task:
-                                    t_type = task.get("task_type")
-                                    payload = task.get("payload", {})
-                                    if t_type == "run_campaign":
-                                        camp_id = payload.get("campaign_id")
-                                        if camp_id:
-                                            loop = asyncio.new_event_loop()
-                                            asyncio.set_event_loop(loop)
-                                            try:
-                                                loop.run_until_complete(run_campaign(camp_id, get_db, None, company_limit=15))
-                                            except Exception as camp_err:
-                                                logger.error(f"[PA WORKER] Campaign {camp_id} error: {camp_err}")
-                                            finally:
-                                                loop.close()
-                                    complete_task(task["id"], result={"status": "success"})
-                                    time.sleep(5)
-                                else:
-                                    # Fallback: Pick active, running, or pending campaigns from SQLite DB automatically
-                                    with get_db() as conn:
-                                        active_camps = conn.execute(
-                                            "SELECT campaign_id FROM campaigns WHERE status IN ('active', 'running', 'pending') ORDER BY created_at DESC LIMIT 3"
-                                        ).fetchall()
-                                        for row in active_camps:
-                                            c_id = row["campaign_id"] if isinstance(row, (dict, sqlite3.Row)) or hasattr(row, "keys") else row[0]
-                                            loop = asyncio.new_event_loop()
-                                            asyncio.set_event_loop(loop)
-                                            try:
-                                                loop.run_until_complete(run_campaign(c_id, get_db, None, company_limit=5))
-                                            except Exception as camp_err:
-                                                logger.error(f"[PA WORKER] Fallback campaign {c_id} error: {camp_err}")
-                                            finally:
-                                                loop.close()
-                                    time.sleep(15)
+                                from core.continuous_dispatcher import dispatch_single_application
+                                res = dispatch_single_application()
+                                if res:
+                                    logger.info(f"[PA WORKER] Dispatched for {res.get('user_id')} -> {res.get('company')} ({res.get('job_title')})")
                             except Exception as e:
-                                logger.error(f"[PA WORKER] Applier daemon exception: {e}")
-                                time.sleep(30)
+                                logger.debug(f"[PA WORKER] Dispatch tick notice: {e}")
+                            time.sleep(4)
 
                     applier_thread = threading.Thread(target=_start_cloud_background_applier, daemon=True, name="PA_Background_Applier")
                     applier_thread.start()
