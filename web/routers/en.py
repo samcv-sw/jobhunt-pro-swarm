@@ -22,7 +22,7 @@ def _deps():
 def en_home(request: Request):
     _, get_verified_user_id, templates, config, _, _ = _deps()
     user_id = get_verified_user_id(request)
-    return templates.TemplateResponse(request, "en/index_v4.html", {
+    return templates.TemplateResponse(request, "en/index_v3.html", {
         "VERSION": config.VERSION,
         "is_logged_in": bool(user_id),
     })
@@ -192,12 +192,43 @@ def en_chrome_ext(request: Request):
 # ── Contact ───────────────────────────────────────────────────────────────────
 @router.get("/contact", response_class=HTMLResponse)
 def en_contact(request: Request):
-    _, get_verified_user_id, templates, config = _deps()
+    get_db, get_verified_user_id, templates, config, _public_shell, render_template = _deps()
+    msg = request.query_params.get("msg", "")
+    error = request.query_params.get("error", "")
+    user_name = ""
+    user_email = ""
     user_id = get_verified_user_id(request)
-    return templates.TemplateResponse(request, "en/contact.html", {
-        "VERSION": config.VERSION,
-        "is_admin": False,
-    })
+    if user_id:
+        try:
+            with get_db() as conn:
+                u = conn.execute(
+                    "SELECT name, email FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)
+                ).fetchone()
+                if u:
+                    user_name = u["name"] or ""
+                    user_email = u["email"] or ""
+        except Exception as exc:
+            logger.error(f"en_contact user fetch error: {exc}")
+    content = render_template(
+        "en/contact.html",
+        request=request,
+        msg=msg,
+        error=error,
+        user_name=user_name,
+        user_email=user_email,
+        is_logged_in=bool(user_id),
+        VERSION=config.VERSION,
+        lang="en"
+    )
+    return HTMLResponse(
+        _public_shell(
+            content,
+            "Contact Us | JobHunt Pro",
+            "Get in touch with the JobHunt Pro team — we're here to help.",
+            request=request,
+            lang="en"
+        )
+    )
 
 
 @router.post("/contact")
@@ -314,5 +345,26 @@ def en_roast(request: Request):
 # ── For Employers ─────────────────────────────────────────────────────────────
 @router.get("/for-employers", response_class=HTMLResponse)
 def en_for_employers(request: Request):
-    _, _, templates, config = _deps()
+    _, _, templates, config, _, _ = _deps()
     return templates.TemplateResponse(request, "en/for_employers.html", {"VERSION": config.VERSION})
+
+
+# ── Wallet ───────────────────────────────────────────────────────────────────
+@router.get("/wallet", response_class=HTMLResponse)
+def en_wallet(request: Request):
+    from web.routers.payments import get_wallet_page
+    return get_wallet_page(request)
+
+
+# ── My Purchases & Subscriptions ─────────────────────────────────────────────
+@router.get("/my-purchases", response_class=HTMLResponse)
+def en_my_purchases(request: Request):
+    from web.routers.payments import my_purchases_page
+    return my_purchases_page(request)
+
+
+# ── Statistics & Analytics ───────────────────────────────────────────────────
+@router.get("/stats", response_class=HTMLResponse)
+def en_stats(request: Request):
+    from web.routers.dashboard import stats_page
+    return stats_page(request)

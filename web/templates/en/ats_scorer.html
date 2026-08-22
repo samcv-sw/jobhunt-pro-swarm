@@ -56,7 +56,7 @@ PROFESSIONAL SUMMARY
 
 Example:
 Network Engineer
-Company XYZ — Beirut, Lebanon
+Company XYZ — Austin, TX, USA
 
 Requirements:
 - 5+ years experience with Cisco/Juniper
@@ -863,15 +863,15 @@ function optimizeResumeTo100() {
   setTimeout(() => {
     // 1. Extract Candidate Real Contact Details
     const emailMatch = currentText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    let textCleanPhone = currentText.replace(/(?:\+?961[\s\-]*){2,}/gi, '+961 ');
-    const phoneMatch = textCleanPhone.match(/(?:\+?961[\s\-\.]*)?(?:70|71|76|78|79|03|[1-9]\d)[\s\-\.]?\d{3}[\s\-\.]?\d{3,4}/) || textCleanPhone.match(/(\+?\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/);
+    let textCleanPhone = currentText;
+    const phoneMatch = textCleanPhone.match(/(\+?\d{1,4}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/);
     const linkedinMatch = currentText.match(/(linkedin\.com\/in\/[a-zA-Z0-9_-]+)/i);
 
     const lines = currentText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     let candidateName = '';
     for (let line of lines) {
       let lClean = line.replace(/^(=|-|_|#|\*)+/, '').trim();
-      if (lClean.length > 2 && lClean.length < 50 && !lClean.includes(':') && !lClean.includes('@') && !lClean.toLowerCase().includes('http') && !lClean.includes('الوظيفي')) {
+      if (lClean.length > 2 && lClean.length < 50 && !lClean.includes(':') && !lClean.includes('@') && !lClean.toLowerCase().includes('http') && !lClean.includes('Title')) {
         candidateName = lClean;
         break;
       }
@@ -879,16 +879,16 @@ function optimizeResumeTo100() {
     if (!candidateName) candidateName = 'EXECUTIVE_CANDIDATE';
 
     let rawPhoneStr = phoneMatch ? phoneMatch[0] : '';
-    let phoneStr = rawPhoneStr ? rawPhoneStr.replace(/^(?:\+?961[\s\-]*)+/gi, '+961 ').trim() : '';
+    let phoneStr = rawPhoneStr ? rawPhoneStr.trim() : '';
     let emailStr = emailMatch ? emailMatch[0] : '';
     let linkedinStr = linkedinMatch ? linkedinMatch[0] : '';
 
     let contactParts = [];
-    if (emailStr) contactParts.push(`البريد الإلكتروني: ${emailStr}`);
-    if (phoneStr) contactParts.push(`الهاتف: ${phoneStr}`);
+    if (emailStr) contactParts.push(`Email: ${emailStr}`);
+    if (phoneStr) contactParts.push(`Phone: ${phoneStr}`);
     if (linkedinStr) contactParts.push(`LinkedIn: ${linkedinStr}`);
 
-    let contactHeader = contactParts.length > 0 ? contactParts.join(' | ') : 'الموقع: بيروت، لبنان | الحالة: متاح للعمل المباشر';
+    let contactHeader = contactParts.length > 0 ? contactParts.join(' | ') : 'Location: Austin, TX, USA | Status: Open to Opportunities';
 
     // 2. DYNAMICALLY DETECT EXACT TITLE FROM THE NEW PASTED JOB DESCRIPTION
     let detectedTitle = '';

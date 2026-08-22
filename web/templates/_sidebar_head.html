@@ -1018,6 +1018,27 @@ select option { background:#1a1a2e; color:#fff; }
   to   { transform:translateX(0); opacity:1; }
 }
 
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marqueeScrollRTL {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+.animate-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  width: max-content;
+  animation: marqueeScroll 32s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+[dir="rtl"] .animate-marquee, html[dir="rtl"] .animate-marquee, body[dir="rtl"] .animate-marquee {
+  animation-name: marqueeScrollRTL;
+}
+
 /* Card hover lift effect */
 .card-lift { transition:transform .25s ease, box-shadow .25s ease; }
 .card-lift:hover {

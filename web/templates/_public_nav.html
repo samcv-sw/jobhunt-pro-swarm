@@ -1,13 +1,13 @@
 {% if not hide_public_nav and not is_dashboard %}
 <!-- ═══ UNIFIED PUBLIC NAVIGATION — Bi-Directional Multilingual ═══ -->
-<nav class="nav" id="nav" style="box-sizing:border-box;height:54px;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;overflow:visible;">
+<nav class="nav" id="nav" style="box-sizing:border-box;height:56px;padding:0 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;overflow:visible;">
 
 {% if lang == 'en' %}
 <a class="nav-logo" href="/?lang=en" style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#0080ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
   JobHunt Pro <span class="badge" style="font-size: 11px;font-weight:700;background:rgba(0,240,255,0.08);color:#00f0ff;padding:2px 6px;border-radius:4px;border:1px solid rgba(0,240,255,0.4);-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">V 1</span>
 </a>
 {% else %}
-<a class="nav-logo" href="/?lang=ar" style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal','Tajawal',sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#0080ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
+<a class="nav-logo" href="/?lang=ar" style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;font-size:18px;font-weight:800;background:linear-gradient(135deg,#00f0ff 0%,#00a0cc 50%,#0080ff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:8px;text-decoration:none;white-space:nowrap;flex-shrink:0;">
   جوبهانت برو <span class="badge" style="font-size: 11px;font-weight:700;background:rgba(0,240,255,0.08);color:#00f0ff;padding:2px 6px;border-radius:4px;border:1px solid rgba(0,240,255,0.4);-webkit-text-fill-color:#00f0ff;white-space:nowrap;flex-shrink:0;">V 1</span>
 </a>
 {% endif %}
@@ -18,62 +18,66 @@
   <span style="inline-size:22px;block-size:2px;background:#ffffff;border-radius:2px;transition:all 0.3s;display:block;"></span>
 </div>
 
-<div class="nav-links" id="navLinks" style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;">
+<div class="nav-links" id="navLinks" style="display:flex;gap:4px;align-items:center;flex-wrap:nowrap;flex-shrink:0;">
 
 {% if lang == 'en' %}
-  <a href="/?lang=en" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Home</a>
-  <a href="/ats-optimizer?lang=en" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 12px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;border:1px solid rgba(0,240,255,0.45);background:rgba(0,240,255,0.08);box-shadow:0 0 10px rgba(0,240,255,0.15);">Free ATS Audit</a>
-  <a href="/roast?lang=en" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Roast CV 🔥</a>
-  <a href="/services?lang=en" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Services</a>
-  <a href="/pricing?lang=en" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Pricing</a>
-  <a href="/blog?lang=en" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Blog</a>
-  <a href="/faq?lang=en" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">FAQ</a>
-  <a href="/trust?lang=en" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Trust</a>
-  <a href="/contact?lang=en" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Contact</a>
+  <a href="/?lang=en" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Home</a>
+  <a href="/ats-optimizer?lang=en" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;border:1px solid rgba(0,240,255,0.45);background:rgba(0,240,255,0.08);box-shadow:0 0 10px rgba(0,240,255,0.15);">Free ATS Audit</a>
+  <a href="/roast?lang=en" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">🔥 Roast CV</a>
+  <a href="/services?lang=en" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Services</a>
+  <a href="/pricing?lang=en" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Pricing</a>
+  <a href="/guide?lang=en" id="nav-guide" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">📖 Guide</a>
+  <a href="/blog?lang=en" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Blog</a>
+  <a href="/faq?lang=en" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">FAQ</a>
+  <a href="/trust?lang=en" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Trust</a>
+  <a href="/contact?lang=en" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Contact</a>
   {% if is_logged_in %}
-    <a href="/dashboard?lang=en" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Dashboard</a>
-    <a class="cta" href="/logout?lang=en" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Log Out</a>
+    <a href="/dashboard?lang=en" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Dashboard</a>
+    <a class="cta" href="/logout?lang=en" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#ffffff;font-weight:700;padding:6px 14px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(239,68,68,0.35);">Log Out</a>
   {% else %}
-    <a href="/login?lang=en" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Login</a>
-    <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#00f0ff,#00a0cc);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;box-shadow:0 0 15px rgba(0,240,255,0.4);">Start Free →</a>
+    <a href="/login?lang=en" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">Login</a>
+    <a class="cta" href="/register?lang=en" id="nav-register" style="background:linear-gradient(135deg,#00f0ff,#00a0cc);color:#0a0a1a;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;box-shadow:0 0 15px rgba(0,240,255,0.4);">Start Free →</a>
   {% endif %}
 
 {% elif lang == 'zh' %}
-  <a href="/?lang=zh" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">首页</a>
-  <a href="/ats-optimizer?lang=zh" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">ATS 免费评分</a>
-  <a href="/roast?lang=zh" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">简历点评 🔥</a>
-  <a href="/services?lang=zh" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">服务</a>
-  <a href="/pricing?lang=zh" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">价格</a>
-  <a href="/blog?lang=zh" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">博客</a>
-  <a href="/faq?lang=zh" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">常见问题</a>
-  <a href="/trust?lang=zh" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">信任</a>
-  <a href="/contact?lang=zh" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">联系我们</a>
+  <a href="/?lang=zh" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">首页</a>
+  <a href="/ats-optimizer?lang=zh" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">ATS 免费评分</a>
+  <a href="/roast?lang=zh" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">🔥 简历点评</a>
+  <a href="/services?lang=zh" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">服务</a>
+  <a href="/pricing?lang=zh" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">价格</a>
+  <a href="/guide?lang=zh" id="nav-guide" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">📖 指南</a>
+  <a href="/blog?lang=zh" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">博客</a>
+  <a href="/faq?lang=zh" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">常见问题</a>
+  <a href="/trust?lang=zh" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">信任</a>
+  <a href="/contact?lang=zh" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">联系我们</a>
   {% if is_logged_in %}
-    <a href="/dashboard?lang=zh" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">控制台</a>
-    <a class="cta" href="/logout?lang=zh" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">退出登录</a>
+    <a href="/dashboard?lang=zh" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">控制台</a>
+    <a class="cta" href="/logout?lang=zh" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#ffffff;font-weight:700;padding:6px 14px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(239,68,68,0.35);">退出登录</a>
   {% else %}
-    <a href="/login?lang=zh" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">登录</a>
-    <a class="cta" href="/register?lang=zh" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">免费开始 →</a>
+    <a href="/login?lang=zh" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">登录</a>
+    <a class="cta" href="/register?lang=zh" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;">免费开始 →</a>
   {% endif %}
 
 {% else %}
-  <a href="/?lang=ar" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الرئيسية</a>
-  <a href="/ats-optimizer?lang=ar" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">فحص ATS مجاني</a>
-  <a href="/roast?lang=ar" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size: 14px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">تقييم السيرة 🔥</a>
-  <a href="/services?lang=ar" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الخدمات</a>
-  <a href="/pricing?lang=ar" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسعار</a>
-  <a href="/blog?lang=ar" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">المدونة</a>
-  <a href="/faq?lang=ar" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسئلة الشائعة</a>
-  <a href="/trust?lang=ar" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الثقة</a>
-  <a href="/contact?lang=ar" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">اتصل بنا</a>
+  <a href="/?lang=ar" id="nav-home" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الرئيسية</a>
+  <a href="/ats-optimizer?lang=ar" id="nav-ats" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;border:1px solid rgba(0,240,255,0.45);background:rgba(0,240,255,0.08);box-shadow:0 0 10px rgba(0,240,255,0.15);">فحص ATS مجاني</a>
+  <a href="/roast?lang=ar" id="nav-roast" style="color:#f59e0b;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">🔥 تقييم السيرة</a>
+  <a href="/services?lang=ar" id="nav-services" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الخدمات</a>
+  <a href="/pricing?lang=ar" id="nav-pricing" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسعار</a>
+  <a href="/guide?lang=ar" id="nav-guide" style="color:#00f0ff;text-decoration:none;font-size:13.5px;font-weight:700;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">📖 دليل الاستخدام</a>
+  <a href="/blog?lang=ar" id="nav-blog" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">المدونة</a>
+  <a href="/faq?lang=ar" id="nav-faq" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الأسئلة الشائعة</a>
+  <a href="/trust?lang=ar" id="nav-trust" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">الثقة</a>
+  <a href="/contact?lang=ar" id="nav-contact" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">اتصل بنا</a>
   {% if is_logged_in %}
-    <a href="/dashboard?lang=ar" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">غرفة القيادة</a>
-    <a class="cta" href="/logout?lang=ar" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#b91c1c);color:#ffffff;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">تسجيل خروج</a>
+    <a href="/dashboard?lang=ar" id="nav-dashboard" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">غرفة القيادة</a>
+    <a class="cta" href="/logout?lang=ar" id="nav-logout" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#ffffff;font-weight:700;padding:6px 14px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(239,68,68,0.35);">تسجيل خروج</a>
   {% else %}
-    <a href="/login?lang=ar" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size: 14px;font-weight:500;padding:5px 10px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">دخول</a>
-    <a class="cta" href="/register?lang=ar" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 18px;border-radius:10px;text-decoration:none;font-size: 14px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">ابدأ مجاناً</a>
+    <a href="/login?lang=ar" id="nav-login" style="color:#94a3b8;text-decoration:none;font-size:13.5px;font-weight:600;padding:5px 8px;border-radius:8px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;">دخول</a>
+    <a class="cta" href="/register?lang=ar" id="nav-register" style="background:linear-gradient(135deg,#f0c040,#00d4aa);color:#0a0a1a;font-weight:700;padding:6px 16px;border-radius:10px;text-decoration:none;font-size:13.5px;transition:all 0.2s;white-space:nowrap;flex-shrink:0;margin-inline-start:4px;">ابدأ مجاناً</a>
   {% endif %}
 {% endif %}
+
 </div>
 </nav>
 
@@ -85,8 +89,8 @@
     inset-inline-end: 0;
     margin-inline: auto;
     transform: none;
-    inline-size: calc(100% - 32px);
-    max-inline-size: 1240px;
+    inline-size: min(calc(100% - 24px), 1380px);
+    max-inline-size: 1380px;
     z-index: 1000;
     background: rgba(8, 12, 24, 0.88) !important;
     backdrop-filter: blur(20px) !important;
@@ -111,6 +115,34 @@
   box-shadow: 0 0 15px rgba(0, 240, 255, 0.25) !important;
   font-weight: 700 !important;
   border-radius: 8px !important;
+}
+
+@media (max-width: 1360px) and (min-width: 1025px) {
+  #nav { padding: 0 10px !important; }
+  .nav-links { gap: 2px !important; }
+  .nav-links a { font-size: 12.5px !important; padding: 4px 6px !important; }
+  .nav-logo { font-size: 16px !important; }
+  .nav-links a.cta { padding: 5px 10px !important; font-size: 12.5px !important; }
+}
+
+@media (max-width: 1024px) {
+  .nav-hamburger { display: flex !important; }
+  .nav-links { display: none !important; }
+  .nav-links.active {
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    inset-block-start: 60px !important;
+    inset-inline-start: 0 !important;
+    inset-inline-end: 0 !important;
+    background: rgba(8, 12, 24, 0.98) !important;
+    backdrop-filter: blur(25px) !important;
+    padding: 16px !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    gap: 8px !important;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.8) !important;
+  }
 }
 </style>
 

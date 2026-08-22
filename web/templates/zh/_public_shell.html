@@ -180,12 +180,13 @@
             </p>
 
             <!-- Form -->
-            <form dir="auto" onsubmit="event.preventDefault(); this.innerHTML='<div style=\'padding:16px; background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.4); border-radius:14px; color:#4ade80; font-weight:800; font-size:15px;\'>🎉 领取成功！指南已发送至您的邮箱，请在 60 秒内查收。</div>';" style="position:relative; z-index:1;">
+            <form id="exit-popup-form" dir="auto" onsubmit="submitExitLeadGuide(event, this);" style="position:relative; z-index:1;">
                 <div style="position:relative; margin-block-end:12px;">
                     <input id="exit-popup-email-input" type="email" placeholder="输入您的常用电子邮箱..." dir="auto" required style="inline-size:100%; padding:14px 16px; background:rgba(15, 23, 42, 0.8); border:1px solid rgba(0, 240, 255, 0.25); border-radius:12px; color:#ffffff; font-family:inherit; font-size:14px; box-sizing:border-box; outline:none; transition:all 0.25s ease;" onfocus="this.style.borderColor='#00f0ff'; this.style.boxShadow='0 0 15px rgba(0,240,255,0.35)';" onblur="this.style.borderColor='rgba(0, 240, 255, 0.25)'; this.style.boxShadow='none';">
                 </div>
+                <div id="exit-popup-msg-box" style="display:none; margin-block-end:12px; font-size:13px; border-radius:10px; padding:10px 14px;"></div>
                 <button id="exit-popup-submit-btn" type="submit" style="inline-size:100%; padding:15px 20px; background:linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%); color:#050515; border:none; border-radius:12px; font-weight:900; font-size:15px; font-family:inherit; cursor:pointer; transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow:0 0 25px rgba(0, 240, 255, 0.45); display:flex; align-items:center; justify-content:center; gap:8px;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 0 35px rgba(0, 240, 255, 0.7)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 0 25px rgba(0, 240, 255, 0.45)';" onmousedown="this.style.transform='scale(0.98)';">
-                    <span>⚡ 立即免费发送给我 🚀</span>
+                    <span id="exit-popup-btn-text">⚡ 立即免费发送给我 🚀</span>
                 </button>
             </form>
 
@@ -204,6 +205,79 @@
   let exitShown = false;
   let inactivityTimer = null;
   const INACTIVITY_DELAY = 180000; // Exactly 3 minutes (180,000 ms) of complete inactivity
+
+  window.submitExitLeadGuide = async function(event, formEl) {
+    if (event) event.preventDefault();
+    const input = document.getElementById('exit-popup-email-input');
+    const btn = document.getElementById('exit-popup-submit-btn');
+    const btnText = document.getElementById('exit-popup-btn-text');
+    const msgBox = document.getElementById('exit-popup-msg-box');
+    const email = (input ? input.value : '').trim();
+
+    if (!email || !email.includes('@')) {
+      if (msgBox) {
+        msgBox.style.display = 'block';
+        msgBox.style.background = 'rgba(239, 68, 68, 0.15)';
+        msgBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        msgBox.style.color = '#f87171';
+        msgBox.textContent = '请输入有效的电子邮箱地址。';
+      }
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = '⏳ 正在发送 VIP 指南至您的邮箱...';
+
+    try {
+      const resp = await fetch('/api/public/claim-free-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          lang: 'zh',
+          source: 'exit_intent_popup'
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        formEl.innerHTML = `
+          <div style="padding:18px 20px; background:rgba(34,197,94,0.15); border:1.5px solid rgba(34,197,94,0.4); border-radius:14px; color:#4ade80; font-size:14.5px; line-height:1.6; text-align:start;">
+            <div style="font-weight:900; font-size:16px; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+              <span>🎉</span>
+              <span>VIP 指南已成功发送！</span>
+            </div>
+            <div>
+              您的 2026 求职军火库与专属优惠码 (GULF30) 已发送至：
+              <strong style="color:#ffffff; word-break:break-all; text-decoration:underline;">${email}</strong>
+            </div>
+            <div style="font-size:12.5px; color:#94a3b8; margin-top:8px;">
+              ⚡ 请在 60 秒内查收您的收件箱（或垃圾邮件箱）。
+            </div>
+          </div>
+        `;
+      } else {
+        if (msgBox) {
+          msgBox.style.display = 'block';
+          msgBox.style.background = 'rgba(239, 68, 68, 0.15)';
+          msgBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          msgBox.style.color = '#f87171';
+          msgBox.textContent = data.error || '发送失败，请重试。';
+        }
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.textContent = '⚡ 立即免费发送给我 🚀';
+      }
+    } catch(err) {
+      if (msgBox) {
+        msgBox.style.display = 'block';
+        msgBox.style.background = 'rgba(239, 68, 68, 0.15)';
+        msgBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        msgBox.style.color = '#f87171';
+        msgBox.textContent = '网络连接错误，请稍后重试。';
+      }
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.textContent = '⚡ 立即免费发送给我 🚀';
+    }
+  };
 
   function resetInactivityTimer() {
     if (exitShown) return;
@@ -234,7 +308,7 @@
     if (window.IS_LOGGED_IN || document.cookie.includes('session') || document.cookie.includes('token')) return;
 
     const lastShown = localStorage.getItem('exit_popup_last_shown');
-    const now = 日期.now();
+    const now = Date.now();
     if (lastShown && (now - parseInt(lastShown)) < 180000) return;
 
     if (exitShown) return;

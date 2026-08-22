@@ -202,10 +202,12 @@ def suppress_bounced_email(email: str, reason: str = "bounce"):
 
 
 def _resolve_doh_sync(domain: str) -> bool:
-    """Synchronous fallback to DNS-over-HTTPS via Cloudflare & Google."""
+    """Synchronous fallback to DNS-over-HTTPS via Cloudflare, Google, Mullvad Extended & Quad9."""
     endpoints = [
         f"https://cloudflare-dns.com/dns-query?name={domain}&type=MX",
-        f"https://dns.google/resolve?name={domain}&type=MX"
+        f"https://dns.google/resolve?name={domain}&type=MX",
+        f"https://extended.dns.mullvad.net/dns-query?name={domain}&type=MX",
+        f"https://dns.quad9.net/dns-query?name={domain}&type=MX"
     ]
     for ep in endpoints:
         try:
@@ -223,12 +225,14 @@ def _resolve_doh_sync(domain: str) -> bool:
 
 
 async def _resolve_doh_async(domain: str) -> bool:
-    """Asynchronous non-blocking DNS-over-HTTPS resolution via Cloudflare & Google."""
+    """Asynchronous non-blocking DNS-over-HTTPS resolution via Cloudflare, Google, Mullvad Extended & Quad9."""
     try:
         import httpx
         endpoints = [
             f"https://cloudflare-dns.com/dns-query?name={domain}&type=MX",
-            f"https://dns.google/resolve?name={domain}&type=MX"
+            f"https://dns.google/resolve?name={domain}&type=MX",
+            f"https://extended.dns.mullvad.net/dns-query?name={domain}&type=MX",
+            f"https://dns.quad9.net/dns-query?name={domain}&type=MX"
         ]
         async with httpx.AsyncClient(timeout=1.5) as client:
             for ep in endpoints:
@@ -246,11 +250,20 @@ async def _resolve_doh_async(domain: str) -> bool:
 
 
 def _check_dns_resolver_sync(domain: str) -> bool:
-    """Synchronous DNS MX query with fast public resolvers."""
+    """Synchronous DNS MX query with ultra-fast public and privacy resolvers (Cloudflare, Google, Quad9, Mullvad)."""
     try:
         import dns.resolver
         res = dns.resolver.Resolver()
-        res.nameservers = ['1.1.1.1', '8.8.8.8', '9.9.9.9', '1.0.0.1', '8.8.4.4']
+        res.nameservers = [
+            '1.1.1.1',          # Cloudflare Primary
+            '9.9.9.9',          # Quad9 Primary
+            '149.112.112.112',  # Quad9 Secondary
+            '194.242.2.4',      # Mullvad Extended Primary
+            '194.242.2.5',      # Mullvad Extended Secondary
+            '8.8.8.8',          # Google Primary
+            '1.0.0.1',          # Cloudflare Secondary
+            '8.8.4.4'           # Google Secondary
+        ]
         answers = res.resolve(domain, 'MX', lifetime=0.75)
         if len(answers) > 0:
             return True
@@ -745,5 +758,4 @@ def get_verifier_stats() -> Dict[str, Any]:
         "ttl_seconds": MX_CACHE_TTL_SECONDS
     }
 
-# Pre-populate memory cache on import
-_init_tables_and_cache()
+# Memory cache and tables are initialized on-demand (lazy) on first verification call

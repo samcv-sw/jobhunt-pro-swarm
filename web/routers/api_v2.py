@@ -176,10 +176,18 @@ def api_v2_services_grouped():
 def api_v2_stats():
     get_db, _, _, _, _ = _deps()
     with get_db() as conn:
-        total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
-        total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
-        total_emails = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
-        pass  # conn.close()
+        try:
+            total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        except Exception:
+            total_users = 0
+        try:
+            total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+        except Exception:
+            total_campaigns = 0
+        try:
+            total_emails = conn.execute("SELECT COUNT(*) FROM campaign_emails").fetchone()[0]
+        except Exception:
+            total_emails = 0
         return {
             "success": True,
             "users": total_users,

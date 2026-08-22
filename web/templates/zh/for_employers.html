@@ -529,7 +529,7 @@
       </div>
       <div class="form-group">
         <label>📍 工作地点 * <span class="tip-badge">ℹ️<span class="tip-box">Specify city & country, or write '100% Remote' for global candidate reach.</span></span></label>
-        <input dir="auto" type="text" id="location" required placeholder="e.g. Beirut, Lebanon" dir="auto">
+        <input dir="auto" type="text" id="location" required placeholder="例如：Austin, TX, USA / Remote" dir="auto">
       </div>
       <div class="form-group">
         <label>✈️ Visa & Relocation Assistance <span class="tip-badge">ℹ️<span class="tip-box">Specifying visa sponsorship attracts top international relocators.</span></span></label>
@@ -1147,7 +1147,7 @@
           </div>
           <div style="font-size:0.85em; color:#94a3b8; margin-bottom:8px; display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
             <span id="pv公司" style="color:#e2e8f0; font-weight:700;">Tech Enterprise Inc</span>
-            <span id="pv工作地点">📍 Beirut, Lebanon / Remote</span>
+            <span id="pv工作地点">📍 Austin, TX, USA / Remote</span>
             <span id="pvSalary" style="color:#4ade80; font-weight:800; background:rgba(34,197,94,0.1); padding:2px 8px; border-radius:6px;">💰 $2,500 - $3,500/month</span>
           </div>
           <p id="pvDesc" style="font-size:0.8em; color:#cbd5e1; margin:0; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
@@ -1791,7 +1791,7 @@ function loadEmployerPreset(type) {
     network: {
       company: "Innovate AI Technologies",
       title: "Senior Network & Security Engineer",
-      location: "Beirut, Lebanon / Remote",
+      location: "Austin, TX, USA / Remote",
       category: "it",
       job_type: "full_time",
       salary: "$3,500 - $5,000 / month",
@@ -1814,11 +1814,11 @@ function loadEmployerPreset(type) {
     intern: {
       company: "Tech Startups Hub",
       title: "Software Engineering Intern (Student Friendly)",
-      location: "Tripoli / Beirut / Hybrid",
+      location: "Austin / San Francisco / Hybrid",
       category: "students",
       job_type: "internship",
       salary: "$500 - $800 / month",
-      email: "hr@techstartups.lb",
+      email: "hr@techstartups.com",
       desc: "Great internship opportunity for high school and university students in technology and software development with flexible exam-friendly hours.",
       whatsapp: "yes"
     },
@@ -2112,9 +2112,9 @@ function aiImportJobFromUrl() {
     return;
   }
 
-  document.getElementById('company_name').value = 'Murex Enterprise Solutions';
+  document.getElementById('company_name').value = 'Enterprise Cloud Solutions';
   document.getElementById('job_title').value = 'Senior DevOps & Network Engineer';
-  document.getElementById('location').value = 'Beirut, Lebanon (100% Remote Option)';
+  document.getElementById('location').value = 'Austin, TX, USA (100% Remote Option)';
   document.getElementById('category').value = 'it';
   document.getElementById('salary').value = '$3,500 - $5,000/month (+Performance Bonus)';
   document.getElementById('contact_email').value = 'careers@murex.com';

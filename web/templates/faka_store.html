@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>متجر JobHunt Pro الذكي | بوابات دفع آمنة وتسليم آلي 24/7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #030712;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.35);
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at top center, #1e1b4b 0%, #030712 70%);
+      font-family: 'Cairo', 'IBM Plex Sans Arabic', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.7;
+    }
+    .store-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+      width: 100%;
+    }
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .brand-logo .badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .lang-switcher {
+      display: flex;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .lang-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+    .hero-banner { text-align: center; margin-bottom: 36px; }
+    .hero-banner h1 {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff, #93c5fd, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .hero-banner p { color: var(--text-muted); font-size: 15px; }
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      color: #6ee7b7;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 36px;
+    }
+    .plan-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .plan-card:hover, .plan-card.selected {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px var(--primary-glow);
+    }
+    .plan-card.selected::after {
+      content: '✓ تم الاختيار';
+      position: absolute;
+      top: -10px;
+      inset-inline-end: 16px;
+      background: linear-gradient(135deg, var(--accent-green), #059669);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .plan-name { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+    .plan-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .plan-price { font-size: 28px; font-weight: 900; color: #38bdf8; }
+    .plan-price-rmb { font-size: 13px; color: var(--text-muted); }
+    .plan-features {
+      list-style: none;
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+    .plan-features li { margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .checkout-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .payment-rails {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .rail-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .rail-btn:hover, .rail-btn.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .rail-content {
+      display: none;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .rail-content.active { display: block; }
+    .btn-gateway-action {
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      transition: all 0.2s;
+      margin-top: 12px;
+    }
+    .btn-gateway-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+    }
+    .btn-copy {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      white-space: nowrap;
+    }
+    .btn-verify {
+      background: linear-gradient(135deg, var(--accent-green), #059669);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+      transition: all 0.2s;
+    }
+    .btn-verify:hover {
+      transform: scale(1.01);
+      box-shadow: 0 6px 25px rgba(16, 185, 129, 0.5);
+    }
+    .voucher-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.9);
+      backdrop-filter: blur(16px);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-card {
+      background: #0f172a;
+      border: 2px solid var(--accent-green);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(16, 185, 129, 0.25);
+    }
+    .code-display {
+      background: #020617;
+      border: 2px dashed #38bdf8;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 2px;
+      margin: 18px 0;
+      font-family: monospace;
+      user-select: all;
+    }
+    .tx-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="store-container">
+    <!-- Header -->
+    <header class="store-header">
+      <a href="/" class="brand-logo">
+        <span style="font-size:24px;">⚡</span>
+        <span style="font-size:20px; font-weight:900; letter-spacing:0.5px;">JobHunt Pro</span>
+        <span class="badge">SECURE STORE 24/7</span>
+      </a>
+      <div class="lang-switcher">
+        <a href="/store?lang=ar" class="lang-btn active">🇱🇧 العربية</a>
+        <a href="/store?lang=zh" class="lang-btn">🇨🇳 中文</a>
+        <a href="/store?lang=en" class="lang-btn">🇺🇸 English</a>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <div class="hero-banner">
+      <h1>🚀 المتجر الرقمي الذكي للتسليم الفوري 24/7</h1>
+      <p>بوابات دفع مشفرة وديناميكية (ChangeNOW / NOWPayments / MoonPay / WeChat / Alipay) تضمن حماية خصوصيتك وتسليم كود التفعيل في أجزاء من الثانية!</p>
+      <div class="trust-badges">
+        <span class="trust-badge">🛡️ بوابات دفع مشفرة وديناميكية</span>
+        <span class="trust-badge">🔒 خصوصية وأمان 100% بدون وسطاء</span>
+        <span class="trust-badge">⚡ تسليم وتفعيل فوري &lt; 0.1 ثانية</span>
+      </div>
+    </div>
+
+    <!-- Plans Selector Grid -->
+    <div class="plans-grid">
+      <!-- Starter -->
+      <div class="plan-card" onclick="selectPlan('starter', 9, 'Starter Plan (100 Companies)', '¥65 RMB')" id="card-starter">
+        <div class="plan-name">🚀 باقة الانطلاق (Starter)</div>
+        <div class="plan-price-row">
+          <span class="plan-price">$9</span>
+          <span class="plan-price-rmb">(≈ ¥65 RMB / 9 USDT)</span>
+        </div>
+        <ul class="plan-features">
+          <li>✓ تقديم آلي إلى 100 شركة مستهدفة</li>
+          <li>✓ فحص ذكي للـ CV بنسبة توافق ATS</li>
+          <li>✓ تقرير إرسال فوري ومباشر</li>
+        </ul>
+        <button type="button" class="btn-copy" style="width:100%;">اختيار الباقة</button>
+      </div>
+
+      <!-- Basic -->
+      <div class="plan-card selected" onclick="selectPlan('basic', 19, 'Basic Plan (350 Companies)', '¥135 RMB')" id="card-basic">
+        <div class="plan-name">🔥 الباقة الأساسية (Basic)</div>
+        <div class="plan-price-row">
+          <span class="plan-price">$19</span>
+          <span class="plan-price-rmb">(≈ ¥135 RMB / 19 USDT)</span>
+        </div>
+        <ul class="plan-features">
+          <li>✓ تقديم آلي إلى 350 شركة ممتازة</li>
+          <li>✓ تخصيص ذكي للرسائل مع الذكاء الاصطناعي</li>
+          <li>✓ درع التحقق من خوادم الـ MX</li>
+        </ul>
+        <button type="button" class="btn-copy" style="width:100%;">اختيار الباقة</button>
+      </div>
+
+      <!-- Pro -->
+      <div class="plan-card" onclick="selectPlan('pro', 49, 'Pro VIP Plan (1,000 Companies)', '¥350 RMB')" id="card-pro">
+        <div class="plan-name">👑 باقة المحترفين (Pro VIP)</div>
+        <div class="plan-price-row">
+          <span class="plan-price">$49</span>
+          <span class="plan-price-rmb">(≈ ¥350 RMB / 49 USDT)</span>
+        </div>
+        <ul class="plan-features">
+          <li>✓ تقديم آلي مكثف إلى 1,000 شركة</li>
+          <li>✓ تقديم متعدد المنصات (Email + LinkedIn)</li>
+          <li>✓ تجهيز كامل لأسئلة المقابلات بالـ AI</li>
+        </ul>
+        <button type="button" class="btn-copy" style="width:100%;">اختيار الباقة</button>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="plan-card" onclick="selectPlan('enterprise', 149, 'Enterprise SDR Suite (2,500 Leads)', '¥1,050 RMB')" id="card-enterprise">
+        <div class="plan-name">🏢 باقة الشركات (Enterprise)</div>
+        <div class="plan-price-row">
+          <span class="plan-price">$149</span>
+          <span class="plan-price-rmb">(≈ ¥1,050 RMB / 149 USDT)</span>
+        </div>
+        <ul class="plan-features">
+          <li>✓ سرب استقطاب كامل إلى 2,500 جهة توظيف</li>
+          <li>✓ حوض بريد مخصص بدون أي قيود</li>
+          <li>✓ أولوية قصوى ودعم مخصص VIP</li>
+        </ul>
+        <button type="button" class="btn-copy" style="width:100%;">اختيار الباقة</button>
+      </div>
+    </div>
+
+    <!-- Checkout Box -->
+    <div class="checkout-section">
+      <div class="section-title">
+        <span>💳 بوابات الدفع المشفرة المعتمدة</span>
+        <span id="selected-plan-summary" style="font-size:14px; font-weight:700; color:#38bdf8; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; margin-inline-start:auto;">الباقة الأساسية ($19)</span>
+      </div>
+
+      <!-- Payment Rails Switcher -->
+      <div class="payment-rails">
+        <div class="rail-btn active" onclick="switchRail('changenow', event)">🔄 ChangeNOW (Card / Apple Pay / Crypto)</div>
+        <div class="rail-btn" onclick="switchRail('nowpayments', event)">💎 NOWPayments (فاتورة كريبتو مشفرة)</div>
+        <div class="rail-btn" onclick="switchRail('moonpay', event)">💳 MoonPay (بطاقات بنكية مباشرة)</div>
+        <div class="rail-btn" onclick="switchRail('wechat_alipay', event)">🇨🇳 WeChat / Alipay (للزبائن الصينيين)</div>
+      </div>
+
+      <!-- Rail 1: ChangeNOW Instant Non-Custodial Swap -->
+      <div class="rail-content active" id="rail-changenow">
+        <div style="max-width:550px; margin:0 auto;">
+          <div style="font-size:32px; margin-bottom:8px;">🔄</div>
+          <h3 style="font-size:17px; font-weight:800; color:#38bdf8; margin-bottom:6px;">بوابة ChangeNOW الآمنة</h3>
+          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:16px;">
+            ادفع فورياً باستخدام بطاقتك الائتمانية أو Apple Pay أو أكثر من 500 عملة مشفرة بدون أي وسيط وبدون كشف أي بيانات شخصية:
+          </p>
+          <a href="/checkout/crypto?amount=19&tier=basic" id="changenow-link" target="_blank" class="btn-gateway-action">
+            🚀 فتح بوابة الدفع الفوري الآمن
+          </a>
+        </div>
+      </div>
+
+      <!-- Rail 2: NOWPayments Invoice Gateway -->
+      <div class="rail-content" id="rail-nowpayments">
+        <div style="max-width:550px; margin:0 auto;">
+          <div style="font-size:32px; margin-bottom:8px;">💎</div>
+          <h3 style="font-size:17px; font-weight:800; color:#a78bfa; margin-bottom:6px;">بوابة NOWPayments المشفرة</h3>
+          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:16px;">
+            توليد فاتورة دفع مشفرة ومؤقتة تضمن عدم مشاركة أي عناوين محافظ شخصية وتتيح الدفع بـ USDT (TRC20/BEP20)، BTC، ETH، SOL:
+          </p>
+          <a href="/checkout/v3?plan=basic&amount=19" id="nowpayments-link" target="_blank" class="btn-gateway-action" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9);">
+            ⚡ توليد فاتورة كريبتو فورية
+          </a>
+        </div>
+      </div>
+
+      <!-- Rail 3: MoonPay Direct Gateway -->
+      <div class="rail-content" id="rail-moonpay">
+        <div style="max-width:550px; margin:0 auto;">
+          <div style="font-size:32px; margin-bottom:8px;">💳</div>
+          <h3 style="font-size:17px; font-weight:800; color:#34d399; margin-bottom:6px;">بوابة MoonPay الدولية</h3>
+          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:16px;">
+            الدفع السريع والمباشر للعملاء الدوليين عبر Visa / Mastercard / Apple Pay / Google Pay:
+          </p>
+          <a href="https://buy.moonpay.com" target="_blank" class="btn-gateway-action" style="background:linear-gradient(135deg, #10b981, #059669);">
+            💳 الدفع المباشر عبر MoonPay
+          </a>
+        </div>
+      </div>
+
+      <!-- Rail 4: WeChat / Alipay -->
+      <div class="rail-content" id="rail-wechat_alipay">
+        <div style="max-width:550px; margin:0 auto;">
+          <div style="font-size:32px; margin-bottom:8px;">🇨🇳</div>
+          <h3 style="font-size:17px; font-weight:800; color:#fbbf24; margin-bottom:6px;">مشترو Xianyu / Taobao / WeChat / Alipay</h3>
+          <p style="font-size:13.5px; color:var(--text-muted); margin-bottom:14px;">
+            إذا قمت بالدفع أو الشراء عبر Xianyu أو Taobao، أدخل رقم الطلب أو المعاملة في الأسفل لاستلام كود التفعيل فورياً:
+          </p>
+        </div>
+      </div>
+
+      <!-- Verification Input & Action -->
+      <div style="margin-top:20px; border-top:1px solid var(--card-border); padding-top:20px;">
+        <input type="text" id="tx-hash-input" class="tx-input" placeholder="أدخل رقم المعاملة أو رقم الطلب (TX Hash / Order Reference / Trade No) للتحقق الفوري..." dir="auto">
+        <button type="button" class="btn-verify" onclick="verifyAndDeliver()" id="btn-fulfill-action">
+          ⚡ التحقق الفوري واستلام كود التفعيل الآن
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voucher Code Modal -->
+  <div class="voucher-modal" id="voucherModal">
+    <div class="modal-card">
+      <div style="font-size:44px; margin-bottom:10px;">🎉</div>
+      <h2 style="font-size:22px; font-weight:900; color:#6ee7b7; margin-bottom:8px;">تم إصدار كود التفعيل بنجاح!</h2>
+      <p style="font-size:13px; color:var(--text-muted);">شكراً لشرائك من متجر JobHunt Pro الآلي. هذا هو كودك الحصري:</p>
+      
+      <div class="code-display" id="modalVoucherCode">JH-XXXX-XXXX-XXXX</div>
+      
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button type="button" class="btn-copy" onclick="copyVoucherCode()" style="padding:12px 22px;">📋 نسخ الكود</button>
+        <a href="/redeem" id="autoRedeemLink" class="btn-verify" style="text-decoration:none; padding:12px 22px; width:auto;">⚡ تفعيل حسابي الآن</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentPlan = 'basic';
+    let currentPrice = 19;
+    let currentPlanTitle = 'Basic Plan (350 Companies)';
+
+    function selectPlan(planKey, price, title, rmb) {
+      currentPlan = planKey;
+      currentPrice = price;
+      currentPlanTitle = title;
+      
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      document.getElementById('card-' + planKey).classList.add('selected');
+      
+      document.getElementById('selected-plan-summary').innerText = `${title} ($${price})`;
+      document.getElementById('changenow-link').href = `/checkout/crypto?amount=${price}&tier=${planKey}`;
+      document.getElementById('nowpayments-link').href = `/checkout/v3?plan=${planKey}&amount=${price}`;
+    }
+
+    function switchRail(railId, ev) {
+      document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.rail-content').forEach(c => c.classList.remove('active'));
+      
+      if (ev && ev.target) ev.target.classList.add('active');
+      document.getElementById('rail-' + railId).classList.add('active');
+    }
+
+    function copyVoucherCode() {
+      const code = document.getElementById('modalVoucherCode').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert('تم نسخ كود التفعيل بنجاح!');
+      });
+    }
+
+    async function verifyAndDeliver() {
+      const btn = document.getElementById('btn-fulfill-action');
+      const txInput = document.getElementById('tx-hash-input').value.trim();
+      
+      btn.innerText = '⏳ جارٍ التحقق وإصدار الكود الكمومي...';
+      btn.disabled = true;
+      
+      try {
+        const resp = await fetch('/api/v2/store/verify-tx', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            tier: currentPlan,
+            amount: currentPrice,
+            tx_hash: txInput || 'instant_manual_fulfillment'
+          })
+        });
+        
+        const data = await resp.json();
+        if (data.status === 'success' || data.ok) {
+          const code = data.card_code || (data.codes && data.codes[0]) || 'JH-PRO-2026-ACTIVE';
+          document.getElementById('modalVoucherCode').innerText = code;
+          document.getElementById('autoRedeemLink').href = `/redeem?code=${code}&lang=ar`;
+          document.getElementById('voucherModal').style.display = 'flex';
+        } else {
+          alert(data.message || 'حدث خطأ أثناء معالجة الطلب، يرجى المحاولة مرة أخرى.');
+        }
+      } catch (err) {
+        alert('فشل الاتصال بالسيرفر، يرجى إعادة المحاولة.');
+      } finally {
+        btn.innerText = '⚡ التحقق الفوري واستلام كود التفعيل الآن';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

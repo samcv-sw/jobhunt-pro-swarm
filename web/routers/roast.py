@@ -16,8 +16,19 @@ ph = None
 @router.get("/roast")
 async def roast_page(request: Request):
     """Viral Marketing: Un-gated free tool for lead gen."""
+    req_lang = (
+        request.query_params.get("lang") or
+        request.cookies.get("lang") or
+        request.cookies.get("preferred_lang") or
+        "ar"
+    )
+    clean_lang = str(req_lang).split("-")[0].lower()
+    if clean_lang not in ["ar", "en", "zh"]:
+        clean_lang = "ar"
+
+    template_name = "en/roast.html" if clean_lang == "en" else ("zh/roast.html" if clean_lang == "zh" else "roast.html")
     return templates.TemplateResponse(
-        request, "roast.html", {"VERSION": config.VERSION}
+        request, template_name, {"VERSION": config.VERSION, "lang": clean_lang}
     )
 
 

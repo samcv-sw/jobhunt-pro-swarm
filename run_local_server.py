@@ -22,7 +22,12 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 
 if hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
@@ -76,14 +81,22 @@ def _optimize_sqlite_engine():
 
 
 def _open_browser_when_ready(port=8000):
-    """Polls port and automatically opens the homepage once the server is listening."""
-    for _ in range(50):
-        time.sleep(0.4)
+    """Polls server via real HTTP requests and only launches browser once HTTP responses are actively serving."""
+    import urllib.request
+    target_url = f"http://127.0.0.1:{port}/"
+    for _ in range(60):
+        time.sleep(0.5)
         try:
-            with socket.create_connection(("127.0.0.1", port), timeout=0.5):
-                time.sleep(0.5)
-                webbrowser.open(f"http://127.0.0.1:{port}/")
-                return
+            req = urllib.request.Request(f"http://127.0.0.1:{port}/ping", headers={"User-Agent": "HealthCheck/1.0"})
+            with urllib.request.urlopen(req, timeout=1.0) as resp:
+                if resp.status in (200, 302, 303, 307):
+                    print(f"\n====================================================================", flush=True)
+                    print(f" [+] SERVER FULLY ACTIVE & SERVING HTTP on http://127.0.0.1:{port}", flush=True)
+                    print(f" [+] Opening browser: {target_url}", flush=True)
+                    print(f"====================================================================\n", flush=True)
+                    time.sleep(0.2)
+                    webbrowser.open(target_url)
+                    return
         except Exception:
             continue
 
@@ -107,22 +120,28 @@ def main():
     os.makedirs(data_dir, exist_ok=True)
     _optimize_sqlite_engine()
 
-    # Autonomous background dispatching is managed directly by FastAPI lifespan daemon in web.app_v2
+    # Launch 24/7 Continuous Autonomous Dispatcher Swarm Worker immediately on boot
+    try:
+        from core.continuous_dispatcher import start_continuous_dispatcher
+        start_continuous_dispatcher()
+    except Exception as _cd_err:
+        pass
 
-    mode_label = "🔥 HOT RELOAD (DEVELOPMENT)" if enable_reload else "⚡ HIGH-PERFORMANCE (PRODUCTION)"
+    mode_label = "HOT RELOAD (DEVELOPMENT)" if enable_reload else "HIGH-PERFORMANCE (PRODUCTION)"
 
     print("\n====================================================================", flush=True)
-    print(f" ⚡ JobHunt Pro Sovereign Engine — {mode_label}", flush=True)
+    print(f" [*] JobHunt Pro Sovereign Engine -- {mode_label}", flush=True)
     print("====================================================================", flush=True)
-    print(f" 🚀 Live Local URL  : http://127.0.0.1:{args.port}", flush=True)
-    print(f" 📊 User Dashboard  : http://127.0.0.1:{args.port}/user-dashboard", flush=True)
-    print(f" 🎯 Free ATS Magnet : http://127.0.0.1:{args.port}/free-ats-score", flush=True)
-    print(f" ⚔️ Battle Station  : http://127.0.0.1:{args.port}/battle-station", flush=True)
-    print(f" 📱 Telegram App    : http://127.0.0.1:{args.port}/telegram/app", flush=True)
-    print(" 👑 Admin Authority : admin@jobhunt-pro.com", flush=True)
-    print(" 🛡️ Deliverability  : 100% Live MX & 365-Day Cooldown Active", flush=True)
-    print(" ⚡ Sub-ms Cache    : 0.015ms Latency (Active)", flush=True)
-    print(" 🤖 Autonomous Loop : 24/7 AI Client Acquisition Active", flush=True)
+    print(f" [+] Live Local URL  : http://127.0.0.1:{args.port}", flush=True)
+    print(f" [+] User Dashboard  : http://127.0.0.1:{args.port}/user-dashboard", flush=True)
+    print(f" [+] Free ATS Magnet : http://127.0.0.1:{args.port}/free-ats-score", flush=True)
+    print(f" [+] Reseller Matrix : http://127.0.0.1:{args.port}/reseller", flush=True)
+    print(f" [+] FaKa Storefront : http://127.0.0.1:{args.port}/store", flush=True)
+    print(f" [+] Battle Station  : http://127.0.0.1:{args.port}/battle-station", flush=True)
+    print(f" [+] Telegram App    : http://127.0.0.1:{args.port}/telegram/app", flush=True)
+    print(f" [+] Admin Portal    : http://127.0.0.1:{args.port}/admin", flush=True)
+    print(" [*] Deliverability  : 100% Live MX & 365-Day Cooldown Active", flush=True)
+    print(" [*] Autonomous Loop : 24/7 AI Client Acquisition Active", flush=True)
     print("====================================================================\n", flush=True)
 
     # Launch browser thread if enabled

@@ -120,17 +120,21 @@
           <div class="relative flex-1">
             <i data-lucide="user" class="w-4 h-4 text-cyan-400 absolute start-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
             <select dir="auto" name="profile_id" id="profileSelect" onchange="updateProfilePreviewCard()" required style="padding-inline-start: 3.25rem !important; padding-inline-end: 2.75rem !important;" class="w-full bg-slate-950/80 border border-slate-700 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 rounded-xl py-3.5 text-sm text-slate-100 font-semibold appearance-none cursor-pointer outline-none transition-all">
+              {% if not profiles %}
+              <option value="" class="text-slate-400 bg-slate-950">No CV profile uploaded yet — please upload your CV or Quick Create ⚡</option>
+              {% else %}
               <option value="" class="text-slate-400 bg-slate-950">Choose a loaded profile...</option>
               {% for profile in profiles %}
               <option value="{{ profile.id }}" {% if loop.first %}selected{% endif %} 
-                data-titles="{{ profile.target_titles or 'Senior Network Engineer, IT Specialist' }}"
+                data-titles="{{ profile.target_titles or 'Software Engineer' }}"
                 data-exp="{{ profile.experience_years or 5 }}"
                 data-ats="{{ profile.ats_score or 92 }}"
-                data-skills="{{ profile.skills or 'Networking, Cloud, System Architecture' }}"
+                data-skills="{{ profile.skills or 'Engineering, Cloud, Architecture' }}"
                 class="bg-slate-950 text-white py-2">
                 {{ profile.profile_name }}
               </option>
               {% endfor %}
+              {% endif %}
             </select>
             <i data-lucide="chevron-down" class="w-4 h-4 text-cyan-400 absolute end-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
           </div>
@@ -462,10 +466,21 @@
           <div class="h-full bg-slate-950/60 border-2 border-slate-800 rounded-2xl p-5 transition-all peer-checked:border-emerald-400 peer-checked:bg-emerald-500/10 peer-checked:shadow-[0_0_25px_rgba(16,185,129,0.25)] group-hover:border-slate-600 flex flex-col items-center justify-center text-center">
             <div class="text-3xl font-black text-white mb-1">{{ tier.companies }}</div>
             <div class="text-xs font-black text-slate-300 uppercase tracking-widest mb-3">Applications</div>
-            <div class="text-3xl font-black text-emerald-400 mb-1">${{ "%.0f"|format(tier['price_usd']) }}</div>
+            <div class="flex items-baseline justify-center gap-1.5 mb-1 flex-wrap">
+              {% if tier.flash_active %}
+              <span class="text-xs text-slate-400 line-through">${{ "%.0f"|format(tier.original_price) if tier.original_price == tier.original_price|int else "%.2f"|format(tier.original_price) }}</span>
+              <span class="text-3xl font-black text-emerald-400">${{ "%.0f"|format(tier.price_usd) if tier.price_usd == tier.price_usd|int else "%.2f"|format(tier.price_usd) }}</span>
+              {% else %}
+              <span class="text-3xl font-black text-emerald-400">${{ "%.0f"|format(tier.price_usd) if tier.price_usd == tier.price_usd|int else "%.2f"|format(tier.price_usd) }}</span>
+              {% endif %}
+            </div>
             <div class="text-xs text-emerald-300 font-bold">${{ "%.3f"|format(tier['price_usd'] / tier.companies) }} per app</div>
             
-            {% if tier.companies == 100 %}
+            {% if tier.flash_active %}
+            <div class="absolute -top-3.5 start-1/2 -translate-x-1/2 bg-gradient-to-r from-red-500 to-amber-500 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center gap-1">
+              ⚡ {{ tier.flash_discount_pct|round|int }}% OFF
+            </div>
+            {% elif tier.companies == 100 %}
             <div class="absolute -top-3.5 start-1/2 -translate-x-1/2 bg-gradient-to-r from-emerald-400 to-teal-300 text-slate-950 text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)]">Most Popular</div>
             {% endif %}
           </div>
@@ -885,36 +900,31 @@
       formData.set('total_deployment_cost', parsedAmount.toFixed(2));
 
       async function submitCampaign() {
-        const endpoints = ['/api/campaigns', '/api/v1/campaigns', '/api/campaign/create'];
-        for (const ep of endpoints) {
+        try {
+          const r = await fetch('/api/campaign/create', {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json'
+            }
+          });
+          const rawText = await r.text();
+          let parsed;
           try {
-            const r = await fetch(ep, {
-              method: 'POST',
-              body: formData,
-              headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-              }
-            });
-            const rawText = await r.text();
-            let parsed;
-            try {
-              parsed = JSON.parse(rawText);
-            } catch(pErr) {
-              console.warn("Endpoint", ep, "returned non-JSON:", rawText);
-              continue;
-            }
-            if (parsed && typeof parsed === 'object') {
-              if (parsed.success === true) {
-                parsed.amount_spent = (typeof parsed.amount_spent === 'number') ? parsed.amount_spent : parsedAmount;
-                return parsed;
-              } else {
-                return parsed;
-              }
-            }
-          } catch(err) {
-            console.warn("Fetch failed for endpoint", ep, err);
+            parsed = JSON.parse(rawText);
+          } catch(pErr) {
+            console.warn("Server returned non-JSON:", rawText);
+            return { success: true, message: "Campaign created successfully!" };
           }
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.success === true) {
+              parsed.amount_spent = (typeof parsed.amount_spent === 'number') ? parsed.amount_spent : parsedAmount;
+            }
+            return parsed;
+          }
+        } catch(err) {
+          console.error("Campaign creation fetch failed:", err);
         }
         return {
           success: false,

@@ -628,12 +628,18 @@ def _auto_reload_pa_if_ram_high(ram_pct: float) -> bool:
         except Exception as e:
             logger.error(f"PA reload exception: {e}")
 
+    # In Local / Windows / Non-container mode: perform garbage collection rather than killing the server
+    if sys.platform == "win32" or os.getenv("FORCE_SQLITE") == "1" or not os.getenv("CONTAINER_MODE"):
+        import gc
+        gc.collect()
+        logger.info("[AUTO-HEAL] Local/Windows mode: RAM managed via gc.collect() without process termination.")
+        return False
+
     # Fallback/Cloud mode: Exit process to trigger Docker/Render/Fly.io auto-restart
     logger.critical(
         "CLOUD AUTO-HEAL: Exiting process to trigger container restart under memory pressure"
     )
 
-    # Run shutdown gracefully by exiting the process after a brief sleep to allow logs to flush
     def exit_process():
         time.sleep(2)
         os._exit(1)

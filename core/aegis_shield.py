@@ -88,10 +88,7 @@ class _UpstashClient:
         if self._enabled:
             logger.info("[AEGIS] Upstash Redis rate-limit backend ENABLED.")
         else:
-            logger.warning(
-                "[AEGIS] Upstash not configured or disabled (free account) — using in-memory rate-limit fallback. "
-                "Set UPSTASH_REDIS_URL + UPSTASH_REDIS_TOKEN for distributed mode."
-            )
+            logger.info("[AEGIS] In-memory rate-limit backend active (Sovereign 0$ local mode).")
 
     def _is_circuit_broken(self) -> bool:
         if time.time() < getattr(self, "_circuit_broken_until", 0.0):
@@ -252,6 +249,11 @@ TRAVERSAL_CMD_RE = re.compile(
     re.IGNORECASE,
 )
 
+SCANNER_UA_RE = re.compile(
+    r"(sqlmap|nikto|dirbuster|gobuster|masscan|wpscan|nmap|acunetix|nessus|openvas|hydra|zgrab|censys|shodan|burpsuite)",
+    re.IGNORECASE,
+)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPERS
@@ -332,8 +334,15 @@ class AegisShieldMiddleware:
             or path.startswith("/tma")
             or path.startswith("/telegram")
             or path.startswith("/api/v1/ipn")
+            or path.startswith("/api/v2/reseller")
         )
         user_agent = request.headers.get("user-agent", "").lower()
+        if SCANNER_UA_RE.search(user_agent):
+            _blackhole[client_ip] = now + PROBE_BLACKHOLE_DURATION
+            logger.warning(f"[AEGIS WAF] Malicious Scanner UA from {client_ip}: '{user_agent}' -> Blackholed 24h")
+            await _reject("Forbidden (Security Violation).", 403)
+            return
+
         is_telegram = "telegram" in user_agent or "telegrambot" in user_agent
         
         is_tool_ua = (

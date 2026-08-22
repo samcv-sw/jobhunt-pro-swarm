@@ -8,6 +8,7 @@ import re
 import random
 import logging
 import asyncio
+import time
 import httpx
 from typing import List, Dict, Any, Optional
 from urllib.parse import quote_plus
@@ -113,7 +114,19 @@ DORK_TEMPLATES = [
     'site:linkedin.com/in ("Head of People" OR "People Operations Lead") "Fast Growing" OR "Scaleup" "{location}"',
     'site:linkedin.com/in ("Talent Lead" OR "Recruiting Lead") "FinTech" OR "EdTech" OR "HealthTech" "{location}"',
     'site:linkedin.com/in "Hiring for" "{target_role}" "{location}"',
-    'site:linkedin.com/in ("Engineering Director" OR "Engineering Lead") "{target_role}" "{location}"'
+    'site:linkedin.com/in ("Engineering Director" OR "Engineering Lead") "{target_role}" "{location}"',
+
+    # =========================================================================
+    # 9. Worldwide Visa Sponsorship & Full Relocation Packages (8 templates)
+    # =========================================================================
+    'site:boards.greenhouse.io OR site:jobs.lever.co OR site:jobs.ashbyhq.com ("visa sponsorship" OR "relocation package") "{target_role}"',
+    'site:myworkdayjobs.com ("visa sponsorship provided" OR "relocation allowance") "{target_role}"',
+    'site:linkedin.com/jobs ("visa sponsorship" OR "relocation assistance") ("flights" OR "housing" OR "accommodation") "{target_role}"',
+    '("visa sponsorship available" OR "relocation package provided" OR "ticket + accommodation") ("careers" OR "jobs") "{target_role}"',
+    'site:jobs.personio.com OR site:jobs.personio.de ("visa support" OR "blue card" OR "relocation package") "{target_role}"',
+    'site:apply.workable.com ("visa sponsorship" OR "relocation stipend" OR "housing allowance") "{target_role}"',
+    'site:smartrecruiters.com ("visa sponsorship" OR "relocation support") "{target_role}"',
+    'site:linkedin.com/in ("Global Mobility Lead" OR "Immigration Specialist" OR "Relocation Manager") "{industry}"'
 ]
 
 
@@ -139,8 +152,14 @@ class GoogleDorksHarvester:
         """Constructs high-precision search strings from master template library."""
         if template_idx is not None and 0 <= template_idx < len(DORK_TEMPLATES):
             base = DORK_TEMPLATES[template_idx]
+        elif target_role and location:
+            matching = [t for t in DORK_TEMPLATES if "{target_role}" in t and "{location}" in t]
+            base = random.choice(matching) if matching else [t for t in DORK_TEMPLATES if "{target_role}" in t][0]
         elif target_role:
             matching = [t for t in DORK_TEMPLATES if "{target_role}" in t]
+            base = random.choice(matching) if matching else DORK_TEMPLATES[0]
+        elif location:
+            matching = [t for t in DORK_TEMPLATES if "{location}" in t]
             base = random.choice(matching) if matching else DORK_TEMPLATES[0]
         else:
             base = random.choice(DORK_TEMPLATES)
@@ -252,5 +271,88 @@ class GoogleDorksHarvester:
         return leads
 
 
-# Global singleton
+class AutonomousDorkHarvesterSwarm:
+    """
+    Continuous background autonomous lead scout swarm.
+    Periodically executes targeted search heuristics across GCC & Global hiring hubs,
+    enforcing strict Live MX deliverability and non-synthetic standards.
+    """
+
+    def __init__(self):
+        self.harvester = GoogleDorksHarvester()
+        self.verified_pool: List[Dict[str, Any]] = []
+        self.seen_emails = set()
+        self.total_scanned = 0
+        self.total_verified = 0
+        self.last_run_time: Optional[float] = None
+        self.is_active = False
+        self.target_matrix = [
+            {"role": "Talent Acquisition Director", "loc": "Riyadh", "ind": "Technology"},
+            {"role": "Head of Engineering", "loc": "Dubai", "ind": "Fintech"},
+            {"role": "Chief Technology Officer", "loc": "Abu Dhabi", "ind": "AI & Cloud"},
+            {"role": "VP Human Resources", "loc": "Doha", "ind": "Energy & Tech"},
+            {"role": "Lead Recruiter", "loc": "Riyadh", "ind": "Consulting"},
+            {"role": "Staff Software Engineer", "loc": "Dubai", "ind": "Software"}
+        ]
+
+    async def execute_harvest_cycle(self, batch_size: int = 3) -> Dict[str, Any]:
+        """Runs a single harvesting cycle across scheduled targets."""
+        self.last_run_time = time.time()
+        batch_targets = random.sample(self.target_matrix, min(batch_size, len(self.target_matrix)))
+        cycle_leads = []
+
+        for target in batch_targets:
+            try:
+                results = await self.harvester.harvest_leads(
+                    target_role=target["role"],
+                    location=target["loc"],
+                    industry=target["ind"],
+                    max_results=5
+                )
+                for item in results:
+                    self.total_scanned += 1
+                    for email in item.get("emails", []):
+                        if email not in self.seen_emails and is_deliverable_email(email):
+                            self.seen_emails.add(email)
+                            self.total_verified += 1
+                            verified_entry = {
+                                "email": email,
+                                "role": target["role"],
+                                "location": target["loc"],
+                                "industry": target["ind"],
+                                "discovered_at": time.time(),
+                                "deliverability": "VERIFIED_LIVE_MX"
+                            }
+                            self.verified_pool.append(verified_entry)
+                            cycle_leads.append(verified_entry)
+            except Exception as e:
+                logger.error(f"Error harvesting for target {target}: {e}")
+
+        # Keep pool bounded to prevent memory growth
+        if len(self.verified_pool) > 500:
+            self.verified_pool = self.verified_pool[-500:]
+
+        return {
+            "status": "completed",
+            "cycle_verified_count": len(cycle_leads),
+            "total_verified_leads": self.total_verified,
+            "total_scanned": self.total_scanned,
+            "last_run": self.last_run_time
+        }
+
+    def get_telemetry(self) -> Dict[str, Any]:
+        """Returns live harvesting metrics for UI and SSE streams."""
+        return {
+            "is_active": self.is_active,
+            "total_scanned": self.total_scanned,
+            "total_verified": self.total_verified,
+            "pool_size": len(self.verified_pool),
+            "last_run": self.last_run_time,
+            "recent_verified": self.verified_pool[-5:] if self.verified_pool else []
+        }
+
+
+# Global singletons
 dorks_harvester = GoogleDorksHarvester()
+dorks_swarm = AutonomousDorkHarvesterSwarm()
+

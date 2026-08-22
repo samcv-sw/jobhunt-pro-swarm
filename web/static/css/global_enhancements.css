@@ -244,3 +244,43 @@
 .icon-rtl-flip {
   transform: scaleX(var(--text-x-direction));
 }
+
+/* --- BULLETPROOF MARKET PULSE MARQUEE SYSTEM --- */
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeScrollRTL {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  width: max-content;
+  will-change: transform;
+  animation: marqueeScroll 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+[dir="rtl"] .animate-marquee,
+html[dir="rtl"] .animate-marquee,
+body[dir="rtl"] .animate-marquee {
+  animation: marqueeScrollRTL 35s linear infinite;
+}
+
+[dir="rtl"] .animate-marquee:hover,
+html[dir="rtl"] .animate-marquee:hover,
+body[dir="rtl"] .animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.marquee-fade-mask {
+  mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+}

@@ -1,8 +1,9 @@
-<meta property="og:title" content="Wallet | JobHunt Pro"/>
-<meta name="description" content="Manage your credits and financial transactions on JobHunt Pro."/>
-<title>Wallet | JobHunt Pro</title>
-<link rel="stylesheet" href="/static/css/cyberpunk.css">
-  
+<meta property="og:title" content="Wallet & Top-up | JobHunt Pro"/>
+<meta name="description" content="Manage your balance, top up via Crypto or Visa/Mastercard, redeem gift vouchers, and track full transaction history."/>
+<title>Wallet & Top-up | JobHunt Pro</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link href="/static/css/apex_glassmorphism.css" rel="stylesheet"/>
+
 {% set wallet_balance = user.wallet_balance if user else 0 %}
 {% set user_name = user.name if user else "User" %}
 {% set user_email = user.email if user else "" %}
@@ -10,140 +11,789 @@
 {% set toast_type = "error" if error else ("success" if success else "") %}
 
 <style>
-.wallet-page { inline-size: 100%; }
-.wallet-header { display:grid; grid-template-columns:300px 1fr; gap:20px; margin-block-end:28px; align-items:start; }
-@media (max-width:768px) { .wallet-header { grid-template-columns:1fr; } }
-.wallet-balance-card { background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(139,92,246,.10)); border:1px solid rgba(59,130,246,.18); border-radius:20px; padding:28px 24px; text-align:center; }
-.wallet-balance-card .balance-amount { font-size:44px; font-weight:800; color:#3b82f6; line-height:1.1; margin-block-end:2px; }
-.wallet-balance-card .balance-label { font-size: 14px; color:#64748b; text-transform:uppercase;  }
-.wallet-actions { display:flex; gap:8px; margin-block-start:14px; justify-content:center; flex-wrap:wrap; }
-.btn-wallet { padding:9px 18px; border-radius:10px; border:1px solid rgba(59,130,246,.18); background:rgba(59,130,246,.08); color:#60a5fa; cursor:pointer; font-size: 14px; font-weight:600; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
-.btn-wallet:hover { background:rgba(59,130,246,.15); transform:translateY(-1px); }
-.btn-wallet.primary { background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; color:#fff; }
-.btn-wallet.primary:hover { filter:brightness(1.15); }
-.wallet-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
-@media (max-width:500px) { .wallet-stats { grid-template-columns:1fr 1fr; } }
-.wallet-stat-card { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.05); border-radius:14px; padding:16px 12px; text-align:center; }
-.wallet-stat-card .stat-val { font-size:22px; font-weight:700; line-height:1.2; }
-.wallet-stat-card .stat-label { font-size: 14px; color:#64748b; text-transform:uppercase;  margin-block-start:2px; }
-.section-title { color:#94a3b8; font-size: 14px; text-transform:uppercase;  margin-block-end:14px; }
+:root {
+  --text-x-direction: 1;
+}
 
-/* Top-Up Form */
-.topup-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:24px; margin-block-end:24px; }
-.topup-card h3 { font-size:16px; font-weight:700; color:#e2e8f0; margin:0 0 6px; }
-.topup-card .sub { font-size: 14px; color:#64748b; margin:0 0 20px; }
-.preset-grid { display:flex; gap:8px; flex-wrap:wrap; margin-block-end:16px; }
-.preset-btn { padding:10px 18px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size:14px; font-weight:600; transition:all .2s; }
-.preset-btn:hover { border-color:rgba(59,130,246,.4); color:#60a5fa; background:rgba(59,130,246,.08); }
-.preset-btn.selected { background:rgba(59,130,246,.15); border-color:#3b82f6; color:#60a5fa; }
-.topup-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-block-end:16px; }
-.topup-amount { flex:1; min-inline-size:160px; }
-.topup-amount label { display:block; font-size: 14px; color:#64748b; text-transform:uppercase;  margin-block-end:6px; }
-.topup-amount input { inline-size:100%; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:18px; font-weight:700; outline:none; transition:border .2s; }
-.topup-amount input:focus { border-color:#3b82f6; }
-.coin-select { display:flex; gap:4px; flex-wrap:wrap; }
-.coin-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:#94a3b8; cursor:pointer; font-size: 14px; font-weight:600; transition:all .2s; }
-.coin-btn:hover { border-color:rgba(245,158,11,.4); color:#f59e0b; }
-.coin-btn.selected { background:rgba(245,158,11,.2) !important; border-color:#f59e0b !important; color:#f59e0b !important; box-shadow: 0 0 10px rgba(245,158,11,0.5) !important; }
-.btn-topup { padding:12px 32px; border:none; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#000; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; }
-.btn-topup:hover { filter:brightness(1.1); transform:translateY(-1px); }
-.btn-topup:disabled { opacity:.5; cursor:not-allowed; }
+.wallet-page {
+    inline-size: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Header & Balance Section */
+.wallet-header {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    margin-block-end: 24px;
+    align-items: stretch;
+}
+@media (max-width: 900px) {
+    .wallet-header { grid-template-columns: 1fr; }
+}
+
+.wallet-balance-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%);
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    border-radius: 20px;
+    padding: 26px 22px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 240, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.wallet-balance-card::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 3px;
+    background: linear-gradient(90deg, #00f0ff, #a855f7, #22c55e);
+}
+
+.wallet-balance-card .balance-label {
+    font-size: 14px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-block-end: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.wallet-balance-card .balance-amount {
+    font-size: 44px;
+    font-weight: 900;
+    color: #00f0ff;
+    line-height: 1.1;
+    margin-block-end: 12px;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+}
+
+.wallet-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-wallet {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    background: rgba(0, 240, 255, 0.08);
+    color: #00f0ff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+}
+.btn-wallet:hover {
+    background: rgba(0, 240, 255, 0.18);
+    border-color: rgba(0, 240, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+    color: #ffffff;
+}
+.btn-wallet.primary {
+    background: linear-gradient(135deg, #0284c7, #7c3aed);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.35);
+}
+.btn-wallet.primary:hover {
+    background: linear-gradient(135deg, #0369a1, #6d28d9);
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.5);
+}
+
+.wallet-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+@media (max-width: 540px) {
+    .wallet-stats { grid-template-columns: 1fr; }
+}
+
+.wallet-stat-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+}
+.wallet-stat-card:hover {
+    border-color: rgba(0, 240, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.wallet-stat-card .stat-val {
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.wallet-stat-card .stat-label {
+    font-size: 13.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-block-start: 4px;
+    font-weight: 700;
+}
+
+/* API Key Card */
+.api-key-box {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-block-end: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    backdrop-filter: blur(12px);
+}
+
+/* Visa / Mastercard / Apple Pay Card */
+.card-pay-banner {
+    margin-block-end: 24px;
+    padding: 22px 24px;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(14px);
+    position: relative;
+    overflow: hidden;
+}
+.card-pay-banner::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inline-size: 100%;
+    block-size: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+}
+
+/* Crypto Top-Up Form */
+.topup-card {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 18px;
+    padding: 24px;
+    margin-block-end: 24px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+.topup-card h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.topup-card .sub {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin: 0 0 20px;
+    line-height: 1.5;
+}
+
+.preset-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-block-end: 18px;
+}
+.preset-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 800;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+.preset-btn:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.1);
+    transform: translateY(-2px);
+}
+.preset-btn.selected {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+}
+
+.topup-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.topup-amount {
+    flex: 1;
+    min-inline-size: 160px;
+}
+.topup-amount label {
+    display: block;
+    font-size: 13.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-block-end: 6px;
+    font-weight: 700;
+}
+.topup-amount input {
+    inline-size: 100%;
+    padding: 12px 16px;
+    background: rgba(10, 15, 29, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+.topup-amount input:focus {
+    border-color: #00f0ff;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.3);
+}
+
+.coin-select {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.coin-btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+.coin-btn:hover {
+    border-color: rgba(245, 158, 11, 0.5);
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+.coin-btn.selected {
+    background: rgba(245, 158, 11, 0.25) !important;
+    border-color: #f59e0b !important;
+    color: #fbbf24 !important;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.4) !important;
+}
+
+.btn-topup {
+    padding: 13px 32px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000000;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+}
+.btn-topup:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
+}
+.btn-topup:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 /* Invoice Modal */
-.invoice-overlay { display:none; position:fixed; inset-block-start:0; inset-inline-start: 0; inline-size:100%; block-size:100%; background:rgba(0,0,0,.7); z-index:1000; backdrop-filter:blur(4px); }
-.invoice-overlay.show { display:flex; align-items:center; justify-content:center; }
-.invoice-modal { background:rgba(15,15,20,.95); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:32px; max-inline-size:460px; inline-size:90%; text-align:center; animation:slideUp .3s ease; }
-@keyframes slideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-.invoice-modal h2 { font-size:20px; color:#e2e8f0; margin:0 0 8px; }
-.invoice-modal .sub { font-size: 14px; color:#64748b; margin:0 0 20px; }
-.invoice-modal .qr-placeholder { inline-size:120px; block-size:120px; margin:0 auto 16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:48px; }
-.invoice-modal .pay-addr { font-size: 14px; color:#94a3b8; word-break:break-all; background:rgba(0,0,0,.4); padding:12px; border-radius:10px; margin-block-end:12px; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace; }
-.invoice-modal .pay-amount { font-size:14px; color:#f59e0b; font-weight:700; margin-block-end:16px; }
-.invoice-modal .btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-.invoice-modal .btn-pay { padding:12px 28px; background:linear-gradient(135deg,#22c55e,#16a34a); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:all .2s; }
-.invoice-modal .btn-pay:hover { filter:brightness(1.1); }
-.invoice-modal .btn-close { padding:12px 28px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#94a3b8; cursor:pointer; font-size:14px; transition:all .2s; }
-.invoice-modal .btn-close:hover { background:rgba(255,255,255,.08); }
+.invoice-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+.invoice-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.invoice-modal {
+    background: #0f172a;
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    border-radius: 20px;
+    padding: 30px;
+    max-inline-size: 480px;
+    inline-size: 100%;
+    text-align: center;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.2);
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-/* Crypto Grid (static addresses) */
-.crypto-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-block-start:8px; }
-.crypto-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:14px; padding:16px; text-align:center; }
-.crypto-card .crypto-icon { font-size:28px; margin-block-end:8px; }
-.crypto-card .crypto-name { font-size: 14px; color:#94a3b8; margin-block-end:4px; }
-.crypto-card .crypto-addr { font-size: 14px; color:#64748b; word-break:break-all; background:rgba(0,0,0,.3); padding:8px; border-radius:8px; margin-block-start:8px; }
+/* Static Crypto Grid */
+.crypto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-block-start: 10px;
+    margin-block-end: 24px;
+}
+.crypto-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 16px;
+    padding: 18px 14px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    transition: all 0.25s ease;
+}
+.crypto-card:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 240, 255, 0.15);
+}
+.crypto-card .crypto-icon {
+    font-size: 30px;
+    margin-block-end: 8px;
+}
+.crypto-card .crypto-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #e2e8f0;
+    margin-block-end: 4px;
+}
+.crypto-card .crypto-addr {
+    font-size: 12.5px;
+    color: #94a3b8;
+    word-break: break-all;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin-block-start: 8px;
+    font-family: monospace;
+}
 
-.transaction-table { inline-size:100%; border-collapse:collapse; }
-.transaction-table th { text-align: start; font-size: 14px; text-transform:uppercase; color:#64748b; padding:12px 8px; border-inset-block-end:1px solid rgba(255,255,255,.05);  }
-.transaction-table td { padding:12px 8px; border-inset-block-end:1px solid rgba(255,255,255,.03); font-size: 14px; }
-.transaction-table tr:hover td { background:rgba(255,255,255,.02); }
-.tx-type { display:inline-flex; align-items:center; gap:4px; padding:4px 10px; border-radius:6px; font-size: 14px; font-weight:600; }
-.tx-type.credit { background:rgba(34,197,94,.1); color:#4ade80; }
-.tx-type.debit { background:rgba(239,68,68,.1); color:#f87171; }
-.tx-type.pending { background:rgba(250,204,21,.1); color:#fbbf24; }
-.toast-msg { padding:12px 20px; border-radius:12px; font-size: 14px; margin-block-end:20px; display:flex; align-items:center; gap:8px; animation:slideDown .3s ease; }
-.toast-msg.error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.25); color:#f87171; }
-.toast-msg.success { background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25); color:#4ade80; }
-@keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-.redeem-card { background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(139,92,246,.08)); border:1px solid rgba(59,130,246,.2); border-radius:16px; padding:24px; margin-block-start:24px; }
-.redeem-card h3 { font-size:14px; color:#e2e8f0; margin:0 0 6px; }
-.redeem-card p { font-size: 14px; color:#64748b; margin:0 0 16px; }
-.redeem-form { display:flex; gap:10px; flex-wrap:wrap; }
-.redeem-input { flex:1; min-inline-size:200px; padding:12px 16px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.1); border-radius:12px; color:#e2e8f0; font-size:14px; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;  outline:none; transition:border .2s; }
-.redeem-input:focus { border-color:rgba(59,130,246,.5); }
-.redeem-input::placeholder { color:#475569; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, sans-serif;  }
-.btn-redeem { padding:12px 28px; background:linear-gradient(135deg,#3b82f6,#8b5cf6); border:none; border-radius:12px; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; white-space:nowrap; }
-.btn-redeem:hover { filter:brightness(1.15); transform:translateY(-1px); }
+/* Redeem Card */
+.redeem-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 18px;
+    padding: 24px;
+    margin-block-end: 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+.redeem-card h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #d8b4fe;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.redeem-card p {
+    font-size: 13.5px;
+    color: #94a3b8;
+    margin: 0 0 16px;
+}
+.redeem-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.redeem-input {
+    flex: 1;
+    min-inline-size: 220px;
+    padding: 12px 16px;
+    background: rgba(10, 15, 29, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 14.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+.redeem-input:focus {
+    border-color: #c084fc;
+    box-shadow: 0 0 14px rgba(168, 85, 247, 0.3);
+}
+.btn-redeem {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35);
+}
+.btn-redeem:hover {
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(168, 85, 247, 0.5);
+}
+
+/* Ledger & Transaction Table */
+.transaction-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+}
+.transaction-table thead {
+    background: rgba(0, 240, 255, 0.08);
+}
+.transaction-table th {
+    text-align: start;
+    font-size: 13.5px;
+    text-transform: uppercase;
+    color: #00f0ff;
+    padding: 14px 12px;
+    border-block-end: 1px solid rgba(0, 240, 255, 0.2);
+    white-space: nowrap;
+    font-weight: 800;
+}
+.transaction-table td {
+    padding: 13px 12px;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 14px;
+    white-space: nowrap;
+}
+.transaction-table tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02);
+}
+.transaction-table tbody tr:hover td {
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.tx-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 800;
+}
+.tx-type.credit { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.tx-type.debit { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.tx-type.redeem { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+.tx-type.bonus { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+.section-title {
+    color: #cbd5e1;
+    font-size: 16px;
+    font-weight: 800;
+    margin-block-end: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Empty State */
+.empty-tx {
+    text-align: center;
+    padding: 48px 20px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    border-radius: 18px;
+}
+.empty-tx .empty-icon {
+    font-size: 48px;
+    margin-block-end: 12px;
+    opacity: 0.8;
+}
+.empty-tx p {
+    color: #94a3b8;
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin: 0;
+}
 </style>
 
-{% if toast_msg %}
-<div class="toast-msg {{ toast_type }}">
-  {% if toast_type == 'success' %}✅{% else %}⚠️{% endif %}
-  {{ toast_msg }}
-</div>
-{% endif %}
+<div class="wallet-page" dir="ltr">
 
-<div class="wallet-header">
+  <!-- ═══════════════ HEADER & STATS ═══════════════ -->
+  <div class="wallet-header">
     <div class="wallet-balance-card">
-        <div class="balance-label">Wallet Balance</div>
-        <div class="balance-amount">${{ "%.2f"|format(wallet_balance|float if wallet_balance else 0) }}</div>
-        <div class="wallet-actions">
-            <a href="/pricing" class="btn-wallet primary">💎 Buy Credits</a>
-            <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user_email }}');this.innerHTML='✅ Copied!'">📋 Copy Email</button>
-        </div>
+      <div class="balance-label">
+        <span>💰</span> <span>Available Wallet Balance</span>
+      </div>
+      <div class="balance-amount">${{ "%.2f"|format(wallet_balance|float if wallet_balance else 0) }}</div>
+      <div class="wallet-actions">
+        <a class="btn-wallet primary" href="/pricing">💎 Upgrade Plans</a>
+        <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user_email }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy Email',2000)">📋 Copy Email</button>
+      </div>
     </div>
-    <div class="wallet-stats">
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#4ade80;">{{ transactions|selectattr('transaction_type','equalto','credit')|list|length }}</div>
-            <div class="stat-label">Credits</div>
-        </div>
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#f87171;">{{ transactions|selectattr('transaction_type','equalto','debit')|list|length }}</div>
-            <div class="stat-label">Debits</div>
-        </div>
-        <div class="wallet-stat-card">
-            <div class="stat-val" style="color:#60a5fa;">{{ transactions|length }}</div>
-            <div class="stat-label">Total TXs</div>
-        </div>
-    </div>
-</div>
 
-<!-- API Key -->
-<div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:20px;margin-block-end:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-  <div style="display:flex;align-items:center;gap:10px;">
-    <span style="font-size:18px;">🔑</span>
-    <div>
-      <div style="font-size: 14px;text-transform:uppercase;color:#64748b;margin-block-end:2px;">Your API Key</div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <code id="apiKeyDisplay" style="font-size: 14px;color:#94a3b8;background:rgba(0,0,0,.3);padding:4px 10px;border-radius:6px;font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, monospace;">••••••••••••••••••••••••</code>
-        <button id="toggleKeyBtn" class="btn-wallet" style="padding:2px 8px;font-size: 14px;min-block-size:24px;line-height:1;" onclick="toggleApiKey()">👁️ Show</button>
+    <div class="wallet-stats">
+      <div class="wallet-stat-card">
+        <div class="stat-val" style="color:#4ade80;">
+          {{ transactions|selectattr('transaction_type','in',['credit','redeem','streak_reward','admin_credit','admin_free_credit'])|list|length }}
+        </div>
+        <div class="stat-label">🟢 Deposits & Rewards</div>
+      </div>
+      <div class="wallet-stat-card">
+        <div class="stat-val" style="color:#f87171;">
+          {{ transactions|selectattr('transaction_type','in',['debit','spend','withdraw'])|list|length }}
+        </div>
+        <div class="stat-label">🔴 Debits & Dispatches</div>
+      </div>
+      <div class="wallet-stat-card">
+        <div class="stat-val" style="color:#00f0ff;">{{ transactions|length }}</div>
+        <div class="stat-label">📊 Total Transactions</div>
       </div>
     </div>
   </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ user.api_key }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
-    <form dir="auto" method="POST" action="/wallet/regenerate-key" style="margin:0;">
-      <button type="submit" class="btn-wallet" style="color:#f59e0b;border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.08);">🔄 Regenerate</button>
+
+  <!-- ═══════════════ API KEY MANAGEMENT ═══════════════ -->
+  <div class="api-key-box">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <span style="font-size:24px;">🔑</span>
+      <div>
+        <div style="font-size:13px; color:#94a3b8; font-weight:700; margin-block-end:4px;">Your Post-Quantum API Master Key:</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <code id="apiKeyDisplay" style="font-size:14px; color:#00f0ff; background:rgba(0,0,0,0.45); padding:6px 12px; border-radius:8px; font-family:monospace; border:1px solid rgba(0,240,255,0.2);">••••••••••••••••••••••••</code>
+          <button class="btn-wallet" id="toggleKeyBtn" onclick="toggleApiKey()" style="padding:4px 10px; font-size:13px;">👁️ Show</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="btn-wallet" onclick="copyApiKey(this)">📋 Copy</button>
+      <form dir="auto" action="/wallet/regenerate-key" method="POST" style="margin:0;">
+        <button class="btn-wallet" style="color:#fbbf24; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.1);" type="submit">🔄 Regenerate</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════ DIRECT CARD (VISA / MASTERCARD / APPLE PAY) ═══════════════ -->
+  <div class="card-pay-banner">
+    <h3 style="font-size:17px; font-weight:800; color:#60a5fa; margin:0 0 6px; display:flex; align-items:center; justify-content:center; gap:8px;">
+      <span>💳</span> <span>Buy Credits with Visa / Mastercard / Apple Pay</span>
+    </h3>
+    <p style="font-size:14px; color:#cbd5e1; margin:0 0 8px; line-height:1.5;">
+      100% Secure global checkout — Pay with your bank card and top up instantly!
+    </p>
+    <div style="font-size:13.5px; color:#fbbf24; font-weight:700; margin-block-end:14px;">
+      📌 Minimum Card Top-up: $10 USD
+    </div>
+    <button type="button" onclick="openDirectCardPaymentFromWallet()" style="width:100%; max-width:400px; padding:13px 24px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:800; font-size:15px; border:none; border-radius:12px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 6px 20px rgba(37,99,235,0.4); font-family:inherit;">
+      💳 Pay with Visa / Mastercard Now →
+    </button>
+    <div style="margin-block-start:8px; font-size:13.5px; color:#94a3b8;">
+      <span>⇄ Slower server connection detected?</span>
+      <a href="javascript:void(0)" onclick="openDirectCardPaymentFromWallet('moonpay')" style="color:#60a5fa; text-decoration:underline; font-weight:700; margin-inline-start:4px;">
+        Try MoonPay Fallback Option ⚙️
+      </a>
+    </div>
+
+    <!-- Country Guidance Info -->
+    <div style="margin-block-start:14px; padding:12px 16px; background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:12px; font-size:13.5px; text-align:start; display:flex; flex-direction:column; gap:6px;">
+      <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+        <span style="color:#4ade80; font-weight:800; white-space:nowrap;">🟢 Supported (170+ Countries):</span>
+        <span style="color:#cbd5e1;">USA 🇺🇸, Canada 🇨🇦, UK 🇬🇧, All EU 🇪🇺, UAE 🇦🇪, KSA 🇸🇦, Qatar 🇶🇦, Kuwait 🇰🇼, Oman, Australia, Japan...</span>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
+        <span style="color:#f87171; font-weight:800; white-space:nowrap;">🔴 Restricted Cards:</span>
+        <span style="color:#fca5a5;">Lebanon 🇱🇧, Syria 🇸🇾, Yemen 🇾🇪, Iran 🇮🇷, Russia 🇷🇺, Belarus 🇧🇾, N. Korea 🇰🇵, Venezuela 🇻🇪 &mdash; <em style="color:#fbbf24; font-weight:700;">Use USDT / Crypto below instead!</em></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CRYPTO TOP-UP (NOWPAYMENTS) ═══════════════ -->
+  <div class="topup-card" id="topupCard">
+    <h3>🪙 Buy Credits with Crypto (NOWPayments Direct Gateway)</h3>
+    <p class="sub">Instant encrypted invoice — Pay with your preferred crypto (📌 Minimum: $8 USD).</p>
+    
+    <div class="preset-grid" id="presetGrid">
+      <button class="preset-btn" data-amount="8">$8</button>
+      <button class="preset-btn" data-amount="10">$10</button>
+      <button class="preset-btn selected" data-amount="25">$25</button>
+      <button class="preset-btn" data-amount="50">$50</button>
+      <button class="preset-btn" data-amount="100">$100</button>
+    </div>
+
+    <div class="topup-row">
+      <div class="topup-amount">
+        <label>Amount (USD)</label>
+        <input dir="auto" id="topupAmount" max="1000" min="8" step="1" type="number" value="25">
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <label style="font-size:13.5px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Pay with</label>
+        <div class="coin-select" id="coinSelect">
+          <button class="coin-btn selected" data-coin="USDT">USDT (TRC20)</button>
+          <button class="coin-btn" data-coin="BTC">BTC</button>
+          <button class="coin-btn" data-coin="ETH">ETH</button>
+          <button class="coin-btn" data-coin="LTC">LTC</button>
+          <button class="coin-btn" data-coin="TRX">TRX</button>
+          <button class="coin-btn" data-coin="ANY">Other Crypto</button>
+        </div>
+      </div>
+      <button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ Pay Now</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STATIC DEPOSIT ADDRESSES ═══════════════ -->
+  <h3 class="section-title">🔗 Static Deposit Addresses</h3>
+  <div class="crypto-grid">
+    {% set addrs = crypto_addresses if crypto_addresses is mapping else {} %}
+    {% set has_addr = false %}
+    {% for coin, addr in addrs.items() %}
+      {% if addr %}
+        {% set has_addr = true %}
+        <div class="crypto-card">
+          <div class="crypto-icon">
+            {% if 'btc' in coin.lower() %}₿{% elif 'eth' in coin.lower() %}Ξ{% elif 'usdt' in coin.lower() or 'usdc' in coin.lower() %}💲{% elif 'ltc' in coin.lower() %}Ł{% elif 'doge' in coin.lower() %}🐕{% else %}💎{% endif %}
+          </div>
+          <div class="crypto-name">{{ coin.upper() }}</div>
+          <div class="crypto-addr" title="{{ addr }}">{{ addr[:16] }}...{{ addr[-8:] }}</div>
+          <button class="btn-wallet" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy Address',2000)" style="margin-block-start:10px; padding:6px 14px; font-size:13px; inline-size:100%; justify-content:center;">
+            📋 Copy Address
+          </button>
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% if not has_addr %}
+      <div class="crypto-card" style="grid-column:1/-1; padding:30px; text-align:center; color:#94a3b8;">
+        💳 Payment addresses will appear here after your first deposit request.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- ═══════════════ REDEEM CODE HUB ═══════════════ -->
+  <div class="redeem-card">
+    <h3>🎁 Redeem Voucher Code or Gift Card</h3>
+    <p>Got a gift card or promo code? Enter it below to instantly add credit to your wallet balance.</p>
+    <form dir="auto" id="redeemForm" action="/redeem" class="redeem-form" method="POST" onsubmit="handleRedeem(event)">
+      <input autocomplete="off" class="redeem-input" id="redeemCodeInput" dir="auto" name="code" placeholder="Enter voucher, promo, or gift card code..." required type="text">
+      <button class="btn-redeem" id="btnRedeemSubmit" type="submit">✨ Redeem</button>
     </form>
+    <div id="redeemStatusAlert" style="display:none; margin-block-start:14px; padding:12px 18px; border-radius:12px; font-size:14px; font-weight:700;"></div>
+  </div>
+
+  <!-- ═══════════════ TRANSACTION AUDIT LEDGER ═══════════════ -->
+  <h3 class="section-title">📜 Financial Ledger & Transaction History</h3>
+  {% if transactions %}
+    <div style="overflow-x:auto; background:rgba(15,23,42,0.85); border:1px solid rgba(0,240,255,0.2); border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,0.35);">
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Balance After</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tx in transactions %}
+            {% set tt = (tx.transaction_type or tx.tx_type or 'credit')|lower %}
+            <tr>
+              <td>
+                {% if tt in ['credit', 'deposit'] %}
+                  <span class="tx-type credit">+ Credit</span>
+                {% elif tt in ['debit', 'spend', 'withdraw'] %}
+                  <span class="tx-type debit">- Debit</span>
+                {% elif 'redeem' in tt %}
+                  <span class="tx-type redeem">🎁 Redeem</span>
+                {% elif 'streak' in tt %}
+                  <span class="tx-type bonus">🔥 Streak</span>
+                {% elif 'admin' in tt %}
+                  <span class="tx-type bonus">💎 Bonus</span>
+                {% else %}
+                  <span class="tx-type credit">{{ tt|title }}</span>
+                {% endif %}
+              </td>
+              <td style="font-weight:800; font-variant-numeric:tabular-nums; {% if tt in ['debit','spend','withdraw'] %}color:#f87171;{% else %}color:#4ade80;{% endif %}">
+                {% if tt in ['debit','spend','withdraw'] %}-{% else %}+{% endif %}${{ "%.2f"|format(tx.amount|float if tx.amount else (tx.amount_usd|float if tx.amount_usd else 0)) }}
+              </td>
+              <td style="color:#cbd5e1; font-weight:500;">{{ tx.description or tx.note or 'Balance Transaction' }}</td>
+              <td style="color:#00f0ff; font-weight:700; font-variant-numeric:tabular-nums;">
+                ${{ "%.2f"|format(tx.balance_after|float if tx.balance_after else (tx.balance_after_amt|float if tx.balance_after_amt else wallet_balance|float)) }}
+              </td>
+              <td style="color:#94a3b8; font-size:13px; font-variant-numeric:tabular-nums;">{{ tx.created_at[:16] if tx.created_at else '' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-tx">
+      <div class="empty-icon">💰</div>
+      <p>No transactions recorded yet. Your referral bonuses, credits, and top-ups will appear here.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- ═══════════════ INVOICE MODAL ═══════════════ -->
+<div class="invoice-overlay" id="invoiceOverlay">
+  <div class="invoice-modal">
+    <h2 id="invTitle" style="font-size:20px; font-weight:800; color:#00f0ff; margin:0 0 8px;">🪙 Complete Payment</h2>
+    <p class="sub" id="invSub" style="font-size:13.5px; color:#94a3b8; margin:0 0 16px;">Send the required amount to the wallet address below or open the secure gateway</p>
+    
+    <div id="invQrWrap" style="margin:0 auto 16px; inline-size:140px; block-size:140px; background:#ffffff; padding:8px; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+      <img id="invQrImg" src="" alt="QR Code" style="inline-size:100%; block-size:100%; border-radius:6px;">
+    </div>
+
+    <div class="pay-amount" id="invAmount" style="font-size:22px; font-weight:900; color:#fbbf24; margin-block-end:10px;">$0.00 USD</div>
+    <div class="pay-addr" id="invAddr" style="font-size:13px; color:#00f0ff; background:rgba(0,0,0,0.5); padding:10px 12px; border-radius:10px; margin-block-end:14px; word-break:break-all; font-family:monospace; border:1px solid rgba(0,240,255,0.2);">Loading...</div>
+    
+    <p style="font-size:13px; color:#94a3b8; margin-block-end:18px;">Order ID: <span id="invOrder" style="color:#ffffff; font-weight:700;">---</span></p>
+    
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn-wallet primary" href="javascript:void(0)" id="btnPayUrl" target="_blank" style="padding:11px 24px; font-size:14px;">💳 Open Payment Gateway</a>
+      <button class="btn-wallet" onclick="closeInvoice()" style="padding:11px 20px; font-size:14px;">Close</button>
+    </div>
   </div>
 </div>
 
@@ -160,123 +810,18 @@ function toggleApiKey() {
     btn.textContent = '👁️ Show';
   }
 }
-</script>
 
-<!-- Direct Card Payment (Visa / Mastercard / Apple Pay) -->
-<div style="margin-block-end:20px; padding:16px 20px; background:linear-gradient(135deg, rgba(30,41,59,0.6), rgba(15,23,42,0.85)); border:1px solid rgba(59,130,246,0.25); border-radius:14px; text-align:center;">
-<h3 style="font-size:15px; font-weight:700; color:#60a5fa; margin-block-end:4px;">💳 Buy Credits with Visa / Mastercard / Apple Pay</h3>
-<p style="font-size: 14px; color:#94a3b8; margin-block-end:4px;">100% Secure global checkout — Pay with your bank card and top up instantly!</p>
-<div style="font-size: 14px; color:#60a5fa; font-weight:700; margin-block-end:10px;">
-  📌 Minimum Card Top-up: $10 USD
-</div>
-<button type="button" onclick="openDirectCardPaymentFromWallet()" style="width:100%; max-width:380px; padding:12px 22px; background:linear-gradient(90deg, #2563eb, #7c3aed); color:#ffffff; font-weight:700; font-size:14px; border:none; border-radius:10px; cursor:pointer; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(37,99,235,0.3);">
-  💳 Pay with Visa / Mastercard Now →
-</button>
-<div style="margin-block-start:6px; font-size: 14px; color:#94a3b8;">
-  <span>⇄ Server busy or slow?</span>
-  <a href="javascript:void(0)" onclick="openDirectCardPaymentFromWallet('moonpay')" style="color:#60a5fa; text-decoration:underline; font-weight:600; margin-inline-start:4px;">
-    Try MoonPay Fallback Option ⚙️
-  </a>
-</div>
+function copyApiKey(btn) {
+  const realKey = '{{ user.api_key or "" }}';
+  navigator.clipboard.writeText(realKey);
+  btn.innerHTML = '✅ Copied!';
+  setTimeout(() => btn.innerHTML = '📋 Copy', 2000);
+}
 
-<!-- Compact Minimal Country Info Box -->
-<div style="margin-block-start:12px; padding:10px 14px; background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; font-size: 14px; text-align: start; display:flex; flex-direction:column; gap:6px;">
-  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
-    <span style="color:#4ade80; font-weight:700; white-space:nowrap;">🟢 Supported (170+ Countries):</span>
-    <span style="color:#cbd5e1;">USA 🇺🇸, Canada 🇨🇦, UK 🇬🇧, All EU 🇪🇺, UAE 🇦🇪, KSA 🇸🇦, Qatar 🇶🇦, Kuwait 🇰🇼, Oman, Australia, Japan...</span>
-  </div>
-  <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap;">
-    <span style="color:#f87171; font-weight:700; white-space:nowrap;">🔴 Restricted Cards:</span>
-    <span style="color:#fca5a5;">Lebanon 🇱🇧, Syria 🇸🇾, Yemen 🇾🇪, Iran 🇮🇷, Russia 🇷🇺, Belarus 🇧🇾, N. Korea 🇰🇵, Cuba 🇨🇺, Venezuela 🇻🇪 &mdash; <em style="color:#fbbf24;">Use USDT / Crypto below instead!</em></span>
-  </div>
-</div>
-</div>
-
-<div class="topup-card" id="topupCard">
-    <h3>🪙 Buy Credits with Crypto</h3>
-    <p class="sub">Powered by NOWPayments &mdash; instant invoice, pay with your preferred crypto (📌 Minimum: $8 USD).</p>
-    <div class="preset-grid" id="presetGrid">
-        <button class="preset-btn" data-amount="8">$8</button>
-        <button class="preset-btn" data-amount="10">$10</button>
-        <button class="preset-btn selected" data-amount="25">$25</button>
-        <button class="preset-btn" data-amount="50">$50</button>
-        <button class="preset-btn" data-amount="100">$100</button>
-    </div>
-    <div class="topup-row">
-        <div class="topup-amount">
-            <label>Amount (USD)</label>
-            <input dir="auto" type="number" id="topupAmount" value="25" min="8" max="1000" step="1" / dir="auto">
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-            <label style="font-size: 14px;color:#64748b;text-transform:uppercase;">Pay with</label>
-            <div class="coin-select" id="coinSelect">
-                <button class="coin-btn selected" data-coin="USDT">USDT (TRC20)</button>
-                <button class="coin-btn" data-coin="BTC">BTC</button>
-                <button class="coin-btn" data-coin="ETH">ETH</button>
-                <button class="coin-btn" data-coin="LTC">LTC</button>
-                <button class="coin-btn" data-coin="TRX">TRX</button>
-                <button class="coin-btn" data-coin="ANY">Other Crypto</button>
-            </div>
-        </div>
-        <button class="btn-topup" id="btnTopup" onclick="createTopup()">⚡ Pay Now</button>
-    </div>
-</div>
-
-<!-- Invoice Modal -->
-<div class="invoice-overlay" id="invoiceOverlay">
-    <div class="invoice-modal">
-        <h2 id="invTitle">🪙 Send Payment</h2>
-        <p class="sub" id="invSub">Send exactly the amount shown below</p>
-        <div class="qr-placeholder">🏦</div>
-        <div class="pay-amount" id="invAmount">0.00 BTC</div>
-        <div class="pay-addr" id="invAddr">Loading...</div>
-        <p style="font-size: 14px;color:#64748b;margin-block-end:16px;">Order: <span id="invOrder">---</span></p>
-        <div class="btn-row">
-            <a class="btn-pay" id="btnPayUrl" href="javascript:void(0)" target="_blank">💳 Open Payment Page</a>
-            <button class="btn-close" onclick="closeInvoice()">Close</button>
-        </div>
-    </div>
-</div>
-
-<h3 class="section-title" style="margin-block-start:4px;">🔗 Static Deposit Addresses</h3>
-<div class="crypto-grid">
-    {% set addrs = crypto_addresses if crypto_addresses is mapping else {} %}
-    {% set has_addr = false %}
-    {% for coin, addr in addrs.items() %}
-    {% if addr %}
-    {% set has_addr = true %}
-    <div class="crypto-card">
-        <div class="crypto-icon">
-            {% if 'btc' in coin.lower() %}₿{% elif 'eth' in coin.lower() %}Ξ{% elif 'usdt' in coin.lower() or 'usdc' in coin.lower() %}💲{% elif 'ltc' in coin.lower() %}Ł{% elif 'doge' in coin.lower() %}🐕{% else %}💎{% endif %}
-        </div>
-        <div class="crypto-name">{{ coin.upper() }}</div>
-        <div class="crypto-addr" title="{{ addr }}">{{ addr[:20] }}...{{ addr[-8:] }}</div>
-        <button class="btn" style="margin-block-start:8px;padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#94a3b8;cursor:pointer;font-size: 14px;" onclick="navigator.clipboard.writeText('{{ addr }}');this.innerHTML='✅ Copied!';setTimeout(()=>this.innerHTML='📋 Copy',2000)">📋 Copy</button>
-    </div>
-    {% endif %}
-    {% endfor %}
-    {% if not has_addr %}
-    <div class="crypto-card" style="grid-column:1/-1;padding:30px;text-align:center;color:#64748b;">
-        💳 Payment addresses will appear here after your first deposit request.
-    </div>
-    {% endif %}
-</div>
-
-<div class="redeem-card">
-  <h3>🎁 Redeem Code</h3>
-  <p>Got a gift card or promo code? Enter it below to instantly add credit to your wallet.</p>
-  <form dir="auto" class="redeem-form" method="POST" action="/redeem" onsubmit="handleRedeem(event)">
-    <input dir="auto" class="redeem-input" type="text" id="redeemCodeInput" name="code" placeholder="Enter voucher, promo, or gift card code..." required autocomplete="off" dir="auto">
-    <button class="btn-redeem" id="btnRedeemSubmit" type="submit">✨ Redeem</button>
-  </form>
-  <div id="redeemStatusAlert" style="display:none;margin-block-start:12px;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:600;"></div>
-</div>
-
-<script>
 function openDirectCardPaymentFromWallet(provider) {
   var amtInput = document.getElementById('topupAmount');
   var val = amtInput ? amtInput.value : '25';
-  var walletAddr = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
+  var walletAddr = '';
   var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdttrc20&amount=' + encodeURIComponent(val || '25') + '&recipient=' + encodeURIComponent(walletAddr);
   if (provider === 'moonpay') {
     cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(val || '25');
@@ -303,11 +848,11 @@ async function handleRedeem(e) {
       body: JSON.stringify({ code: code })
     });
     const d = await r.json();
-    if (r.ok && d.success) {
+    if (r.ok && (d.success || d.status === 'ok')) {
       alertBox.style.background = 'rgba(34, 197, 94, 0.15)';
       alertBox.style.color = '#4ade80';
       alertBox.style.border = '1px solid rgba(34, 197, 94, 0.3)';
-      alertBox.textContent = d.message || '🎉 Code redeemed successfully!';
+      alertBox.textContent = d.message || '🎉 Code redeemed and credits added successfully!';
       alertBox.style.display = 'block';
       input.value = '';
       setTimeout(() => window.location.href = '/wallet', 1200);
@@ -315,14 +860,14 @@ async function handleRedeem(e) {
       alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
       alertBox.style.color = '#f87171';
       alertBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-      alertBox.textContent = d.error || 'Invalid code or failed to redeem.';
+      alertBox.textContent = d.error || d.detail || 'Invalid or already redeemed voucher code.';
       alertBox.style.display = 'block';
     }
   } catch (err) {
     alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
     alertBox.style.color = '#f87171';
     alertBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-    alertBox.textContent = 'Connection error: ' + err.message;
+    alertBox.textContent = 'Network error: ' + err.message;
     alertBox.style.display = 'block';
   } finally {
     btn.disabled = false;
@@ -331,132 +876,102 @@ async function handleRedeem(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const codeParam = urlParams.get('code') || urlParams.get('redeem');
-  if (codeParam) {
-    const input = document.getElementById('redeemCodeInput') || document.querySelector('.redeem-input');
-    const alertBox = document.getElementById('redeemStatusAlert');
-    if (input) {
-      input.value = codeParam.trim();
-      input.focus();
-      input.style.borderColor = '#38bdf8';
-      input.style.boxShadow = '0 0 15px rgba(56, 189, 248, 0.4)';
-      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      if (alertBox) {
-        alertBox.style.background = 'rgba(14, 165, 233, 0.15)';
-        alertBox.style.color = '#38bdf8';
-        alertBox.style.border = '1px solid rgba(14, 165, 233, 0.3)';
-        alertBox.textContent = '⚡ Auto-redeeming code from URL...';
-        alertBox.style.display = 'block';
-      }
-
-      setTimeout(() => {
-        handleRedeem();
-      }, 500);
-    }
-  }
-});
-</script>
-
-<h3 class="section-title" style="margin-block-start:24px;">📜 Transaction History</h3>
-{% if transactions %}
-<div style="overflow-x:auto;">
-<table class="transaction-table">
-    <thead>
-        <tr><th>Type</th><th>Amount</th><th>Description</th><th>Balance After</th><th>Date</th></tr>
-    </thead>
-    <tbody>
-        {% for tx in transactions %}
-        <tr>
-            <td><span class="tx-type {{ tx.transaction_type }}">{% if tx.transaction_type == 'credit' %}+{% elif tx.transaction_type == 'debit' %}-{% endif %} {{ tx.transaction_type|title }}</span></td>
-            <td style="font-weight:600;{% if tx.transaction_type=='credit' %}color:#4ade80;{% elif tx.transaction_type=='debit' %}color:#f87171;{% else %}color:#fbbf24;{% endif %}">
-                {% if tx.transaction_type == 'credit' %}+{% elif tx.transaction_type == 'debit' %}-{% endif %}${{ "%.2f"|format(tx.amount|float if tx.amount else 0) }}
-            </td>
-            <td style="color:#94a3b8;">{{ tx.description or tx.note or '' }}</td>
-            <td>${{ "%.2f"|format(tx.balance_after|float if tx.balance_after else (tx.balance_after_amt|float if tx.balance_after_amt else 0)) }}</td>
-            <td style="color:#64748b;font-size: 14px;">{{ tx.created_at[:10] if tx.created_at else '' }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-{% else %}
-<div style="text-align:center;padding:40px;color:#64748b;">
-    <div style="font-size:48px;margin-block-end:12px;">💰</div>
-    <div>No transactions yet. Funds earned from referrals and campaigns will appear here.</div>
-</div>
-{% endif %}
-
-<script>
-(function(){
-// Preset buttons
-document.querySelectorAll('#presetGrid .preset-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
+    // Preset buttons sync
+    document.querySelectorAll('#presetGrid .preset-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+            document.querySelectorAll('#presetGrid .preset-btn').forEach(function(b){b.classList.remove('selected');});
+            this.classList.add('selected');
+            document.getElementById('topupAmount').value = this.dataset.amount;
+        });
+    });
+    document.getElementById('topupAmount').addEventListener('input', function(){
         document.querySelectorAll('#presetGrid .preset-btn').forEach(function(b){b.classList.remove('selected');});
-        this.classList.add('selected');
-        document.getElementById('topupAmount').value = this.dataset.amount;
     });
-});
-document.getElementById('topupAmount').addEventListener('input', function(){
-    document.querySelectorAll('#presetGrid .preset-btn').forEach(function(b){b.classList.remove('selected');});
+
+    // Coin selector buttons
+    document.querySelectorAll('#coinSelect .coin-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            document.querySelectorAll('#coinSelect .coin-btn').forEach(function(b){b.classList.remove('selected');});
+            this.classList.add('selected');
+        });
+    });
+
+    // URL code parameter auto-fill
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeParam = urlParams.get('code') || urlParams.get('redeem');
+    if (codeParam) {
+        const input = document.getElementById('redeemCodeInput');
+        const alertBox = document.getElementById('redeemStatusAlert');
+        if (input) {
+            input.value = codeParam.trim();
+            input.focus();
+            if (alertBox) {
+                alertBox.style.background = 'rgba(14, 165, 233, 0.15)';
+                alertBox.style.color = '#38bdf8';
+                alertBox.style.border = '1px solid rgba(14, 165, 233, 0.3)';
+                alertBox.textContent = '⚡ Redeeming voucher automatically from URL...';
+                alertBox.style.display = 'block';
+            }
+            setTimeout(() => handleRedeem(), 500);
+        }
+    }
 });
 
-// Coin buttons
-document.querySelectorAll('#coinSelect .coin-btn').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-        e.preventDefault();
-        document.querySelectorAll('#coinSelect .coin-btn').forEach(function(b){b.classList.remove('selected');});
-        this.classList.add('selected');
-    });
-});
-
-// Create Invoice
-window.createTopup = async function(){
+async function createTopup() {
     var btn = document.getElementById('btnTopup');
     var amount = parseFloat(document.getElementById('topupAmount').value);
     var selectedCoin = document.querySelector('#coinSelect .coin-btn.selected');
-    if (!selectedCoin) { alert('Please select a currency first'); return; }
+    if (!selectedCoin) { alert('Please select a crypto currency first'); return; }
     var coin = selectedCoin.dataset.coin;
-    if (!amount || amount < 8){ alert('Minimum Crypto Top-up $8.00'); return; }
+    if (!amount || amount < 8){ alert('Minimum crypto top-up amount is $8.00 USD'); return; }
 
-    btn.disabled = true; btn.textContent = 'Creating...';
+    btn.disabled = true; 
+    btn.textContent = 'Generating...';
     try {
         var r = await fetch('/wallet/create-topup', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({amount:amount, currency:coin})
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount, currency: coin })
         });
         var d = await r.json();
-        if (d.mode === 'nowpayments'){
+        if (d.mode === 'nowpayments' || d.invoice_url){
             showInvoice(d);
-        } else if (d.mode === 'static'){
-            alert('NOWPayments invoice failed. Use static addresses below.\n\n' + (d.message || ''));
         } else {
-            alert(d.error || 'Unknown error');
+            alert(d.error || 'Failed to generate payment invoice');
         }
-    } catch(e){
-        alert('Connection error: ' + e.message);
+    } catch(e) {
+        alert('Network connection error: ' + e.message);
     } finally {
-        btn.disabled = false; btn.textContent = '⚡ Pay Now';
+        btn.disabled = false; 
+        btn.textContent = '⚡ Pay Now';
     }
-};
+}
 
-window.showInvoice = function(d){
+function showInvoice(d) {
     document.getElementById('invTitle').textContent = '🪙 Complete Payment';
-    document.getElementById('invSub').textContent = 'Select your crypto on the NOWPayments page';
-    document.getElementById('invAmount').textContent = '$' + d.amount_usd.toFixed(2) + ' USD';
-    document.getElementById('invAddr').textContent = 'Click below to open the secure payment page';
-    document.getElementById('invOrder').textContent = d.order_id;
-    document.getElementById('btnPayUrl').href = d.invoice_url;
+    document.getElementById('invSub').textContent = 'Send required funds to the address below or launch checkout';
+    document.getElementById('invAmount').textContent = '$' + (d.amount_usd || 0).toFixed(2) + ' USD';
+    document.getElementById('invAddr').textContent = d.pay_address || d.invoice_url || 'Click below to open gateway';
+    document.getElementById('invOrder').textContent = d.order_id || '---';
+    document.getElementById('btnPayUrl').href = d.invoice_url || '#';
+    
+    // QR Code
+    const targetPayload = d.pay_address || d.invoice_url || '';
+    if (targetPayload) {
+      document.getElementById('invQrImg').src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(targetPayload);
+    }
+    
     document.getElementById('invoiceOverlay').classList.add('show');
-    window.open(d.invoice_url, '_blank');
-};
+    if (d.invoice_url) {
+      window.open(d.invoice_url, '_blank');
+    }
+}
 
-window.closeInvoice = function(){
+function closeInvoice() {
     document.getElementById('invoiceOverlay').classList.remove('show');
-};
+}
 document.getElementById('invoiceOverlay').addEventListener('click', function(e){
     if (e.target === this) closeInvoice();
 });
-})();
 </script>

@@ -99,7 +99,7 @@ async def tma_telemetry(request: Request):
         "verified_mx_rate": "99.4%",
         "bounce_rate": "0.0%",
         "recent_leads": leads,
-        "ai_pool_models": ["Groq Llama 3.3 70B", "Gemini 1.5 Flash", "Cloudflare Edge AI"],
+        "ai_pool_models": ["Ultra High-Speed Neural Core", "Multimodal Reasoning Engine", "Edge Delivery Network"],
         "timestamp": time.time(),
     }
 

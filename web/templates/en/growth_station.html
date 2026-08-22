@@ -15,9 +15,9 @@
                 </p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="/new-campaign" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 cursor-pointer">
+                <button onclick="triggerSelectedBlast()" id="btnTopBlast" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all flex items-center gap-2 cursor-pointer">
                     <span>🚀 Launch Email Outreach Blast</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>
@@ -146,27 +146,63 @@
 
     <!-- Harvested Leads Data Table -->
     <div class="p-6 md:p-8 rounded-3xl bg-slate-900 border border-white/10 shadow-2xl space-y-4">
-        <div class="flex items-center justify-between border-b border-white/10 pb-4">
-            <h3 class="text-base font-extrabold text-white">Harvested Leads Directory</h3>
-            <button onclick="loadLeadsTable()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">
-                🔄 Refresh Leads
-            </button>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div>
+                <h3 class="text-base font-extrabold text-white">Harvested Leads Directory</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Select candidates or companies to trigger 1-click tailored outreach</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="triggerSelectedBlast()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-extrabold shadow-md transition-all flex items-center gap-1.5 cursor-pointer">
+                    <span>🚀 Blast Selected</span>
+                    <span id="selectedCountBadge" class="bg-black/30 px-1.5 py-0.2 rounded-md text-[10px]">0</span>
+                </button>
+                <button onclick="loadLeadsTable()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+                    <span>🔄 Refresh</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+                <input type="text" id="searchInput" oninput="debounceSearch()" placeholder="🔍 Search name, email, or location..." class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+            </div>
+            <div>
+                <select id="sourceFilter" onchange="loadLeadsTable()" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+                    <option value="all">🌐 All Sources</option>
+                    <option value="linkedin_dork">LinkedIn Dork</option>
+                    <option value="github">GitHub</option>
+                    <option value="reddit">Reddit</option>
+                    <option value="b2b_maps">B2B Directory</option>
+                </select>
+            </div>
+            <div>
+                <select id="statusFilter" onchange="loadLeadsTable()" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-white/10 text-xs text-white focus:border-cyan-400 focus:outline-none" dir="auto">
+                    <option value="all">⚡ All Statuses</option>
+                    <option value="pending">⏳ Pending</option>
+                    <option value="sent">✅ Contacted</option>
+                </select>
+            </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-start text-xs text-slate-300">
                 <thead class="text-[11px] font-extrabold uppercase bg-slate-950/60 text-slate-400 border-b border-white/10">
                     <tr>
+                        <th class="p-3 w-10 text-center">
+                            <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" class="accent-cyan-400 cursor-pointer">
+                        </th>
                         <th class="p-3">Company / Candidate</th>
                         <th class="p-3">Contact Email</th>
                         <th class="p-3">Source Agent</th>
                         <th class="p-3">Location</th>
                         <th class="p-3">Status</th>
+                        <th class="p-3 text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody id="leadsTableBody" class="divide-y divide-white/5">
                     <tr>
-                        <td colspan="5" class="p-6 text-center text-slate-500 font-medium">Loading leads data...</td>
+                        <td colspan="7" class="p-6 text-center text-slate-500 font-medium">Loading harvested leads...</td>
                     </tr>
                 </tbody>
             </table>
@@ -175,43 +211,136 @@
 </div>
 
 <script>
+let currentLeads = [];
+let searchTimeout = null;
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(loadLeadsTable, 300);
+}
+
+function updateSelectedCount() {
+  const checked = document.querySelectorAll('.lead-checkbox:checked');
+  const badge = document.getElementById('selectedCountBadge');
+  if (badge) badge.innerText = checked.length;
+}
+
+function toggleSelectAll(master) {
+  document.querySelectorAll('.lead-checkbox').forEach(cb => cb.checked = master.checked);
+  updateSelectedCount();
+}
+
 async function loadLeadsTable() {
   const tbody = document.getElementById('leadsTableBody');
   if (!tbody) return;
+  
+  const search = document.getElementById('searchInput')?.value || '';
+  const source = document.getElementById('sourceFilter')?.value || 'all';
+  const status = document.getElementById('statusFilter')?.value || 'all';
+
   try {
-    const res = await fetch('/api/growth/leads?page=1&limit=50');
+    const params = new URLSearchParams({ page: '1', limit: '50' });
+    if (search) params.append('search', search);
+    if (source && source !== 'all') params.append('source', source);
+    if (status && status !== 'all') params.append('status', status);
+
+    const res = await fetch('/api/growth/leads?' + params.toString());
     const data = await res.json();
-    if (data.leads && data.leads.length > 0) {
-      document.getElementById('totalLeadsCount').innerText = data.total || data.leads.length;
-      tbody.innerHTML = data.leads.map(lead => `
+    currentLeads = data.leads || [];
+
+    if (data.total !== undefined) {
+      const totEl = document.getElementById('totalLeadsCount');
+      if (totEl && !search && source === 'all' && status === 'all') totEl.innerText = data.total;
+    }
+
+    if (currentLeads.length > 0) {
+      tbody.innerHTML = currentLeads.map(lead => `
         <tr class="hover:bg-white/5 transition-colors">
-          <td class="p-3 font-bold text-white">${lead.name || lead.job_title || 'Lead Contact'}</td>
+          <td class="p-3 text-center">
+            <input type="checkbox" value="${lead.id}" class="lead-checkbox accent-cyan-400 cursor-pointer" onchange="updateSelectedCount()">
+          </td>
+          <td class="p-3 font-bold text-white">${lead.name || lead.job_title || 'New Recruiter Lead'}</td>
           <td class="p-3 font-mono text-cyan-300">${lead.email || 'N/A'}</td>
           <td class="p-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 font-bold border border-cyan-500/20">${lead.source || 'web'}</span></td>
           <td class="p-3">${lead.location || 'Global'}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded ${lead.status === 'sent' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">${lead.status || 'pending'}</span></td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded ${lead.status === 'sent' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'} font-bold">${lead.status === 'sent' ? 'Contacted' : 'Pending'}</span></td>
+          <td class="p-3 text-center">
+            <button onclick="sendSingleOutreach(${lead.id})" class="px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 hover:text-cyan-200 font-bold text-[11px] border border-cyan-500/30 transition-all cursor-pointer">
+              ✉️ 1-Click Send
+            </button>
+          </td>
         </tr>
       `).join('');
     } else {
-      tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500">No leads harvested yet. Launch the scraper agent above!</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No matching leads found. Run a scraper agent above to harvest new leads!</td></tr>';
     }
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-400">Failed to load leads data.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-400">Failed to load leads directory.</td></tr>';
+  }
+  updateSelectedCount();
+}
+
+async function sendSingleOutreach(leadId) {
+  try {
+    const res = await fetch('/api/growth/blast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_ids: [leadId], campaign_name: 'Single Outreach Blast' })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'success') {
+      alert('🚀 Your CV & application have been successfully dispatched to the recruiter inbox!');
+      loadLeadsTable();
+    } else {
+      alert('❌ Dispatch failed: ' + (data.message || data.error || 'Unknown error'));
+    }
+  } catch (e) {
+    alert('❌ Network error: ' + e.message);
+  }
+}
+
+async function triggerSelectedBlast() {
+  const checked = Array.from(document.querySelectorAll('.lead-checkbox:checked')).map(cb => parseInt(cb.value));
+  if (checked.length === 0) {
+    alert('Please select at least one lead from the table to launch outreach blast!');
+    return;
+  }
+
+  const btn = document.getElementById('btnTopBlast');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/growth/blast', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_ids: checked, campaign_name: 'Swarm Batch Outreach Blast' })
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'success') {
+      alert(`🎉 Outreach blast successfully launched for ${checked.length} decision makers!`);
+      loadLeadsTable();
+    } else {
+      alert('❌ Blast failed: ' + (data.message || data.error || 'Unexpected error'));
+    }
+  } catch (e) {
+    alert('❌ Network error: ' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
 async function handleStartScrape(e) {
   e.preventDefault();
-  const alert = document.getElementById('scrapeStatusAlert');
+  const alertEl = document.getElementById('scrapeStatusAlert');
   const btn = document.getElementById('btnStartScrape');
   const agent = document.getElementById('agentSelect').value;
   const keyword = document.getElementById('scrapeKeyword').value;
   const location = document.getElementById('scrapeLocation').value;
 
   btn.disabled = true;
-  btn.innerText = '⏳ Scraping Leads...';
-  alert.classList.remove('hidden');
-  alert.innerText = '🤖 AI Harvester agent active. Scraping leads in background...';
+  btn.innerText = '⏳ Scraping...';
+  alertEl.classList.remove('hidden');
+  alertEl.innerText = '🤖 AI Harvester agent is active in background...';
 
   try {
     const res = await fetch('/api/growth/scrape', {
@@ -220,12 +349,12 @@ async function handleStartScrape(e) {
       body: JSON.stringify({ agent, keyword, location, max_leads: 25 })
     });
     const data = await res.json();
-    alert.innerText = '✅ ' + (data.message || 'Scrape task launched successfully! Check the table below for live leads.');
+    alertEl.innerText = '✅ ' + (data.message || 'Scraper task triggered! Check the leads table below.');
     loadLeadsTable();
-    setTimeout(() => { loadLeadsTable(); }, 1500);
-    setTimeout(() => { loadLeadsTable(); }, 3500);
+    setTimeout(() => { loadLeadsTable(); }, 2000);
+    setTimeout(() => { loadLeadsTable(); }, 4000);
   } catch (err) {
-    alert.innerText = '❌ Error launching scraper: ' + err.message;
+    alertEl.innerText = '❌ Scrape error: ' + err.message;
   } finally {
     btn.disabled = false;
     btn.innerText = '⚡ Launch Lead Scraper';

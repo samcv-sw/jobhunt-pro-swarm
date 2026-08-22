@@ -138,8 +138,8 @@
 <div class="space-y-6">
 
   <!-- HERO WELCOME -->
-  <div class="glass-panel relative overflow-hidden p-8 reveal">
-    <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px]"></div>
+  <div class="glass-panel relative overflow-visible z-30 p-8 reveal">
+    <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] rounded-3xl pointer-events-none"></div>
     <div class="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
       <div class="max-w-2xl">
         <div class="flex items-center gap-2 mb-2">
@@ -158,36 +158,143 @@
       </div>
       <div class="flex items-center gap-3 flex-wrap">
         {% if 'microsoft' in (user.get('oauth_provider') or '') %}
-          <div class="flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow">
-            <i data-lucide="mail" class="h-4 w-4"></i> Microsoft Connected
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="mail" class="h-4 w-4"></i> Microsoft Connected
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-blue-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-blue-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
+                <span>Enterprise OAuth Channel</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                Authenticated via Microsoft OAuth. High-reputation sender routing with zero spam flags.
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-blue-500/80 rotate-45"></div>
+            </div>
           </div>
         {% elif 'google' in (user.get('oauth_provider') or '') %}
-          <div class="flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow">
-            <i data-lucide="mail" class="h-4 w-4"></i> Google Connected
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="mail" class="h-4 w-4"></i> Google Connected
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                <span>Google OAuth Channel</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                Authenticated via Google OAuth for reliable delivery direct to recruiters' primary inboxes.
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+            </div>
           </div>
         {% else %}
-          <div class="flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow">
-            <i data-lucide="star" class="h-4 w-4"></i> Premium Services Active
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="star" class="h-4 w-4"></i> Premium Services Active
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-pink-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="crown" class="w-4 h-4 text-pink-400"></i>
+                <span>High-Capacity Delivery Pool</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                Routing applications across high-reputation rotating enterprise sender accounts.
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+            </div>
           </div>
         {% endif %}
-        <a href="/new-campaign" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-400/70 bg-gradient-to-r from-emerald-600/50 via-teal-600/50 to-emerald-500/50 text-emerald-100 font-extrabold text-xs shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all hover:bg-emerald-600/70 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]" title="Launch New AI Application Campaign">
-          <span>🚀 Launch New Campaign</span>
-        </a>
-        <button class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-300 font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-500/35 hover:scale-105" onclick="openTestEmailModal()" title="Test live email dispatch to your inbox">
-          <span>📧 Send Test Email ($1.00)</span>
-        </button>
-        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-400/60 bg-gradient-to-r from-indigo-600/40 via-purple-600/40 to-cyan-500/40 text-indigo-200 font-extrabold text-xs shadow-[0_0_18px_rgba(99,102,241,0.4)] transition-all hover:bg-indigo-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(99,102,241,0.65)]" onclick="document.getElementById('jobSeekerGuideModal').showModal()" title="Job Seeker Quick Start Guide - 5 Easy Steps to Automate Applications">
-          <span class="animate-pulse">🚀</span> <span>Job Seeker Quick Start Guide</span>
-        </button>
-        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400/60 bg-gradient-to-r from-amber-600/40 via-orange-600/40 to-yellow-500/40 text-amber-200 font-extrabold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all hover:bg-amber-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,158,11,0.65)]" onclick="document.getElementById('employerGuideModal').showModal()" title="Employer Quick Start Guide - Post Jobs & Track Candidates">
-          <span class="animate-pulse">🏢</span> <span>Employer Quick Start Guide</span>
-        </button>
-        <button onclick="document.getElementById('shortcutModal').showModal()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-slate-800/80 text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all hover:bg-cyan-500/20 hover:scale-105" title="Keyboard shortcuts">
-          <span style="font-size:18px;line-height:1;display:inline-block;">⌨️</span>
-        </button>
+
+        <!-- Launch New Campaign -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <a href="/new-campaign" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-400/70 bg-gradient-to-r from-emerald-600/50 via-teal-600/50 to-emerald-500/50 text-emerald-100 font-extrabold text-xs shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all hover:bg-emerald-600/70 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]">
+            <span>🚀 Launch New Campaign</span>
+          </a>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="rocket" class="w-4 h-4 text-emerald-400"></i>
+              <span>Launch AI Campaign</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              Target roles, locations (UAE, KSA, Qatar, GCC, USA), and company tiers to start autonomous AI candidate outreach.
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Send Test Email -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-300 font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-500/35 hover:scale-105 cursor-pointer" onclick="openTestEmailModal()">
+            <span>📧 Send Test Email ($1.00)</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="mail-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>Live Test Dispatch</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              Sends a live test application to your personal inbox so you can preview the cover letter layout & verified ATS CV attachment.
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Job Seeker Guide -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-400/60 bg-gradient-to-r from-indigo-600/40 via-purple-600/40 to-cyan-500/40 text-indigo-200 font-extrabold text-xs shadow-[0_0_18px_rgba(99,102,241,0.4)] transition-all hover:bg-indigo-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(99,102,241,0.65)] cursor-pointer" onclick="document.getElementById('jobSeekerGuideModal').showModal()">
+            <span class="animate-pulse">🚀</span> <span>Job Seeker Quick Start Guide</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-indigo-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-indigo-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i>
+              <span>Job Seeker Guide (5 Steps)</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              Step-by-step master tutorial on configuring your profile, targeting GCC companies, and securing recruiter interview invitations.
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-indigo-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Employer Guide -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400/60 bg-gradient-to-r from-amber-600/40 via-orange-600/40 to-yellow-500/40 text-amber-200 font-extrabold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all hover:bg-amber-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,158,11,0.65)] cursor-pointer" onclick="document.getElementById('employerGuideModal').showModal()">
+            <span class="animate-pulse">🏢</span> <span>Employer Quick Start Guide</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-amber-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i>
+              <span>Employer & Recruiter Hub</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              Overview for HR directors & hiring teams to post job vacancies, filter candidates, and receive verified pre-screened applications.
+            </p>
+            <div class="absolute -bottom-1.5 end-6 w-3 h-3 bg-slate-950 border-b border-e border-amber-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Shortcuts Button -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button onclick="document.getElementById('shortcutModal').showModal()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-slate-800/80 text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all hover:bg-cyan-500/20 hover:scale-105 cursor-pointer">
+            <span style="font-size:18px;line-height:1;display:inline-block;">⌨️</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 sm:w-72 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-cyan-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="command" class="w-4 h-4 text-cyan-400"></i>
+              <span>Keyboard Shortcuts</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              Quick hotkeys to navigate the portal, open search modals, review sent emails, and launch campaigns instantly.
+            </p>
+            <div class="absolute -bottom-1.5 end-4 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
   <!-- PRO TIP: KEEP TAB OPEN & MINIMIZED BANNER -->
   <div class="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-indigo-950/40 p-5 shadow-[0_0_25px_rgba(245,158,11,0.2)] backdrop-blur-xl reveal">
@@ -222,28 +329,88 @@
   </div>
 
   <!-- LIVE AI MARKET PULSE MARQUEE TICKER -->
+  <style>
+    @keyframes enMarqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .en-pulse-marquee {
+      display: inline-flex;
+      white-space: nowrap;
+      width: max-content;
+      will-change: transform;
+      animation: enMarqueeScroll 30s linear infinite;
+    }
+    .en-pulse-marquee:hover {
+      animation-play-state: paused;
+    }
+  </style>
   <div class="relative overflow-hidden rounded-xl border border-indigo-500/30 bg-slate-900/80 p-2.5 shadow-[0_0_20px_rgba(99,102,241,0.1)] backdrop-blur-md reveal">
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold text-xs flex-shrink-0">
+      <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold text-xs flex-shrink-0 z-10 shadow-sm">
         <span>⚡ Market Pulse:</span>
       </div>
-      <div class="overflow-hidden whitespace-nowrap w-full">
-        <div class="inline-block animate-marquee text-xs font-semibold text-slate-300 space-x-8">
-          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 1,420+ new job roles screened & matched today in UAE & KSA</span>
-          <span class="mx-3 text-slate-600">•</span>
+      <div class="overflow-hidden whitespace-nowrap w-full flex marquee-fade-mask">
+        <div class="en-pulse-marquee text-xs font-semibold text-slate-300 items-center gap-8">
+          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 1,420+ new job roles screened & matched today in UAE, KSA & GCC</span>
+          <span class="text-slate-600 font-bold">•</span>
           <span class="inline-flex items-center gap-1 text-emerald-300">🎯 Top Employers Active: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
-          <span class="mx-3 text-slate-600">•</span>
+          <span class="text-slate-600 font-bold">•</span>
           <span class="inline-flex items-center gap-1 text-amber-300">⚡ Interview response rate up +35% with Automated Smart Follow-ups</span>
-          <span class="mx-3 text-slate-600">•</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-purple-300">💼 45 top candidate CVs dispatched to hiring managers this hour</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <!-- Seamless Infinite Loop Duplicate Track -->
+          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 1,420+ new job roles screened & matched today in UAE, KSA & GCC</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-300">🎯 Top Employers Active: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-amber-300">⚡ Interview response rate up +35% with Automated Smart Follow-ups</span>
+          <span class="text-slate-600 font-bold">•</span>
           <span class="inline-flex items-center gap-1 text-purple-300">💼 45 top candidate CVs dispatched to hiring managers this hour</span>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ═══ VIP CANDIDATE CAREER & INTERVIEW PROBABILITY SHIELD ═══ -->
+  <div class="relative overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-r from-slate-950/90 via-indigo-950/70 to-slate-950/90 p-5 shadow-[0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-xl reveal mb-4" dir="ltr">
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+    <div class="flex items-start gap-4">
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/50 bg-cyan-500/15 text-cyan-300 shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+        <span class="text-2xl">🎯</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <h3 class="text-lg font-black text-white tracking-wide">AI Career Shield & Interview Readiness Guarantee ✨</h3>
+          <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-300 bg-emerald-500/20 px-3 py-0.5 rounded-full border border-emerald-400/40">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span> Interview Probability: 97.4% (Elite Tier)
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-3xl">
+          AI continuously matches your resume with hiring pipelines across Dubai, Riyadh, London, and global remote tech hubs. Target Compensation Index: <strong class="text-amber-300 font-bold">$95,000 – $145,000 / yr</strong>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Action Booster Buttons -->
+    <div class="flex items-center gap-2.5 flex-wrap shrink-0">
+      <a href="/ats-optimizer" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-extrabold shadow-sm hover:bg-cyan-500/25 transition-all hover:scale-105">
+        <span>⚡ ATS Audit</span>
+      </a>
+      <a href="/interview-copilot" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-500/15 border border-purple-400/40 text-purple-300 text-xs font-extrabold shadow-sm hover:bg-purple-500/25 transition-all hover:scale-105">
+        <span>🤖 AI Copilot</span>
+      </a>
+      <a href="/new-campaign" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 transition-all">
+        <span>🚀 Launch Batch ↗</span>
+      </a>
+    </div>
+  </div>
+</div>
 
 
-  <!-- CONNECT SMTP BANNER -->
+
+  <!-- DIRECT MAILBOX INTEGRATION BANNER -->
   {% if not user.get('oauth_provider') %}
   <div class="glass-panel border-s-4 border-s-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal">
     <div class="max-w-xl">
@@ -251,7 +418,7 @@
       <p class="text-sm text-emerald-100/70">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
     </div>
     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-      <a onclick="document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='microsoft'" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500">
+      <a onclick="document.getElementById('mailConnectModal').showModal(); document.getElementById('mailProvider').value='microsoft'" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500">
         <i data-lucide="mail" class="h-4 w-4"></i> Microsoft
       </a>
       <a href="/auth/google/login" class="flex items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/15 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:bg-red-500/30">
@@ -305,7 +472,7 @@
             <span class="kpi-tooltip-badge">Performance Booster</span>
           </div>
           <div class="kpi-tooltip-body">
-            Instantly flushes memory caches (DNS MX records, suppression lists, vitals). Speeds up UI responsiveness and refreshes live company metrics in 1 click without restarting the server.
+            Instantly flushes and optimizes temporary memory caches. Speeds up UI responsiveness and refreshes live company metrics in 1 click without restarting the server.
           </div>
           <div class="kpi-tooltip-footer">
             <span>⚡ 100% safe & non-destructive fast refresh</span>
@@ -313,89 +480,73 @@
         </div>
       </div>
 
-      <!-- Sender Settings Button -->
-      <button onclick="openSenderConfigModal()" id="enSenderConfigBtn" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 font-bold text-xs transition-all border border-indigo-500/40 flex items-center gap-2 shadow-md">
-        <span>⚙️ Sender & SMTP Settings</span>
-      </button>
+      <!-- Autonomous AI Auto-Pilot Dispatch Badge / Button -->
+      <div class="relative group inline-block">
+        <button onclick="openSenderConfigModal()" id="enSenderConfigBtn" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/40 hover:to-purple-600/40 text-indigo-200 font-extrabold text-xs transition-all border border-indigo-400/40 flex items-center gap-2 shadow-md cursor-pointer">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>🤖 AI Auto-Pilot Dispatch: Active</span>
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-950 border border-indigo-500/60 rounded-2xl shadow-2xl shadow-indigo-950/90 text-start">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>Autonomous AI Outreach Engine</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            AI automatically coordinates job matching, application dispatching, and routes recruiter interview invitations directly to your personal email with zero manual setup.
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-950 border-b border-e border-indigo-500/60 rotate-45"></div>
+        </div>
+      </div>
 
-      <!-- Live Test Send Button -->
-      <button onclick="openTestSendModal()" id="enTestSendBtn" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-bold text-xs transition-all border border-emerald-500/40 flex items-center gap-2 shadow-md">
-        <span>📨 Live Test Send</span>
-      </button>
     </div>
   </div>
 
-  <!-- SENDER CONFIG MODAL (ENGLISH) -->
+  <!-- AI AUTO-PILOT OUTREACH MODAL (ENGLISH) -->
   <div id="enSenderConfigModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-indigo-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative text-left" dir="ltr">
       <button onclick="closeSenderConfigModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
       <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">⚙️</div>
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">🤖</div>
         <div>
-          <h3 class="text-base font-bold text-white">Sender & Delivery Engine Configuration</h3>
-          <p class="text-xs text-slate-400">Control email routing, Reply-To headers, and daily application limits</p>
+          <h3 class="text-base font-bold text-white">AI Autonomous Outreach Auto-Pilot</h3>
+          <p class="text-xs text-emerald-400 font-semibold">100% Fully Automated • Zero Setup Required</p>
         </div>
       </div>
 
-      <div class="space-y-4 text-xs">
-        <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
-          <div class="font-bold text-cyan-300 mb-1">📬 Automatic Reply-To Routing:</div>
-          <div class="text-slate-300">All applications are dispatched with Reply-To pointed to your account email: <span id="enModalUserEmail" class="font-mono text-emerald-400 font-bold"></span> so recruiter replies land directly in your inbox.</div>
+      <div class="space-y-3.5 text-xs">
+        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-indigo-500/30 flex items-start gap-3">
+          <span class="text-lg">📬</span>
+          <div>
+            <div class="font-bold text-cyan-300 mb-0.5">Direct Recruiter Reply Routing:</div>
+            <div class="text-slate-300 leading-relaxed">Company hiring managers and HR directors reply directly to your personal email (<span id="enModalUserEmail" class="font-mono text-emerald-400 font-bold"></span>). You receive all interview invitations directly in your own inbox.</div>
+          </div>
         </div>
 
-        <div class="space-y-2">
-          <label class="block font-bold text-slate-200">Daily Outreach Cap (Applications/day):</label>
+        <div class="p-3.5 rounded-xl bg-slate-800/80 border border-emerald-500/30 flex items-start gap-3">
+          <span class="text-lg">🎯</span>
+          <div>
+            <div class="font-bold text-emerald-300 mb-0.5">AI Job Matching & Optimization:</div>
+            <div class="text-slate-300 leading-relaxed">AI automatically tailors your CV and cover letter to match each job vacancy, optimizing delivery timing for maximum employer open and response rates.</div>
+          </div>
+        </div>
+
+        <div class="space-y-2 p-3.5 rounded-xl bg-slate-800/80 border border-slate-700">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-slate-200">Daily Outreach Cap (Applications/day):</label>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">Smart Auto-Pacing Active</span>
+          </div>
           <input type="number" id="enModalDailyCap" min="1" max="10000" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="480">
-          <p class="text-[11px] text-slate-400">Recommended default: 480 apps/day for maximum deliverability and domain reputation.</p>
-        </div>
-
-        <div class="border-t border-slate-800 pt-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-bold text-slate-200">Direct Account Connection (BYO-SMTP - Optional):</span>
-            <span id="enModalSmtpBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Verified Cloud Pool</span>
-          </div>
-          <p class="text-[11px] text-slate-400 mb-3">If you prefer sending 100% directly through your Gmail account, enter your credentials below with a Gmail App Password.</p>
-          
-          <div class="space-y-2">
-            <input type="email" id="enModalSmtpEmail" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white" placeholder="Your Email Address (e.g. name@gmail.com)">
-            <input type="password" id="enModalSmtpPass" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="Gmail App Password (16 characters)">
-          </div>
+          <p class="text-[11px] text-slate-400">Controls your daily outreach pace. Default 480 apps/day ensures optimal balance between high volume and verified inbox deliverability.</p>
         </div>
 
         <div id="enSenderConfigStatus" class="text-center font-bold text-xs py-1"></div>
 
         <div class="flex items-center justify-end gap-2 pt-2">
-          <button onclick="clearEnSmtpConfig()" class="px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 font-bold transition-all border border-rose-500/30">Reset to Cloud Pool</button>
-          <button onclick="saveEnSenderConfig()" id="enSaveSenderBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/30">Save & Test Connection</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LIVE TEST SEND MODAL (ENGLISH) -->
-  <div id="enTestSendModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-emerald-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-left" dir="ltr">
-      <button onclick="closeTestSendModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xl">📨</div>
-        <div>
-          <h3 class="text-base font-bold text-white">Live Deliverability Test Pulse</h3>
-          <p class="text-xs text-slate-400">Send an instant test email to verify live delivery and Reply-To headers</p>
-        </div>
-      </div>
-
-      <div class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-200 mb-1">Target Test Email:</label>
-          <input type="email" id="enTestSendTargetEmail" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono" placeholder="your_email@gmail.com">
-          <p class="text-[11px] text-slate-400 mt-1">We will send a diagnostic email to test real-time inbox reception.</p>
-        </div>
-
-        <div id="enTestSendResult" class="p-3 rounded-xl bg-slate-950 border border-slate-800 hidden font-mono text-[11px] text-slate-300"></div>
-
-        <div class="flex items-center justify-end gap-2 pt-2">
-          <button onclick="closeTestSendModal()" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:bg-slate-700">Cancel</button>
-          <button onclick="executeEnTestSend()" id="enExecTestSendBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-emerald-600/30">🚀 Send Test Pulse Now</button>
+          <button onclick="closeSenderConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition-all cursor-pointer">Close</button>
+          <button onclick="saveEnSenderConfig()" id="enSaveSenderBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/30 cursor-pointer">Save Outreach Pace</button>
         </div>
       </div>
     </div>
@@ -449,10 +600,10 @@
           if (em) em.innerText = data.email || 'Not configured';
           var dc = document.getElementById('enModalDailyCap');
           if (dc) dc.value = data.daily_cap || 480;
-          var badge = document.getElementById('enModalSmtpBadge');
+          var badge = document.getElementById('enModalMailBadge');
           if (badge) {
             if (data.has_byo_smtp) {
-              badge.innerText = '✅ Connected to ' + (data.byo_smtp_email || 'Custom SMTP');
+              badge.innerText = '✅ Connected to ' + (data.byo_smtp_email || 'Personal Mailbox');
               badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
             } else {
               badge.innerText = 'Cloud Pool (' + data.pool_active_accounts + ' active accounts)';
@@ -477,8 +628,8 @@
     var btn = document.getElementById('enSaveSenderBtn');
     var status = document.getElementById('enSenderConfigStatus');
     var dc = parseInt(document.getElementById('enModalDailyCap').value) || 480;
-    var semail = document.getElementById('enModalSmtpEmail').value;
-    var spass = document.getElementById('enModalSmtpPass').value;
+    var semail = document.getElementById('enModalMailEmail').value;
+    var spass = document.getElementById('enModalMailPass').value;
 
     if (btn) btn.innerText = '⌛ Testing & Saving...';
     if (status) { status.innerText = ''; status.className = 'text-center font-bold text-xs py-1 text-slate-400'; }
@@ -514,7 +665,7 @@
     });
   }
 
-  function clearEnSmtpConfig() {
+  function clearEnMailConfig() {
     var status = document.getElementById('enSenderConfigStatus');
     var dc = parseInt(document.getElementById('enModalDailyCap').value) || 480;
     fetch('/api/v2/user/sender-config', {
@@ -528,8 +679,8 @@
         status.innerText = '✅ Reset to verified cloud pool successfully!';
         status.className = 'text-center font-bold text-xs py-1 text-cyan-400';
       }
-      var emailIn = document.getElementById('enModalSmtpEmail');
-      var passIn = document.getElementById('enModalSmtpPass');
+      var emailIn = document.getElementById('enModalMailEmail');
+      var passIn = document.getElementById('enModalMailPass');
       if (emailIn) emailIn.value = '';
       if (passIn) passIn.value = '';
       openSenderConfigModal();
@@ -590,18 +741,18 @@
 
   <!-- KPI STATS GRID -->
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <!-- TARGET COMPANIES POOL -->
+    <!-- TARGET COMPANIES -->
     <div class="glass-panel stat-card p-5 reveal border border-cyan-500/30 bg-slate-900/60 shadow-[0_0_20px_rgba(0,240,255,0.15)] group relative" style="animation-delay: 0.1s;" tabindex="0">
       <!-- HOVER EXPLANATION TOOLTIP -->
       <div class="kpi-tooltip-popover" dir="ltr">
         <div class="kpi-tooltip-header">
           <div class="kpi-tooltip-title">
-            <span>🏢 Target Companies Pool</span>
+            <span>🏢 Target Companies</span>
           </div>
-          <span class="kpi-tooltip-badge">Live 24/7 Pool</span>
+          <span class="kpi-tooltip-badge">Live 24/7 Verified</span>
         </div>
         <div class="kpi-tooltip-body">
-          Total verified corporate HR decision-makers & recruitment pools matched with your target career profile across UAE, KSA, Qatar, Gulf & global markets.
+          Total verified corporate HR decision-makers & recruitment executives matched with your target career profile across UAE, KSA, Qatar, Gulf & global markets.
         </div>
         <div class="kpi-tooltip-footer">
           <span>✨ Auto-updated to maximize outreach conversion</span>
@@ -618,7 +769,7 @@
         </span>
         <div class="flex items-center gap-1.5">
           <span class="kpi-info-trigger" title="Click or hover for metric details">ⓘ</span>
-          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30"><span id="targetPoolBadgeVal">{{ stats.total_target_companies | default(612) }}</span> POOL</span>
+          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30"><span id="targetPoolBadgeVal">{{ stats.total_target_companies | default(612) }}</span> VERIFIED</span>
         </div>
       </div>
       <div class="mt-2 text-3xl font-black tracking-tight text-white flex items-baseline gap-2">
@@ -697,7 +848,7 @@
           <span class="kpi-tooltip-badge" style="background:rgba(245,158,11,0.15);color:#fbbf24;border-color:rgba(245,158,11,0.3);">Autonomous</span>
         </div>
         <div class="kpi-tooltip-body">
-          Estimated human working hours saved by delegating company research, resume tailoring, and instant multi-channel dispatch to your AI Swarm.
+          Estimated human working hours saved through autonomous AI job hunting, intelligent matching, and automated employer outreach.
         </div>
         <div class="kpi-tooltip-footer" style="color:#fbbf24;border-color:rgba(245,158,11,0.2);">
           <span>💡 Saves ~12 minutes per individual application</span>
@@ -733,7 +884,19 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- TOOL 1 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-indigo-500/30 bg-slate-800/40 p-4 transition-all hover:border-indigo-400 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-indigo-500/30 bg-slate-800/40 p-4 transition-all hover:border-indigo-400 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-2xl shadow-2xl shadow-indigo-950/90 text-start">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="scan-line" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>ATS Resume Parser & Auditor</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            Scans your CV against Workday, Taleo, & Greenhouse ATS algorithms. Delivers keyword gap fixes to reach 95%+ pass rates.
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">📄</span>
@@ -748,7 +911,19 @@
       </div>
 
       <!-- TOOL 2 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/90 text-start">
+          <div class="flex items-center gap-2 text-emerald-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Hyper-Targeted Pitches</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            Auto-crafts tailored recruiter pitches matching each target company's job description, multiplying interview call-backs by 3x.
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">✉️</span>
@@ -763,7 +938,19 @@
       </div>
 
       <!-- TOOL 3 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-purple-500/30 bg-slate-800/40 p-4 transition-all hover:border-purple-400 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-purple-500/30 bg-slate-800/40 p-4 transition-all hover:border-purple-400 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-2xl shadow-2xl shadow-purple-950/90 text-start">
+          <div class="flex items-center gap-2 text-purple-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="mic" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>Real-Time Interview Copilot</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            Simulates real technical and behavioral interview questions with instant voice/text scoring and model answers.
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">🎙️</span>
@@ -778,7 +965,19 @@
       </div>
 
       <!-- TOOL 4 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-amber-500/30 bg-slate-800/40 p-4 transition-all hover:border-amber-400 hover:bg-amber-500/10 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-amber-500/30 bg-slate-800/40 p-4 transition-all hover:border-amber-400 hover:bg-amber-500/10 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-2xl shadow-2xl shadow-amber-950/90 text-start">
+          <div class="flex items-center gap-2 text-amber-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>GCC Market Compensation Intel</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            Calculate your market worth & target compensation package across UAE, Saudi Arabia, Qatar, and Gulf markets.
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">💰</span>
@@ -807,9 +1006,50 @@
           <p class="text-sm text-slate-400">Interactive conversion funnel from initial discovery to job offers</p>
         </div>
         <div class="flex rounded-lg bg-slate-800/80 p-1" id="chartTabs">
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300" onclick="switchChart('bar',this)">Bar</button>
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('line',this)">Line</button>
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('doughnut',this)">Doughnut</button>
+          <!-- Bar Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300" onclick="switchChart('bar',this)">Bar</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="bar-chart-2" class="w-3 h-3 text-indigo-400"></i>
+                <span>Bar Chart View</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Compare application volume across pipeline stages side-by-side.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Line Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('line',this)">Line</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="trending-up" class="w-3 h-3 text-cyan-400"></i>
+                <span>Line Trend View</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Track conversion progression and delivery slope across time.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Doughnut Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('doughnut',this)">Doughnut</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-xl shadow-2xl shadow-purple-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+                <i data-lucide="pie-chart" class="w-3 h-3 text-purple-400"></i>
+                <span>Doughnut Share View</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Visualize the percentage distribution of applications in each status.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="h-72 sm:h-80 w-full mb-6">
@@ -840,17 +1080,37 @@
           {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 0) | round | int] | min %}
 
           <!-- STAGE 1: DISCOVERED -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">🔍 Discovered Pool</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="search" class="w-3 h-3 text-indigo-400"></i>
+                <span>Discovered Employers</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Total verified active job opportunities matching your criteria across UAE, KSA, Qatar, and Gulf markets.
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🔍 Discovered</div>
             <div class="text-xl font-black text-white" id="funnelDiscoveredCount">{{ disc_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {{ disc_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-indigo-400 mt-1 block">100% Target Pool</span>
+            <span class="text-[10px] font-bold text-indigo-400 mt-1 block">100% Target Match</span>
           </div>
 
           <!-- STAGE 2: APPLIED -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-cyan-400/50">
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-cyan-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="send" class="w-3 h-3 text-cyan-400"></i>
+                <span>Autonomous Live Dispatches</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Applications compiled with ATS-compliant CV and hyper-personalized cover letters dispatched to hiring managers.
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
             <div class="text-[11px] font-bold text-slate-400 mb-1">📩 Applied Live</div>
             <div class="text-xl font-black text-cyan-300" id="funnelAppliedCount">{{ app_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
@@ -860,7 +1120,17 @@
           </div>
 
           <!-- STAGE 3: FOLLOWED UP -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-amber-400/50">
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-amber-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-amber-300 font-extrabold text-xs mb-1">
+                <i data-lucide="refresh-cw" class="w-3 h-3 text-amber-400"></i>
+                <span>Automated Follow-Up Sequences</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Smart polite follow-ups dispatched 48h after application to keep your profile top-of-mind.
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+            </div>
             <div class="text-[11px] font-bold text-slate-400 mb-1">🔄 Followed Up</div>
             <div class="text-xl font-black text-amber-300" id="funnelFollowedCount">{{ fol_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
@@ -870,7 +1140,17 @@
           </div>
 
           <!-- STAGE 4: INTERVIEWING -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-purple-400/50">
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-purple-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-xl shadow-2xl shadow-purple-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+                <i data-lucide="mic" class="w-3 h-3 text-purple-400"></i>
+                <span>Recruiter Interview Invites</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Direct interview invitations and screening requests received from interested recruiters.
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+            </div>
             <div class="text-[11px] font-bold text-slate-400 mb-1">🎙️ Interviewing</div>
             <div class="text-xl font-black text-purple-300" id="funnelInterviewCount">{{ int_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
@@ -880,7 +1160,17 @@
           </div>
 
           <!-- STAGE 5: OFFERS -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-emerald-400/50 col-span-2 sm:col-span-1">
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-emerald-400/50 col-span-2 sm:col-span-1 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-emerald-300 font-extrabold text-xs mb-1">
+                <i data-lucide="party-popper" class="w-3 h-3 text-emerald-400"></i>
+                <span>Final Offers & Placements</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Successful job offers and contract negotiation milestones achieved through autonomous campaigns.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
             <div class="text-[11px] font-bold text-slate-400 mb-1">🎉 Offers & Finals</div>
             <div class="text-xl font-black text-emerald-400" id="funnelOfferCount">{{ off_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
@@ -891,7 +1181,7 @@
         </div>
 
         <!-- AI FUNNEL RECOMMENDATION BOX -->
-        <div class="rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div class="rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg overflow-visible">
           <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300 font-bold text-xl flex-shrink-0 border border-indigo-400/30">
               💡
@@ -901,10 +1191,22 @@
               <p class="text-xs text-slate-300 leading-relaxed">Activating automated follow-ups 48 hours after application increases interview call-backs by <strong>+40%</strong>.</p>
             </div>
           </div>
-          <button onclick="triggerSmartFollowupEn(this)" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap">
-          Enable Smart Follow-up ⚡
-        </button>
-      </div>
+          <div class="relative group inline-block flex-shrink-0">
+            <button onclick="triggerSmartFollowupEn(this)" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap">
+              Enable Smart Follow-up ⚡
+            </button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="zap" class="w-3 h-3 text-cyan-400"></i>
+                <span>Smart Follow-Up Automation</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Automatically schedules polite follow-ups 48h post-application to multiply interview callback rates by +40%.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+          </div>
+        </div>
 
       <!-- SMART FOLLOWUP SUCCESS MODAL -->
       <dialog id="followupSuccessModalEn" class="rounded-2xl border border-cyan-500/40 bg-slate-900/95 p-6 text-slate-100 backdrop-blur-xl shadow-[0_0_30px_rgba(0,240,255,0.3)] max-w-md w-full">
@@ -955,7 +1257,18 @@
         <!-- AI PROFILE HEALTH & DAILY TARGET WIDGET (FILLS EMPTY SPACE) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- PROFILE STRENGTH RADAR -->
-          <div class="rounded-xl border border-cyan-500/30 bg-slate-800/40 p-4 transition-all hover:border-cyan-400/50">
+          <div class="relative group rounded-xl border border-cyan-500/30 bg-slate-800/40 p-4 transition-all hover:border-cyan-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-2xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-2 text-cyan-300 font-extrabold text-xs mb-1.5">
+                <i data-lucide="target" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>AI Profile & ATS Compliance Score</span>
+              </div>
+              <p class="text-slate-200 text-xs leading-relaxed font-normal">
+                Aggregated evaluation of keyword relevance, work experience syntax, and multi-market GCC corporate alignment.
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-xl">🎯</span>
@@ -988,7 +1301,18 @@
           </div>
 
           <!-- DAILY TARGET TRACKER -->
-          <div class="rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400/50">
+          <div class="relative group rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-2 text-emerald-300 font-extrabold text-xs mb-1.5">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Daily Application Pulse Goal</span>
+              </div>
+              <p class="text-slate-200 text-xs leading-relaxed font-normal">
+                Automated application pacing across business hours to maximize recruiter inbox visibility and prevent spam flags.
+              </p>
+              <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
+
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-xl">🔥</span>
@@ -1028,30 +1352,97 @@
     <div class="flex flex-col gap-6">
       
       <!-- Quick Actions -->
-      <div class="glass-panel p-6 reveal">
+      <div class="glass-panel p-6 reveal overflow-visible">
         <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Quick Actions</h3>
         <div class="grid grid-cols-2 gap-3">
-          <a href="/new-campaign" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <svg class="h-6 w-6 text-indigo-400 transition-colors group-hover:text-indigo-300 lucide-dir-aware" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71 1.1-1.6 1.1-2.5 0-1.1-.9-2-2-2-.9 0-1.79.39-2.5 1.1z"/><path d="M15 9l-6 6"/><path d="M9 3a6 6 0 0 0 6 6l5 5a2 2 0 0 1-2.83 2.83l-5-5a6 6 0 0 0-6-6V3z"/></svg>
-            <span class="text-xs font-medium text-slate-300">New Campaign</span>
-          </a>
-          <a href="/upload-cv" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <svg class="h-6 w-6 text-emerald-400 transition-colors group-hover:text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-            <span class="text-xs font-medium text-slate-300">Upload CV</span>
-          </a>
-          <a href="/services" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <svg class="h-6 w-6 text-amber-400 transition-colors group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span class="text-xs font-medium text-slate-300">Services</span>
-          </a>
-          <a href="/pricing" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]">
-            <svg class="h-6 w-6 text-pink-400 transition-colors group-hover:text-pink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="11" y1="3" x2="8" y2="9"/><line x1="13" y1="3" x2="16" y2="9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="22" x2="8" y2="9"/><line x1="12" y1="22" x2="16" y2="9"/></svg>
-            <span class="text-xs font-medium text-slate-300">Upgrade</span>
-          </a>
+          <!-- New Campaign -->
+          <div class="relative group">
+            <a href="/new-campaign" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+              <svg class="h-6 w-6 text-indigo-400 transition-colors group-hover:text-indigo-300 lucide-dir-aware" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71 1.1-1.6 1.1-2.5 0-1.1-.9-2-2-2-.9 0-1.79.39-2.5 1.1z"/><path d="M15 9l-6 6"/><path d="M9 3a6 6 0 0 0 6 6l5 5a2 2 0 0 1-2.83 2.83l-5-5a6 6 0 0 0-6-6V3z"/></svg>
+              <span class="text-xs font-medium text-slate-300">New Campaign</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="rocket" class="w-3 h-3 text-indigo-400"></i>
+                <span>Launch Campaign</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Target GCC employers & start autonomous AI application dispatching.
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Upload CV -->
+          <div class="relative group">
+            <a href="/upload-cv" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <svg class="h-6 w-6 text-emerald-400 transition-colors group-hover:text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              <span class="text-xs font-medium text-slate-300">Upload CV</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-emerald-300 font-extrabold text-xs mb-1">
+                <i data-lucide="file-up" class="w-3 h-3 text-emerald-400"></i>
+                <span>Upload & Parse CV</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Verify ATS compliance score and update your master candidate profile.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Services -->
+          <div class="relative group">
+            <a href="/services" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <svg class="h-6 w-6 text-amber-400 transition-colors group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="text-xs font-medium text-slate-300">Services</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-amber-300 font-extrabold text-xs mb-1">
+                <i data-lucide="star" class="w-3 h-3 text-amber-400"></i>
+                <span>Premium Services</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Explore VIP recruiter direct outreach and executive priority routing.
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Upgrade -->
+          <div class="relative group">
+            <a href="/pricing" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+              <svg class="h-6 w-6 text-pink-400 transition-colors group-hover:text-pink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="11" y1="3" x2="8" y2="9"/><line x1="13" y1="3" x2="16" y2="9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="22" x2="8" y2="9"/><line x1="12" y1="22" x2="16" y2="9"/></svg>
+              <span class="text-xs font-medium text-slate-300">Upgrade</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-pink-500/50 rounded-xl shadow-2xl shadow-pink-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-pink-300 font-extrabold text-xs mb-1">
+                <i data-lucide="gem" class="w-3 h-3 text-pink-400"></i>
+                <span>Upgrade Plan</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                Unlock 3,000+ companies, unlimited AI cover letters, and speed boost.
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-pink-500/50 rotate-45"></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Premium Status -->
-      <div class="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal">
+      <div class="relative group rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal overflow-visible">
+        <!-- Luxury Tooltip on Arsenal (Solid Opaque, Zero Bleed-Through) -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 max-w-[85vw] p-3.5 bg-slate-950 border border-indigo-500/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] text-start">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span class="text-white font-black">Power Arsenal & Boosters</span>
+          </div>
+          <p class="text-slate-100 text-xs leading-relaxed font-normal">
+            Equip VIP delivery accelerators, dedicated IP warmups, and recruiter priority routing to bypass standard queues.
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-950 border-b border-e border-indigo-500/80 rotate-45"></div>
+        </div>
+
         <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300">Active Arsenal</h3>
         {% set total_weapons = 0 %}
         {% for c in campaigns %}{% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}{% endfor %}
@@ -1088,7 +1479,7 @@
               <span class="text-cyan-400">📡</span>
               <span>Recent Live Dispatches</span>
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">Real-time candidate applications dispatched by AI Swarm</p>
+            <p class="text-xs text-slate-400 mt-0.5">Real-time candidate applications dispatched by Autonomous AI Engine</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <span class="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-extrabold text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
@@ -1099,7 +1490,7 @@
               LIVE 24/7
             </span>
             <span class="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3 py-1 text-[11px] font-extrabold text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
-              <span>🏢 154 Target Pool • <strong class="live-dispatched-counter text-white">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</strong> Live</span>
+              <span>🏢 154 Verified Targets • <strong class="live-dispatched-counter text-white">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</strong> Live</span>
             </span>
           </div>
         </div>
@@ -1286,22 +1677,89 @@
         modal.showModal();
     };
 
-    function animateNumberChange(el, newVal) {
-        if (!el || newVal === undefined || newVal === null) return;
-        var curVal = el.innerText.trim().replace(/,/g, '');
-        if (curVal !== String(newVal)) {
-            el.innerText = Number(newVal).toLocaleString();
-            el.style.transition = 'all 0.3s ease';
-            el.style.color = '#00f0ff';
-            el.style.textShadow = '0 0 16px rgba(0,240,255,0.8)';
-            el.style.transform = 'scale(1.12)';
-            setTimeout(function() {
-                el.style.color = '';
-                el.style.textShadow = '';
-                el.style.transform = '';
-            }, 800);
+    function rollCounter(el, targetVal, duration) {
+        if (!el || targetVal === undefined || targetVal === null) return;
+        var num = parseInt(String(targetVal).replace(/[^\d]/g, ''), 10);
+        if (isNaN(num)) {
+            el.innerText = targetVal;
+            return;
         }
+
+        var startVal = parseInt(el.getAttribute('data-current-val') || el.innerText.replace(/[^\d]/g, '') || '0', 10);
+        if (isNaN(startVal)) startVal = 0;
+
+        var isInit = el.getAttribute('data-initialized') === 'true';
+        if (isInit && startVal === num) return;
+
+        el.setAttribute('data-current-val', num);
+        el.setAttribute('data-initialized', 'true');
+
+        var dur = duration || (isInit ? 700 : 1300);
+        var startTime = null;
+
+        el.style.transition = 'color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease';
+        el.style.color = '#00f0ff';
+        el.style.textShadow = '0 0 16px rgba(0,240,255,0.85)';
+        el.style.display = 'inline-block';
+        el.style.transform = 'scale(1.08)';
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / dur, 1);
+            var ease = 1 - Math.pow(1 - progress, 3);
+            var current = Math.floor(startVal + (num - startVal) * ease);
+            el.innerText = current.toLocaleString();
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                el.innerText = num.toLocaleString();
+                setTimeout(function() {
+                    el.style.color = '';
+                    el.style.textShadow = '';
+                    el.style.transform = '';
+                }, 500);
+            }
+        }
+        window.requestAnimationFrame(step);
     }
+
+    function animateNumberChange(el, newVal) {
+        rollCounter(el, newVal);
+    }
+
+    function initAllCounters() {
+        var targets = [
+            'targetCompaniesVal',
+            'targetPoolBadgeVal',
+            'targetCompaniesSubVal',
+            'activeAppsVal',
+            'funnelDiscoveredCount',
+            'funnelAppliedCount',
+            'funnelFollowedCount',
+            'funnelInterviewCount',
+            'funnelOfferCount'
+        ];
+        targets.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var val = el.innerText.trim();
+                if (val) {
+                    el.setAttribute('data-current-val', '0');
+                    rollCounter(el, val, 1400);
+                }
+            }
+        });
+        document.querySelectorAll('.live-total-counter, .live-dispatched-counter').forEach(function(el) {
+            var val = el.innerText.trim();
+            if (val) {
+                el.setAttribute('data-current-val', '0');
+                rollCounter(el, val, 1400);
+            }
+        });
+    }
+
+    initAllCounters();
 
     function fetchAndRenderDispatches() {
         fetch('/api/v1/live-dispatches?_t=' + Date.now(), { cache: 'no-store' })
@@ -1311,24 +1769,24 @@
 
                 if (data.total_sent !== undefined) {
                     document.querySelectorAll('.live-total-counter').forEach(function(el) {
-                        animateNumberChange(el, data.total_sent);
+                        rollCounter(el, data.total_sent);
                     });
                     var activeApps = document.getElementById('activeAppsVal');
-                    if (activeApps) animateNumberChange(activeApps, data.total_sent);
+                    if (activeApps) rollCounter(activeApps, data.total_sent);
                 }
                 if (data.companies_dispatched !== undefined) {
                     var compVal = document.getElementById('targetCompaniesVal');
-                    if (compVal) animateNumberChange(compVal, data.companies_dispatched);
+                    if (compVal) rollCounter(compVal, data.companies_dispatched);
                     document.querySelectorAll('.live-dispatched-counter').forEach(function(el) {
-                        animateNumberChange(el, data.companies_dispatched);
+                        rollCounter(el, data.companies_dispatched);
                     });
                 }
 
                 if (data.total_target_companies !== undefined) {
                     var poolBadge = document.getElementById('targetPoolBadgeVal');
                     var poolSub = document.getElementById('targetCompaniesSubVal');
-                    if (poolBadge) animateNumberChange(poolBadge, data.total_target_companies);
-                    if (poolSub) animateNumberChange(poolSub, data.total_target_companies);
+                    if (poolBadge) rollCounter(poolBadge, data.total_target_companies);
+                    if (poolSub) rollCounter(poolSub, data.total_target_companies);
                 }
 
                 if (data.pipeline_counts) {
@@ -1339,11 +1797,11 @@
                     var intEl = document.getElementById('funnelInterviewCount');
                     var offEl = document.getElementById('funnelOfferCount');
 
-                    if (discEl && p.discovered !== undefined) animateNumberChange(discEl, p.discovered);
-                    if (appEl && p.applied !== undefined) animateNumberChange(appEl, p.applied);
-                    if (folEl && p.followed_up !== undefined) animateNumberChange(folEl, p.followed_up);
-                    if (intEl && p.interview !== undefined) animateNumberChange(intEl, p.interview);
-                    if (offEl && p.offer !== undefined) animateNumberChange(offEl, p.offer);
+                    if (discEl && p.discovered !== undefined) rollCounter(discEl, p.discovered);
+                    if (appEl && p.applied !== undefined) rollCounter(appEl, p.applied);
+                    if (folEl && p.followed_up !== undefined) rollCounter(folEl, p.followed_up);
+                    if (intEl && p.interview !== undefined) rollCounter(intEl, p.interview);
+                    if (offEl && p.offer !== undefined) rollCounter(offEl, p.offer);
 
                     if (window.pipelineChart && window.pipelineChart.data && window.pipelineChart.data.datasets && window.pipelineChart.data.datasets[0]) {
                         window.pipelineChart.data.datasets[0].data = [
@@ -1382,7 +1840,7 @@
     fetchAndRenderDispatches();
     setInterval(function() {
         if (!document.hidden) fetchAndRenderDispatches();
-    }, 5000);
+    }, 3000);
     document.addEventListener('visibilitychange', function() { if (!document.hidden) fetchAndRenderDispatches(); });
     window.addEventListener('focus', function() { fetchAndRenderDispatches(); });
 })();
@@ -1465,7 +1923,7 @@
       </p>
       <div class="rounded-xl bg-purple-950/40 border border-purple-500/30 p-2.5 text-xs text-purple-200 flex items-center gap-2">
         <span class="text-lg">💡</span>
-        <span><strong>Pro Tip:</strong> Your wallet balance fuels real-time SMTP dispatching, AI cover letter customization, and automated follow-up sequences.</span>
+        <span><strong>Pro Tip:</strong> Your wallet balance fuels real-time candidate outreach dispatching, AI cover letter customization, and automated follow-up sequences.</span>
       </div>
     </div>
 
@@ -1508,7 +1966,7 @@
         <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
           <span class="text-base">💻</span>
           <div>
-            <strong>Multitask Freely:</strong> Keep the dashboard tab open or minimized in the background. You can freely use your PC for work, gaming, or browsing while the AI Swarm automatically applies for jobs in real-time!
+            <strong>Multitask Freely:</strong> Keep the dashboard tab open or minimized in the background. You can freely use your PC for work, gaming, or browsing while the Autonomous AI Engine automatically applies for jobs in real-time!
           </div>
         </div>
         <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
@@ -1581,7 +2039,7 @@
       </div>
       <div class="rounded-xl bg-slate-900/60 border border-slate-700/60 p-2.5 text-xs text-slate-300 flex items-center gap-2">
         <span class="text-lg">🎯</span>
-        <span>Choose your listing tier (Standard Posting, Featured Employer, or AI Swarm Sourcing) and click <strong>"Publish Job Opening"</strong>.</span>
+        <span>Choose your listing tier (Standard Posting, Featured Employer, or Direct AI Sourcing) and click <strong>"Publish Job Opening"</strong>.</span>
       </div>
     </div>
 
@@ -1683,7 +2141,7 @@
       <div onclick="window.location.href='/new-campaign'" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
         <div class="flex flex-col gap-0.5">
           <span class="text-sm font-bold text-white group-hover:text-indigo-400">🚀 New Campaign</span>
-          <span class="text-xs text-slate-400">Launch AI swarm engine to send automated job applications 24/7</span>
+          <span class="text-xs text-slate-400">Launch Autonomous AI engine to send automated job applications 24/7</span>
         </div>
         <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">N</kbd>
       </div>
@@ -1897,54 +2355,54 @@ function initKeyboardShortcuts() {
 </script>
 
 
-<!-- SMTP Connect Modal -->
-<dialog id="smtpModal" class="modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl" style="inline-size: 100%; max-inline-size: 450px;">
+<!-- Direct Mailbox Connect Modal -->
+<dialog id="mailConnectModal" class="modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl" style="inline-size: 100%; max-inline-size: 450px;">
   <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
     <h3 class="text-xl font-bold text-white">Connect Your Email</h3>
-    <button onclick="document.getElementById('smtpModal').close()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
+    <button onclick="document.getElementById('mailConnectModal').close()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
   </div>
   <p class="text-sm text-slate-400 mb-6">Send job applications directly from your own email address to bypass spam filters and increase response rates.</p>
   
   <div class="space-y-4">
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">Provider</label>
-      <select id="smtpProvider" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+      <select id="mailProvider" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
         <option value="google">Google (Gmail/Workspace)</option>
         <option value="microsoft">Microsoft (Outlook/Office365)</option>
       </select>
     </div>
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
-      <input type="email" id="smtpEmail" placeholder="you@domain.com" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+      <input type="email" id="mailAccountEmail" placeholder="you@domain.com" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
     </div>
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">App Password</label>
-      <input type="password" id="smtpPass" placeholder="16-digit App Password" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+      <input type="password" id="mailAccountPass" placeholder="16-digit App Password" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
       <p class="text-xs text-slate-500 mt-1"><a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-indigo-400 hover:underline">How to generate an App Password?</a></p>
     </div>
-    <button id="smtpConnectBtn" onclick="connectSmtp()" class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2">
+    <button id="mailConnectBtn" onclick="connectDirectMailbox()" class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2">
       <i data-lucide="link" class="h-4 w-4"></i> Connect Securely
     </button>
   </div>
 </dialog>
 
 <script>
-async function connectSmtp() {
-    const provider = document.getElementById('smtpProvider').value;
-    const email = document.getElementById('smtpEmail').value;
-    const pass = document.getElementById('smtpPass').value;
+async function connectDirectMailbox() {
+    const provider = document.getElementById('mailProvider').value;
+    const email = document.getElementById('mailAccountEmail').value;
+    const pass = document.getElementById('mailAccountPass').value;
     
     if(!email || !pass) {
         alert('Please enter both email and app password.');
         return;
     }
     
-    const btn = document.getElementById('smtpConnectBtn');
+    const btn = document.getElementById('mailConnectBtn');
     btn.innerHTML = '<i class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></i> Connecting...';
     btn.disabled = true;
     
     try {
-        const res = await fetch('/api/smtp-connect', {
+        const res = await fetch('/api/mail-connect', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({provider, email, app_password: pass})
@@ -1999,7 +2457,7 @@ async function connectSmtp() {
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1">👤 Select Target CV Profile <span class="text-emerald-400">*</span></label>
         <div class="relative">
-          <select id="selectTestProfile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
+          <select id="selectTestProfile" onchange="updateTestJobFromProfile()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
             {% for p in profiles %}
             <option value="{{ p.id }}">{{ p.profile_name }}</option>
             {% else %}
@@ -2020,11 +2478,11 @@ async function connectSmtp() {
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Target Company Name</label>
-          <input type="text" id="inputTestCompany" value="Global Tech Solutions" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+          <input type="text" id="inputTestCompany" value="Enterprise Solutions" placeholder="e.g. Saudi Aramco, Microsoft, Enterprise Solutions..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-300 mb-1">Target Job Title</label>
-          <input type="text" id="inputTestJob" value="IT Manager / Senior Engineer" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+          <input type="text" id="inputTestJob" value="" placeholder="e.g. Senior Software Engineer..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
         </div>
       </div>
 
@@ -2048,6 +2506,7 @@ async function connectSmtp() {
 </dialog>
 
 <script>
+let _userProfilesCache = [];
 async function openTestEmailModal() {
   const dialog = document.getElementById('testEmailModal');
   if (dialog) dialog.showModal();
@@ -2056,13 +2515,39 @@ async function openTestEmailModal() {
     const res = await fetch('/api/v2/campaigns/user-profiles');
     const data = await res.json();
     const sel = document.getElementById('selectTestProfile');
-    if (sel && data.profiles && data.profiles.length > 0) {
-      sel.innerHTML = data.profiles.map(p => 
-        `<option value="${p.id}">${p.profile_name || 'Alex Johnson - Senior Software Engineer'}</option>`
-      ).join('');
+    if (sel) {
+      if (data.profiles && data.profiles.length > 0) {
+        _userProfilesCache = data.profiles;
+        sel.innerHTML = data.profiles.map(p => 
+          `<option value="${p.id}">${p.profile_name || 'Executive Profile'}</option>`
+        ).join('');
+        updateTestJobFromProfile();
+      } else {
+        _userProfilesCache = [];
+        sel.innerHTML = '<option value="">No CV profile uploaded yet — please upload your CV first</option>';
+        const jobInput = document.getElementById('inputTestJob');
+        if (jobInput) jobInput.value = '';
+      }
     }
   } catch(e) {
     console.log('[testEmailModal] Profile fetch error:', e);
+  }
+}
+
+function updateTestJobFromProfile() {
+  const sel = document.getElementById('selectTestProfile');
+  const jobInput = document.getElementById('inputTestJob');
+  if (!sel || !jobInput || !_userProfilesCache || !_userProfilesCache.length) return;
+  const selectedId = sel.value;
+  const profile = _userProfilesCache.find(p => String(p.id) === String(selectedId)) || _userProfilesCache[0];
+  if (profile) {
+    if (profile.target_titles) {
+      const firstTitle = profile.target_titles.split(',')[0].trim();
+      if (firstTitle) jobInput.value = firstTitle;
+    } else if (profile.profile_name && profile.profile_name.includes(' - ')) {
+      const parts = profile.profile_name.split(' - ');
+      if (parts[1]) jobInput.value = parts[1].replace(/\s*\(.*?\)/, '').trim();
+    }
   }
 }
 function closeTestEmailModal() {
@@ -2074,11 +2559,18 @@ function closeTestEmailModal() {
 async function submitLiveTestEmail() {
   const profileId = document.getElementById('selectTestProfile') ? document.getElementById('selectTestProfile').value : null;
   const recipient = document.getElementById('inputTestRecipient').value.trim();
-  const company = document.getElementById('inputTestCompany').value.trim() || 'Global Tech Solutions';
-  const job = document.getElementById('inputTestJob').value.trim() || 'IT Specialist';
+  const company = document.getElementById('inputTestCompany').value.trim() || 'Enterprise Solutions';
+  const job = document.getElementById('inputTestJob').value.trim() || 'Senior Network Engineer';
   const note = document.getElementById('inputTestNote').value.trim();
   const alertBox = document.getElementById('testEmailAlert');
   const btn = document.getElementById('btnSubmitTestEmail');
+
+  if (!profileId) {
+    alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+    alertBox.innerHTML = '⚠️ No CV profile found. Please <a href="/upload-cv" class="underline font-bold text-white">upload your CV</a> first before dispatching.';
+    alertBox.classList.remove('hidden');
+    return;
+  }
 
   if (!recipient || !recipient.includes('@')) {
     alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';

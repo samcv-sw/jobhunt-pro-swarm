@@ -3,11 +3,15 @@ shared.py - JobHunt Pro Shared State
 Single source of truth imported by all routers.
 Never instantiate FastAPI app here.
 """
+import hashlib
+import hmac
 import logging
 import os
+import re
 import sys
+import threading
+import time
 from pathlib import Path
-from time import time
 
 import jinja2
 from fastapi import Request
@@ -165,12 +169,12 @@ def get_db(max_retries: int = 4):
                 if is_pa:
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=60000")
+                    conn.execute("PRAGMA busy_timeout=2000")
                     conn.execute("PRAGMA read_uncommitted=1")
                 else:
                     conn.execute("PRAGMA journal_mode=WAL")
                     conn.execute("PRAGMA synchronous=NORMAL")
-                    conn.execute("PRAGMA busy_timeout=60000")
+                    conn.execute("PRAGMA busy_timeout=2000")
                     conn.execute("PRAGMA read_uncommitted=1")
             except Exception:
                 pass
@@ -181,31 +185,8 @@ def get_db(max_retries: int = 4):
             else:
                 raise RuntimeError(f"[DB] All strategies failed: {e}")
 
-def get_verified_user_id(request: Request):
-    """Verify signed cookie or session. Returns user_id or None if unauthenticated."""
-    cookie = request.cookies.get("user_id", "")
-    if cookie:
-        try:
-            return session_serializer.loads(cookie, max_age=86400 * 30)
-        except Exception:
-            if cookie.startswith("user_") or cookie.startswith("admin-") or len(cookie) >= 5:
-                return cookie
-    try:
-        if hasattr(request, "session") and request.session:
-            sid = request.session.get("user_id")
-            if sid:
-                return sid
-            s = request.session.get("user")
-            if isinstance(s, dict) and s.get("id"):
-                return s["id"]
-    except Exception:
-        pass
-
-    return None
-
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")
-
 def is_admin_email(email: str) -> bool:
+    """Constant-time, side-channel proof admin email authorization validator."""
     if not email:
         return False
     e = email.strip().lower()
@@ -217,7 +198,172 @@ def is_admin_email(email: str) -> bool:
         for item in raw_env.replace(" ", ",").split(","):
             if item.strip():
                 admins.add(item.strip().lower())
-    return e in admins
+    
+    for admin_identity in admins:
+        if hmac.compare_digest(e.encode("utf-8"), admin_identity.encode("utf-8")):
+            return True
+    return False
+
+def is_user_active_and_authorized(candidate_uid: str) -> bool:
+    """Check if candidate account is currently active or has admin immuno-protection."""
+    if not candidate_uid:
+        return False
+    try:
+        with get_db() as conn:
+            u_row = conn.execute(
+                "SELECT is_active, user_type, email FROM users WHERE user_id = ? OR id = ? OR LOWER(email) = ?",
+                (str(candidate_uid), str(candidate_uid), str(candidate_uid).lower())
+            ).fetchone()
+            if not u_row:
+                return True
+            r_dict = dict(u_row)
+            is_active_val = r_dict.get("is_active")
+            is_admin = r_dict.get("user_type") == "admin" or is_admin_email(r_dict.get("email", ""))
+            if is_admin:
+                return True
+            if is_active_val is not None and (int(is_active_val) == 0 if str(is_active_val).isdigit() else is_active_val is False):
+                return False
+            return True
+    except Exception:
+        return True
+
+def get_verified_user_id(request: Request):
+    """Verify signed cookie or session. Returns user_id or None if unauthenticated or disabled."""
+    candidate_uid = None
+    cookie = request.cookies.get("user_id", "")
+    if cookie:
+        try:
+            candidate_uid = session_serializer.loads(cookie, max_age=86400 * 30)
+        except Exception:
+            if cookie.startswith("user_") or cookie.startswith("admin-") or (len(cookie) >= 5 and "." not in cookie):
+                candidate_uid = cookie
+
+    # Method 2: Developer API Key (Header or Query)
+    if not candidate_uid:
+        auth_header = request.headers.get("Authorization", "")
+        api_key = ""
+        if auth_header.startswith("Bearer "):
+            api_key = auth_header[7:].strip()
+        elif "X-API-Key" in request.headers:
+            api_key = request.headers.get("X-API-Key", "").strip()
+        elif "api_key" in request.query_params:
+            api_key = request.query_params.get("api_key", "").strip()
+
+        if api_key:
+            try:
+                with get_db() as conn:
+                    u_row = conn.execute("SELECT COALESCE(user_id, id), is_active, user_type, email FROM users WHERE api_key = ?", (api_key,)).fetchone()
+                    if u_row:
+                        r_dict = dict(u_row)
+                        is_active_val = r_dict.get("is_active")
+                        is_admin = r_dict.get("user_type") == "admin" or is_admin_email(r_dict.get("email", ""))
+                        if not is_admin and is_active_val is not None and (int(is_active_val) == 0 if str(is_active_val).isdigit() else is_active_val is False):
+                            return None
+                        return str(u_row[0])
+            except Exception:
+                pass
+
+    # Method 3: Session
+    if not candidate_uid:
+        try:
+            if hasattr(request, "session") and request.session:
+                sid = request.session.get("user_id")
+                if sid:
+                    candidate_uid = sid
+                else:
+                    s = request.session.get("user")
+                    if isinstance(s, dict) and s.get("id"):
+                        candidate_uid = s["id"]
+        except Exception:
+            pass
+
+    if candidate_uid:
+        if not is_user_active_and_authorized(candidate_uid):
+            return None
+        return str(candidate_uid)
+
+    return None
+
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "samatou683@gmail.com")
+
+class AdminThreatSentinel:
+    """
+    Sovereign In-Memory Autonomous Threat Sentinel.
+    Monitors unauthorized admin probes, logs threat telemetry, and
+    auto-quarantines hostile IP addresses with zero server information leakage.
+    """
+    _failed_attempts = {}
+    _quarantine_list = {}
+    _lock = threading.Lock()
+
+    @classmethod
+    def record_probe(cls, client_ip: str, path: str):
+        if not client_ip or client_ip in {"127.0.0.1", "localhost", "::1", "testclient"}:
+            return
+        now = time.time()
+        with cls._lock:
+            attempts = [t for t in cls._failed_attempts.get(client_ip, []) if now - t < 300]
+            attempts.append(now)
+            cls._failed_attempts[client_ip] = attempts
+            if len(attempts) >= 5:
+                cls._quarantine_list[client_ip] = now + 3600
+                logger.critical(f"[THREAT_SENTINEL_QUARANTINE] IP {client_ip} quarantined for 1hr due to repeated admin probes ({path})")
+
+    @classmethod
+    def is_quarantined(cls, client_ip: str) -> bool:
+        if not client_ip:
+            return False
+        now = time.time()
+        with cls._lock:
+            expiry = cls._quarantine_list.get(client_ip, 0)
+            if expiry > now:
+                return True
+            if expiry:
+                del cls._quarantine_list[client_ip]
+            return False
+
+def sanitize_identifier(value: str) -> str:
+    """
+    Path Traversal & Payload Sanitizer: Rejects any input with null bytes,
+    directory traversal sequences (../, ..\\), or invalid control characters.
+    """
+    if not value or not isinstance(value, str):
+        return ""
+    clean = value.replace("\x00", "").strip()
+    if "../" in clean or "..\\" in clean or "%2e%2e" in clean.lower():
+        logger.warning(f"[PAYLOAD_SANITIZER] Potential path traversal blocked: {value}")
+        return ""
+    return clean
+
+def get_client_fingerprint(request: Request) -> str:
+    """
+    Generates a deterministic cryptographic SHA-256 fingerprint from the client's
+    User-Agent and Accept-Language headers to anchor privileged sessions.
+    """
+    ua = request.headers.get("user-agent", "unknown")
+    lang = request.headers.get("accept-language", "none")
+    raw = f"{ua}|{lang}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:32]
+
+def is_admin_email(email: str) -> bool:
+    """Constant-time, side-channel proof admin email authorization validator."""
+    if not email:
+        return False
+    e = email.strip().lower()
+    admins = {
+        "samatou683@gmail.com"
+    }
+    raw_env = f"{os.getenv('ADMIN_EMAIL', '')},{os.getenv('ADMIN_EMAILS', '')}".strip()
+    if raw_env:
+        for item in raw_env.replace(" ", ",").split(","):
+            if item.strip():
+                admins.add(item.strip().lower())
+    
+    # Constant-time comparison across all authorized sovereign admin identities
+    for admin_identity in admins:
+        if hmac.compare_digest(e.encode("utf-8"), admin_identity.encode("utf-8")):
+            return True
+    return False
 
 def update_wallet(*args, **kwargs):
     """
@@ -411,8 +557,13 @@ def _verify_api_key(api_key: str):
         return None
     try:
         with get_db() as conn:
-            user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
-            return dict(user) if user else None
+            user = conn.execute("SELECT * FROM users WHERE api_key = ?", (api_key,)).fetchone()
+            if not user:
+                return None
+            u_dict = dict(user)
+            if not u_dict.get("user_id") and u_dict.get("id"):
+                u_dict["user_id"] = str(u_dict["id"])
+            return u_dict
     except Exception as exc:
         logger.error(f"Error in _verify_api_key: {exc}")
         return None
@@ -450,7 +601,7 @@ def get_unified_companies_count(conn, user_id=None) -> int:
                 SELECT COUNT(DISTINCT company_clean) FROM (
                     SELECT LOWER(TRIM(ce.company_name)) AS company_clean 
                     FROM campaign_emails ce 
-                    LEFT JOIN campaigns c ON ce.campaign_id = c.campaign_id 
+                    LEFT JOIN campaigns c ON CAST(ce.campaign_id AS TEXT) = CAST(c.campaign_id AS TEXT) 
                     WHERE c.user_id = ? AND ce.company_name IS NOT NULL AND ce.company_name != ''
                     
                     UNION
@@ -458,7 +609,7 @@ def get_unified_companies_count(conn, user_id=None) -> int:
                     SELECT LOWER(TRIM(mpa.company)) AS company_clean
                     FROM multi_platform_apps mpa
                     WHERE mpa.user_id = ? AND mpa.company IS NOT NULL AND mpa.company != ''
-                )
+                ) AS subq
             """
             res = conn.execute(query, (user_id, user_id)).fetchone()
             return res[0] if res else 0
@@ -467,7 +618,7 @@ def get_unified_companies_count(conn, user_id=None) -> int:
                 SELECT LOWER(TRIM(company_name)) AS company_clean FROM campaign_emails WHERE company_name IS NOT NULL AND company_name != ''
                 UNION
                 SELECT LOWER(TRIM(company)) AS company_clean FROM multi_platform_apps WHERE company IS NOT NULL AND company != ''
-            )
+            ) AS subq
         """
         res = conn.execute(query).fetchone()
         return res[0] if res else 0

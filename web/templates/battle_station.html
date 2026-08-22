@@ -965,7 +965,7 @@
               <strong>{{ e.get('company_name', 'شركة مستهدفة') }}</strong> — {{ e.get('job_title', 'وظيفة مستهدفة') }}<br/>
               <span style="font-size:12.5px; color:#94a3b8;">إلى: {{ e.get('recipient_email', '') }} · الحالة: <span style="color:#4ade80;">تم الإرسال</span></span>
             </div>
-            <div class="bs-feed-time">{{ e.get('sent_at', '')[:16] }}</div>
+            <div class="bs-feed-time">{{ (e.get('sent_at')|string)[:16] if e.get('sent_at') else '' }}</div>
           </div>
         {% endfor %}
       {% elif campaigns %}
@@ -975,10 +975,10 @@
           <div class="bs-feed-item">
             <div class="bs-feed-icon">{{ fi }}</div>
             <div class="bs-feed-body">
-              <strong>حملة #{{ c['campaign_id'][:8] }}</strong>
+              <strong>حملة #{{ (c['campaign_id']|string)[:8] }}</strong>
               — {{ st|capitalize }} · {{ c.get('sent_count', 0) or 0 }} طلبات أُرسلت · {{ c.get('total_companies', 0) or 0 }} شركة مستهدفة
             </div>
-            <div class="bs-feed-time">{{ c.get('created_at', '')[:10] }}</div>
+            <div class="bs-feed-time">{{ (c.get('created_at')|string)[:10] if c.get('created_at') else '' }}</div>
           </div>
         {% endfor %}
       {% else %}
@@ -1733,10 +1733,11 @@ async function openQuickEditModal() {
     const res = await fetch('/api/profile/my-profile');
     if (res.ok) {
       const data = await res.json();
-      if (data.target_titles) document.getElementById('qe_target_titles').value = data.target_titles;
-      if (data.target_locations) document.getElementById('qe_target_locations').value = data.target_locations;
-      if (data.skills) document.getElementById('qe_skills').value = data.skills;
-      if (data.phone) { document.getElementById('qe_phone').value = data.phone; }
+      const p = data.profile || data;
+      if (p.target_titles) document.getElementById('qe_target_titles').value = p.target_titles;
+      if (p.target_locations) document.getElementById('qe_target_locations').value = p.target_locations;
+      if (p.skills) document.getElementById('qe_skills').value = p.skills;
+      if (p.phone) { document.getElementById('qe_phone').value = p.phone; }
     }
   } catch (e) {
     console.debug('Load profile fallback:', e);
@@ -1952,9 +1953,9 @@ function saveCustomSkill(e) {
         <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 جاهز للصياغة الذكية</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(34,197,94,0.2); border-radius: 12px; padding: 14px;">
-        <div style="font-weight: 800; color: #4ade80; margin-block-end: 4px;">📨 Outreach Agent (الإرسال)</div>
-        <div style="font-size: 14px; color: #94a3b8;">يفحص صحة البريد الإلكتروني ويجري الإرسال المباشر.</div>
-        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 متصل بخادم SMTP</div>
+        <div style="font-weight: 800; color: #4ade80; margin-block-end: 4px;">📨 Outreach Agent (الإرسال المباشر)</div>
+        <div style="font-size: 14px; color: #94a3b8;">يفحص صحة البريد الإلكتروني ويجري الإرسال المباشر للشركات.</div>
+        <div style="font-size: 14px; color: #4ade80; margin-block-start: 8px; font-weight: 700;">🟢 متصل بمحرك الإرسال المباشر</div>
       </div>
       <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; padding: 14px;">
         <div style="font-weight: 800; color: #fbbf24; margin-block-end: 4px;">🛡️ Audit Agent (التدقيق والتتبع)</div>

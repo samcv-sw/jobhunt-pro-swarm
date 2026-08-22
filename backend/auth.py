@@ -364,7 +364,7 @@ def _load_admin_allowlist() -> set[str]:
     Supports either ADMIN_EMAILS or ADMIN_USER_IDS (comma-separated).
     Matching is case-insensitive.
     """
-    raw = os.environ.get("ADMIN_EMAILS", "") or os.environ.get("ADMIN_USER_IDS", "")
+    raw = os.environ.get("ADMIN_EMAILS", "") or os.environ.get("ADMIN_EMAIL", "") or os.environ.get("ADMIN_USER_IDS", "")
     return {x.strip().lower() for x in raw.split(",") if x.strip()}
 
 

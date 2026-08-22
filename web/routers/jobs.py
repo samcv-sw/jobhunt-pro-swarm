@@ -139,69 +139,15 @@ async def upload_cv(
             if not is_valid:
                 raise HTTPException(400, error_msg)
 
-            fname = cv_file.filename.lower()
-
-            if fname.endswith('.pdf'):
-                try:
-                    import io
-                    try:
-                        import pdfplumber
-                        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-                            extracted_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
-                    except Exception as e_plumber:
-                        logger.warning(f"pdfplumber failed: {e_plumber}")
-                        try:
-                            import pypdf
-                            reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-                            extracted_text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                        except Exception as e_pypdf:
-                            logger.warning(f"pypdf fallback failed: {e_pypdf}")
-                            try:
-                                import PyPDF2
-                                reader = PyPDF2.PdfReader(io.BytesIO(file_bytes))
-                                extracted_text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                            except Exception as e_pypdf2:
-                                logger.warning(f"PyPDF2 fallback failed: {e_pypdf2}")
-                                content = file_bytes.decode('latin-1', errors='replace')
-                                import re as _re
-                                strings = _re.findall(r'[A-Za-z][A-Za-z0-9 ,.\-:;@+/\n]{10,}', content)
-                                extracted_text = '\n'.join(strings[:200])
-                except Exception:
-                    extracted_text = cv_text or f"[PDF uploaded: {cv_file.filename}]"
-
-            elif fname.endswith(('.doc', '.docx')):
-                try:
-                    import io
-                    try:
-                        import docx
-                        doc = docx.Document(io.BytesIO(file_bytes))
-                        extracted_text = '\n'.join([p.text for p in doc.paragraphs if p.text.strip()])
-                    except ImportError:
-                        content = file_bytes.decode('utf-8', errors='replace')
-                        import re as _re
-                        strings = _re.findall(r'[A-Za-z][A-Za-z0-9 ,.\-:;@+/\n]{10,}', content)
-                        extracted_text = '\n'.join(strings[:200])
-                except Exception:
-                    extracted_text = cv_text or f"[Word doc uploaded: {cv_file.filename}]"
-
-            elif fname.endswith('.txt'):
-                extracted_text = file_bytes.decode('utf-8', errors='replace')
-
-            elif fname.endswith('.rtf'):
-                content = file_bytes.decode('utf-8', errors='replace')
-                import re as _re
-                extracted_text = _re.sub(r'\\[a-z]+\d*\s?|\{|\}', ' ', content)
-                extracted_text = ' '.join(extracted_text.split())
-
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Unsupported file format. Only PDF, Word (.doc, .docx), Text (.txt), and RTF (.rtf) files are allowed."
-                )
+            from core.file_handler import FileExtractor
+            extracted_text = FileExtractor.extract_text_from_bytes(file_bytes, cv_file.filename)
+            if not extracted_text:
+                extracted_text = cv_text or f"[{cv_file.filename}]"
         except HTTPException:
             raise
         except Exception as e:
             logger.warning(f"CV file parse error: {e}")
+            extracted_text = cv_text or f"[{cv_file.filename}]"
     cand_name = ""
     cv_data = cv_full_text.strip() or extracted_text.strip() or cv_text.strip()
     cl_data = cover_letter_text.strip() or cover_letter_template.strip()
@@ -236,15 +182,24 @@ async def upload_cv(
         if len(fn_words) >= 2:
             cand_name = " ".join(w.capitalize() for w in fn_words[:3])
 
+    from core.instant_cv_engine import InstantCVEngine
+    cand_info = InstantCVEngine.extract_candidate_profile(cv_data, default_name=cand_name)
+    extracted_email = cand_info.get("email") or ""
+    extracted_phone = cand_info.get("phone") or ""
+
+    if not cand_name or cand_name.lower() in ("candidate", "jobseeker", "user"):
+        if cand_info.get("name") and cand_info.get("name") not in ("Candidate", "Jobseeker"):
+            cand_name = cand_info.get("name")
+
     if not cand_name:
         cand_name = "Candidate"
 
     if profile_name.strip():
         clean_profile_name = profile_name.strip()
     else:
-        first_title = target_titles.split(",")[0].strip() if target_titles else "Senior Network Engineer"
+        first_title = target_titles.split(",")[0].strip() if target_titles else (cand_info.get("profession") or "Senior Network & Cloud Engineer")
         if not first_title:
-            first_title = "Senior Network Engineer"
+            first_title = "Senior Network & Cloud Engineer"
         
         clean_profile_name = f"{cand_name} - {first_title} ({experience_years}+ yrs exp)"
 
@@ -259,34 +214,63 @@ async def upload_cv(
 
     with get_db() as conn:
         if target_pid:
-            existing = conn.execute("SELECT id FROM cv_profiles WHERE id = ? AND user_id = ?", (target_pid, user_id)).fetchone()
+            existing = conn.execute("SELECT * FROM cv_profiles WHERE id = ? AND user_id = ?", (target_pid, user_id)).fetchone()
             if existing:
-                conn.execute(
-                    """UPDATE cv_profiles SET
-                       profile_name = ?, cv_text = ?, cover_letter_template = ?, email_template = ?,
-                       skills = ?, experience_years = ?, target_titles = ?, target_locations = ?,
-                       home_country = ?, min_local_salary = ?, min_international_salary = ?
-                       WHERE id = ? AND user_id = ?""",
-                    (clean_profile_name, cv_data, cl_data, email_data,
-                     skills, experience_years, target_titles, target_locations,
-                     home_country, min_local_salary, min_international_salary, target_pid, user_id)
-                )
+                existing_dict = dict(existing)
+                existing_email = (existing_dict.get("email") or "").strip().lower()
+                existing_pname = (existing_dict.get("profile_name") or "").strip().lower()
+                
+                # Check if this upload belongs to a completely different person
+                is_different_person = False
+                if extracted_email and existing_email and extracted_email.strip().lower() != existing_email:
+                    is_different_person = True
+                if cand_name and existing_pname and cand_name.strip().lower() not in existing_pname:
+                    if existing_pname.split(" - ")[0].strip() != cand_name.strip().lower():
+                        is_different_person = True
+
+                if not is_different_person:
+                    conn.execute(
+                        """UPDATE cv_profiles SET
+                           profile_name = ?, email = ?, phone = ?, cv_text = ?, cover_letter_template = ?, email_template = ?,
+                           skills = ?, experience_years = ?, target_titles = ?, target_locations = ?,
+                           home_country = ?, min_local_salary = ?, min_international_salary = ?
+                           WHERE id = ? AND user_id = ?""",
+                        (clean_profile_name, extracted_email, extracted_phone, cv_data, cl_data, email_data,
+                         skills, experience_years, target_titles, target_locations,
+                         home_country, min_local_salary, min_international_salary, target_pid, user_id)
+                    )
+                else:
+                    target_pid = None
             else:
                 target_pid = None
 
         if not target_pid:
             conn.execute(
                 """INSERT INTO cv_profiles
-                   (user_id, profile_name, cv_text, cover_letter_template, email_template,
+                   (user_id, profile_name, email, phone, cv_text, cover_letter_template, email_template,
                     skills, experience_years, target_titles, target_locations,
                     home_country, min_local_salary, min_international_salary)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (user_id, clean_profile_name, cv_data,
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, clean_profile_name, extracted_email, extracted_phone, cv_data,
                  cl_data, email_data,
                  skills, experience_years, target_titles, target_locations,
                  home_country, min_local_salary, min_international_salary)
             )
-        conn.commit()
+        # Tier 2 Auto-Sync: Propagate real parsed candidate name & phone to the users table
+        try:
+            if cand_name and cand_name.lower() not in ("candidate", "jobseeker", "user", "none", "samir salameh pro"):
+                conn.execute(
+                    "UPDATE users SET name = ? WHERE (user_id = ? OR id = ?) AND (name IS NULL OR name = '' OR LOWER(name) IN ('candidate', 'jobseeker', 'user', 'none', 'samir salameh pro', 'default_user'))",
+                    (cand_name, str(user_id), str(user_id))
+                )
+            if extracted_phone and extracted_phone.strip():
+                conn.execute(
+                    "UPDATE users SET phone = ? WHERE (user_id = ? OR id = ?) AND (phone IS NULL OR phone = '' OR phone LIKE ?)",
+                    (extracted_phone.strip(), str(user_id), str(user_id), "%999%888%")
+                )
+            conn.commit()
+        except Exception as e:
+            logger.warning(f"Error syncing CV contact info to users table: {e}")
 
         redirect_target = request.query_params.get('redirect', 'dashboard')
         if redirect_target == 'new-campaign':
@@ -308,8 +292,50 @@ async def parse_cv_ai(
         if fname.endswith('.pdf'):
             try:
                 import io, pdfplumber
+                all_pages_text = []
                 with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-                    extracted_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+                    for page in pdf.pages:
+                        words = page.extract_words(keep_blank_chars=False, y_tolerance=3, x_tolerance=3)
+                        if not words:
+                            continue
+                        page_width = page.width
+                        gutter_candidates = []
+                        for split_ratio in [0.25, 0.28, 0.30, 0.32, 0.35, 0.38, 0.40]:
+                            split_x = page_width * split_ratio
+                            crossing = [w for w in words if w['x0'] < split_x < w['x1']]
+                            left_c = [w for w in words if w['x1'] <= split_x]
+                            right_c = [w for w in words if w['x0'] >= split_x]
+                            if len(crossing) <= 2 and len(left_c) >= 6 and len(right_c) >= 6:
+                                gutter_candidates.append((len(crossing), split_x, left_c, right_c))
+                        
+                        def _words_to_text_j(word_list):
+                            lines_map = {}
+                            for w in word_list:
+                                line_key = round(w['top'] / 4) * 4
+                                if line_key not in lines_map:
+                                    lines_map[line_key] = []
+                                lines_map[line_key].append(w)
+                            sorted_lines = sorted(lines_map.keys())
+                            result_lines = []
+                            for k in sorted_lines:
+                                line_words = sorted(lines_map[k], key=lambda w: w['x0'])
+                                result_lines.append(" ".join(w['text'] for w in line_words))
+                            return "\n".join(result_lines)
+
+                        if gutter_candidates:
+                            gutter_candidates.sort(key=lambda g: g[0])
+                            _, split_x, left_c, right_c = gutter_candidates[0]
+                            header_words = [w for w in right_c if w['top'] < 130 and not (len(w['text']) <= 2 and w['text'].isupper() and w['x0'] < split_x + 50)]
+                            non_header_right = [w for w in right_c if w['top'] >= 130]
+                            clean_left = [w for w in left_c if not (w['top'] < 110 and len(w['text']) <= 2 and w['text'].isupper())]
+                            page_text = _words_to_text_j(header_words) + "\n\n" + _words_to_text_j(clean_left) + "\n\n" + _words_to_text_j(non_header_right)
+                            all_pages_text.append(page_text)
+                        else:
+                            t = page.extract_text(layout=False) or ""
+                            if t.strip():
+                                all_pages_text.append(t)
+                if all_pages_text:
+                    extracted_text = "\n\n".join(all_pages_text)
             except Exception:
                 try:
                     import io, pypdf
@@ -331,14 +357,30 @@ async def parse_cv_ai(
         return JSONResponse({"success": False, "message": "لم يتم العثور على نص مستخرج من الملف"}, status_code=400)
 
     import re
+    # Stitch broken URLs
+    extracted_text = re.sub(r'(linkedin\.com/in/[a-zA-Z0-9_\-]+-)\s*[\W_]*\s*([a-zA-Z0-9_\-]+)', r'\1\2', extracted_text, flags=re.IGNORECASE)
+    extracted_text = re.sub(r'(https?://[^\s]+-)\s*[\W_]*\s*([a-zA-Z0-9_\-]+)', r'\1\2', extracted_text, flags=re.IGNORECASE)
+
     lines = [l.strip() for l in extracted_text.split('\n') if l.strip()]
     
+    ignore_n = {"senior", "junior", "lead", "principal", "staff", "head", "director", "manager", "engineer", "developer", "architect", "specialist", "technician", "consultant", "analyst", "executive", "curriculum", "vitae", "resume", "cv", "summary", "profile", "contact", "about", "me", "network", "software", "cloud", "security", "professional"}
     cand_name = "Candidate"
-    for l in lines[:5]:
-        m = re.match(r'^[A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?$', l)
-        if m and len(l) < 35 and "Curriculum" not in l and "Resume" not in l:
-            cand_name = l
-            break
+    for l in lines[:6]:
+        words = re.sub(r'[^a-zA-Z\s]', '', l).split()
+        if 2 <= len(words) <= 4:
+            if not any(w.lower() in ignore_n for w in words):
+                clean_words = [w for w in words if len(w) > 2 or (len(w) == 2 and w.lower() not in ('ss', 'cv', 'mr', 'ms', 'dr', 'me'))]
+                if 2 <= len(clean_words) <= 3:
+                    cand_name = " ".join(w.capitalize() for w in clean_words)
+                    break
+    
+    if cand_name == "Candidate" and cv_file and cv_file.filename:
+        clean_fn = re.sub(r'[\(\)\d_\-\.]+', ' ', cv_file.filename.rsplit('.', 1)[0])
+        fn_words = [w for w in clean_fn.split() if w.lower() not in ignore_n and len(w) > 1]
+        if len(fn_words) >= 2:
+            cand_name = " ".join(w.capitalize() for w in fn_words[:3])
+
+    cand_name = re.sub(r'\s+(?:Ss|CV|Cv|Me|Mr|Ms)$', '', cand_name, flags=re.IGNORECASE).strip()
 
     common_titles = [
         "Network Engineer", "Security Engineer", "DevOps Engineer", "Software Engineer", 

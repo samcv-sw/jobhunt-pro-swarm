@@ -437,10 +437,18 @@ async def public_capture_lead(request: Request):
                 """)
                 conn.execute("""
                     INSERT INTO leads (email, phone, job_title, score, missing_keywords, source, referral_code)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, (email, phone, job_title, score, missing_str, source, referral_code))
         except Exception as db_err:
             logger.warning(f"[public_capture_lead] DB persistence note: {db_err}")
+
+        # Real-time email dispatch of VIP Guide & Report
+        if email and "@" in email:
+            try:
+                from core.email_engine import send_vip_lead_magnet_email
+                send_vip_lead_magnet_email(to_email=email, lang="ar" if any(ord(c) > 1000 for c in str(job_title)) else "en", source=source or "lead_gate")
+            except Exception as _em_err:
+                logger.warning(f"[public_capture_lead] Email dispatch notice: {_em_err}")
 
         # Real-time Telegram alert
         try:
@@ -457,14 +465,61 @@ async def public_capture_lead(request: Request):
 
         return JSONResponse({
             "status": "success",
-            "message": "Lead captured successfully. Full report unlocked.",
+            "message": "Lead captured successfully. Full report unlocked and sent to your email.",
             "unlocked": True,
-            "coupon_code": "JOBHUNT30",
+            "coupon_code": "GULF30",
             "discount_percent": 30
         })
     except Exception as e:
         logger.error(f"[public_capture_lead] Error: {e}")
         return JSONResponse({"status": "error", "message": str(e)}, status_code=500)
+
+
+@router.post("/api/public/claim-free-guide")
+@router.post("/api/claim-free-guide")
+async def public_claim_free_guide(request: Request):
+    """
+    Direct endpoint for Exit-Intent Popup, Homepage Free Blueprint, and Lead Magnets.
+    Generates and dispatches the 2026 VIP Job Hunt Arsenal & ATS Penetration Guide directly to user's inbox.
+    """
+    try:
+        data = {}
+        if request.headers.get("content-type", "").startswith("application/json"):
+            data = await request.json()
+        else:
+            form = await request.form()
+            data = dict(form)
+
+        email = (data.get("email") or "").strip()
+        lang = data.get("lang") or request.query_params.get("lang") or "en"
+        source = data.get("source") or "exit_intent_popup"
+
+        if not email or "@" not in email:
+            return JSONResponse({
+                "success": False,
+                "error": "Please provide a valid email address (يرجى إدخال بريد إلكتروني صحيح)."
+            }, status_code=400)
+
+        from core.email_engine import send_vip_lead_magnet_email
+        res = send_vip_lead_magnet_email(to_email=email, lang=lang, source=source)
+
+        # Telegram Alert
+        try:
+            from core.telegram_alerts import alert_lead_captured
+            alert_lead_captured(
+                source=f"VIP Guide Popup ({source})",
+                role="VIP Job Hunt Arsenal Candidate",
+                score=98,
+                gulf_score=95,
+                notes=f"Email: {email} | Lang: {lang} | Voucher: GULF30",
+            )
+        except Exception as _te:
+            logger.debug(f"[claim_free_guide] Telegram alert note: {_te}")
+
+        return JSONResponse(res, status_code=200)
+    except Exception as e:
+        logger.error(f"[claim_free_guide] Error: {e}")
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
 @router.get("/api/v2/public/gamification-rewards")
@@ -520,7 +575,7 @@ async def admin_get_captured_leads(limit: int = 100):
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
-            cursor = conn.execute("SELECT id, email, phone, job_title, score, missing_keywords, source, referral_code, created_at FROM leads ORDER BY id DESC LIMIT $1", (limit,))
+            cursor = conn.execute("SELECT id, email, phone, job_title, score, missing_keywords, source, referral_code, created_at FROM leads ORDER BY id DESC LIMIT ?", (limit,))
             rows = cursor.fetchall()
             leads = [
                 {
@@ -708,8 +763,14 @@ async def public_claim_free_pulse(request: Request):
             target_company=target_company
         )
         
-        # Auto-enroll in 3-stage conversion nurture sequence if successful
+        # Auto-enroll in 3-stage conversion nurture sequence & dispatch VIP Guide if successful
         if res.get("success") and email:
+            try:
+                from core.email_engine import send_vip_lead_magnet_email
+                send_vip_lead_magnet_email(to_email=email, lang="ar" if any(ord(c) > 1000 for c in str(target_role)) else "en", source="free_pulse_claim")
+            except Exception as _em:
+                logger.warning(f"Could not dispatch VIP guide for free pulse: {_em}")
+
             try:
                 from core.lead_nurture_engine import LeadNurtureEngine
                 LeadNurtureEngine.schedule_guest_nurture(
@@ -846,12 +907,19 @@ def index_page(request: Request):
         logger.error(f"Error fetching featured jobs: {e}")
 
     tiers = get_all_pricing()
-    return templates.TemplateResponse(request, "index_v3.html", {
+    lang = request.query_params.get("lang", "").lower()
+    if lang == "en" or request.url.path.startswith("/en"):
+        tmpl = "en/index_v3.html"
+    elif lang == "zh" or request.url.path.startswith("/zh"):
+        tmpl = "zh/index_v3.html"
+    else:
+        tmpl = "index_v3.html"
+
+    return templates.TemplateResponse(request, tmpl, {
         "earnings": earnings,
         "tiers": tiers,
         "VERSION": getattr(config, "VERSION", "1"),
         "APP_NAME": getattr(config, "APP_NAME", "JobHunt Pro"),
-
         "fomo_apps_today": total_24h if total_24h > 0 else "47",
         "featured_jobs": featured_jobs
     })
@@ -879,7 +947,7 @@ def pricing(request: Request):
                     flash_sale_info = {"title": fs["title"], "discount": flash_discount, "end_time": fs["end_time"]}
                 pass  # conn.close()
         except Exception as e:
-            logger.error(e, exc_info=True)
+            logger.debug("Flash sale info optional lookup: %s", e)
         user_id = get_verified_user_id(request)
 
         services_list = [
@@ -903,7 +971,8 @@ def pricing(request: Request):
 
         pricing_dict = {"tiers": pricing_data.get("tiers", pricing_data), "services": services_list}
 
-        pricing_content = render_template("pricing_v3.html", request=request,
+        template_name = "en/pricing_v3.html" if clean_lang == "en" else ("zh/pricing_v3.html" if clean_lang == "zh" else "pricing_v3.html")
+        pricing_content = render_template(template_name, request=request,
                                           pricing=pricing_dict,
                                           flash_discount=flash_discount,
                                           flash_sale=flash_sale_info,
@@ -921,6 +990,26 @@ def pricing(request: Request):
     except Exception as e:
         logger.error(f"Pricing page crashed: {e}", exc_info=True)
         return HTMLResponse("<h2>Error loading pricing</h2><p>Please try again later.</p>", status_code=500)
+
+@router.get("/guide", response_class=HTMLResponse)
+@router.get("/quick-start", response_class=HTMLResponse)
+def quick_start_guide(request: Request):
+    _, _, _, config, _, _, _public_shell, render_template = _deps()
+    try:
+        req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or "ar"
+        clean_lang = str(req_lang).split("-")[0].lower()
+        if clean_lang not in ("ar", "en", "zh"):
+            clean_lang = "ar"
+        
+        template_name = "guide_v3.html"
+        guide_content = render_template(template_name, request=request, lang=clean_lang, VERSION=config.VERSION)
+        title = "Quick Start Guide & Manual | JobHunt Pro" if clean_lang == "en" else ("极速使用指南 | JobHunt Pro" if clean_lang == "zh" else "دليل الاستخدام السريع وتفعيل الطلب | JobHunt Pro")
+        desc = "Step-by-step onboarding guide for candidates, employers, and resellers." if clean_lang == "en" else "دليل الاستخدام الشامل للمرشحين والشركات والموزعين خطوة بخطوة."
+        html = _public_shell(guide_content, title, desc, request=request, lang=clean_lang)
+        return HTMLResponse(content=html)
+    except Exception as e:
+        logger.error(f"Guide page error: {e}", exc_info=True)
+        return HTMLResponse("<h2>Error loading guide</h2>", status_code=500)
 
 @router.get("/referral", response_class=HTMLResponse)
 def referral_page(request: Request, ref: str = ""):
@@ -1037,9 +1126,16 @@ def employers_page(request: Request):
     return templates.TemplateResponse(request, "for_employers.html", {"VERSION": config.VERSION})
 
 @router.get("/employer/track", response_class=HTMLResponse)
+@router.get("/en/employer/track", response_class=HTMLResponse)
 def employer_track_page(request: Request):
-    get_db, _, templates, config, _, _, _, _ = _deps()
-    return templates.TemplateResponse(request, "track_application.html", {"VERSION": config.VERSION})
+    _, _, templates, config, _, _, _public_shell, render_template = _deps()
+    req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or ("en" if request.url.path.startswith("/en") else "ar")
+    clean_lang = str(req_lang).split("-")[0].lower()
+    tpl = "en/employer_track.html" if clean_lang == "en" else ("zh/employer_track.html" if clean_lang == "zh" else "employer_track.html")
+    title = "Track Job Postings | JobHunt Pro" if clean_lang == "en" else ("追踪招聘职位 | JobHunt Pro" if clean_lang == "zh" else "تتبع إعلانات الوظائف | JobHunt Pro")
+    content = render_template(tpl, request=request, active_page="employer-track", VERSION=config.VERSION)
+    html = _public_shell(content, title, request=request, lang=clean_lang)
+    return HTMLResponse(html)
 
 @router.get("/war-room", response_class=HTMLResponse)
 def war_room_redirect(request: Request):
@@ -1122,6 +1218,12 @@ def robots():
 def contact_page(request: Request):
     """Contact/Support page — works for Arabic (default) and English locales."""
     get_db, get_verified_user_id, _, _, _, _, _public_shell, render_template = _deps()
+    req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or ("en" if request.url.path.startswith("/en") else "ar")
+    clean_lang = str(req_lang).split("-")[0].lower()
+    tpl = "en/contact.html" if clean_lang == "en" else ("zh/contact.html" if clean_lang == "zh" else "contact.html")
+    title = "Contact Us | JobHunt Pro" if clean_lang == "en" else ("联系我们 | JobHunt Pro" if clean_lang == "zh" else "تواصل معنا | JobHunt Pro")
+    desc = "Get in touch with the JobHunt Pro team — we're here to help." if clean_lang == "en" else "تواصل مع فريق دعم JobHunt Pro عبر واتساب أو البريد الإلكتروني. نرد خلال ساعتين."
+
     msg = request.query_params.get("msg", "")
     error = request.query_params.get("error", "")
     user_name = ""
@@ -1131,28 +1233,31 @@ def contact_page(request: Request):
         try:
             with get_db() as conn:
                 u = conn.execute(
-                    "SELECT name, email FROM users WHERE user_id = ?", (user_id,)
+                    "SELECT name, email FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)
                 ).fetchone()
                 if u:
                     user_name = u["name"] or ""
                     user_email = u["email"] or ""
         except Exception as exc:
             logger.error(f"contact_page user fetch error: {exc}")
+
     content = render_template(
-        "contact.html",
+        tpl,
         request=request,
         msg=msg,
         error=error,
         user_name=user_name,
         user_email=user_email,
         is_logged_in=bool(user_id),
+        lang=clean_lang,
     )
     return HTMLResponse(
         _public_shell(
             content,
-            "اتصل بنا — JobHunt Pro",
-            "تواصل مع فريق دعم JobHunt Pro عبر واتساب أو البريد الإلكتروني. نرد خلال 24 ساعة.",
+            title,
+            desc,
             request=request,
+            lang=clean_lang,
         )
     )
 
@@ -1243,8 +1348,21 @@ def services_page(request: Request):
                     user = dict(user_row)
         except Exception as exc:
             logger.error(f"Error getting user for services: {exc}")
-    content = render_template("services_new.html", request=request, success=success_msg, user=user, is_logged_in=bool(user_id))
-    return HTMLResponse(_public_shell(content, "Services — JobHunt Pro", "JobHunt Pro Premium Services — CV rewriting, ATS optimization, LinkedIn makeover, email domain setup, and career coaching bundles.", request=request))
+    req_lang = (
+        request.query_params.get("lang") or
+        request.cookies.get("lang") or
+        request.cookies.get("preferred_lang") or
+        "ar"
+    )
+    clean_lang = str(req_lang).split("-")[0].lower()
+    if clean_lang not in ["ar", "en", "zh"]:
+        clean_lang = "ar"
+
+    template_name = "en/services_new.html" if clean_lang == "en" else ("zh/services_new.html" if clean_lang == "zh" else "services_new.html")
+    content = render_template(template_name, request=request, success=success_msg, user=user, is_logged_in=bool(user_id), lang=clean_lang)
+    title = "Premium Services & Executive Bundles | JobHunt Pro" if clean_lang == "en" else ("高级职场定制服务与高管套餐 | JobHunt Pro" if clean_lang == "zh" else "الخدمات المتميزة والباقات التنفيذية | JobHunt Pro")
+    desc = "JobHunt Pro Premium Services — CV rewriting, ATS optimization, LinkedIn makeover, email domain setup, and career coaching bundles."
+    return HTMLResponse(_public_shell(content, title, desc, request=request, lang=clean_lang))
 
 
 @router.get("/external-offers", response_class=HTMLResponse)

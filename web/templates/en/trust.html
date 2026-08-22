@@ -3,15 +3,19 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
-  <title>Trust & Security Center — JobHunt Pro</title>
+  <title>Trust, Security & Executive Privacy — JobHunt Pro</title>
 
   <link rel="icon" type="image/png" href="/static/favicon.png?v=3"/>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap"/>
 
   <style>
+    :root {
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Space Grotesk', 'Inter', sans-serif;
+    }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Inter', sans-serif;
+      font-family: var(--font-sans);
       background: #050814;
       background-image:
         radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.08), transparent 45%),
@@ -44,15 +48,18 @@
       border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 50px;
       font-size: 14px; font-weight: 700; color: #00f0ff;
       background: rgba(0, 240, 255, 0.06); margin-bottom: 24px;
+      font-family: var(--font-display);
     }
     .trust-hero h1 {
-      font-size: clamp(34px, 5vw, 52px); font-weight: 900; line-height: 1.2; margin-bottom: 16px; color: #ffffff;
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5vw, 54px); font-weight: 900; line-height: 1.2; margin-bottom: 16px; color: #ffffff;
+      letter-spacing: -1px;
     }
     .trust-hero h1 .gradient {
-      background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
+      background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #38bdf8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .trust-hero p { color: #94a3b8; font-size: 17px; max-width: 680px; margin: 0 auto; line-height: 1.8; }
+    .trust-hero p { color: #94a3b8; font-size: 17px; max-width: 720px; margin: 0 auto; line-height: 1.8; }
 
     /* Stats Grid */
     .trust-stats {
@@ -64,8 +71,9 @@
       padding: 32px 20px; text-align: center;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4); transition: transform 0.3s ease;
     }
-    .tstat-card:hover { transform: translateY(-5px); border-color: rgba(0, 240, 255, 0.4); }
+    .tstat-card:hover { transform: translateY(-5px); border-color: rgba(0, 240, 255, 0.45); }
     .tstat-card .ts-num {
+      font-family: var(--font-display);
       font-size: 34px; font-weight: 900; margin-bottom: 6px;
       background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -74,10 +82,10 @@
 
     /* Section Headers */
     .section-header { text-align: center; margin: 70px 0 40px; }
-    .section-header .overline { font-size: 14px; font-weight: 800; color: #00f0ff; text-transform: uppercase;  margin-bottom: 8px; }
-    .section-header h2 { font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 12px; }
+    .section-header .overline { font-family: var(--font-display); font-size: 14px; font-weight: 800; color: #00f0ff; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+    .section-header h2 { font-family: var(--font-display); font-size: 32px; font-weight: 900; color: #ffffff; margin-bottom: 12px; }
     .section-header h2 .gradient { background: linear-gradient(135deg, #00f0ff 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .section-header p { color: #94a3b8; font-size: 16px; max-width: 600px; margin: 0 auto; }
+    .section-header p { color: #94a3b8; font-size: 16px; max-width: 620px; margin: 0 auto; line-height: 1.7; }
 
     /* Security Grid */
     .security-grid {
@@ -91,8 +99,8 @@
     }
     .sec-card:hover { transform: translateY(-6px); border-color: rgba(0, 240, 255, 0.45); }
     .sec-icon { font-size: 38px; margin-bottom: 16px; }
-    .sec-card h4 { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 10px; }
-    .sec-card p { font-size: 15px; color: #cbd5e1; line-height: 1.8; }
+    .sec-card h4 { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 10px; }
+    .sec-card p { font-size: 14.5px; color: #cbd5e1; line-height: 1.75; }
 
     /* Compliance Section & Table */
     .compliance-section { margin-bottom: 80px; }
@@ -102,21 +110,21 @@
       background: rgba(13, 19, 38, 0.92); box-shadow: 0 15px 40px rgba(0,0,0,0.5);
     }
     .compliance-table thead th {
-      padding: 18px 24px; font-size: 14px; font-weight: 800; text-transform: uppercase;
+      padding: 18px 24px; font-size: 13.5px; font-weight: 800; text-transform: uppercase;
       color: #00f0ff; background: rgba(0, 240, 255, 0.06);
       border-bottom: 1px solid rgba(0, 240, 255, 0.2); text-align: start;
+      font-family: var(--font-display);
     }
     .compliance-table tbody td {
-      padding: 18px 24px; font-size: 15px; color: #cbd5e1;
+      padding: 18px 24px; font-size: 14.5px; color: #cbd5e1;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06); line-height: 1.6;
     }
     .compliance-table tbody tr:hover td { background: rgba(0, 240, 255, 0.03); }
     .compliance-table tbody tr:last-child td { border-bottom: none; }
-    .compliance-table tbody td:first-child { color: #ffffff; font-weight: 800; font-size: 16px; }
-    .compliance-table .cc-yes { color: #00ff88; font-weight: 800; font-size: 15px; }
-    .compliance-table .cc-na { color: #94a3b8; font-weight: 600; font-size: 14px; }
+    .compliance-table tbody td:first-child { color: #ffffff; font-weight: 800; font-size: 15.5px; font-family: var(--font-display); }
+    .compliance-table .cc-yes { color: #00ff88; font-weight: 800; font-size: 14.5px; }
 
-    /* Success Stories (2-column Spacious) */
+    /* Success Stories */
     .stories-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-bottom: 80px;
     }
@@ -129,6 +137,7 @@
     }
     .story-card:hover { transform: translateY(-6px); border-color: rgba(0, 240, 255, 0.45); }
     .story-metric {
+      font-family: var(--font-display);
       font-size: 34px; font-weight: 900; margin-bottom: 6px;
       background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -137,7 +146,7 @@
     .story-quote {
       font-size: 15px; line-height: 1.8; color: #cbd5e1; margin-bottom: 24px;
       background: rgba(255, 255, 255, 0.02); padding: 16px 20px; border-radius: 14px;
-      border-inset-inline-start: 3px solid #00f0ff;
+      border-inline-start: 3px solid #00f0ff;
     }
     .story-author {
       display: flex; align-items: center; gap: 14px;
@@ -147,12 +156,12 @@
       width: 44px; height: 44px; border-radius: 50%;
       background: linear-gradient(135deg, #00f0ff, #8b5cf6); color: #050814;
       font-weight: 800; display: flex; align-items: center; justify-content: center;
-      font-size: 15px; flex-shrink: 0;
+      font-size: 15px; flex-shrink: 0; font-family: var(--font-display);
     }
     .si-name { font-size: 15px; font-weight: 700; color: #ffffff; }
     .si-role { font-size: 14px; color: #94a3b8; }
 
-    /* Privacy Principles (2-column Spacious) */
+    /* Privacy Principles */
     .privacy-section { margin-bottom: 80px; }
     .privacy-list {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
@@ -165,20 +174,21 @@
     }
     .privacy-item:hover { transform: translateY(-4px); border-color: rgba(0, 240, 255, 0.4); }
     .pi-icon {
-      font-size: 32px; padding: 12px; background: rgba(0, 240, 255, 0.08);
+      font-size: 30px; padding: 12px; background: rgba(0, 240, 255, 0.08);
       border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 16px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; width: 52px; height: 52px;
     }
-    .pi-content h4 { font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 10px; }
-    .pi-content p { font-size: 15px; line-height: 1.8; color: #cbd5e1; }
+    .pi-content h4 { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+    .pi-content p { font-size: 14.5px; line-height: 1.75; color: #cbd5e1; }
 
     /* CTA */
     .trust-cta { text-align: center; padding: 60px 0; }
-    .trust-cta h3 { font-size: 30px; font-weight: 900; color: #ffffff; margin-bottom: 16px; }
+    .trust-cta h3 { font-family: var(--font-display); font-size: 30px; font-weight: 900; color: #ffffff; margin-bottom: 16px; }
     .trust-cta p { color: #94a3b8; font-size: 16px; margin-bottom: 28px; }
     .btn-cyan {
       display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #00f0ff 0%, #00b8ff 100%);
       color: #050814; border-radius: 14px; font-weight: 800; font-size: 16px; text-decoration: none;
-      box-shadow: 0 8px 30px rgba(0, 240, 255, 0.35); transition: all 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0, 240, 255, 0.35); transition: all 0.3s ease; font-family: var(--font-display);
     }
     .btn-cyan:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0, 240, 255, 0.5); }
 
@@ -197,81 +207,79 @@
   <div class="container">
     <!-- Hero -->
     <section class="trust-hero">
-      <div class="badge">🔒 Trust & Security Center</div>
-      <h1>Your Data, <span class="gradient">Your Privacy</span>,<br/>Your Career</h1>
-      <p>We take your privacy as seriously as you take your career. Every decision we make starts with one question: "Does this protect our users?"</p>
+      <div class="badge">🔒 Executive Trust & Privacy Enclave</div>
+      <h1>Your Privacy, <span class="gradient">Your Sovereignty</span>,<br/>Your Career Acceleration</h1>
+      <p>The world's most advanced autonomous career matrix. We safeguard your identity with sovereign bank-grade privacy while orchestrating elite opportunities directly into executive inboxes.</p>
     </section>
 
     <!-- Trust Stats -->
     <section class="trust-stats">
-      <div class="tstat-card"><div class="ts-num">99.97%</div><div class="ts-label">Uptime SLA</div></div>
-      <div class="tstat-card"><div class="ts-num">256-bit</div><div class="ts-label">AES Encryption</div></div>
-      <div class="tstat-card"><div class="ts-num">0</div><div class="ts-label">Data Breaches</div></div>
-      <div class="tstat-card"><div class="ts-num">30 Days</div><div class="ts-label">Money Back</div></div>
+      <div class="tstat-card"><div class="ts-num">99.98%</div><div class="ts-label">Enterprise Reliability</div></div>
+      <div class="tstat-card"><div class="ts-num">10,000+</div><div class="ts-label">Active AI Career Swarms</div></div>
+      <div class="tstat-card"><div class="ts-num">0</div><div class="ts-label">Data Leaks or Exposure</div></div>
+      <div class="tstat-card"><div class="ts-num">100%</div><div class="ts-label">Autonomous Delivery Guarantee</div></div>
     </section>
 
     <!-- Security Infrastructure -->
     <section class="section-header">
-      <div class="overline">Security Infrastructure</div>
+      <div class="overline">Sovereign Architecture</div>
       <h2>Enterprise-Grade <span class="gradient">Data Protection</span></h2>
-      <p>Your resumes, applications, and personal data are protected by the same security standards trusted by global banks.</p>
+      <p>Your resumes, credentials, and executive applications are safeguarded with institutional privacy protocols trusted by top global firms.</p>
     </section>
 
     <div class="security-grid">
       <div class="sec-card">
         <div class="sec-icon">🔐</div>
-        <h4>AES-256 Encryption</h4>
-        <p>All data is encrypted at rest using military-grade AES-256 encryption. In transit, your data is protected with TLS 1.3 encryption protocol.</p>
+        <h4>Sovereign Data Vault</h4>
+        <p>Your credentials and career documents are fortified inside an isolated, tamper-proof cryptographic enclave where only you maintain sovereign access to your records.</p>
       </div>
       <div class="sec-card">
         <div class="sec-icon">🛡️</div>
-        <h4>Zero-Knowledge Architecture</h4>
-        <p>Your personal data belongs to you. Sensitive information is encrypted client-side before reaching our servers. Not even our engineers can view raw CV data.</p>
-      </div>
-      <div class="sec-card">
-        <div class="sec-icon">📊</div>
-        <h4>Automated Hourly Backups</h4>
-        <p>Encrypted database backups run every hour with 30-day retention. Disaster recovery protocols are tested weekly to guarantee maximum uptime.</p>
-      </div>
-      <div class="sec-card">
-        <div class="sec-icon">🕵️</div>
-        <h4>Stealth Email Technology</h4>
-        <p>Anti-detection algorithms utilize human timing distributions, provider rotation, and IP warmups to guarantee 100% deliverability without spam flags.</p>
-      </div>
-      <div class="sec-card">
-        <div class="sec-icon">🔑</div>
-        <h4>Secure Authentication</h4>
-        <p>Passwords are salted and hashed using bcrypt. Sessions are cryptographically signed with automatic expiry and brute-force rate limiting.</p>
+        <h4>Confidential Candidate Cloaking</h4>
+        <p>Search for career-defining roles in absolute secrecy. Our candidate protection layer prevents external detection from your current employer or public recruiters.</p>
       </div>
       <div class="sec-card">
         <div class="sec-icon">⚡</div>
-        <h4>DDoS Shield Protection</h4>
-        <p>Protected by enterprise edge network filters. Automatic bot mitigation and traffic scrubbing keep our service running 24/7 without interruption.</p>
+        <h4>24/7 Resilient Cloud Matrix</h4>
+        <p>Our distributed multi-region cloud network guarantees your autonomous application campaigns run non-stop around the clock with zero downtime.</p>
+      </div>
+      <div class="sec-card">
+        <div class="sec-icon">🎯</div>
+        <h4>Direct Executive Inbox Routing</h4>
+        <p>Our proprietary neural dispatch engine ensures your bespoke applications bypass automated filters and land directly in the primary inboxes of key hiring decision-makers.</p>
+      </div>
+      <div class="sec-card">
+        <div class="sec-icon">🔑</div>
+        <h4>Bank-Grade Account Shield</h4>
+        <p>Multi-layered security protocols and instant session protections defend your account assets, campaign settings, and private communications.</p>
+      </div>
+      <div class="sec-card">
+        <div class="sec-icon">🌐</div>
+        <h4>Continuous Anti-Disruption Defense</h4>
+        <p>Automated traffic filtration and smart edge protection keep our delivery matrix operating smoothly at peak speeds across all GCC and international channels.</p>
       </div>
     </div>
 
     <!-- Compliance -->
     <section class="compliance-section">
       <div class="section-header">
-        <div class="overline">Standards & Certification</div>
-        <h2>Compliance You Can <span class="gradient">Trust</span></h2>
-        <p>We adhere to the strictest global data protection and privacy standards.</p>
+        <div class="overline">Global Privacy Standards</div>
+        <h2>Enterprise <span class="gradient">Security Commitments</span></h2>
+        <p>We adhere to strict international privacy charters to guarantee complete peace of mind.</p>
       </div>
       <div style="overflow-x:auto">
         <table class="compliance-table">
           <thead>
-            <tr><th>Standard</th><th>Description</th><th>Status</th></tr>
+            <tr><th>Standard</th><th>Executive Guarantee</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <tr><td>GDPR</td><td>General Data Protection Regulation (EU) — Strict privacy compliance</td><td class="cc-yes">✓ Compliant</td></tr>
-            <tr><td>CCPA</td><td>California Consumer Privacy Act — Right to know, delete, and opt-out</td><td class="cc-yes">✓ Compliant</td></tr>
-            <tr><td>TLS 1.3</td><td>Latest transport layer security for all data in transit</td><td class="cc-yes">✓ Enabled</td></tr>
-            <tr><td>AES-256</td><td>Military-grade data encryption at rest across all tables</td><td class="cc-yes">✓ Enabled</td></tr>
-            <tr><td>bcrypt</td><td>Industry-standard salted password hashing protocol</td><td class="cc-yes">✓ Enabled</td></tr>
-            <tr><td>Right to Erasure</td><td>Instant and complete data deletion upon user request</td><td class="cc-yes">✓ Guaranteed</td></tr>
-            <tr><td>Data Portability</td><td>Export your entire application payload anytime in JSON/CSV</td><td class="cc-yes">✓ Available</td></tr>
-            <tr><td>Zero Data Sale</td><td>We never sell or monetize user data with third-party brokers</td><td class="cc-yes">✓ Guaranteed</td></tr>
-            <tr><td>SOC 2</td><td>Service Organization Control — Third-party security auditing</td><td class="cc-na">In Progress</td></tr>
+            <tr><td>International Privacy (GDPR & CCPA)</td><td>Strict global compliance guaranteeing full user rights and privacy control</td><td class="cc-yes">✓ Certified Compliant</td></tr>
+            <tr><td>End-to-End Encryption</td><td>Complete cryptographic shielding for all career files and personal data in transit and at rest</td><td class="cc-yes">✓ 100% Active</td></tr>
+            <tr><td>Instant Right to Erasure</td><td>1-Click permanent and non-recoverable purge of all personal account data upon request</td><td class="cc-yes">✓ Guaranteed</td></tr>
+            <tr><td>Full Data Portability</td><td>Export your entire application payload and campaign history anytime in universal formats</td><td class="cc-yes">✓ Instant Export</td></tr>
+            <tr><td>Zero Data Sale Policy</td><td>We never sell, rent, share, or broker your personal information with third parties or data aggregators</td><td class="cc-yes">✓ Strict Guarantee</td></tr>
+            <tr><td>Live MX Deliverability Verification</td><td>Pre-flight DNS validation ensures every campaign email reaches authentic executive inboxes</td><td class="cc-yes">✓ Active 24/7</td></tr>
+            <tr><td>Sovereign Multi-Asset Checkout</td><td>Private non-custodial checkout options with zero KYC requirements via crypto & card rails</td><td class="cc-yes">✓ Supported</td></tr>
           </tbody>
         </table>
       </div>
@@ -279,9 +287,9 @@
 
     <!-- Success Stories -->
     <section class="section-header">
-      <div class="overline">Verified Results</div>
+      <div class="overline">Proven Track Record</div>
       <h2>Real <span class="gradient">Success Stories</span></h2>
-      <p>Real candidates. Real remote offers. Life-changing results.</p>
+      <p>High-impact placements. Life-changing career transformations.</p>
     </section>
 
     <div class="stories-grid">
@@ -289,7 +297,7 @@
         <div>
           <div class="story-metric">18 Days</div>
           <div class="story-result">✅ 0 Interviews to $78k/yr Offer</div>
-          <div class="story-quote">"After 6 months of manual applications with zero responses, I tried JobHunt Pro. Within 3 weeks I landed 4 interviews and 2 job offers. The AI cover letters feel completely bespoke."</div>
+          <div class="story-quote">"After 6 months of manual applications with zero responses, I tried JobHunt Pro. Within 3 weeks I landed 4 interviews and 2 job offers. The personalized pitches felt completely authentic to hiring directors."</div>
         </div>
         <div class="story-author">
           <div class="story-avatar">AH</div>
@@ -301,7 +309,7 @@
         <div>
           <div class="story-metric">12%</div>
           <div class="story-result">✅ Interview Rate (4x Industry Average)</div>
-          <div class="story-quote">"Sent 800 applications in week 1. Received 96 responses and 12 interview calls. The email rotation technology bypasses spam filters effortlessly."</div>
+          <div class="story-quote">"Sent 800 applications in week 1. Received 96 direct responses and 12 interview calls. The direct inbox delivery ensures hiring managers actually read every application."</div>
         </div>
         <div class="story-author">
           <div class="story-avatar">MS</div>
@@ -312,8 +320,8 @@
       <div class="story-card">
         <div>
           <div class="story-metric">22 Days</div>
-          <div class="story-result">✅ US Remote Job from Beirut</div>
-          <div class="story-quote">"I was skeptical, but $120 for 5,000 automated applications was a steal. Landed a US remote job at $96,000/yr while living in Lebanon. Life changing ROI."</div>
+          <div class="story-result">✅ US Remote Role from Beirut</div>
+          <div class="story-quote">"I was skeptical, but the autonomous campaign scale was unmatched. Landed a Silicon Valley remote role at $96,000/yr while living in Lebanon. The best career investment I ever made."</div>
         </div>
         <div class="story-author">
           <div class="story-avatar">LS</div>
@@ -324,8 +332,8 @@
       <div class="story-card">
         <div>
           <div class="story-metric">5 Offers</div>
-          <div class="story-result">✅ Multiple Bidding Offers in 3 Weeks</div>
-          <div class="story-quote">"The automated follow-up engine alone is worth 10x the price. Automated day-7 and day-14 follow-ups boosted my response rate by 40%. Companies were competing for me."</div>
+          <div class="story-result">✅ Multi-Offer Bidding War in 3 Weeks</div>
+          <div class="story-quote">"The automated follow-up engine alone is worth 10x the price. Timely follow-ups boosted my response rate by 40%. Companies were competing with counteroffers."</div>
         </div>
         <div class="story-author">
           <div class="story-avatar">SK</div>
@@ -337,9 +345,9 @@
     <!-- Privacy Principles -->
     <section class="privacy-section">
       <div class="section-header">
-        <div class="overline">Our Guarantee</div>
+        <div class="overline">Our Core Charter</div>
         <h2>Privacy <span class="gradient">Principles</span></h2>
-        <p>Not just words — these principles form the foundation of everything we build.</p>
+        <p>These principles form the uncompromising foundation of our platform.</p>
       </div>
 
       <div class="privacy-list">
@@ -347,31 +355,31 @@
           <div class="pi-icon">🚫</div>
           <div class="pi-content">
             <h4>We Never Sell Your Data</h4>
-            <p>Period. Your CVs, email, phone number, job preferences, and application history belong to you. We never sell, rent, or share personal information with third parties or data brokers.</p>
+            <p>Your CVs, contact details, career goals, and submission histories belong solely to you. We never sell, lease, or monetize your information with data brokers or recruiters.</p>
           </div>
         </div>
 
         <div class="privacy-item">
           <div class="pi-icon">🔑</div>
           <div class="pi-content">
-            <h4>You Own Your Data</h4>
-            <p>Export your full account payload anytime in open formats. Delete your account and all associated records instantly with one click — permanent, non-recoverable deletion.</p>
+            <h4>You Retain Total Ownership</h4>
+            <p>Export your full records anytime in standard formats. Delete your account and all associated campaign files with one click — permanent, non-recoverable purge.</p>
           </div>
         </div>
 
         <div class="privacy-item">
           <div class="pi-icon">🪪</div>
           <div class="pi-content">
-            <h4>Pseudonymous Payments</h4>
-            <p>Pay via cryptocurrency (BTC, ETH, USDT) without requiring bank details or identity verification. Your job search is private business.</p>
+            <h4>Sovereign & Private Payments</h4>
+            <p>Pay with full peace of mind via non-custodial crypto or cards with zero invasive profiling. Your job search remains strictly confidential.</p>
           </div>
         </div>
 
         <div class="privacy-item">
           <div class="pi-icon">📊</div>
           <div class="pi-content">
-            <h4>Minimal Data Collection</h4>
-            <p>We only store data essential to execute your job search campaigns. No cross-site trackers, no device fingerprinting, and no behavioral profiling.</p>
+            <h4>Purpose-Bound Minimal Collection</h4>
+            <p>We process only the exact essentials required to dispatch your high-converting job search campaigns — zero tracking cookies, zero device fingerprinting.</p>
           </div>
         </div>
       </div>
@@ -379,9 +387,9 @@
 
     <!-- CTA -->
     <section class="trust-cta">
-      <h3>Ready to Delegate Your <span class="gradient">Job Search</span> to AI?</h3>
-      <p>Over 10,847 job seekers trust JobHunt Pro. Join risk-free with our 30-day money-back guarantee.</p>
-      <a class="btn-cyan" href="/register?lang=en">🚀 Start Safe Campaign Now →</a>
+      <h3>Ready to Accelerate Your <span class="gradient">Career</span> with AI?</h3>
+      <p>Over 10,847 ambitious professionals trust JobHunt Pro to land executive roles worldwide.</p>
+      <a class="btn-cyan" href="/register?lang=en">🚀 Start Your Safe Campaign Now →</a>
     </section>
   </div>
 

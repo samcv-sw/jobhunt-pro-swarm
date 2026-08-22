@@ -110,23 +110,38 @@
       <!-- DEVELOPER PANEL -->
       <div id="panel-developer" class="glass-panel p-6 space-y-6 hidden reveal">
         <div>
-          <h2 class="text-xl font-bold text-white mb-1">Developer API Access</h2>
-          <p class="text-xs text-slate-400">Integrate JobHunt Pro programmatic workflows directly into your local tools.</p>
+          <h2 class="text-xl font-bold text-white mb-1">开发者 API 接口访问</h2>
+          <p class="text-xs text-slate-400">将 JobHunt Pro 的自动化求职与智能投递流程无缝集成至您的本地工具中。</p>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Developer API Key</label>
-            <div class="flex gap-2">
-              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-300 font-mono focus:outline-none" / dir="auto">
-              <button onclick="toggleApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-4 rounded-xl border border-white/10 transition-all" title="Toggle visibility">
-                <i id="apiKeyIcon" data-lucide="eye" class="w-5 h-5"></i>
-              </button>
-              <button onclick="copyApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-4 rounded-xl border border-white/10 transition-all" title="Copy key">
-                <i data-lucide="copy" class="w-5 h-5"></i>
-              </button>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">开发者 API 密钥</label>
+              <span class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 激活并已认证
+              </span>
             </div>
-            <p class="text-[10px] text-slate-500 mt-2">Use this key in Authorization headers: <code>Bearer [YOUR_API_KEY]</code>.</p>
+            <div class="flex flex-wrap sm:flex-nowrap gap-2">
+              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 font-mono focus:outline-none focus:border-indigo-500/50 shadow-inner overflow-ellipsis" / dir="auto">
+              <div class="flex gap-2 shrink-0">
+                <button type="button" onclick="toggleApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-3.5 py-2.5 rounded-xl border border-white/10 transition-all flex items-center justify-center cursor-pointer" title="切换可见性">
+                  <i id="apiKeyIcon" data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="copyApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-3.5 py-2.5 rounded-xl border border-white/10 transition-all flex items-center justify-center cursor-pointer" title="复制密钥">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="regenerateApiKey()" class="bg-gradient-to-r from-indigo-600/30 to-purple-600/30 hover:from-indigo-600/50 hover:to-purple-600/50 text-indigo-300 hover:text-white px-4 py-2.5 rounded-xl border border-indigo-500/40 transition-all flex items-center gap-1.5 text-xs font-bold shadow-lg shadow-indigo-500/10 cursor-pointer" title="重新生成密钥">
+                  <i id="regenIcon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>重新生成密钥</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-3 p-3 bg-slate-950/60 rounded-xl border border-white/5">
+              <div class="text-[11px] text-slate-400">
+                请求认证头 (Header): <code class="text-indigo-400 font-mono bg-indigo-950/40 px-1.5 py-0.5 rounded border border-indigo-500/20">Bearer [YOUR_API_KEY]</code>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -170,10 +185,125 @@ function toggleApiKey() {
   lucide.createIcons();
 }
 
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('customToast');
+  const msgEl = document.getElementById('toastMessage');
+  const iconEl = document.getElementById('toastIcon');
+  if (!toast || !msgEl) return;
+
+  msgEl.innerText = message;
+  if (type === 'success') {
+    toast.style.background = 'rgba(16, 185, 129, 0.18)';
+    toast.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+    toast.style.boxShadow = '0 10px 30px rgba(16, 185, 129, 0.3)';
+    toast.style.color = '#34d399';
+    if (iconEl) iconEl.setAttribute('data-lucide', 'check-circle-2');
+  } else {
+    toast.style.background = 'rgba(239, 68, 68, 0.18)';
+    toast.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+    toast.style.boxShadow = '0 10px 30px rgba(239, 68, 68, 0.3)';
+    toast.style.color = '#f87171';
+    if (iconEl) iconEl.setAttribute('data-lucide', 'alert-circle');
+  }
+  lucide.createIcons();
+
+  toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+  toast.classList.add('translate-y-0');
+
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+    toast.classList.remove('translate-y-0');
+  }, 3500);
+}
+
 function copyApiKey() {
   const input = document.getElementById('apiKeyInput');
   input.select();
   document.execCommand('copy');
-  alert('API Key copied to clipboard!');
+  showToast('API 密钥已成功复制到剪贴板！', 'success');
+}
+
+let confirmResolve = null;
+
+function showCustomConfirm() {
+  return new Promise((resolve) => {
+    confirmResolve = resolve;
+    const modal = document.getElementById('customConfirmModal');
+    const card = document.getElementById('customConfirmCard');
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    card.classList.remove('scale-95');
+    card.classList.add('scale-100');
+    lucide.createIcons();
+  });
+}
+
+function closeCustomConfirmModal(result) {
+  const modal = document.getElementById('customConfirmModal');
+  const card = document.getElementById('customConfirmCard');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  card.classList.remove('scale-100');
+  card.classList.add('scale-95');
+  if (confirmResolve) {
+    confirmResolve(result);
+    confirmResolve = null;
+  }
+}
+
+async function regenerateApiKey() {
+  const confirmed = await showCustomConfirm();
+  if (!confirmed) return;
+
+  const regenIcon = document.getElementById('regenIcon');
+  if (regenIcon) regenIcon.classList.add('animate-spin');
+  try {
+    const resp = await fetch('/api/user/regenerate-api-key', { method: 'POST' });
+    const data = await resp.json();
+    if (data.success && data.api_key) {
+      const input = document.getElementById('apiKeyInput');
+      input.value = data.api_key;
+      input.type = "text";
+      const icon = document.getElementById('apiKeyIcon');
+      if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      lucide.createIcons();
+      showToast('API 密钥已重新生成成功！', 'success');
+    } else {
+      showToast(data.error || '生成密钥失败', 'error');
+    }
+  } catch (err) {
+    showToast('网络请求失败：' + err.message, 'error');
+  } finally {
+    if (regenIcon) regenIcon.classList.remove('animate-spin');
+  }
 }
 </script>
+
+<!-- Custom Cyberpunk / Glassmorphism Confirmation Modal (Chinese) -->
+<div id="customConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300" style="background: rgba(5, 8, 22, 0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+  <div class="relative w-full max-w-md transform scale-95 transition-all duration-300 rounded-2xl p-6 text-center border shadow-2xl" id="customConfirmCard" style="background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.98)); border-color: rgba(6, 182, 212, 0.35); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.18);">
+    
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl mb-4" style="background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.35); box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);">
+      <i data-lucide="refresh-cw" class="w-7 h-7 text-cyan-400"></i>
+    </div>
+
+    <h3 class="text-xl font-bold text-white mb-2">确认重新生成 API 密钥</h3>
+
+    <p class="text-sm text-slate-300 leading-relaxed mb-6">
+      您确定要生成全新的 API 密钥吗？使用旧密钥的任何外部应用或集成都需要更新为新密钥。
+    </p>
+
+    <div class="flex items-center justify-center gap-3">
+      <button type="button" onclick="closeCustomConfirmModal(false)" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 transition-all hover:text-white hover:bg-white/10" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);">
+        取消
+      </button>
+      <button type="button" onclick="closeCustomConfirmModal(true)" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-lg hover:shadow-cyan-500/30 hover:scale-[1.02]" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); border: 1px solid rgba(6, 182, 212, 0.5); box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);">
+        ✨ 立即生成
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Glass Toast Notification -->
+<div id="customToast" class="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 shadow-2xl border" style="backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+  <i id="toastIcon" data-lucide="check-circle-2" class="w-5 h-5"></i>
+  <span id="toastMessage">操作成功</span>
+</div>

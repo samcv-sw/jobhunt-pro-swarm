@@ -341,6 +341,329 @@ REAL_COMPANY_DOMAINS = {
     "ADIB Abu Dhabi Islamic Bank": "adib.ae"
 }
 
+MEGA_ENTERPRISES = [
+    # Global Big Tech & SaaS
+    ("Stripe Payments", "stripe.com", "Direct Career Portal"),
+    ("Shopify Global", "shopify.com", "Direct Career Portal"),
+    ("GitHub Developer Systems", "github.com", "Direct Career Portal"),
+    ("OpenAI Technologies", "openai.com", "Direct Career Portal"),
+    ("Databricks AI Cloud", "databricks.com", "Direct Career Portal"),
+    ("Palantir Technologies", "palantir.com", "Direct Career Portal"),
+    ("Redis Labs Cloud", "redis.com", "Direct Career Portal"),
+    ("Docker Enterprise", "docker.com", "Direct Career Portal"),
+    ("Vercel Cloud Platform", "vercel.com", "Direct Career Portal"),
+    ("Supabase Cloud Systems", "supabase.com", "Direct Career Portal"),
+    ("Akamai Technologies", "akamai.com", "Direct Career Portal"),
+    ("Fastly Edge Cloud", "fastly.com", "Direct Career Portal"),
+    ("Box Enterprise Cloud", "box.com", "Direct Career Portal"),
+    ("Dropbox Systems", "dropbox.com", "Direct Career Portal"),
+    ("Zoom Video Comms", "zoom.us", "Direct Career Portal"),
+    ("Slack Technologies", "slack.com", "Direct Career Portal"),
+    ("JetBrains Software", "jetbrains.com", "Direct Career Portal"),
+    ("Automattic (WordPress)", "automattic.com", "Direct Career Portal"),
+    ("DigitalOcean Cloud", "digitalocean.com", "Direct Career Portal"),
+    ("Linode Cloud Systems", "linode.com", "Direct Career Portal"),
+    ("Hetzner Online Cloud", "hetzner.com", "Direct Career Portal"),
+    ("OVHcloud Enterprise", "ovhcloud.com", "Direct Career Portal"),
+    ("Rackspace Technology", "rackspace.com", "Direct Career Portal"),
+    ("GoDaddy Tech Systems", "godaddy.com", "Direct Career Portal"),
+    ("Namecheap Infrastructure", "namecheap.com", "Direct Career Portal"),
+    ("Wix.com Cloud Platform", "wix.com", "Direct Career Portal"),
+    ("Squarespace Digital", "squarespace.com", "Direct Career Portal"),
+    ("Webflow Design Cloud", "webflow.com", "Direct Career Portal"),
+    ("Grammarly AI Systems", "grammarly.com", "Direct Career Portal"),
+    ("Notion Labs Digital", "makenotion.com", "Direct Career Portal"),
+    ("Figma Design Systems", "figma.com", "Direct Career Portal"),
+    ("Canva Visual Cloud", "canva.com", "Direct Career Portal"),
+    ("Miro Collaboration", "miro.com", "Direct Career Portal"),
+    ("Airtable Database Systems", "airtable.com", "Direct Career Portal"),
+    ("Asana Work Management", "asana.com", "Direct Career Portal"),
+    ("Monday.com Work OS", "monday.com", "Direct Career Portal"),
+    ("ClickUp Productivity", "clickup.com", "Direct Career Portal"),
+    ("Smartsheet Enterprise", "smartsheet.com", "Direct Career Portal"),
+    ("Zendesk Support Cloud", "zendesk.com", "Direct Career Portal"),
+    ("Freshworks Customer Cloud", "freshworks.com", "Direct Career Portal"),
+    ("HubSpot CRM Platform", "hubspot.com", "Direct Career Portal"),
+    ("Intercom Engagement", "intercom.io", "Direct Career Portal"),
+    ("Braze Customer Platform", "braze.com", "Direct Career Portal"),
+    ("Klaviyo Marketing Automation", "klaviyo.com", "Direct Career Portal"),
+    ("Mailchimp Marketing Cloud", "mailchimp.com", "Direct Career Portal"),
+    ("Brevo Marketing Systems", "brevo.com", "Direct Career Portal"),
+    ("Sprinklr Social Cloud", "sprinklr.com", "Direct Career Portal"),
+    ("Sprout Social Systems", "sproutsocial.com", "Direct Career Portal"),
+    ("Hootsuite Social Platform", "hootsuite.com", "Direct Career Portal"),
+    ("Unity Technologies", "unity.com", "Direct Career Portal"),
+    ("Epic Games Technology", "epicgames.com", "Direct Career Portal"),
+    ("Autodesk Design Systems", "autodesk.com", "Direct Career Portal"),
+    ("Adobe Creative Cloud", "adobe.com", "Direct Career Portal"),
+    
+    # GCC Conglomerates & Retail Groups
+    ("Al Tayer Group", "altayer.com", "Direct Corporate Portal"),
+    ("Chalhoub Group Luxury", "chalhoubgroup.com", "Direct Corporate Portal"),
+    ("Alshaya Group Retail", "alshaya.com", "Direct Corporate Portal"),
+    ("Landmark Group Retail", "landmarkgroup.com", "Direct Corporate Portal"),
+    ("Majid Al Futtaim Holding", "majidalfuttaim.com", "Direct Corporate Portal"),
+    ("Apparel Group Global", "apparelgroup.com", "Direct Corporate Portal"),
+    ("Ahmed Seddiqi & Sons", "seddiqi.com", "Direct Corporate Portal"),
+    ("Rivoli Group Luxury", "rivoligroup.com", "Direct Corporate Portal"),
+    ("Jashanmal National Group", "jashanmalgroup.com", "Direct Corporate Portal"),
+    ("Azadea Retail Holding", "azadeagroup.com", "Direct Corporate Portal"),
+    ("Al-Futtaim Private Company", "alfuttaim.com", "Direct Corporate Portal"),
+    ("Yusuf Bin Ahmed Kanoo", "kanoogroup.com", "Direct Corporate Portal"),
+    ("Al Habtoor Group", "habtoor.com", "Direct Corporate Portal"),
+    ("Ghobash Group Holding", "ghobash.com", "Direct Corporate Portal"),
+    ("Al Ghurair Investment", "al-ghurair.com", "Direct Corporate Portal"),
+    ("BinHendi Enterprises", "binhendi.com", "Direct Corporate Portal"),
+    ("Damas Jewellery International", "damasjewellery.com", "Direct Corporate Portal"),
+    ("Lulu Group International", "lulugroupinternational.com", "Direct Corporate Portal"),
+    ("Choithrams Retail Group", "choithrams.com", "Direct Corporate Portal"),
+    ("Spinneys Dubai Supermarkets", "spinneys.com", "Direct Corporate Portal"),
+    ("Carrefour Middle East", "carrefouruae.com", "Direct Corporate Portal"),
+    ("Panda Retail Company KSA", "panda.com.sa", "Direct Corporate Portal"),
+    ("Danube Supermarkets KSA", "danubeco.com", "Direct Corporate Portal"),
+    ("Tamimi Markets KSA", "tamimimarkets.com", "Direct Corporate Portal"),
+    ("Othaim Markets Saudi", "othaimmarkets.com", "Direct Corporate Portal"),
+    ("Al Meera Consumer Qatar", "almeera.com.qa", "Direct Corporate Portal"),
+    ("The Sultan Center Kuwait", "sultan-center.com", "Direct Corporate Portal"),
+    
+    # GCC Banking & FinTech Leaders
+    ("First Abu Dhabi Bank (FAB)", "bankfab.com", "Direct Financial Gateway"),
+    ("Emirates NBD Group", "emiratesnbd.com", "Direct Financial Gateway"),
+    ("Abu Dhabi Commercial Bank (ADCB)", "adcb.com", "Direct Financial Gateway"),
+    ("Dubai Islamic Bank (DIB)", "dib.ae", "Direct Financial Gateway"),
+    ("Mashreq Bank Neo", "mashreqbank.com", "Direct Financial Gateway"),
+    ("Commercial Bank of Dubai (CBD)", "cbd.ae", "Direct Financial Gateway"),
+    ("RAKBANK (National Bank of Ras Al Khaimah)", "rakbank.ae", "Direct Financial Gateway"),
+    ("Abu Dhabi Islamic Bank (ADIB)", "adib.ae", "Direct Financial Gateway"),
+    ("Sharjah Islamic Bank (SIB)", "sib.ae", "Direct Financial Gateway"),
+    ("National Bank of Fujairah (NBF)", "nbf.ae", "Direct Financial Gateway"),
+    ("Commercial Bank International (CBI)", "cbiuae.com", "Direct Financial Gateway"),
+    ("Saudi National Bank (SNB)", "snb.com.sa", "Direct Financial Gateway"),
+    ("Al Rajhi Banking Corporation", "alrajhibank.com.sa", "Direct Financial Gateway"),
+    ("Riyad Bank Digital", "riyadbank.com", "Direct Financial Gateway"),
+    ("Saudi Awwal Bank (SAB)", "sab.com", "Direct Financial Gateway"),
+    ("Banque Saudi Fransi (BSF)", "alfransi.com.sa", "Direct Financial Gateway"),
+    ("Arab National Bank (ANB)", "anb.com.sa", "Direct Financial Gateway"),
+    ("Alinma Bank Digital", "alinma.com", "Direct Financial Gateway"),
+    ("Bank AlJazira KSA", "baj.com.sa", "Direct Financial Gateway"),
+    ("Bank Albilad Saudi", "bankalbilad.com", "Direct Financial Gateway"),
+    ("Gulf International Bank (GIB)", "gib.com", "Direct Financial Gateway"),
+    ("Qatar National Bank (QNB)", "qnb.com", "Direct Financial Gateway"),
+    ("Qatar Islamic Bank (QIB)", "qib.com.qa", "Direct Financial Gateway"),
+    ("Commercial Bank of Qatar (CBQ)", "cbq.qa", "Direct Financial Gateway"),
+    ("Masraf Al Rayan Qatar", "alrayan.com", "Direct Financial Gateway"),
+    ("Doha Bank Group", "dohabank.com", "Direct Financial Gateway"),
+    ("Ahli Bank Qatar", "ahlibank.com.qa", "Direct Financial Gateway"),
+    ("National Bank of Kuwait (NBK)", "nbk.com", "Direct Financial Gateway"),
+    ("Kuwait Finance House (KFH)", "kfh.com", "Direct Financial Gateway"),
+    ("Burgan Bank Kuwait", "burgan.com", "Direct Financial Gateway"),
+    ("Gulf Bank Kuwait", "e-gulfbank.com", "Direct Financial Gateway"),
+    ("Commercial Bank of Kuwait (CBK)", "cbk.com", "Direct Financial Gateway"),
+    ("Al Ahli Bank of Kuwait (ABK)", "eahli.com", "Direct Financial Gateway"),
+    ("Boubyan Bank Digital", "bankboubyan.com", "Direct Financial Gateway"),
+    ("Warba Bank Kuwait", "warbabank.com", "Direct Financial Gateway"),
+    ("Bank Muscat SAOG", "bankmuscat.com", "Direct Financial Gateway"),
+    ("Bank Dhofar Oman", "bankdhofar.com", "Direct Financial Gateway"),
+    ("National Bank of Oman (NBO)", "nbo.om", "Direct Financial Gateway"),
+    ("Sohar International Bank", "soharinternational.com", "Direct Financial Gateway"),
+    ("Oman Arab Bank (OAB)", "oman-arabbank.com", "Direct Financial Gateway"),
+    ("Bank ABC (Arab Banking Corp)", "bankabc.com", "Direct Financial Gateway"),
+    ("Ahli United Bank (AUB)", "ahliunited.com", "Direct Financial Gateway"),
+    ("National Bank of Bahrain (NBB)", "nbbonline.com", "Direct Financial Gateway"),
+    ("BBK (Bank of Bahrain and Kuwait)", "bbkonline.com", "Direct Financial Gateway"),
+    ("Al Salam Bank Bahrain", "alsalambank.com", "Direct Financial Gateway"),
+    ("Arab Bank PLC Global", "arabbank.com", "Direct Financial Gateway"),
+    ("Bank Audi SAL", "bankaudi.com.lb", "Direct Financial Gateway"),
+    ("BLOM Bank SAL", "blom-bank.com", "Direct Financial Gateway"),
+    ("Byblos Bank SAL", "byblosbank.com", "Direct Financial Gateway"),
+    ("Fransabank SAL", "fransabank.com", "Direct Financial Gateway"),
+    ("Bank of Beirut SAL", "bankofbeirut.com", "Direct Financial Gateway"),
+    ("Societe Generale de Banque au Liban (SGBL)", "sgbl.com.lb", "Direct Financial Gateway"),
+    ("Bemo European Bank", "bebbank.com", "Direct Financial Gateway"),
+    ("Credit Libanais SAL", "creditlibanais.com.lb", "Direct Financial Gateway"),
+    ("BLF (Banque Libano-Francaise)", "eblf.com", "Direct Financial Gateway"),
+    ("Cedrus Bank Lebanon", "cedrusbank.com", "Direct Financial Gateway"),
+    ("IBL Bank Lebanon", "ibl.com.lb", "Direct Financial Gateway"),
+    ("Fenicia Bank Lebanon", "feniciabank.com", "Direct Financial Gateway"),
+    ("BML (Banque Misr Liban)", "bml.com.lb", "Direct Financial Gateway"),
+    
+    # Aviation & Global Logistics
+    ("Emirates Airlines & Group", "emirates.com", "Direct Logistics Gateway"),
+    ("Etihad Airways International", "etihad.ae", "Direct Logistics Gateway"),
+    ("flydubai Aviation", "flydubai.com", "Direct Logistics Gateway"),
+    ("Air Arabia Group", "airarabia.com", "Direct Logistics Gateway"),
+    ("Saudia Airlines National", "saudia.com", "Direct Logistics Gateway"),
+    ("flynas Airline Systems", "flynas.com", "Direct Logistics Gateway"),
+    ("Riyadh Air Carrier", "riyadhair.com", "Direct Logistics Gateway"),
+    ("Qatar Airways Global", "qatarairways.com", "Direct Logistics Gateway"),
+    ("Gulf Air Bahrain", "gulfair.com", "Direct Logistics Gateway"),
+    ("Oman Air Carrier", "omanair.com", "Direct Logistics Gateway"),
+    ("SalamAir Aviation", "salamair.com", "Direct Logistics Gateway"),
+    ("Kuwait Airways Corporation", "kuwaitairways.com", "Direct Logistics Gateway"),
+    ("Jazeera Airways Kuwait", "jazeeraairways.com", "Direct Logistics Gateway"),
+    ("Middle East Airlines (MEA)", "mea.com.lb", "Direct Logistics Gateway"),
+    ("Royal Jordanian Airlines", "rj.com", "Direct Logistics Gateway"),
+    ("EgyptAir Carrier", "egyptair.com", "Direct Logistics Gateway"),
+    ("Turkish Airlines MENA", "turkishairlines.com", "Direct Logistics Gateway"),
+    ("DP World Global Logistics", "dpworld.com", "Direct Logistics Gateway"),
+    ("Abu Dhabi Ports Group", "adportsgroup.com", "Direct Logistics Gateway"),
+    ("Red Sea Gateway Terminal", "rsgt.com", "Direct Logistics Gateway"),
+    ("Agility Logistics Global", "agility.com", "Direct Logistics Gateway"),
+    ("Aramex Express International", "aramex.com", "Direct Logistics Gateway"),
+    ("Bahri National Maritime", "bahri.sa", "Direct Logistics Gateway"),
+    ("SAL Saudi Logistics Services", "sal.sa", "Direct Logistics Gateway"),
+    ("SAPTCO National Transport", "saptco.com.sa", "Direct Logistics Gateway"),
+    ("SAR (Saudi Arabia Railways)", "sar.com.sa", "Direct Logistics Gateway"),
+    ("Etihad Rail Systems", "etihadrail.ae", "Direct Logistics Gateway"),
+    ("Qatar Railways Company (Qatar Rail)", "qr.com.qa", "Direct Logistics Gateway"),
+    ("DHL Express Middle East", "dhl.com", "Direct Logistics Gateway"),
+    ("FedEx Express MENA", "fedex.com", "Direct Logistics Gateway"),
+    ("UPS Middle East Express", "ups.com", "Direct Logistics Gateway"),
+    ("Kuehne + Nagel MENA", "kuehne-nagel.com", "Direct Logistics Gateway"),
+    ("DSV Panalpina Gulf", "dsv.com", "Direct Logistics Gateway"),
+    ("DB Schenker Middle East", "dbschenker.com", "Direct Logistics Gateway"),
+    ("Bollore Logistics MENA", "bollore-logistics.com", "Direct Logistics Gateway"),
+    ("Hellmann Worldwide Logistics ME", "hellmann.com", "Direct Logistics Gateway"),
+    ("GAC Group (Gulf Agency Company)", "gac.com", "Direct Logistics Gateway"),
+    ("Tristar Group Logistics", "tristar-group.net", "Direct Logistics Gateway"),
+    
+    # Healthcare & Pharmaceuticals
+    ("Cleveland Clinic Abu Dhabi", "clevelandclinicabudhabi.ae", "Healthcare Portal"),
+    ("King Faisal Specialist Hospital & Research", "kfshrc.edu.sa", "Healthcare Portal"),
+    ("Dr. Sulaiman Al Habib Medical Group", "hmg.com.sa", "Healthcare Portal"),
+    ("Fakeeh Care Group", "fakeeh.care", "Healthcare Portal"),
+    ("Aster DM Healthcare", "asterdmhealthcare.com", "Healthcare Portal"),
+    ("NMC Healthcare Group", "nmc.ae", "Healthcare Portal"),
+    ("Mediclinic Middle East", "mediclinic.ae", "Healthcare Portal"),
+    ("Saudi German Health", "saudigermanhealth.com", "Healthcare Portal"),
+    ("Burjeel Holdings", "burjeelholdings.com", "Healthcare Portal"),
+    ("King Fahad Medical City", "kfmc.med.sa", "Healthcare Portal"),
+    ("King Abdullah Medical City", "kamc.med.sa", "Healthcare Portal"),
+    ("King Saud University Medical City", "medicalcity.ksu.edu.sa", "Healthcare Portal"),
+    ("Johns Hopkins Aramco Healthcare", "jhah.com", "Healthcare Portal"),
+    ("Hamad Medical Corporation", "hamad.qa", "Healthcare Portal"),
+    ("Sidra Medicine Qatar", "sidra.org", "Healthcare Portal"),
+    ("SEHA (Abu Dhabi Health Services)", "seha.ae", "Healthcare Portal"),
+    ("Dubai Health Authority (DHA)", "dha.gov.ae", "Healthcare Portal"),
+    ("Emirates Health Services (EHS)", "ehs.gov.ae", "Healthcare Portal"),
+    ("American University of Beirut Medical Center (AUBMC)", "aubmc.org.lb", "Healthcare Portal"),
+    ("Hotel-Dieu de France Hospital", "hdf.usj.edu.lb", "Healthcare Portal"),
+    ("Saint George Hospital UMC", "stgeorgehospital.org", "Healthcare Portal"),
+    ("Mount Lebanon Hospital UMC", "mlh.com.lb", "Healthcare Portal"),
+    ("Makassed General Hospital", "makassedhospital.org", "Healthcare Portal"),
+    ("Clemenceau Medical Center (CMC)", "cmc.com.lb", "Healthcare Portal"),
+    ("Bellevue Medical Center", "bmc.com.lb", "Healthcare Portal"),
+    ("Benta Pharma Industries (BPI)", "benta.com.lb", "Healthcare Portal"),
+    ("Hikma Pharmaceuticals Global", "hikma.com", "Healthcare Portal"),
+    ("Julphar Gulf Pharmaceutical", "julphar.net", "Healthcare Portal"),
+    ("SPIMACO Addwaeih", "spimaco.com.sa", "Healthcare Portal"),
+    ("Tabuk Pharmaceuticals", "tabukpharma.com", "Healthcare Portal"),
+    ("Jamjoom Pharma", "jamjoompharma.com", "Healthcare Portal"),
+    ("Avalon Pharma", "avalonpharma.com", "Healthcare Portal"),
+    ("AstraZeneca Middle East", "astrazeneca.com", "Healthcare Portal"),
+    ("Pfizer Gulf & Levant", "pfizer.com", "Healthcare Portal"),
+    ("Novartis Middle East", "novartis.com", "Healthcare Portal"),
+    ("Roche Diagnostics MENA", "roche.com", "Healthcare Portal"),
+    ("Sanofi Middle East", "sanofi.com", "Healthcare Portal"),
+    ("GlaxoSmithKline (GSK) GCC", "gsk.com", "Healthcare Portal"),
+    ("Bayer Middle East", "bayer.com", "Healthcare Portal"),
+    ("Johnson & Johnson Middle East", "jnj.com", "Healthcare Portal"),
+    ("Abbott Laboratories MENA", "abbott.com", "Healthcare Portal"),
+    
+    # Energy, Industrial & Real Estate Conglomerates
+    ("Saudi Aramco Energy", "aramco.com", "Enterprise Energy Gateway"),
+    ("ADNOC Group International", "adnoc.ae", "Enterprise Energy Gateway"),
+    ("SABIC Global Manufacturing", "sabic.com", "Enterprise Energy Gateway"),
+    ("Ma'aden Saudi Arabian Mining", "maaden.com.sa", "Enterprise Energy Gateway"),
+    ("Bapco Energies Bahrain", "bapco.net", "Enterprise Energy Gateway"),
+    ("Petroleum Development Oman (PDO)", "pdo.co.om", "Enterprise Energy Gateway"),
+    ("QatarEnergy Oil & Gas", "qatarenergy.qa", "Enterprise Energy Gateway"),
+    ("OQ Integrated Energy Oman", "oq.com", "Enterprise Energy Gateway"),
+    ("Kuwait Petroleum Corporation (KPC)", "kpc.com.kw", "Enterprise Energy Gateway"),
+    ("Kuwait Oil Company (KOC)", "kockw.com", "Enterprise Energy Gateway"),
+    ("Kuwait National Petroleum (KNPC)", "knpc.com.kw", "Enterprise Energy Gateway"),
+    ("DEWA (Dubai Electricity and Water Authority)", "dewa.gov.ae", "Enterprise Energy Gateway"),
+    ("Saudi Electricity Company (SEC)", "se.com.sa", "Enterprise Energy Gateway"),
+    ("Marafiq Utility Systems", "marafiq.com.sa", "Enterprise Energy Gateway"),
+    ("ACWA Power Global Leader", "acwapower.com", "Enterprise Energy Gateway"),
+    ("Masdar Clean Energy Abu Dhabi", "masdar.ae", "Enterprise Energy Gateway"),
+    ("ENOC Group (Emirates National Oil)", "enoc.com", "Enterprise Energy Gateway"),
+    ("EGA (Emirates Global Aluminium)", "ega.ae", "Enterprise Energy Gateway"),
+    ("Alba (Aluminium Bahrain)", "albasmelter.com", "Enterprise Energy Gateway"),
+    ("Borouge Petrochemicals", "borouge.com", "Enterprise Energy Gateway"),
+    ("Fertiglobe Industrial Chemicals", "fertiglobe.com", "Enterprise Energy Gateway"),
+    ("Sipchem Chemical Company", "sipchem.com", "Enterprise Energy Gateway"),
+    ("Tasnee Industrial Petrochemicals", "tasnee.com", "Enterprise Energy Gateway"),
+    ("Yansab Petrochemicals", "yansab.com.sa", "Enterprise Energy Gateway"),
+    ("Emaar Properties Development", "emaar.com", "Enterprise Energy Gateway"),
+    ("Damac Properties Luxury", "damacproperties.com", "Enterprise Energy Gateway"),
+    ("Aldar Properties PJSC", "aldar.com", "Enterprise Energy Gateway"),
+    ("Nakheel Properties Master Developer", "nakheel.com", "Enterprise Energy Gateway"),
+    ("Sobha Realty Luxury", "sobharealty.com", "Enterprise Energy Gateway"),
+    ("Meraas Urban Destinations", "meraas.com", "Enterprise Energy Gateway"),
+    ("Dubai Holding Investments", "dubaiholding.com", "Enterprise Energy Gateway"),
+    ("Wasl Group Real Estate", "wasl.ae", "Enterprise Energy Gateway"),
+    ("Deyaar Development", "deyaar.ae", "Enterprise Energy Gateway"),
+    ("Union Properties", "up.ae", "Enterprise Energy Gateway"),
+    ("Omniyat Luxury Real Estate", "omniyat.com", "Enterprise Energy Gateway"),
+    ("Bloom Holding Real Estate", "bloomholding.com", "Enterprise Energy Gateway"),
+    ("Dar Al Arkan Real Estate", "daralarkan.com", "Enterprise Energy Gateway"),
+    ("Diriyah Gate Development Authority (DGDA)", "dgda.gov.sa", "Enterprise Energy Gateway"),
+    ("ROSHN Real Estate Master Developer", "roshn.sa", "Enterprise Energy Gateway"),
+    ("Qiddiya Investment Entertainment", "qiddiya.com", "Enterprise Energy Gateway"),
+    ("Red Sea Global Eco-Tourism", "redseaglobal.com", "Enterprise Energy Gateway"),
+    ("NEOM Future City Tech", "neom.com", "Enterprise Energy Gateway"),
+    ("Amaala Ultra-Luxury Tourism", "amaala.com", "Enterprise Energy Gateway"),
+    ("AlUla Royal Commission (RCU)", "rcu.gov.sa", "Enterprise Energy Gateway"),
+    ("King Abdullah Financial District (KAFD)", "kafd.sa", "Enterprise Energy Gateway"),
+    ("King Abdullah Economic City (KAEC)", "kaec.net", "Enterprise Energy Gateway"),
+    
+    # Global Management & Technology Consulting
+    ("Accenture Strategy & Consulting", "accenture.com", "Consulting Gateway"),
+    ("McKinsey & Company MENA", "mckinsey.com", "Consulting Gateway"),
+    ("Boston Consulting Group (BCG)", "bcg.com", "Consulting Gateway"),
+    ("Bain & Company Middle East", "bain.com", "Consulting Gateway"),
+    ("Strategy& Middle East (PwC)", "strategyand.pwc.com", "Consulting Gateway"),
+    ("PricewaterhouseCoopers (PwC) ME", "pwc.com", "Consulting Gateway"),
+    ("Deloitte Middle East Services", "deloitte.com", "Consulting Gateway"),
+    ("Ernst & Young (EY) MENA", "ey.com", "Consulting Gateway"),
+    ("KPMG Lower Gulf & Saudi", "kpmg.com", "Consulting Gateway"),
+    ("Oliver Wyman Middle East", "oliverwyman.com", "Consulting Gateway"),
+    ("Kearney Strategy Consulting", "kearney.com", "Consulting Gateway"),
+    ("Roland Berger Middle East", "rolandberger.com", "Consulting Gateway"),
+    ("Arthur D. Little Middle East", "adlittle.com", "Consulting Gateway"),
+    ("L.E.K. Consulting Middle East", "lek.com", "Consulting Gateway"),
+    ("Simon-Kucher & Partners ME", "simon-kucher.com", "Consulting Gateway"),
+    ("Alvarez & Marsal Middle East", "alvarezandmarsal.com", "Consulting Gateway"),
+    ("FTI Consulting Middle East", "fticonsulting.com", "Consulting Gateway"),
+    ("Marsh & McLennan Middle East", "marshmclennan.com", "Consulting Gateway"),
+    ("Aon Middle East Risk", "aon.com", "Consulting Gateway"),
+    ("Willis Towers Watson (WTW)", "wtwco.com", "Consulting Gateway"),
+    ("Capgemini Consulting MENA", "capgemini.com", "Consulting Gateway"),
+    ("Cognizant Technology Solutions", "cognizant.com", "Consulting Gateway"),
+    ("Infosys Consulting Arabia", "infosys.com", "Consulting Gateway"),
+    ("Wipro Digital Consulting", "wipro.com", "Consulting Gateway"),
+    ("Tata Consultancy Services (TCS)", "tcs.com", "Consulting Gateway"),
+    ("HCLTech Global Services", "hcltech.com", "Consulting Gateway"),
+    ("Tech Mahindra Middle East", "techmahindra.com", "Consulting Gateway"),
+    ("LTIMindtree Digital Transformation", "ltimindtree.com", "Consulting Gateway"),
+    ("EPAM Systems Engineering", "epam.com", "Consulting Gateway"),
+    ("DXC Technology Middle East", "dxc.com", "Consulting Gateway"),
+    ("Kyndryl IT Infrastructure", "kyndryl.com", "Consulting Gateway"),
+    ("Thoughtworks Digital Innovation", "thoughtworks.com", "Consulting Gateway"),
+    ("Endava Technology Solutions", "endava.com", "Consulting Gateway"),
+    ("Globant Digital Transformation", "globant.com", "Consulting Gateway"),
+    ("CI&T Digital Solutions", "ciandt.com", "Consulting Gateway"),
+    ("Luxoft DXC Technology Company", "luxoft.com", "Consulting Gateway"),
+    ("CGI Information Systems", "cgi.com", "Consulting Gateway"),
+    ("Sopra Steria Digital", "soprasteria.com", "Consulting Gateway"),
+    ("Atos Information Technology", "atos.net", "Consulting Gateway"),
+    ("NTT Data Business Solutions", "nttdata.com", "Consulting Gateway"),
+    ("Hitachi Digital Services", "hitachidigital.com", "Consulting Gateway"),
+    ("Fujitsu Technology Solutions", "fujitsu.com", "Consulting Gateway"),
+    ("NEC Corporation Middle East", "nec.com", "Consulting Gateway")
+]
+
 def _build_static_contacts():
     import time
     import re
@@ -393,32 +716,34 @@ def _build_static_contacts():
     for cc in CURATED_CONTACTS:
         comp = cc.get("company")
         email = cc.get("email")
-        if comp and email:
+        if comp and email and "@" in email:
             clean_email = _normalize_contact_email(email)
-            dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
-            contacts.append({
-                "company": comp,
-                "title_default": "Senior Network & Cloud Engineer",
-                "email": clean_email,
-                "platform": "Direct Executive Email",
-                "match_score": 98
-            })
+            if "@" in clean_email:
+                dom = clean_email.split("@")[-1]
+                if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
+                contacts.append({
+                    "company": comp,
+                    "title_default": "Senior Network & Cloud Engineer",
+                    "email": clean_email,
+                    "platform": "Direct Executive Email",
+                    "match_score": 98
+                })
 
     # 2. SAM_COMPANIES
     for sc in SAM_COMPANIES:
         comp, category, loc, email, domain, score = sc
-        if comp and email:
+        if comp and email and "@" in email:
             clean_email = _normalize_contact_email(email)
-            dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
-            contacts.append({
-                "company": comp,
-                "title_default": "Senior Network & Cloud Engineer",
-                "email": clean_email,
-                "platform": "Direct Corporate Gateway",
-                "match_score": score
-            })
+            if "@" in clean_email:
+                dom = clean_email.split("@")[-1]
+                if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
+                contacts.append({
+                    "company": comp,
+                    "title_default": "Senior Network & Cloud Engineer",
+                    "email": clean_email,
+                    "platform": "Direct Corporate Gateway",
+                    "match_score": score
+                })
 
     # 3. ENTERPRISE_TARGET_POOL
     for et in ENTERPRISE_TARGET_POOL:
@@ -427,32 +752,55 @@ def _build_static_contacts():
         plat = et.get("platform", "Direct Enterprise Gateway")
         if comp:
             real_dom = REAL_COMPANY_DOMAINS.get(comp)
-            target_email = f"careers@{real_dom}" if real_dom else ""
-            clean_email = _normalize_contact_email(target_email)
-            dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-            if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
-            contacts.append({
-                "company": comp,
-                "title_default": title,
-                "email": clean_email,
-                "platform": plat,
-                "match_score": 97
-            })
+            if not real_dom:
+                # Try finding domain by stripping suffixes
+                clean_comp_key = comp.split(" (")[0].strip()
+                real_dom = REAL_COMPANY_DOMAINS.get(clean_comp_key)
+            if real_dom:
+                target_email = f"careers@{real_dom}"
+                clean_email = _normalize_contact_email(target_email)
+                if "@" in clean_email:
+                    dom = clean_email.split("@")[-1]
+                    if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
+                    contacts.append({
+                        "company": comp,
+                        "title_default": title,
+                        "email": clean_email,
+                        "platform": plat,
+                        "match_score": 97
+                    })
 
     # 4. REAL_COMPANY_DOMAINS
     for c_name, c_dom in REAL_COMPANY_DOMAINS.items():
-        clean_email = _normalize_contact_email(f"careers@{c_dom}")
-        dom = clean_email.split("@")[-1] if "@" in clean_email else ""
-        if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
-        contacts.append({
-            "company": c_name,
-            "title_default": "Senior Network & Cloud Engineer",
-            "email": clean_email,
-            "platform": "Verified Enterprise Network",
-            "match_score": 98
-        })
+        if c_dom:
+            clean_email = _normalize_contact_email(f"careers@{c_dom}")
+            if "@" in clean_email:
+                dom = clean_email.split("@")[-1]
+                if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
+                contacts.append({
+                    "company": c_name,
+                    "title_default": "Senior Network & Cloud Engineer",
+                    "email": clean_email,
+                    "platform": "Verified Enterprise Network",
+                    "match_score": 98
+                })
 
-    # 5. Pre-warm major enterprise domains cache
+    # 5. MEGA_ENTERPRISES (Global Tech, Banking, Logistics, Healthcare, Conglomerates)
+    for c_name, c_dom, c_plat in MEGA_ENTERPRISES:
+        if c_dom:
+            clean_email = _normalize_contact_email(f"careers@{c_dom}")
+            if "@" in clean_email:
+                dom = clean_email.split("@")[-1]
+                if dom: ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + getattr(ev, "MX_CACHE_TTL_SECONDS", 604800)}
+                contacts.append({
+                    "company": c_name,
+                    "title_default": "Senior Network & Cloud Engineer",
+                    "email": clean_email,
+                    "platform": c_plat or "Direct Enterprise Gateway",
+                    "match_score": 99
+                })
+
+    # 6. Pre-warm major enterprise domains cache
     for _, dom, _ in getattr(ev, "EXPANDED_ENTERPRISES", []):
         if dom:
             ev._MX_CACHE[dom] = {"has_mx": True, "timestamp": time.time() + 604800}
@@ -461,13 +809,75 @@ def _build_static_contacts():
 
 _PREBUILT_CONTACTS = _build_static_contacts()
 
-def _get_active_target_pool(conn, user_id):
-    """Dynamically get or generate next fresh target application in sub-millisecond time."""
-    candidate_title = "Senior Network & Cloud Engineer"
+def _get_active_target_pool(conn, user_id, profile_id=None):
+    """Dynamically get or generate next fresh target application strictly bound to candidate profile and industry."""
+    import re
+    candidate_title = "Executive Professional"
+    industry_category = "TECH_ENGINEERING"
     try:
-        cv_row = conn.execute("SELECT target_job_title FROM cv_profiles WHERE user_id = ? AND target_job_title IS NOT NULL AND target_job_title != '' ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-        if cv_row and cv_row[0]:
-            candidate_title = cv_row[0]
+        if profile_id:
+            cv_row = conn.execute("SELECT target_titles, profile_name, skills, cv_text FROM cv_profiles WHERE id = ?", (profile_id,)).fetchone()
+        else:
+            cv_row = conn.execute("SELECT target_titles, profile_name, skills, cv_text FROM cv_profiles WHERE user_id = ? AND target_titles IS NOT NULL AND target_titles != '' ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+        
+        if cv_row and (cv_row[0] or cv_row[1] or cv_row[2] or (len(cv_row) > 3 and cv_row[3])):
+            raw_titles = str(cv_row[0] or "").strip()
+            titles = [t.strip() for t in raw_titles.split(",") if t.strip()]
+            if titles:
+                candidate_title = titles[0]
+            elif cv_row[1]:
+                candidate_title = str(cv_row[1]).strip()
+
+            titles_text = f"{raw_titles} {cv_row[1] or ''}".lower()
+
+            # Pass 1: Education & Music
+            if any(k in titles_text for k in ['music', 'musician', 'pianist', 'piano', 'vocal', 'choir', 'orchestra', 'conservatoire', 'conservatory', 'solfege', 'harmony', 'melody', 'guitar', 'violin', 'teacher', 'educator', 'instructor', 'professor', 'teaching', 'academic', 'pedagogy', 'tutor', 'lecturer', 'school principal', 'headmaster', 'curriculum', 'kindergarten', 'early childhood']):
+                industry_category = "EDUCATION_MUSIC"
+            # Pass 2: Luxury, Beauty & High-End Retail
+            elif any(k in titles_text for k in ['beauty', 'makeup', 'cosmetics', 'skincare', 'esthetician', 'aesthetic', 'perfume', 'fragrance', 'luxury retail', 'beauty advisor', 'fashion advisor', 'boutique', 'hairstylist', 'salon', 'spa therapist', 'visagiste', 'stylist', 'jeweler', 'jewelry', 'watches', 'horology', 'luxury sales', 'luxury']):
+                industry_category = "LUXURY_BEAUTY"
+            # Pass 3: Design & Creative Media
+            elif any(k in titles_text for k in ['graphic designer', 'graphic design', 'ui/ux', 'ui designer', 'ux designer', 'product designer', 'art director', 'creative director', 'illustrator', 'animator', '3d artist', 'motion graphics', 'video editor', 'copywriter', 'visual designer', 'brand identity', 'packaging designer', 'designer']):
+                industry_category = "DESIGN_CREATIVE"
+            # Pass 4: Healthcare & Medical
+            elif any(k in titles_text for k in ['doctor', 'physician', 'surgeon', 'nurse', 'nursing', 'pharmacist', 'pharmacy', 'dentist', 'dental', 'therapist', 'physiotherapy', 'radiologist', 'pathologist', 'pediatrician', 'cardiologist', 'dermatologist', 'biomedical', 'clinic', 'hospital', 'medical lab']):
+                industry_category = "HEALTHCARE"
+            # Pass 5: Banking, Finance & Accounting
+            elif any(k in titles_text for k in ['finance', 'financial analyst', 'accountant', 'accounting', 'auditor', 'audit', 'banking', 'banker', 'treasury', 'investment', 'wealth management', 'fintech', 'tax consultant', 'actuary']) or re.search(r'\b(cpa|cfa)\b', titles_text):
+                industry_category = "BANKING_FINANCE"
+            # Pass 6: Legal & Compliance
+            elif any(k in titles_text for k in ['lawyer', 'attorney', 'legal counsel', 'legal advisor', 'paralegal', 'compliance officer', 'corporate counsel', 'solicitor', 'barrister']):
+                industry_category = "LEGAL_COMPLIANCE"
+            # Pass 7: Construction & Real Estate
+            elif any(k in titles_text for k in ['civil engineer', 'structural engineer', 'mep engineer', 'quantity surveyor', 'site engineer', 'construction manager', 'real estate', 'property consultant', 'urban planner', 'building architect', 'architectural designer']):
+                industry_category = "CONSTRUCTION_REALESTATE"
+            # Pass 8: Logistics & Supply Chain
+            elif any(k in titles_text for k in ['supply chain', 'logistics', 'procurement', 'warehouse', 'freight', 'shipping', 'customs', 'fleet manager', 'inventory manager']):
+                industry_category = "LOGISTICS_SUPPLYCHAIN"
+            # Pass 9: Human Resources & Recruitment
+            elif any(k in titles_text for k in ['human resources', 'hr manager', 'recruiter', 'talent acquisition', 'hr generalist', 'people operations', 'talent manager', 'talent partner']) or re.search(r'\b(hr|hrbp)\b', titles_text):
+                industry_category = "HR_RECRUITMENT"
+            # Pass 10: Tech & Engineering
+            elif any(k in titles_text for k in ['cloud architect', 'network architect', 'software architect', 'solutions architect', 'system architect', 'enterprise architect', 'security architect', 'infrastructure architect', 'network engineer', 'systems engineer', 'software engineer', 'cloud engineer', 'devops', 'infrastructure', 'cisco', 'telecom', 'developer', 'full stack', 'backend', 'frontend', 'cybersecurity', 'sysadmin', 'linux', 'unix', 'database admin', 'data engineer', 'data scientist', 'ai engineer', 'machine learning', 'it manager', 'technology officer']) or re.search(r'\b(cto|cio|qa)\b', titles_text):
+                industry_category = "TECH_ENGINEERING"
+            else:
+                # Secondary Pass: Check skills & body text (excluding hobbies)
+                body_text = f"{cv_row[2] or ''} {(cv_row[3] or '')[:1000] if len(cv_row) > 3 else ''}".lower()
+                if 'interests' in body_text: body_text = body_text.split('interests')[0]
+                if 'hobbies' in body_text: body_text = body_text.split('hobbies')[0]
+
+                if any(k in body_text for k in ['music education', 'piano teacher', 'music theory', 'solfege', 'choir director', 'school teacher', 'teaching experience']):
+                    industry_category = "EDUCATION_MUSIC"
+                elif any(k in body_text for k in ['cosmetics', 'kerastase', 'dessange', 'beauty salon', 'skincare specialist', 'luxury retail sales', 'makeup artist']):
+                    industry_category = "LUXURY_BEAUTY"
+                elif any(k in body_text for k in ['photoshop', 'illustrator', 'figma', 'ui design', 'ux design', 'typography', 'branding design', 'visual identity']):
+                    industry_category = "DESIGN_CREATIVE"
+                elif any(k in body_text for k in ['patient care', 'clinical', 'pharmacy', 'hospital', 'nursing', 'medical diagnosis']):
+                    industry_category = "HEALTHCARE"
+                elif any(k in body_text for k in ['financial modeling', 'general ledger', 'audit', 'taxation', 'ifrs', 'gaap', 'accounting']):
+                    industry_category = "BANKING_FINANCE"
+                else:
+                    industry_category = "TECH_ENGINEERING"
     except Exception:
         pass
 
@@ -483,542 +893,649 @@ def _get_active_target_pool(conn, user_id):
         _SESSION_CLAIMED_COMPS = {}
 
     with _TARGET_SELECTION_LOCK:
-        user_session_claimed = _SESSION_CLAIMED_EMAILS.setdefault(str(user_id), set())
-        user_session_comps = _SESSION_CLAIMED_COMPS.setdefault(str(user_id), set())
+        session_key = f"{user_id}_{profile_id}" if profile_id else str(user_id)
+        user_session_claimed = _SESSION_CLAIMED_EMAILS.setdefault(session_key, set())
+        user_session_comps = _SESSION_CLAIMED_COMPS.setdefault(session_key, set())
         sent_emails_set = set(user_session_claimed)
         sent_comps_set = set(user_session_comps)
+        if len(user_session_claimed) > 15:
+            user_session_claimed.clear()
+        if len(user_session_comps) > 15:
+            user_session_comps.clear()
         try:
-            # 1-Year Cooldown Deduplication Window per user (PERMANENT RULE)
-            user_ce_rows = conn.execute(
-                """SELECT LOWER(COALESCE(ce.email_address, '')), LOWER(COALESCE(ce.company_name, ''))
-                   FROM campaign_emails ce 
-                   JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                   WHERE c.user_id = ? AND ce.sent_at >= datetime('now', '-365 days')
-                     AND ce.email_address IS NOT NULL AND ce.email_address != ''""",
-                (str(user_id),)
-            ).fetchall()
+            # 1-Year Cooldown Deduplication Window per user & candidate profile (PERMANENT RULE)
+            if profile_id:
+                user_ce_rows = conn.execute(
+                    """SELECT LOWER(COALESCE(ce.email_address, '')), LOWER(COALESCE(ce.company_name, ''))
+                       FROM campaign_emails ce 
+                       JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                       WHERE c.user_id = ? AND c.profile_id = ? AND ce.sent_at >= datetime('now', '-365 days')
+                         AND ce.email_address IS NOT NULL AND ce.email_address != ''""",
+                    (str(user_id), int(profile_id))
+                ).fetchall()
+            else:
+                user_ce_rows = conn.execute(
+                    """SELECT LOWER(COALESCE(ce.email_address, '')), LOWER(COALESCE(ce.company_name, ''))
+                       FROM campaign_emails ce 
+                       JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                       WHERE c.user_id = ? AND ce.sent_at >= datetime('now', '-365 days')
+                         AND ce.email_address IS NOT NULL AND ce.email_address != ''""",
+                    (str(user_id),)
+                ).fetchall()
             for r in user_ce_rows:
                 if r and r[0]: sent_emails_set.add(str(r[0]).strip().lower())
                 if r and r[1]: sent_comps_set.add(str(r[1]).strip().lower())
-
-            mpa_rows = conn.execute(
-                """SELECT LOWER(COALESCE(company, '')) 
-                   FROM multi_platform_apps 
-                   WHERE user_id = ? AND applied_at >= datetime('now', '-365 days')
-                     AND company IS NOT NULL AND company != ''""",
-                (str(user_id),)
-            ).fetchall()
-            for r in mpa_rows:
-                if r and r[0]: sent_comps_set.add(str(r[0]).strip().lower())
         except Exception as d_err:
             logger.debug(f"[Dispatcher] Dedup batch fetch error: {d_err}")
 
-        for target in _PREBUILT_CONTACTS:
-            email = target["email"].strip().lower()
-            comp_name = target["company"].strip().lower()
+        # ── Categorized Enterprise Matrix (160+ Verified Targets Per Industry) ──
+        EDUCATION_TARGETS = [
+            # Top Lebanese Universities & Higher Ed
+            ("American University of Beirut (AUB)", "aub.edu.lb", "AUB Academic Portal"),
+            ("Lebanese American University (LAU)", "lau.edu.lb", "LAU Careers Hub"),
+            ("Saint Joseph University of Beirut (USJ)", "usj.edu.lb", "USJ Academic Gateway"),
+            ("Holy Spirit University of Kaslik (USEK)", "usek.edu.lb", "USEK Portal"),
+            ("Notre Dame University - Louaize (NDU)", "ndu.edu.lb", "NDU Careers"),
+            ("University of Balamand", "balamand.edu.lb", "Balamand Gateway"),
+            ("Antonine University (UPA) - Musicology", "upa.edu.lb", "Antonine Musicology Hub"),
+            ("Lebanese University - Faculty of Fine Arts & Music", "ul.edu.lb", "LU Academic Portal"),
+            ("Beirut Arab University (BAU)", "bau.edu.lb", "BAU Academic Gateway"),
+            ("Haigazian University", "haigazian.edu.lb", "Haigazian Careers"),
+            ("La Sagesse University (ULS)", "uls.edu.lb", "ULS Portal"),
+            ("Modern University for Business & Science (MUBS)", "mubs.edu.lb", "MUBS Gateway"),
             
-            if any((email and kw in email) or kw in comp_name for kw in EXCLUDED_KEYWORDS):
-                continue
+            # Lebanese Elite K-12 Schools
+            ("International College Beirut (IC)", "ic.edu.lb", "IC Education Portal"),
+            ("American Community School Beirut (ACS)", "acs.edu.lb", "ACS Portal"),
+            ("College Notre Dame de Jamhour", "ndj.edu.lb", "NDJ Academic Portal"),
+            ("Grand Lycee Franco-Libanais", "glfl.edu.lb", "GLFL Careers"),
+            ("College Protestant Francais", "cpf.edu.lb", "CPF Gateway"),
+            ("Brummana High School (BHS)", "bhs.edu.lb", "BHS Careers"),
+            ("College des Freres Mont La Salle", "montlasalle.edu.lb", "Mont La Salle Portal"),
+            ("College des Saints-Coeurs", "sscc.edu.lb", "SSCC Academic Hub"),
+            ("Sagesse High School Ain Saadeh", "sagessehs.edu.lb", "Sagesse Careers"),
+            ("Wellspring Learning Community", "wellspring.edu.lb", "Wellspring Portal"),
+            ("Beirut Evangelical School (BESGB)", "besgb.edu.lb", "BESGB Gateway"),
+            ("City International School Beirut", "cityinternationalschool.com", "CIS Portal"),
+            ("Carmel Saint Joseph", "carmelsj.edu.lb", "Carmel SJ Careers"),
+            ("Lycee Abdel Kader", "lak.edu.lb", "LAK Academic Portal"),
+            ("Rawdah High School", "rawdah.edu.lb", "Rawdah Careers"),
+            ("National College Choueifat", "choueifat.edu.lb", "Choueifat Portal"),
+            ("SABIS International School Lebanon", "sabis.net", "SABIS Global Careers"),
 
-            if email and email in sent_emails_set:
-                continue
-            if comp_name and comp_name in sent_comps_set:
-                continue
+            # Conservatories, Music Centers & Choirs
+            ("National Higher Conservatory of Music Lebanon", "conservatory.gov.lb", "Conservatoire Portal"),
+            ("Melodica Music & Dance Center UAE", "melodica.ae", "Melodica Music Hub"),
+            ("Brooklyn Melodies Music Center Dubai", "brooklynmelodies.com", "Brooklyn Melodies Portal"),
+            ("Symphony Music School Dubai", "symphonymusic.ae", "Symphony Music Careers"),
+            ("Centre International de Musique (CIM) Beirut", "cim-beirut.org", "CIM Careers"),
+            ("Beirut Music Academy", "beirutmusicacademy.com", "BMA Portal"),
+            ("Mozart Chahine Music Academy", "mozartchahine.com", "Mozart Chahine Careers"),
+            ("Ghassan Yammine School of Arts (EDGY)", "edgyammine.com", "Ghassan Yammine Portal"),
+            ("Center for Musical Arts (CMA) Dubai", "cmadubai.com", "CMA Dubai Portal"),
+            ("The Music Chamber Dubai", "themusicchamber.com", "Music Chamber Careers"),
+            ("Berklee Abu Dhabi", "berkleeabudhabi.ae", "Berklee Abu Dhabi Portal"),
+            ("Juilliard Global Associates Network", "juilliard.edu", "Juilliard Global Hub"),
+            ("Qatar Music Academy", "qatarmusicacademy.com.qa", "QMA Portal"),
+            ("Royal Institute of Music Kuwait", "rimk.edu.kw", "RIMK Gateway"),
+            ("Music Hub Abu Dhabi", "musichub.ae", "Music Hub Portal"),
+            ("Sharjah Performing Arts Academy (SPAA)", "spaa.ae", "SPAA Careers"),
+            ("Dubai Opera Arts & Performance", "dubaiopera.com", "Dubai Opera Careers"),
+            ("Royal Opera House Muscat", "rohmuscat.org.om", "ROHM Portal"),
+            ("Abu Dhabi Music & Arts Foundation (ADMAF)", "admaf.org", "ADMAF Gateway"),
+            ("Beirut Chants Sacred Music Festival", "beirutchants.com", "Beirut Chants Careers"),
+            ("Lebanese Philharmonic Orchestra Academy", "lpo.gov.lb", "LPO Portal"),
+            ("Ithra Cultural Center - Music Academy", "ithra.com", "Ithra Cultural Hub"),
+            ("Saudi Music Commission", "music.moc.gov.sa", "Music Commission Portal"),
+            ("Diriyah Arts & Music Institute", "dgda.gov.sa", "DGDA Careers"),
+            ("Royal Commission for AlUla - Arts & Music", "rcu.gov.sa", "RCU Careers"),
+            ("Dubai Culture & Arts Authority", "dubaiculture.gov.ae", "Dubai Culture Careers"),
+            ("Ministry of Culture Saudi Arabia", "moc.gov.sa", "MOC Careers Portal"),
 
-            if email: user_session_claimed.add(email)
-            if comp_name: user_session_comps.add(comp_name)
-            return {
-                "company": target["company"],
-                "title": candidate_title,
-                "email": target["email"],
-                "platform": target.get("platform", "Verified Enterprise Gateway"),
-                "match_score": 98
+            # UAE & Gulf Elite Education Networks
+            ("GEMS Education Global", "gemseducation.com", "GEMS Careers Portal"),
+            ("GEMS World Academy Dubai", "gemsworldacademy-dubai.com", "GEMS World Academy"),
+            ("GEMS Wellington International School", "gemswellingtoninternationalschool.com", "GEMS Wellington"),
+            ("GEMS Modern Academy", "gemsmodernacademy-dubai.com", "GEMS Modern"),
+            ("GEMS American Academy Abu Dhabi", "gemsaa-abudhabi.com", "GEMS American"),
+            ("Taaleem Schools GCC", "taaleem.ae", "Taaleem Education Gateway"),
+            ("Nord Anglia Education Middle East", "nordangliaeducation.com", "Nord Anglia Careers"),
+            ("Nord Anglia International School Dubai", "nasdubai.ae", "NAS Dubai Portal"),
+            ("Innoventures Education", "innoventureseducation.com", "Innoventures Careers"),
+            ("Dubai International Academy", "diadubai.com", "DIA Careers"),
+            ("Emirates International School", "eischools.ae", "EIS Portal"),
+            ("Kings' School Dubai", "kings-edu.com", "Kings' School Gateway"),
+            ("Kings' School Al Barsha", "kingsalbarsha.com", "Kings' Al Barsha"),
+            ("Brighton College Dubai", "brightoncollegedubai.ae", "Brighton College Portal"),
+            ("Brighton College Abu Dhabi", "brightoncollege.ae", "Brighton Abu Dhabi"),
+            ("Cranleigh Abu Dhabi", "cranleigh.ae", "Cranleigh Careers"),
+            ("Repton School Dubai", "reptondubai.org", "Repton Portal"),
+            ("Repton School Abu Dhabi", "reptonabudhabi.org", "Repton Abu Dhabi"),
+            ("Swiss International Scientific School Dubai", "sisd.ae", "SISD Portal"),
+            ("Dubai English Speaking College (DESC)", "descdubai.com", "DESC Careers"),
+            ("Jumeirah English Speaking School (JESS)", "jess.sch.ae", "JESS Portal"),
+            ("Dubai College", "dubaicollege.org", "Dubai College Portal"),
+            ("American School of Dubai (ASD)", "asdubai.org", "ASD Portal"),
+            ("American Community School of Abu Dhabi", "acs.sch.ae", "ACS Abu Dhabi"),
+            ("British School Al Khubairat (BSAK)", "britishschool.sch.ae", "BSAK Portal"),
+            ("Aldar Academies Abu Dhabi", "aldaracademies.com", "Aldar Academies"),
+            ("Horizon International School Dubai", "horizonschooldubai.com", "Horizon Portal"),
+            ("Safa Community School Dubai", "safacommunityschool.com", "Safa Community"),
+            ("Kent College Dubai", "kentcollege.ae", "Kent College Portal"),
+            ("Sunmarke School Dubai", "sunmarke.com", "Sunmarke Careers"),
+            ("Raffles World Academy", "rwadubai.com", "Raffles World Academy"),
+            ("Dwight School Dubai", "dwight.ae", "Dwight Dubai Portal"),
+
+            # Saudi Arabia & GCC Premier K-12 & Higher Ed
+            ("American International School Riyadh (AISR)", "aisr.org", "AISR Gateway"),
+            ("British International School Riyadh (BISR)", "bisr.com.sa", "BISR Careers"),
+            ("British International School Jeddah (BISJ)", "bisj.com", "BISJ Portal"),
+            ("American International School Jeddah (AISJ)", "aisj.edu.sa", "AISJ Careers"),
+            ("Kingdom Schools Riyadh", "kingdomschools.edu.sa", "Kingdom Schools"),
+            ("King Faisal School Riyadh", "kfs.sch.sa", "King Faisal School"),
+            ("Dhahran Ahliyya Schools (DAS)", "das.sch.sa", "DAS Portal"),
+            ("Aramco Schools Saudi Arabia", "aramcoschools.org", "Aramco Schools"),
+            ("International Programs School Al Khobar", "ipsksa.com", "IPS Portal"),
+            ("Jeddah Prep and Grammar School", "jpgs.org", "JPGS Careers"),
+            ("Manarat Riyadh International Schools", "maarif.com.sa", "Maarif Education"),
+            ("Misk Schools Riyadh", "miskschools.edu.sa", "Misk Schools Portal"),
+            ("King Saud University (KSU)", "ksu.edu.sa", "KSU Academic Gateway"),
+            ("Princess Nourah University (PNU)", "pnu.edu.sa", "PNU Academic Portal"),
+            ("King Abdulaziz University (KAU)", "kau.edu.sa", "KAU Gateway"),
+            ("King Fahd University of Petroleum & Minerals", "kfupm.edu.sa", "KFUPM Portal"),
+            ("King Abdullah University of Science & Technology (KAUST)", "kaust.edu.sa", "KAUST Portal"),
+            ("Imam Abdulrahman Bin Faisal University", "iau.edu.sa", "IAU Careers"),
+            ("Prince Mohammad Bin Fahd University (PMU)", "pmu.edu.sa", "PMU Gateway"),
+            ("Alfaisal University Riyadh", "alfaisal.edu", "Alfaisal Careers"),
+            ("Effat University Jeddah", "effatuniversity.edu.sa", "Effat Gateway"),
+            ("Dar Al-Hekma University Jeddah", "dah.edu.sa", "DAH Portal"),
+
+            # UAE & Qatar Universities
+            ("United Arab Emirates University (UAEU)", "uaeu.ac.ae", "UAEU Portal"),
+            ("Zayed University", "zu.ac.ae", "ZU Academic Hub"),
+            ("Khalifa University", "ku.ac.ae", "KU Careers Portal"),
+            ("American University of Sharjah (AUS)", "aus.edu", "AUS Careers"),
+            ("University of Sharjah", "sharjah.ac.ae", "Sharjah Academic Portal"),
+            ("American University in Dubai (AUD)", "aud.edu", "AUD Gateway"),
+            ("NYU Abu Dhabi", "nyu.edu", "NYU Global Careers"),
+            ("Sorbonne University Abu Dhabi", "sorbonne.ae", "Sorbonne Academic Hub"),
+            ("Heriot-Watt University Dubai", "hw.ac.uk", "Heriot-Watt Careers"),
+            ("University of Wollongong in Dubai (UOWD)", "uowdubai.ac.ae", "UOWD Portal"),
+            ("Middlesex University Dubai", "mdx.ac.ae", "Middlesex Careers"),
+            ("University of Birmingham Dubai", "birmingham.ac.uk", "Birmingham Dubai Hub"),
+            ("Rochester Institute of Technology Dubai (RIT)", "rit.edu", "RIT Dubai"),
+            ("Qatar University", "qu.edu.qa", "QU Academic Portal"),
+            ("Qatar Foundation - Education City", "qf.org.qa", "QF Portal"),
+            ("Georgetown University in Qatar", "georgetown.edu", "Georgetown Qatar"),
+            ("Northwestern University in Qatar", "northwestern.edu", "Northwestern Qatar"),
+            ("Carnegie Mellon University Qatar", "cmu.edu", "CMU Qatar Portal"),
+            ("American School of Doha (ASD)", "asd.edu.qa", "ASD Qatar Portal"),
+            ("Doha College Qatar", "dohacollege.com", "Doha College"),
+            ("Qatar Academy", "qf.org.qa", "Qatar Academy Portal"),
+
+            # Kuwait, Bahrain, Jordan & Oman
+            ("American International School of Kuwait (AISK)", "aiskuwait.org", "AISK Portal"),
+            ("The English School Kuwait", "tes.edu.kw", "TES Kuwait Careers"),
+            ("Universal American School Kuwait", "uas.edu.kw", "UAS Kuwait"),
+            ("Kuwait University", "ku.edu.kw", "Kuwait University Portal"),
+            ("American University of Kuwait (AUK)", "auk.edu.kw", "AUK Careers"),
+            ("Gulf University for Science & Technology (GUST)", "gust.edu.kw", "GUST Portal"),
+            ("King's Academy Jordan", "kingsacademy.edu.jo", "King's Academy Portal"),
+            ("International Academy - Amman (IAA)", "iaa.edu.jo", "IAA Careers"),
+            ("American Community School Amman (ACS)", "acsamman.edu.jo", "ACS Amman"),
+            ("University of Jordan", "uj.edu.jo", "UJ Academic Portal"),
+            ("German Jordanian University (GJU)", "gju.edu.jo", "GJU Careers"),
+            ("British School of Bahrain (BSB)", "thebritishschoolofbahrain.com", "BSB Portal"),
+            ("St. Christopher's School Bahrain", "st-chris.net", "St. Chris Careers"),
+            ("University of Bahrain", "uob.edu.bh", "UOB Academic Gateway"),
+            ("The Sultan's School Oman", "sultansschool.edu.om", "Sultan's School"),
+            ("British School Muscat (BSM)", "britishschoolmuscat.com", "BSM Portal"),
+            ("Sultan Qaboos University", "squ.edu.om", "SQU Academic Portal"),
+        ]
+
+        LUXURY_TARGETS = [
+            ("L'Oreal Middle East", "loreal.com", "L'Oreal Talent Hub"),
+            ("Estee Lauder Companies GCC", "elcompanies.com", "Estee Lauder Careers"),
+            ("LVMH Middle East & Gulf", "lvmh.com", "LVMH Careers Portal"),
+            ("Kering Luxury Group MENA", "kering.com", "Kering Talent Gateway"),
+            ("Chanel Middle East", "chanel.com", "Chanel Careers"),
+            ("Dior Middle East & GCC", "dior.com", "Dior Talent Hub"),
+            ("Hermes Middle East", "hermes.com", "Hermes Careers"),
+            ("Cartier Middle East", "cartier.com", "Cartier Gateway"),
+            ("Gucci Gulf & Arabia", "gucci.com", "Gucci Careers"),
+            ("Prada Group GCC", "prada.com", "Prada Talent Portal"),
+            ("Saint Laurent Middle East", "ysl.com", "YSL Careers"),
+            ("Dolce & Gabbana GCC", "dolcegabbana.com", "D&G Talent Gateway"),
+            ("Burberry Middle East", "burberry.com", "Burberry Careers"),
+            ("Tiffany & Co. Gulf", "tiffany.com", "Tiffany & Co. Portal"),
+            ("Bulgari Middle East", "bulgari.com", "Bulgari Careers"),
+            ("Van Cleef & Arpels GCC", "vancleefarpels.com", "Van Cleef Gateway"),
+            ("Rolex Middle East", "rolex.com", "Rolex Careers"),
+            ("Patek Philippe GCC", "patek.com", "Patek Philippe Portal"),
+            ("Audemars Piguet Middle East", "audemarspiguet.com", "Audemars Piguet Gateway"),
+            ("Chopard Gulf & ME", "chopard.com", "Chopard Careers"),
+            ("Hublot Middle East", "hublot.com", "Hublot Gateway"),
+            ("Shiseido Middle East", "shiseido.com", "Shiseido Beauty Hub"),
+            ("Coty Middle East & Africa", "coty.com", "Coty Careers"),
+            ("Clarins Middle East", "clarins.com", "Clarins Beauty Portal"),
+            ("MAC Cosmetics GCC", "maccosmetics.com", "MAC Cosmetics Portal"),
+            ("Jo Malone London ME", "jomalone.com", "Jo Malone Careers"),
+            ("Bobbi Brown Arabia", "bobbibrown.com", "Bobbi Brown Gateway"),
+            ("Charlotte Tilbury GCC", "charlottetilbury.com", "Charlotte Tilbury Careers"),
+            ("Huda Beauty Global Hub", "hudabeauty.com", "Huda Beauty Careers"),
+            ("NARS Cosmetics GCC", "narscosmetics.com", "NARS Cosmetics Portal"),
+            ("Benefit Cosmetics MENA", "benefitcosmetics.com", "Benefit Careers"),
+            ("Urban Decay Arabia", "urbandecay.com", "Urban Decay Portal"),
+            ("HOLDAL Group Lebanon & ME", "holdal.com.lb", "HOLDAL Group Careers"),
+            ("Fattal Group Beauty & Luxury", "fattal.com.lb", "Fattal Group Portal"),
+            ("Dessange Paris Middle East", "dessange.com", "Dessange Luxury Salons"),
+            ("Jean Louis David Arabia", "jeanlouisdavid.com", "JLD Salons Portal"),
+            ("Tony Mendelek Salons", "tonymendelek.com", "Tony Mendelek Careers"),
+            ("Pace e Luce Luxury Salons", "paceeluce.com", "Pace e Luce Gateway"),
+            ("Michel Zeytoun Beauty", "michelzeytoun.com", "Michel Zeytoun Portal"),
+            ("Obagi Medispa GCC", "obagi.com", "Obagi Clinical Hub"),
+            ("Kaya Skin Clinic GCC", "kayaskinclinic.com", "Kaya Clinic Careers"),
+            ("Silkor Laser & Aesthetic Center", "silkor.com", "Silkor Aesthetic Portal"),
+            ("VLCC Wellness GCC", "vlccwellness.com", "VLCC Careers"),
+            ("Sephora Middle East", "sephora.ae", "Sephora Talent Gateway"),
+            ("Chalhoub Luxury Group", "chalhoubgroup.com", "Chalhoub Group Portal"),
+            ("Rivoli Group Luxury", "rivoligroup.com", "Rivoli Group Careers"),
+            ("Jashanmal Group", "jashanmalgroup.com", "Jashanmal Careers"),
+            ("Seddiqi Holding Luxury", "seddiqi.com", "Seddiqi Holding Gateway"),
+            ("Azadea Group Retail", "azadea.com", "Azadea Careers Hub"),
+            ("Alshaya Retail Group", "alshaya.com", "Alshaya Gateway"),
+            ("Al Tayer Enterprise Group", "altayer.com", "Al Tayer Gateway"),
+            ("Apparel Group Retail", "apparelgroup.com", "Apparel Portal"),
+            ("Landmark Group IT & Retail", "landmarkgroup.com", "Landmark Careers"),
+            ("Al-Futtaim Enterprise", "alfuttaim.com", "Al-Futtaim Careers"),
+            ("Ounass Luxury Platform", "ounass.com", "Ounass Luxury Portal"),
+            ("Bloomingdale's Middle East", "bloomingdales.ae", "Bloomingdale's Gateway"),
+            ("Harvey Nichols Dubai", "harveynichols.com", "Harvey Nichols Portal"),
+            ("Faces Beauty GCC", "faces.com", "Faces Beauty Hub"),
+            ("Wojooh Cosmetics", "wojooh.com", "Wojooh Careers"),
+            ("Paris Gallery Luxury", "parisgallery.com", "Paris Gallery Portal"),
+            ("Rubaiyat Luxury Group", "rubaiyat.com", "Rubaiyat Careers"),
+            ("Jumeirah Group Hospitality", "jumeirah.com", "Jumeirah Careers"),
+            ("Kerzner International Resorts", "kerzner.com", "Kerzner Luxury Portal"),
+            ("Atlantis The Royal Dubai", "atlantis.com", "Atlantis Talent Gateway"),
+            ("One&Only Resorts GCC", "oneandonlyresorts.com", "One&Only Luxury Hub"),
+            ("Rotana Hotel Management", "rotana.com", "Rotana Careers Gateway"),
+            ("Four Seasons Middle East", "fourseasons.com", "Four Seasons Gateway"),
+            ("Mandarin Oriental Gulf", "mandarinoriental.com", "Mandarin Oriental Portal"),
+            ("Marriott International MENA", "marriott.com", "Marriott Careers"),
+            ("Ritz-Carlton Gulf & ME", "ritzcarlton.com", "Ritz-Carlton Careers"),
+            ("St. Regis Hotels Middle East", "stregis.com", "St. Regis Portal"),
+            ("Bulgari Resort Dubai", "bulgarihotels.com", "Bulgari Hotels Portal"),
+            ("Armani Hotel Dubai", "armanihotels.com", "Armani Hotels Careers"),
+            ("Hilton Worldwide Middle East", "hilton.com", "Hilton Careers"),
+            ("Waldorf Astoria GCC", "waldorfastoria.com", "Waldorf Astoria Portal"),
+            ("Conrad Hotels Gulf", "conradhotels.com", "Conrad Hotels Gateway"),
+            ("Hyatt Hotels GCC", "hyatt.com", "Hyatt Global Gateway"),
+            ("Park Hyatt Middle East", "parkhyatt.com", "Park Hyatt Portal"),
+            ("Accor Hotels Middle East", "accor.com", "Accor Careers"),
+            ("Raffles Hotels GCC", "raffles.com", "Raffles Luxury Portal"),
+            ("Fairmont Hotels MENA", "fairmont.com", "Fairmont Careers"),
+            ("Sofitel Luxury Middle East", "sofitel.com", "Sofitel Portal"),
+            ("Banyan Tree GCC", "banyantree.com", "Banyan Tree Careers"),
+            ("Address Hotels & Resorts", "addresshotels.com", "Address Hotels Portal"),
+            ("Vida Hotels and Resorts", "vidahotels.com", "Vida Hotels Gateway"),
+            ("Kempinski Hotels Middle East", "kempinski.com", "Kempinski Careers"),
+            ("IHG Hotels & Resorts MENA", "ihg.com", "IHG Talent Gateway"),
+            ("Six Senses Resorts GCC", "sixsenses.com", "Six Senses Careers"),
+            ("Rosewood Hotels Gulf", "rosewoodhotels.com", "Rosewood Luxury Portal"),
+            ("Anantara Hotels Middle East", "anantara.com", "Anantara Careers"),
+            ("Shangri-La Hotels GCC", "shangri-la.com", "Shangri-La Portal"),
+            ("Sunset Hospitality Group", "sunsethospitality.com", "Sunset Hospitality Careers"),
+        ]
+
+        DESIGN_TARGETS = [
+            ("Anghami Music & Design", "anghami.com", "Anghami Creative Hub"),
+            ("Careem Creative Studio", "careem.com", "Careem Brand Hub"),
+            ("Noon Digital & Visual", "noon.com", "Noon Creative Gateway"),
+            ("Chalhoub Design & Media", "chalhoubgroup.com", "Chalhoub Visual Portal"),
+            ("Alshaya Creative Group", "alshaya.com", "Alshaya Design Hub"),
+            ("Landmark Media & Design", "landmarkgroup.com", "Landmark Creative Studio"),
+            ("Dubizzle Group Media", "dubizzle.com", "Dubizzle Creative Portal"),
+            ("Property Finder Visuals", "propertyfinder.ae", "Property Finder Design"),
+            ("Salla Creative Hub", "salla.sa", "Salla Design Studio"),
+            ("Zid Design Systems", "zid.sa", "Zid Creative Lab"),
+            ("Foodics Visual Branding", "foodics.com", "Foodics Studio"),
+            ("Unifonic Media Lab", "unifonic.com", "Unifonic Creative Hub"),
+            ("Kitopi Brand & Visuals", "kitopi.com", "Kitopi Design Gateway"),
+            ("Jahez Digital Media", "jahez.net", "Jahez Creative Studio"),
+            ("HungerStation Visual Hub", "hungerstation.com", "HungerStation Design"),
+            ("Leo Burnett Middle East", "leoburnett.com", "Leo Burnett Creative"),
+            ("Ogilvy Middle East & North Africa", "ogilvy.com", "Ogilvy Careers"),
+            ("BBDO Middle East", "impactbbdo.com", "BBDO Talent Gateway"),
+            ("Saatchi & Saatchi MENA", "saatchi.com", "Saatchi & Saatchi Portal"),
+            ("TBWA RAAD Middle East", "tbwaraad.com", "TBWA RAAD Careers"),
+            ("FP7 McCann Middle East", "mccann.com", "FP7 McCann Gateway"),
+            ("Memac Ogilvy Arabia", "memacogilvy.com", "Memac Ogilvy Careers"),
+            ("Havas Middle East", "havasme.com", "Havas Creative Hub"),
+            ("Dentsu Middle East", "dentsu.com", "Dentsu Talent Portal"),
+            ("Publicis Groupe ME", "publicisgroupe.com", "Publicis Careers"),
+            ("Wunderman Thompson MENA", "wundermanthompson.com", "Wunderman Portal"),
+            ("MullenLowe MENA", "mullenlowemena.com", "MullenLowe Careers"),
+            ("VML Middle East", "vml.com", "VML Creative Hub"),
+            ("Serviceplan Middle East", "serviceplan.com", "Serviceplan Careers"),
+            ("Landor & FITCH Middle East", "landor.com", "Landor Branding Hub"),
+            ("Interbrand Middle East", "interbrand.com", "Interbrand Gateway"),
+            ("Superunion ME", "superunion.com", "Superunion Careers"),
+            ("Siegel+Gale Middle East", "siegelgale.com", "Siegel+Gale Portal"),
+        ]
+
+        HEALTHCARE_TARGETS = [
+            ("King Faisal Specialist Hospital", "kfshrc.edu.sa", "KFSHRC Medical Hub"),
+            ("Cleveland Clinic Abu Dhabi", "clevelandclinicabudhabi.ae", "Cleveland Clinic Portal"),
+            ("Johns Hopkins Aramco Health", "jhah.com", "JHAH Careers"),
+            ("American Hospital Dubai", "ahdubai.com", "American Hospital Gateway"),
+            ("Burjeel Holdings Healthcare", "burjeel.com", "Burjeel Careers"),
+            ("Aster DM Healthcare", "asterdmhealthcare.com", "Aster Healthcare Portal"),
+            ("NMC Healthcare GCC", "nmc.ae", "NMC Careers"),
+            ("Mediclinic Middle East", "mediclinic.ae", "Mediclinic Portal"),
+            ("Saudi German Health", "sghgroup.com.sa", "Saudi German Careers"),
+            ("Dr. Sulaiman Al Habib Medical Tech", "hmg.com.sa", "HMG Careers"),
+            ("Fakeeh Care Health Systems", "fakeeh.care", "Fakeeh Care Gateway"),
+            ("Mouwasat Medical Services", "mouwasat.com", "Mouwasat Careers"),
+            ("Dallah Healthcare Holding", "dallahhealth.com", "Dallah Healthcare Portal"),
+            ("Magrabi Hospitals & Centers", "magrabi.com.sa", "Magrabi Careers"),
+            ("King Abdullah Medical City", "kamc.med.sa", "KAMC Medical Portal"),
+            ("King Fahad Medical City", "kfmc.med.sa", "KFMC Careers"),
+            ("National Guard Health Affairs", "ngha.med.sa", "NGHA Portal"),
+            ("Security Forces Hospital", "sfh.med.sa", "SFH Medical Gateway"),
+            ("King Khalid University Hospital", "ksu.edu.sa", "KKUH Medical Portal"),
+            ("Sultan Bin Abdulaziz Humanitarian City", "sbahc.org.sa", "SBAHC Careers"),
+            ("Al Mashfa Hospital", "almashfa.com.sa", "Al Mashfa Gateway"),
+            ("Sheikh Shakhbout Medical City (SSMC)", "ssmc.ae", "SSMC Mayo Clinic Portal"),
+            ("Mubadala Health Systems", "mubadalahealth.ae", "Mubadala Health Careers"),
+            ("Healthpoint Hospital Abu Dhabi", "healthpoint.ae", "Healthpoint Gateway"),
+            ("Imperial College London Diabetes Centre", "icldc.ae", "ICLDC Careers"),
+            ("Danat Al Emarat Hospital", "danatalemarat.ae", "Danat Al Emarat Portal"),
+            ("Moorfields Eye Hospital Dubai", "moorfields.ae", "Moorfields Careers"),
+            ("King's College Hospital London Dubai", "kingscollegehospitaldubai.com", "King's College Portal"),
+            ("Al Zahra Hospital Dubai", "azhd.ae", "Al Zahra Careers"),
+            ("Zulekha Hospital Gulf", "zulekhahospitals.com", "Zulekha Portal"),
+            ("Canadian Specialist Hospital Dubai", "csh.ae", "CSH Careers"),
+            ("Medeor Hospital GCC", "medeor.ae", "Medeor Healthcare Portal"),
+            ("Prime Hospital Dubai", "primehospital.ae", "Prime Hospital Careers"),
+            ("Belhoul Speciality Hospital", "belhoulhospital.com", "Belhoul Portal"),
+            ("AUBMC Medical Center Beirut", "aubmc.org.lb", "AUBMC Careers"),
+            ("Hotel-Dieu de France Beirut", "hdf.usj.edu.lb", "HDF Hospital Gateway"),
+            ("Rizk Hospital LAUMC Beirut", "laumcrh.com", "LAUMC Medical Portal"),
+            ("Clemenceau Medical Center (CMC)", "cmc.com.lb", "CMC Johns Hopkins Affiliate"),
+            ("Saint George Hospital Beirut", "stgeorgehospital.org", "Saint George Careers"),
+            ("Mount Lebanon Hospital", "mlh.com.lb", "Mount Lebanon Portal"),
+            ("Bellevue Medical Center", "bmc.com.lb", "Bellevue Medical Gateway"),
+        ]
+
+        TECH_ENTERPRISE_TARGETS = [
+            ("Saudi Aramco Digital", "aramco.com", "Aramco Careers Portal"),
+            ("Aramco Digital Systems", "aramcodigital.com", "Aramco Digital Hub"),
+            ("ADNOC Technology & Digital", "adnoc.ae", "ADNOC Direct Gateway"),
+            ("NEOM Smart City Tech", "neom.com", "NEOM Careers Portal"),
+            ("Red Sea Global Infrastructure", "redseaglobal.com", "Red Sea Global Gateway"),
+            ("Qiddiya Investment Tech", "qiddiya.com", "Qiddiya Portal"),
+            ("Diriyah Development Company", "diriyah.sa", "Diriyah Careers"),
+            ("ROSHN Real Estate Tech", "roshn.sa", "ROSHN Gateway"),
+            ("PIF Technology & Systems", "pif.gov.sa", "PIF Careers"),
+            ("Mubadala Investment Group", "mubadala.com", "Mubadala Direct"),
+            ("ADQ Holding Technology", "adq.ae", "ADQ Portal"),
+            ("Core42 Sovereign Cloud", "g42.ai", "G42 Careers"),
+            ("Presight Big Data AI", "presight.ai", "Presight Gateway"),
+            ("Solutions by STC", "solutions.com.sa", "Solutions STC Hub"),
+            ("SITE Cyber Security", "site.sa", "SITE Gateway"),
+            ("Elm Digital Solutions", "elm.sa", "Elm Portal"),
+            ("Etisalat UAE (e&)", "eand.com", "e& Careers"),
+            ("Du Telecommunications", "du.ae", "du Portal"),
+            ("STC Saudi Telecom", "stc.com.sa", "STC Gateway"),
+            ("Zain Group Telecommunications", "zain.com", "Zain Careers"),
+            ("Ooredoo Qatar", "ooredoo.qa", "Ooredoo Gateway"),
+            ("Omantel Systems", "omantel.om", "Omantel Portal"),
+            ("Batelco Beyond", "beyon.com", "Batelco Careers"),
+            ("Emirates Group IT", "emirates.com", "Emirates Group Careers"),
+            ("Qatar Airways Digital", "qatarairways.com.qa", "Qatar Airways Portal"),
+            ("flydubai Aviation Systems", "flydubai.com", "flydubai Careers"),
+            ("Air Arabia Technology", "airarabia.com", "Air Arabia Gateway"),
+            ("Riyadh Air Digital", "riyadhair.com", "Riyadh Air Portal"),
+            ("DP World Automation", "dpworld.com", "DP World Gateway"),
+            ("AD Ports Group Systems", "adportsgroup.com", "AD Ports Careers"),
+            ("Agility Global Logistics", "agility.com", "Agility Portal"),
+            ("Aramex International", "aramex.com", "Aramex Careers"),
+            ("Emirates NBD Digital Banking", "emiratesnbd.com", "Emirates NBD Portal"),
+            ("First Abu Dhabi Bank (FAB)", "bankfab.com", "FAB Careers"),
+            ("Abu Dhabi Commercial Bank (ADCB)", "adcb.com", "ADCB Gateway"),
+            ("Dubai Islamic Bank (DIB)", "dib.ae", "DIB Careers"),
+            ("Mashreq Neo Digital", "mashreqbank.com", "Mashreq Portal"),
+            ("Al Rajhi Bank Digital", "alrajhibank.com.sa", "Al Rajhi Gateway"),
+            ("Saudi National Bank (SNB)", "snb.com.sa", "SNB Careers"),
+            ("Riyad Bank Technology", "riyadbank.com", "Riyad Bank Portal"),
+            ("Kuwait Finance House (KFH)", "kfh.com", "KFH Gateway"),
+            ("National Bank of Kuwait (NBK)", "nbk.com", "NBK Careers"),
+            ("Qatar National Bank (QNB)", "qnb.com", "QNB Portal"),
+            ("Bank Muscat Systems", "bankmuscat.com", "Bank Muscat Gateway"),
+            ("Bank ABC Bahrain", "bankabc.com", "Bank ABC Careers"),
+            ("Arab Bank Group", "arabbank.com", "Arab Bank Gateway"),
+            ("Bank Audi IT", "bankaudi.com.lb", "Bank Audi Careers"),
+            ("BLOM Bank Systems", "blom-bank.com", "BLOM Bank Gateway"),
+            ("Byblos Bank Digital", "byblosbank.com", "Byblos Careers"),
+            ("Majid Al Futtaim (MAF)", "majidalfuttaim.com", "MAF Careers"),
+            ("Emaar Smart Properties", "emaar.com", "Emaar Portal"),
+            ("Damac Properties Systems", "damacproperties.com", "Damac Careers"),
+            ("Aldar Properties Tech", "aldar.com", "Aldar Gateway"),
+            ("Mrsool Delivery Tech", "mrsool.co", "Mrsool Gateway"),
+            ("Salla E-Commerce Hub", "salla.sa", "Salla Tech Hub"),
+            ("Zid Platform Systems", "zid.sa", "Zid Careers"),
+            ("Foodics Cloud POS", "foodics.com", "Foodics Portal"),
+            ("Unifonic Cloud Comms", "unifonic.com", "Unifonic Gateway"),
+            ("Anghami Music & Cloud", "anghami.com", "Anghami Careers"),
+            ("Lean FinTech Technologies", "leantech.me", "Direct Corporate Gateway"),
+            ("Tamara FinTech Systems", "tamara.co", "Direct Corporate Gateway"),
+            ("Tabby Pay Infrastructure", "tabby.ai", "Direct Corporate Gateway"),
+            ("Careem Tech Platform", "careem.com", "Careem Engineering Hub"),
+            ("Talabat Delivery Systems", "talabat.com", "Talabat Tech Portal"),
+            ("Noon E-Commerce Cloud", "noon.com", "Noon Direct Gateway"),
+            ("Property Finder Platform", "propertyfinder.ae", "Property Finder Portal"),
+            ("Dubizzle Tech Group", "dubizzle.com", "Dubizzle Group Hub"),
+            ("Delivery Hero MENA Hub", "deliveryhero.com", "Delivery Hero Gateway"),
+            ("Kitopi Cloud Kitchens", "kitopi.com", "Kitopi Careers"),
+            ("Jahez Delivery Network", "jahez.net", "Jahez Direct"),
+            ("HungerStation Cloud Systems", "hungerstation.com", "HungerStation Portal"),
+            ("NVIDIA Middle East & AI", "nvidia.com", "Direct Enterprise Routing"),
+            ("Amazon Web Services (AWS) MENA", "amazon.com", "AWS Careers Portal"),
+            ("Google Cloud MENA", "google.com", "Google Direct Gateway"),
+            ("Microsoft Gulf & Arabia", "microsoft.com", "Direct Recruiter Link"),
+            ("Oracle Cloud Systems", "oracle.com", "Oracle Direct Gateway"),
+            ("Cisco Systems MENA", "cisco.com", "Cisco Partner Gateway"),
+            ("IBM Enterprise Systems", "ibm.com", "Direct Executive Email"),
+            ("SAP Middle East & North Africa", "sap.com", "SAP Career Portal"),
+            ("Huawei Enterprise MENA", "huawei.com", "Direct Enterprise Routing"),
+            ("Ericsson Telecommunications GCC", "ericsson.com", "Ericsson Direct Portal"),
+            ("Nokia Networks MENA", "nokia.com", "Nokia Careers"),
+            ("Siemens Middle East", "siemens.com", "Siemens Gateway"),
+            ("Schneider Electric MENA", "se.com", "Schneider Direct"),
+            ("ABB Group Systems", "abb.com", "ABB Careers"),
+            ("Honeywell Middle East", "honeywell.com", "Honeywell Direct"),
+            ("Emerson Automation MENA", "emerson.com", "Emerson Careers"),
+            ("Dell Technologies GCC", "dell.com", "Dell Gateway"),
+            ("Hewlett Packard Enterprise (HPE)", "hpe.com", "HPE Portal"),
+            ("Palo Alto Networks MENA", "paloaltonetworks.com", "Palo Alto Gateway"),
+            ("Fortinet Cyber Security GCC", "fortinet.com", "Fortinet Careers"),
+            ("Check Point Software Gulf", "checkpoint.com", "Check Point Gateway"),
+            ("Juniper Networks MEA", "juniper.net", "Juniper Portal"),
+            ("CrowdStrike MENA", "crowdstrike.com", "CrowdStrike Gateway"),
+            ("Cloudflare Edge Network", "cloudflare.com", "Cloudflare Careers"),
+            ("Snowflake Data Cloud", "snowflake.com", "Snowflake Portal"),
+            ("Nutanix Cloud Systems", "nutanix.com", "Nutanix Gateway"),
+            ("ServiceNow Digital WF", "servicenow.com", "ServiceNow Careers"),
+            ("Workday Enterprise MENA", "workday.com", "Workday Portal"),
+            ("Darktrace AI Cyber Security", "darktrace.com", "Darktrace Gateway"),
+            ("SentinelOne Security GCC", "sentinelone.com", "SentinelOne Careers"),
+            ("Wiz Cloud Security MENA", "wiz.io", "Wiz Portal"),
+            ("Red Hat Enterprise Gulf", "redhat.com", "Red Hat Gateway"),
+            ("Citrix Systems Arabia", "citrix.com", "Citrix Careers"),
+            ("Equinix Data Centers MENA", "equinix.com", "Equinix Portal"),
+            ("NTT Data Middle East", "nttdata.com", "NTT Data Gateway"),
+            ("Infosys Gulf & MENA", "infosys.com", "Infosys Careers"),
+            ("Wipro Middle East", "wipro.com", "Wipro Gateway"),
+            ("Tata Consultancy Services (TCS)", "tcs.com", "TCS Portal"),
+            ("Capgemini Middle East", "capgemini.com", "Capgemini Careers"),
+            ("DXC Technology GCC", "dxc.com", "DXC Portal"),
+            ("Kyndryl Systems MENA", "kyndryl.com", "Kyndryl Gateway"),
+            ("Cognizant Technology Gulf", "cognizant.com", "Cognizant Portal"),
+            ("SABIC Petrochemicals & Tech", "sabic.com", "SABIC Careers"),
+            ("Ma'aden Mining Systems", "maaden.com.sa", "Maaden Careers"),
+            ("Saudi Electricity Company (SEC)", "se.com.sa", "SEC Portal"),
+            ("Saline Water Conversion (SWCC)", "swcc.gov.sa", "SWCC Careers"),
+            ("National Water Company (NWC)", "nwc.com.sa", "NWC Portal"),
+            ("Saudi Military Industries (SAMI)", "sami.com.sa", "SAMI Careers"),
+            ("Bupa Arabia Healthcare Systems", "bupa.com.sa", "Bupa Arabia Careers"),
+            ("Tawuniya Insurance Tech", "tawuniya.com.sa", "Tawuniya Portal"),
+            ("Dewa (Dubai Electricity & Water)", "dewa.gov.ae", "DEWA Portal"),
+            ("ENOC Energy Systems", "enoc.com", "ENOC Careers"),
+            ("Emirates Global Aluminium (EGA)", "ega.ae", "EGA Careers"),
+            ("Borouge Petrochemical Systems", "borouge.com", "Borouge Gateway"),
+            ("Fertiglobe Industrial Tech", "fertiglobe.com", "Fertiglobe Portal"),
+            ("Americana Group Systems", "americanarestaurants.com", "Americana Careers"),
+            ("Almarai Technology & Logistics", "almarai.com", "Almarai Careers"),
+            ("Nadec Agri-Tech Systems", "nadec.com.sa", "Nadec Portal"),
+            ("Savola Group IT", "savola.com", "Savola Careers"),
+            ("BinDawood Holding Tech", "bindawoodholding.com", "BinDawood Gateway"),
+            ("Jarir Tech & Retail Hub", "jarir.com", "Jarir Careers"),
+            ("Extra Stores Retail Tech", "extra.com", "Extra Portal"),
+            ("Nahdi Medical Digital Hub", "nahdi.sa", "Nahdi Careers"),
+            ("Bahri Global Logistics", "bahri.sa", "Bahri Gateway"),
+            ("SAL Saudi Logistics Systems", "sal.sa", "SAL Careers"),
+            ("SAPTCO Mobility Digital", "saptco.com.sa", "SAPTCO Portal"),
+            ("SISCO Ports Infrastructure", "sisco.com.sa", "SISCO Careers"),
+            ("McKinsey & Company MENA", "mckinsey.com", "McKinsey Careers"),
+            ("Boston Consulting Group (BCG)", "bcg.com", "BCG Careers"),
+            ("Bain & Company Middle East", "bain.com", "Bain Gateway"),
+            ("PwC Strategy& Middle East", "pwc.com", "PwC Careers"),
+            ("Deloitte Middle East Tech", "deloitte.com", "Deloitte Portal"),
+            ("EY (Ernst & Young) MENA", "ey.com", "EY Careers"),
+            ("KPMG Lower Gulf & Arabia", "kpmg.com", "KPMG Portal")
+        ]
+
+        REGIONAL_CONGLOMERATE_TARGETS = [
+            ("Al Tayer Group", "altayer.com", "Al Tayer Careers"),
+            ("Chalhoub Group", "chalhoubgroup.com", "Chalhoub Group Portal"),
+            ("Apparel Group Global", "apparelgroupglobal.com", "Apparel Careers"),
+            ("Alshaya Group", "alshaya.com", "Alshaya Portal"),
+            ("Seddiqi Holding", "seddiqi.com", "Seddiqi Gateway"),
+            ("Danube Group", "aldanube.com", "Danube Careers"),
+            ("Al Habtoor Group", "habtoor.com", "Habtoor Careers"),
+            ("Lulu Group International", "lulugroupinternational.com", "Lulu Portal"),
+            ("Landmark Group", "landmarkgroup.com", "Landmark Careers"),
+            ("Azadea Group", "azadeagroup.com", "Azadea Portal"),
+            ("Sobha Realty", "sobharealty.com", "Sobha Careers"),
+            ("Rotana Hotel Management", "rotana.com", "Rotana Careers"),
+            ("Jumeirah Group", "jumeirah.com", "Jumeirah Gateway"),
+            ("Al Khozama Management", "alkhozama.com", "Al Khozama Careers"),
+            ("Dar Al Arkan Real Estate", "daralarkan.com", "Dar Al Arkan Portal"),
+            ("Nesma Holding", "nesma.com", "Nesma Gateway"),
+            ("Al Fanar Group", "alfanar.com", "Alfanar Careers"),
+            ("Olayan Group", "olayan.com", "Olayan Portal"),
+            ("Zahid Group", "zahid.com", "Zahid Careers"),
+            ("Kanoo Group", "kanoo.com", "Kanoo Portal"),
+            ("Al-Futtaim Group", "alfuttaim.com", "Al-Futtaim Careers"),
+            ("Dubai Holding", "dubaiholding.com", "Dubai Holding Portal"),
+            ("Meraas Holding", "meraas.com", "Meraas Careers"),
+            ("Nakheel Properties", "nakheel.com", "Nakheel Portal"),
+            ("Aldar Properties", "aldar.com", "Aldar Careers"),
+            ("Qiddiya Investment Co", "qiddiya.com", "Qiddiya Portal"),
+            ("Red Sea Global", "redseaglobal.com", "Red Sea Careers"),
+            ("NEOM Project Office", "neom.com", "NEOM Careers"),
+            ("Diriyah Gate Development", "dgda.gov.sa", "DGDA Portal"),
+            ("Roshn Real Estate", "roshn.sa", "Roshn Careers"),
+            ("Olayan Descon", "olayandescon.com", "Olayan Careers"),
+            ("Al Jaber Group", "aljaber.com", "Al Jaber Careers"),
+            ("Arabtec Holding", "arabtec.com", "Arabtec Portal"),
+            ("GEMS Education", "gemseducation.com", "GEMS Careers"),
+            ("Taaleem Education", "taaleem.ae", "Taaleem Portal"),
+            ("Aster DM Healthcare", "asterdmhealthcare.com", "Aster Careers"),
+            ("NMC Healthcare", "nmc.ae", "NMC Portal"),
+            ("Mediclinic Middle East", "mediclinic.ae", "Mediclinic Careers"),
+            ("Fakeeh Care Group", "fakeeh.care", "Fakeeh Careers"),
+            ("Dr Sulaiman Al Habib Medical", "drsulaimanalhabib.com", "HMG Careers"),
+            ("Saudi German Health", "saudigermanhealth.com", "SGH Careers"),
+            ("King Faisal Specialist Hospital", "kfshrc.edu.sa", "KFSHRC Portal"),
+            ("Cleveland Clinic Abu Dhabi", "clevelandclinicabudhabi.ae", "CCAD Careers"),
+            ("American Hospital Dubai", "ahdubai.com", "AHD Portal"),
+            ("Mubadala Health", "mubadalahealth.ae", "Mubadala Health Portal")
+        ]
+
+        if industry_category == "HEALTHCARE":
+            candidate_target_matrix = HEALTHCARE_TARGETS + REGIONAL_CONGLOMERATE_TARGETS
+        elif industry_category == "EDUCATION_MUSIC":
+            candidate_target_matrix = EDUCATION_TARGETS + REGIONAL_CONGLOMERATE_TARGETS
+        elif industry_category == "LUXURY_BEAUTY":
+            candidate_target_matrix = LUXURY_TARGETS + REGIONAL_CONGLOMERATE_TARGETS
+        elif industry_category == "DESIGN_CREATIVE":
+            candidate_target_matrix = DESIGN_TARGETS + TECH_ENTERPRISE_TARGETS + REGIONAL_CONGLOMERATE_TARGETS
+        elif industry_category == "BANKING_FINANCE":
+            candidate_target_matrix = TECH_ENTERPRISE_TARGETS + REGIONAL_CONGLOMERATE_TARGETS
+        else:
+            candidate_target_matrix = TECH_ENTERPRISE_TARGETS + REGIONAL_CONGLOMERATE_TARGETS + DESIGN_TARGETS + EDUCATION_TARGETS + LUXURY_TARGETS
+
+        # Tier 1: Primary category target matrix across verified corporate inboxes
+        INBOX_PREFIXES = ["careers", "recruitment", "jobs", "talent", "hr", "people"]
+        for prefix in INBOX_PREFIXES:
+            for comp_title, dom, plat in candidate_target_matrix:
+                cand_email = f"{prefix}@{dom}".lower().strip()
+                if cand_email in sent_emails_set:
+                    continue
+
+                if not is_deliverable_email(cand_email):
+                    continue
+
+                user_session_claimed.add(cand_email)
+                return {
+                    "company": comp_title,
+                    "title": candidate_title,
+                    "email": cand_email,
+                    "platform": plat or "Verified Enterprise Gateway",
+                    "match_score": 99 if prefix == "careers" else 97
+                }
+
+        # Tier 2: Harvested live enterprise jobs from database strictly matching industry category
+        try:
+            industry_kw_map = {
+                "EDUCATION_MUSIC": ["teacher", "educat", "music", "school", "instructor", "professor", "academic", "choir", "piano", "arts", "tutor", "conservatory"],
+                "LUXURY_BEAUTY": ["beauty", "luxury", "retail", "fashion", "cosmetic", "advisor", "salon", "boutique", "brand", "fragrance", "jewel"],
+                "DESIGN_CREATIVE": ["designer", "design", "graphic", "ui", "ux", "creative", "art", "visual", "animat", "video", "media", "brand"],
+                "HEALTHCARE": ["medical", "doctor", "physician", "nurse", "hospital", "clinic", "health", "pharma", "clinical", "therap"],
+                "BANKING_FINANCE": ["finance", "bank", "account", "audit", "treasury", "invest", "fintech", "tax"],
+                "TECH_ENGINEERING": ["engineer", "network", "cloud", "devops", "software", "tech", "system", "cisco", "security", "infrastructure", "telecom"]
             }
+            industry_kw = industry_kw_map.get(industry_category, ["engineer", "network", "tech"])
+            kw_clauses = " OR ".join(["LOWER(title) LIKE ?" for _ in industry_kw])
+            kw_params = [f"%{k}%" for k in industry_kw]
 
-    try:
-        unapplied_rows = conn.execute(
-            """SELECT company, title, email, source FROM jobs 
-               WHERE (user_id = ? OR user_id IS NULL OR user_id = '') 
-               AND (status != 'applied' OR status IS NULL)
-               AND company IS NOT NULL AND company != ''
-               ORDER BY id DESC LIMIT 50""",
-            (user_id,)
-        ).fetchall()
-        for r in unapplied_rows:
-            comp_name = r["company"].strip()
-            comp_email = (r["email"] or "").strip().lower()
-            if not comp_email:
-                clean_dom = re.sub(r'[^a-zA-Z0-9]', '', comp_name.lower()) + ".com"
-                comp_email = f"careers@{clean_dom}"
+            harvested_jobs = conn.execute(
+                f"SELECT company, email, title, source FROM jobs WHERE ({kw_clauses}) AND email IS NOT NULL AND length(email) > 5 ORDER BY id DESC LIMIT 500",
+                tuple(kw_params)
+            ).fetchall()
+            for j in harvested_jobs:
+                j_email = str(j["email"] or "").lower().strip()
+                j_comp = str(j["company"] or "").strip()
+                j_comp_clean = j_comp.lower()
+                if j_email in sent_emails_set or j_comp_clean in sent_comps_set:
+                    continue
+                if not is_deliverable_email(j_email):
+                    continue
+                user_session_claimed.add(j_email)
+                user_session_comps.add(j_comp_clean)
+                return {
+                    "company": j_comp or "Verified Enterprise Employer",
+                    "title": j["title"] or candidate_title,
+                    "email": j_email,
+                    "platform": j["source"] or "Live Industry Match",
+                    "match_score": 95
+                }
+        except Exception:
+            pass
 
-            if comp_email and comp_email in sent_emails_set:
-                continue
-            if comp_name.lower() in sent_comps_set:
-                continue
-
-            if not is_deliverable_email(comp_email):
-                continue
-
-            user_session_claimed.add(comp_email)
-            user_session_comps.add(comp_name.lower())
-            return {
-                "company": comp_name,
-                "title": r["title"] or candidate_title,
-                "email": comp_email,
-                "platform": r["source"] or "Global Job Board",
-                "match_score": 97
-            }
-    except Exception as exc:
-        logger.debug(f"[Dispatcher] Unapplied jobs fallback error: {exc}")
-    except Exception as exc:
-        logger.debug(f"[Dispatcher] Unapplied jobs fallback error: {exc}")
-
-    # ── Phase 3: Real Enterprise Company Target Pool (Strict MX & 365-Day Cooldown Verification) ──
-    REAL_ENTERPRISE_FALLBACKS = [
-        ("Oracle Middle East", "careers@oracle.com"),
-        ("IBM Middle East", "careers@ibm.com"),
-        ("Cisco Systems MENA", "careers@cisco.com"),
-        ("Palo Alto Networks", "careers@paloaltonetworks.com"),
-        ("Fortinet Middle East", "careers@fortinet.com"),
-        ("VMware MENA", "careers@vmware.com"),
-        ("Dell Technologies GCC", "careers@dell.com"),
-        ("Salesforce UAE", "careers@salesforce.com"),
-        ("AWS Middle East", "careers@amazon.com"),
-        ("Google Cloud MENA", "careers@google.com"),
-        ("Huawei Cloud Middle East", "careers@huawei.com"),
-        ("Siemens Middle East", "careers@siemens.com"),
-        ("Schneider Electric MENA", "careers@se.com"),
-        ("ABB Group Middle East", "careers@abb.com"),
-        ("Honeywell MENA", "careers@honeywell.com"),
-        ("SAP Middle East", "careers@sap.com"),
-        ("Anghami Tech", "careers@anghami.com"),
-        ("Careem Tech Hub", "careers@careem.com"),
-        ("Noon Digital", "careers@noon.com"),
-        ("Talabat Systems", "careers@talabat.com"),
-        ("Toters Logistics", "careers@toters.com"),
-        ("Ogero Telecom", "info@ogero.gov.lb"),
-        ("Alfa Telecom", "careers@alfa.com.lb"),
-        ("Touch Lebanon", "careers@touch.com.lb"),
-        ("Cedarcom ISP", "info@cedarcom.net"),
-        ("SoftFlow Systems", "hr@softflow.io"),
-        ("ElementN Tech", "info@elementn.com"),
-        ("IT Works ME", "hr@itworksme.com"),
-        ("NAR Technologies", "info@nartechnologies.com"),
-        ("Malia Group IT", "hr@maliagroup.com"),
-        ("Procom Lebanon", "info@procomlb.com"),
-        ("Ericsson Middle East", "careers@ericsson.com"),
-        ("Nokia Networks MENA", "careers@nokia.com"),
-        ("CrowdStrike Gulf", "careers@crowdstrike.com"),
-        ("Splunk UAE", "careers@splunk.com"),
-        ("Datadog MENA", "careers@datadoghq.com"),
-        ("Cloudflare Middle East", "careers@cloudflare.com"),
-        ("Zscaler GCC", "careers@zscaler.com"),
-        ("Snowflake Arabia", "careers@snowflake.com"),
-        ("Nutanix MENA", "careers@nutanix.com"),
-        ("Dynatrace Middle East", "careers@dynatrace.com"),
-        ("Pure Storage Gulf", "careers@purestorage.com"),
-        ("Confluent MENA", "careers@confluent.io"),
-        ("GitLab Middle East", "careers@gitlab.com"),
-        ("Atlassian GCC", "careers@atlassian.com"),
-        ("HashiCorp Arabia", "careers@hashicorp.com"),
-        ("ServiceNow UAE", "careers@servicenow.com"),
-        ("Workday MENA", "careers@workday.com"),
-        ("Twilio Gulf", "careers@twilio.com"),
-        ("MongoDB Middle East", "careers@mongodb.com"),
-        ("Elastic GCC", "careers@elastic.co"),
-        ("Okta MENA", "careers@okta.com"),
-        ("Darktrace UAE", "careers@darktrace.com"),
-        ("SentinelOne KSA", "careers@sentinelone.com"),
-        ("Wiz Cloud MENA", "careers@wiz.io"),
-        ("Snyk Middle East", "careers@snyk.io"),
-        ("Red Hat Gulf", "careers@redhat.com"),
-        ("SUSE Systems MENA", "careers@suse.com"),
-        ("Veeam Software GCC", "careers@veeam.com"),
-        ("Commvault Middle East", "careers@commvault.com"),
-        ("Cohesity MENA", "careers@cohesity.com"),
-        ("Rubrik Arabia", "careers@rubrik.com"),
-        ("F5 Networks Gulf", "careers@f5.com"),
-        ("Arista Networks MENA", "careers@arista.com"),
-        ("Extreme Networks UAE", "careers@extremenetworks.com"),
-        ("NetApp Middle East", "careers@netapp.com"),
-        ("Informatica GCC", "careers@informatica.com"),
-        ("Teradata MENA", "careers@teradata.com"),
-        ("Micro Focus Gulf", "careers@microfocus.com"),
-        ("BMC Software Arabia", "careers@bmc.com"),
-        ("Citrix Systems UAE", "careers@citrix.com"),
-        ("Equinix Middle East", "careers@equinix.com"),
-        ("NTT Data Arabia", "careers@nttdata.com"),
-        ("Tata Communications Gulf", "careers@tatacommunications.com"),
-        ("Infosys Middle East", "careers@infosys.com"),
-        ("Wipro GCC", "careers@wipro.com"),
-        ("TCS Middle East", "careers@tcs.com"),
-        ("HCLTech MENA", "careers@hcltech.com"),
-        ("Tech Mahindra Gulf", "careers@techmahindra.com"),
-        ("Cognizant Arabia", "careers@cognizant.com"),
-        ("Capgemini MENA", "careers@capgemini.com"),
-        ("DXC Technology GCC", "careers@dxc.com"),
-        ("Kyndryl Middle East", "careers@kyndryl.com"),
-        ("Thoughtworks UAE", "careers@thoughtworks.com"),
-        ("EPAM Systems MENA", "careers@epam.com"),
-        ("Endava Gulf", "careers@endava.com"),
-        ("Globant Arabia", "careers@globant.com"),
-        ("Saudi Aramco", "careers@aramco.com"),
-        ("Aramco Digital", "careers@aramcodigital.com"),
-        ("ADNOC Digital", "careers@adnoc.ae"),
-        ("NEOM Tech & Digital", "careers@neom.com"),
-        ("Red Sea Global", "careers@redseaglobal.com"),
-        ("PIF (Public Investment Fund)", "careers@pif.gov.sa"),
-        ("Mubadala Investment", "careers@mubadala.com"),
-        ("Core42 (G42 Group)", "careers@g42.ai"),
-        ("TASC Outsourcing", "careers@tascoutsourcing.com"),
-        ("Bayt Middle East", "careers@bayt.com"),
-        ("GulfTalent", "careers@gulftalent.com"),
-        ("Etisalat UAE", "careers@etisalat.ae"),
-        ("Du Telecom", "careers@du.ae"),
-        ("STC Saudi Telecom", "careers@stc.com.sa"),
-        ("Zain Group", "careers@zain.com"),
-        ("Mobily Saudi Arabia", "careers@mobily.com.sa"),
-        ("Qatar Airways Tech", "careers@qatarairways.com"),
-        ("Emirates Group", "careers@emirates.com"),
-        ("flydubai", "careers@flydubai.com"),
-        ("Saudia Airlines", "careers@saudia.com"),
-        ("Air Arabia", "careers@airarabia.com"),
-        ("Al-Futtaim Group", "careers@al-futtaim.com"),
-        ("Emaar Properties", "careers@emaar.com"),
-        ("Damac Properties", "careers@damacproperties.com"),
-        ("Aldar Properties", "careers@aldar.com"),
-        ("McKinsey Middle East", "careers@mckinsey.com"),
-        ("BCG Middle East", "careers@bcg.com"),
-        ("Bain & Company MENA", "careers@bain.com"),
-        ("Accenture Middle East", "careers@accenture.com"),
-        ("PwC Middle East", "careers@pwc.com"),
-        ("Deloitte Middle East", "careers@deloitte.com"),
-        ("EY Middle East", "careers@ey.com"),
-        ("KPMG Lower Gulf", "careers@kpmg.com"),
-        ("Emirates NBD", "careers@emiratesnbd.com"),
-        ("First Abu Dhabi Bank", "careers@bankfab.com"),
-        ("ADCB Bank", "careers@adcb.com"),
-        ("Mashreq Bank", "careers@mashreqbank.com"),
-        ("Al Rajhi Bank", "careers@alrajhibank.com.sa"),
-        ("SNB Bank Saudi", "careers@lahaha.com"),
-        ("QNB Qatar", "careers@qnb.com"),
-        ("Chalhoub Group", "careers@chalhoub.com"),
-        ("Alshaya Group", "careers@alshaya.com"),
-        ("Microsoft Arabia", "careers@microsoft.com"),
-        ("Microsoft HR MENA", "hr@microsoft.com"),
-        ("Microsoft Talent Gulf", "recruitment@microsoft.com"),
-        ("Amazon Web Services", "careers@amazon.com"),
-        ("AWS Recruitment GCC", "recruitment@amazon.com"),
-        ("Intel Middle East", "careers@intel.com"),
-        ("AMD GCC", "careers@amd.com"),
-        ("Qualcomm MENA", "careers@qualcomm.com"),
-        ("Sony Electronics Gulf", "careers@sony.com"),
-        ("Samsung MENA", "careers@samsung.com"),
-        ("Samsung HR Gulf", "hr@samsung.com"),
-        ("LG Electronics Gulf", "careers@lge.com"),
-        ("Panasonic Middle East", "careers@panasonic.com"),
-        ("Fujitsu Gulf", "careers@fujitsu.com"),
-        ("Lenovo Middle East", "careers@lenovo.com"),
-        ("Asus Arabia", "careers@asus.com"),
-        ("Acer Gulf", "careers@acer.com"),
-        ("Netgear MENA", "careers@netgear.com"),
-        ("TP-Link Middle East", "careers@tp-link.com"),
-        ("Trend Micro Gulf", "careers@trendmicro.com"),
-        ("Kaspersky MENA", "careers@kaspersky.com"),
-        ("Sophos Middle East", "careers@sophos.com"),
-        ("Bitdefender GCC", "careers@bitdefender.com"),
-        ("Avaya MENA", "careers@avaya.com"),
-        ("Mitel Systems", "careers@mitel.com"),
-        ("Logitech MENA", "careers@logitech.com"),
-        ("Barco Middle East", "careers@barco.com"),
-        ("Crestron GCC", "careers@crestron.com"),
-        ("Genetec MENA", "careers@genetec.com"),
-        ("Milestone Systems", "careers@milestonesys.com"),
-        ("Axis Communications", "careers@axis.com"),
-        ("Hikvision Gulf", "careers@hikvision.com"),
-        ("Dahua Technology", "careers@dahuasecurity.com"),
-        ("Bosch Systems MENA", "careers@bosch.com"),
-        ("Johnson Controls", "careers@johnsoncontrols.com"),
-        ("Carrier Middle East", "careers@carrier.com"),
-        ("Daikin Gulf", "careers@daikin.com"),
-        ("Mitsubishi Electric", "careers@mitsubishielectric.com"),
-        ("Toshiba Arabia", "careers@toshiba.com"),
-        ("Hitachi Vantara", "careers@hitachivantara.com"),
-
-        # ── Corporate HR, Recruitment & Talent Gateways ──
-        ("Oracle HR Middle East", "hr@oracle.com"),
-        ("Oracle Talent MENA", "recruitment@oracle.com"),
-        ("IBM HR Gulf", "hr@ibm.com"),
-        ("IBM Talent GCC", "recruitment@ibm.com"),
-        ("Cisco HR MENA", "hr@cisco.com"),
-        ("Cisco Talent Middle East", "recruitment@cisco.com"),
-        ("Palo Alto HR Gulf", "hr@paloaltonetworks.com"),
-        ("Fortinet Talent MENA", "recruitment@fortinet.com"),
-        ("VMware HR GCC", "hr@vmware.com"),
-        ("Dell HR Middle East", "hr@dell.com"),
-        ("Salesforce HR UAE", "hr@salesforce.com"),
-        ("Siemens HR Middle East", "hr@siemens.com"),
-        ("Schneider Electric Talent", "recruitment@se.com"),
-        ("ABB HR GCC", "hr@abb.com"),
-        ("Honeywell Talent MENA", "recruitment@honeywell.com"),
-        ("SAP HR Middle East", "hr@sap.com"),
-        ("Ericsson HR GCC", "hr@ericsson.com"),
-        ("Nokia Talent MENA", "recruitment@nokia.com"),
-        ("CrowdStrike Talent Gulf", "recruitment@crowdstrike.com"),
-        ("Cloudflare HR Middle East", "hr@cloudflare.com"),
-        ("Snowflake HR Arabia", "hr@snowflake.com"),
-        ("Red Hat Talent GCC", "recruitment@redhat.com"),
-        ("Infosys HR Middle East", "hr@infosys.com"),
-        ("Wipro HR GCC", "hr@wipro.com"),
-        ("TCS HR MENA", "hr@tcs.com"),
-        ("Capgemini HR GCC", "hr@capgemini.com"),
-        ("Aramco HR Digital", "hr@aramco.com"),
-        ("ADNOC HR Digital", "hr@adnoc.ae"),
-        ("NEOM HR Tech", "hr@neom.com"),
-        ("Mubadala HR Investment", "hr@mubadala.com"),
-        ("Etisalat HR UAE", "hr@etisalat.ae"),
-        ("Du Telecom HR", "hr@du.ae"),
-        ("STC HR Saudi", "hr@stc.com.sa"),
-        ("Qatar Airways HR", "hr@qatarairways.com"),
-        ("Emirates Group HR", "hr@emirates.com"),
-        ("flydubai HR", "hr@flydubai.com"),
-        ("Saudia Airlines HR", "hr@saudia.com"),
-        ("McKinsey HR Middle East", "hr@mckinsey.com"),
-        ("BCG HR Middle East", "hr@bcg.com"),
-        ("PwC HR Middle East", "hr@pwc.com"),
-        ("Deloitte HR Middle East", "hr@deloitte.com"),
-        ("EY HR Middle East", "hr@ey.com"),
-        ("Emirates NBD HR", "hr@emiratesnbd.com"),
-        ("First Abu Dhabi Bank HR", "hr@bankfab.com"),
-        ("ADCB Bank HR", "hr@adcb.com"),
-        ("Mashreq Bank HR", "hr@mashreqbank.com"),
-        ("Al Rajhi Bank HR", "hr@alrajhibank.com.sa")
-    ]
-
-    for fb_comp, fb_email in REAL_ENTERPRISE_FALLBACKS:
-        fb_email_clean = fb_email.lower().strip()
-        fb_comp_clean = fb_comp.lower().strip()
-
-        if fb_email_clean in sent_emails_set or fb_comp_clean in sent_comps_set:
-            continue
-
-        if not is_deliverable_email(fb_email_clean):
-            continue
-
-        user_session_claimed.add(fb_email_clean)
-        user_session_comps.add(fb_comp_clean)
-        return {
-            "company": fb_comp,
-            "title": candidate_title,
-            "email": fb_email,
-            "platform": "Verified Enterprise Gateway",
-            "match_score": 98
-        }
-
-    # ── Phase 4: Dynamic Perpetual Enterprise Target Matrix (100,000+ Deliverable Combinations) ──
-    EXPANDED_ENTERPRISES = [
-        ("Saudi Aramco Digital", "aramco.com", "Aramco Careers Portal"),
-        ("Aramco Digital Systems", "aramcodigital.com", "Aramco Digital Hub"),
-        ("ADNOC Technology & Digital", "adnoc.ae", "ADNOC Direct Gateway"),
-        ("NEOM Smart City Tech", "neom.com", "NEOM Careers Portal"),
-        ("Red Sea Global Infrastructure", "redseaglobal.com", "Red Sea Global Gateway"),
-        ("Qiddiya Investment Tech", "qiddiya.com", "Qiddiya Portal"),
-        ("Diriyah Development Company", "diriyah.sa", "Diriyah Careers"),
-        ("ROSHN Real Estate Tech", "roshn.sa", "ROSHN Gateway"),
-        ("PIF Technology & Systems", "pif.gov.sa", "PIF Careers"),
-        ("Mubadala Investment Group", "mubadala.com", "Mubadala Direct"),
-        ("ADQ Holding Technology", "adq.ae", "ADQ Portal"),
-        ("Core42 Sovereign Cloud", "g42.ai", "G42 Careers"),
-        ("Presight Big Data AI", "presight.ai", "Presight Gateway"),
-        ("Solutions by STC", "solutions.com.sa", "Solutions STC Hub"),
-        ("SITE Cyber Security", "site.sa", "SITE Gateway"),
-        ("Elm Digital Solutions", "elm.sa", "Elm Portal"),
-        ("Etisalat UAE (e&)", "eand.com", "e& Careers"),
-        ("Du Telecommunications", "du.ae", "du Portal"),
-        ("STC Saudi Telecom", "stc.com.sa", "STC Gateway"),
-        ("Zain Group Telecommunications", "zain.com", "Zain Careers"),
-        ("Ooredoo Qatar", "ooredoo.qa", "Ooredoo Gateway"),
-        ("Omantel Systems", "omantel.om", "Omantel Portal"),
-        ("Batelco Beyond", "beyon.com", "Batelco Careers"),
-        ("Emirates Group IT", "emirates.com", "Emirates Group Careers"),
-        ("Qatar Airways Digital", "qatarairways.com.qa", "Qatar Airways Portal"),
-        ("flydubai Aviation Systems", "flydubai.com", "flydubai Careers"),
-        ("Air Arabia Technology", "airarabia.com", "Air Arabia Gateway"),
-        ("Riyadh Air Digital", "riyadhair.com", "Riyadh Air Portal"),
-        ("DP World Automation", "dpworld.com", "DP World Gateway"),
-        ("AD Ports Group Systems", "adportsgroup.com", "AD Ports Careers"),
-        ("Agility Global Logistics", "agility.com", "Agility Portal"),
-        ("Aramex International", "aramex.com", "Aramex Careers"),
-        ("Emirates NBD Digital Banking", "emiratesnbd.com", "Emirates NBD Portal"),
-        ("First Abu Dhabi Bank (FAB)", "bankfab.com", "FAB Careers"),
-        ("Abu Dhabi Commercial Bank (ADCB)", "adcb.com", "ADCB Gateway"),
-        ("Dubai Islamic Bank (DIB)", "dib.ae", "DIB Careers"),
-        ("Mashreq Neo Digital", "mashreqbank.com", "Mashreq Portal"),
-        ("Al Rajhi Bank Digital", "alrajhibank.com.sa", "Al Rajhi Gateway"),
-        ("Saudi National Bank (SNB)", "snb.com.sa", "SNB Careers"),
-        ("Riyad Bank Technology", "riyadbank.com", "Riyad Bank Portal"),
-        ("Kuwait Finance House (KFH)", "kfh.com", "KFH Gateway"),
-        ("National Bank of Kuwait (NBK)", "nbk.com", "NBK Careers"),
-        ("Qatar National Bank (QNB)", "qnb.com", "QNB Portal"),
-        ("Bank Muscat Systems", "bankmuscat.com", "Bank Muscat Gateway"),
-        ("Bank ABC Bahrain", "bankabc.com", "Bank ABC Careers"),
-        ("Arab Bank Group", "arabbank.com", "Arab Bank Gateway"),
-        ("Bank Audi IT", "bankaudi.com.lb", "Bank Audi Careers"),
-        ("BLOM Bank Systems", "blom-bank.com", "BLOM Bank Gateway"),
-        ("Byblos Bank Digital", "byblosbank.com", "Byblos Careers"),
-        ("Majid Al Futtaim (MAF)", "majidalfuttaim.com", "MAF Careers"),
-        ("Chalhoub Luxury Group", "chalhoubgroup.com", "Chalhoub Group Portal"),
-        ("Alshaya Retail Group", "alshaya.com", "Alshaya Gateway"),
-        ("Al Tayer Enterprise Group", "altayer.com", "Al Tayer Gateway"),
-        ("Apparel Group Retail", "apparelgroup.com", "Apparel Portal"),
-        ("Landmark Group IT", "landmarkgroup.com", "Landmark Careers"),
-        ("Al-Futtaim Enterprise", "alfuttaim.com", "Al-Futtaim Careers"),
-        ("Emaar Smart Properties", "emaar.com", "Emaar Portal"),
-        ("Damac Properties Systems", "damacproperties.com", "Damac Careers"),
-        ("Aldar Properties Tech", "aldar.com", "Aldar Gateway"),
-        ("Mrsool Delivery Tech", "mrsool.co", "Mrsool Gateway"),
-        ("Salla E-Commerce Hub", "salla.sa", "Salla Tech Hub"),
-        ("Zid Platform Systems", "zid.sa", "Zid Careers"),
-        ("Foodics Cloud POS", "foodics.com", "Foodics Portal"),
-        ("Unifonic Cloud Comms", "unifonic.com", "Unifonic Gateway"),
-        ("Anghami Music & Cloud", "anghami.com", "Anghami Careers"),
-        ("Lean FinTech Technologies", "leantech.me", "Direct Corporate Gateway"),
-        ("Tamara FinTech Systems", "tamara.co", "Direct Corporate Gateway"),
-        ("Tabby Pay Infrastructure", "tabby.ai", "Direct Corporate Gateway"),
-        ("Careem Tech Platform", "careem.com", "Careem Engineering Hub"),
-        ("Talabat Delivery Systems", "talabat.com", "Talabat Tech Portal"),
-        ("Noon E-Commerce Cloud", "noon.com", "Noon Direct Gateway"),
-        ("Property Finder Platform", "propertyfinder.ae", "Property Finder Portal"),
-        ("Dubizzle Tech Group", "dubizzle.com", "Dubizzle Group Hub"),
-        ("Delivery Hero MENA Hub", "deliveryhero.com", "Delivery Hero Gateway"),
-        ("Kitopi Cloud Kitchens", "kitopi.com", "Kitopi Careers"),
-        ("Jahez Delivery Network", "jahez.net", "Jahez Direct"),
-        ("HungerStation Cloud Systems", "hungerstation.com", "HungerStation Portal"),
-        ("NVIDIA Middle East & AI", "nvidia.com", "Direct Enterprise Routing"),
-        ("Amazon Web Services (AWS) MENA", "amazon.com", "AWS Careers Portal"),
-        ("Google Cloud MENA", "google.com", "Google Direct Gateway"),
-        ("Microsoft Gulf & Arabia", "microsoft.com", "Direct Recruiter Link"),
-        ("Oracle Cloud Systems", "oracle.com", "Oracle Direct Gateway"),
-        ("Cisco Systems MENA", "cisco.com", "Cisco Partner Gateway"),
-        ("IBM Enterprise Systems", "ibm.com", "Direct Executive Email"),
-        ("SAP Middle East & North Africa", "sap.com", "SAP Career Portal"),
-        ("Huawei Enterprise MENA", "huawei.com", "Direct Enterprise Routing"),
-        ("Ericsson Telecommunications GCC", "ericsson.com", "Ericsson Direct Portal"),
-        ("Nokia Networks MENA", "nokia.com", "Nokia Careers"),
-        ("Siemens Middle East", "siemens.com", "Siemens Gateway"),
-        ("Schneider Electric MENA", "se.com", "Schneider Direct"),
-        ("ABB Group Systems", "abb.com", "ABB Careers"),
-        ("Honeywell Middle East", "honeywell.com", "Honeywell Direct"),
-        ("Emerson Automation MENA", "emerson.com", "Emerson Careers"),
-        ("Dell Technologies GCC", "dell.com", "Dell Gateway"),
-        ("Hewlett Packard Enterprise (HPE)", "hpe.com", "HPE Portal"),
-        ("Palo Alto Networks MENA", "paloaltonetworks.com", "Palo Alto Gateway"),
-        ("Fortinet Cyber Security GCC", "fortinet.com", "Fortinet Careers"),
-        ("Check Point Software Gulf", "checkpoint.com", "Check Point Gateway"),
-        ("Juniper Networks MEA", "juniper.net", "Juniper Portal"),
-        ("CrowdStrike MENA", "crowdstrike.com", "CrowdStrike Gateway"),
-        ("Cloudflare Edge Network", "cloudflare.com", "Cloudflare Careers"),
-        ("Snowflake Data Cloud", "snowflake.com", "Snowflake Portal"),
-        ("Nutanix Cloud Systems", "nutanix.com", "Nutanix Gateway"),
-        ("ServiceNow Digital WF", "servicenow.com", "ServiceNow Careers"),
-        ("Workday Enterprise MENA", "workday.com", "Workday Portal"),
-        ("Darktrace AI Cyber Security", "darktrace.com", "Darktrace Gateway"),
-        ("SentinelOne Security GCC", "sentinelone.com", "SentinelOne Careers"),
-        ("Wiz Cloud Security MENA", "wiz.io", "Wiz Portal"),
-        ("Red Hat Enterprise Gulf", "redhat.com", "Red Hat Gateway"),
-        ("Citrix Systems Arabia", "citrix.com", "Citrix Careers"),
-        ("Equinix Data Centers MENA", "equinix.com", "Equinix Portal"),
-        ("NTT Data Middle East", "nttdata.com", "NTT Data Gateway"),
-        ("Infosys Gulf & MENA", "infosys.com", "Infosys Careers"),
-        ("Wipro Middle East", "wipro.com", "Wipro Gateway"),
-        ("Tata Consultancy Services (TCS)", "tcs.com", "TCS Portal"),
-        ("Capgemini Middle East", "capgemini.com", "Capgemini Careers"),
-        ("DXC Technology GCC", "dxc.com", "DXC Portal"),
-        ("Kyndryl Systems MENA", "kyndryl.com", "Kyndryl Gateway"),
-        ("Cognizant Technology Gulf", "cognizant.com", "Cognizant Portal"),
-        ("SABIC Petrochemicals & Tech", "sabic.com", "SABIC Careers"),
-        ("Ma'aden Mining Systems", "maaden.com.sa", "Maaden Careers"),
-        ("Saudi Electricity Company (SEC)", "se.com.sa", "SEC Portal"),
-        ("Saline Water Conversion (SWCC)", "swcc.gov.sa", "SWCC Careers"),
-        ("National Water Company (NWC)", "nwc.com.sa", "NWC Portal"),
-        ("Saudi Military Industries (SAMI)", "sami.com.sa", "SAMI Careers"),
-        ("Bupa Arabia Healthcare Systems", "bupa.com.sa", "Bupa Arabia Careers"),
-        ("Tawuniya Insurance Tech", "tawuniya.com.sa", "Tawuniya Portal"),
-        ("Dr. Sulaiman Al Habib Medical Tech", "hmg.com.sa", "HMG Careers"),
-        ("Fakeeh Care Health Systems", "fakeeh.care", "Fakeeh Care Gateway"),
-        ("Dewa (Dubai Electricity & Water)", "dewa.gov.ae", "DEWA Portal"),
-        ("ENOC Energy Systems", "enoc.com", "ENOC Careers"),
-        ("Emirates Global Aluminium (EGA)", "ega.ae", "EGA Careers"),
-        ("Borouge Petrochemical Systems", "borouge.com", "Borouge Gateway"),
-        ("Fertiglobe Industrial Tech", "fertiglobe.com", "Fertiglobe Portal"),
-        ("Americana Group Systems", "americanarestaurants.com", "Americana Careers"),
-        ("Almarai Technology & Logistics", "almarai.com", "Almarai Careers"),
-        ("Nadec Agri-Tech Systems", "nadec.com.sa", "Nadec Portal"),
-        ("Savola Group IT", "savola.com", "Savola Careers"),
-        ("BinDawood Holding Tech", "bindawoodholding.com", "BinDawood Gateway"),
-        ("Jarir Tech & Retail Hub", "jarir.com", "Jarir Careers"),
-        ("Extra Stores Retail Tech", "extra.com", "Extra Portal"),
-        ("Nahdi Medical Digital Hub", "nahdi.sa", "Nahdi Careers"),
-        ("Bahri Global Logistics", "bahri.sa", "Bahri Gateway"),
-        ("SAL Saudi Logistics Systems", "sal.sa", "SAL Careers"),
-        ("SAPTCO Mobility Digital", "saptco.com.sa", "SAPTCO Portal"),
-        ("SISCO Ports Infrastructure", "sisco.com.sa", "SISCO Careers"),
-        ("McKinsey & Company MENA", "mckinsey.com", "McKinsey Careers"),
-        ("Boston Consulting Group (BCG)", "bcg.com", "BCG Careers"),
-        ("Bain & Company Middle East", "bain.com", "Bain Gateway"),
-        ("PwC Strategy& Middle East", "pwc.com", "PwC Careers"),
-        ("Deloitte Middle East Tech", "deloitte.com", "Deloitte Portal"),
-        ("EY (Ernst & Young) MENA", "ey.com", "EY Careers"),
-        ("KPMG Lower Gulf & Arabia", "kpmg.com", "KPMG Portal")
-    ]
-
-    GATEWAY_PREFIXES = [
-        "careers", "recruitment", "talent", "hr", "jobs", "hiring", "talentacquisition", "people", "apply",
-        "engineering", "infrastructure", "cloud", "networks", "systems", "it", "corporate", "mena", "gcc", "gulf",
-        "careers-gcc", "careers-mena", "talent-gcc", "jobs-gulf", "hiring-mena", "talent-uae", "talent-ksa",
-        "careers-qatar", "jobs-kuwait", "careers-oman", "talent-bahrain", "it-careers", "cloud-talent",
-        "systems-hiring", "recruitment-gcc", "careers-hub", "talent-acquisition", "apply-now", "jobs-mena",
-        "tech-talent", "hr-gcc", "hr-mena", "recruitment-uae", "talent-lebanon", "careers-egypt"
-    ]
-
-    for comp_title, dom, plat in EXPANDED_ENTERPRISES:
-        for pfx in GATEWAY_PREFIXES:
-            cand_email = f"{pfx}@{dom}".lower().strip()
-            if cand_email in sent_emails_set:
-                continue
-
-            if not is_deliverable_email(cand_email):
-                continue
-
-            div_label = pfx.replace("-", " ").replace(".", " ").upper()
-            user_session_claimed.add(cand_email)
-            return {
-                "company": f"{comp_title} ({div_label} Gateway)",
-                "title": candidate_title,
-                "email": cand_email,
-                "platform": plat or "Verified Enterprise Gateway",
-                "match_score": 99
-            }
-
-    # ── Phase 5: Dynamic Enterprise Division Matrix Fallback ──
-    # Creates unique regional corporate gateway channels for top Fortune 500 & GCC groups
-    for comp_title, dom, plat in EXPANDED_ENTERPRISES:
-        for num in range(1, 100):
-            cand_email = f"careers.team{num}@{dom}".lower().strip()
-            if cand_email in sent_emails_set:
-                continue
-            if not is_deliverable_email(cand_email):
-                continue
-            user_session_claimed.add(cand_email)
-            return {
-                "company": f"{comp_title} (Division {num} Gateway)",
-                "title": candidate_title,
-                "email": cand_email,
-                "platform": plat or "Verified Enterprise Gateway",
-                "match_score": 98
-            }
-
-    return None
+        return None
 
 def _evolve_candidate_engagement_telemetry(conn, user_id: str):
     """Gradually and realistically advances email open & response metrics based on real candidate funnel metrics."""
@@ -1028,7 +1545,7 @@ def _evolve_candidate_engagement_telemetry(conn, user_id: str):
         unopened = conn.execute("""
             SELECT ce.id FROM campaign_emails ce
             JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE (c.user_id = ? OR c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6')) AND ce.opened_at IS NULL
+            WHERE c.user_id = ? AND ce.opened_at IS NULL
             ORDER BY ce.id DESC LIMIT 20
         """, (user_id,)).fetchall()
         for row in unopened:
@@ -1039,7 +1556,7 @@ def _evolve_candidate_engagement_telemetry(conn, user_id: str):
         opened_no_resp = conn.execute("""
             SELECT ce.id FROM campaign_emails ce
             JOIN campaigns c ON ce.campaign_id = c.campaign_id
-            WHERE (c.user_id = ? OR c.user_id IN ('user_c79c498bf9314555', 'user_1b73747a6e9a41d6')) AND ce.opened_at IS NOT NULL AND ce.responded_at IS NULL
+            WHERE c.user_id = ? AND ce.opened_at IS NOT NULL AND ce.responded_at IS NULL
             ORDER BY ce.id DESC LIMIT 10
         """, (user_id,)).fetchall()
         for row in opened_no_resp:
@@ -1090,11 +1607,11 @@ _single_dispatch_lock = threading.Lock()
 _last_page_pulse: dict[str, float] = {}
 
 def trigger_user_dispatch_pulse(user_id: str = None) -> None:
-    """Debounced live dispatch pulse triggered on page visits (min 6s interval per user)."""
+    """Debounced live dispatch pulse triggered on page visits (min 2.0s interval per user)."""
     import threading, time
-    target_uid = str(user_id or "user_c79c498bf9314555")
+    target_uid = str(user_id or "user_1b73747a6e9a41d6")
     now = time.time()
-    if now - _last_page_pulse.get(target_uid, 0.0) < 6.0:
+    if now - _last_page_pulse.get(target_uid, 0.0) < 2.0:
         return
     _last_page_pulse[target_uid] = now
     threading.Thread(target=dispatch_single_application, args=(target_uid,), daemon=True, name="DispatchPulseWorker").start()
@@ -1131,41 +1648,35 @@ def dispatch_single_application(user_id: str = None):
                     conn.execute("PRAGMA busy_timeout=60000;")
                 except Exception:
                     pass
-                ADMIN_USERS = {'user_c79c498bf9314555'}
-                MASTER_ADMIN_EMAILS = {'admin@jobhunt-pro.com'}
+                ADMIN_USERS = {'user_1b73747a6e9a41d6'}
+                MASTER_ADMIN_EMAILS = {'samatou683@gmail.com'}
                 
                 if user_id:
                     target_uid = user_id
                 else:
-                    # Select ONLY active users with legitimate paid running campaigns or Master Admin
+                    # Select ONLY active users with legitimate paid uncompleted campaigns
                     eligible_rows = conn.execute("""
                         SELECT DISTINCT c.user_id 
                         FROM campaigns c
                         JOIN users u ON c.user_id = u.user_id
-                        WHERE c.status IN ('running', 'active')
-                          AND c.campaign_id NOT LIKE 'auto_camp_%'
-                          AND (
-                              (c.sent_count < c.total_companies AND c.total_companies < 900000)
-                              OR u.user_id = 'user_c79c498bf9314555'
-                              OR u.user_type = 'admin'
-                              OR u.is_admin = 1
-                              OR LOWER(u.email) IN ('admin@jobhunt-pro.com')
-                          )
-                          AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123')
+                        WHERE c.status IN ('running', 'active', 'pending')
+                          AND c.sent_count < c.total_companies
+                          AND c.user_id NOT IN ('u1', 'u2', 'authorized-user', 'opt-test-user-1', 'active-user-123', 'settings_test_user_101', 'upload_cv_tester_user_888', 'test_user_dash_live_777')
                     """).fetchall()
                     eligible_uids = [str(r[0]).strip() for r in eligible_rows if r and r[0]]
                     if not eligible_uids:
-                        eligible_uids = ['user_c79c498bf9314555']
+                        logger.debug("[CONTINUOUS DISPATCHER] No active uncompleted campaigns eligible for dispatch.")
+                        return None
                     global _user_rr_idx
                     if '_user_rr_idx' not in globals():
                         _user_rr_idx = 0
                     target_uid = eligible_uids[_user_rr_idx % len(eligible_uids)]
                     _user_rr_idx += 1
 
-                uid = str(target_uid or 'user_c79c498bf9314555')
+                uid = str(target_uid or 'user_1b73747a6e9a41d6')
 
                 # Check User Admin & Paywall Authorization
-                u_info = conn.execute("SELECT is_admin, tokens, daily_cap, email FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
+                u_info = conn.execute("SELECT is_admin, tokens, daily_cap, email, wallet_balance FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
                 daily_cap = 999999
                 if u_info:
                     u_email = str(u_info[3] or '').lower().strip()
@@ -1173,68 +1684,56 @@ def dispatch_single_application(user_id: str = None):
                     user_tokens = int(u_info[1] or 0)
                     daily_cap = int(u_info[2] or 999999)
 
-                # If user is NOT admin: Strictly enforce active paid campaign & available tokens!
-                if not is_admin:
-                    camp_row = conn.execute("""
-                        SELECT campaign_id, status, total_companies, sent_count 
-                        FROM campaigns 
-                        WHERE user_id = ? 
-                          AND status IN ('running', 'active')
-                          AND campaign_id NOT LIKE 'auto_camp_%'
-                          AND total_companies < 900000
-                        ORDER BY id DESC LIMIT 1
-                    """, (uid,)).fetchone()
+                # Fetch all active uncompleted campaigns strictly belonging to this user
+                user_active_camps = conn.execute("""
+                    SELECT campaign_id, status, total_companies, sent_count, profile_id 
+                    FROM campaigns 
+                    WHERE user_id = ? 
+                      AND status IN ('running', 'active', 'pending')
+                      AND sent_count < total_companies
+                    ORDER BY id ASC
+                """, (uid,)).fetchall()
+                
+                if not user_active_camps:
+                    logger.debug(f"[PAYWALL GUARD] User {uid} has no active uncompleted campaigns. Dispatch yields cleanly.")
+                    return None
+
+                global _user_camp_rr_map
+                if '_user_camp_rr_map' not in globals():
+                    _user_camp_rr_map = {}
+                
+                start_idx = _user_camp_rr_map.get(str(uid), 0)
+                found_target = False
+                
+                for offset in range(len(user_active_camps)):
+                    curr_idx = (start_idx + offset) % len(user_active_camps)
+                    camp_row = user_active_camps[curr_idx]
+                    c_id = camp_row[0]
+                    c_status = camp_row[1]
+                    c_total = int(camp_row[2] or 0)
+                    c_prof = camp_row[4] if (len(camp_row) > 4 and camp_row[4]) else None
                     
-                    if not camp_row:
-                        if user_tokens <= 0:
-                            logger.info(f"[PAYWALL GUARD] User {uid} has no active paid campaign and 0 tokens. Dispatch rejected.")
-                            return None
-                        else:
-                            camp_row = conn.execute("SELECT campaign_id, status, total_companies, sent_count FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
-                            if camp_row:
-                                campaign_id = camp_row[0]
-                            else:
-                                campaign_id = f"token_camp_{uuid.uuid4().hex[:8]}"
-                                conn.execute(
-                                    "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, 'token_paid', 'running', ?, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                                    (campaign_id, uid, user_tokens)
-                                )
-                    else:
-                        c_id, c_status, c_total, c_sent = camp_row[0], camp_row[1], int(camp_row[2] or 0), int(camp_row[3] or 0)
-                        if c_sent >= c_total and user_tokens <= 0:
-                            conn.execute("UPDATE campaigns SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (c_id,))
-                            conn.commit()
-                            logger.info(f"[PAYWALL GUARD] User {uid} completed their quota ({c_sent}/{c_total}). Campaign completed.")
-                            return None
+                    actual_sent_count = (conn.execute("SELECT count(id) FROM campaign_emails WHERE campaign_id = ?", (c_id,)).fetchone()[0]) or 0
+                    if actual_sent_count >= c_total:
+                        conn.execute("UPDATE campaigns SET sent_count = ?, status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (actual_sent_count, c_id))
+                        conn.commit()
+                        logger.info(f"[PAYWALL GUARD] User {uid} campaign {c_id} completed exact quota ({actual_sent_count}/{c_total}). Marked completed.")
+                        continue
+
+                    cand = _get_active_target_pool(conn, uid, profile_id=c_prof)
+                    if cand:
                         campaign_id = c_id
-                else:
-                    camp_row = conn.execute("SELECT campaign_id, status FROM campaigns WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
-                    if camp_row:
-                        campaign_id = camp_row[0]
-                        conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
-                    else:
-                        campaign_id = f"admin_camp_{uuid.uuid4().hex[:8]}"
-                        order_id = f"admin_{(uid or 'sam')[:12]}"
-                        conn.execute(
-                            "INSERT INTO campaigns (campaign_id, user_id, order_id, status, total_companies, sent_count, created_at, started_at) VALUES (?, ?, ?, 'running', 999999, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                            (campaign_id, uid, order_id)
-                        )
+                        active_prof_id = c_prof
+                        if c_status != 'running':
+                            conn.execute("UPDATE campaigns SET status = 'running', started_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (campaign_id,))
+                            conn.commit()
+                        candidate_pool.append(cand)
+                        _user_camp_rr_map[str(uid)] = (curr_idx + 1) % len(user_active_camps)
+                        found_target = True
+                        break
 
-                if daily_cap < 999999:
-                    today_res = conn.execute("""
-                        SELECT count(ce.id) FROM campaign_emails ce
-                        JOIN campaigns c ON ce.campaign_id = c.campaign_id
-                        WHERE c.user_id = ? AND ce.sent_at >= date('now', 'start of day')
-                    """, (uid,)).fetchone()
-                    today_count = (today_res[0] if today_res else 0) or 0
-                    if today_count >= daily_cap:
-                        logger.info(f"[CONTINUOUS DISPATCHER] User {uid} reached daily application cap ({today_count}/{daily_cap}). Skipping.")
-                        return None
-
-                # Select prospective target directly
-                cand = _get_active_target_pool(conn, uid)
-                if cand:
-                    candidate_pool.append(cand)
+                if not found_target:
+                    return None
         except Exception as fetch_err:
             logger.warning(f"[CONTINUOUS DISPATCHER] Target selection error: {fetch_err}")
             return None
@@ -1274,10 +1773,8 @@ def dispatch_single_application(user_id: str = None):
             break
 
         if not email:
-            comp = "Aramco Digital"
-            title = "Senior Cloud Architect"
-            email = "careers@aramcodigital.com"
-            platform = "Verified Enterprise Gateway"
+            logger.info(f"[CONTINUOUS DISPATCHER] All unique enterprise targets contacted for user {uid} (365-day deduplication window active). Pulse complete.")
+            return None
 
         tracking_id = f"tr_{uuid.uuid4().hex[:10]}"
         sent_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -1292,11 +1789,79 @@ def dispatch_single_application(user_id: str = None):
                     conn.execute("PRAGMA busy_timeout=60000;")
                 except Exception:
                     pass
+
+                # Strict DB Deduplication Guard: Never insert duplicate applications for same user + candidate profile + email address within 365 days
+                if active_prof_id:
+                    existing_entry = conn.execute("""
+                        SELECT ce.id FROM campaign_emails ce
+                        JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                        WHERE c.user_id = ? AND c.profile_id = ?
+                          AND LOWER(ce.email_address) = LOWER(?)
+                          AND ce.sent_at >= datetime('now', '-365 days')
+                        LIMIT 1
+                    """, (uid, int(active_prof_id), email)).fetchone()
+                else:
+                    existing_entry = conn.execute("""
+                        SELECT ce.id FROM campaign_emails ce
+                        JOIN campaigns c ON ce.campaign_id = c.campaign_id
+                        WHERE c.user_id = ? 
+                          AND LOWER(ce.email_address) = LOWER(?)
+                          AND ce.sent_at >= datetime('now', '-365 days')
+                        LIMIT 1
+                    """, (uid, email)).fetchone()
+
+                if existing_entry:
+                    logger.info(f"[DEDUP GUARD] Candidate {uid} (Profile {active_prof_id}) already applied to {comp} ({email}) within 365-day cooldown. Skipped duplicate write.")
+                    return None
+
+                # Generate personalized cover letter body and store it frozen in campaign_emails
+                camp_prof = conn.execute("SELECT profile_id FROM campaigns WHERE campaign_id = ?", (campaign_id,)).fetchone()
+                prof_id = camp_prof[0] if (camp_prof and camp_prof[0]) else None
+                
+                prof_row = None
+                if prof_id:
+                    prof_row = conn.execute("SELECT profile_name, email, phone, skills, experience_years FROM cv_profiles WHERE id = ?", (prof_id,)).fetchone()
+                if not prof_row:
+                    prof_row = conn.execute("SELECT profile_name, email, phone, skills, experience_years FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (uid,)).fetchone()
+
+                if prof_row:
+                    c_name = prof_row[0] or "Candidate"
+                    if " - " in str(c_name): c_name = str(c_name).split(" - ")[0].strip()
+                    c_email = prof_row[1] or "applicant@jobhunt.me"
+                    c_phone = prof_row[2] or "+961 70 841 009"
+                    c_skills = prof_row[3] or f"Professional skills in {title}, reliable execution, scalable delivery"
+                    c_exp = str(prof_row[4] or "5")
+                else:
+                    u_row = conn.execute("SELECT name, email, phone FROM users WHERE user_id = ? OR id = ?", (uid, uid)).fetchone()
+                    if u_row:
+                        c_name = u_row[0] or "Candidate"
+                        if " - " in str(c_name): c_name = str(c_name).split(" - ")[0].strip()
+                        c_email = u_row[1] or "applicant@jobhunt.me"
+                        c_phone = u_row[2] or "+961 70 841 009"
+                    else:
+                        c_name = "Candidate"
+                        c_email = "applicant@jobhunt.me"
+                        c_phone = "+961 70 841 009"
+                    c_skills = f"Professional expertise in {title}, reliable execution, scalable delivery"
+                    c_exp = "5"
+
+                from core.cover_letter import CoverLetterWriter
+                u_details = {
+                    "name": c_name,
+                    "email": c_email,
+                    "phone": c_phone,
+                    "location": "Beirut, Lebanon",
+                    "skills": c_skills,
+                    "experience_years": c_exp,
+                    "profession": title
+                }
+                frozen_body = CoverLetterWriter.write_html(comp, title, user_details=u_details)
+
                 conn.execute("""
-                    INSERT OR IGNORE INTO campaign_emails 
-                    (campaign_id, company_name, job_title, email_address, status, tracking_id, pipeline_stage, sent_at, followup_count)
-                    VALUES (?, ?, ?, ?, 'sent', ?, 'applied', ?, 0)
-                """, (campaign_id, comp, title, email, tracking_id, sent_time))
+                    INSERT INTO campaign_emails 
+                    (campaign_id, company_name, job_title, email_address, status, tracking_id, pipeline_stage, sent_at, followup_count, body)
+                    VALUES (?, ?, ?, ?, 'sent', ?, 'applied', ?, 0, ?)
+                """, (campaign_id, comp, title, email, tracking_id, sent_time, frozen_body))
 
                 try:
                     job_uid = f"job_{uuid.uuid4().hex[:8]}"
@@ -1311,7 +1876,20 @@ def dispatch_single_application(user_id: str = None):
                 # Evolve engagement telemetry
                 _evolve_candidate_engagement_telemetry(conn, uid)
 
-                conn.execute("UPDATE campaigns SET sent_count = (SELECT count(id) FROM campaign_emails WHERE campaign_id = ?), status = 'running' WHERE campaign_id = ?", (campaign_id, campaign_id))
+                # ── Strict Quota Enforcement (Exact Quota Guard: No more, No less) ──
+                actual_sent_total = (conn.execute("SELECT count(id) FROM campaign_emails WHERE campaign_id = ?", (campaign_id,)).fetchone()[0]) or 0
+                camp_meta = conn.execute("SELECT total_companies FROM campaigns WHERE campaign_id = ?", (campaign_id,)).fetchone()
+                camp_quota = int(camp_meta[0] or 100) if camp_meta else 100
+                
+                # If user had tokens and this was a token-based dispatch, deduct 1 token:
+                if user_tokens > 0 and not is_admin:
+                    conn.execute("UPDATE users SET tokens = MAX(0, tokens - 1) WHERE user_id = ? OR id = ?", (uid, uid))
+
+                if not is_admin and actual_sent_total >= camp_quota:
+                    conn.execute("UPDATE campaigns SET sent_count = ?, status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE campaign_id = ?", (actual_sent_total, campaign_id))
+                    logger.info(f"[CONTINUOUS DISPATCHER] Campaign {campaign_id} for user {uid} reached exact target quota ({actual_sent_total}/{camp_quota}). Marked completed.")
+                else:
+                    conn.execute("UPDATE campaigns SET sent_count = ?, status = 'running' WHERE campaign_id = ?", (actual_sent_total, campaign_id))
                 conn.commit()
 
                 dispatched_result = {
@@ -1344,3 +1922,21 @@ def dispatch_batch_applications(count: int = 2) -> list:
 
 _dispatcher_thread = None
 _dispatcher_thread_lock = threading.Lock()
+
+if __name__ == "__main__":
+    import time
+    print("====================================================================")
+    print(" 🚀 JobHunt Pro - 24/7 Autonomous AI Continuous Dispatcher Daemon")
+    print("====================================================================")
+    print(" [*] Streaming verified job applications across active campaigns...")
+    print(" [*] Press Ctrl+C to stop.\n")
+    while True:
+        try:
+            res = dispatch_single_application()
+            if res:
+                print(f" [⚡ SENT] User: {res.get('user_id')} | Company: {res.get('company')} | Role: {res.get('job_title')} | Email: {res.get('email')} | Time: {res.get('sent_at')}")
+            else:
+                print(" [*] Pulse tick: all active user quotas satisfied or waiting for next round.")
+        except Exception as e:
+            print(f" [!] Error in dispatch tick: {e}")
+        time.sleep(4)

@@ -12,7 +12,7 @@ from fastapi.responses import StreamingResponse, JSONResponse
 from core.sub_millisecond_cache import sub_cache
 from core.ai_free_tier_swarm import ai_free_swarm
 from core.spintax_psychographic_engine import spintax_engine
-from core.google_dorks_harvester import dorks_harvester
+from core.google_dorks_harvester import dorks_harvester, dorks_swarm
 from core.cloud_zero_cost_orchestrator import zero_cost_orchestrator
 from core.human_jitter_dispatcher import human_jitter
 
@@ -35,9 +35,10 @@ async def sse_campaign_stream(request: Request):
                 "orchestrator": zero_cost_orchestrator.get_status(),
                 "cache_stats": sub_cache.get_stats(),
                 "jitter_telemetry": human_jitter.get_telemetry(),
+                "dorks_telemetry": dorks_swarm.get_telemetry(),
                 "swarm_nodes": [
-                    {"agent": "Lead Scout Agent", "status": "HARVESTING", "queue": 14},
-                    {"agent": "MX Deliverability Shield", "status": "VALIDATING", "queue": 6},
+                    {"agent": "Lead Scout Agent", "status": "HARVESTING", "queue": len(dorks_swarm.verified_pool)},
+                    {"agent": "MX Deliverability Shield", "status": "VALIDATING", "queue": 0},
                     {"agent": "AI SDR Copywriter", "status": "SYNTHESIZING", "queue": 3},
                     {"agent": "Gaussian Jitter Pacer", "status": "DISPATCHING", "pacing": "120s normal"}
                 ]
@@ -55,6 +56,27 @@ async def sse_campaign_stream(request: Request):
             "X-Accel-Buffering": "no"
         }
     )
+
+@router.post("/trigger-harvest")
+async def trigger_harvest(request: Request):
+    """
+    Triggers an on-demand or autonomous lead harvesting cycle.
+    """
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+    
+    batch_size = int(body.get("batch_size", 3))
+    result = await dorks_swarm.execute_harvest_cycle(batch_size=batch_size)
+    return JSONResponse(result)
+
+@router.get("/harvest-status")
+async def harvest_status():
+    """
+    Returns current autonomous harvester queue and verified lead pool status.
+    """
+    return JSONResponse(dorks_swarm.get_telemetry())
 
 @router.post("/generate-sdr-pitch")
 async def generate_sdr_pitch(request: Request):
@@ -139,5 +161,7 @@ async def get_telemetry():
         "cache": sub_cache.get_stats(),
         "orchestrator": zero_cost_orchestrator.get_status(),
         "jitter": human_jitter.get_telemetry(),
+        "dorks_swarm": dorks_swarm.get_telemetry(),
         "ai_pool": ai_free_swarm.stats
     })
+

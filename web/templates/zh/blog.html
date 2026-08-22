@@ -1,22 +1,158 @@
 <!DOCTYPE html>
 <html lang="zh" dir="ltr">
 <head>
-  <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
+    <link rel="icon" type="image/png" href="/static/favicon.png?v=3">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>JobHunt Pro Blog — AI Job Search Tips & Guides</title>
-    <meta name="description" content="Expert guides on AI-powered job applications, automated job search, cover letter tips, and career advice. Level up your job hunt.">
+    <title>高管职业洞察与AI求职策略 — JobHunt Pro 博客</title>
+    <meta name="description" content="关于斩获全球及海湾地区（GCC）高薪职位的全方位战略指南。">
     <link rel="canonical" href="https://jhfguf.pythonanywhere.com/blog">
     <link rel="stylesheet" href="/static/css/cyberpunk.css">
-<meta property="og:title" content="Blog | JobHunt Pro"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800;900&display=swap">
+    <meta property="og:title" content="职业战略洞察 | JobHunt Pro"/>
+
+    <style>
+      :root {
+        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-display: 'Space Grotesk', 'Inter', sans-serif;
+      }
+      .blog-index {
+        padding-block-start: 140px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-inline: 24px;
+      }
+      .blog-header {
+        text-align: center;
+        margin-bottom: 50px;
+      }
+      .blog-header h1 {
+        font-family: var(--font-display);
+        font-size: clamp(32px, 4.5vw, 48px);
+        font-weight: 900;
+        background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #38bdf8 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+      }
+      .blog-subtitle {
+        font-family: var(--font-sans);
+        color: #94a3b8;
+        font-size: 17px;
+        max-width: 650px;
+        margin: 0 auto;
+      }
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 26px;
+        margin-bottom: 60px;
+      }
+      .blog-card {
+        background: rgba(13, 22, 38, 0.88) !important;
+        backdrop-filter: blur(24px) !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+        border-radius: 22px !important;
+        padding: 30px !important;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.5) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        transition: all 0.3s ease !important;
+      }
+      .blog-card:hover {
+        transform: translateY(-6px) !important;
+        border-color: rgba(0, 240, 255, 0.45) !important;
+        box-shadow: 0 16px 45px rgba(0,0,0,0.6), 0 0 25px rgba(0, 240, 255, 0.15) !important;
+      }
+      .blog-card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .blog-tag {
+        font-family: var(--font-display);
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #00f0ff;
+        background: rgba(0, 240, 255, 0.08);
+        border: 1px solid rgba(0, 240, 255, 0.3);
+        padding: 5px 12px;
+        border-radius: 50px;
+      }
+      .blog-card-meta time {
+        font-size: 12.5px;
+        color: #64748b;
+        font-weight: 600;
+      }
+      .blog-card h2 {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.35;
+        margin-bottom: 12px;
+      }
+      .blog-card h2 a {
+        color: #ffffff;
+        text-decoration: none;
+        transition: color 0.2s ease;
+      }
+      .blog-card h2 a:hover {
+        color: #00f0ff;
+      }
+      .blog-excerpt {
+        font-family: var(--font-sans);
+        font-size: 14.5px;
+        color: #94a3b8;
+        line-height: 1.65;
+        margin-bottom: 22px;
+        flex-grow: 1;
+      }
+      .blog-read-more {
+        font-family: var(--font-display);
+        font-size: 14.5px;
+        font-weight: 800;
+        color: #00f0ff;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: gap 0.2s ease;
+      }
+      .blog-read-more:hover {
+        gap: 10px;
+        color: #38bdf8;
+      }
+      .blog-stats {
+        text-align: center;
+        padding: 24px;
+        background: rgba(0, 240, 255, 0.04);
+        border: 1px solid rgba(0, 240, 255, 0.15);
+        border-radius: 16px;
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 60px;
+      }
+      @media (max-width: 768px) {
+        .blog-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
 </head>
 <body class="cyberpunk-body">
     {% include 'zh/_public_nav.html' %}
 
-    <main class="blog-index" style="padding-block-start:140px;">
+    <main class="blog-index">
         <header class="blog-header">
-            <h1>📝 JobHunt Pro Blog</h1>
-            <p class="blog-subtitle">AI-powered job search strategies, tips, and guides for 2026</p>
+            <h1>📑 高管职业战略与智能洞察指南</h1>
+            <p class="blog-subtitle">借助自主人工智能技术斩获全球及海湾地区（GCC）高薪职位的全方位战略智库。</p>
         </header>
 
         {% if posts %}
@@ -30,26 +166,17 @@
                     {% endif %}
                 </div>
                 <h2><a href="/blog/{{ post.slug }}">{{ post.title }}</a></h2>
-                <p class="blog-excerpt">{{ post.meta_description[:150] }}{% if post.meta_description|length > 150 %}...{% endif %}</p>
-                <a href="/blog/{{ post.slug }}" class="blog-read-more">Read More →</a>
+                <p class="blog-excerpt">{{ post.meta_description[:160] }}{% if post.meta_description|length > 160 %}...{% endif %}</p>
+                <a href="/blog/{{ post.slug }}" class="blog-read-more">阅读战略指南 →</a>
             </article>
             {% endfor %}
-        </div>
-        {% else %}
-        <div class="blog-empty">
-            <h2>Expert Job-Search Guides, Coming to Life</h2>
-            <p>We're crafting in-depth articles on AI applications, interview prep, and salary negotiation — written with real recruiters and career coaches. While we finish the first posts, explore the tools that help you land interviews faster.</p>
-            <div class="blog-empty-actions">
-                <a href="/en/#features" class="cta-button">Explore Features</a>
-                <a href="/en/pricing" class="cta-button cta-secondary">View Pricing</a>
-            </div>
         </div>
         {% endif %}
 
         {% if stats %}
         <div class="blog-stats">
-            <span>{{ stats.published }} articles published</span>
-            <span>{{ stats.total_words }} total words</span>
+            <span>📚 已发布 {{ stats.published }} 篇战略指南</span>
+            <span>⚡ {{ stats.total_words }} 字前沿职场智慧</span>
         </div>
         {% endif %}
     </main>

@@ -24,11 +24,11 @@ class EmailPersonalizer:
     def _load_candidate_data(self) -> dict[str, Any]:
         """Load candidate's data from environment."""
         return {
-            "name": os.getenv("CANDIDATE_NAME", "Sam Salameh"),
-            "phone": os.getenv("CANDIDATE_PHONE", "+961 70 841 009"),
-            "email": os.getenv("SENDER_EMAIL", "sam.dev1@hotmail.com"),
+            "name": os.getenv("CANDIDATE_NAME", "Candidate"),
+            "phone": os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2834"),
+            "email": os.getenv("SENDER_EMAIL", "candidate@example.com"),
             "linkedin": os.getenv(
-                "LINKEDIN_URL", "https://www.linkedin.com/in/sam-salameh"
+                "LINKEDIN_URL", "https://www.linkedin.com/in/candidate-profile"
             ),
             "profession": os.getenv("CANDIDATE_PROFESSION", "Senior Network Engineer"),
             "achievements": [

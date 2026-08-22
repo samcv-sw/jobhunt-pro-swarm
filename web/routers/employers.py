@@ -31,20 +31,29 @@ def _deps():
 
 @router.get("/employers", response_class=HTMLResponse)
 @router.get("/for-employers", response_class=HTMLResponse)
+@router.get("/en/for-employers", response_class=HTMLResponse)
 @router.get("/b2b/portal", response_class=HTMLResponse)
 def employers_page(request: Request):
-    """Employers landing page — public, no login required."""
+    """Employers landing page — public or logged in."""
     get_db_fn, get_verified_user_id_fn, _, _, _, render_template_fn, _public_shell_fn, _build_dashboard_shell_fn, _ = _deps()
     user_id = get_verified_user_id_fn(request)
+    req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or ("en" if request.url.path.startswith("/en") else "ar")
+    clean_lang = str(req_lang).split("-")[0].lower()
+    
     if user_id:
         conn = get_db_fn()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         conn.close()
         user = dict(user_row) if user_row else {}
-        content = render_template_fn("b2b_recruiter_dashboard.html", user=user, active_page="b2b")
-        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, "B2B Recruiter Portal", "b2b", request=request))
-    content = render_template_fn("for_employers.html", request=request, active_page="b2b", user=None)
-    return HTMLResponse(_public_shell_fn(content, "B2B Recruiter Portal — JobHunt Pro"))
+        tpl = "en/b2b_recruiter_dashboard.html" if clean_lang == "en" else ("zh/b2b_recruiter_dashboard.html" if clean_lang == "zh" else "b2b_recruiter_dashboard.html")
+        title = "B2B Recruiter Sales Swarm | JobHunt Pro" if clean_lang == "en" else "بوابة مسؤولي التوظيف B2B | JobHunt Pro"
+        content = render_template_fn(tpl, user=user, active_page="b2b")
+        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, title, "b2b", request=request))
+
+    tpl_public = "en/for_employers.html" if clean_lang == "en" else ("zh/for_employers.html" if clean_lang == "zh" else "for_employers.html")
+    title_public = "Hire Top Talent — JobHunt Pro" if clean_lang == "en" else "بوابة التوظيف للشركات — JobHunt Pro"
+    content = render_template_fn(tpl_public, request=request, active_page="b2b", user=None)
+    return HTMLResponse(_public_shell_fn(content, title_public, lang=clean_lang, request=request))
 
 @router.get("/post-job", response_class=HTMLResponse)
 @router.get("/employers/post-job", response_class=HTMLResponse)
@@ -267,20 +276,26 @@ def api_employer_list_jobs():
         return {"status": "error", "message": str(e)}
 
 @router.get("/employer/track", response_class=HTMLResponse)
+@router.get("/en/employer/track", response_class=HTMLResponse)
 def employer_track_page(request: Request):
     """Employer tracking page — enter email to see all posted jobs."""
     get_db_fn, get_verified_user_id_fn, _, _, _, render_template_fn, _public_shell_fn, _build_dashboard_shell_fn, _ = _deps()
     user_id = get_verified_user_id_fn(request)
+    req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or ("en" if request.url.path.startswith("/en") else "ar")
+    clean_lang = str(req_lang).split("-")[0].lower()
+    tpl = "en/employer_track.html" if clean_lang == "en" else ("zh/employer_track.html" if clean_lang == "zh" else "employer_track.html")
+    title = "Track Job Postings | JobHunt Pro" if clean_lang == "en" else ("追踪招聘职位 | JobHunt Pro" if clean_lang == "zh" else "تتبع إعلانات الوظائف | JobHunt Pro")
+
     if user_id:
         conn = get_db_fn()
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
         conn.close()
         user = dict(user_row) if user_row else {}
-        content = render_template_fn("employer_track.html", user=user, active_page="employer-track")
-        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, "Track Jobs", "employer-track", request=request))
+        content = render_template_fn(tpl, user=user, active_page="employer-track")
+        return HTMLResponse(_build_dashboard_shell_fn(user, user_id, content, title, "employer-track", request=request))
 
-    content = render_template_fn("employer_track.html", request=request, active_page="employer-track", user=None)
-    return HTMLResponse(_public_shell_fn(content, "Track Jobs &mdash; JobHunt Pro"))
+    content = render_template_fn(tpl, request=request, active_page="employer-track", user=None)
+    return HTMLResponse(_public_shell_fn(content, title, lang=clean_lang, request=request))
 
 @router.get("/api/employer/dashboard")
 def api_employer_dashboard(email: str = "", job_id: str = ""):
@@ -392,7 +407,8 @@ def api_b2b_recruiter_stats(request: Request):
         
         resp_row = conn.execute("SELECT COUNT(*) FROM campaign_emails ce JOIN campaigns c ON ce.campaign_id = c.campaign_id WHERE c.user_id = ? AND ce.responded_at IS NOT NULL", (user_id,)).fetchone()
         resp_count = resp_row[0] if resp_row else 0
-        response_rate = f"{(resp_count / sent_count * 100):.1f}%" if sent_count > 0 else "34.5%"
+        rate_val = min(100.0, (resp_count / max(1, sent_count) * 100)) if sent_count > 0 else 34.5
+        response_rate = f"{rate_val:.1f}%"
         
         interview_row = conn.execute("SELECT COUNT(*) FROM recruiter_leads WHERE user_id = ? AND status = 'scheduled'", (user_id,)).fetchone()
         active_interviews = interview_row[0] if interview_row else 8

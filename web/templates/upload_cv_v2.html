@@ -564,8 +564,8 @@ Then click ✨ Auto-Fill to let AI extract everything automatically." dir="auto"
 <div class="form-group"><label for="email">{{ _('Email') }}</label><input dir="auto" id="email" placeholder="your@email.com" type="email"/ dir="auto"></div>
 </div>
 <div class="row">
-<div class="form-group"><label for="phone">الهاتف</label><input dir="auto" id="phone" placeholder="+961 3 123 456" type="text"/ dir="auto"></div>
-<div class="form-group"><label for="location">الموقع</label><input dir="auto" id="location" placeholder="بيروت، لبنان" type="text"/ dir="auto"></div>
+<div class="form-group"><label for="phone">الهاتف</label><input dir="auto" id="phone" placeholder="+1 (555) 019-2834" type="text" dir="auto"></div>
+<div class="form-group"><label for="location">الموقع</label><input dir="auto" id="location" placeholder="أوستن، تكساس، الولايات المتحدة" type="text" dir="auto"></div>
 </div>
 <div class="row">
 <div class="form-group"><label for="currentTitle">المسمى الوظيفي الحالي</label><input dir="auto" id="currentTitle" placeholder="مهندس شبكات أول" type="text"/ dir="auto"></div>
@@ -602,7 +602,7 @@ Then click ✨ Auto-Fill to let AI extract everything automatically." dir="auto"
 </div>
 <div class="row">
 <div class="form-group"><label for="targetTitles">{{ _('Target Job Titles') }}</label><input dir="auto" id="targetTitles" placeholder="Senior Network Engineer, IT Manager..." type="text"/ dir="auto"></div>
-<div class="form-group"><label for="targetLocations">{{ _('Target Locations') }}</label><input dir="auto" id="targetLocations" placeholder="Dubai, Remote, Riyadh, Beirut..." type="text"/ dir="auto"></div>
+<div class="form-group"><label for="targetLocations">{{ _('Target Locations') }}</label><input dir="auto" id="targetLocations" placeholder="أوستن، عن بُعد، نيويورك، لندن، دبي..." type="text" dir="auto"></div>
 </div>
 <div class="row">
 <div class="form-group"><label for="minLocalSalary">{{ _('Min Local Salary ($)') }}</label><input dir="auto" id="minLocalSalary" min="0" step="100" type="number" value="1500"/ dir="auto"></div>
@@ -830,7 +830,7 @@ function selectPreset(type) {
   document.querySelectorAll('.salary-preset').forEach(function(p) { p.classList.remove('selected'); });
   document.getElementById('preset' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('selected');
   var presets = {
-    local: { local: 1500, intl: 6000, loc: 'Lebanon, Beirut, Tripoli, MENA', title: 'Network Engineer, IT Support, System Admin' },
+    local: { local: 1500, intl: 6000, loc: 'أوستن، دالاس، هيوستن، تكساس، الولايات المتحدة', title: 'Network Engineer, IT Support, System Admin' },
     worldwide: { local: 6000, intl: 8000, loc: 'Dubai, Abu Dhabi, Riyadh, Doha, Kuwait City', title: 'Senior Network Engineer, IT Manager, Network Architect' },
     remote: { local: 8000, intl: 10000, loc: 'Remote, Worldwide, Work From Home', title: 'Senior Network Engineer, Cloud Engineer, DevOps, Security' }
   };
@@ -1060,7 +1060,7 @@ async function previewEmail(silent) {
       '<div style="text-align:center; padding:60px 20px; color:#94a3b8;">' +
       '<div style="font-size:36px; margin-bottom:16px; display:inline-block;" class="animate-pulse">✨</div>' +
       '<h4 style="color:#f8fafc; font-size:16px; margin-bottom:8px; font-weight:700;">جاري صياغة المعاينة الحقيقية بالذكاء الاصطناعي...</h4>' +
-      '<p style="color:#64748b; font-size: 14px; max-width:440px; margin:0 auto 20px;">يقوم نموذج LLaMA 3.3 70B بكتابة بريد إلكتروني، سيرة ذاتية تنشيطية، وخطاب تغطية خصيصاً لملفك.</p>' +
+      '<p style="color:#64748b; font-size: 14px; max-width:440px; margin:0 auto 20px;">يقوم محرك الذكاء الاصطناعي بكتابة بريد إلكتروني، سيرة ذاتية تنشيطية، وخطاب تغطية خصيصاً لملفك.</p>' +
       '<div style="max-width:280px; margin:0 auto; height:5px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">' +
       '<div style="width:100%; height:100%; background:linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); transform: translateX(-100%); animation: aiProgress 1.8s infinite linear;"></div>' +
       '</div></div>';

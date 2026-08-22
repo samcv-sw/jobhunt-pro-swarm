@@ -6,7 +6,7 @@
 <link href="/static/favicon.png?v=3" rel="icon" type="image/png"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
-<meta content="أنشئ حسابك المجاني في JobHunt Pro. دع سوارم غراهام الذكي الفائق (Graham's Swarm Agents) يقدمون لآلاف الوظائف نيابة عنك — تلقائياً." name="description"/>
+<meta content="أنشئ حسابك المجاني في JobHunt Pro. دع سوارم غراهام الذكي الفائق (Autonomous AI's Swarm Agents) يقدمون لآلاف الوظائف نيابة عنك — تلقائياً." name="description"/>
 <meta property="og:title" content="إنشاء حساب — جوب هانت برو"/>
 <meta property="og:description" content="ابدأ مجاناً ودع الذكاء الاصطناعي يتولى تقديماتك الوظيفية 24/7."/>
 <title>إنشاء حساب — جوب هانت برو</title>
@@ -295,6 +295,130 @@ body.auth-page {
 }
 </style>
 
+
+<style id="apex-register-upgrade">
+:root {
+  --apex-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --apex-font-display: 'Space Grotesk', 'Inter', sans-serif;
+}
+.benefits-card {
+  background: rgba(10, 18, 30, 0.88) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.22) !important;
+  border-radius: 26px !important;
+  padding: 34px 26px !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.12) !important;
+}
+.benefits-card h2 {
+  font-family: var(--apex-font-display) !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 22px !important;
+  letter-spacing: -0.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.benefit-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 12px !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  transition: all 0.25s ease !important;
+}
+.benefit-item:hover {
+  background: rgba(0, 240, 255, 0.06) !important;
+  border-color: rgba(0, 240, 255, 0.35) !important;
+  transform: translateX(-4px) !important;
+  box-shadow: 0 4px 18px rgba(0, 240, 255, 0.12) !important;
+}
+.benefit-icon {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.14), rgba(168, 85, 247, 0.1)) !important;
+  border: 1px solid rgba(0, 240, 255, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.18) !important;
+  user-select: none !important;
+}
+.benefit-item strong {
+  font-family: var(--apex-font-display) !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  display: block !important;
+  margin-bottom: 2px !important;
+  letter-spacing: -0.2px !important;
+}
+.benefit-item span {
+  font-family: var(--apex-font-sans) !important;
+  font-size: 12.5px !important;
+  color: #94a3b8 !important;
+  line-height: 1.45 !important;
+  display: block !important;
+  font-weight: 400 !important;
+}
+</style>
+
+
+<style id="super-pro-emoji-upgrade">
+.benefit-icon {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+  max-width: 46px !important;
+  max-height: 46px !important;
+  border-radius: 14px !important;
+  background: radial-gradient(circle at center, rgba(0, 240, 255, 0.22) 0%, rgba(10, 18, 32, 0.95) 100%) !important;
+  border: 1.5px solid rgba(0, 240, 255, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 18px rgba(0, 240, 255, 0.25), inset 0 0 14px rgba(0, 240, 255, 0.12) !important;
+  user-select: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.benefit-icon .emoji-symbol {
+  font-size: 24px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  text-align: center !important;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif !important;
+  transform: translateY(1.5px) !important;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5)) !important;
+}
+</style>
+
 </head>
 <body class="auth-page">
 <div class="bg-particles">
@@ -379,7 +503,7 @@ body.auth-page {
 </div>
 <div class="form-group">
 <label for="regPhone">رقم الهاتف (اختياري)</label>
-<input autocomplete="tel" class="glass-input" dir="auto" id="regPhone" name="phone" placeholder="e.g. +961 70 000 000" type="tel"/ dir="auto">
+<input autocomplete="tel" class="glass-input" dir="auto" id="regPhone" name="phone" placeholder="مثال: +1 (555) 019-2834" type="tel" dir="auto">
 </div>
 <div class="form-group">
 <label for="regPassword">كلمة المرور</label>
@@ -408,50 +532,55 @@ body.auth-page {
 </div>
       {% endif %}
 
-      <button class="btn-solid" id="registerBtn" type="submit">
-<span class="btn-text">🚀 إنشاء حساب مجاني</span>
-<span class="btn-spinner"></span>
-</button>
+      <button class="btn-solid btn-submit-cyber" id="registerBtn" type="submit">
+        <span class="btn-content">
+          <span class="btn-rocket-emoji">🚀</span>
+          <span class="btn-text">إنشاء حساب مجاني وإطلاق سرب الـ AI</span>
+        </span>
+        <span class="btn-spinner"></span>
+      </button>
 </form>
 <div class="link-row">لديك حساب بالفعل؟ <a href="/login">دخول</a></div>
-<div class="trust-strip-green">
-<span>🔒 لا حاجة لبطاقة ائتمان • ضمان استرداد الأموال لمدة 30 يوماً • إلغاء في أي وقت</span>
+<div class="auth-trust-badge">
+  <span>🛡️ <strong>حماية مشفرة بدرجة بنكية</strong> • تفعيل فوري للحساب • سرية تامة 100%</span>
 </div>
 </div>
 <!-- inset-inline-end: Benefits -->
 <div class="benefits-card">
-<h2>✨ شو بتحصل</h2>
-<div class="benefit-item">
-<span class="benefit-icon">🤖</span>
-<div><strong>سوارم غراهام الذكي الفائق (Graham's Swarm Agents) 24/7</strong><span>مئات الوكلاء شغالين على مدار الساعة searching & applying</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">✉️</span>
-<div><strong>رسائل تغطية مميزة</strong><span>كل تقديم إله رسالة تغطية مخصصة ومكتوبة بالذكاء الاصطناعي</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">📧</span>
-<div><strong>شبكة تناوب غراهام الفائقة للبريد (Graham's Infinite Email Mesh)</strong><span>نظام التدوير الذكي يبقي رسائلك بعيدة عن البريد المزعج</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">🌍</span>
-<div><strong>🌍 جميع دول العالم 100% (Worldwide Coverage)</strong><span>بحث في لبنان، الإمارات، السعودية، قطر، الكويت، عن بعد وغيرها</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">📊</span>
-<div><strong>لوحة تحكم فورية</strong><span>تتبع الفتح، النقرات، الردود وتقدمك بشكل مباشر</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">🛡️</span>
-<div><strong>استرجاع فلوسك خلال 30 يوم</strong><span>ما في مقابلات؟ بنرجعلك فلوسك. ضمان بدون مخاطر</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">🔒</span>
-<div><strong>تشفير 256-بت</strong><span>سيرتك الذاتية وبياناتك محمية — لن تتم مشاركتها أو بيعها أبداً</span></div>
-</div>
-<div class="benefit-item">
-<span class="benefit-icon">₿</span>
-<div><strong>مدفوعات الكريبتو</strong><span>ادفع بـ BTC, ETH, USDT — خاصة وبدون حدود</span></div>
+    <h2>✨ ماذا ستحصل عند الانضمام</h2>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">🤖</span></span>
+      <div><strong>سرب ذكاء اصطناعي ذاتي يعمل 24/7</strong><span>مئات الوكلاء يعملون على مدار الساعة للبحث والتقديم ومتابعة الشواغر</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">✍️</span></span>
+      <div><strong>صياغة فريدة لرسائل التغطية</strong><span>كل شاغر يُصاغ له خطاب تقديم ذكي ومخصص يبرز أقوى نقاط قوتك</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">📬</span></span>
+      <div><strong>وصول مباشر لصناديق مدراء التوظيف</strong><span>ضمان التسليم المباشر لصندوق الوارد الرئيسي لمدراء التوظيف وتخطي السبام</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">🌍</span></span>
+      <div><strong>تغطية خليجية وعالمية 100%</strong><span>استهداف وظائف السعودية، الإمارات، قطر، الكويت، والوظائف عن بعد وعالمياً</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">📈</span></span>
+      <div><strong>لوحة تحكم حية لمتابعة المقابلات</strong><span>تتبع فتح السيرة الذاتية، التفاعل، والردود ودعوات المقابلات لحظياً</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">🛡️</span></span>
+      <div><strong>ضمان التقديم والتسليم الآلي 100%</strong><span>إطلاق حملات موثوقة مع درع حماية كامل ومنع تكرار التقديم لمدة 365 يوماً</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">👑</span></span>
+      <div><strong>خزنة سيادية لحماية بياناتك</strong><span>سيرتك الذاتية ومعلوماتك المهنية مشفرة ومحمية بالكامل ولا تُشارك أبداً</span></div>
+    </div>
+    <div class="benefit-item">
+      <span class="benefit-icon"><span class="emoji-symbol">⚡</span></span>
+      <div><strong>تفعيل فوري وبوابات دفع عالمية</strong><span>انطلاق فوري مع دعم البطاقات البنكية، Apple Pay، والعملات الرقمية</span></div>
+    </div>
+  </div>
 </div>
 </div>
 </div>

@@ -134,22 +134,44 @@ def validate_url(url: str) -> bool:
 
 
 def clean_phone_number(phone_str: str) -> str:
-    """Clean and format Lebanese and international phone numbers cleanly, eliminating duplicated country codes (+961)."""
+    """Clean and format Lebanese, GCC, and international phone numbers cleanly with professional spacing."""
     if not phone_str:
-        return "+1 (555) 019-2834"
+        return "+961 70 841 009"
     import re as _re_p
     s = str(phone_str).strip()
-    # Completely eliminate repeated +961 or 961 prefixes
-    s = _re_p.sub(r'(?:\+?961[\s\-]*)+', ' ', s, flags=_re_p.IGNORECASE).strip()
     digits = _re_p.sub(r'\D', '', s)
-    if len(digits) == 8:
+    if not digits:
+        return "+961 70 841 009"
+
+    # UAE (+971)
+    if digits.startswith("971") and len(digits) == 12:
+        return f"+971 {digits[3:5]} {digits[5:8]} {digits[8:]}"
+    # Saudi (+966)
+    elif digits.startswith("966") and len(digits) == 12:
+        return f"+966 {digits[3:5]} {digits[5:8]} {digits[8:]}"
+    # Qatar (+974)
+    elif digits.startswith("974") and len(digits) == 11:
+        return f"+974 {digits[3:7]} {digits[7:]}"
+    # Kuwait (+965)
+    elif digits.startswith("965") and len(digits) == 11:
+        return f"+965 {digits[3:7]} {digits[7:]}"
+    # Lebanon (+961)
+    elif digits.startswith("961") and len(digits) == 11:
+        return f"+961 {digits[3:5]} {digits[5:8]} {digits[8:]}"
+    elif len(digits) == 8:
         return f"+961 {digits[:2]} {digits[2:5]} {digits[5:]}"
+    # US/Canada (+1)
+    elif digits.startswith("1") and len(digits) == 11:
+        return f"+1 ({digits[1:4]}) {digits[4:7]}-{digits[7:]}"
+    elif len(digits) == 10 and not s.startswith("+"):
+        return f"+1 ({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    # General International
     elif len(digits) > 8:
         last8 = digits[-8:]
-        if last8[:2] in ("70", "71", "76", "78", "79", "81", "03", "01", "04", "05", "06", "07", "08", "09"):
+        if last8[:2] in ("70", "71", "76", "78", "79", "81", "03", "01", "04", "05", "06", "07", "08", "09") and digits.startswith("961"):
             return f"+961 {last8[:2]} {last8[2:5]} {last8[5:]}"
-        return f"+{digits}"
+        return f"+{digits[:3]} {digits[3:6]} {digits[6:]}"
     elif len(digits) >= 6:
         return f"+961 {digits[:2]} {digits[2:]}"
-    return "+1 (555) 019-2834"
+    return "+961 70 841 009"
 

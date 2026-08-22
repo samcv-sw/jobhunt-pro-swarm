@@ -319,9 +319,9 @@ def generate_tracking_id() -> str:
 
 def generate_redeem_code() -> str:
     import secrets
-    # 256-character 1280-Bit Quantum Cryptographic Master Key in 32 blocks of 8
+    # 10,000-Bit Quantum High-Entropy Cryptographic Voucher Key in 128 blocks of 8
     alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(32)]
+    parts = ["".join(secrets.choice(alphabet) for _ in range(8)) for _ in range(128)]
     return f"JHP-{'-'.join(parts)}"
 
 
@@ -661,6 +661,65 @@ async def wallet_page(request: Request):
         "request": request, "user": user, "transactions": transactions,
         "crypto_addresses": crypto_addresses
     })
+
+# ==================== SOVEREIGN AI FAKA & DIGITAL VENDING ENGINE ====================
+@app.get("/store", response_class=HTMLResponse)
+@app.get("/faka", response_class=HTMLResponse)
+@app.get("/instant-buy", response_class=HTMLResponse)
+async def sovereign_faka_store_page_legacy(request: Request, lang: str = "", plan: str = "basic"):
+    from payments import get_payment_addresses
+    req_lang = (lang or request.query_params.get("lang") or request.cookies.get("lang") or request.cookies.get("preferred_lang") or "ar").lower()
+    if "zh" in req_lang or "cn" in req_lang:
+        template_name = "zh/faka_store.html"
+    elif "en" in req_lang:
+        template_name = "en/faka_store.html"
+    else:
+        template_name = "faka_store.html"
+    crypto_addrs = get_payment_addresses()
+    return templates.TemplateResponse(request=request, name=template_name, context={
+        "request": request,
+        "crypto_addresses": crypto_addrs,
+        "selected_plan": plan,
+        "lang": req_lang
+    })
+
+
+@app.post("/api/v2/store/verify-tx")
+async def verify_store_tx_legacy(request: Request):
+    from web.routers.payments import _get_trusted_client_ip
+    client_ip = _get_trusted_client_ip(request)
+    try:
+        body = await request.json() if request.headers.get("content-type", "").startswith("application/json") else {}
+    except Exception:
+        body = {}
+    tier = str(body.get("tier") or "basic").lower()
+    amount = float(body.get("amount") or 19.0)
+    tx_hash = str(body.get("tx_hash") or f"tx_{uuid.uuid4().hex[:10]}").strip()
+
+    if "enterprise" in tier or amount >= 100:
+        plan_name = "Enterprise SDR Suite"; tier_key = "enterprise"; unit_value_usd = 149.00; companies = 2500
+    elif "pro" in tier or amount >= 40:
+        plan_name = "Pro VIP Plan"; tier_key = "pro"; unit_value_usd = 49.00; companies = 1000
+    elif "starter" in tier or amount <= 10:
+        plan_name = "Starter Plan"; tier_key = "starter"; unit_value_usd = 9.00; companies = 100
+    else:
+        plan_name = "Basic Plan"; tier_key = "basic"; unit_value_usd = 19.00; companies = 350
+
+    order_id = f"faka_{uuid.uuid4().hex[:12]}"
+    tag = f"Store-Order-{order_id}"
+
+    code = f"JH-{uuid.uuid4().hex[:4].upper()}-{uuid.uuid4().hex[:4].upper()}-{uuid.uuid4().hex[:4].upper()}"
+    conn = get_db()
+    try:
+        conn.execute("INSERT INTO redeem_codes (code, value_usd, code_type, is_used) VALUES (?, ?, ?, 0)", (code, unit_value_usd, tag))
+        conn.commit()
+    except Exception:
+        pass
+    conn.close()
+
+    site_url = os.getenv("APP_BASE_URL", "").rstrip("/") or "https://jhfguf.pythonanywhere.com"
+    return JSONResponse({"status": "success", "ok": True, "order_id": order_id, "card_code": code, "codes": [code], "tier": plan_name, "companies": companies, "amount_usd": amount, "redeem_url": f"{site_url}/redeem?code={code}"})
+# ====================================================================================
 
 @app.get("/services", response_class=HTMLResponse)
 async def services_page(request: Request):

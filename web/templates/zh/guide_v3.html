@@ -1,0 +1,509 @@
+<meta property="og:title" content="极速使用指南与操作手册 | JobHunt Pro"/>
+<meta name="description" content="面向求职者、招聘雇主与数字合作伙伴的极简上手操作指南。"/>
+<title>极速使用指南与操作手册 | JobHunt Pro</title>
+
+<style>
+.guide-wrapper-v3 {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #f1f5f9;
+  max-inline-size: 1100px;
+  margin-inline: auto;
+  padding: 30px 20px 80px;
+  position: relative;
+  z-index: 10;
+}
+
+.guide-hero {
+  text-align: center;
+  margin-block-end: 40px;
+}
+
+.guide-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 22px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #00f0ff;
+  margin-block-end: 18px;
+}
+
+.guide-hero h1 {
+  font-size: clamp(28px, 4.5vw, 44px);
+  font-weight: 900;
+  margin-block-end: 14px;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.guide-hero h1 span {
+  background: linear-gradient(135deg, #00f0ff, #a855f7, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.guide-hero p {
+  font-size: 16px;
+  color: #94a3b8;
+  max-inline-size: 680px;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+/* Persona Switcher Tabs */
+.guide-tabs-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-block-end: 36px;
+}
+
+.guide-tab-btn {
+  background: rgba(13, 22, 38, 0.85);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  padding: 14px 26px;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: inherit;
+}
+
+.guide-tab-btn:hover {
+  border-color: #00f0ff;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.guide-tab-btn.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(168, 85, 247, 0.2));
+  border-color: #00f0ff;
+  color: #00f0ff;
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+}
+
+/* Tab Content Panels */
+.guide-panel {
+  display: none;
+  animation: fadeInGuide 0.35s ease forwards;
+}
+
+.guide-panel.active {
+  display: block;
+}
+
+@keyframes fadeInGuide {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Steps Grid */
+.steps-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.step-card {
+  background: rgba(10, 18, 28, 0.82);
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-radius: 22px;
+  backdrop-filter: blur(20px);
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.step-card:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transform: translateX(4px);
+}
+
+@media (max-width: 680px) {
+  .step-card { grid-template-columns: 1fr; text-align: center; }
+}
+
+.step-num-badge {
+  inline-size: 70px;
+  block-size: 70px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.step-num-badge span.num {
+  font-size: 24px;
+  font-weight: 900;
+  color: #00f0ff;
+  line-height: 1;
+}
+
+.step-num-badge span.sub-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.step-content h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 8px 0;
+}
+
+.step-content p {
+  font-size: 15px;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+  line-height: 1.7;
+}
+
+.step-action-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.step-btn-cyan {
+  background: linear-gradient(135deg, #00f0ff, #00b8ff);
+  color: #050515 !important;
+}
+
+.step-btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1 !important;
+}
+
+/* Copy Tool Section */
+.copy-tool-card {
+  background: rgba(13, 22, 38, 0.9);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 24px;
+  padding: 34px;
+  margin-block-start: 40px;
+  text-align: start;
+}
+
+.copy-box-wrap {
+  background: #050a12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 18px 20px;
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.8;
+  white-space: pre-line;
+  margin-block: 16px;
+  max-block-size: 260px;
+  overflow-y: auto;
+  font-family: inherit;
+}
+</style>
+
+<div class="guide-wrapper-v3" dir="ltr">
+
+  <!-- Header -->
+  <header class="guide-hero">
+    <div class="guide-hero-pill">
+      <span>📖 极速使用指南与操作手册</span>
+    </div>
+    <h1>玩转 <span>JobHunt Pro</span> 全自动求职</h1>
+    <p>
+      无需繁琐配置，60 秒内开启全自动求职战队 — 界面清晰易懂，小白也能轻松上手！
+    </p>
+  </header>
+
+  <!-- Persona Switcher Navigation -->
+  <nav class="guide-tabs-nav">
+    <button class="guide-tab-btn active" onclick="switchGuideTab('candidate')">
+      <span>👤</span> <span>求职者快速上手</span>
+    </button>
+    <button class="guide-tab-btn" onclick="switchGuideTab('employer')">
+      <span>🏢</span> <span>企业直聘与雇主</span>
+    </button>
+    <button class="guide-tab-btn" onclick="switchGuideTab('reseller')">
+      <span>💼</span> <span>分销商与合作伙伴 (最高70%利润)</span>
+    </button>
+    <button class="guide-tab-btn" onclick="switchGuideTab('copytool')">
+      <span>📋</span> <span>一键复制客户指引话术</span>
+    </button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TAB 1: 求职者 (JOB SEEKERS)
+       ══════════════════════════════════════════════════════════════ -->
+  <section id="tab-candidate" class="guide-panel active">
+    <div class="steps-timeline">
+
+      <!-- Step 1 -->
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">1</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>⚡ 登录注册或输入兑换卡密 (即时激活)</h3>
+          <p>
+            若您通过（官方平台 / 授权合作渠道 / 电子兑换码）获得激活凭据，直接进入注册页面或兑换中心，输入您的邮箱或卡密即可秒速开通账户。
+          </p>
+          <div class="step-action-bar">
+            <a href="/register?lang=zh" class="step-btn step-btn-cyan">免费创建新账户 →</a>
+            <a href="/redeem" class="step-btn step-btn-ghost">🔑 兑换卡密 / 优惠券</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">2</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>📄 上传简历与锁定意向地区</h3>
+          <p>
+            上传您的 PDF 个人简历，AI 将全自动结构化解析核心技能，您可自由选择心仪求职地区（沙特 🇸🇦、阿联酋 🇦🇪、卡塔尔 🇶🇦、科威特 🇰🇼，或全球远程岗位 🌍）。
+          </p>
+          <div class="step-action-bar">
+            <a href="/upload-cv?lang=zh" class="step-btn step-btn-cyan">📝 上传并完善简历画像 →</a>
+            <a href="/ats-checker" class="step-btn step-btn-ghost">🔍 免费 ATS 简历评分</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">3</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>🚀 启动全自动投递战队，直达面试！</h3>
+          <p>
+            点击 <strong>“启动全自动求职战队”</strong>，AI 将 7x24 小时不间断为您投递数百家匹配企业，面试邀约直达您的个人邮箱与看板！
+          </p>
+          <div class="step-action-bar">
+            <a href="/battle-station" class="step-btn step-btn-cyan">🎮 进入作战指挥部 (Battle Station) →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TAB 2: 企业与招聘方 (EMPLOYERS)
+       ══════════════════════════════════════════════════════════════ -->
+  <section id="tab-employer" class="guide-panel">
+    <div class="steps-timeline">
+
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">1</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>🏢 发布招聘岗位与任职要求</h3>
+          <p>
+            输入职位名称、技术要求与薪资预算，AI 算法引擎将在数秒内为您精准匹配海量优质候选人。
+          </p>
+          <div class="step-action-bar">
+            <a href="/pricing" class="step-btn step-btn-cyan">查看企业 B2B 招聘套餐 →</a>
+            <a href="/employer/track?lang=zh" class="step-btn step-btn-ghost">📊 追踪招聘职位</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">2</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>🎯 极速接收 95%+ 超高匹配度候选人</h3>
+          <p>
+            精准直达高匹配简历，告别低效海选与中介高额佣金，高效完成关键岗位招聘。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TAB 3: 分销商与合作伙伴 (AFFILIATES & RESELLERS)
+       ══════════════════════════════════════════════════════════════ -->
+  <section id="tab-reseller" class="guide-panel">
+    <div class="steps-timeline">
+
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">1</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>💎 批量采购套餐，享最高 70% 批发特惠</h3>
+          <p>
+            在定价页面使用阶梯批发计算器，采购 5、10 或 20+ 套餐即可获得专属超低批发折扣。
+          </p>
+          <div class="step-action-bar">
+            <a href="/pricing#bulk" class="step-btn step-btn-cyan">查看批发阶梯折扣 →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num-badge">
+          <span class="num">2</span>
+          <span class="sub-text">步骤</span>
+        </div>
+        <div class="step-content">
+          <h3>💰 灵活分销卡密，坐享 100% 差价净利</h3>
+          <p>
+            按官方统一价向您的本地客户或社群分销数字卡密，全部差价利润 100% 归您所有！
+          </p>
+          <div class="step-action-bar">
+            <a href="/wallet" class="step-btn step-btn-ghost">🪙 钱包与卡密管理中心</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TAB 4: 话术快速复制 (COPY TOOL)
+       ══════════════════════════════════════════════════════════════ -->
+  <section id="tab-copytool" class="guide-panel">
+    <div class="copy-tool-card">
+      <h3 style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 0 0 8px 0;">
+        📋 客户极速指引话术（一键复制并发送给买家）
+      </h3>
+      <p style="font-size: 14px; color: #94a3b8; margin: 0 0 20px 0;">
+        客户下单后，一键复制对应语言的发货与使用说明：
+      </p>
+
+      <!-- Chinese Buyer Template -->
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong style="color:#00f0ff;">1. 中文客户指引 (官方合作渠道 / 微信 / 邮件):</strong>
+        <button type="button" class="step-btn step-btn-cyan" onclick="copyGuideText('zh-buyer-text')">复制中文指引 📋</button>
+      </div>
+      <div class="copy-box-wrap" id="zh-buyer-text" dir="ltr">
+您好！🚀 您的 JobHunt Pro AI 全自动求职订单已生效。
+请按照以下极简 3 步开启全自动投递：
+
+1️⃣ 打开官方平台注册登录：
+👉 https://jobhunt-pro.com/register?lang=zh
+(若您有激活兑换码，请在此兑换：https://jobhunt-pro.com/redeem)
+
+2️⃣ 上传您的个人简历 (PDF) 并选择期望求职地区（海湾/沙特/阿联酋/全球/远程）。
+
+3️⃣ 点击 “启动全自动求职战队” ⚡
+AI 将 7x24 小时不间断为您投递数百家匹配企业，面试邀约直达您的个人邮箱与看板！🎯
+
+如有任何问题，专属客服全天候为您服务！💎
+      </div>
+
+      <!-- English Buyer Template -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-start: 24px;">
+        <strong style="color:#a855f7;">2. English Client Message (For Global Clients):</strong>
+        <button type="button" class="step-btn step-btn-cyan" onclick="copyGuideText('en-buyer-text')">Copy English Text 📋</button>
+      </div>
+      <div class="copy-box-wrap" id="en-buyer-text" dir="ltr">
+Welcome! 🚀 Your JobHunt Pro order has been confirmed.
+Here is your 3-Step Quick Start Guide:
+
+1️⃣ Visit the official platform:
+👉 https://jobhunt-pro.com/register?lang=en
+(Or redeem your voucher here: https://jobhunt-pro.com/redeem)
+
+2️⃣ Upload your CV (PDF) & select your target regions (Gulf/Saudi/UAE/Worldwide/Remote).
+
+3️⃣ Click "Launch Autonomous Campaign" ⚡
+Our AI will apply to hundreds of verified employers 24/7. Interview invitations will arrive directly in your personal email and dashboard! 🎯
+
+Need assistance? Our support team is ready 24/7! 💎
+      </div>
+
+      <!-- Arabic Buyer Template -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-start: 24px;">
+        <strong style="color:#34d399;">3. Arabic Client Message (باللغة العربية):</strong>
+        <button type="button" class="step-btn step-btn-cyan" onclick="copyGuideText('ar-buyer-text')">نسخ الرسالة 📋</button>
+      </div>
+      <div class="copy-box-wrap" id="ar-buyer-text" dir="rtl">
+أهلاً بك يا غالي! 🚀 تم استلام طلبك بنجاح.
+إليك خطوات الاستخدام السريع في 3 خطوات بسيطة:
+
+1️⃣ ادخل إلى الموقع الرسمي:
+👉 https://jobhunt-pro.com/register
+(إذا معك كود قسيمة ادخل هنا: https://jobhunt-pro.com/redeem)
+
+2️⃣ ارفع سيرتك الذاتية (CV) واختر الدول المستهدفة (السعودية، الإمارات، قطر، أو عالمياً).
+
+3️⃣ اضغط "إطلاق الحملة التلقائية" ⚡
+سيتولى الذكاء الاصطناعي التقديم لك 24/7 ومراسلة مئات الشركات، وستصلك دعوات المقابلات على إيميلك ولوحة تحكمك فوراً! 🎯
+
+إذا عندك أي استفسار، فريق الدعم بخدمتك دائماً! 💎
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<script>
+function switchGuideTab(tabId) {
+  document.querySelectorAll('.guide-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.guide-tab-btn').forEach(b => b.classList.remove('active'));
+  
+  const target = document.getElementById('tab-' + tabId);
+  if (target) target.classList.add('active');
+  
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+}
+
+function copyGuideText(elementId) {
+  const text = document.getElementById(elementId).innerText.trim();
+  navigator.clipboard.writeText(text).then(() => {
+    alert('指引说明已成功复制到剪贴板！🚀');
+  }).catch(() => {
+    alert('请手动选择并复制文本。');
+  });
+}
+</script>

@@ -2,27 +2,113 @@
 <meta name="description" content="إدارة إعدادات حسابك والبيانات الشخصية ووصول المطورين."/>
 <title>الإعدادات | JobHunt Pro</title>
 
-<div class="max-w-4xl mx-auto space-y-8 pb-12">
+<style>
+/* Apex Glassmorphism Settings Theme */
+.settings-wrap { font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif; }
+.settings-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  inline-size: 100%;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: start;
+}
+.settings-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(0, 240, 255, 0.2);
+  transform: translateX(-2px);
+}
+.settings-tab-btn.active {
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+.settings-card {
+  background: rgba(13, 22, 38, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 25px rgba(0, 240, 255, 0.08);
+}
+.settings-input {
+  inline-size: 100%;
+  padding: 13px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+.settings-input:focus {
+  border-color: #00f0ff;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.25);
+}
+.settings-input:disabled {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  cursor: not-allowed;
+}
+.btn-save-settings {
+  background: linear-gradient(135deg, #00f0ff, #0080ff);
+  color: #050515;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 12px 28px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-save-settings:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 240, 255, 0.5);
+  filter: brightness(1.1);
+}
+</style>
+
+<div class="max-w-4xl mx-auto space-y-8 pb-12 settings-wrap" dir="rtl">
   <!-- Title Header -->
   <div class="flex flex-col gap-2 reveal">
-    <h1 class="text-3xl font-extrabold tracking-tight text-white bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-      الإعدادات
+    <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">
+      ⚙️ الإعدادات العامة والحساب
     </h1>
     <p class="text-sm text-slate-400">
-      إدارة معلوماتك الشخصية، تغيير كلمة المرور، والوصول إلى بيانات الاعتماد للمطورين.
+      إدارة معلوماتك الشخصية، تعديل كلمة المرور، والوصول إلى مفاتيح API للمطورين.
     </p>
   </div>
 
   <!-- Messages -->
   {% if success %}
-  <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400 text-sm flex items-center gap-3">
-    <i data-lucide="check-circle" class="w-5 h-5"></i>
+  <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400 text-sm flex items-center gap-3 shadow-lg shadow-emerald-500/10">
+    <i data-lucide="check-circle-2" class="w-5 h-5"></i>
     <span>{{ success }}</span>
   </div>
   {% endif %}
 
   {% if error %}
-  <div class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-400 text-sm flex items-center gap-3">
+  <div class="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-400 text-sm flex items-center gap-3 shadow-lg shadow-rose-500/10">
     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
     <span>{{ error }}</span>
   </div>
@@ -31,15 +117,18 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
     <!-- Left Column: Settings Nav -->
     <div class="space-y-4">
-      <div class="glass-panel p-4 space-y-2">
-        <button onclick="switchTab('profile')" id="btn-tab-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400">
-          <i data-lucide="user" class="w-4 h-4"></i> تفاصيل الحساب
+      <div class="settings-card p-4 space-y-2">
+        <button onclick="switchTab('profile')" id="btn-tab-profile" class="settings-tab-btn active">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>👤 تفاصيل الحساب</span>
         </button>
-        <button onclick="switchTab('security')" id="btn-tab-security" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
-          <i data-lucide="lock" class="w-4 h-4"></i> الأمان وكلمة المرور
+        <button onclick="switchTab('security')" id="btn-tab-security" class="settings-tab-btn">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+          <span>🔒 الأمان وكلمة المرور</span>
         </button>
-        <button onclick="switchTab('developer')" id="btn-tab-developer" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-start text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5">
-          <i data-lucide="code" class="w-4 h-4"></i> مفتاح API للمطورين
+        <button onclick="switchTab('developer')" id="btn-tab-developer" class="settings-tab-btn">
+          <i data-lucide="code" class="w-4 h-4"></i>
+          <span>&lt;/&gt; مفتاح API للمطورين</span>
         </button>
       </div>
     </div>
@@ -48,87 +137,126 @@
     <div class="md:col-span-2 space-y-6">
       
       <!-- PROFILE PANEL -->
-      <div id="panel-profile" class="glass-panel p-6 space-y-6 reveal">
+      <div id="panel-profile" class="settings-card space-y-6 reveal">
         <div>
-          <h2 class="text-xl font-bold text-white mb-1">تفاصيل الحساب</h2>
-          <p class="text-xs text-slate-400">تحديث معلوماتك الأساسية على المنصة.</p>
+          <h2 class="text-xl font-bold text-white mb-1">👤 تفاصيل الحساب</h2>
+          <p class="text-xs text-slate-400">تحديث وتأكيد معلوماتك الأساسية على المنصة.</p>
         </div>
         
         <form action="/settings" method="POST" class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">البريد الإلكتروني</label>
-            <input type="email" value="{{ user.email }}" disabled class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-500 cursor-not-allowed" / dir="auto">
-            <p class="text-[10px] text-slate-500 mt-1.5">لا يمكن تغيير البريد الإلكتروني لأنه مرتبط بهوية حسابك.</p>
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">البريد الإلكتروني</label>
+            <input type="email" value="{{ user.email }}" disabled class="settings-input" dir="ltr">
+            <p class="text-[11px] text-slate-500 mt-1.5">لا يمكن تغيير البريد الإلكتروني لأنه مرتبط بهوية حسابك وأمان المنظومة.</p>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">الاسم الكامل</label>
-            <input type="text" name="name" value="{{ user.name or '' }}" required dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" / dir="auto">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">الاسم الكامل *</label>
+            <input type="text" name="name" value="{{ user.name or '' }}" required dir="auto" class="settings-input" placeholder="اسمك الكامل">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">رقم الهاتف</label>
-            <input type="text" name="phone" value="{{ user.phone or '' }}" dir="auto" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" / dir="auto">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">رقم الهاتف *</label>
+            <input type="text" name="phone" value="{{ user.phone or '' }}" dir="auto" class="settings-input" placeholder="+961 70 841 009">
           </div>
 
-          <div class="pt-4 border-t border-white/5 flex justify-end">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-600/20">
-              حفظ التغييرات
+          <!-- CONNECTED SOCIAL ACCOUNTS -->
+          <div class="pt-4 border-t border-white/10 space-y-3">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">الحسابات المربوطة</label>
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-white/10 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white shadow-inner">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-white">Google Identity</div>
+                  <div class="text-xs text-slate-400">
+                    {% if user.oauth_provider == 'google' or user.email %}
+                      <span class="text-emerald-400 font-semibold">مربوط وموثق ({{ user.email }})</span>
+                    {% else %}
+                      غير مربوط
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <a href="/auth/google/login" class="px-3.5 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all">
+                مزامنة الحساب
+              </a>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-white/10 flex justify-end">
+            <button type="submit" class="btn-save-settings">
+              <span>💾 حفظ التغييرات</span>
             </button>
           </div>
         </form>
       </div>
 
       <!-- SECURITY PANEL -->
-      <div id="panel-security" class="glass-panel p-6 space-y-6 hidden reveal">
+      <div id="panel-security" class="settings-card space-y-6 hidden reveal">
         <div>
-          <h2 class="text-xl font-bold text-white mb-1">الأمان وكلمة المرور</h2>
-          <p class="text-xs text-slate-400">تحديث بيانات الأمان وكلمة المرور الخاصة بك.</p>
+          <h2 class="text-xl font-bold text-white mb-1">🔒 الأمان وكلمة المرور</h2>
+          <p class="text-xs text-slate-400">تحديث بيانات الدخول وكلمة المرور المشفرة الخاصة بك.</p>
         </div>
 
         <form action="/settings" method="POST" class="space-y-4">
-          <!-- Include Name and Phone to prevent overwriting them as empty in the POST form -->
-          <input type="hidden" name="name" value="{{ user.name or '' }}" / dir="auto">
-          <input type="hidden" name="phone" value="{{ user.phone or '' }}" / dir="auto">
+          <input type="hidden" name="name" value="{{ user.name or '' }}">
+          <input type="hidden" name="phone" value="{{ user.phone or '' }}">
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">كلمة المرور الجديدة</label>
-            <input type="password" name="password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="8 أحرف على الأقل" / dir="auto">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">كلمة المرور الجديدة *</label>
+            <input type="password" name="password" required minlength="8" class="settings-input" placeholder="8 أحرف على الأقل" dir="ltr">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">تأكيد كلمة المرور الجديدة</label>
-            <input type="password" name="confirm_password" required minlength="8" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" placeholder="تأكيد كلمة المرور" / dir="auto">
+            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">تأكيد كلمة المرور الجديدة *</label>
+            <input type="password" name="confirm_password" required minlength="8" class="settings-input" placeholder="تأكيد كلمة المرور" dir="ltr">
           </div>
 
-          <div class="pt-4 border-t border-white/5 flex justify-end">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-indigo-600/20">
-              تحديث كلمة المرور
+          <div class="pt-4 border-t border-white/10 flex justify-end">
+            <button type="submit" class="btn-save-settings">
+              <span>🔒 تحديث كلمة المرور</span>
             </button>
           </div>
         </form>
       </div>
 
       <!-- DEVELOPER PANEL -->
-      <div id="panel-developer" class="glass-panel p-6 space-y-6 hidden reveal">
+      <div id="panel-developer" class="settings-card space-y-6 hidden reveal">
         <div>
-          <h2 class="text-xl font-bold text-white mb-1">الوصول البرمجي للمطورين API</h2>
-          <p class="text-xs text-slate-400">دمج عمليات JobHunt Pro برمجياً مباشرة في أدواتك المحلية.</p>
+          <h2 class="text-xl font-bold text-white mb-1">&lt;/&gt; الوصول البرمجي للمطورين API</h2>
+          <p class="text-xs text-slate-400">دمج عمليات JobHunt Pro برمجياً مباشرة في أدواتك وأنظمتك المحلية.</p>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">مفتاح API الخاص بك</label>
-            <div class="flex gap-2">
-              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/5 rounded-xl px-4 py-3 text-sm text-slate-300 font-mono focus:outline-none" / dir="auto">
-              <button onclick="toggleApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-4 rounded-xl border border-white/10 transition-all" title="إظهار / إخفاء">
-                <i id="apiKeyIcon" data-lucide="eye" class="w-5 h-5"></i>
-              </button>
-              <button onclick="copyApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-4 rounded-xl border border-white/10 transition-all" title="نسخ">
-                <i data-lucide="copy" class="w-5 h-5"></i>
-              </button>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider">مفتاح API الخاص بك</label>
+              <span class="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> نشط وموثق
+              </span>
             </div>
-            <p class="text-[10px] text-slate-500 mt-2">استخدم هذا المفتاح في ترويسة الطلب: <code>Bearer [YOUR_API_KEY]</code>.</p>
+            <div class="flex flex-wrap sm:flex-nowrap gap-2">
+              <input type="password" id="apiKeyInput" value="{{ user.api_key or '' }}" readonly class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-cyan-300 font-mono focus:outline-none focus:border-cyan-500/50 shadow-inner overflow-ellipsis" dir="ltr">
+              <div class="flex gap-2 shrink-0">
+                <button type="button" onclick="toggleApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-3.5 py-2.5 rounded-xl border border-white/10 transition-all flex items-center justify-center cursor-pointer" title="إظهار / إخفاء">
+                  <i id="apiKeyIcon" data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="copyApiKey()" class="bg-white/5 hover:bg-white/10 text-slate-300 px-3.5 py-2.5 rounded-xl border border-white/10 transition-all flex items-center justify-center cursor-pointer" title="نسخ">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <button type="button" onclick="regenerateApiKey()" class="bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/50 hover:to-blue-600/50 text-cyan-300 hover:text-white px-4 py-2.5 rounded-xl border border-cyan-500/40 transition-all flex items-center gap-1.5 text-xs font-bold shadow-lg shadow-cyan-500/10 cursor-pointer" title="توليد مفتاح جديد">
+                  <i id="regenIcon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  <span>توليد مفتاح جديد</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mt-3 p-3 bg-slate-950/60 rounded-xl border border-white/5">
+              <div class="text-[11px] text-slate-400">
+                ترويسة الطلب (Header): <code class="text-cyan-400 font-mono bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-500/20" dir="ltr">Authorization: Bearer [YOUR_API_KEY]</code>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -139,25 +267,23 @@
 
 <script>
 function switchTab(tabId) {
-  // Hide all panels
-  document.getElementById('panel-profile').classList.add('hidden');
-  document.getElementById('panel-security').classList.add('hidden');
-  document.getElementById('panel-developer').classList.add('hidden');
-  
-  // Reset buttons classes
-  const btns = ['profile', 'security', 'developer'];
-  btns.forEach(b => {
-    const el = document.getElementById('btn-tab-' + b);
-    el.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-white/5";
+  ['profile', 'security', 'developer'].forEach(b => {
+    document.getElementById('panel-' + b)?.classList.add('hidden');
+    document.getElementById('btn-tab-' + b)?.classList.remove('active');
   });
 
-  // Show active panel
-  document.getElementById('panel-' + tabId).classList.remove('hidden');
-  
-  // Set active button style
-  const activeBtn = document.getElementById('btn-tab-' + tabId);
-  activeBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-end text-sm font-medium transition-all bg-indigo-500/10 text-indigo-400";
+  document.getElementById('panel-' + tabId)?.classList.remove('hidden');
+  document.getElementById('btn-tab-' + tabId)?.classList.add('active');
+  history.replaceState(null, null, '#' + tabId);
 }
+
+// Auto open tab from URL hash
+document.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash.replace('#', '');
+  if (['profile', 'security', 'developer'].includes(hash)) {
+    switchTab(hash);
+  }
+});
 
 function toggleApiKey() {
   const input = document.getElementById('apiKeyInput');
@@ -172,10 +298,117 @@ function toggleApiKey() {
   lucide.createIcons();
 }
 
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('customToast');
+  const msgEl = document.getElementById('toastMessage');
+  const iconEl = document.getElementById('toastIcon');
+  if (!toast || !msgEl) return;
+
+  msgEl.innerText = message;
+  if (type === 'success') {
+    toast.style.background = 'rgba(16, 185, 129, 0.2)';
+    toast.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+    toast.style.color = '#34d399';
+  } else {
+    toast.style.background = 'rgba(239, 68, 68, 0.2)';
+    toast.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+    toast.style.color = '#f87171';
+  }
+  lucide.createIcons();
+
+  toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+  toast.classList.add('translate-y-0');
+
+  setTimeout(() => {
+    toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+    toast.classList.remove('translate-y-0');
+  }, 3500);
+}
+
 function copyApiKey() {
   const input = document.getElementById('apiKeyInput');
   input.select();
   document.execCommand('copy');
-  alert('تم نسخ مفتاح API بنجاح!');
+  showToast('تم نسخ مفتاح API إلى الحافظة بنجاح!', 'success');
+}
+
+let confirmResolve = null;
+
+function showCustomConfirm() {
+  return new Promise((resolve) => {
+    confirmResolve = resolve;
+    const modal = document.getElementById('customConfirmModal');
+    const card = document.getElementById('customConfirmCard');
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    card.classList.remove('scale-95');
+    card.classList.add('scale-100');
+    lucide.createIcons();
+  });
+}
+
+function closeCustomConfirmModal(result) {
+  const modal = document.getElementById('customConfirmModal');
+  const card = document.getElementById('customConfirmCard');
+  modal.classList.add('opacity-0', 'pointer-events-none');
+  card.classList.remove('scale-100');
+  card.classList.add('scale-95');
+  if (confirmResolve) {
+    confirmResolve(result);
+    confirmResolve = null;
+  }
+}
+
+async function regenerateApiKey() {
+  const confirmed = await showCustomConfirm();
+  if (!confirmed) return;
+
+  const regenIcon = document.getElementById('regenIcon');
+  if (regenIcon) regenIcon.classList.add('animate-spin');
+  try {
+    const resp = await fetch('/api/user/regenerate-api-key', { method: 'POST' });
+    const data = await resp.json();
+    if (data.success && data.api_key) {
+      const input = document.getElementById('apiKeyInput');
+      input.value = data.api_key;
+      input.type = "text";
+      const icon = document.getElementById('apiKeyIcon');
+      if (icon) icon.setAttribute('data-lucide', 'eye-off');
+      lucide.createIcons();
+      showToast('تم توليد مفتاح API جديد وتحديثه بنجاح!', 'success');
+    } else {
+      showToast(data.error || 'تعذر توليد المفتاح', 'error');
+    }
+  } catch (err) {
+    showToast('حدث خطأ أثناء توليد المفتاح: ' + err.message, 'error');
+  } finally {
+    if (regenIcon) regenIcon.classList.remove('animate-spin');
+  }
 }
 </script>
+
+<!-- Confirmation Modal -->
+<div id="customConfirmModal" dir="rtl" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300" style="background: rgba(5, 8, 22, 0.85); backdrop-filter: blur(16px);">
+  <div class="relative w-full max-w-md transform scale-95 transition-all duration-300 rounded-2xl p-6 text-center border shadow-2xl" id="customConfirmCard" style="background: linear-gradient(145deg, rgba(17, 24, 39, 0.95), rgba(15, 23, 42, 0.98)); border-color: rgba(0, 240, 255, 0.35); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 240, 255, 0.18);">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl mb-4" style="background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.35);">
+      <i data-lucide="refresh-cw" class="w-7 h-7 text-cyan-400"></i>
+    </div>
+    <h3 class="text-xl font-bold text-white mb-2">تأكيد توليد مفتاح API جديد</h3>
+    <p class="text-sm text-slate-300 leading-relaxed mb-6">
+      هل أنت متأكد من رغبتك في توليد مفتاح جديد؟ سيتم إبطال المفتاح القديم فوراً وحظر أي طلبات تستخدمه.
+    </p>
+    <div class="flex items-center justify-center gap-3">
+      <button type="button" onclick="closeCustomConfirmModal(false)" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/10" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);">
+        إلغاء
+      </button>
+      <button type="button" onclick="closeCustomConfirmModal(true)" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-900 shadow-lg hover:scale-[1.02]" style="background: linear-gradient(135deg, #00f0ff, #0080ff);">
+        ✨ توليد المفتاح الآن
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Toast -->
+<div id="customToast" dir="rtl" class="fixed top-6 start-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl text-sm font-bold opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 shadow-2xl border" style="backdrop-filter: blur(14px);">
+  <i id="toastIcon" data-lucide="check-circle-2" class="w-5 h-5"></i>
+  <span id="toastMessage">تمت العملية بنجاح</span>
+</div>

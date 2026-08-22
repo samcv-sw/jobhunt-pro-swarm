@@ -119,9 +119,17 @@ async def _process_campaign_task(task_id: int, payload: dict[str, Any]) -> None:
                 f"🚀 [NODE-WORKER] Batch task {campaign_id} started processing (inline)."
             )
 
-            # Offload blocking campaign execution to a separate thread with its own event loop
+            # Offload blocking campaign execution to a separate thread with its own isolated event loop
             def _run_campaign_sync(cid):
-                asyncio.run(run_campaign(cid, get_db, config))
+                try:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        loop.run_until_complete(run_campaign(cid, get_db, config))
+                    finally:
+                        loop.close()
+                except Exception as ex:
+                    logger.error(f"[QUEUE-WORKER] Campaign execution error: {ex}")
 
             await asyncio.to_thread(_run_campaign_sync, campaign_id)
             send_telegram_message_sync(
@@ -186,7 +194,15 @@ async def _process_cron_tick_task(task_id: int) -> None:
 
                     # Offload blocking campaign execution to a separate thread
                     def _run_campaign_sync_cron(cid):
-                        asyncio.run(run_campaign(cid, get_db, config))
+                        try:
+                            loop = asyncio.new_event_loop()
+                            asyncio.set_event_loop(loop)
+                            try:
+                                loop.run_until_complete(run_campaign(cid, get_db, config))
+                            finally:
+                                loop.close()
+                        except Exception as ex:
+                            logger.error(f"[QUEUE-WORKER] Cron campaign execution error: {ex}")
 
                     await asyncio.to_thread(_run_campaign_sync_cron, cid)
                     send_telegram_message_sync(

@@ -284,7 +284,7 @@ body {
 }
 
 /* ── Connect Account Banner ── */
-.smtp-banner {
+.mailbox-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -331,9 +331,9 @@ body {
       {% endif %}
     </div>
 </div>
-<!-- CONNECT SMTP BANNER (Cost Savings feature requested by user) -->
+<!-- DIRECT MAILBOX INTEGRATION BANNER -->
   {% if not user.get('oauth_provider') %}
-  <div class="smtp-banner">
+  <div class="mailbox-banner">
 <div>
 <h3 style="margin: 0; margin-block-end: 5px; color:#fff;">تفعيل التوصيل المميز لصندوق الوارد بالذكاء الاصطناعي</h3>
 <p style="margin:0; color:var(--text-muted); font-size:14px;">اربط حساب بريدك الإلكتروني المهني. سيقوم الذكاء الاصطناعي لدينا تلقائياً بتحسين أنماط الإرسال الخاصة بك واستخدام توجيه IP المخصص لضمان أعلى معدلات الاستجابة من أصحاب العمل.</p>
@@ -455,6 +455,7 @@ body {
 <p>لا توجد إرساليات بعد.</p>
 <a class="btn btn-primary" href="/new-campaign">بدء حملة</a>
 </div>
+        {% endif %}
 <!-- 24/7 AUTONOMOUS SWARM & SSE REAL-TIME STREAM -->
 <div class="glass-card" style="padding: 24px; border: 1px solid rgba(99, 102, 241, 0.3); background: rgba(15, 23, 42, 0.75);">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-block-end: 20px; flex-wrap: wrap; gap: 12px;">
@@ -463,17 +464,23 @@ body {
       <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #fff;">سرب الذكاء الاصطناعي المستقل (24/7 Autonomous Swarm)</h3>
       <span style="background: rgba(99, 102, 241, 0.2); color: #818CF8; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">بث حي عبر SSE</span>
     </div>
-    <div style="display: flex; gap: 16px; font-size: 13px; color: var(--text-muted);">
+    <div style="display: flex; gap: 16px; align-items: center; font-size: 13px; color: var(--text-muted); flex-wrap: wrap;">
       <div>⚡ سرعة الكاش: <strong style="color:#10B981;" id="cache-speed-val">&lt; 0.2ms</strong></div>
-      <div>⏳ نبض الإرسال البشري: <strong style="color:#F59E0B;" id="jitter-val">120s Gaussian</strong></div>
+      <div>⏳ نبض الإرسال: <strong style="color:#F59E0B;" id="jitter-val">120s Gaussian</strong></div>
+      <button id="btn-trigger-harvest" onclick="triggerAutonomousHarvest()" style="background: linear-gradient(135deg, #10B981, #059669); color: #fff; border: none; padding: 6px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px; transition: all 0.2s ease;">
+        🥷 استكشاف لحظي
+      </button>
+      <a href="/receipt/demo_order" target="_blank" style="color: #38BDF8; font-size: 12px; text-decoration: none; border: 1px solid rgba(56, 189, 248, 0.4); padding: 4px 10px; border-radius: 6px;">
+        📜 شهادة التسليم المشفرة
+      </a>
     </div>
   </div>
 
   <div class="grid-4" style="gap: 16px; margin-block-end: 16px;" id="swarm-nodes-container">
     <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
       <div style="font-size: 12px; color: var(--text-muted); margin-block-end: 4px;">كشّاف الفرص (Scout Agent)</div>
-      <div style="font-size: 15px; font-weight: 700; color: #38BDF8;">HARVESTING</div>
-      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;">طابور البحث: 14 مدير توظيف</div>
+      <div style="font-size: 15px; font-weight: 700; color: #38BDF8;" id="scout-status">HARVESTING</div>
+      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;" id="scout-queue">طابور البحث: نشط تلقائياً</div>
     </div>
     <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
       <div style="font-size: 12px; color: var(--text-muted); margin-block-end: 4px;">درع التسليم (Live MX Shield)</div>
@@ -483,12 +490,12 @@ body {
     <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
       <div style="font-size: 12px; color: var(--text-muted); margin-block-end: 4px;">كاتب الـ SDR بالذكاء الاصطناعي</div>
       <div style="font-size: 15px; font-weight: 700; color: #A78BFA;">SYNTHESIZING</div>
-      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;">Groq Llama-3.3 @ 300 t/s</div>
+      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;">محرك فائق السرعة @ 300 t/s</div>
     </div>
     <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-      <div style="font-size: 12px; color: var(--text-muted); margin-block-end: 4px;">منظومة السحابة (0$ Cloud Core)</div>
+      <div style="font-size: 12px; color: var(--text-muted); margin-block-end: 4px;">المنظومة السحابية الذكية</div>
       <div style="font-size: 15px; font-weight: 700; color: #FBBF24;">ACTIVE 24/7</div>
-      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;">استهلاك السيرفر: 0.00$</div>
+      <div style="font-size: 11px; color: #94A3B8; margin-block-start: 4px;">كفاءة التشغيل: 99.9%</div>
     </div>
   </div>
 </div>
@@ -497,66 +504,94 @@ body {
 <!-- CHART.JS LOGIC -->
 <script defer="" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+async function triggerAutonomousHarvest() {
+  const btn = document.getElementById('btn-trigger-harvest');
+  if (btn) {
+    btn.innerText = '⏳ جاري الاستكشاف...';
+    btn.disabled = true;
+  }
+  try {
+    const res = await fetch('/api/v2/swarm-stream/trigger-harvest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ batch_size: 3 })
+    });
+    const data = await res.json();
+    if (btn) {
+      btn.innerText = '✅ تم الاستكشاف بنجاح!';
+      setTimeout(() => {
+        btn.innerText = '🥷 استكشاف لحظي';
+        btn.disabled = false;
+      }, 3000);
+    }
+  } catch (err) {
+    if (btn) {
+      btn.innerText = '🥷 استكشاف لحظي';
+      btn.disabled = false;
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function() {
   const ctx = document.getElementById('pipelineChart');
-  if(!ctx) return;
-  
-  // Create gradient
-  const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
-  gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
-  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+  if(ctx) {
+    // Create gradient
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
 
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['تم الاستكشاف','تم التقديم','تمت المتابعة','المقابلات','العروض'],
-      datasets: [{
-        label: 'المرشحون',
-        data: [
-          {{ pipeline_counts.discovered | default(0) }},
-          {{ pipeline_counts.applied | default(0) }},
-          {{ pipeline_counts.followed_up | default(0) }},
-          {{ pipeline_counts.interview | default(0) }},
-          {{ pipeline_counts.offer | default(0) }}
-        ],
-        backgroundColor: gradient,
-        borderColor: '#6366F1',
-        borderWidth: 2,
-        borderRadius: 8,
-        barPercentage: 0.6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          titleColor: '#fff',
-          bodyColor: '#cbd5e1',
-          padding: 12,
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1
-        }
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['تم الاستكشاف','تم التقديم','تمت المتابعة','المقابلات','العروض'],
+        datasets: [{
+          label: 'المرشحون',
+          data: [
+            {{ pipeline_counts.discovered | default(0) }},
+            {{ pipeline_counts.applied | default(0) }},
+            {{ pipeline_counts.followed_up | default(0) }},
+            {{ pipeline_counts.interview | default(0) }},
+            {{ pipeline_counts.offer | default(0) }}
+          ],
+          backgroundColor: gradient,
+          borderColor: '#6366F1',
+          borderWidth: 2,
+          borderRadius: 8,
+          barPercentage: 0.6
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
-          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif" } }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            titleColor: '#fff',
+            bodyColor: '#cbd5e1',
+            padding: 12,
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1
+          }
         },
-        x: {
-          grid: { display: false },
-          ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif", size: 13, weight: '500' } }
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+            ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif" } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#94a3b8', font: { family: "'Cairo', 'Tajawal', 'Inter', sans-serif", size: 13, weight: '500' } }
+          }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeOutQuart'
         }
-      },
-      animation: {
-        duration: 2000,
-        easing: 'easeOutQuart'
       }
-    }
-  });
+    });
+  }
 
   // Real-Time 0$ Cloud SSE Swarm Stream Connection
   try {
@@ -569,6 +604,9 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         if (data.jitter_telemetry && document.getElementById('jitter-val')) {
           document.getElementById('jitter-val').innerText = (data.jitter_telemetry.average_delay || 120) + 's Gaussian';
+        }
+        if (data.dorks_telemetry && document.getElementById('scout-queue')) {
+          document.getElementById('scout-queue').innerText = 'المكتشف: ' + (data.dorks_telemetry.total_verified || 0) + ' ليد موثق MX';
         }
       } catch (err) {
         // Silent fallthrough for uninterrupted UI

@@ -145,7 +145,7 @@ _daily_sent: dict[str, int] = {}
 _campaign_stats = {"sent": 0, "opens": 0, "clicks": 0, "signups": 0, "revenue": 0.0}
 _active_campaigns: dict[str, dict] = {}
 _initialized = False
-_data_dir: Path | None = None
+_data_dir: Path = Path(__file__).parent.parent / "data"
 
 
 def init(data_dir: str | None = None):

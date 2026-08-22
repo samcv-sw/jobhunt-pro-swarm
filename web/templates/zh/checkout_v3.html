@@ -802,11 +802,12 @@ async function payWithNOWPaymentsV3(btn) {
 }
 
 function openDirectCardPayment(amount, provider) {
-  var walletAddr = 'TSQpfDt3KU6w4CpKDXE6S3jLaRnT4CSJ98';
-  var cardUrl = 'https://changenow.io/exchange?from=usd&to=usdttrc20&amount=' + encodeURIComponent(amount || '10') + '&recipient=' + encodeURIComponent(walletAddr);
-  if (provider === 'moonpay') {
-    cardUrl = 'https://buy.moonpay.com/?defaultCurrencyCode=usdt&walletAddress=' + encodeURIComponent(walletAddr) + '&baseCurrencyAmount=' + encodeURIComponent(amount || '10');
+  if (typeof openCryptoCheckoutModal === 'function') {
+    openCryptoCheckoutModal(parseFloat(amount) || 19.0, 'JobHunt Pro Plan');
+    return;
   }
+  var amt = encodeURIComponent(amount || '19');
+  var cardUrl = provider === 'moonpay' ? 'https://buy.moonpay.com' : '/checkout/crypto?amount=' + amt;
   window.open(cardUrl, '_blank');
 }
 

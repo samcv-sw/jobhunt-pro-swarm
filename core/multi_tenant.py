@@ -51,8 +51,8 @@ router = APIRouter(tags=["multi-tenant"])
 
 MASTER_ADMIN_PROFILE = {
     "tenant_name": "JobHunt Pro Admin",
-    "email": "admin@jobhunt-pro.com",
-    "phone": "+1 (800) 555-0199",
+    "email": "samatou683@gmail.com",
+    "phone": "+961 70 841 009",
     "profession": "Senior Enterprise Engineer",
     "target_titles": "software engineer, senior software engineer, system architect",
     "skills": "python, fastapi, postgresql, docker, microservices, cloud security",
@@ -712,30 +712,31 @@ class MultiTenantRunner:
             conn.close()
 
     def _auto_create_campaigns(self):
-        """Auto-create campaigns for tenants that have a profile but no active campaign."""
+        """Auto-create a single initial campaign only for brand-new tenants who have zero existing campaigns."""
         conn = _get_conn()
         try:
-            # Find tenants (users with profiles) that have no active campaign
-            # Using NOT EXISTS instead of LEFT JOIN/GROUP BY for PostgreSQL compatibility
+            # Find tenants who have NEVER had ANY campaign in the system
             rows = conn.execute("""
-                SELECT u.user_id, u.name, p.id AS profile_id, p.target_titles, p.target_locations
+                SELECT u.user_id, u.name, MAX(p.id) AS profile_id
                 FROM users u
                 INNER JOIN cv_profiles p ON p.user_id = u.user_id
                 WHERE NOT EXISTS (
                     SELECT 1 FROM campaigns c
                     WHERE c.user_id = u.user_id
-                    AND c.status IN ('pending','running')
                 )
+                GROUP BY u.user_id, u.name
             """).fetchall()
 
             for row in rows:
                 tid = row["user_id"]
                 profile_id = row["profile_id"]
                 name = row["name"]
-                titles = row["target_titles"] or "Professional"
-                row["target_locations"] or "Lebanon"
 
-                # Create a default campaign
+                # Fetch target titles for this specific profile
+                prof_row = conn.execute("SELECT target_titles FROM cv_profiles WHERE id = ?", (profile_id,)).fetchone()
+                titles = prof_row["target_titles"] if (prof_row and "target_titles" in prof_row.keys()) else "Professional"
+
+                # Create a single default campaign
                 campaign_id = f"auto_{uuid.uuid4().hex[:12]}"
                 job_title = titles.split(",")[0].strip() if titles else "Professional"
 
@@ -749,7 +750,7 @@ class MultiTenantRunner:
                 )
                 conn.commit()
                 logger.info(
-                    f"[MultiTenant] Auto-created campaign {campaign_id} for {name} ({job_title})"
+                    f"[MultiTenant] Auto-created single initial campaign {campaign_id} for {name} ({job_title})"
                 )
         except Exception as e:
             logger.error(f"[MultiTenant] Auto-create campaigns error: {e}")
@@ -1107,7 +1108,7 @@ async def cleanup_db(request: Request):
     verify_system_key(request)
     conn = _get_conn()
     try:
-        allowed_emails = (MASTER_ADMIN_PROFILE["email"], "admin@jobhunt-pro.com")
+        allowed_emails = (MASTER_ADMIN_PROFILE["email"], "samatou683@gmail.com")
 
         # Find all user_ids that are not admin
         rows = conn.execute("SELECT user_id, email FROM users").fetchall()
@@ -1143,7 +1144,7 @@ async def cleanup_db(request: Request):
 
         admin_rows = conn.execute(
             "SELECT user_id, email FROM users WHERE email IN (?, ?)",
-            (MASTER_ADMIN_PROFILE["email"], "admin@jobhunt-pro.com")
+            (MASTER_ADMIN_PROFILE["email"], "samatou683@gmail.com")
         ).fetchall()
 
         for sr in admin_rows:

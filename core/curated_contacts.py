@@ -981,12 +981,7 @@ CURATED_CONTACTS: list[dict] = [
         "title": "SD-WAN Engineer",
         "location": "Remote",
     },
-    {
-        "company": "Check Point",
-        "email": "careers@checkpoint.com",
-        "title": "Network Security Engineer",
-        "location": "Remote",
-    },
+
     {
         "company": "F5 Networks",
         "email": "careers@f5.com",

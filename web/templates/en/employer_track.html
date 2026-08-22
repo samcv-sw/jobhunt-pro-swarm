@@ -1,107 +1,381 @@
-<meta property="og:title" content="Employer Tracking | JobHunt Pro"/>
-<meta name="description" content="Monitor employer interest and interaction with your applications."/>
-<title>Employer Tracking | JobHunt Pro</title>
+<meta property="og:title" content="Track Job Postings & Applicants | JobHunt Pro"/>
+<meta name="description" content="Real-time recruiter dashboard to track posted jobs, applicant CVs, and match metrics."/>
+<title>Track Job Postings & Applicants | JobHunt Pro</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link href="/static/css/apex_glassmorphism.css" rel="stylesheet"/>
+
 <style>
-:root { --gold:#f59e0b; --purple:#8b5cf6; --pink:#ec4899; --dark:#0f0f23; --card:rgba(30,30,50,.6); --border:rgba(255,255,255,.08); --green:#22c55e; --red:#ef4444; }
-* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --text-x-direction: 1;
+  --primary-glow: #00f0ff;
+  --secondary-glow: #a855f7;
+}
 
-.hero { text-align:center; padding:35px 20px 25px; border-radius:20px; background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(236,72,153,.08)); border:1px solid rgba(139,92,246,.2); margin-block-end:25px; }
-.hero h1 { font-size:2em; background:linear-gradient(90deg,var(--gold),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-block-end:8px; }
-.hero p { color:#94a3b8; }
+.track-page {
+  inline-size: 100%;
+  max-inline-size: 1200px;
+  margin-inline: auto;
+  padding: 30px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
 
-/* ── Track Form ── */
-.track-form { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:30px; max-inline-size:550px; margin:0 auto 25px; }
-.track-form h2 { margin-block-end:16px; text-align:center; }
-.form-group { margin-block-end:14px; }
-.form-group label { display:block; margin-block-end:5px; font-size:.82em; color:#94a3b8; font-weight:600; }
-.form-group input { inline-size:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(15,15,35,.8); color:#e2e8f0; font-size:.92em; font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit; }
-.form-group input:focus { outline:none; border-color:var(--purple); }
-.track-btn { inline-size:100%; padding:14px; background:linear-gradient(135deg,var(--purple),var(--pink)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:1em; cursor:pointer; }
-.track-btn:hover { transform:translateY(-1px); }
-.track-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
-.alt-action { text-align:center; margin-block-start:12px; }
-.alt-action a { color:var(--gold); text-decoration:none; font-size:.85em; }
-.msg { text-align:center; margin-block-start:10px; display:none; }
+/* ── Hero Card ── */
+.track-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.8) 50%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  padding: 36px 30px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 240, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  margin-block-end: 30px;
+  text-align: center;
+}
+.track-hero::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 3px;
+  background: linear-gradient(90deg, #00f0ff, #818cf8, #c084fc, #34d399);
+}
+.track-hero-title {
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 900;
+  line-height: 1.25;
+  background: linear-gradient(135deg, #ffffff 0%, #00f0ff 60%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.track-hero-subtitle {
+  font-size: 15px;
+  color: #cbd5e1;
+  max-inline-size: 700px;
+  margin-inline: auto;
+  margin-block-end: 20px;
+  line-height: 1.6;
+}
+.track-options-bar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.track-option-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  background: rgba(0, 240, 255, 0.08);
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #e2e8f0;
+  transition: all 0.25s ease;
+}
+.track-option-pill:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+}
+
+/* ── Search Form Card ── */
+.track-search-card {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.9) 0%, rgba(10, 15, 29, 0.95) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  max-inline-size: 600px;
+  margin-inline: auto;
+  margin-block-end: 32px;
+}
+.track-search-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 18px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.track-form-group {
+  margin-block-end: 16px;
+}
+.track-label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-block-end: 6px;
+}
+.track-input {
+  inline-size: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-size: 14.5px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+}
+.track-input:focus {
+  outline: none;
+  border-color: #00f0ff;
+  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2);
+}
+.track-btn {
+  inline-size: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #00f0ff, #00b8ff);
+  color: #050515;
+  font-size: 15.5px;
+  font-weight: 800;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(0, 240, 255, 0.35);
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+.track-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 240, 255, 0.55);
+}
+.track-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 
 /* ── Job Cards ── */
-.jobs-section { margin-block-start:25px; }
-.jobs-section h2 { margin-block-end:16px; }
-.job-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; margin-block-end:12px; transition:all .15s; }
-.job-card:hover { border-color:rgba(139,92,246,.3); }
-.job-card-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-block-end:10px; }
-.job-card-title { font-size:1.15em; font-weight:700; }
-.job-card-company { color:#94a3b8; }
-.job-card-meta { display:flex; gap:20px; flex-wrap:wrap; font-size:.82em; color:#94a3b8; margin-block-start:8px; }
-.job-card-meta span { display:flex; align-items:center; gap:5px; }
-.job-stats { display:flex; gap:12px; margin-block-start:12px; flex-wrap:wrap; }
-.stat-badge { padding:8px 16px; border-radius:10px; font-size:.85em; font-weight:700; }
-.stat-badge.views { background:rgba(59,130,246,.15); color:#60a5fa; }
-.stat-badge.apps { background:rgba(34,197,94,.15); color:#4ade80; }
-.stat-badge.status { background:rgba(245,158,11,.15); color:var(--gold); }
-.stat-badge.tier { background:rgba(139,92,246,.15); color:#a78bfa; }
-.stat-badge.urgent { background:rgba(239,68,68,.2); color:#f87171; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.7; } }
+.job-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.88) 0%, rgba(10, 15, 29, 0.96) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px);
+  margin-block-end: 18px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.job-card:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 16px 45px rgba(0, 240, 255, 0.15);
+  transform: translateY(-3px);
+}
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-end: 14px;
+}
+.job-card-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-block-end: 4px;
+}
+.job-card-company {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.stat-badge.tier { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); color: #c084fc; }
+.stat-badge.status { background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.35); color: #34d399; }
+.stat-badge.urgent { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; animation: pulse 2s infinite; }
+.stat-badge.views { background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); color: #60a5fa; }
+.stat-badge.apps { background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.35); color: #4ade80; }
 
-.expiry-bar { block-size:6px; border-radius:3px; background:rgba(255,255,255,.06); margin-block-start:12px; overflow:hidden; }
-.expiry-fill { block-size:100%; border-radius:3px; transition:width .5s; }
-.expiry-text { font-size:.72em; color:#64748b; margin-block-start:4px; text-align: end; }
+.job-card-meta {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  padding-block: 10px;
+  border-block: 1px solid rgba(255, 255, 255, 0.06);
+  margin-block-end: 14px;
+}
 
-.empty-state { text-align:center; padding:40px; color:#94a3b8; }
-.empty-state .icon { font-size:3em; margin-block-end:10px; }
+.job-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.btn-action-apply {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-action-apply:hover {
+  background: rgba(52, 211, 153, 0.25);
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.3);
+}
+.btn-action-details {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-action-details:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
 
-/* ── detail modal ── */
-.detail-section { margin-block-start:15px; padding:14px; background:rgba(15,15,35,.5); border-radius:10px; display:none; }
-.detail-section.open { display:block; }
-.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:.85em; }
-.detail-grid div { padding:8px; background:rgba(255,255,255,.03); border-radius:8px; }
-.detail-grid .label { color:#64748b; font-size:.72em; margin-block-end:2px; }
-.detail-grid .value { color:#e2e8f0; }
-.detail-grid .full { grid-column:1/-1; }
-.copy-btn { font-size:.7em; padding:2px 8px; border-radius:5px; background:rgba(59,130,246,.2); color:#60a5fa; border:none; cursor:pointer; margin-inline-start:6px; }
+/* Detail Section */
+.detail-section {
+  margin-block-start: 16px;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  display: none;
+}
+.detail-section.open {
+  display: block;
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  font-size: 13px;
+}
+.detail-box {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.detail-box .label {
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-block-end: 4px;
+}
+.detail-box .value {
+  color: #f1f5f9;
+  font-weight: 600;
+  word-break: break-all;
+}
+.detail-box.full {
+  grid-column: 1 / -1;
+}
+.copy-btn {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: #00f0ff;
+  cursor: pointer;
+  margin-inline-start: 8px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.copy-btn:hover {
+  background: rgba(0, 240, 255, 0.3);
+}
 
-@media (max-width:768px) {
-  .job-card-header { flex-direction:column; }
-  .detail-grid { grid-template-columns:1fr; }
+/* Empty Box */
+.empty-box {
+  text-align: center;
+  padding: 45px 20px;
+  color: #94a3b8;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.7) 0%, rgba(10, 15, 29, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+.empty-box-icon {
+  font-size: 48px;
+  margin-block-end: 12px;
 }
 </style>
 
-<div style="max-inline-size: 1200px; margin: 0 auto; padding: 30px;">
-<!-- HERO -->
-<div class="hero">
-  <h1>📊 Track Your Job Postings</h1>
-  <p>Enter your email to see all your jobs, or email + Job ID for a specific post.</p>
-  <div style="margin-block-start:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap;">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(59,130,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(59,130,246,.2);">
-      <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#3b82f6;" onchange="toggleNotifications()" dir="auto">
-      <span style="font-size:.85em;">📩 Notify me by email when someone applies</span>
-    </label>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:rgba(139,92,246,.08);padding:8px 16px;border-radius:10px;border:1px solid rgba(139,92,246,.2);">
-      <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#8b5cf6;" onchange="toggleLiveRefresh()" dir="auto">
-      <span style="font-size:.85em;">🔄 Auto-refresh every 30s</span>
-    </label>
+<div class="track-page" dir="ltr">
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <div class="track-hero">
+    <h1 class="track-hero-title">📊 Track Job Postings & Applicants</h1>
+    <p class="track-hero-subtitle">Real-time recruiter monitoring dashboard — view posted positions, live impressions, candidate submission logs, and CV applications.</p>
+    <div class="track-options-bar">
+      <label class="track-option-pill">
+        <input dir="auto" type="checkbox" id="notifyCheck" style="accent-color:#00f0ff;" onchange="toggleNotifications()">
+        <span>📩 Notify me via email instantly when a new candidate applies</span>
+      </label>
+      <label class="track-option-pill">
+        <input dir="auto" type="checkbox" id="liveRefresh" style="accent-color:#a855f7;" onchange="toggleLiveRefresh()">
+        <span>🔄 Auto-refresh live feed every 30s</span>
+      </label>
+    </div>
   </div>
+
+  <!-- ═══════════════ SEARCH CARD ═══════════════ -->
+  <div class="track-search-card">
+    <h2 class="track-search-title">🔍 Search Posted Jobs & Applicants</h2>
+    <div class="track-form-group">
+      <label class="track-label">📧 Employer / Recruiter Email *</label>
+      <input dir="auto" type="email" id="trackEmail" class="track-input" placeholder="hr@yourcompany.com" required>
+    </div>
+    <div class="track-form-group">
+      <label class="track-label">🆔 Job ID (Optional — for a specific listing)</label>
+      <input dir="auto" type="text" id="trackJobId" class="track-input" placeholder="job_xxxxxxxxxxxx">
+    </div>
+    <button class="track-btn" onclick="trackJobs()">🔍 Search Jobs & Applicants</button>
+    <div id="trackMsg" style="text-align:center; margin-block-start:12px; display:none; font-size:13.5px; font-weight:700;"></div>
+  </div>
+
+  <!-- ═══════════════ RESULTS CONTAINER ═══════════════ -->
+  <div id="resultsArea"></div>
+
 </div>
 
-<!-- TRACK FORM -->
-<div class="track-form">
-  <h2>🔍 Find Your Jobs</h2>
-  <div class="form-group">
-    <label>📧 Your Email *</label>
-    <input dir="auto" type="email" id="trackEmail" placeholder="hr@yourcompany.com" required dir="auto">
-  </div>
-  <div class="form-group">
-    <label>🆔 Job ID (optional — for specific job)</label>
-    <input dir="auto" type="text" id="trackJobId" placeholder="job_xxxxxxxxxxxx" dir="auto">
-  </div>
-  <button class="track-btn" onclick="trackJobs()">🔍 Find My Jobs</button>
-  <div class="msg" id="trackMsg"></div>
-  <div class="alt-action"><a href="javascript:void(0)" onclick="document.getElementById('trackEmail').value='demo.applicant@example.com';trackJobs();return false;">👀 Demo: View sample posted jobs</a></div>
-</div>
-
-<!-- RESULTS -->
-<div id="resultsArea"></div>
-
-<!-- SCRIPTS -->
 <script>
 const API = '';
 let currentEmail = '';
@@ -113,15 +387,17 @@ function trackJobs() {
   currentJobId = document.getElementById('trackJobId').value.trim();
   const btn = document.querySelector('.track-btn');
   
-  if (!currentEmail) { showMsg('Please enter your email address.', '#ef4444'); return; }
+  if (!currentEmail) {
+    showMsg('Please enter your recruiter email address.', '#ef4444');
+    return;
+  }
   
   btn.disabled = true;
-  btn.textContent = '⏳ Searching...';
+  btn.textContent = '⏳ Searching Live Database...';
   
   loadDashboard(currentEmail, currentJobId).then(() => {
     btn.disabled = false;
-    btn.textContent = '🔍 Find My Jobs';
-    // Load notification preference
+    btn.textContent = '🔍 Search Jobs & Applicants';
     loadNotificationPref(currentEmail);
   });
 }
@@ -136,16 +412,15 @@ function loadDashboard(email, jobId) {
       if (data.status === 'ok') {
         renderJobs(data.jobs, email);
       } else {
-        showMsg('❌ ' + (data.message || 'No jobs found.'), '#ef4444');
+        showMsg('❌ ' + (data.message || 'No job listings found for this email.'), '#ef4444');
         document.getElementById('resultsArea').innerHTML = '';
       }
     })
     .catch(err => {
-      showMsg('❌ Network error.', '#ef4444');
+      showMsg('❌ Server connection error.', '#ef4444');
     });
 }
 
-// ── Notification toggle ──
 function toggleNotifications() {
   if (!currentEmail) return;
   const checked = document.getElementById('notifyCheck').checked ? 1 : 0;
@@ -157,7 +432,7 @@ function toggleNotifications() {
     .then(r => r.json())
     .then(data => {
       const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
-      label.textContent = checked ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+      label.textContent = checked ? '📩 ✅ Instant Email Notifications Enabled' : '📩 Notify me via email instantly when a new candidate applies';
     });
 }
 
@@ -169,12 +444,11 @@ function loadNotificationPref(email) {
         const on = data.preferences.notify_email === 1 || data.preferences.notify_email === '1';
         document.getElementById('notifyCheck').checked = on;
         const label = document.querySelector('#notifyCheck').parentElement.querySelector('span');
-        label.textContent = on ? '📩 ✅ Notifications ON' : '📩 Notify me by email when someone applies';
+        label.textContent = on ? '📩 ✅ Instant Email Notifications Enabled' : '📩 Notify me via email instantly when a new candidate applies';
       }
     });
 }
 
-// ── Live refresh ──
 function toggleLiveRefresh() {
   const checked = document.getElementById('liveRefresh').checked;
   if (checked) {
@@ -190,8 +464,7 @@ function startLiveRefresh() {
     if (currentEmail) {
       loadDashboard(currentEmail, currentJobId);
     }
-  }, 30000); // every 30 seconds
-  console.log('🔄 Live refresh started (30s)');
+  }, 30000);
 }
 
 function stopLiveRefresh() {
@@ -201,63 +474,10 @@ function stopLiveRefresh() {
   }
 }
 
-// ── Apply form ──
-function toggleApplyForm(jobId) {
-  const form = document.getElementById('applyForm_' + jobId);
-  if (form.style.display === 'block') {
-    form.style.display = 'none';
-  } else {
-    form.style.display = 'block';
-    form.scrollIntoView({behavior:'smooth'});
-  }
-}
-
-function submitApplication(jobId) {
-  const prefix = 'apply_' + jobId + '_';
-  const name = document.getElementById(prefix + 'name').value.trim();
-  const email = document.getElementById(prefix + 'email').value.trim();
-  const phone = document.getElementById(prefix + 'phone').value.trim();
-  const note = document.getElementById(prefix + 'note').value.trim();
-  
-  if (!name || !email) {
-    alert('Please fill in your name and email.');
-    return;
-  }
-  
-  const btn = document.getElementById(prefix + 'btn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Submitting...';
-  
-  const formData = new FormData();
-  formData.append('applicant_name', name);
-  formData.append('applicant_email', email);
-  formData.append('applicant_phone', phone);
-  formData.append('cover_note', note);
-  
-  fetch(`${API}/api/jobs/apply/${jobId}`, { method:'POST', body:formData })
-    .then(r => r.json())
-    .then(data => {
-      const msgEl = document.getElementById(prefix + 'msg');
-      if (data.status === 'ok') {
-        msgEl.innerHTML = '<span style="color:#22c55e;">✅ Application sent! Employer will review.</span>';
-        document.getElementById('applyForm_' + jobId).querySelector('form').reset();
-      } else {
-        msgEl.innerHTML = '<span style="color:#ef4444;">❌ ' + data.message + '</span>';
-      }
-      btn.disabled = false;
-      btn.textContent = 'Send Application';
-    })
-    .catch(err => {
-      document.getElementById(prefix + 'msg').innerHTML = '<span style="color:#ef4444;">❌ Network error.</span>';
-      btn.disabled = false;
-      btn.textContent = 'Send Application';
-    });
-}
-
 function renderJobs(jobs, email) {
   const area = document.getElementById('resultsArea');
   if (!jobs || jobs.length === 0) {
-    area.innerHTML = '<div class="empty-state"><div class="icon">📭</div><h3>No Jobs Found</h3><p>No jobs found for <strong>' + escapeHtml(email) + '</strong>.<br>Try a different email or post a new job.</p></div>';
+    area.innerHTML = '<div class="empty-box"><div class="empty-box-icon">📭</div><h3 style="color:#f1f5f9;margin-bottom:8px;">No Job Postings Found</h3><p>No job postings found for <strong style="color:#00f0ff;">' + escapeHtml(email) + '</strong>.<br>Post a new opening from the Employer Portal.</p></div>';
     showMsg('', '');
     return;
   }
@@ -265,10 +485,10 @@ function renderJobs(jobs, email) {
   const totalViews = jobs.reduce((s,j) => s+(j.views||0),0);
   const totalApps = jobs.reduce((s,j) => s+(j.applications||0),0);
   
-  let html = '<div class="jobs-section"><h2>📋 ' + jobs.length + ' Job(s) for ' + escapeHtml(email) + '</h2>';
-  html += '<div style="display:flex;gap:12px;margin-block-end:16px;flex-wrap:wrap;">';
-  html += '<div class="stat-badge views">👁️ ' + totalViews + ' Total Views</div>';
-  html += '<div class="stat-badge apps">📩 ' + totalApps + ' Total Applications</div>';
+  let html = '<div style="margin-block-start:10px;"><h2 style="font-size:22px;font-weight:800;color:#f1f5f9;margin-block-end:14px;">📋 ' + jobs.length + ' Job Postings for ' + escapeHtml(email) + '</h2>';
+  html += '<div style="display:flex;gap:12px;margin-block-end:20px;flex-wrap:wrap;">';
+  html += '<div class="stat-badge views">👁️ ' + totalViews + ' Total Impressions</div>';
+  html += '<div class="stat-badge apps">📩 ' + totalApps + ' Total Applicant Submissions</div>';
   html += '</div>';
   
   jobs.forEach(j => {
@@ -278,10 +498,6 @@ function renderJobs(jobs, email) {
     const totalDays = expires && created ? (expires-created)/(86400000) : 30;
     const daysLeft = expires ? Math.max(0, Math.ceil((expires-now)/86400000)) : 0;
     const pctLeft = totalDays > 0 ? Math.min(100, Math.max(0, (daysLeft/totalDays)*100)) : 0;
-    const pctColor = daysLeft < 7 ? '#ef4444' : daysLeft < 30 ? '#f59e0b' : '#22c55e';
-    const addons = safeParseJson(j.addons) || [];
-    const hasUrgent = addons.some(a => a.name === 'urgent');
-    const addonNames = addons.map(a => a.name.replace(/_/g,' ')).join(', ');
     
     html += '<div class="job-card">';
     html += '<div class="job-card-header">';
@@ -289,68 +505,45 @@ function renderJobs(jobs, email) {
     html += '<div class="job-card-company">🏢 ' + escapeHtml(j.company_name) + ' · 📍 ' + escapeHtml(j.location) + '</div></div>';
     html += '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
     html += '<span class="stat-badge tier">' + (j.tier||'basic').toUpperCase() + '</span>';
-    if (hasUrgent) html += '<span class="stat-badge urgent">🚨 URGENT</span>';
     html += '<span class="stat-badge status">' + getStatusLabel(j) + '</span>';
     html += '</div></div>';
     
     html += '<div class="job-card-meta">';
-    html += '<span>🗓️ Posted: ' + (created ? created.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
+    html += '<span>🗓️ Published: ' + (created ? created.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
     html += '<span>⏰ Expires: ' + (expires ? expires.toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'}) : 'N/A') + '</span>';
-    html += '<span>💰 Paid: $' + (j.price||0).toFixed(2) + '</span>';
+    html += '<span>💰 Budget: $' + (j.price||0).toFixed(2) + '</span>';
     if (j.duration_days) html += '<span>📅 ' + j.duration_days + 'd listing</span>';
     html += '</div>';
     
-    // Add-ons
-    if (addonNames) html += '<div style="font-size:.78em;color:#94a3b8;margin-block-start:6px;">💎 Power-Ups: ' + escapeHtml(addonNames) + '</div>';
-    
-    // Stats
-    html += '<div class="job-stats">';
-    html += '<span class="stat-badge views">👁️ ' + (j.views||0) + ' Views</span>';
+    html += '<div class="job-actions-row">';
+    html += '<span class="stat-badge views">👁️ ' + (j.views||0) + ' Impressions</span>';
     html += '<span class="stat-badge apps">📩 ' + (j.applications||0) + ' Applications</span>';
-    html += '<button class="btn" onclick="toggleApplyForm(\'' + j.job_id + '\')" style="font-size:.75em;padding:6px 14px;border-radius:8px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.1);color:#4ade80;cursor:pointer;font-weight:700;">📩 Apply Now</button>';
-    html += '<button class="btn" onclick="toggleDetail(\'detail_' + j.job_id + '\')" style="font-size:.75em;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#94a3b8;cursor:pointer;">📋 Details ▼</button>';
+    html += '<button class="btn-action-details" onclick="toggleDetail('detail_' + j.job_id + '')">📋 Listing Details ▼</button>';
     html += '</div>';
     
-    // Expiry bar
-    html += '<div class="expiry-bar"><div class="expiry-fill" style="inline-size:' + pctLeft.toFixed(0) + '%;background:' + pctColor + '"></div></div>';
-    html += '<div class="expiry-text">' + daysLeft + ' days remaining</div>';
-    
-    // Detail section
+    // Details
     html += '<div class="detail-section" id="detail_' + j.job_id + '">';
     html += '<div class="detail-grid">';
-    html += '<div><div class="label">Job ID</div><div class="value">' + j.job_id + '<button class="copy-btn" onclick="copyText(\'' + j.job_id + '\')">Copy</button></div></div>';
-    html += '<div><div class="label">Category</div><div class="value">' + (j.category||'N/A') + '</div></div>';
-    html += '<div><div class="label">Salary</div><div class="value">' + (j.salary||'Not specified') + '</div></div>';
-    html += '<div><div class="label">Contact</div><div class="value">' + escapeHtml(j.contact_email) + '</div></div>';
-    html += '<div class="full"><div class="label">Description</div><div class="value" style="white-space:pre-wrap;max-block-size:120px;overflow-y:auto;">' + escapeHtml(j.description||'') + '</div></div>';
-    if (j.apply_url) html += '<div class="full"><div class="label">Apply URL</div><div class="value"><a href="' + escapeHtml(j.apply_url) + '" target="_blank" style="color:#60a5fa;">' + escapeHtml(j.apply_url) + '</a></div></div>';
-    html += '<div class="full"><div class="label">Tracking Link</div><div class="value"><a href="' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '" style="color:#60a5fa;">' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '</a> <button class="copy-btn" onclick="copyText(\'' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '\')">Copy</button></div></div>';
+    html += '<div class="detail-box"><div class="label">Job ID</div><div class="value">' + j.job_id + '<button class="copy-btn" onclick="copyText('' + j.job_id + '')">Copy</button></div></div>';
+    html += '<div class="detail-box"><div class="label">Category</div><div class="value">' + (j.category||'N/A') + '</div></div>';
+    html += '<div class="detail-box"><div class="label">Salary Range</div><div class="value">' + (j.salary||'Not specified') + '</div></div>';
+    html += '<div class="detail-box"><div class="label">Contact</div><div class="value">' + escapeHtml(j.contact_email) + '</div></div>';
+    html += '<div class="detail-box full"><div class="label">Job Description</div><div class="value" style="white-space:pre-wrap;max-block-size:140px;overflow-y:auto;">' + escapeHtml(j.description||'') + '</div></div>';
+    if (j.apply_url) html += '<div class="detail-box full"><div class="label">Direct Apply Link</div><div class="value"><a href="' + escapeHtml(j.apply_url) + '" target="_blank" style="color:#00f0ff;">' + escapeHtml(j.apply_url) + '</a></div></div>';
+    html += '<div class="detail-box full"><div class="label">Permanent Tracking Link</div><div class="value"><a href="' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '" style="color:#00f0ff;">' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '</a> <button class="copy-btn" onclick="copyText('' + window.location.origin + '/employer/track?email=' + encodeURIComponent(j.contact_email) + '&job_id=' + j.job_id + '')">Copy</button></div></div>';
     html += '</div></div>';
-    
-    // Application form (hidden by default)
-    html += '<div class="detail-section" id="applyForm_' + j.job_id + '" style="border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.03);">';
-    html += '<h4 style="margin-block-end:10px;color:#4ade80;">📩 Apply for this position</h4>';
-    html += '<form dir="auto" onsubmit="event.preventDefault();submitApplication(\'' + j.job_id + '\');" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_name" placeholder="Your Full Name *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_email" type="email" placeholder="Your Email *" required style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
-    html += '<div><input dir="auto" id="apply_' + j.job_id + '_phone" placeholder="Phone (optional)" style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;" dir="auto"></div>';
-    html += '<div><button class="btn" id="apply_' + j.job_id + '_btn" type="submit" style="inline-size:100%;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-weight:700;cursor:pointer;">📩 Send Application</button></div>';
-    html += '<div style="grid-column:1/-1;"><textarea dir="auto" id="apply_' + j.job_id + '_note" placeholder="Cover note / why you\'re a good fit..." style="inline-size:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,35,.8);color:#e2e8f0;min-block-size:60px;resize:vertical;font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, inherit;" dir="auto"></textarea></div>';
-    html += '<div id="apply_' + j.job_id + '_msg" style="grid-column:1/-1;font-size:.85em;"></div>';
-    html += '</form></div>';
     
     html += '</div>';
   });
   
   html += '</div>';
   area.innerHTML = html;
-  showMsg('✅ Found ' + jobs.length + ' job(s)!', '#22c55e');
+  showMsg('✅ Successfully loaded ' + jobs.length + ' job listing(s)!', '#22c55e');
 }
 
 function toggleDetail(id) {
   const el = document.getElementById(id);
   el.classList.toggle('open');
-  const btn = el.previousElementSibling ? el.parentElement.querySelector('button') : null;
 }
 
 function getStatusLabel(j) {
@@ -362,17 +555,13 @@ function getStatusLabel(j) {
 
 function copyText(text) {
   navigator.clipboard.writeText(text).then(() => {
-    // Brief visual feedback
+    alert('Link copied to clipboard!');
   }).catch(() => {});
-}
-
-function safeParseJson(s) {
-  try { return JSON.parse(s); } catch(e) { return null; }
 }
 
 function escapeHtml(s) {
   if (!s) return '';
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
 }
 
 function showMsg(text, color) {
@@ -382,7 +571,6 @@ function showMsg(text, color) {
   div.style.display = text ? 'block' : 'none';
 }
 
-// Auto-load if URL has params
 (function() {
   const params = new URLSearchParams(window.location.search);
   const email = params.get('email');
@@ -393,5 +581,4 @@ function showMsg(text, color) {
     trackJobs();
   }
 })();
-</div>
 </script>

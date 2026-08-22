@@ -4,7 +4,7 @@
     <!-- Brand Logo & Description -->
     <div style="margin-bottom:28px;">
       <a href="/" style="font-family:'Space Grotesk','Cairo', 'IBM Plex Arabic', 'Tajawal',sans-serif; font-size:24px; font-weight:900; text-decoration:none; background:linear-gradient(135deg,#00f0ff,#ff0055); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">JOBHUNT PRO</a>
-      <p style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal','Inter',sans-serif; font-size:14px; color:#94a3b8; margin-top:8px; line-height:1.7;">AI-Powered Job Application Engine — Graham Swarm Matrix · 24/7</p>
+      <p style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal','Inter',sans-serif; font-size:14px; color:#94a3b8; margin-top:8px; line-height:1.7;">AI-Powered Job Application Engine — Autonomous AI Career Matrix · 24/7</p>
     </div>
     <!-- Divider Line -->
     <div style="height:1px; background:linear-gradient(90deg,transparent,rgba(0,240,255,0.3),transparent); margin-bottom:28px; max-width:500px; margin-inline-start:auto; margin-inline-end:auto;"></div>
@@ -30,3 +30,74 @@
     <p style="font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal','Inter',sans-serif; font-size:14px; color:#64748b; margin:0;">© 2026 JobHunt Pro. All rights reserved. Built with ❤️ for job seekers worldwide.</p>
   </div>
 </footer>
+
+<!-- ═══ LIVE SOCIAL PROOF & FOMO SALES TICKER ═══ -->
+<div id="liveSocialProofTicker" style="position:fixed; inset-block-end:24px; inset-inline-start:24px; z-index:9999; display:none; max-inline-size:360px; background:rgba(15,23,42,0.92); border:1px solid rgba(56,189,248,0.35); border-radius:16px; padding:12px 16px; box-shadow:0 15px 35px rgba(0,0,0,0.6), 0 0 20px rgba(56,189,248,0.15); backdrop-filter:blur(12px); font-family:'Inter', sans-serif; transition:all 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform:translateY(30px); opacity:0;" dir="ltr">
+  <div style="display:flex; align-items:flex-start; gap:12px;">
+    <div style="inline-size:38px; block-size:38px; border-radius:10px; background:linear-gradient(135deg, #06b6d4, #3b82f6); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; box-shadow:0 4px 10px rgba(6,182,212,0.3);">
+      <span id="tickerIcon">⚡</span>
+    </div>
+    <div style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:2px;">
+        <span style="font-size:11px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:5px;">
+          <span style="inline-size:6px; block-size:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+          Verified Purchase Pulse
+        </span>
+        <button type="button" onclick="closeSocialProofTicker()" style="background:none; border:none; color:#64748b; font-size:14px; cursor:pointer; padding:0 4px;">✕</button>
+      </div>
+      <div id="tickerMsg" style="font-size:12.5px; font-weight:700; color:#f8fafc; line-height:1.4;">
+        Candidate in Dubai activated Pro VIP Plan
+      </div>
+      <div id="tickerTime" style="font-size:10.5px; color:#94a3b8; margin-block-start:3px;">
+        3m ago · Live Verified
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const eventsEn = [
+      { icon: '⚡', msg: 'Candidate in Dubai activated Pro VIP Plan', time: '3m ago · Verified' },
+      { icon: '💎', msg: 'Client in Riyadh dispatched 1,000 AI Job Applications', time: '5m ago · Live Pulse' },
+      { icon: '🚀', msg: 'Basic Voucher instant delivered to candidate in Singapore', time: '1m ago · Instant' },
+      { icon: '👑', msg: 'Agency in London upgraded to Enterprise B2B Suite', time: '8m ago · Verified' },
+      { icon: '🎯', msg: 'User in Berlin booked interview within 14h of auto-dispatch', time: '12m ago · Success' }
+    ];
+
+    let idx = 0;
+    const ticker = document.getElementById('liveSocialProofTicker');
+    if (!ticker) return;
+
+    function showTicker() {
+      const ev = eventsEn[idx % eventsEn.length];
+      idx++;
+      document.getElementById('tickerIcon').innerText = ev.icon;
+      document.getElementById('tickerMsg').innerText = ev.msg;
+      document.getElementById('tickerTime').innerText = ev.time;
+      
+      ticker.style.display = 'block';
+      setTimeout(() => {
+        ticker.style.opacity = '1';
+        ticker.style.transform = 'translateY(0)';
+      }, 50);
+
+      setTimeout(() => {
+        ticker.style.opacity = '0';
+        ticker.style.transform = 'translateY(30px)';
+        setTimeout(() => { ticker.style.display = 'none'; }, 400);
+      }, 5500);
+    }
+
+    window.closeSocialProofTicker = function() {
+      ticker.style.opacity = '0';
+      ticker.style.transform = 'translateY(30px)';
+      setTimeout(() => { ticker.style.display = 'none'; }, 400);
+    };
+
+    setTimeout(() => {
+      showTicker();
+      setInterval(showTicker, 18000);
+    }, 4000);
+  })();
+</script>

@@ -36,7 +36,7 @@
   <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(99, 102, 241, 0.35); border-radius: 18px; padding: 24px; margin-block-end: 30px;">
     <label style="display: block; font-size: 14px; font-weight: 700; color: #c7d2fe; margin-block-end: 10px;">🔗 رابط الإحالة الخاص بك (انسخه وشاركه الآن):</label>
     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-      <input id="refLinkInput" type="text" readonly value="{{ referral_link or ('https://jhfguf.pythonanywhere.com/register?ref=' ~ ref_code) }}" style="flex: 1; min-inline-size: 260px; padding: 14px 18px; background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #38bdf8; font-family: monospace; font-size: 14px; font-weight: bold; outline: none;" dir="ltr"/>
+      <input id="refLinkInput" type="text" readonly value="{{ referral_link or ('https://jobhunt.pro/register?ref=' ~ ref_code) }}" style="flex: 1; min-inline-size: 260px; padding: 14px 18px; background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; color: #38bdf8; font-family: monospace; font-size: 14px; font-weight: bold; outline: none;" dir="ltr"/>
       <button onclick="copyRefLink()" id="copyBtn" style="padding: 14px 24px; background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);">
         📋 نسخ الرابط
       </button>
@@ -48,13 +48,13 @@
   <div style="margin-block-end: 35px; text-align: center;">
     <div style="font-size: 14px; font-weight: 700; color: #94a3b8; margin-block-end: 14px;">🚀 مشاركة سريعة بضغطة زر واحدة:</div>
     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-      <a href="https://api.whatsapp.com/send?text={{ ('مرحباً! جرب هذا الموقع الرائع للتقديم التلقائي على آلاف الوظائف في الخليج بالذكاء الاصطناعي: ' ~ (referral_link or 'https://jhfguf.pythonanywhere.com')) | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #25D366; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
+      <a href="https://api.whatsapp.com/send?text={{ ('مرحباً! جرب هذا الموقع الرائع للتقديم التلقائي على آلاف الوظائف في الخليج بالذكاء الاصطناعي: ' ~ (referral_link or 'https://jobhunt.pro')) | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #25D366; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);">
         💬 واتساب (WhatsApp)
       </a>
-      <a href="https://t.me/share/url?url={{ (referral_link or 'https://jhfguf.pythonanywhere.com') | urlencode }}&text={{ 'احصل على 50 تقديم مجاني بالذكاء الاصطناعي على JobHunt Pro' | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #229ED9; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(34, 158, 217, 0.3);">
+      <a href="https://t.me/share/url?url={{ (referral_link or 'https://jobhunt.pro') | urlencode }}&text={{ 'احصل على 50 تقديم مجاني بالذكاء الاصطناعي على JobHunt Pro' | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #229ED9; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(34, 158, 217, 0.3);">
         ✈️ تيليغرام (Telegram)
       </a>
-      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ (referral_link or 'https://jhfguf.pythonanywhere.com') | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #0A66C2; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(10, 102, 194, 0.3);">
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ (referral_link or 'https://jobhunt.pro') | urlencode }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #0A66C2; color: #fff; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 15px rgba(10, 102, 194, 0.3);">
         💼 لينكد إن (LinkedIn)
       </a>
     </div>

@@ -1,63 +1,391 @@
-<meta property="og:title" content="مشترياتي | JobHunt Pro"/>
-<meta name="description" content="استعرض تاريخ مشترياتك واشتراكاتك على JobHunt Pro."/>
-<title>مشترياتي | JobHunt Pro</title>
+<meta property="og:title" content="اشتراكاتي ومشترياتي | JobHunt Pro"/>
+<meta name="description" content="استعرض تاريخ مشترياتك واشتراكاتك وبيانات ومفاتيح التفعيل الفورية على JobHunt Pro."/>
+<title>اشتراكاتي ومشترياتي | JobHunt Pro</title>
+<link href="/static/css/cyberpunk.css" rel="stylesheet"/>
+<link href="/static/css/apex_glassmorphism.css" rel="stylesheet"/>
+
 {% set toast_msg = success or error or "" %}
 {% set toast_type = "success" if success else ("error" if error else "") %}
 
 <style>
-.purchases-page { inline-size: 100%; }
-.purchases-header { display: flex; justify-content: space-between; align-items: center; margin-block-end: 32px; flex-wrap: wrap; gap: 16px; }
-.purchases-title-wrapper h1 { font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #f1f5f9, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-block-end: 4px; }
-.purchases-title-wrapper p { font-size: 14px; color: var(--text-dim); }
+:root {
+  --text-x-direction: -1;
+}
 
-.purchases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 28px; }
-.purchase-card { background: linear-gradient(180deg, rgba(17, 17, 30, 0.75) 0%, rgba(11, 11, 20, 0.95) 100%); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.purchase-card:hover { transform: translateY(-4px); border-color: rgba(0, 240, 255, 0.25); box-shadow: 0 16px 45px rgba(0, 240, 255, 0.08), 0 2px 4px rgba(0,0,0,0.2); }
+.purchases-page {
+    inline-size: 100%;
+    font-family: 'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif;
+}
 
-.purchase-card-header { padding: 24px 24px 16px; display: flex; gap: 16px; align-items: flex-start; border-inset-block-end: 1px solid rgba(255, 255, 255, 0.03); }
-.purchase-card-img { inline-size: 64px; block-size: 64px; border-radius: 12px; object-fit: cover; border: 1.5px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.4); flex-shrink: 0; }
-.purchase-card-fallback-img { inline-size: 64px; block-size: 64px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.08); background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+/* Header & Controls */
+.purchases-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-block-end: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.purchases-title-wrapper h1 {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #ffffff 0%, #00f0ff 50%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.purchases-title-wrapper p {
+    font-size: 14px;
+    color: #cbd5e1;
+    margin: 0;
+    line-height: 1.5;
+}
 
-.purchase-card-meta { display: flex; flex-direction: column; gap: 4px; }
-.purchase-card-title { font-size: 16.5px; font-weight: 800; color: #f8fafc; line-height: 1.3; }
-.purchase-card-date { font-size: 11.5px; color: var(--text-muted); }
+/* Quick Stats Bar */
+.purchases-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-block-end: 24px;
+}
+.purchases-summary-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    transition: all 0.25s ease;
+}
+.purchases-summary-card:hover {
+    border-color: rgba(0, 240, 255, 0.5);
+    transform: translateY(-2px);
+}
+.purchases-summary-icon {
+    font-size: 28px;
+}
+.purchases-summary-val {
+    font-size: 24px;
+    font-weight: 900;
+    color: #00f0ff;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+.purchases-summary-lbl {
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 700;
+    margin-block-start: 2px;
+}
 
-.purchase-card-body { padding: 24px; display: flex; flex-direction: column; flex: 1; gap: 18px; }
-.purchase-price-row { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--text-dim); }
-.purchase-price-row strong { color: #f1f5f9; font-weight: 700; font-size: 15px; }
+/* Purchases Grid */
+.purchases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 22px;
+}
 
-.status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 50px; font-weight: 800; font-size: 14px; text-transform: uppercase; inline-size: fit-content; }
-.status-badge.fulfilled { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); color: #4ade80; }
-.status-badge.pending { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); color: #fbbf24; animation: pulseStatus 2s infinite ease-in-out; }
-.status-badge.failed { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; }
-@keyframes pulseStatus { 0% { opacity: 0.85; } 50% { opacity: 0.6; } 100% { opacity: 0.85; } }
+.purchase-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.purchase-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 240, 255, 0.6);
+    box-shadow: 0 16px 40px rgba(0, 240, 255, 0.15), 0 0 20px rgba(0, 240, 255, 0.1);
+}
 
-/* Glassmorphic Credentials Display */
-.credentials-box { background: rgba(10,10,25,0.8); backdrop-filter: blur(12px); border: 1.5px solid rgba(0, 240, 255, 0.15); border-radius: 16px; padding: 18px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-.credentials-box::before { content: ''; position: absolute; inset-block-start: 0; inset-inline-start: 0; inline-size: 100%; block-size: 100%; background: linear-gradient(135deg, rgba(0, 240, 255, 0.04), rgba(139, 92, 246, 0.04)); pointer-events: none; }
-.credentials-title { font-size: 14px; color: #00f0ff; font-weight: 800; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
-.credentials-content { font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', 'Courier New', Courier, monospace; font-size: 13.5px; color: #f1f5f9; white-space: pre-wrap; line-height: 1.5; font-weight: 700; word-break: break-all; max-block-size: 120px; overflow-y: auto; padding-inline-end: 6px; }
-.credentials-content::-webkit-scrollbar { inline-size: 4px; }
-.credentials-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.purchase-card-header {
+    padding: 20px 22px 16px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.06);
+}
+.purchase-card-img {
+    inline-size: 58px;
+    block-size: 58px;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 1.5px solid rgba(0, 240, 255, 0.3);
+    background: rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+}
+.purchase-card-fallback-img {
+    inline-size: 58px;
+    block-size: 58px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(0, 240, 255, 0.3);
+    background: rgba(0, 240, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+}
 
-.btn-copy { background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2); color: #00f0ff; inline-size: 100%; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); text-transform: uppercase; font-family:'Cairo','IBM Plex Arabic','Tajawal',sans-serif; }
-.btn-copy:hover { background: rgba(0, 240, 255, 0.14); border-color: rgba(0, 240, 255, 0.4); transform: translateY(-2px); box-shadow: 0 0 14px rgba(0,240,255,0.25); }
-.btn-copy:active { transform: translateY(0); }
+.purchase-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+.purchase-card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.3;
+    margin: 0;
+}
+.purchase-card-date {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+}
 
-.requirements-box { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 12px 16px; font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
-.requirements-title { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-block-end: 6px; }
+.purchase-card-body {
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 14px;
+}
+.purchase-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13.5px;
+    color: #cbd5e1;
+    font-weight: 600;
+}
+.purchase-price-row strong {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+}
 
-.toast-msg { padding: 14px 20px; border-radius: 14px; font-size: 13.5px; margin-block-end: 28px; display: flex; align-items: center; gap: 10px; animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-.toast-msg.error { background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; }
-.toast-msg.success { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); color: #4ade80; }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    inline-size: fit-content;
+}
+.status-badge.fulfilled {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+.status-badge.pending {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24;
+    animation: pulseStatus 2s infinite ease-in-out;
+}
+@keyframes pulseStatus {
+    0% { opacity: 0.85; }
+    50% { opacity: 0.55; }
+    100% { opacity: 0.85; }
+}
 
-/* Clipboard Floating Success Badge */
-.copy-tooltip { position: fixed; inset-block-end: 32px; inset-inline-start: 0; inset-inline-end: 0; margin-inline: auto; transform: translateY(30px); background: rgba(34, 197, 94, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #052e16; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 30px rgba(34,197,94,0.3); opacity: 0; pointer-events: none; transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000000; inline-size: fit-content; }
-.copy-tooltip.show { opacity: 1; transform: translateY(0); }
+/* Credentials Box */
+.credentials-box {
+    background: rgba(10, 15, 29, 0.9);
+    border: 1.5px solid rgba(0, 240, 255, 0.3);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+.credentials-title {
+    font-size: 13px;
+    color: #00f0ff;
+    font-weight: 800;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.credentials-content {
+    font-family: monospace;
+    font-size: 13px;
+    color: #f1f5f9;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    font-weight: 700;
+    word-break: break-all;
+    max-block-size: 100px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px 10px;
+    border-radius: 8px;
+}
 
-/* Empty state */
-.empty-purchases { text-align: center; padding: 80px 20px; background: rgba(10,10,25,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(0,240,255,0.1); border-radius: 24px; margin-block-start: 20px; }
+.btn-copy-creds {
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: #00f0ff;
+    inline-size: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+.btn-copy-creds:hover {
+    background: rgba(0, 240, 255, 0.22);
+    border-color: rgba(0, 240, 255, 0.6);
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.requirements-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+/* Toast Messages */
+.toast-msg {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-block-end: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideDown 0.3s ease;
+}
+.toast-msg.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+.toast-msg.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Empty State */
+.empty-purchases {
+    text-align: center;
+    padding: 70px 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.2);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(14px);
+}
+.empty-purchases-icon {
+    font-size: 54px;
+    margin-block-end: 16px;
+    display: inline-block;
+    filter: drop-shadow(0 0 15px rgba(0, 240, 255, 0.3));
+}
+.empty-purchases h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 8px;
+}
+.empty-purchases p {
+    font-size: 14px;
+    color: #94a3b8;
+    max-inline-size: 440px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+}
+
+.btn-cta-offers {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #0284c7, #7c3aed);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.4);
+    font-family: inherit;
+}
+.btn-cta-offers:hover {
+    background: linear-gradient(135deg, #0369a1, #6d28d9);
+    box-shadow: 0 6px 25px rgba(124, 58, 237, 0.5);
+    transform: translateY(-2px);
+    color: #ffffff;
+}
+
+/* Floating copy feedback */
+.copy-tooltip {
+    position: fixed;
+    inset-block-end: 32px;
+    inset-inline-start: 50%;
+    transform: translateX(50%) translateY(30px);
+    background: rgba(34, 197, 94, 0.95);
+    backdrop-filter: blur(10px);
+    color: #052e16;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000000;
+}
+.copy-tooltip.show {
+    opacity: 1;
+    transform: translateX(50%) translateY(0);
+}
 </style>
 
 {% if toast_msg %}
@@ -67,98 +395,142 @@
 </div>
 {% endif %}
 
-<div class="purchases-page">
-    <div class="purchases-header">
-        <div class="purchases-title-wrapper">
-            <h1>📦 اشتراكاتي</h1>
-            <p>الوصول إلى اشتراكاتك المشتراة ومفاتيح الترخيص وبيانات التسليم الفورية.</p>
-        </div>
-    </div>
+<div class="purchases-page" dir="rtl">
 
-    {% if purchases %}
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <div class="purchases-header">
+    <div class="purchases-title-wrapper">
+      <h1>📦 اشتراكاتي وبطاقات التفعيل</h1>
+      <p>الوصول إلى مفاتيح التراخيص المشتراة، العروض الرقمية، وبيانات الدخول الفورية.</p>
+    </div>
+    <div>
+      <a href="/offers" class="btn-cta-offers">🔥 تصفح العروض والخدمات</a>
+    </div>
+  </div>
+
+  <!-- ═══════════════ SUMMARY BAR ═══════════════ -->
+  <div class="purchases-summary-bar">
+    <div class="purchases-summary-card">
+      <span class="purchases-summary-icon">📦</span>
+      <div>
+        <div class="purchases-summary-val">{{ purchases|length }}</div>
+        <div class="purchases-summary-lbl">إجمالي الاشتراكات</div>
+      </div>
+    </div>
+    <div class="purchases-summary-card">
+      <span class="purchases-summary-icon">🟢</span>
+      <div>
+        <div class="purchases-summary-val" style="color:#4ade80;">
+          {{ purchases|selectattr('fulfillment_status','equalto','fulfilled')|list|length }}
+        </div>
+        <div class="purchases-summary-lbl">مفعلة ومسلمة فورياً</div>
+      </div>
+    </div>
+    <div class="purchases-summary-card">
+      <span class="purchases-summary-icon">⏳</span>
+      <div>
+        <div class="purchases-summary-val" style="color:#fbbf24;">
+          {{ purchases|rejectattr('fulfillment_status','equalto','fulfilled')|list|length }}
+        </div>
+        <div class="purchases-summary-lbl">قيد المعالجة والتسليم</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ PURCHASES LIST / EMPTY STATE ═══════════════ -->
+  {% if purchases %}
     <div class="purchases-grid">
-        {% for p in purchases %}
+      {% for p in purchases %}
         <div class="purchase-card">
-            <div class="purchase-card-header">
-                {% if p.image_url %}
-                <img class="purchase-card-img" src="{{ p.image_url }}" alt="{{ p.offer_title }}" loading="lazy">
-                {% else %}
-                <div class="purchase-card-fallback-img">💎</div>
-                {% endif %}
-                
-                <div class="purchase-card-meta">
-                    <h3 class="purchase-card-title">{{ p.offer_title }}</h3>
-                    <span class="purchase-card-date">تم الطلب في {{ p.created_at[:16] }}</span>
-                </div>
+          <div class="purchase-card-header">
+            {% if p.image_url %}
+              <img class="purchase-card-img" src="{{ p.image_url }}" alt="{{ p.offer_title }}" loading="lazy">
+            {% else %}
+              <div class="purchase-card-fallback-img">💎</div>
+            {% endif %}
+            
+            <div class="purchase-card-meta">
+              <h3 class="purchase-card-title">{{ p.offer_title }}</h3>
+              <span class="purchase-card-date">تم الشراء في {{ p.created_at[:16] if p.created_at else 'مؤخراً' }}</span>
+            </div>
+          </div>
+          
+          <div class="purchase-card-body">
+            <div class="purchase-price-row">
+              <span>المبلغ المدفوع:</span>
+              <strong>${{ "%.2f"|format(p.price_paid|float if p.price_paid else 0) }}</strong>
             </div>
             
-            <div class="purchase-card-body">
-                <div class="purchase-price-row">
-                    <span>السعر المدفوع</span>
-                    <strong>${{ "%.2f"|format(p.price_paid|float) }}</strong>
-                </div>
-                
-                <div class="purchase-price-row" style="margin-block-start: -6px;">
-                    <span>حالة التسليم</span>
-                    {% if p.fulfillment_status == 'fulfilled' %}
-                        <span class="status-badge fulfilled">✅ تم التسليم</span>
-                    {% elif p.fulfillment_status == 'failed' %}
-                        <span class="status-badge pending">⏳ تسليم يدوي</span>
-                    {% else %}
-                        <span class="status-badge pending">⏳ قيد المعالجة</span>
-                    {% endif %}
-                </div>
-
-                {% if p.fulfillment_status == 'fulfilled' and p.delivered_credentials %}
-                    <div class="credentials-box">
-                        <div class="credentials-title">
-                            <span>🔑 بيانات الدخول / المفاتيح</span>
-                        </div>
-                        <div class="credentials-content" id="creds_{{ p.purchase_id }}">{{ p.delivered_credentials }}</div>
-                    </div>
-                    <button class="btn-copy" onclick="copyCredentials('creds_{{ p.purchase_id }}')">
-                        <span class="copy-icon">📋</span> نسخ بيانات الدخول
-                    </button>
-                {% else %}
-                    <div class="requirements-box">
-                        <div class="requirements-title">متطلباتي</div>
-                        <div style="font-style: italic;">{{ p.user_requirements }}</div>
-                    </div>
-                    
-                    <div style="font-size: 14px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.01); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03);">
-                        💡 <i>يستغرق التنفيذ من 24 إلى 48 ساعة. سنقوم بإعلامك عبر تيليجرام أو البريد الإلكتروني بمجرد تفعيل اشتراكك.</i>
-                    </div>
-                {% endif %}
+            <div class="purchase-price-row">
+              <span>حالة التسليم:</span>
+              {% if p.fulfillment_status == 'fulfilled' %}
+                <span class="status-badge fulfilled">✅ تم التسليم الفوري</span>
+              {% elif p.fulfillment_status == 'failed' %}
+                <span class="status-badge pending">⏳ جاري التسليم اليدوي</span>
+              {% else %}
+                <span class="status-badge pending">⏳ قيد المعالجة والتفعيل</span>
+              {% endif %}
             </div>
+
+            {% if p.fulfillment_status == 'fulfilled' and p.delivered_credentials %}
+              <div class="credentials-box">
+                <div class="credentials-title">
+                  <span>🔑 مفتاح الترخيص وبيانات الدخول</span>
+                </div>
+                <div class="credentials-content" id="creds_{{ p.id or loop.index }}">{{ p.delivered_credentials }}</div>
+              </div>
+              <button class="btn-copy-creds" onclick="copyCredentials('creds_{{ p.id or loop.index }}', this)">
+                <span>📋</span> نسخ بيانات الدخول والمفتاح
+              </button>
+            {% else %}
+              {% if p.user_requirements %}
+                <div class="requirements-box">
+                  <div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-block-end:4px;">متطلبات الطلب:</div>
+                  <div style="font-style:italic;">{{ p.user_requirements }}</div>
+                </div>
+              {% endif %}
+              
+              <div style="font-size:13px; color:#94a3b8; display:flex; align-items:flex-start; gap:8px; background:rgba(255,255,255,0.02); padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); line-height:1.5;">
+                <span>💡</span> 
+                <span>يتم التفعيل والتسليم الفوري أو خلال 24 ساعة كحد أقصى. سيصلك إشعار فوري عبر الإيميل أو التيليجرام.</span>
+              </div>
+            {% endif %}
+          </div>
         </div>
-        {% endfor %}
+      {% endfor %}
     </div>
-    {% else %}
+  {% else %}
     <div class="empty-purchases">
-        <span style="font-size: 56px;">🛒</span>
-        <h3 style="font-size: 19px; margin-block-start: 16px; color: var(--text-dim); font-weight: 800;">لم يتم شراء أي اشتراكات بعد</h3>
-        <p style="font-size: 14px; color: var(--text-muted); max-inline-size: 420px; margin: 8px auto 24px; line-height: 1.7;">تصفح الكتالوج الخاص بنا للعروض الخاصة وباقات الخدمات والخدمات المخصصة لتفعيل اشتراكك الأول.</p>
-        <a href="/offers" class="btn-cyber primary" style="display: inline-flex;">🔥 عرض العروض الخاصة</a>
+      <span class="empty-purchases-icon">🛒</span>
+      <h3>لم تقم بشراء أي اشتراكات بعد</h3>
+      <p>تصفح كتالوج العروض الخاصة وباقات الخدمات الذكية لتفعيل اشتراكك الأول والحصول على بياناتك فورياً.</p>
+      <a href="/offers" class="btn-cta-offers">🔥 تصفح العروض الخاصة</a>
     </div>
-    {% endif %}
+  {% endif %}
+
 </div>
 
-<!-- Clipboard Tooltip -->
+<!-- Floating Copy Tooltip -->
 <div class="copy-tooltip" id="copyTooltip">
-    <span>✅</span> تم النسخ إلى الحافظة بنجاح!
+  <span>✅</span> تم النسخ إلى الحافظة بنجاح!
 </div>
 
 <script>
-function copyCredentials(elementId) {
-    const text = document.getElementById(elementId).textContent;
-    navigator.clipboard.writeText(text).then(function() {
-        const tooltip = document.getElementById('copyTooltip');
-        tooltip.classList.add('show');
-        setTimeout(function() {
-            tooltip.classList.remove('show');
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-    });
+function copyCredentials(elementId, btn) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const tooltip = document.getElementById('copyTooltip');
+    if (tooltip) {
+      tooltip.classList.add('show');
+      setTimeout(() => tooltip.classList.remove('show'), 2500);
+    }
+    if (btn) {
+      const origText = btn.innerHTML;
+      btn.innerHTML = '<span>✅</span> تم النسخ!';
+      setTimeout(() => btn.innerHTML = origText, 2000);
+    }
+  });
 }
 </script>

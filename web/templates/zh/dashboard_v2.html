@@ -281,7 +281,7 @@ body {
 }
 
 /* ── Connect Account Banner ── */
-.smtp-banner {
+.mailbox-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -333,9 +333,9 @@ body {
     </div>
   </div>
 
-  <!-- CONNECT SMTP BANNER (Cost Savings feature requested by user) -->
+  <!-- DIRECT MAILBOX INTEGRATION BANNER -->
   {% if not user.get('oauth_provider') %}
-  <div class="smtp-banner">
+  <div class="mailbox-banner">
     <div>
       <h3 style="margin:0 0 5px 0; color:#fff;">Activate Premium AI Inbox Delivery</h3>
       <p style="margin:0; color:var(--text-muted); font-size:14px;">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>

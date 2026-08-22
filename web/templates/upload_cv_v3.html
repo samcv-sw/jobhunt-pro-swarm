@@ -267,7 +267,7 @@
     <div class="p-6 overflow-y-auto space-y-5 custom-scrollbar text-slate-300 flex-1">
       <div id="modalLoading" class="text-center py-16 flex flex-col items-center gap-3">
         <i data-lucide="loader-2" class="w-10 h-10 text-cyan-400 animate-spin"></i>
-        <span class="text-sm font-bold text-slate-300">جاري توليد رسالة التغطية والإيميل التلقائي عبر LLaMA 3.3 70B AI...</span>
+        <span class="text-sm font-bold text-slate-300">جاري توليد رسالة التغطية والإيميل التلقائي بالذكاء الاصطناعي...</span>
         <span class="text-xs text-slate-500">تجهيز تنسيق ATS المحسن، ونُسق البريد الإلكتروني الموثق</span>
       </div>
 
@@ -373,9 +373,9 @@
               <div class="text-sm font-bold text-blue-700 tracking-wide mt-1 uppercase" id="paperTargetTitle">Senior Network & Security Engineer</div>
             </div>
             <div class="text-start text-[11px] text-slate-600 font-medium space-y-0.5" id="paperContactDetails">
-              <div>{{ user.location if user and user.location else 'بيروت، لبنان' }} • {{ user.phone if user and user.phone else '+961 70 841 009' }}</div>
-              <div>{{ user.email if user and user.email else 'sam.dev1@hotmail.com' }}</div>
-              <div>{{ user.linkedin if user and user.linkedin else 'linkedin.com/in/sam-salameh' }}</div>
+              <div>{{ user.location if user and user.location else 'أوستن، تكساس، الولايات المتحدة' }} • {{ user.phone if user and user.phone else '+1 (555) 019-2834' }}</div>
+              <div>{{ user.email if user and user.email else 'candidate@example.com' }}</div>
+              <div>{{ user.linkedin if user and user.linkedin else 'linkedin.com/in/candidate-profile' }}</div>
             </div>
           </div>
 
@@ -402,7 +402,7 @@
                   <span>Senior Network Infrastructure & Security Lead</span>
                   <span class="text-blue-600 font-mono">2016 - الحاضر</span>
                 </div>
-                <div class="text-slate-600 font-medium italic mb-1">Global Tech Solutions • بيروت، لبنان</div>
+                <div class="text-slate-600 font-medium italic mb-1">Global Tech Solutions • أوستن، تكساس، الولايات المتحدة</div>
                 <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
                   <li>تصميم وتطوير جدران الحماية Cisco و Fortinet بإنتاجية استثنائية (99.999% Uptime).</li>
                   <li>ضبط وإدارة بروتوكولات التوجيه MikroTik (BGP, OSPF) للشبكات الضخمة.</li>
@@ -472,24 +472,7 @@
         </button>
       </div>
     </div>
-  </div>
-</div>
-
-<form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto" dir="rtl">
-  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length > 0 else '' }}" dir="auto">
-  <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
-  <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
-  <input type="hidden" name="target_locations" id="hiddenTargetLocations" value="لبنان، الإمارات، عن بعد" dir="auto">
-  <input type="hidden" name="target_titles" id="hiddenTargetTitles" value="مهندس شبكات وأمن معلومات متقدم" dir="auto">
-  <input type="hidden" name="profile_name" id="hiddenProfileName" value="الملف الشخصي الرئيسي" dir="auto">
-  <input type="hidden" name="cover_letter_template" id="hiddenCoverLetterTemplate" value="" dir="auto">
-  <input type="hidden" name="cv_style" id="hiddenCvStyle" value="Professional" dir="auto">
-  <input type="hidden" name="salary_expectation" id="hiddenSalaryExpectation" value="$30k-$50k" dir="auto">
-  <input type="hidden" name="min_local_salary" id="hiddenMinLocalSalary" value="30000" dir="auto">
-  <input type="hidden" name="min_international_salary" id="hiddenMinIntlSalary" value="80000" dir="auto">
-
-  <!-- Page Header -->
-  <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
     <div>
       <h1 class="text-2xl font-black text-white flex items-center gap-3">
         <i data-lucide="file-up" class="w-7 h-7 text-cyan-400"></i>
@@ -498,40 +481,81 @@
       <p class="text-sm text-slate-400 mt-1" style="line-height:1.7;">دع الذكاء الاصطناعي يحلل سيرتك الذاتية ويصيغ طلبات التوظيف المثالية</p>
     </div>
     <div class="flex gap-3 flex-wrap items-center">
-      <button type="button" onclick="toggleSoundFx()" id="btnSoundToggle" class="px-3 py-2 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-        <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> الأصوات التفاعلية: مفعلة
-      </button>
-      <button class="btn-secondary-cv" onclick="openInspector('cv')" type="button">
-        📄 معاينة ورقة السيرة الذاتية
-      </button>
-      <button class="btn-primary-cv" id="btnAutoFill" onclick="triggerAIAutoFill(event)" type="button">
-        ✨ التعبئة التلقائية بالذكاء الاصطناعي
-      </button>
+      <!-- Sound FX Toggle with RTL Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button type="button" onclick="toggleSoundFx()" id="btnSoundToggle" class="px-3 py-2 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> الأصوات التفاعلية: مفعلة
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>المؤثرات الصوتية التفاعلية</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            تفعيل أو كتم المؤثرات الصوتية عند النقر ومعالجة السيرة الذاتية بالذكاء الاصطناعي.
+          </p>
+          <div class="absolute -bottom-1.5 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- View CV Document with RTL Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button class="btn-secondary-cv" onclick="openInspector('cv')" type="button">
+          📄 معاينة ورقة السيرة الذاتية
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>معاينة وثيقة السيرة الذاتية</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            عرض بصري كامل للتأكد من تناسق الخطوط والفقرات ومطابقة فلاتر الـ ATS.
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Auto-Fill Profile with RTL Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button class="btn-primary-cv" id="btnAutoFill" onclick="triggerAIAutoFill(event)" type="button">
+          ✨ التعبئة التلقائية بالذكاء الاصطناعي
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>الاستخراج والتعبئة الذكية</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            استخراج مهاراتك وخبراتك ومعلومات الاتصال من ملفك وتعبئتها فوراً بضغطة زر.
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Live Swarm Telemetry & System Status Bar -->
-  <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap justify-between items-center gap-3 text-xs">
+  <!-- Live Swarm Telemetry & System Status Bar (Hidden from public view) -->
+  <div class="hidden bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 flex-wrap justify-between items-center gap-3 text-xs" style="display: none !important;">
     <div class="flex items-center gap-4">
       <span class="flex items-center gap-1.5 text-green-400 font-bold">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> شبكة SMTP الآلية: 991/1000 حساب مفعّل
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> البنية التحتية السحابية متعددة القنوات: نشطة
       </span>
       <span class="text-slate-500">|</span>
       <span class="text-slate-400 flex items-center gap-1">
-        <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> درع الحماية Aegis: نشط
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> درع حماية الوصول والتسليم: نشط
       </span>
     </div>
     <div class="flex items-center gap-4 text-slate-400">
       <span class="flex items-center gap-1">
-        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> الاستجابة: 340ms (LLaMA 3.3 70B)
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> محرك الذكاء الاصطناعي الفائق: متصل
       </span>
       <span class="text-slate-500">|</span>
-      <span class="text-purple-400 font-bold">الطاقة: 10,000 تقديم يومياً</span>
+      <span class="text-purple-400 font-bold">الطاقة: جاهزية سحابية للمؤسسات</span>
     </div>
   </div>
 
   <!-- Multi-Profile Tab Switcher (IMP-PROFILES-V3) -->
-  <div class="bg-slate-900/90 backdrop-blur-[12px] border border-cyan-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+  <div class="bg-slate-900/90 backdrop-blur-[12px] border border-cyan-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,240,255,0.1)] overflow-visible">
     <div class="flex items-center justify-between gap-3 mb-3 border-b border-slate-800 pb-2.5">
       <div class="flex items-center gap-2">
         <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i>
@@ -539,9 +563,22 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="text-xs text-slate-400 hidden sm:inline">اختر الملف المستهدف لتخصيص حملة التقديم بضغطة زر</span>
-        <button type="button" onclick="deleteActiveProfileAsync()" id="btnDeleteProfile" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> حذف الملف
-        </button>
+        <!-- Delete Profile with RTL Tooltip -->
+        <div class="relative group inline-block">
+          <button type="button" onclick="deleteActiveProfileAsync()" id="btnDeleteProfile" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> حذف الملف
+          </button>
+          <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-red-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start" dir="rtl">
+            <div class="flex items-center gap-1.5 text-red-400 font-black text-xs mb-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i>
+              <span>حذف الملف الوظيفي</span>
+            </div>
+            <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+              حذف هذا الملف الوظيفي المخصص وإعدادات الاستهداف الخاصة به نهائياً.
+            </p>
+            <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-red-500/80 rotate-45"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar" id="profileTabsContainer">
@@ -562,15 +599,57 @@
           <span>الملف الثانوي: هندسة الذكاء الاصطناعي</span>
         </button>
       {% endif %}
-      <button type="button" onclick="createNewProfileModal()" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ms-auto">
-        <i data-lucide="plus-circle" class="w-4 h-4"></i> + إنشاء ملف جديد
-      </button>
-      <button type="button" onclick="duplicateActiveProfile()" class="px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i data-lucide="copy" class="w-4 h-4 text-blue-400"></i> نسخ الملف
-      </button>
-      <button type="button" onclick="saveCurrentProfileAsync()" class="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> حفظ التعديلات
-      </button>
+
+      <!-- Create New Profile with RTL Tooltip -->
+      <div class="relative group inline-block ms-auto">
+        <button type="button" onclick="createNewProfileModal()" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> + إنشاء ملف جديد
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-cyan-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-black text-xs mb-1">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>إنشاء ملف وظيفي جديد</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            أنشئ ملفاً مستقلاً بمهارات وسيرة ذاتية مختلفة لاستهداف تخصص وظيفي آخر.
+          </p>
+          <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Duplicate Profile with RTL Tooltip -->
+      <div class="relative group inline-block">
+        <button type="button" onclick="duplicateActiveProfile()" class="px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="copy" class="w-4 h-4 text-blue-400"></i> نسخ الملف
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-blue-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-blue-300 font-black text-xs mb-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>استنساخ وتكرار الملف</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            ينشئ نسخة طبق الأصل لتعديلها وتخصيصها لبلد آخر (مثل الإمارات أو السعودية).
+          </p>
+          <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-950 border-b border-e border-blue-500/80 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Save Profile with RTL Tooltip -->
+      <div class="relative group inline-block">
+        <button type="button" onclick="saveCurrentProfileAsync()" class="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> حفظ التعديلات
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-emerald-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-emerald-300 font-black text-xs mb-1">
+            <i data-lucide="save" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>حفظ إعدادات الملف</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            حفظ كافة المهارات والخبرات المحدثة في حسابك لتطبيقها على الحملات القادمة.
+          </p>
+          <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -607,6 +686,15 @@
     </div>
   </div>
 
+  <!-- Flash Sale Banner (Dynamic Only) -->
+  <div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload" style="display:none;">
+    <div class="flex items-center gap-2">
+      <i data-lucide="zap" class="w-5 h-5 text-red-400"></i>
+      <span class="text-sm font-bold text-red-400" id="flashTitleUpload">عرض ترويجي مباشر</span>
+    </div>
+    <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">--:--:--</span>
+    <span class="text-sm text-slate-300" id="flashDiscountUpload">خصم حصري لفترة محدودة مطبق تلقائياً على كافة الباقات!</span>
+  </div>
 
   <!-- How It Works -->
   <div class="bg-slate-900/80 backdrop-blur-[12px] border border-slate-700/50 rounded-2xl p-6" style="background:rgba(10,10,25,0.8);">
@@ -614,21 +702,59 @@
       <i data-lucide="rocket" class="w-4 h-4 text-cyan-400"></i> كيف يعمل النظام
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+      <!-- Step 1 with RTL Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-blue-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-blue-500/50 rounded-2xl shadow-2xl shadow-blue-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-blue-300 font-extrabold text-xs mb-1">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>الخطوة 1: رفع السيرة الذاتية</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            ارفع ملف السيرة الذاتية بصيغة PDF أو DOCX ليتم حفظه وتخصيصه لكل ملف وظيفي.
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-blue-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="upload" class="w-6 h-6 text-blue-400"></i>
         </div>
         <div class="font-bold text-white text-sm mb-1">1. رفع السيرة الذاتية</div>
         <div class="text-xs text-slate-400" style="line-height:1.7;">ارفع سيرتك الذاتية بصيغة PDF أو DOCX أو TXT</div>
       </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+
+      <!-- Step 2 with RTL Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-green-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-green-500/50 rounded-2xl shadow-2xl shadow-green-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-green-300 font-extrabold text-xs mb-1">
+            <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-green-400"></i>
+            <span>الخطوة 2: التحليل العصبي الذكي</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            فحص كثافة الكلمات المفتاحية ومطابقتها لمتطلبات مسؤولي التوظيف والشركات الخليجية.
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-green-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="brain-circuit" class="w-6 h-6 text-green-400"></i>
         </div>
         <div class="font-bold text-white text-sm mb-1">2. تحليل الذكاء الاصطناعي</div>
         <div class="text-xs text-slate-400" style="line-height:1.7;">يستخرج النظام مهاراتك وخبراتك ويحسن المحتوى تلقائياً</div>
       </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+
+      <!-- Step 3 with RTL Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-purple-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-2xl shadow-2xl shadow-purple-950/90 text-start" dir="rtl">
+          <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+            <i data-lucide="rocket" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>الخطوة 3: إطلاق حملة التقديم</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            بدء التقديم الآلي الذكي لشركاتك المستهدفة برسائل تغطية مخصصة وفورية على مدار الساعة.
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="rocket" class="w-6 h-6 text-purple-400"></i>
         </div>
@@ -725,7 +851,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">الاسم الكامل</label>
-        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="fullNameInput" placeholder="مثال: أحمد خليل" type="text" value="{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}" dir="auto">
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="fullNameInput" placeholder="مثال: نانسي سلامة / سيمون الخوري" type="text" value="{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">البريد الإلكتروني</label>
@@ -739,7 +865,7 @@
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase">الموقع / البلد</label>
-        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="locationInput" placeholder="مثال: بيروت، لبنان" type="text" dir="auto">
+        <input class="cv-input w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto" id="locationInput" placeholder="مثال: بيروت، لبنان / دبي، الإمارات" type="text" dir="auto">
       </div>
     </div>
     <div class="space-y-1.5">
@@ -1098,18 +1224,53 @@
         <div class="text-sm font-bold text-white mb-1">لبنان</div>
         <div class="text-xl font-black text-green-400 mb-1">$30k-$50k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase">مبتدئ إلى متوسط</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇱🇧 فئة الرواتب الإقليمية ($30k - $50k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            تستهدف الوظائف الإقليمية والمحلية للمستوى المبتدئ والمتوسط مع سرعة استجابة وجدولة مقابلات سريعة.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
         <div class="text-sm font-bold text-white mb-1">الإمارات</div>
         <div class="text-xl font-black text-green-400 mb-1">$50k-$80k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase">متوسط إلى متقدم</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇦🇪 فئة الخليج والإمارات ($50k - $80k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            مخصصة لوظائف النخبة في الإمارات والخليج مع حزم رواتب معفاة من الضرائب وكفالة إقامة وتأشيرة عمل شاملة.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
         <div class="text-sm font-bold text-white mb-1">أمريكا / عن بُعد</div>
         <div class="text-xl font-black text-green-400 mb-1">$80k-$150k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase">متقدم فأكثر</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇺🇸 فئة الوظائف الأمريكية والعالمية ($80k - $150k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            مصممة للوظائف القيادية والعالمية عن بُعد برواتب دولية بالدولار الأمريكي لكبار المهندسين والخبراء.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
     </div>
     <div class="space-y-1.5">
@@ -1131,16 +1292,51 @@
         <i data-lucide="file-text" class="w-8 h-8 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">احترافي (Professional)</div>
         <div class="text-xs text-slate-400" style="line-height:1.7;">تنسيق نظيف متوافق 100% مع أنظمة التوظيف العالمية (ATS Compatible)</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-cyan-400 text-xs mb-1">
+            <span>📄 النمط التنفيذي المعتمد (100% ATS)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            هيكلية قياسية أحادية العمود تضمن اجتياز كافة فلاتر وأنظمة التوظيف (Workday, Taleo, Greenhouse) بدون أي أخطاء قراءة.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'إبداعي')">
         <i data-lucide="paint-brush" class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">إبداعي (Creative)</div>
         <div class="text-xs text-slate-400" style="line-height:1.7;">تصميم عصري بالألوان الجذابة للشركات التقنية والإبداعية</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-pink-400 text-xs mb-1">
+            <span>🎨 التصميم العصري الجذاب</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            لمسات بصرية أنيقة وألوان تقنية جذابة تبرز ملفك وتلفت انتباه مدراء التوظيف في الشركات الناشئة والتكنولوجية.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'بسيط')">
         <i data-lucide="layout-template" class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">بسيط (Minimalist)</div>
         <div class="text-xs text-slate-400" style="line-height:1.7;">تنسيق مبسط يركز على المحتوى والنص فقط</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-slate-300 text-xs mb-1">
+            <span>🔲 التنسيق المبسط المركز</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            تصميم عالي التركيز يبرز الإنجازات الرقمية والخبرات العملية والتقنية المباشرة بدون أي عناصر مشتتة.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1151,42 +1347,65 @@
       <i data-lucide="files" class="w-5 h-5 text-blue-400"></i> 📄 حالة المستندات والمعاينة الحية (Live Document Inspection)
     </h3>
     <div class="space-y-3">
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
+      {% set has_cv = (user_profiles and user_profiles|length > 0) or (user and user.get('cv_text')) or (profile and profile.get('name')) %}
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
             السيرة الذاتية الذكية <span class="text-[11px] text-cyan-400 font-mono font-bold">(اضغط لمعاينة وتعديل السيرة الذاتية)</span>
           </h4>
-          <div class="text-xs text-slate-400" id="cvStatusDetails">PDF • آخر تحديث: قيد الانتظار</div>
+          <div class="text-xs text-slate-400" id="cvStatusDetails">{% if has_cv %}ملف السيرة الذاتية مرفق • جاهز ومطابق للـ ATS{% else %}PDF • جاهز للرفع والتحليل الفوري{% endif %}</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
-          <span id="cvStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+          <span id="cvStatusBadge" class="px-3 py-1 {% if has_cv %}bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %} text-xs font-bold rounded-lg">{% if has_cv %}✅ جاهز ومفحوص{% else %}قيد الانتظار{% endif %}</span>
           <button type="button" onclick="event.stopPropagation(); openInspector('cv');" class="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
             <i data-lucide="eye" class="w-4 h-4"></i> معاينة وتعديل ATS CV
           </button>
         </div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-cyan-400 text-xs mb-1">
+            <span>📄 محرر ومعاين السيرة الذاتية التفاعلي</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            استعرض وعدّل سيرتك الذاتية في الوقت الفعلي، خصص التصميم، وحمّل نسخ PDF معتمدة ومطابقة لأعلى معايير الـ ATS.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-            قالب رسالة التغطية الاحترافية <span class="text-[11px] text-purple-400 font-mono font-bold">(Cover Letter Engine)</span>
+            قالب رسالة التغطية الاحترافية <span class="text-[11px] text-purple-400 font-mono font-bold">(الذكاء الاصطناعي التكيفي)</span>
           </h4>
-          <div class="text-xs text-slate-400" id="clStatusDetails">LLaMA 3.3 70B • سيتم التوليد الآلي فور رفع السيرة الذاتية</div>
+          <div class="text-xs text-slate-400" id="clStatusDetails">{% if has_cv %}الذكاء الاصطناعي التكيفي • رسالة مخصصة وجاهزة للإرسال الآلي{% else %}الذكاء الاصطناعي التكيفي • سيتم التوليد الآلي فور رفع السيرة الذاتية{% endif %}</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
-          <span id="clStatusBadge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">قيد الانتظار</span>
+          <span id="clStatusBadge" class="px-3 py-1 {% if has_cv %}bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %} text-xs font-bold rounded-lg">{% if has_cv %}✨ جاهز للإرسال{% else %}قيد الانتظار{% endif %}</span>
           <button type="button" onclick="event.stopPropagation(); openInspector('cl');" class="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
             <i data-lucide="eye" class="w-4 h-4"></i> معاينة وتعديل رسالة التغطية
           </button>
         </div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-purple-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-purple-400 text-xs mb-1">
+            <span>🤖 محرك رسائل التغطية بالذكاء الاصطناعي</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            يولد خطابات تقديم احترافية ومخصصة لكل شاغر وظيفي باستخدام أحدث نماذج الذكاء الاصطناعي لزيادة نسبة الردود.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-purple-500/80 rotate-45"></div>
+        </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-            محاكي إرسال الإيميل التلقائي <span class="text-[11px] text-green-400 font-mono font-bold">(SMTP / Graph API Delivery)</span>
+            محاكي إرسال الإيميل التلقائي <span class="text-[11px] text-green-400 font-mono font-bold">(التسليم السحابي المباشر)</span>
           </h4>
-          <div class="text-xs text-slate-400">بروتوكول التقديم التلقائي • حمولة التقديم المباشرة للشركات</div>
+          <div class="text-xs text-slate-400">إرسال سحابي متعدد القنوات • حمولة التقديم المباشرة للشركات</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
           <span class="px-3 py-1 bg-green-500/15 text-green-400 text-xs font-bold rounded-lg border border-green-500/40">SPF/DKIM جاهز</span>
@@ -1194,18 +1413,56 @@
             <i data-lucide="mail" class="w-4 h-4"></i> معاينة الإيميل المرسل
           </button>
         </div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>⚡ محاكي الإرسال التلقائي للشركات</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            معاينة مباشرة للإيميل الفعلي، العنوان، وتواقيع التحقق SPF/DKIM ومرفق السيرة الذاتية كما ستصل لمسؤولي التوظيف.
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Action Buttons -->
   <div class="flex flex-wrap gap-4 justify-end pt-4 pb-10">
-    <button class="btn-secondary-cv px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer" onclick="saveDraft(event)" type="button">
-      <i data-lucide="save" class="w-5 h-5 text-amber-400"></i> حفظ كمسودة
-    </button>
-    <button class="btn-primary-cv px-8 py-3.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-slate-950 rounded-xl font-black text-sm transition-all shadow-[0_0_25px_rgba(0,240,255,0.4)] flex items-center gap-2 cursor-pointer scale-105" id="btnLaunch" onclick="launchCampaign(event)" type="button">
-      <i data-lucide="sparkles" class="w-5 h-5"></i> تحسين بالذكاء الاصطناعي وإطلاق الحملة فوراً 🚀
-    </button>
+    <div class="relative group inline-block">
+      <button class="btn-secondary-cv px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer" onclick="saveDraft(event)" type="button">
+        <i data-lucide="save" class="w-5 h-5 text-amber-400"></i> حفظ كمسودة
+      </button>
+
+      <!-- Luxury Tooltip -->
+      <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-amber-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+        <div class="flex items-center gap-1.5 font-bold text-amber-400 text-xs mb-1">
+          <span>💾 حفظ المسودة والملف الحالي</span>
+        </div>
+        <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+          يحفظ كافة التعديلات، المهارات، نطاق الرواتب، وخيارات التنسيق بأمان في قاعدة البيانات للعودة إليها لاحقاً.
+        </div>
+        <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-amber-500/80 rotate-45"></div>
+      </div>
+    </div>
+
+    <div class="relative group inline-block">
+      <button class="btn-primary-cv px-8 py-3.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-slate-950 rounded-xl font-black text-sm transition-all shadow-[0_0_25px_rgba(0,240,255,0.4)] flex items-center gap-2 cursor-pointer scale-105" id="btnLaunch" onclick="launchCampaign(event)" type="button">
+        <i data-lucide="sparkles" class="w-5 h-5"></i> تحسين بالذكاء الاصطناعي وإطلاق الحملة فوراً 🚀
+      </button>
+
+      <!-- Luxury Tooltip -->
+      <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 sm:left-1/2 sm:-translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+        <div class="flex items-center gap-1.5 font-bold text-cyan-400 text-xs mb-1">
+          <span>🚀 التحسين الفوري وإطلاق الحملة</span>
+        </div>
+        <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+          يفعّل خوارزميات التحسين لدمج الكلمات المفتاحية ومطابقة الشواغر وبدء حملة الإرسال التلقائي للشركات فوراً.
+        </div>
+        <div class="absolute -bottom-1.5 end-6 sm:left-1/2 sm:-translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+      </div>
+    </div>
   </div>
 </form>
 
@@ -2018,7 +2275,7 @@ async function processFile(file) {
 
   try {
     bar.style.width = '65%';
-    text.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 inline animate-spin"></i> 🤖 الذكاء الاصطناعي LLaMA 3.3 70B يحلل السيرة الذاتية... 65%';
+    text.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 inline animate-spin"></i> 🤖 محرك الذكاء الاصطناعي يحلل السيرة الذاتية... 65%';
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     const res = await fetch('/api/parse-cv-file', {
@@ -2060,23 +2317,16 @@ async function processFile(file) {
 }
 
 function cleanPhoneNumber(str) {
-  if (!str) return '+961 70 000 000';
+  if (!str) return '';
   let s = String(str).trim();
-  s = s.replace(/(?:\+?961[\s\-]*)+/gi, ' ').trim();
+  if (s.startsWith('+')) return s;
   let digits = s.replace(/\D/g, '');
-  if (digits.length === 8) {
-    return `+961 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
-  } else if (digits.length > 8) {
-    let last8 = digits.slice(-8);
-    let prefix = last8.slice(0, 2);
-    if (['70', '71', '76', '78', '79', '81', '03', '01', '04', '05', '06', '07', '08', '09'].includes(prefix)) {
-      return `+961 ${last8.slice(0, 2)} ${last8.slice(2, 5)} ${last8.slice(5)}`;
-    }
+  if (digits.length >= 7) {
+    if (digits.startsWith('961')) return `+${digits}`;
+    if (digits.length === 8) return `+961 ${digits}`;
     return `+${digits}`;
-  } else if (digits.length >= 6) {
-    return `+961 ${digits.slice(0, 2)} ${digits.slice(2)}`;
   }
-  return '+961 70 000 000';
+  return s;
 }
 
 function autoFillProfile(p, filename) {
@@ -2092,21 +2342,21 @@ function autoFillProfile(p, filename) {
       p.skills = p.skills.split(',').map(s => s.trim()).filter(Boolean);
     }
 
-    const nameVal = p.full_name || p.name || p.candidate_name || document.getElementById('fullNameInput')?.value || '';
+    const nameVal = p.full_name || p.name || p.candidate_name || (document.getElementById('fullNameInput') ? document.getElementById('fullNameInput').value : '') || '';
     if (document.getElementById('fullNameInput') && nameVal) document.getElementById('fullNameInput').value = nameVal;
     if (document.getElementById('hiddenProfileName') && nameVal) document.getElementById('hiddenProfileName').value = nameVal;
     if (document.getElementById('paperFullName')) document.getElementById('paperFullName').textContent = nameVal || 'ملف المرشح';
 
-    const emailVal = p.email || document.getElementById('emailInput')?.value || '';
+    const emailVal = p.email || (document.getElementById('emailInput') ? document.getElementById('emailInput').value : '') || '';
     if (document.getElementById('emailInput') && emailVal) document.getElementById('emailInput').value = emailVal;
 
-    const phoneVal = cleanPhoneNumber(p.phone || document.getElementById('phoneInput')?.value || '');
+    const phoneVal = cleanPhoneNumber(p.phone || (document.getElementById('phoneInput') ? document.getElementById('phoneInput').value : ''));
     if (document.getElementById('phoneInput') && phoneVal) document.getElementById('phoneInput').value = phoneVal;
 
-    const locVal = p.location || document.getElementById('locationInput')?.value || 'بيروت، لبنان';
+    const locVal = p.location || (document.getElementById('locationInput') ? document.getElementById('locationInput').value : '') || 'بيروت، لبنان';
     if (document.getElementById('locationInput') && locVal) document.getElementById('locationInput').value = locVal;
 
-    const liVal = p.linkedin || document.getElementById('linkedinInput')?.value || '';
+    const liVal = p.linkedin || (document.getElementById('linkedinInput') ? document.getElementById('linkedinInput').value : '') || '';
     if (document.getElementById('linkedinInput') && liVal) document.getElementById('linkedinInput').value = liVal;
 
     // Paper Header Contact
@@ -2121,7 +2371,7 @@ function autoFillProfile(p, filename) {
     // Target Titles
     const titles = (p.target_titles && Array.isArray(p.target_titles) && p.target_titles.length > 0)
       ? p.target_titles
-      : ['Senior Network Engineer', 'Network Security Specialist', 'IT Infrastructure Lead'];
+      : ['المسمى الوظيفي المستهدف', 'أخصائي محترف'];
 
     if (document.getElementById('targetTitlesInput')) {
       document.getElementById('targetTitlesInput').value = titles.join(', ');
@@ -2146,7 +2396,7 @@ function autoFillProfile(p, filename) {
     // Skills
     const skillsList = (p.skills && Array.isArray(p.skills) && p.skills.length > 0)
       ? p.skills
-      : ['Network Design', 'Cisco IOS', 'MikroTik', 'Fortinet', 'Firewalls', 'Routing & Switching', 'BGP', 'OSPF'];
+      : (p.skills && typeof p.skills === 'string' ? p.skills.split(',').map(s=>s.trim()).filter(Boolean) : []);
 
     if (document.getElementById('skillsInput')) {
       document.getElementById('skillsInput').value = skillsList.join(', ');
@@ -2206,7 +2456,7 @@ function autoFillProfile(p, filename) {
       cvBadge.textContent = "✅ محلل ومجهز بالكامل";
     }
     const cvDetails = document.getElementById('cvStatusDetails');
-    if (cvDetails) cvDetails.textContent = (filename || 'cv.pdf') + " • تم التحليل 100% بنماذج LLaMA 3.3 70B";
+    if (cvDetails) cvDetails.textContent = (filename || 'cv.pdf') + " • تم التحليل 100% بالذكاء الاصطناعي الفائق";
 
     const clBadge = document.getElementById('clStatusBadge');
     if (clBadge) {
@@ -2264,7 +2514,7 @@ async function triggerAIAutoFill(e) {
           full_name: prof.profile_name || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}",
           email: prof.email || "{{ user.email if user and user.email else '' }}",
           phone: prof.phone || "{{ user.phone if user and user.phone else '' }}",
-          location: prof.target_locations || 'بيروت، لبنان',
+          location: prof.target_locations || 'أوستن، تكساس، الولايات المتحدة',
           target_titles: prof.target_titles || 'Senior Network Engineer',
           skills: prof.skills || 'Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls'
         });
@@ -2304,7 +2554,7 @@ function removeFile(e) {
 
   document.getElementById('clStatusBadge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
   document.getElementById('clStatusBadge').textContent = "قيد الانتظار";
-  document.getElementById('clStatusDetails').textContent = "LLaMA 3.3 70B • سيتم التوليد الآلي فور رفع السيرة الذاتية";
+  document.getElementById('clStatusDetails').textContent = "الذكاء الاصطناعي • سيتم التوليد الآلي فور رفع السيرة الذاتية";
 }
 
 /* ── Skill & Title Tags ── */
@@ -2366,12 +2616,12 @@ async function showPreview(initialTab = 'cv') {
   ['tabContentEmail', 'tabContentCv', 'tabContentCl'].forEach(id => document.getElementById(id).classList.add('hidden'));
 
   const name = document.getElementById('fullNameInput').value || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else 'المرشح' }}";
-  const email = document.getElementById('emailInput').value || "{{ user.email if user and user.email else 'candidate@example.com' }}";
-  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || "{{ user.phone if user and user.phone else '+961 70 841 009' }}");
-  const skills = document.getElementById('hiddenSkills').value || 'Network Design, Cisco IOS, MikroTik, Fortinet, Fiber Optic, Security';
+  const email = document.getElementById('emailInput').value || "{{ user.email if user and user.email else '' }}";
+  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || "{{ user.phone if user and user.phone else '' }}");
+  const skills = document.getElementById('hiddenSkills').value || (document.getElementById('skillsInput') ? document.getElementById('skillsInput').value : '') || '';
   const location = document.getElementById('locationInput').value || 'بيروت، لبنان';
   const style = document.getElementById('hiddenCvStyle').value;
-  const targetTitle = document.getElementById('hiddenTargetTitles').value || 'Senior Network Engineer';
+  const targetTitle = document.getElementById('hiddenTargetTitles').value || (document.getElementById('targetTitlesInput') ? document.getElementById('targetTitlesInput').value : '') || 'أخصائي محترف';
 
   document.getElementById('emailFromAddr').textContent = (name.toLowerCase().replace(/\s+/g, '.') || 'candidate') + '@jobhuntpro-applier.com';
   document.getElementById('emailToAddr').textContent = 'hr-recruiting@innovate-tech.com';
@@ -2381,11 +2631,11 @@ async function showPreview(initialTab = 'cv') {
       name: name,
       email: email,
       phone: phone,
-      skills: skills.split(',').map(s => s.trim()),
-      experience_years: 15,
+      skills: skills ? skills.split(',').map(s => s.trim()).filter(Boolean) : [],
+      experience_years: parsedProfile && parsedProfile.experience_years ? parsedProfile.experience_years : 5,
       location: location,
-      target_titles: [targetTitle],
-      summary: document.getElementById('hiddenCvText').value || "خبير شبكات وأمن معلومات ذو خبرة 15+ سنة في تصميم وتنفيذ وتتبع البنى التحتية المتطورة للمؤسسات."
+      target_titles: targetTitle ? targetTitle.split(',').map(s => s.trim()).filter(Boolean) : ['أخصائي محترف'],
+      summary: document.getElementById('hiddenCvText').value || ""
     },
     email_style: style === 'إبداعي' ? 'friendly' : style === 'بسيط' ? 'confident' : 'professional',
     cv_style: style === 'إبداعي' ? 'modern' : style === 'بسيط' ? 'technical' : 'executive',
@@ -2503,7 +2753,7 @@ function copyCoverLetterText() {
 
 async function regenerateCoverLetter() {
   playSynthClick(1000);
-  showToast("🔄 جاري إعادة توليد رسالة التغطية بالذكاء الاصطناعي LLaMA 3.3 70B...");
+  showToast("🔄 جاري إعادة توليد رسالة التغطية بالذكاء الاصطناعي...");
 // 🕊️ ETHICAL HUMANITY MANIFESTO MODAL
 function openHumanityManifestoModal() {
   if (typeof playSynthClick === 'function') playSynthClick(700);
@@ -2781,29 +3031,75 @@ function launchCampaign(e) {
   }, 1200);
 }
 
-/* ── Flash Sale Countdown ── */
+/* ── Dynamic Flash Sale Loader ── */
 (function() {
-  var endTime = new Date();
-  endTime.setHours(endTime.getHours() + 2, endTime.getMinutes() + 34, endTime.getSeconds() + 12);
-  function updateTimer() {
-    var diff = endTime - new Date();
-    if (diff <= 0) {
-      document.getElementById('flashTimerUpload').textContent = 'انتهى العرض';
-      return;
-    }
-    var h = Math.floor(diff / (1000*60*60));
-    var m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    var s = Math.floor((diff % (1000*60)) / 1000);
-    document.getElementById('flashTimerUpload').textContent =
-      h.toString().padStart(2,'0') + 'h ' + m.toString().padStart(2,'0') + 'm ' + s.toString().padStart(2,'0') + 's';
-  }
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  const banner = document.getElementById('flashBannerUpload');
+  if (!banner) return;
+  fetch('/api/flash-sales')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success || !data.flash || !data.flash.active) {
+        banner.style.display = 'none';
+        return;
+      }
+      const fs = data.flash;
+      const titleEl = document.getElementById('flashTitleUpload');
+      const descEl = document.getElementById('flashDiscountUpload');
+      const timerEl = document.getElementById('flashTimerUpload');
+      if (titleEl) titleEl.textContent = fs.label || 'عرض ترويجي مباشر';
+      if (descEl) descEl.textContent = `خصم ترويجي بقيمة ${Math.round(fs.discount_pct)}% مطبق تلقائياً على كافة الباقات!`;
+      banner.style.display = 'flex';
+
+      let secondsLeft = fs.seconds_left || 0;
+      function updateTimer() {
+        if (secondsLeft <= 0) {
+          banner.style.display = 'none';
+          return;
+        }
+        const h = Math.floor(secondsLeft / 3600);
+        const m = Math.floor((secondsLeft % 3600) / 60);
+        const s = secondsLeft % 60;
+        if (timerEl) {
+          timerEl.textContent = `${h.toString().padStart(2,'0')}h ${m.toString().padStart(2,'0')}m ${s.toString().padStart(2,'0')}s`;
+        }
+        secondsLeft--;
+      }
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    })
+    .catch(function() {
+      banner.style.display = 'none';
+    });
 })();
 
 document.addEventListener("DOMContentLoaded", function() {
     updateHiddenSkills();
     updateHiddenTargetTitles();
+    
+    // Auto-activate document badges if profile data exists
+    const nameVal = document.getElementById('fullNameInput')?.value?.trim();
+    const skillsVal = document.getElementById('skillsInput')?.value?.trim();
+    if ((nameVal && nameVal !== 'Candidate' && nameVal !== 'User') || skillsVal) {
+        const cvBadge = document.getElementById('cvStatusBadge');
+        if (cvBadge) {
+            cvBadge.className = "px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)] text-xs font-bold rounded-lg";
+            cvBadge.textContent = "✅ جاهز ومفحوص";
+        }
+        const cvDetails = document.getElementById('cvStatusDetails');
+        if (cvDetails) {
+            cvDetails.textContent = "ملف السيرة الذاتية مرفق • جاهز ومطابق للـ ATS";
+        }
+        const clBadge = document.getElementById('clStatusBadge');
+        if (clBadge) {
+            clBadge.className = "px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)] text-xs font-bold rounded-lg";
+            clBadge.textContent = "✨ جاهز للإرسال";
+        }
+        const clDetails = document.getElementById('clStatusDetails');
+        if (clDetails) {
+            clDetails.textContent = "الذكاء الاصطناعي التكيفي • رسالة مخصصة وجاهزة للإرسال الآلي";
+        }
+    }
+
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }

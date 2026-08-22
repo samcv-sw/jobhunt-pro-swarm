@@ -677,9 +677,9 @@ def _call_local_heuristic_engine(
         is_arabic = bool(re.search(r"[\u0600-\u06FF]", prompt)) or "arabic" in combined or "bilingual" in combined
 
         import config
-        cand_name = getattr(config, "CANDIDATE_NAME", "Sam Salameh")
-        cand_email = getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
-        cand_phone = getattr(config, "CANDIDATE_PHONE", "+961 70 841 009")
+        cand_name = getattr(config, "CANDIDATE_NAME", "Candidate")
+        cand_email = getattr(config, "CANDIDATE_EMAIL", "candidate@example.com")
+        cand_phone = getattr(config, "CANDIDATE_PHONE", "+1 (555) 019-2834")
 
         english_text = (
             f"Dear Hiring Team at {company},\n\n"
@@ -941,9 +941,19 @@ class ProviderInstance:
             rate_limit_rpm=config.rate_limit_rpm
         )
 
-        timeout = 2.0 if os.environ.get("TESTING") == "1" else 8.0
-        self._client = httpx.AsyncClient(timeout=timeout)
+        self._client_instance = None
         logger.info(f"Provider {config.name.value} initialized with {len(self.key_ring.keys)} keys ({config.models[0]})")
+
+    @property
+    def _client(self) -> httpx.AsyncClient:
+        if self._client_instance is None or getattr(self._client_instance, "is_closed", False):
+            timeout = 2.0 if os.environ.get("TESTING") == "1" else 8.0
+            self._client_instance = httpx.AsyncClient(timeout=timeout)
+        return self._client_instance
+
+    @_client.setter
+    def _client(self, val):
+        self._client_instance = val
 
     def is_available(self) -> bool:
         """

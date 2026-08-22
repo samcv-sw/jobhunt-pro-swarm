@@ -17,7 +17,7 @@ def emperor_dashboard_page(request: Request):
 
     with get_db() as conn:
         user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (admin_id, admin_id)).fetchone()
-        user = dict(user_row) if user_row else {"user_id": admin_id, "name": "Admin", "email": "admin@jobhunt-pro.com", "user_type": "admin", "wallet_balance": 10000.0}
+        user = dict(user_row) if user_row else {"user_id": admin_id, "name": "Admin", "email": "samatou683@gmail.com", "user_type": "admin", "wallet_balance": 10000.0}
 
         try:
             total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]

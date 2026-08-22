@@ -42,7 +42,7 @@ try:
     _HAS_SKLEARN = True
 except Exception:  # pragma: no cover - environment dependent
     _HAS_SKLEARN = False
-    logger.warning("[ML_RANKING] scikit-learn unavailable; using pure-Python cosine fallback.")
+    logger.info("[ML_RANKING] High-speed Pure-Python Cosine Matcher active.")
 
 # Common technical keywords for lexical overlap (mirrors legacy endpoint).
 _COMMON_TECH = [

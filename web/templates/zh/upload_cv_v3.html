@@ -198,8 +198,8 @@
     <div class="p-6 overflow-y-auto space-y-5 custom-scrollbar text-slate-300 flex-1">
       <div id="modalLoading" class="text-center py-16 flex flex-col items-center gap-3">
         <i data-lucide="loader-2" class="w-10 h-10 text-cyan-400 animate-spin"></i>
-        <span class="text-sm font-bold text-slate-300">Generating LLaMA 3.3 70B AI Cover Letter & Email Dispatch Preview...</span>
-        <span class="text-xs text-slate-500">Formulating ATS-optimized layout, cover letter hook & SMTP email payload</span>
+        <span class="text-sm font-bold text-slate-300">Generating AI Cover Letter & Email Dispatch Preview...</span>
+        <span class="text-xs text-slate-500">Formulating ATS-optimized layout, cover letter hook & recruiter payload</span>
       </div>
 
       <!-- Tab 1: Email Dispatch Simulator -->
@@ -304,9 +304,9 @@
               <div class="text-sm font-bold text-blue-700 tracking-wide mt-1 uppercase" id="paperTargetTitle">Senior Network & Security Engineer</div>
             </div>
             <div class="text-end text-[11px] text-slate-600 font-medium space-y-0.5" id="paperContactDetails">
-              <div>{{ user.location if user and user.location else 'Beirut, Lebanon' }} • {{ user.phone if user and user.phone else '+961 70 841 009' }}</div>
-              <div>{{ user.email if user and user.email else 'sam.dev1@hotmail.com' }}</div>
-              <div>{{ user.linkedin if user and user.linkedin else 'linkedin.com/in/sam-salameh' }}</div>
+              <div>{{ user.location if user and user.location else 'Austin, TX, USA' }} • {{ user.phone if user and user.phone else '+1 (555) 019-2834' }}</div>
+              <div>{{ user.email if user and user.email else 'candidate@example.com' }}</div>
+              <div>{{ user.linkedin if user and user.linkedin else 'linkedin.com/in/candidate-profile' }}</div>
             </div>
           </div>
 
@@ -333,7 +333,7 @@
                   <span>Senior Network Infrastructure & Security Lead</span>
                   <span class="text-blue-600 font-mono">2016 - Present</span>
                 </div>
-                <div class="text-slate-600 font-medium italic mb-1">Global Tech Solutions • Beirut, Lebanon</div>
+                <div class="text-slate-600 font-medium italic mb-1">Global Tech Solutions • Austin, TX, USA</div>
                 <ul class="list-disc list-inside text-slate-700 space-y-1 text-[11px]">
                   <li>Architected enterprise Cisco & Fortinet firewall clusters ensuring 99.999% network uptime.</li>
                   <li>Configured MikroTik routing protocols (BGP, OSPF) handling high-throughput backbone connections.</li>
@@ -367,7 +367,7 @@
         <div class="flex justify-between items-center bg-slate-950 p-3.5 border border-slate-800 rounded-xl text-xs flex-wrap gap-2">
           <div class="flex items-center gap-2">
             <span class="text-slate-400 flex items-center gap-1">
-              <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i> LLaMA 3.3 70B Customized Cover Letter
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-400"></i> AI Customized Cover Letter
             </span>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
@@ -407,7 +407,7 @@
 </div>
 
 <form id="cvForm" method="POST" action="/upload-cv" enctype="multipart/form-data" class="relative space-y-6 max-w-6xl mx-auto">
-  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length  dir="auto"> 0 else '' }}" dir="auto">
+  <input type="hidden" name="profile_id" id="hiddenProfileId" value="{{ profiles[0].id if profiles and profiles|length > 0 else '' }}" dir="auto">
   <input type="hidden" name="cv_text" id="hiddenCvText" value="" dir="auto">
   <input type="hidden" name="skills" id="hiddenSkills" value="" dir="auto">
   <input type="hidden" name="target_locations" id="hiddenTarget工作地点s" value="Lebanon, UAE, Remote" dir="auto">
@@ -437,50 +437,104 @@
       <p class="text-sm text-slate-400 mt-1">Let our AI analyze your resume and craft the perfect job applications</p>
     </div>
     <div class="flex gap-3 flex-wrap items-center">
-      <button type="button" onclick="toggleSoundFx()" id="btnSoundToggle" class="px-3 py-2 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
-        <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> Sound FX: ON
-      </button>
-      <button class="px-4 py-2.5 bg-slate-950/90 hover:bg-slate-900 text-[#00f0ff] border border-[#00f0ff]/80 rounded-xl text-xs font-black tracking-wider transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(0,240,255,0.25)] hover:shadow-[0_0_20px_rgba(0,240,255,0.45)] cursor-pointer" onclick="openInspector('cv')" type="button">
-        📄 VIEW MY CV DOCUMENT
-      </button>
-      <button class="px-4 py-2.5 bg-slate-950/90 hover:bg-slate-900 text-[#00f0ff] border border-[#00f0ff]/80 rounded-xl text-xs font-black tracking-wider transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(0,240,255,0.25)] hover:shadow-[0_0_20px_rgba(0,240,255,0.45)] cursor-pointer" onclick="triggerAIAutoFill(event)" type="button" id="btnAutoFill">
-        ✨ AUTO-FILL MY PROFILE WITH AI
-      </button>
+      <!-- Sound FX Toggle with Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button type="button" onclick="toggleSoundFx()" id="btnSoundToggle" class="px-3 py-2 bg-slate-950/80 hover:bg-slate-900 text-slate-400 hover:text-white border border-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i> 音效反馈: 开启
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>赛博朋克交互音效</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            控制系统按钮点击、AI 解析触发与简历保存时的动态音效反馈。
+          </p>
+          <div class="absolute -bottom-1.5 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- View CV Document with Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button class="px-4 py-2.5 bg-slate-950/90 hover:bg-slate-900 text-[#00f0ff] border border-[#00f0ff]/80 rounded-xl text-xs font-black tracking-wider transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(0,240,255,0.25)] hover:shadow-[0_0_20px_rgba(0,240,255,0.45)] cursor-pointer" onclick="openInspector('cv')" type="button">
+          📄 在线预览简历文档
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="file-text" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>简历文档在线预览器</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            在线可视化检查您上传的 PDF/DOCX 简历排版、段落美观度与 ATS 结构标签。
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Auto-Fill Profile with Tooltip -->
+      <div class="relative group inline-block z-20 hover:z-50">
+        <button class="px-4 py-2.5 bg-slate-950/90 hover:bg-slate-900 text-[#00f0ff] border border-[#00f0ff]/80 rounded-xl text-xs font-black tracking-wider transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(0,240,255,0.25)] hover:shadow-[0_0_20px_rgba(0,240,255,0.45)] cursor-pointer" onclick="triggerAIAutoFill(event)" type="button" id="btnAutoFill">
+          ✨ AI 智能一键解析填表
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2.5 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>AI 深度神经网络提取</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            深度扫描简历文档，一键智能提取工作年限、核心技能、语言与联系方式到表单。
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Live Swarm Telemetry & System 状态 Bar -->
-  <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 flex flex-wrap justify-between items-center gap-3 text-xs">
+  <!-- Live Swarm Telemetry & System 状态 Bar (Hidden from public view) -->
+  <div class="hidden bg-slate-950/90 border border-slate-800 rounded-xl px-4 py-2.5 flex-wrap justify-between items-center gap-3 text-xs" style="display: none !important;">
     <div class="flex items-center gap-4">
       <span class="flex items-center gap-1.5 text-green-400 font-bold">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> SMTP Swarm: 991/1000 Accounts Active
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> 全球多通道智能发信架构: 运行中
       </span>
       <span class="text-slate-500">|</span>
       <span class="text-slate-400 flex items-center gap-1">
-        <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> Aegis Anti-Ban Shield: Active
+        <i data-lucide="shield" class="w-3.5 h-3.5 text-cyan-400"></i> 送达率智能防护盾: 运行中
       </span>
     </div>
     <div class="flex items-center gap-4 text-slate-400">
       <span class="flex items-center gap-1">
-        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Latency: 340ms (Groq LLaMA 3.3 70B)
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> 高速 AI 引擎: 在线
       </span>
       <span class="text-slate-500">|</span>
-      <span class="text-purple-400 font-bold">Capacity: 10,000 Apps/Day</span>
+      <span class="text-purple-400 font-bold">企业级云端投递能力</span>
     </div>
   </div>
 
   <!-- Multi-Profile Tab Switcher (IMP-PROFILES-V3) -->
-  <div class="bg-slate-900/90 backdrop-blur-[12px] border border-cyan-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+  <div class="bg-slate-900/90 backdrop-blur-[12px] border border-cyan-500/30 rounded-2xl p-4 shadow-[0_0_20px_rgba(0,240,255,0.1)] overflow-visible">
     <div class="flex items-center justify-between gap-3 mb-3 border-b border-slate-800 pb-2.5">
       <div class="flex items-center gap-2">
         <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i>
-        <h3 class="text-sm font-black text-white">Target Job Profiles (CV Profiles Switcher)</h3>
+        <h3 class="text-sm font-black text-white">目标求职档案切换 (CV Profiles Switcher)</h3>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-xs text-slate-400 hidden sm:inline">Select target profile to customize application campaigns with 1-click</span>
-        <button type="button" onclick="deleteActiveProfileAsync()" id="btnDeleteProfile" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Delete Profile
-        </button>
+        <span class="text-xs text-slate-400 hidden sm:inline">选择目标档案以一键自定义针对特定职位的投递活动</span>
+        <!-- Delete Profile with Tooltip -->
+        <div class="relative group inline-block">
+          <button type="button" onclick="deleteActiveProfileAsync()" id="btnDeleteProfile" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 删除档案
+          </button>
+          <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-red-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start">
+            <div class="flex items-center gap-1.5 text-red-400 font-black text-xs mb-1">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-400"></i>
+              <span>删除当前职业档案</span>
+            </div>
+            <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+              永久移除此定制的求职档案及其关联的投递偏好设置。
+            </p>
+            <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-red-500/80 rotate-45"></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar" id="profileTabsContainer">
@@ -488,28 +542,70 @@
         {% for p in profiles %}
         <button type="button" onclick="switchActiveProfile('{{ p.id }}', '{{ p.profile_name|e }}', '{{ p.target_titles|e }}', '{{ p.skills|e }}', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer {{ 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(0,240,255,0.2)]' if loop.first else 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white' }}" data-prof-id="{{ p.id }}">
           <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
-          <span>{{ p.profile_name or 'Profile ' ~ loop.index }}</span>
+          <span>{{ p.profile_name or '职业档案 ' ~ loop.index }}</span>
         </button>
         {% endfor %}
       {% else %}
-        <button type="button" onclick="switchActiveProfile('default_1', 'Network & Security Engineer', 'Network Engineer, Security Specialist', 'Cisco, Python, Cybersecurity', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(0,240,255,0.2)] text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
+        <button type="button" onclick="switchActiveProfile('default_1', '网络与网络安全工程师', 'Network Engineer, Security Specialist', 'Cisco, Python, Cybersecurity', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-cyan-500/20 text-cyan-300 border-cyan-500/50 shadow-[0_0_12px_rgba(0,240,255,0.2)] text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
           <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
-          <span>Primary Profile: Network & Cyber Security</span>
+          <span>主档案：网络与网络安全</span>
         </button>
-        <button type="button" onclick="switchActiveProfile('default_2', 'AI & Full-Stack Developer', 'AI Engineer, Full Stack Developer', 'Python, FastAPI, React, PyTorch', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
+        <button type="button" onclick="switchActiveProfile('default_2', 'AI 全栈软件工程师', 'AI Engineer, Full Stack Developer', 'Python, FastAPI, React, PyTorch', this)" class="profile-tab-btn px-4 py-2.5 rounded-xl border bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer" data-prof-id="">
           <i data-lucide="code-2" class="w-4 h-4 text-purple-400"></i>
-          <span>Secondary Profile: AI Software Engineering</span>
+          <span>副档案：AI 软件工程与开发</span>
         </button>
       {% endif %}
-      <button type="button" onclick="createNewProfileModal()" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ms-auto">
-        <i data-lucide="plus-circle" class="w-4 h-4"></i> + Create New Profile
-      </button>
-      <button type="button" onclick="duplicateActiveProfile()" class="px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i data-lucide="copy" class="w-4 h-4 text-blue-400"></i> Duplicate Profile
-      </button>
-      <button type="button" onclick="saveCurrentProfileAsync()" class="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-        <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> Save Profile
-      </button>
+
+      <!-- Create New Profile with Tooltip -->
+      <div class="relative group inline-block ms-auto">
+        <button type="button" onclick="createNewProfileModal()" class="px-3 py-2.5 bg-slate-800/80 hover:bg-slate-800 text-cyan-400 border border-cyan-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> + 创建新档案
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-cyan-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start">
+          <div class="flex items-center gap-1.5 text-cyan-300 font-black text-xs mb-1">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>创建全新职业档案</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            创建独立的技能与简历画像，针对不同行业或职级进行精准分流投递。
+          </p>
+          <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Duplicate Profile with Tooltip -->
+      <div class="relative group inline-block">
+        <button type="button" onclick="duplicateActiveProfile()" class="px-3 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="copy" class="w-4 h-4 text-blue-400"></i> 复制档案
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-blue-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start">
+          <div class="flex items-center gap-1.5 text-blue-300 font-black text-xs mb-1">
+            <i data-lucide="copy" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>克隆并复制档案</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            生成完全相同的副本，方便快速微调适配阿联酋或沙特等特定地区。
+          </p>
+          <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-950 border-b border-e border-blue-500/80 rotate-45"></div>
+        </div>
+      </div>
+
+      <!-- Save Profile with Tooltip -->
+      <div class="relative group inline-block">
+        <button type="button" onclick="saveCurrentProfileAsync()" class="px-3 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+          <i data-lucide="save" class="w-4 h-4 text-emerald-400"></i> 保存档案配置
+        </button>
+        <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 max-w-[85vw] p-3 bg-slate-950 border border-emerald-500/80 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.95)] text-start">
+          <div class="flex items-center gap-1.5 text-emerald-300 font-black text-xs mb-1">
+            <i data-lucide="save" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>保存档案配置</span>
+          </div>
+          <p class="text-slate-100 text-[11px] leading-relaxed font-normal">
+            将更新的技能关键词、工作经验及目标岗位实时保存至云端账户。
+          </p>
+          <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -546,14 +642,14 @@
     </div>
   </div>
 
-  <!-- Flash Sale Banner -->
-  <div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload">
+  <!-- Flash Sale Banner (Dynamic Only) -->
+  <div class="bg-gradient-to-r from-red-500/20 to-red-500/5 border border-red-500/30 rounded-xl p-4 flex flex-wrap items-center gap-4 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.1)]" id="flashBannerUpload" style="display:none;">
     <div class="flex items-center gap-2">
       <i data-lucide="zap" class="w-5 h-5 text-red-400"></i>
-      <span class="text-sm font-bold text-red-400">Flash Sale Active</span>
+      <span class="text-sm font-bold text-red-400" id="flashTitleUpload">限时特惠活动</span>
     </div>
-    <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">02h 34m 12s</span>
-    <span class="text-sm text-slate-300">30% OFF all CV optimization — Use code: <strong class="text-red-400 bg-red-500/10 px-2 py-0.5 rounded ms-1 tracking-wider">CVPRO30</strong></span>
+    <span class="font-mono text-xl font-black text-red-500" id="flashTimerUpload">--:--:--</span>
+    <span class="text-sm text-slate-300" id="flashDiscountUpload">限时折扣将自动应用于所有投递套餐！</span>
   </div>
 
   <!-- 工作原理 -->
@@ -562,26 +658,64 @@
       <i data-lucide="rocket" class="w-4 h-4 text-cyan-400 lucide-dir-aware"></i> 工作原理
     </h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+      <!-- Step 1 with Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-blue-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-blue-500/50 rounded-2xl shadow-2xl shadow-blue-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-blue-300 font-extrabold text-xs mb-1">
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-blue-400"></i>
+            <span>第一步：上传简历文件</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            支持上传 PDF、DOCX 或 TXT 格式简历，自动保存多版本针对不同岗位。
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-blue-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="upload" class="w-6 h-6 text-blue-400"></i>
         </div>
-        <div class="font-bold text-white text-sm mb-1">1. Upload CV</div>
-        <div class="text-xs text-slate-400 leading-relaxed">Upload your resume in PDF, DOCX, or TXT format</div>
+        <div class="font-bold text-white text-sm mb-1">1. 上传简历文件</div>
+        <div class="text-xs text-slate-400 leading-relaxed">上传您的 PDF、DOCX 或 TXT 简历</div>
       </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+
+      <!-- Step 2 with Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-green-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-green-500/50 rounded-2xl shadow-2xl shadow-green-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-green-300 font-extrabold text-xs mb-1">
+            <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-green-400"></i>
+            <span>第二步：AI 神经网络分析</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            智能提取核心技能、分析关键词权重，并精准对标海湾企业招聘要求。
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-green-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="brain-circuit" class="w-6 h-6 text-green-400"></i>
         </div>
-        <div class="font-bold text-white text-sm mb-1">2. AI Analysis</div>
-        <div class="text-xs text-slate-400 leading-relaxed">Our AI extracts skills, experience, and optimizes content</div>
+        <div class="font-bold text-white text-sm mb-1">2. AI 智能深度分析</div>
+        <div class="text-xs text-slate-400 leading-relaxed">AI 提取技能经历并自动优化内容</div>
       </div>
-      <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-slate-600 transition-all hover:-translate-y-1 group">
+
+      <!-- Step 3 with Tooltip -->
+      <div class="relative group bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 text-center hover:border-purple-400/50 transition-all hover:-translate-y-1 overflow-visible">
+        <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-2xl shadow-2xl shadow-purple-950/90 text-start">
+          <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+            <i data-lucide="rocket" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>第三步：启动全自动投递</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            锁定目标国家与行业，全天候 24/7 自动匹配投递并发送定制求职信。
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+        </div>
+
         <div class="w-12 h-12 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
           <i data-lucide="rocket" class="w-6 h-6 text-purple-400 lucide-dir-aware"></i>
         </div>
-        <div class="font-bold text-white text-sm mb-1">3. Launch Campaign</div>
-        <div class="text-xs text-slate-400 leading-relaxed">Start automated job applications with AI-crafted cover letters</div>
+        <div class="font-bold text-white text-sm mb-1">3. 启动求职活动</div>
+        <div class="text-xs text-slate-400 leading-relaxed">全自动投递职位并附带 AI 定制求职信</div>
       </div>
     </div>
   </div>
@@ -683,11 +817,11 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Phone</label>
-        <input dir="auto" type="tel" id="phoneInput" placeholder="+961 70 000 000" value="{{ user.phone if user and user.phone else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+        <input dir="auto" type="tel" id="phoneInput" placeholder="+1 (555) 019-2834" value="{{ user.phone if user and user.phone else '' }}" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
       <div class="space-y-1.5">
         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">工作地点</label>
-        <input dir="auto" type="text" id="locationInput" placeholder="e.g. Beirut, Lebanon" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
+        <input dir="auto" type="text" id="locationInput" placeholder="例如：Austin, TX, USA" class="w-full bg-slate-950 border border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 outline-none transition-all" dir="auto">
       </div>
     </div>
     <div class="space-y-1.5">
@@ -1047,18 +1181,53 @@
         <div class="text-sm font-bold text-white mb-1">Lebanon</div>
         <div class="text-xl font-black text-green-400 mb-1">$30k-$50k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Entry to Mid-level</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇱🇧 区域基础薪资档 ($30k - $50k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            针对初中级区域性职位，享有高回复率与快速面试安排。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$50k-$80k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇦🇪</div>
         <div class="text-sm font-bold text-white mb-1">UAE</div>
         <div class="text-xl font-black text-green-400 mb-1">$50k-$80k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Mid to Senior</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇦🇪 海湾与阿联酋高薪档 ($50k - $80k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            专为阿联酋与海湾地区高薪企业职位定制，免税薪酬与签证支持。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="salary-preset relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-green-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectSalary(this, '$80k-$150k')">
         <div class="text-3xl mb-1 group-hover:scale-110 transition-transform">🇺🇸</div>
         <div class="text-sm font-bold text-white mb-1">USA / Remote</div>
         <div class="text-xl font-black text-green-400 mb-1">$80k-$150k</div>
         <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider">Senior+</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>🇺🇸 全球与美国远程顶级档 ($80k - $150k)</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            针对美国及全球远程高薪职位，为资深架构师及技术主管提供顶尖美元待遇。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
+        </div>
       </div>
     </div>
     <div class="space-y-1.5">
@@ -1080,16 +1249,51 @@
         <i data-lucide="file-text" class="w-8 h-8 text-cyan-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Professional</div>
         <div class="text-xs text-slate-400">Clean, 100% ATS-friendly format</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-cyan-400 text-xs mb-1">
+            <span>📄 100% ATS 认证专业版式</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            单栏 ATS 优化排版，确保 100% 通过 Workday、Greenhouse、Taleo 等招聘系统无错解析。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Creative')">
         <i data-lucide="paint-brush" class="w-8 h-8 text-pink-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Creative</div>
         <div class="text-xs text-slate-400">Modern design with vibrant colors</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-pink-400 text-xs mb-1">
+            <span>🎨 现代动态创意版式</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            精致科技感视觉与色彩设计，吸引初创企业及科技大厂招聘主管关注。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+        </div>
       </div>
+
       <div class="style-card relative cursor-pointer bg-slate-950/80 border-2 border-slate-800 hover:border-pink-500/50 rounded-xl p-5 text-center transition-all group" onclick="selectStyle(this, 'Minimal')">
         <i data-lucide="layout-template" class="w-8 h-8 text-slate-400 mx-auto mb-2 group-hover:scale-110 transition-transform"></i>
         <div class="text-sm font-bold text-white mb-1">Minimal</div>
         <div class="text-xs text-slate-400">Simple, text-focused layout</div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-slate-300 text-xs mb-1">
+            <span>🔲 极简纯文本聚焦版式</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            高密度精炼排版，剔除冗余修饰，专注于量化业绩与专业技能展示。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1100,42 +1304,65 @@
       <i data-lucide="files" class="w-5 h-5 text-blue-400"></i> 📄 Document 状态 & Live Inspector
     </h3>
     <div class="space-y-3">
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cv状态Card" onclick="openInspector('cv')">
+      {% set has_cv = (user_profiles and user_profiles|length > 0) or (user and user.get('cv_text')) or (profile and profile.get('name')) %}
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-cyan-500/50 transition-all" id="cvStatusCard" onclick="openInspector('cv')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
             Resume / CV <span class="text-[11px] text-cyan-400 font-mono font-bold">(Click to view paper CV)</span>
           </h4>
-          <div class="text-xs text-slate-400" id="cv状态Details">PDF • Last updated: Pending Upload</div>
+          <div class="text-xs text-slate-400" id="cvStatusDetails">{% if has_cv %}PDF 已附加 • ATS 深度优化已就绪{% else %}PDF • 等待上传解析{% endif %}</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
-          <span id="cv状态Badge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">Pending</span>
+          <span id="cvStatusBadge" class="px-3 py-1 {% if has_cv %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %} text-xs font-bold rounded-lg">{% if has_cv %}✅ 状态就绪{% else %}等待中{% endif %}</span>
           <button type="button" onclick="event.stopPropagation(); openInspector('cv');" class="px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
             <i data-lucide="eye" class="w-4 h-4"></i> View / Edit ATS CV
           </button>
         </div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-cyan-400 text-xs mb-1">
+            <span>📄 实时 ATS 简历查看器</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            实时查看与编辑解析后的简历结构，调整版式设计并生成打印级标准 PDF。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/80 rotate-45"></div>
+        </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="cl状态Card" onclick="openInspector('cl')">
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-purple-500/50 transition-all" id="clStatusCard" onclick="openInspector('cl')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-            Cover Letter Engine <span class="text-[11px] text-purple-400 font-mono font-bold">(LLaMA 3.3 70B AI)</span>
+            Cover Letter Engine <span class="text-[11px] text-purple-400 font-mono font-bold">(Adaptive AI)</span>
           </h4>
-          <div class="text-xs text-slate-400" id="cl状态Details">LLaMA 3.3 70B AI • Will auto-generate upon upload</div>
+          <div class="text-xs text-slate-400" id="clStatusDetails">{% if has_cv %}自适应 AI 求职信 • 定制完成并准备自动投递{% else %}Adaptive AI Engine • Will auto-generate upon upload{% endif %}</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
-          <span id="cl状态Badge" class="px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700">Pending</span>
+          <span id="clStatusBadge" class="px-3 py-1 {% if has_cv %}bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %} text-xs font-bold rounded-lg">{% if has_cv %}✨ 已就绪{% else %}等待中{% endif %}</span>
           <button type="button" onclick="event.stopPropagation(); openInspector('cl');" class="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 border border-purple-500/40 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm">
             <i data-lucide="eye" class="w-4 h-4"></i> View / Edit Cover Letter
           </button>
         </div>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-purple-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-purple-400 text-xs mb-1">
+            <span>🤖 AI 自适应求职信生成引擎</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            利用前沿自适应模型根据每个职位要求量身定制个性化自荐信，大幅提升面试回复率。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-purple-500/80 rotate-45"></div>
+        </div>
       </div>
       
-      <div class="flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
+      <div class="relative group flex flex-wrap justify-between items-center bg-slate-950/80 border border-slate-800 rounded-xl p-4 gap-4 cursor-pointer hover:border-green-500/50 transition-all" onclick="openInspector('email')">
         <div>
           <h4 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
-            Email Dispatch Simulator <span class="text-[11px] text-green-400 font-mono font-bold">(SMTP / Graph API)</span>
+            Email Dispatch Simulator <span class="text-[11px] text-green-400 font-mono font-bold">(Direct Cloud Delivery)</span>
           </h4>
-          <div class="text-xs text-slate-400">Automated SMTP / Graph API • Live Recruiter Payload</div>
+          <div class="text-xs text-slate-400">Automated Multi-Channel Dispatch • Live Recruiter Payload</div>
         </div>
         <div class="flex items-center gap-3 ms-auto">
           <span class="px-3 py-1 bg-green-500/15 text-green-400 text-xs font-bold rounded-lg border border-green-500/40">SPF/DKIM Ready</span>
@@ -1143,11 +1370,16 @@
             <i data-lucide="mail" class="w-4 h-4"></i> View Sent Email
           </button>
         </div>
-      </div>
-    </div>
-  </div>
-            <i data-lucide="mail" class="w-3.5 h-3.5"></i> Preview Email Dispatch
-          </button>
+
+        <!-- Luxury Tooltip -->
+        <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-green-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+          <div class="flex items-center gap-1.5 font-bold text-green-400 text-xs mb-1">
+            <span>⚡ 实时求职邮件投递模拟器</span>
+          </div>
+          <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+            实时预览投递给招聘人员的邮件正文、主题行、SPF/DKIM 认证签名以及简历附件。
+          </div>
+          <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-green-500/80 rotate-45"></div>
         </div>
       </div>
     </div>
@@ -1155,12 +1387,39 @@
 
   <!-- Action Buttons -->
   <div class="flex flex-wrap gap-3 justify-end pt-4 pb-10">
-    <button class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer" onclick="saveDraft(event)" type="button">
-      <i data-lucide="save" class="w-4 h-4"></i> Save Draft
-    </button>
-    <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-sm font-black tracking-wide shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all flex items-center gap-2 border border-green-400/50 cursor-pointer" id="btnLaunch" onclick="launchCampaign(event)" type="button">
-      <i data-lucide="sparkles" class="w-4 h-4"></i> AI OPTIMIZE & LAUNCH
-    </button>
+    <div class="relative group inline-block">
+      <button class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer" onclick="saveDraft(event)" type="button">
+        <i data-lucide="save" class="w-4 h-4 text-amber-400"></i> Save Draft
+      </button>
+
+      <!-- Luxury Tooltip -->
+      <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-amber-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+        <div class="flex items-center gap-1.5 font-bold text-amber-400 text-xs mb-1">
+          <span>💾 保存草稿与设置</span>
+        </div>
+        <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+          安全地将当前联系方式、技能标签、期望薪资与简历样式保存至云端账户。
+        </div>
+        <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-amber-500/80 rotate-45"></div>
+      </div>
+    </div>
+
+    <div class="relative group inline-block">
+      <button class="px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white rounded-xl text-sm font-black tracking-wide shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all flex items-center gap-2 border border-green-400/50 cursor-pointer" id="btnLaunch" onclick="launchCampaign(event)" type="button">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> AI OPTIMIZE & LAUNCH
+      </button>
+
+      <!-- Luxury Tooltip -->
+      <div class="group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 sm:left-1/2 sm:-translate-x-1/2 w-72 sm:w-80 p-3 bg-slate-950 text-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 z-[9999999] opacity-0 invisible text-start font-normal" dir="auto">
+        <div class="flex items-center gap-1.5 font-bold text-emerald-400 text-xs mb-1">
+          <span>✨ AI 深度优化与一键启航</span>
+        </div>
+        <div class="text-[11px] text-slate-200 leading-relaxed font-sans">
+          执行 AI ATS 关键词深度优化，验证投递通道，并自动启动求职申请流。
+        </div>
+        <div class="absolute -bottom-1.5 end-6 sm:left-1/2 sm:-translate-x-1/2 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+      </div>
+    </div>
   </div>
 </form>
 
@@ -1975,7 +2234,7 @@ async function processFile(file) {
 
   try {
     bar.style.width = '60%';
-    text.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 inline animate-spin"></i> 🤖 LLaMA 3.3 70B AI Analyzing Resume... 60%';
+    text.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 inline animate-spin"></i> 🤖 AI Engine Analyzing Resume... 60%';
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     const res = await fetch('/api/parse-cv-file', {
@@ -2017,23 +2276,16 @@ async function processFile(file) {
 }
 
 function cleanPhoneNumber(str) {
-  if (!str) return '+1 (555) 019-2834';
+  if (!str) return '';
   let s = String(str).trim();
-  s = s.replace(/(?:\+?961[\s\-]*)+/gi, ' ').trim();
+  if (s.startsWith('+')) return s;
   let digits = s.replace(/\D/g, '');
-  if (digits.length === 8) {
-    return `+961 ${digits.slice(0, 2)} ${digits.slice(2, 5)} ${digits.slice(5)}`;
-  } else if (digits.length > 8) {
-    let last8 = digits.slice(-8);
-    let prefix = last8.slice(0, 2);
-    if (['70', '71', '76', '78', '79', '81', '03', '01', '04', '05', '06', '07', '08', '09'].includes(prefix)) {
-      return `+961 ${last8.slice(0, 2)} ${last8.slice(2, 5)} ${last8.slice(5)}`;
-    }
+  if (digits.length >= 7) {
+    if (digits.startsWith('961')) return `+${digits}`;
+    if (digits.length === 8) return `+961 ${digits}`;
     return `+${digits}`;
-  } else if (digits.length >= 6) {
-    return `+961 ${digits.slice(0, 2)} ${digits.slice(2)}`;
   }
-  return '+1 (555) 019-2834';
+  return s;
 }
 
 function autoFillProfile(p, filename) {
@@ -2078,7 +2330,7 @@ function autoFillProfile(p, filename) {
     // Target Titles
     const titles = (p.target_titles && Array.isArray(p.target_titles) && p.target_titles.length > 0)
       ? p.target_titles
-      : ['Senior Network Engineer', 'Network Security Specialist', 'IT Infrastructure Lead'];
+      : ['Target Job Title', 'Experienced Professional'];
 
     if (document.getElementById('targetTitlesInput')) {
       document.getElementById('targetTitlesInput').value = titles.join(', ');
@@ -2103,7 +2355,7 @@ function autoFillProfile(p, filename) {
     // Skills
     const skillsList = (p.skills && Array.isArray(p.skills) && p.skills.length > 0)
       ? p.skills
-      : ['Network Design', 'Cisco IOS', 'MikroTik', 'Fortinet', 'Firewalls', 'Routing & Switching', 'BGP', 'OSPF'];
+      : (p.skills && typeof p.skills === 'string' ? p.skills.split(',').map(s=>s.trim()).filter(Boolean) : []);
 
     if (document.getElementById('skillsInput')) {
       document.getElementById('skillsInput').value = skillsList.join(', ');
@@ -2135,6 +2387,23 @@ function autoFillProfile(p, filename) {
     }
     const attCv = document.getElementById('attachedCvName');
     if (attCv) attCv.textContent = filename || 'cv.pdf';
+
+    // Status badges
+    const cvBadge = document.getElementById('cvStatusBadge');
+    if (cvBadge) {
+      cvBadge.className = "px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-lg border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+      cvBadge.textContent = "✅ 状态就绪";
+    }
+    const cvDetails = document.getElementById('cvStatusDetails');
+    if (cvDetails) cvDetails.textContent = (filename || 'cv.pdf') + " • 100% 解析完成 & ATS 已就绪";
+
+    const clBadge = document.getElementById('clStatusBadge');
+    if (clBadge) {
+      clBadge.className = "px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-lg border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]";
+      clBadge.textContent = "✨ 已就绪";
+    }
+    const clDetails = document.getElementById('clStatusDetails');
+    if (clDetails) clDetails.textContent = "自适应 AI 求职信 • 定制完成并准备自动投递";
 
     showToast("✨ Resume parsed & profile auto-filled by AI!");
   } catch (err) {
@@ -2181,7 +2450,7 @@ async function triggerAIAutoFill(e) {
           full_name: prof.profile_name || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else '' }}",
           email: prof.email || "{{ user.email if user and user.email else '' }}",
           phone: prof.phone || "{{ user.phone if user and user.phone else '' }}",
-          location: prof.target_locations || 'Beirut, Lebanon',
+          location: prof.target_locations || 'Austin, TX, USA',
           target_titles: prof.target_titles || 'Senior Network Engineer',
           skills: prof.skills || 'Network Design, Cisco IOS, MikroTik, Fortinet, Firewalls'
         });
@@ -2215,13 +2484,13 @@ function removeFile(e) {
   document.getElementById('aiDossierWidget').classList.add('hidden');
   document.getElementById('cvFile').value = '';
 
-  document.getElementById('cv状态Badge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
-  document.getElementById('cv状态Badge').textContent = "Pending";
-  document.getElementById('cv状态Details').textContent = "PDF • Last updated: Pending Upload";
+  document.getElementById('cvStatusBadge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
+  document.getElementById('cvStatusBadge').textContent = "Pending";
+  document.getElementById('cvStatusDetails').textContent = "PDF • Last updated: Pending Upload";
 
-  document.getElementById('cl状态Badge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
-  document.getElementById('cl状态Badge').textContent = "Pending";
-  document.getElementById('cl状态Details').textContent = "LLaMA 3.3 70B AI • Will auto-generate upon upload";
+  document.getElementById('clStatusBadge').className = "px-3 py-1 bg-slate-800 text-slate-400 text-xs font-bold rounded-lg border border-slate-700";
+  document.getElementById('clStatusBadge').textContent = "Pending";
+  document.getElementById('clStatusDetails').textContent = "Adaptive AI Engine • Will auto-generate upon upload";
 }
 
 /* ── Skill & Title Tags ── */
@@ -2284,9 +2553,9 @@ async function showPreview(initialTab = 'cv') {
 
   const name = document.getElementById('fullNameInput').value || "{{ user.name if user and user.name and user.name not in ('Guest Candidate', 'User', 'default_user') else 'Candidate' }}";
   const email = document.getElementById('emailInput').value || "{{ user.email if user and user.email else 'candidate@example.com' }}";
-  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || "{{ user.phone if user and user.phone else '+961 70 841 009' }}");
+  const phone = cleanPhoneNumber(document.getElementById('phoneInput').value || "{{ user.phone if user and user.phone else '+1 (555) 019-2834' }}");
   const skills = document.getElementById('hiddenSkills').value || 'Network Design, Cisco IOS, MikroTik, Fortinet, Fiber Optic, Security';
-  const location = document.getElementById('locationInput').value || 'Beirut, Lebanon';
+  const location = document.getElementById('locationInput').value || 'Austin, TX, USA';
   const style = document.getElementById('hiddenCvStyle').value.toLowerCase();
   const targetTitle = document.getElementById('hiddenTargetTitles').value || 'Senior Network Engineer';
 
@@ -2420,7 +2689,7 @@ function copyCoverLetterText() {
 
 async function regenerateCoverLetter() {
   playSynthClick(1000);
-  showToast("🔄 Regenerating cover letter with LLaMA 3.3 70B AI...");
+  showToast("🔄 Regenerating cover letter with Adaptive AI...");
   showPreview('cl');
 }
 
@@ -2645,29 +2914,75 @@ function launchCampaign(e) {
   }, 1200);
 }
 
-/* ── Flash Sale Countdown ── */
+/* ── Dynamic Flash Sale Loader ── */
 (function() {
-  var endTime = new 日期();
-  endTime.setHours(endTime.getHours() + 2, endTime.getMinutes() + 34, endTime.getSeconds() + 12);
-  function updateTimer() {
-    var diff = endTime - new 日期();
-    if (diff <= 0) {
-      document.getElementById('flashTimerUpload').textContent = 'EXPIRED';
-      return;
-    }
-    var h = Math.floor(diff / (1000*60*60));
-    var m = Math.floor((diff % (1000*60*60)) / (1000*60));
-    var s = Math.floor((diff % (1000*60)) / 1000);
-    document.getElementById('flashTimerUpload').textContent =
-      h.toString().padStart(2,'0') + 'h ' + m.toString().padStart(2,'0') + 'm ' + s.toString().padStart(2,'0') + 's';
-  }
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  const banner = document.getElementById('flashBannerUpload');
+  if (!banner) return;
+  fetch('/api/flash-sales')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success || !data.flash || !data.flash.active) {
+        banner.style.display = 'none';
+        return;
+      }
+      const fs = data.flash;
+      const titleEl = document.getElementById('flashTitleUpload');
+      const descEl = document.getElementById('flashDiscountUpload');
+      const timerEl = document.getElementById('flashTimerUpload');
+      if (titleEl) titleEl.textContent = fs.label || '限时特惠活动';
+      if (descEl) descEl.textContent = `限时立减 ${Math.round(fs.discount_pct)}%，已自动应用于所有求职套餐！`;
+      banner.style.display = 'flex';
+
+      let secondsLeft = fs.seconds_left || 0;
+      function updateTimer() {
+        if (secondsLeft <= 0) {
+          banner.style.display = 'none';
+          return;
+        }
+        const h = Math.floor(secondsLeft / 3600);
+        const m = Math.floor((secondsLeft % 3600) / 60);
+        const s = secondsLeft % 60;
+        if (timerEl) {
+          timerEl.textContent = `${h.toString().padStart(2,'0')}h ${m.toString().padStart(2,'0')}m ${s.toString().padStart(2,'0')}s`;
+        }
+        secondsLeft--;
+      }
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    })
+    .catch(function() {
+      banner.style.display = 'none';
+    });
 })();
 
 document.addEventListener("DOMContentLoaded", function() {
     updateHiddenSkills();
     updateHiddenTargetTitles();
+    
+    // Auto-activate document badges if profile data exists
+    const nameVal = document.getElementById('fullNameInput')?.value?.trim();
+    const skillsVal = document.getElementById('skillsInput')?.value?.trim();
+    if ((nameVal && nameVal !== 'Candidate' && nameVal !== 'User') || skillsVal) {
+        const cvBadge = document.getElementById('cvStatusBadge');
+        if (cvBadge) {
+            cvBadge.className = "px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-lg border border-emerald-500/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]";
+            cvBadge.textContent = "✅ 状态就绪";
+        }
+        const cvDetails = document.getElementById('cvStatusDetails');
+        if (cvDetails) {
+            cvDetails.textContent = "PDF 已附加 • 100% 解析完成 & ATS 已就绪";
+        }
+        const clBadge = document.getElementById('clStatusBadge');
+        if (clBadge) {
+            clBadge.className = "px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-lg border border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.2)]";
+            clBadge.textContent = "✨ 已就绪";
+        }
+        const clDetails = document.getElementById('clStatusDetails');
+        if (clDetails) {
+            clDetails.textContent = "自适应 AI 求职信 • 定制完成并准备自动投递";
+        }
+    }
+
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }

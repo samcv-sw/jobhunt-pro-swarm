@@ -5,24 +5,24 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
-from web.shared import get_db, get_verified_user_id, templates, config
+from web.shared import get_db, get_verified_user_id, templates, config, session_serializer
 from core.pg_sqlite_shim import connect
-from core.swarm_leads import trigger_outreach_for_leads
+from core.swarm_leads import trigger_outreach_for_leads, init_db
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["growth_station"])
 
 
 class ScrapeRequest(BaseModel):
-    agent: str  # linkedin_dork, github, reddit, b2b_maps
+    agent: str  # linkedin_dork, github, reddit, b2b_maps, crunchbase, etc.
     keyword: str
-    location: str
+    location: Optional[str] = "Remote"
     max_leads: Optional[int] = 25
 
 
 class BlastRequest(BaseModel):
     lead_ids: List[int]
-    campaign_name: str
+    campaign_name: Optional[str] = "Swarm Outreach Campaign"
 
 
 def run_scrape_background(agent: str, keyword: str, location: str, max_leads: int):
@@ -47,7 +47,7 @@ def run_scrape_background(agent: str, keyword: str, location: str, max_leads: in
         elif agent == "b2b_maps":
             loop.run_until_complete(scrape_b2b_companies(keyword, location, max_leads))
         else:
-            # Fallback scraper for all expanded agents (Crunchbase, Wellfound, Indeed, YC, etc.)
+            # Universal fallback scraper for expanded agents (Crunchbase, Wellfound, Indeed, YC, etc.)
             loop.run_until_complete(scrape_b2b_companies(f"{agent} {keyword}", location, max_leads))
             
         loop.close()
@@ -57,32 +57,47 @@ def run_scrape_background(agent: str, keyword: str, location: str, max_leads: in
 
 
 @router.get("/growth-station", response_class=HTMLResponse)
+@router.get("/en/growth-station", response_class=HTMLResponse)
 def growth_station_page(request: Request):
-    """Renders the main Swarm Leads / Growth Station page (Admin only)."""
-    from web.app_v2 import require_admin
-    admin_id = require_admin(request)
-    if not admin_id:
-        return RedirectResponse("/user-dashboard", status_code=303)
+    """Renders the main Swarm Leads / Growth Station page for candidates and admins."""
+    init_db()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        return RedirectResponse("/login?next=/growth-station", status_code=303)
 
     with get_db() as conn:
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (admin_id, admin_id)).fetchone()
-        user = dict(user_row) if user_row else {"user_id": admin_id, "name": "Admin", "email": "admin@jobhunt-pro.com", "user_type": "admin", "wallet_balance": 1000.0}
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)).fetchone()
+        user = dict(user_row) if user_row else {
+            "user_id": user_id,
+            "name": "Candidate",
+            "email": "user@jobhunt.me",
+            "user_type": "candidate",
+            "wallet_balance": 100.0
+        }
 
-        # Get initial count of leads in database
-        leads_count = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]
-        pending_count = conn.execute("SELECT COUNT(*) FROM harvested_leads WHERE status = 'pending'").fetchone()[0]
-        sent_count = conn.execute("SELECT COUNT(*) FROM harvested_leads WHERE status = 'sent'").fetchone()[0]
+        # Get counts of leads in database
+        try:
+            leads_count = conn.execute("SELECT COUNT(*) FROM harvested_leads").fetchone()[0]
+            pending_count = conn.execute("SELECT COUNT(*) FROM harvested_leads WHERE status = 'pending'").fetchone()[0]
+            sent_count = conn.execute("SELECT COUNT(*) FROM harvested_leads WHERE status = 'sent'").fetchone()[0]
+        except Exception:
+            leads_count, pending_count, sent_count = 0, 0, 0
 
-    # Use patched TemplateResponse which automatically handles 'en/growth_station.html' if language is English
+    req_lang = request.query_params.get("lang") or request.cookies.get("preferred_lang") or ("en" if request.url.path.startswith("/en") else "ar")
+    clean_lang = str(req_lang).split("-")[0].lower()
+    tpl = "en/growth_station.html" if clean_lang == "en" else ("zh/growth_station.html" if clean_lang == "zh" else "growth_station.html")
+    title = "Growth Station & Swarm Leads | JobHunt Pro" if clean_lang == "en" else "محطة النمو وتجميع الفرص | JobHunt Pro"
+
     content = templates.TemplateResponse(
         request, 
-        "growth_station.html", 
+        tpl, 
         {
             "user": user,
             "leads_count": leads_count,
             "pending_count": pending_count,
             "sent_count": sent_count,
-            "VERSION": config.VERSION
+            "VERSION": config.VERSION,
+            "lang": clean_lang
         }
     )
     
@@ -91,9 +106,9 @@ def growth_station_page(request: Request):
     return HTMLResponse(
         _build_dashboard_shell(
             user, 
-            admin_id, 
+            user_id, 
             content.body.decode("utf-8"), 
-            "محطة النمو & leads" if request.state.locale == "ar" else "Growth Station & Leads", 
+            title, 
             "growth_station", 
             request=request
         )
@@ -107,20 +122,25 @@ def get_leads(
     limit: int = Query(50, ge=1, le=200),
     source: Optional[str] = Query(None),
     location: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
     search: Optional[str] = Query(None)
 ):
-    """Retrieve harvested leads with pagination and filters (Admin only)."""
-    from web.app_v2 import require_admin
-    if not require_admin(request):
-        raise HTTPException(status_code=403, detail="Admin authorization required")
+    """Retrieve harvested leads with pagination and filters."""
+    init_db()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     offset = (page - 1) * limit
     where_clauses = []
     params = []
 
-    if source:
+    if source and source != "all":
         where_clauses.append("source = ?")
         params.append(source)
+    if status and status != "all":
+        where_clauses.append("status = ?")
+        params.append(status)
     if location:
         where_clauses.append("location LIKE ?")
         params.append(f"%{location}%")
@@ -142,7 +162,7 @@ def get_leads(
                 SELECT id, email, name, source, job_title, location, status, notes, created_at
                 FROM harvested_leads 
                 {where_sql}
-                ORDER BY created_at DESC
+                ORDER BY id DESC
                 LIMIT ? OFFSET ?
             """
             select_params = params + [limit, offset]
@@ -151,6 +171,7 @@ def get_leads(
             leads = [dict(r) for r in rows]
 
             return JSONResponse({
+                "status": "success",
                 "leads": leads,
                 "total": total_count,
                 "page": page,
@@ -158,60 +179,53 @@ def get_leads(
             })
     except Exception as e:
         logger.error(f"[GROWTH ROUTER] Get leads failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Database lookup failed")
+        return JSONResponse({"status": "error", "leads": [], "total": 0, "page": page, "limit": limit})
 
 
 @router.post("/api/growth/scrape")
 def trigger_scrape(request: Request, body: ScrapeRequest, background_tasks: BackgroundTasks):
-    """Triggers a background scraping agent task (Admin only)."""
-    from web.app_v2 import require_admin
-    if not require_admin(request):
-        raise HTTPException(status_code=403, detail="Admin authorization required")
+    """Triggers a background scraping agent task."""
+    init_db()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     # Limit max leads to 100 for safety
     max_leads = min(body.max_leads or 25, 100)
+    loc = body.location or "Remote"
 
-    # Synchronously seed immediate harvested leads so user sees results instantly
-    from core.swarm_leads import save_lead
-    agent_clean = body.agent.replace("_", " ").title()
-    kw = body.keyword or "IT & Tech Manager"
-    loc = body.location or "Remote / Gulf"
-    
-    sample_leads = [
-        {"name": f"{agent_clean} Recruiter 1", "email": f"hr.{body.agent}.tech1@gmail.com", "title": f"Head of {kw}", "loc": loc},
-        {"name": f"{agent_clean} Talent Lead", "email": f"careers.{body.agent}.jobs2@outlook.com", "title": f"Senior {kw} Lead", "loc": loc},
-        {"name": f"{agent_clean} Hiring Manager", "email": f"recruitment.{body.agent}.exec3@yahoo.com", "title": f"{kw} Director", "loc": loc},
-    ]
-    for sl in sample_leads:
-        save_lead(sl["email"], sl["name"], body.agent, sl["title"], sl["loc"], f"Harvested via {body.agent}")
-
-    # Queue remaining scraping in the background
+    # Queue scraping in the background
     background_tasks.add_task(
         run_scrape_background,
         body.agent,
         body.keyword,
-        body.location,
+        loc,
         max_leads
     )
 
     return JSONResponse({
         "status": "success",
-        "message": f"Scrape task triggered for agent: '{body.agent}'. Leads will populate shortly."
+        "message": f"Autonomous scraper agent '{body.agent}' launched for '{body.keyword}' in '{loc}'. Genuine leads will appear in your directory shortly!"
     })
 
 
 @router.post("/api/growth/blast")
 def trigger_blast(request: Request, body: BlastRequest):
-    """Triggers cold email campaign for selected lead IDs (Admin only)."""
-    from web.app_v2 import require_admin
-    if not require_admin(request):
-        raise HTTPException(status_code=403, detail="Admin authorization required")
+    """Triggers cold email outreach campaign for selected lead IDs."""
+    init_db()
+    user_id = get_verified_user_id(request)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     if not body.lead_ids:
         raise HTTPException(status_code=400, detail="No lead IDs provided")
 
-    result = trigger_outreach_for_leads(body.lead_ids, body.campaign_name)
-    if result["status"] == "success":
-        return JSONResponse(result)
-    else:
-        raise HTTPException(status_code=500, detail=result.get("error", "Failed to launch blast"))
+    try:
+        result = trigger_outreach_for_leads(body.lead_ids, body.campaign_name or "Swarm Outreach Campaign")
+        if result.get("status") == "success":
+            return JSONResponse(result)
+        else:
+            return JSONResponse({"status": "error", "message": result.get("error", "Failed to launch blast")}, status_code=400)
+    except Exception as e:
+        logger.error(f"[GROWTH ROUTER] Blast failed: {e}", exc_info=True)
+        return JSONResponse({"status": "error", "message": str(e)}, status_code=500)

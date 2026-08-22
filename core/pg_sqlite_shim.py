@@ -173,6 +173,8 @@ def convert_sql(query: str) -> str:
             result.append(char)
         elif char == "?" and not in_single and not in_double:
             result.append("%s")
+        elif char == "%":
+            result.append("%%")
         else:
             result.append(char)
 
@@ -207,12 +209,15 @@ def convert_sql(query: str) -> str:
 
     # 2. Handle INSERT OR IGNORE
     if "INSERT OR IGNORE" in sql.upper():
-        sql = re.sub(
-            r"\bINSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", sql, flags=re.IGNORECASE
-        )
-        sql = sql.strip().rstrip(";")
-        if "ON CONFLICT" not in sql.upper():
-            sql = sql + " ON CONFLICT DO NOTHING"
+        def _fix_insert_ignore(m: re.Match[str]) -> str:
+            stmt = m.group(0)
+            if "ON CONFLICT" not in stmt.upper():
+                stmt = re.sub(r"\bINSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", stmt, flags=re.IGNORECASE)
+                stmt = stmt.rstrip(";") + " ON CONFLICT DO NOTHING"
+            else:
+                stmt = re.sub(r"\bINSERT\s+OR\s+IGNORE\s+INTO\b", "INSERT INTO", stmt, flags=re.IGNORECASE)
+            return stmt
+        sql = re.sub(r"\bINSERT\s+OR\s+IGNORE\s+INTO\b[^;]+", _fix_insert_ignore, sql, flags=re.IGNORECASE)
 
     sql = sql.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY")
 
@@ -260,12 +265,13 @@ def convert_sql(query: str) -> str:
     def _fix_strftime(m: re.Match[str]) -> str:
         fmt = m.group(1).strip().strip("'\"")
         val = m.group(2).strip().strip("'\"")
-        if fmt == "%s":
+        if fmt in ("%s", "%%s"):
             if val.lower() == "now":
                 return "EXTRACT(EPOCH FROM NOW())"
             else:
                 return f"EXTRACT(EPOCH FROM {m.group(2).strip()})"
-        return f"TO_CHAR({m.group(2).strip()}, '{fmt}')"
+        fmt_clean = fmt.replace("%%", "%")
+        return f"TO_CHAR({m.group(2).strip()}, '{fmt_clean}')"
 
     sql = re.sub(r"strftime\(([^,]+),\s*([^)]+)\)", _fix_strftime, sql, flags=re.IGNORECASE)
 
@@ -298,6 +304,11 @@ def convert_sql(query: str) -> str:
 
     # Convert LIKE to ILIKE for case-insensitive behavior matching SQLite
     sql = re.sub(r"\bLIKE\b", "ILIKE", sql, flags=re.IGNORECASE)
+
+    # Convert scalar MAX/MIN with multiple arguments to GREATEST/LEAST for PostgreSQL compatibility
+    sql = re.sub(r"\bMAX\s*\(([^,()]+(?:(?:\([^()]*\))?[^,()]*)*,\s*[^)]+)\)", r"GREATEST(\1)", sql, flags=re.IGNORECASE)
+    sql = re.sub(r"\bMIN\s*\(([^,()]+(?:(?:\([^()]*\))?[^,()]*)*,\s*[^)]+)\)", r"LEAST(\1)", sql, flags=re.IGNORECASE)
+
     return sql
 
 
@@ -740,7 +751,7 @@ class SqliteConnectionWrapper:
             or os.environ.get("DISABLE_WAL", "").lower() in ("1", "true", "yes")
             or "/home/" in str(db_path)
         )
-        self.conn.execute("PRAGMA busy_timeout=60000")
+        self.conn.execute("PRAGMA busy_timeout=2000")
         self.conn.execute("PRAGMA encoding='UTF-8'")
 
         if is_pa:
@@ -939,7 +950,7 @@ def connect(
         return SqliteConnectionWrapper(sqlite_db)
 
     if os.getenv("FORCE_SQLITE") == "1":
-        logger.info("[DB] FORCE_SQLITE=1, skipping PG")
+        logger.debug("[DB] FORCE_SQLITE=1, skipping PG")
         return SqliteConnectionWrapper(sqlite_db)
 
     if not NEON_URI:

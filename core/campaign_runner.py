@@ -746,13 +746,38 @@ def _setup_campaign_and_user_details(
         if titles:
             profession = titles[0]
 
-    from core.validators import clean_phone_number
+    cand_name = profile.get("profile_name") or user.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+    if " - " in cand_name:
+        cand_name = cand_name.split(" - ")[0].strip()
+    if not cand_name or cand_name.lower() in ("candidate", "jobseeker", "user", "aurora future", ""):
+        cand_name = "Sam Salameh"
+
+    cand_email = None
+    if profile.get("email") and "@" in str(profile.get("email")):
+        cand_email = str(profile.get("email")).strip()
+    elif profile.get("cv_text"):
+        import re
+        email_m = re.search(r"[\w\.-]+@[\w\.-]+\.\w+", profile.get("cv_text"))
+        if email_m:
+            cand_email = email_m.group(0).strip()
+    if not cand_email or "aurora" in cand_email.lower() or "demo" in cand_email.lower():
+        cand_email = user.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+        if not cand_email or "aurora" in cand_email.lower():
+            cand_email = "sam.dev1@hotmail.com"
+
+    cand_phone = profile.get("phone") or user.get("phone") or "+961 70 841 009"
+    try:
+        from core.validators import clean_phone_number
+        cand_phone = clean_phone_number(cand_phone)
+    except Exception:
+        pass
+
     user_details = {
         "user_id": user.get("user_id") or campaign.get("user_id"),
-        "name": user.get("name") or (getattr(config, "CANDIDATE_NAME", "Sam Salameh") if config else "Sam Salameh"),
-        "email": user.get("email") or (getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com") if config else "sam.dev1@hotmail.com"),
-        "phone": clean_phone_number(user.get("phone") or (getattr(config, "CANDIDATE_PHONE", "+961 70 841 009") if config else "+961 70 841 009")),
-        "linkedin": (getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh") if config else "https://www.linkedin.com/in/sam-salameh"),
+        "name": cand_name,
+        "email": cand_email,
+        "phone": cand_phone,
+        "linkedin": (getattr(config, "CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh")),
         "profession": profession,
         "skills": profile.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark",
         "experience_years": profile.get("experience_years") or 15,

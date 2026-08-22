@@ -98,7 +98,7 @@ def init(data_dir=None):
     _active_accounts = valid
 
     if valid == 0:
-        logger.warning("[HOTMAIL-POOL] 0 active accounts found.")
+        logger.info("[HOTMAIL-POOL] Hotmail standby (0 dedicated warmup accounts configured — using primary SMTP matrix)")
     else:
         logger.info(
             f"[HOTMAIL-POOL] Initialized: {valid}/{len(pool)} accounts via Graph API"
@@ -530,3 +530,13 @@ def get_pool_health_diagnostics() -> dict:
         "pool_file_present": os.path.exists(POOL_FILE),
     }
 
+
+def send_email(to_email: str, msg) -> dict:
+    """Helper wrapper for send_email_sync accepting either MIME message or string."""
+    try:
+        msg_str = msg.as_string() if hasattr(msg, "as_string") else str(msg)
+        success, status, sender = send_email_sync(to_email, msg_str)
+        return {"success": success, "status": status, "sender": sender, "error": "" if success else status}
+    except Exception as e:
+        logger.error(f"[HOTMAIL POOL] send_email error: {e}")
+        return {"success": False, "status": "error", "error": str(e)}

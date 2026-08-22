@@ -380,13 +380,13 @@ async def auto_resume_user_campaign_on_session(request: Request, req: Optional[A
                 is_admin = False
                 tokens = 0
                 if isinstance(u_row, dict):
-                    is_admin = bool(u_row.get("is_admin") or u_row.get("user_type") == "admin" or u_row.get("role") == "admin" or u_row.get("email") in ("admin@jobhunt-pro.com", "samatou683@gmail.com"))
+                    is_admin = bool(u_row.get("is_admin") or u_row.get("user_type") == "admin" or u_row.get("role") == "admin" or u_row.get("email") in ("samatou683@gmail.com",))
                     tokens = int(u_row.get("tokens") or 0)
                 else:
                     try:
                         keys = [col[0] for col in conn.description] if conn.description else []
                         row_dict = dict(zip(keys, u_row))
-                        is_admin = bool(row_dict.get("is_admin") or row_dict.get("user_type") == "admin" or row_dict.get("role") == "admin" or row_dict.get("email") in ("admin@jobhunt-pro.com", "samatou683@gmail.com"))
+                        is_admin = bool(row_dict.get("is_admin") or row_dict.get("user_type") == "admin" or row_dict.get("role") == "admin" or row_dict.get("email") in ("samatou683@gmail.com",))
                         tokens = int(row_dict.get("tokens") or 0)
                     except Exception:
                         tokens = 1000 if (u_id.startswith("test_") or "test" in u_id) else 0

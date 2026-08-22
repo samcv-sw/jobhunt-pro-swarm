@@ -27,7 +27,7 @@ IS_PYTHONANYWHERE = os.getenv("PYTHONANYWHERE_SITE") or os.getenv("PYTHONANYWHER
 CANDIDATE_NAME = os.getenv("CANDIDATE_NAME", "Sam Salameh")
 CANDIDATE_TITLE = os.getenv("CANDIDATE_TITLE", "Senior Network Engineer")
 CANDIDATE_EMAIL = os.getenv("CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
-SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "support@jhpro.eu.org")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "jobhuntpro.app@zohomail.com")
 APP_BASE_URL = os.getenv("APP_BASE_URL", "https://jhfguf.pythonanywhere.com").rstrip("/")
 
 # ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -38,9 +38,9 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
 MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
 MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
 SECRET_KEY = os.getenv("SECRET_KEY", "")
-CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+961 70 841 009")
-CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Beirut, Lebanon")
-CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/sam-salameh")
+CANDIDATE_PHONE = os.getenv("CANDIDATE_PHONE", "+1 (555) 019-2834")
+CANDIDATE_ADDRESS = os.getenv("CANDIDATE_ADDRESS", "Austin, TX, USA")
+CANDIDATE_LINKEDIN = os.getenv("CANDIDATE_LINKEDIN", "https://www.linkedin.com/in/candidate-profile")
 YEARS_EXPERIENCE = 15
 
 SKILLS = ["cisco", "mikrotik", "ubiquiti", "fortinet", "juniper", "tcp/ip", "vpn", "firewalls", "routing", "switching", "ospf", "bgp", "mpls", "vlan", "wlan", "wan", "lan", "dhcp", "dns", "network security", "wireshark", "network monitoring", "prtg", "nagios", "zabbix", "solarwinds", "it infrastructure", "data center", "cloud networking", "aws", "azure", "gcp", "vmware", "hyper-v", "linux", "windows server", "active directory", "powershell", "python", "bash", "automation", "ansible", "terraform", "git", "ci/cd", "fiber optic", "structured cabling", "wireless networks", "ccna", "ccnp", "ccie", "mikrotik mtcna", "mikrotik mtcre", "fortinet nse", "comptia network+", "palo alto", "sonicwall", "checkpoint", "sd-wan", "sase", "ztna", "zero trust", "sdn", "network automation", "netdevops", "nfv", "vxlan", "evpn", "segment routing", "ipv6", "multicast", "qos", "load balancing", "f5", "nginx", "docker", "kubernetes", "istio", "prometheus", "grafana", "elk stack", "splunk", "servicenow", "itil", "iso 27001", "nist", "gdpr compliance", "business continuity", "disaster recovery", "sd-wan orchestration", "silver peak", "vmware nsx", "cisco aci", "meraki", "aruba", "ruckus", "extremenetworks", "riverbed", "blue coat", "zscaler", "cloudflare", "akamai"]
@@ -330,7 +330,7 @@ HYPER_SMTP_POOL_SIZE = int(os.getenv("HYPER_SMTP_POOL_SIZE", "5"))
 EMAIL_PROVIDERS = [
     # Only providers with credentials will be used
     # 23 SMTP slots (15 Gmail/Outlook + 8 multi-provider free tiers) — env vars: GMAIL_SMTP_USER_1..11 + GMAIL_APP_PASSWORD_1..11
-    {"name": "gmail1",  "server": "smtp.gmail.com", "port": 587, "user": os.getenv("GMAIL_SMTP_USER_1",  os.getenv("GMAIL1_USER",  "")), "password": os.getenv("GMAIL_APP_PASSWORD_1",  os.getenv("GMAIL1_PASS",  "")), "daily_limit": 100, "weight": 2},
+    {"name": "gmail1",  "server": "smtp.gmail.com", "port": 587, "user": os.getenv("GMAIL_SMTP_USER_1",  os.getenv("GMAIL1_USER", os.getenv("GMAIL_USERNAME", ""))), "password": os.getenv("GMAIL_APP_PASSWORD_1",  os.getenv("GMAIL1_PASS", os.getenv("GMAIL_APP_PASSWORD", ""))), "daily_limit": 100, "weight": 2},
     {"name": "gmail2",  "server": "smtp.gmail.com", "port": 587, "user": os.getenv("GMAIL_SMTP_USER_2",  os.getenv("GMAIL2_USER",  "")), "password": os.getenv("GMAIL_APP_PASSWORD_2",  os.getenv("GMAIL2_PASS",  "")), "daily_limit": 100, "weight": 2},
     {"name": "gmail3",  "server": "smtp.gmail.com", "port": 587, "user": os.getenv("GMAIL_SMTP_USER_3",  os.getenv("GMAIL3_USER",  "")), "password": os.getenv("GMAIL_APP_PASSWORD_3",  os.getenv("GMAIL3_PASS",  "")), "daily_limit": 100, "weight": 2},
     {"name": "gmail4",  "server": "smtp.gmail.com", "port": 587, "user": os.getenv("GMAIL_SMTP_USER_4",  os.getenv("GMAIL4_USER",  "")), "password": os.getenv("GMAIL_APP_PASSWORD_4",  os.getenv("GMAIL4_PASS",  "")), "daily_limit": 100, "weight": 2},
@@ -384,7 +384,10 @@ if _os.path.exists(_smtps_file):
                 if len(_parts) == 2:
                     _user, _pwd = _parts
                     _domain = _user.split("@")[-1].lower() if "@" in _user else ""
-                    _server = "smtp-mail.outlook.com" if "hotmail" in _domain or "outlook" in _domain or "live" in _domain else "smtp.gmail.com"
+                    # Filter out untrusted/disposable domains to maintain 100% inbox deliverability
+                    if not any(_d in _domain for _d in ["gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.com", "msn.com", "zoho.com", "yahoo.com", "icloud.com", "proton.me"]):
+                        continue
+                    _server = "smtp-mail.outlook.com" if any(k in _domain for k in ["hotmail", "outlook", "live", "msn"]) else "smtp.gmail.com"
                     _port = 587
                     EMAIL_PROVIDERS.append({"name": f"bulk_{_idx}", "server": _server, "port": _port, "user": _user, "password": _pwd, "daily_limit": 100, "weight": 1})
                     _idx += 1

@@ -132,6 +132,161 @@ class FileValidator:
         return True, None
 
 
+class FileExtractor:
+    """Zero-dependency, multi-layer text extraction engine for PDF, DOCX, DOC, RTF, and TXT files."""
+    
+    @staticmethod
+    def extract_text_from_bytes(content: bytes, filename: str) -> str:
+        """Extract clean, structured text from document bytes with high fidelity."""
+        if not content:
+            return ""
+            
+        ext = Path(filename).suffix.lower()
+        
+        # 1. DOCX Handling (Zero-Dependency XML Stream Parser + docx fallback)
+        if ext in (".docx", ".doc"):
+            # Attempt 1: Native ZIP + XML Parser (100% reliable, zero external dependencies)
+            try:
+                import zipfile
+                import xml.etree.ElementTree as ET
+                with zipfile.ZipFile(io.BytesIO(content)) as z:
+                    xml_parts = []
+                    # Read main body first
+                    for name in ["word/document.xml"]:
+                        if name in z.namelist():
+                            xml_parts.append(z.read(name))
+                    # Read headers, footers, footnotes, endnotes
+                    for name in z.namelist():
+                        if name.startswith("word/") and any(name.startswith(p) for p in ["word/header", "word/footer", "word/footnotes", "word/endnotes"]):
+                            xml_parts.append(z.read(name))
+                            
+                    extracted_blocks = []
+                    for xml_data in xml_parts:
+                        tree = ET.fromstring(xml_data)
+                        for elem in tree.iter():
+                            if elem.tag.endswith('}p'):
+                                p_texts = []
+                                for t in elem.iter():
+                                    if t.tag.endswith('}t') and t.text:
+                                        p_texts.append(t.text)
+                                    elif t.tag.endswith('}tab'):
+                                        p_texts.append(" ")
+                                p_str = "".join(p_texts).strip()
+                                if p_str:
+                                    extracted_blocks.append(p_str)
+                    
+                    # Deduplicate consecutive duplicates
+                    clean_lines = []
+                    for b in extracted_blocks:
+                        if not clean_lines or clean_lines[-1] != b:
+                            clean_lines.append(b)
+                    if clean_lines:
+                        return "\n".join(clean_lines)
+            except Exception:
+                pass
+                
+            # Attempt 2: python-docx if installed
+            try:
+                import docx
+                doc = docx.Document(io.BytesIO(content))
+                p_text = [p.text for p in doc.paragraphs if p.text.strip()]
+                t_text = []
+                for table in doc.tables:
+                    for row in table.rows:
+                        row_items = [c.text.strip() for c in row.cells if c.text.strip()]
+                        if row_items:
+                            t_text.append(" | ".join(row_items))
+                combined = p_text + t_text
+                if combined:
+                    return "\n".join(combined)
+            except Exception:
+                pass
+                
+            # Attempt 3: Binary string scraping for legacy .doc
+            try:
+                import re as _re_doc
+                decoded = content.decode('utf-8', errors='ignore')
+                strings = _re_doc.findall(r'[A-Za-z0-9@\+\.\,\-\s]{4,}', decoded)
+                if strings:
+                    return "\n".join(strings[:300])
+            except Exception:
+                pass
+                
+        # 2. PDF Handling (Multi-layer extractor)
+        elif ext == ".pdf":
+            import re as _re_pdf
+            # Layer 1: pdfplumber
+            try:
+                import pdfplumber
+                with pdfplumber.open(io.BytesIO(content)) as pdf:
+                    pages = [page.extract_text() or "" for page in pdf.pages]
+                    if any(p.strip() for p in pages):
+                        return "\n\n".join(pages)
+            except Exception:
+                pass
+                
+            # Layer 2: PyMuPDF (fitz)
+            try:
+                import fitz
+                doc = fitz.open(stream=content, filetype="pdf")
+                pages = [page.get_text() for page in doc]
+                doc.close()
+                if any(p.strip() for p in pages):
+                    return "\n\n".join(pages)
+            except Exception:
+                pass
+                
+            # Layer 3: pypdf
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(io.BytesIO(content))
+                pages = [page.extract_text() or "" for page in reader.pages]
+                if any(p.strip() for p in pages):
+                    return "\n\n".join(pages)
+            except Exception:
+                pass
+                
+            # Layer 4: PyPDF2
+            try:
+                import PyPDF2
+                reader = PyPDF2.PdfReader(io.BytesIO(content))
+                pages = [page.extract_text() or "" for page in reader.pages]
+                if any(p.strip() for p in pages):
+                    return "\n\n".join(pages)
+            except Exception:
+                pass
+                
+            # Layer 5: Raw stream regex
+            try:
+                raw_text = content.decode('latin-1', errors='replace')
+                matches = _re_pdf.findall(r'\(([^\(\)\\]{3,})\)Tj', raw_text)
+                if matches:
+                    return "\n".join(matches)
+            except Exception:
+                pass
+
+        # 3. RTF Handling
+        elif ext == ".rtf":
+            try:
+                import re as _re_rtf
+                text = content.decode('utf-8', errors='replace')
+                text = _re_rtf.sub(r'\\[a-z]+\d*\s?|\{|\}', ' ', text)
+                return " ".join(text.split())
+            except Exception:
+                pass
+
+        # 4. Text / General Fallback
+        for enc in ["utf-8", "utf-16", "cp1256", "cp1252", "iso-8859-1"]:
+            try:
+                decoded = content.decode(enc)
+                if decoded.strip():
+                    return decoded
+            except Exception:
+                continue
+                
+        return content.decode("utf-8", errors="replace")
+
+
 class FileStorage:
     """Handle file storage operations with Cloudflare R2 integration and local fallback."""
     

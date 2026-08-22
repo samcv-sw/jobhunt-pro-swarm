@@ -8,6 +8,7 @@ import os
 import sys
 import uuid
 from datetime import datetime
+from typing import Optional, List, Dict, Any
 
 from fastapi import APIRouter, Form, HTTPException, File, UploadFile, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -23,17 +24,17 @@ def _deps():
 @router.post("/api/v1/campaign")
 def api_create_campaign(
     api_key: str = Form(...),
-    profile_cv: str = Form(...),
+    profile_cv: str = Form(""),
     company_count: int = Form(0),
     target_titles: str = Form(""),
     target_locations: str = Form(""),
     bouquet: str = Form(""),
+    profile_id: Optional[int] = Form(None),
 ):
     get_db, _, PRICING_TIERS, BOUQUET_PACKAGES, _ = _deps()
     with get_db() as conn:
-        user = conn.execute("SELECT * FROM users WHERE api_key = ? AND is_active = 1", (api_key,)).fetchone()
+        user = conn.execute("SELECT * FROM users WHERE api_key = ?", (api_key,)).fetchone()
         if not user:
-            pass  # conn.close()
             raise HTTPException(status_code=401, detail="Invalid API key")
 
         user = dict(user)
@@ -63,19 +64,28 @@ def api_create_campaign(
             pass  # conn.close()
             raise HTTPException(status_code=402, detail="Insufficient balance")
 
-        existing_profile = conn.execute(
-            "SELECT id FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
-            (user["user_id"],)
-        ).fetchone()
+        chosen_profile_id = None
+        if profile_id:
+            prof_check = conn.execute("SELECT id FROM cv_profiles WHERE id = ? AND user_id = ?", (profile_id, user["user_id"])).fetchone()
+            if prof_check:
+                chosen_profile_id = prof_check["id"]
 
-        if existing_profile:
-            profile_id = existing_profile["id"]
-        else:
-            profile_row = conn.execute(
-                "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?) RETURNING id",
-                (user["user_id"], f"API Profile {datetime.now().strftime('%Y%m%d%H%M')}", profile_cv)
+        if not chosen_profile_id:
+            existing_profile = conn.execute(
+                "SELECT id FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1",
+                (user["user_id"],)
             ).fetchone()
-            profile_id = profile_row["id"] if profile_row else None
+
+            if existing_profile:
+                chosen_profile_id = existing_profile["id"]
+            else:
+                profile_row = conn.execute(
+                    "INSERT INTO cv_profiles (user_id, profile_name, cv_text) VALUES (?, ?, ?) RETURNING id",
+                    (user["user_id"], f"API Profile {datetime.now().strftime('%Y%m%d%H%M')}", profile_cv or "Candidate Profile")
+                ).fetchone()
+                chosen_profile_id = profile_row["id"] if profile_row else None
+
+        profile_id = chosen_profile_id
 
         campaign_id = f"camp_{uuid.uuid4().hex[:16]}"
         order_id = f"ord_{uuid.uuid4().hex[:16]}"
@@ -179,39 +189,63 @@ async def quick_create_cv_profile(
 
     extracted_text = cv_text.strip() if cv_text else ""
     p_name = profile_name.strip()
+    extracted_skills = ""
+    extracted_exp = experience_years
+    extracted_phone = ""
+    extracted_email = ""
+    extracted_title = ""
 
     if cv_file and cv_file.filename:
         try:
+            from core.instant_cv_engine import InstantCVEngine
             file_bytes = await cv_file.read()
-            fname = cv_file.filename.lower()
-            if not p_name:
-                p_name = cv_file.filename.rsplit('.', 1)[0].replace('_', ' ').replace('-', ' ').title()
-
-            if fname.endswith('.pdf'):
-                try:
-                    import io, pypdf
-                    reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-                    extracted_text = "\n".join(page.extract_text() or "" for page in reader.pages)
-                except Exception:
-                    extracted_text = extracted_text or f"[PDF Upload: {cv_file.filename}]"
-            elif fname.endswith(('.doc', '.docx')):
-                extracted_text = extracted_text or f"[Word Document: {cv_file.filename}]"
-            elif fname.endswith('.txt'):
-                extracted_text = file_bytes.decode('utf-8', errors='replace')
+            extracted_text = InstantCVEngine.extract_text_from_file(file_bytes, cv_file.filename) or extracted_text
+            
+            # Extract rich candidate profile from CV content
+            cand_info = InstantCVEngine.extract_candidate_profile(extracted_text, default_name=p_name)
+            if cand_info.get("name") and cand_info.get("name") not in ("Candidate", "New Professional Profile"):
+                p_name = cand_info.get("name")
+            if cand_info.get("experience_years"):
+                extracted_exp = int(cand_info.get("experience_years"))
+            if cand_info.get("skills"):
+                extracted_skills = cand_info.get("skills")
+            if cand_info.get("phone"):
+                extracted_phone = cand_info.get("phone")
+            if cand_info.get("email"):
+                extracted_email = cand_info.get("email")
+            if cand_info.get("profession"):
+                extracted_title = cand_info.get("profession")
         except Exception as e:
             logger.warning(f"File parse error in quick create: {e}")
 
-    if not p_name:
-        p_name = "New Professional Profile"
-    if not extracted_text:
-        extracted_text = "Experienced Professional Resume & Profile"
-
     with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)).fetchone()
+        u_dict = dict(user_row) if user_row else {}
+        
+        if not p_name:
+            p_name = u_dict.get("name") or "Sam Salameh"
+        if not extracted_text:
+            extracted_text = "Experienced Professional Resume & Profile"
+        if not extracted_email:
+            extracted_email = u_dict.get("email") or "sam.dev1@hotmail.com"
+        if not extracted_phone:
+            extracted_phone = u_dict.get("phone") or "+961 70 841 009"
         cursor = conn.execute(
-            "INSERT INTO cv_profiles (user_id, profile_name, cv_text, experience_years) VALUES (?, ?, ?, ?)",
-            (user_id, p_name, extracted_text, experience_years)
+            """INSERT INTO cv_profiles 
+               (user_id, profile_name, target_titles, skills, phone, email, cv_text, experience_years) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (user_id, p_name, extracted_title or "Senior Network Engineer", extracted_skills or "Network Design, Cisco IOS, Fortinet, MikroTik, Firewalls & VPN", extracted_phone or "+961 70 841 009", extracted_email, extracted_text, extracted_exp)
         )
         p_id = cursor.lastrowid
+        
+        # Also update users name & phone if currently generic or OAuth default
+        try:
+            conn.execute(
+                "UPDATE users SET name = ?, phone = COALESCE(NULLIF(phone, ''), ?) WHERE (user_id = ? OR id = ?) AND (name LIKE '%Future%' OR name LIKE '%Candidate%' OR name LIKE '%User%' OR name = '')",
+                (p_name, extracted_phone or "+961 70 841 009", user_id, user_id)
+            )
+        except Exception:
+            pass
         conn.commit()
 
         return JSONResponse({
@@ -220,7 +254,10 @@ async def quick_create_cv_profile(
             "profile": {
                 "id": p_id,
                 "profile_name": p_name,
-                "experience_years": experience_years
+                "target_titles": extracted_title or "Senior Network Engineer",
+                "experience_years": extracted_exp,
+                "phone": extracted_phone,
+                "email": extracted_email
             }
         })
 
@@ -238,24 +275,28 @@ def new_campaign_page(request: Request, plan: str = ""):
         return RedirectResponse(f"/login?plan={plan}" if plan else "/login", status_code=303)
 
     with get_db() as conn:
+        user_row = conn.execute("SELECT * FROM users WHERE user_id = ? OR id = ?", (user_id, str(user_id))).fetchone()
+        user = dict(user_row) if user_row else {}
+        user_display_name = (user.get("name") or "").strip()
+
         rows = conn.execute(
             """SELECT * FROM cv_profiles
-               WHERE user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
-               ORDER BY id DESC""", (user_id,)
+               WHERE user_id = ? OR user_id = ?
+               ORDER BY id DESC""", (user_id, str(user_id))
         ).fetchall()
-        user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
-        user = dict(user_row) if user_row else {}
 
         formatted_profiles = []
         seen_names = set()
         for r in rows:
             p = dict(r)
-            raw_name = p.get("profile_name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
-            raw_titles = p.get("target_titles") or "Senior Network Engineer, Network Security Engineer, Solutions Architect"
-            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Network Engineer"
-            exp = p.get("experience_years") or 15
+            raw_name = p.get("profile_name") or user_display_name or "My Profile"
+            if user_display_name and ("Profile" in raw_name or raw_name in ("Sam Salameh", "Candidate", "Alex Johnson", "Default Profile")):
+                raw_name = user_display_name
+            raw_titles = p.get("target_titles") or "Software Engineer"
+            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Software Engineer"
+            exp = p.get("experience_years") or 5
             ats_score = p.get("ats_score") or 95
-            skills = p.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark, SolarWinds, PRTG"
+            skills = p.get("skills") or "Engineering, Systems, Technology"
 
             clean_name = raw_name
             if " - " not in clean_name:
@@ -273,33 +314,6 @@ def new_campaign_page(request: Request, plan: str = ""):
                 formatted_profiles.append(p)
 
         profiles = formatted_profiles
-        if not profiles:
-            try:
-                cursor = conn.execute(
-                    """INSERT INTO cv_profiles (user_id, profile_name, cv_text, skills, experience_years, target_titles, target_locations)
-                       VALUES (?, 'Executive Candidate - Senior Software Engineer', 'Senior Systems & Cloud Architect', 'Distributed Systems, Cloud Architecture, APIs, Security', 10, 'Senior Software Engineer, Tech Lead, Systems Architect', 'Dubai, UAE, Remote')""",
-                    (user_id,)
-                )
-                conn.commit()
-                new_id = cursor.lastrowid
-                profiles = [{
-                    "id": new_id,
-                    "profile_name": "Executive Candidate - Senior Software Engineer (10+ yrs exp)",
-                    "target_titles": "Senior Software Engineer, Tech Lead, Systems Architect",
-                    "experience_years": 10,
-                    "ats_score": 95,
-                    "skills": "Distributed Systems, Cloud Architecture, APIs, Security"
-                }]
-            except Exception as prof_err:
-                logger.warning(f"Could not auto-create fallback cv_profile: {prof_err}")
-                profiles = [{
-                    "id": 25,
-                    "profile_name": "Executive Candidate - Senior Software Engineer (10+ yrs exp)",
-                    "target_titles": "Senior Software Engineer, Tech Lead, Systems Architect",
-                    "experience_years": 10,
-                    "ats_score": 95,
-                    "skills": "Distributed Systems, Cloud Architecture, APIs, Security"
-                }]
 
     pricing_data = get_all_pricing()
     tiers = pricing_data.get("tiers", pricing_data) if isinstance(pricing_data, dict) else pricing_data
@@ -347,7 +361,7 @@ async def create_campaign_router_api(
             if not user_row:
                 conn.execute(
                     "INSERT OR IGNORE INTO users (user_id, email, full_name, wallet_balance) VALUES (?,?,?,?)",
-                    (user_id, "admin@jobhunt-pro.com", "JobHunt Pro Admin", 10000.0)
+                    (user_id, "samatou683@gmail.com", "Sam Salameh", 10000.0)
                 )
                 conn.commit()
                 user_row = conn.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
@@ -359,25 +373,26 @@ async def create_campaign_router_api(
                 if prof:
                     profile_id = str(prof["id"] if isinstance(prof, dict) else prof[0])
                 else:
-                    prof_any = conn.execute("SELECT id FROM cv_profiles ORDER BY id DESC LIMIT 1").fetchone()
-                    if prof_any:
-                        profile_id = str(prof_any["id"] if isinstance(prof_any, dict) else prof_any[0])
-                    else:
-                        profile_id = "19"
+                    u_info = conn.execute("SELECT name, email, phone FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)).fetchone()
+                    u_d = dict(u_info) if u_info else {}
+                    u_name = u_d.get("name") or "Candidate"
+                    u_email = u_d.get("email") or "applicant@jobhunt.me"
+                    u_phone = u_d.get("phone") or "+961 70 841 009"
+                    ins_prof = conn.execute(
+                        "INSERT INTO cv_profiles (user_id, profile_name, email, phone, target_titles, skills, experience_years) VALUES (?, ?, ?, ?, 'Executive Candidate', 'Leadership, Strategy, High-Impact Delivery', 5)",
+                        (user_id, u_name, u_email, u_phone)
+                    )
+                    conn.commit()
+                    profile_id = str(ins_prof.lastrowid) if (hasattr(ins_prof, 'lastrowid') and ins_prof.lastrowid) else "1"
 
             try:
                 pid_val = int(profile_id)
             except (ValueError, TypeError):
                 pid_val = profile_id
 
-            tier = None
-            if isinstance(PRICING_TIERS, list):
-                for t in PRICING_TIERS:
-                    if isinstance(t, dict) and t.get("companies") == company_count:
-                        tier = t
-                        break
-
-            total_price = tier["price_usd"] if tier else 0.0
+            from core.pricing_manager import get_tier_by_company_count, BOUQUET_PACKAGES
+            tier = get_tier_by_company_count(company_count, apply_discount=True)
+            total_price = float(tier["price_usd"]) if tier else 0.0
 
             selected_bouquets = []
             if bouquets:
@@ -424,7 +439,7 @@ async def create_campaign_router_api(
                 try:
                     val = float(override_cost)
                     if val > 0:
-                        total_price = val
+                        total_price = min(val, calculated_base_price)
                     elif val == 0 and company_count > 0 and calculated_base_price > 0:
                         total_price = calculated_base_price
                 except Exception:
@@ -482,11 +497,12 @@ async def create_campaign_router_api(
             )
 
             if total_price > 0:
-                new_balance = max(0.0, user.get("wallet_balance", 0) - total_price)
+                current_bal = float(user.get("wallet_balance", 0) or 0)
+                new_balance = max(0.0, round(current_bal - float(total_price), 2))
                 conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
                 conn.execute(
                     "INSERT INTO wallet_transactions (user_id, transaction_type, amount, balance_after, description) VALUES (?,?,?,?,?)",
-                    (user_id, "spend", -total_price, new_balance, f"Campaign {campaign_id}: {company_count} companies")
+                    (user_id, "spend", -float(total_price), new_balance, f"Campaign {campaign_id}: {company_count} companies")
                 )
             conn.commit()
 
@@ -540,8 +556,8 @@ async def delete_cv_profile(request: Request):
             # Query if profile exists and belongs to user
             row = conn.execute(
                 """SELECT id FROM cv_profiles 
-                   WHERE id = ? AND (user_id = ? OR user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com'))""",
-                (profile_id, user_id)
+                   WHERE id = ? AND (user_id = ? OR user_id = ?)""",
+                (profile_id, user_id, str(user_id))
             ).fetchone()
             if row:
                 conn.execute("DELETE FROM cv_profiles WHERE id = ?", (profile_id,))
@@ -865,6 +881,7 @@ def quick_update_profile(
     target_locations: str = Form(""),
     skills: str = Form(""),
     phone: str = Form(""),
+    profile_id: Optional[int] = Form(None),
     request: Request = None
 ):
     """Quick edit user target profile & skills directly from Battle Station."""
@@ -875,20 +892,28 @@ def quick_update_profile(
         return JSONResponse({"status": "error", "message": "Unauthorized"}, status_code=401)
 
     with get_db() as conn:
-        has_prof = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ?", (user_id,)).fetchone()
-        if has_prof:
+        if profile_id:
             conn.execute(
                 """UPDATE cv_profiles 
                    SET target_titles = ?, target_locations = ?, skills = ?, phone = ? 
-                   WHERE user_id = ?""",
-                (target_titles, target_locations, skills, phone, user_id)
+                   WHERE id = ? AND user_id = ?""",
+                (target_titles, target_locations, skills, phone, int(profile_id), user_id)
             )
         else:
-            conn.execute(
-                """INSERT INTO cv_profiles (user_id, target_titles, target_locations, skills, phone) 
-                   VALUES (?, ?, ?, ?, ?)""",
-                (user_id, target_titles, target_locations, skills, phone)
-            )
+            latest_prof = conn.execute("SELECT id FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+            if latest_prof:
+                conn.execute(
+                    """UPDATE cv_profiles 
+                       SET target_titles = ?, target_locations = ?, skills = ?, phone = ? 
+                       WHERE id = ? AND user_id = ?""",
+                    (target_titles, target_locations, skills, phone, latest_prof["id"], user_id)
+                )
+            else:
+                conn.execute(
+                    """INSERT INTO cv_profiles (user_id, target_titles, target_locations, skills, phone) 
+                       VALUES (?, ?, ?, ?, ?)""",
+                    (user_id, target_titles, target_locations, skills, phone)
+                )
         if phone:
             conn.execute("UPDATE users SET phone = ? WHERE user_id = ?", (phone, user_id))
         conn.commit()
@@ -896,7 +921,7 @@ def quick_update_profile(
 
 
 @router.get("/api/profile/my-profile")
-def get_my_profile(request: Request = None):
+def get_my_profile(profile_id: Optional[int] = None, request: Request = None):
     """Fetch profile details for active user dynamically parsed from their uploaded CV & ATS profile."""
     import re
     from web.shared import get_verified_user_id
@@ -910,7 +935,10 @@ def get_my_profile(request: Request = None):
 
     try:
         with get_db() as conn:
-            prof = conn.execute("SELECT target_titles, target_locations, skills, phone, cv_text FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+            if profile_id:
+                prof = conn.execute("SELECT id, profile_name, target_titles, target_locations, skills, phone, cv_text FROM cv_profiles WHERE id = ? AND user_id = ?", (profile_id, user_id)).fetchone()
+            else:
+                prof = conn.execute("SELECT id, profile_name, target_titles, target_locations, skills, phone, cv_text FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
             if prof:
                 p_dict = dict(prof)
             usr = conn.execute("SELECT user_id, email, name, phone, tokens, wallet_balance, is_admin, user_type FROM users WHERE user_id = ?", (user_id,)).fetchone()
@@ -922,6 +950,8 @@ def get_my_profile(request: Request = None):
     return JSONResponse({
         "status": "success",
         "profile": {
+            "profile_id": p_dict.get("id"),
+            "profile_name": p_dict.get("profile_name", ""),
             "user_id": user_id,
             "email": u_dict.get("email", ""),
             "name": u_dict.get("name", "Candidate"),
@@ -1077,6 +1107,7 @@ async def api_send_test_email(request: Request):
     """
     Send a live test email to a specific recipient address, deducting $1.00 USD from the user's wallet.
     """
+    import config
     from web.shared import get_db, get_verified_user_id
     user_id = get_verified_user_id(request)
     
@@ -1120,7 +1151,7 @@ async def api_send_test_email(request: Request):
 
     with get_db() as conn:
 
-        user = conn.execute("SELECT user_id, email, name, wallet_balance FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        user = conn.execute("SELECT id, user_id, email, name, wallet_balance FROM users WHERE user_id = ? OR id = ?", (user_id, user_id)).fetchone()
         if not user:
             return JSONResponse({"success": False, "error": "المستخدم غير موجود / User not found"}, status_code=404)
 
@@ -1136,37 +1167,75 @@ async def api_send_test_email(request: Request):
                 "current_balance_usd": current_balance
             }, status_code=400)
 
+        cand_name = user_dict.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+        cand_email = user_dict.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+        prof = {}
+
         # Generate the EXACT SAME full application email sent to real companies
         try:
             from core.cover_letter import CoverLetterWriter
             
             # Retrieve user CV profile details by chosen profile_id or latest
-            if profile_id:
-                prof_row = conn.execute("SELECT * FROM cv_profiles WHERE id = ?", (profile_id,)).fetchone()
-            else:
-                prof_row = None
+            try:
+                if profile_id:
+                    prof_row = conn.execute("SELECT * FROM cv_profiles WHERE id = ?", (profile_id,)).fetchone()
+                else:
+                    prof_row = None
 
-            if not prof_row:
-                prof_row = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-                
-            prof = dict(prof_row) if prof_row else {}
+                if not prof_row:
+                    prof_row = conn.execute("SELECT * FROM cv_profiles WHERE user_id = ? ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
+                    
+                if prof_row:
+                    prof = dict(prof_row)
+            except Exception as prof_err:
+                logger.debug(f"[send_test_email] cv_profiles lookup bypass: {prof_err}")
             
             raw_prof = prof.get("target_titles") or prof.get("profile_name") or job_title
             clean_prof = str(raw_prof).split(",")[0].strip() if "," in str(raw_prof) else str(raw_prof).strip()
             if clean_prof.lower().startswith("senior "):
                 clean_prof = clean_prof[7:].strip()
-            
-            cand_name = user_dict.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
 
-            cand_email = user_dict.get("email") or prof.get("email") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+            cand_pname = prof.get("profile_name") or user_dict.get("name") or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
+            if " - " in cand_pname:
+                cand_name = cand_pname.split(" - ")[0].strip()
+            else:
+                cand_name = cand_pname.strip()
+
+            # If name is generic or OAuth handle, extract from CV text
+            if not cand_name or cand_name.lower() in ("candidate", "user", "aurora future", "default profile") or "@" in cand_name:
+                if prof.get("cv_text"):
+                    from core.instant_cv_engine import InstantCVEngine
+                    extracted_cand = InstantCVEngine.extract_candidate_profile(prof.get("cv_text"))
+                    if extracted_cand.get("name"):
+                        cand_name = extracted_cand.get("name")
+
+            if not cand_name:
+                cand_name = "Sam Salameh"
+
+            cand_email_res = None
+            if prof.get("email") and "@" in str(prof.get("email")):
+                cand_email_res = str(prof.get("email")).strip()
+            elif prof.get("cv_text"):
+                import re
+                email_m = re.search(r"[\w\.-]+@[\w\.-]+\.\w+", prof.get("cv_text"))
+                if email_m:
+                    cand_email_res = email_m.group(0).strip()
+
+            if not cand_email_res or "aurora" in cand_email_res.lower() or "demo" in cand_email_res.lower():
+                cand_email_res = "sam.dev1@hotmail.com"
+
+            cand_phone_res = prof.get("phone") or user_dict.get("phone") or "+961 70 841 009"
+            
+            raw_exp = str(prof.get("experience_years") or "").replace("+", "").strip()
+            exp_val = raw_exp if raw_exp.isdigit() and int(raw_exp) >= 10 else "15"
 
             user_details = {
                 "name": cand_name,
-                "email": cand_email,
-                "phone": prof.get("phone") or getattr(config, "CANDIDATE_PHONE", "+961 70 841 009"),
-                "address": prof.get("target_locations") or "Beirut, Lebanon",
-                "skills": prof.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, OSPF, BGP, Wireshark",
-                "experience_years": str(prof.get("experience_years") or "15"),
+                "email": cand_email_res,
+                "phone": cand_phone_res,
+                "address": prof.get("target_locations") or "Beirut, Lebanon / GCC / Remote",
+                "skills": prof.get("skills") or "Network Design, Cisco IOS, MikroTik, Ubiquiti, Fortinet, Firewalls, VPN, TCP/IP, BGP, OSPF",
+                "experience_years": exp_val,
                 "profession": clean_prof or "Senior Network Engineer"
             }
             
@@ -1182,12 +1251,20 @@ async def api_send_test_email(request: Request):
                 )
             
             if custom_note:
-                html_body += f'<div style="margin-top:20px;padding:15px;background:rgba(99,102,241,0.15);border-left:4px solid #6366f1;border-radius:8px;color:#334155;font-size:13px;"><strong>Applicant Note:</strong> {custom_note}</div>'
+                html_body += f'<div style="margin-top:16px;padding:12px 16px;background-color:#f8fafc;border-left:3px solid #2563eb;border-radius:6px;color:#334155;font-size:13px;"><strong>Applicant Note:</strong> {custom_note}</div>'
         except Exception as gen_err:
             logger.warning(f"[send_test_email] Cover letter generation error: {gen_err}")
             html_body = f"<p>Dear Hiring Manager at {company_name},</p><p>Please accept my application for the {job_title} position.</p>"
 
-        subject = f"Application for {job_title} - {company_name}"
+        import random
+        subj_candidates = [
+            f"{cand_name} - {job_title} Application",
+            f"Application: {job_title} - {cand_name}",
+            f"{job_title} - {cand_name}",
+            f"Application for {job_title} ({cand_name})",
+            f"{cand_name} - Resume & Application for {job_title}",
+        ]
+        subject = random.choice(subj_candidates)
 
         # 1. Resolve CV attachment file path if exists
         cv_path = None
@@ -1211,6 +1288,8 @@ async def api_send_test_email(request: Request):
             from core.email_engine import send_email_via_gmail_smtp
             from config import ACTIVE_EMAIL_PROVIDERS
             gmail_accs = [p for p in ACTIVE_EMAIL_PROVIDERS if p.get("password") and "gmail" in p.get("server", "")]
+            # Sort so that salamehsam33 / candidate matching username is tried first
+            gmail_accs.sort(key=lambda x: 0 if "salameh" in x.get("user", "").lower() else 1)
 
             for acc in gmail_accs:
                 u = acc.get("user")
@@ -1223,6 +1302,7 @@ async def api_send_test_email(request: Request):
                         custom_body=html_body,
                         sender_name=cand_name,
                         subject=subject,
+                        reply_to=cand_email_res,
                         smtp_user=u,
                         smtp_pass=p,
                         attachment_paths=[cv_path] if cv_path and os.path.exists(cv_path) else None
@@ -1231,7 +1311,7 @@ async def api_send_test_email(request: Request):
                     if ok:
                         dispatch_success = True
                         dispatch_msg_id = res_tuple[1] if isinstance(res_tuple, tuple) and len(res_tuple) > 1 else "gmail-smtp"
-                        logger.info(f"[test_email] Gmail SMTP pool dispatch SUCCESS via {u} to {recipient_email}")
+                        logger.info(f"[test_email] Gmail SMTP pool dispatch SUCCESS via {u} to {recipient_email} (Reply-To: {cand_email_res})")
                         break
         except Exception as engine_err:
             logger.warning(f"[test_email] Gmail SMTP pool dispatch error: {engine_err}")
@@ -1242,7 +1322,7 @@ async def api_send_test_email(request: Request):
             if api_key:
                 try:
                     import httpx
-                    sender_email = cand_email or os.getenv("BREVO_ACCOUNT_EMAIL") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
+                    sender_email = cand_email_res or os.getenv("BREVO_ACCOUNT_EMAIL") or getattr(config, "CANDIDATE_EMAIL", "sam.dev1@hotmail.com")
                     sender_name = cand_name or getattr(config, "CANDIDATE_NAME", "Sam Salameh")
                     
                     payload = {
@@ -1275,7 +1355,7 @@ async def api_send_test_email(request: Request):
 
         # ATOMIC STEP: NOW THAT EMAIL IS CONFIRMED SENT, DEDUCT $1.00 & UPDATE STATS!
         new_balance = round(current_balance - cost, 2)
-        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ?", (new_balance, user_id))
+        conn.execute("UPDATE users SET wallet_balance = ? WHERE user_id = ? OR id = ?", (new_balance, user_id, user_id))
 
         try:
             conn.execute("""
@@ -1286,12 +1366,16 @@ async def api_send_test_email(request: Request):
             logger.warning(f"[test_email] Wallet tx log error: {tx_err}")
 
         # Fetch or create active test campaign ID
-        camp_row = conn.execute("SELECT campaign_id FROM campaigns WHERE user_id = ? AND status != 'deleted' ORDER BY id DESC LIMIT 1", (user_id,)).fetchone()
-        if camp_row:
-            campaign_id = camp_row["campaign_id"]
-        else:
+        try:
+            camp_row = conn.execute("SELECT campaign_id FROM campaigns WHERE (user_id = ? OR user_id = ?) AND status != 'deleted' ORDER BY id DESC LIMIT 1", (user_id, user_id)).fetchone()
+            if camp_row:
+                campaign_id = camp_row["campaign_id"]
+            else:
+                campaign_id = f"test_camp_{uuid.uuid4().hex[:8]}"
+                conn.execute("INSERT INTO campaigns (campaign_id, user_id, status, total_companies, sent_count, created_at) VALUES (?, ?, 'running', 10, 0, CURRENT_TIMESTAMP)", (campaign_id, user_id))
+        except Exception as c_err:
+            logger.debug(f"[test_email] Campaign table bypass: {c_err}")
             campaign_id = f"test_camp_{uuid.uuid4().hex[:8]}"
-            conn.execute("INSERT INTO campaigns (campaign_id, user_id, status, total_companies, sent_count, created_at) VALUES (?, ?, 'running', 10, 0, CURRENT_TIMESTAMP)", (campaign_id, user_id))
 
         # Save local HTML preview copy for instant browser viewing
         preview_filename = f"test_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}.html"
@@ -1307,7 +1391,7 @@ async def api_send_test_email(request: Request):
         tracking_id = f"test_{uuid.uuid4().hex[:10]}"
         try:
             conn.execute("""
-                INSERT OR REPLACE INTO campaign_emails 
+                INSERT INTO campaign_emails 
                 (campaign_id, company_name, job_title, email_address, status, tracking_id, pipeline_stage, sent_at, followup_count)
                 VALUES (?, ?, ?, ?, 'sent', ?, 'applied', CURRENT_TIMESTAMP, 0)
             """, (campaign_id, company_name, job_title, recipient_email, tracking_id))
@@ -1316,6 +1400,10 @@ async def api_send_test_email(request: Request):
             conn.commit()
         except Exception as db_log_err:
             logger.warning(f"[test_email] campaign_emails insert error (non-fatal): {db_log_err}")
+            try:
+                conn.commit()
+            except Exception:
+                pass
 
         return JSONResponse({
             "success": True,
@@ -1346,33 +1434,55 @@ def api_get_user_profiles(request: Request):
     from web.shared import get_db, config, get_verified_user_id
     user_id = get_verified_user_id(request)
     with get_db() as conn:
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS cv_profiles (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    profile_name TEXT,
+                    cv_text TEXT,
+                    target_titles TEXT,
+                    target_locations TEXT,
+                    min_local_salary REAL,
+                    skills TEXT,
+                    experience_years INTEGER,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+        except Exception:
+            pass
+
         if not user_id:
-            admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com' LIMIT 1").fetchone()
-            user_id = admin_user["user_id"] if admin_user else "user_1b73747a6e9a41d6"
+            return JSONResponse({"status": "ok", "success": True, "profiles": []})
 
-        rows = conn.execute(
-            """SELECT id, profile_name, target_titles, skills, experience_years
-               FROM cv_profiles
-               WHERE user_id = ? OR user_id = ?
-               ORDER BY id DESC""", (user_id, str(user_id))
-        ).fetchall()
+        user_display_name = ""
+        try:
+            u_row = conn.execute("SELECT name, email FROM users WHERE user_id = ? OR id = ?", (user_id, str(user_id))).fetchone()
+            user_display_name = (u_row["name"] if u_row and u_row["name"] else "").strip()
+        except Exception:
+            pass
 
-        if not rows:
+        rows = []
+        try:
             rows = conn.execute(
                 """SELECT id, profile_name, target_titles, skills, experience_years
                    FROM cv_profiles
-                   WHERE user_id IN (SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com')
-                   ORDER BY id DESC"""
+                   WHERE user_id = ? OR user_id = ?
+                   ORDER BY id DESC""", (user_id, str(user_id))
             ).fetchall()
+        except Exception:
+            rows = []
 
         formatted_profiles = []
         seen_names = set()
         for r in rows:
             p = dict(r)
-            raw_name = p.get("profile_name") or getattr(config, "CANDIDATE_NAME", "Alex Johnson")
-            raw_titles = p.get("target_titles") or "Senior Software Engineer, IT Manager, Systems Architect"
-            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Senior Software Engineer"
-            exp = p.get("experience_years") or 15
+            raw_name = p.get("profile_name") or user_display_name or "My Profile"
+            if user_display_name and ("Profile" in raw_name or raw_name in ("Alex Johnson", "Candidate", "Default Profile")):
+                raw_name = user_display_name
+            raw_titles = p.get("target_titles") or "Software Engineer"
+            first_title = raw_titles.split(",")[0].strip() if raw_titles else "Software Engineer"
+            exp = p.get("experience_years") or 5
             
             clean_name = raw_name
             if " - " not in clean_name:
@@ -1385,10 +1495,7 @@ def api_get_user_profiles(request: Request):
                 p["profile_name"] = clean_name
                 formatted_profiles.append(p)
 
-        if not formatted_profiles:
-            formatted_profiles = [{"id": 1, "profile_name": "Executive Profile - Senior Software Engineer (10+ yrs exp)", "target_titles": "Senior Software Engineer", "experience_years": 10}]
-
-        return JSONResponse({"success": True, "profiles": formatted_profiles})
+        return JSONResponse({"status": "ok", "success": True, "profiles": formatted_profiles})
 
 @router.post("/api/v2/campaigns/user-profiles")
 async def api_create_or_update_user_profile(request: Request):
@@ -1397,7 +1504,7 @@ async def api_create_or_update_user_profile(request: Request):
     user_id = get_verified_user_id(request)
     with get_db() as conn:
         if not user_id:
-            admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'admin@jobhunt-pro.com' LIMIT 1").fetchone()
+            admin_user = conn.execute("SELECT user_id FROM users WHERE user_type = 'admin' OR LOWER(email) = 'samatou683@gmail.com' LIMIT 1").fetchone()
             target_uid = admin_user["user_id"] if admin_user else "user_1b73747a6e9a41d6"
         else:
             target_uid = user_id

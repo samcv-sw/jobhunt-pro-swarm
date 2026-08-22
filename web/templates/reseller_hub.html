@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="{% if lang == 'zh' %}zh-CN{% elif lang == 'en' %}en{% elif lang == 'ru' %}ru{% else %}ar{% endif %}" dir="{% if lang in ['zh', 'en', 'ru'] %}ltr{% else %}rtl{% endif %}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
+  <title>JobHunt Pro | {% if lang == 'zh' %}全球分销商与无货源代销合作中心 (Reseller Matrix){% elif lang == 'en' %}Sovereign Reseller & Distributor Hub{% elif lang == 'ru' %}Партнерская сеть и Реселлеры JobHunt Pro{% else %}بوابة الموزعين والمسوقين العالمية (Reseller & Distributor Hub){% endif %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #030712;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --primary: #00E5FF;
+      --primary-glow: rgba(0, 229, 255, 0.35);
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: radial-gradient(circle at top center, #1e1b4b 0%, #030712 70%);
+      color: var(--text-main);
+      font-family: {% if lang == 'zh' %}'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', -apple-system, sans-serif{% elif lang in ['en', 'ru'] %}-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif{% else %}'Cairo', 'IBM Plex Sans Arabic', -apple-system, sans-serif{% endif %};
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    .reseller-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto !important;
+      padding: 30px 20px 80px;
+      box-sizing: border-box;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 16px;
+      width: 100%;
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .brand-badge {
+      background: linear-gradient(135deg, #00E5FF, #3b82f6);
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .lang-switcher {
+      display: flex;
+      gap: 6px;
+      background: rgba(255,255,255,0.05);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .lang-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .lang-btn.active {
+      background: var(--primary);
+      color: #000;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+    .hero-banner {
+      text-align: center;
+      padding: 46px 24px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-title {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 860px;
+      margin: 0 auto 28px;
+    }
+    .cta-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #00E5FF, #3b82f6);
+      color: #000;
+      font-weight: 800;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 0 20px var(--primary-glow);
+      transition: transform 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+
+    /* Grid Sections */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+      width: 100%;
+    }
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+    }
+    .glass-card.highlight {
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.15);
+    }
+    .card-badge {
+      position: absolute;
+      top: 16px;
+      inset-inline-end: 16px;
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .tier-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .tier-discount { font-size: 28px; font-weight: 900; color: var(--accent-green); margin-bottom: 16px; }
+    .tier-list { list-style: none; margin-bottom: 20px; }
+    .tier-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 14px;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Interactive Calculator */
+    .calc-section {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
+      width: 100%;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    @media (max-width: 768px) { .calc-grid { grid-template-columns: 1fr; } }
+    .slider-group { margin-bottom: 20px; }
+    .slider-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
+    .slider-input {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #1e293b;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--primary);
+    }
+    .calc-result-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+    }
+    .calc-profit-num {
+      font-size: 40px;
+      font-weight: 900;
+      color: var(--accent-green);
+      margin: 10px 0;
+    }
+
+    /* Tabs & Code Snippets */
+    .tab-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #000;
+      border-color: var(--primary);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .code-block {
+      background: #090d16;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: 'JetBrains Mono', 'Consolas', monospace;
+      font-size: 13px;
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      position: relative;
+      line-height: 1.7;
+      direction: ltr !important;
+      text-align: left !important;
+      unicode-bidi: isolate;
+    }
+    .arabic-marketing-box {
+      background: #0b1329;
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: 12px;
+      padding: 24px;
+      font-family: 'Cairo', 'IBM Plex Sans Arabic', sans-serif;
+      font-size: 15px;
+      line-height: 2.0;
+      color: #f8fafc;
+      position: relative;
+      direction: rtl !important;
+      text-align: right !important;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+    .english-marketing-box {
+      background: #0b1329;
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #f8fafc;
+      position: relative;
+      direction: ltr !important;
+      text-align: left !important;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+    .chinese-marketing-box {
+      background: #0b1329;
+      border: 1px solid rgba(0, 229, 255, 0.25);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #f8fafc;
+      position: relative;
+      direction: ltr !important;
+      text-align: left !important;
+      white-space: pre-wrap;
+      margin-bottom: 20px;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      inset-inline-end: 12px;
+      background: rgba(0, 229, 255, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 700;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: var(--primary);
+      color: #000;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: #0f172a;
+      border: 1px solid var(--primary);
+      border-radius: 20px;
+      max-width: 550px;
+      width: 100%;
+      padding: 30px;
+      box-shadow: 0 0 40px rgba(0, 229, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="reseller-container">
+    
+    <!-- Top Navigation -->
+    <header class="top-nav">
+      <a href="/" class="brand-logo">
+        <span style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px;">JobHunt<span style="color:var(--primary)">Pro</span></span>
+        <span class="brand-badge">{% if lang == 'zh' %}分销商合作矩阵{% elif lang == 'en' %}RESELLER MATRIX{% elif lang == 'ru' %}ПАРТНЕРСКАЯ СЕТЬ{% else %}بوابة الموزعين{% endif %}</span>
+      </a>
+
+      <!-- Language Selector -->
+      <div class="lang-switcher">
+        <a href="/reseller?lang=zh" class="lang-btn {% if lang == 'zh' %}active{% endif %}">🇨🇳 简体中文 (闲鱼/淘宝)</a>
+        <a href="/reseller?lang=ar" class="lang-btn {% if lang == 'ar' %}active{% endif %}">🇱🇧 العربية</a>
+        <a href="/reseller?lang=en" class="lang-btn {% if lang == 'en' %}active{% endif %}">🇺🇸 English</a>
+        <a href="/reseller?lang=ru" class="lang-btn {% if lang == 'ru' %}active{% endif %}">🇷🇺 Русский</a>
+      </div>
+    </header>
+
+
+    <!-- Hero Section -->
+    <section class="hero-banner">
+      {% if lang == 'zh' %}
+        <h1 class="hero-title">🚀 JobHunt Pro 全球分销商与无货源代销合作中心</h1>
+        <p class="hero-sub">专为闲鱼 (Xianyu)、淘宝 (Taobao)、1688、Telegram 机器人及各大电商渠道量身定制。支持 0 门槛起步代销、API 毫秒级全自动秒发卡密、最高 70% 渠道批发利润空间！</p>
+      {% elif lang == 'en' %}
+        <h1 class="hero-title">🚀 Sovereign Reseller, Dropshipper & Affiliate Matrix</h1>
+        <p class="hero-sub">The turnkey, 100% autonomous distribution network for digital goods resellers across Xianyu, Taobao, Telegram Bots, and Global SaaS Affiliates. Up to 70% wholesale margin or 50% instant recurring rev-share!</p>
+      {% elif lang == 'ru' %}
+        <h1 class="hero-title">🚀 Автоматизированная сеть реселлеров JobHunt Pro</h1>
+        <p class="hero-sub">Продавайте цифровые ключи JobHunt Pro в Telegram-ботах, Plati.market, FunPay и соцсетях. Оптовые скидки до 70%, API моментальной выдачи (<0.02с) и готовые боты.</p>
+      {% else %}
+        <h1 class="hero-title">🚀 منظومة الموزعين والمسوقين العالمية والبيع الآلي (Reseller Matrix)</h1>
+        <p class="hero-sub">المنظومة الأوتوماتيكية المتكاملة لموزعي البطاقات الرقمية ومسوقي الـ SaaS عبر منصات Xianyu، Taobao، تيليجرام، تيك توك، ولينكدإن. هامش ربح يصل إلى 70% أو عمولة فورية 50% بالكريبتو والدولار!</p>
+      {% endif %}
+
+      <div class="cta-actions">
+        <button onclick="openRegisterModal()" class="btn-primary">
+          🔑 {% if lang == 'zh' %}1秒免费获取分销商 API Key & 专属推广链接{% elif lang == 'en' %}Get My Free Reseller Key & Affiliate Links{% elif lang == 'ru' %}Получить API Ключ Реселлера{% else %}احصل على مفتاح الـ API ورابط التسويق فوراً{% endif %}
+        </button>
+        <a href="#marketing-packs" class="btn-secondary">
+          📦 {% if lang == 'zh' %}查看各平台爆款文案与防退款抗辩包{% elif lang == 'en' %}Browse Copy-Paste Marketing Packs{% elif lang == 'ru' %}Маркетинговые материалы{% else %}تصفح باقات الإعلانات الجاهزة{% endif %}
+        </a>
+      </div>
+    </section>
+
+    <!-- Wholesale Tiers Matrix -->
+    <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 20px; text-align: center;">
+      💎 {% if lang == 'zh' %}三级渠道批发折扣矩阵（代理商专享超低拿货价）{% elif lang == 'en' %}Wholesale Pricing & Profit Margins{% elif lang == 'ru' %}Оптовые тарифы для партнеров{% else %}مصفوفة أسعار الجملة وهوامش الأرباح{% endif %}
+    </h2>
+
+    <div class="grid-3">
+      <!-- Tier 1 -->
+      <div class="glass-card">
+        <span class="card-badge">LEVEL 1</span>
+        <h3 class="tier-title">{% if lang == 'zh' %}Starter Reseller (代销入门){% elif lang == 'en' %}Starter Reseller{% elif lang == 'ru' %}Стартовый партнер{% else %}Starter Reseller (موزع مبتدئ){% endif %}</h3>
+        <div class="tier-discount">30% <span>{% if lang == 'zh' %}批发利润空间{% elif lang == 'en' %}Margin{% elif lang == 'ru' %}Маржа{% else %}خصم فوري{% endif %}</span></div>
+        <ul class="tier-list">
+          <li><span>Starter ($9.00)</span> <strong style="color:var(--primary);">$6.30 (¥45)</strong></li>
+          <li><span>Basic ($19.00)</span> <strong style="color:var(--primary);">$13.30 (¥95)</strong></li>
+          <li><span>Pro ($49.00)</span> <strong style="color:var(--primary);">$34.30 (¥245)</strong></li>
+          <li><span>B2B Swarm ($149.00)</span> <strong style="color:var(--primary);">$104.30 (¥745)</strong></li>
+        </ul>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          {% if lang == 'zh' %}
+            ✓ 0 元无门槛起步入驻<br>
+            ✓ 适合闲鱼、小红书、微信朋友圈兼职代销<br>
+            ✓ 支持手动发卡或机器人自动派单
+          {% elif lang == 'en' %}
+            ✓ 0 Capital required to start<br>
+            ✓ Perfect for side-hustlers and community managers<br>
+            ✓ Manual or bot-automated key delivery
+          {% else %}
+            ✓ 0 رأس مال للبدء<br>
+            ✓ مناسب للمسوقين المبتدئين وأصحاب القنوات<br>
+            ✓ تسليم يدوي أو آلي للكودات
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Tier 2 -->
+      <div class="glass-card highlight">
+        <span class="card-badge" style="background:var(--accent-gold); color:#000;">POPULAR ⭐</span>
+        <h3 class="tier-title">{% if lang == 'zh' %}Gold Distributor (金牌渠道商){% elif lang == 'en' %}Gold Distributor{% elif lang == 'ru' %}Золотой партнер{% else %}Gold Distributor (موزع محترف){% endif %}</h3>
+        <div class="tier-discount" style="color:var(--accent-gold);">50% <span>{% if lang == 'zh' %}批发利润空间{% elif lang == 'en' %}Margin{% elif lang == 'ru' %}Маржа{% else %}خصم فوري{% endif %}</span></div>
+        <ul class="tier-list">
+          <li><span>Starter ($9.00)</span> <strong style="color:var(--accent-gold);">$4.50 (¥32)</strong></li>
+          <li><span>Basic ($19.00)</span> <strong style="color:var(--accent-gold);">$9.50 (¥68)</strong></li>
+          <li><span>Pro ($49.00)</span> <strong style="color:var(--accent-gold);">$24.50 (¥175)</strong></li>
+          <li><span>B2B Swarm ($149.00)</span> <strong style="color:var(--accent-gold);">$74.50 (¥530)</strong></li>
+        </ul>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          {% if lang == 'zh' %}
+            ✓ 适合淘宝店铺、1688、Telegram 自动发卡机器人<br>
+            ✓ 接入 REST API 毫秒级自动发货<br>
+            ✓ 配套消保法第25条防退款司法抗辩支持
+          {% elif lang == 'en' %}
+            ✓ Ideal for automated ecommerce stores & Telegram bots<br>
+            ✓ Direct sub-millisecond REST API minting<br>
+            ✓ Integrated anti-chargeback evidence generator
+          {% else %}
+            ✓ مناسب لمتاجر تيليجرام والمتاجر الرقمية المؤتمتة<br>
+            ✓ ربط API فوري فائق السرعة للتسليم التلقائي<br>
+            ✓ حماية متقدمة ضد النزاعات واسترجاع الأموال
+          {% endif %}
+        </p>
+      </div>
+
+      <!-- Tier 3 -->
+      <div class="glass-card">
+        <span class="card-badge" style="background:var(--accent-purple); color:#fff;">MAX PROFIT 👑</span>
+        <h3 class="tier-title">{% if lang == 'zh' %}Sovereign Partner (战略合伙人){% elif lang == 'en' %}Sovereign Partner{% elif lang == 'ru' %}Стратегический партнер{% else %}Sovereign Partner (كبار التجار){% endif %}</h3>
+        <div class="tier-discount" style="color:var(--accent-purple);">70% <span>{% if lang == 'zh' %}批发利润空间{% elif lang == 'en' %}Margin{% elif lang == 'ru' %}Маржа{% else %}خصم فوري{% endif %}</span></div>
+        <ul class="tier-list">
+          <li><span>Starter ($9.00)</span> <strong style="color:var(--accent-purple);">$2.70 (¥19)</strong></li>
+          <li><span>Basic ($19.00)</span> <strong style="color:var(--accent-purple);">$5.70 (¥41)</strong></li>
+          <li><span>Pro ($49.00)</span> <strong style="color:var(--accent-purple);">$14.70 (¥105)</strong></li>
+          <li><span>B2B Swarm ($149.00)</span> <strong style="color:var(--accent-purple);">$44.70 (¥320)</strong></li>
+        </ul>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          {% if lang == 'zh' %}
+            ✓ 适合大批量批量卡密进货、独立自建站与企业分销<br>
+            ✓ 支持独家 White-Label 独立域名代理部署<br>
+            ✓ 批量 CSV 导出与高并发 Webhook 极速响应
+          {% elif lang == 'en' %}
+            ✓ Designed for large-scale key aggregators & white-label portals<br>
+            ✓ Custom branding & private domain support<br>
+            ✓ Bulk CSV export & high-throughput webhooks
+          {% else %}
+            ✓ مخصص لكبار التجار والشركات والموزعين المعتمدين<br>
+            ✓ إمكانية تخصيص دومين وعلامة تجارية خاصة (White-Label)<br>
+            ✓ تصدير جماعي للأكواد عبر CSV وWebhooks عالية الأداء
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- Live Profit Calculator -->
+    <section class="calc-section">
+      <h2 style="font-size: 22px; font-weight: 800; margin-bottom: 20px;">
+        🧮 {% if lang == 'zh' %}分销收益实时模拟测算器{% elif lang == 'en' %}Live Reseller Profit & Volume Calculator{% elif lang == 'ru' %}Калькулятор прибыли реселлера{% else %}حاسبة الأرباح التفاعلية للموزعين{% endif %}
+      </h2>
+      <div class="calc-grid">
+        <div>
+          <div class="slider-group">
+            <label>{% if lang == 'zh' %}预计每日销量 (单):{% elif lang == 'en' %}Estimated Daily Sales:{% else %}عدد المبيعات اليومية المتوقعة:{% endif %} <strong id="sales-val" style="color:var(--primary)">15</strong></label>
+            <input type="range" id="sales-slider" class="slider-input" min="1" max="100" value="15" oninput="updateCalculator()">
+          </div>
+
+          <div class="slider-group">
+            <label>{% if lang == 'zh' %}主推规格套餐:{% elif lang == 'en' %}Selected Package Tier:{% else %}الباقة الأكثر مبيعاً:{% endif %}</label>
+            <select id="plan-select" onchange="updateCalculator()" style="width:100%; padding:10px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid var(--card-border);">
+              <option value="9">{% if lang == 'zh' %}Starter 体验版 ($9.00 / ¥65){% else %}Starter Plan ($9.00){% endif %}</option>
+              <option value="19" selected>{% if lang == 'zh' %}Basic 进阶版 ($19.00 / ¥138) [爆款推荐]{% else %}Basic Plan ($19.00) [Best Seller]{% endif %}</option>
+              <option value="49">{% if lang == 'zh' %}Pro 尊享版 ($49.00 / ¥348){% else %}Pro Plan ($49.00){% endif %}</option>
+              <option value="149">{% if lang == 'zh' %}B2B 企业拓客集群 ($149.00 / ¥1,050){% else %}B2B SDR Swarm ($149.00){% endif %}</option>
+            </select>
+          </div>
+
+          <div class="slider-group">
+            <label>{% if lang == 'zh' %}分销商级别 (渠道批发折扣):{% elif lang == 'en' %}Reseller Tier (Wholesale Margin):{% else %}مستوى الموزع (نسبة الخصم):{% endif %}</label>
+            <select id="tier-select" onchange="updateCalculator()" style="width:100%; padding:10px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid var(--card-border);">
+              <option value="0.30">{% if lang == 'zh' %}Starter 代销入门 (30% 批发利润){% else %}Starter Reseller (30% Margin){% endif %}</option>
+              <option value="0.50" selected>{% if lang == 'zh' %}Gold 金牌分销商 (50% 批发利润){% else %}Gold Distributor (50% Margin){% endif %}</option>
+              <option value="0.70">{% if lang == 'zh' %}Sovereign 核心合伙人 (70% 批发利润){% else %}Sovereign Partner (70% Margin){% endif %}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="calc-result-box">
+          <div style="font-size: 14px; color: var(--text-muted);">{% if lang == 'zh' %}预计您的每日净利润 (Daily Net Profit):{% elif lang == 'en' %}Estimated Daily Net Profit:{% else %}صافي أرباحك اليومية المتوقعة:{% endif %}</div>
+          <div class="calc-profit-num" id="daily-profit">$142.50</div>
+          <div style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">
+            {% if lang == 'zh' %}月度预计净利润 (Monthly Profit):{% elif lang == 'en' %}Estimated Monthly Profit:{% else %}صافي الأرباح الشهرية المتوقعة:{% endif %}
+            <strong id="monthly-profit" style="color:var(--primary); font-size:18px;">$4,275.00 / {% if lang == 'zh' %}月{% elif lang == 'en' %}Mo{% else %}شهر{% endif %}</strong>
+          </div>
+          <button onclick="openRegisterModal()" class="btn-primary" style="margin-top: 20px; width: 100%; justify-content: center;">
+            🚀 {% if lang == 'zh' %}立即入驻开通分销渠道{% elif lang == 'en' %}Join & Activate Channel Now{% else %}ابدأ بتحقيق هذه الأرباح الآن{% endif %}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Marketing Asset Packs Section -->
+    <section id="marketing-packs" style="margin-bottom: 40px;">
+      <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 20px;">
+        📦 {% if lang == 'zh' %}全平台一键爆款引流文案与营销素材库 (Marketing Assets){% elif lang == 'en' %}Ready-to-Use Viral Copy & Marketing Kits{% else %}مكتبة الإعلانات والنصوص الجاهزة للنشر والترويج{% endif %}
+      </h2>
+
+      <div class="tab-header">
+        {% if lang == 'zh' %}
+          <button class="tab-btn active" onclick="switchTab('tab-xianyu')">🇨🇳 闲鱼 / 淘宝爆款文案与自动回复</button>
+          <button class="tab-btn" onclick="switchTab('tab-xhs')">📱 小红书图文 / 微信朋友圈话术</button>
+          <button class="tab-btn" onclick="switchTab('tab-overseas')">🎓 留学生海归 / 外企直聘定向推广</button>
+          <button class="tab-btn" onclick="switchTab('tab-bot')">🤖 24小时全自动发卡机器人源码 (全中文)</button>
+        {% elif lang == 'ar' %}
+          <button class="tab-btn active" onclick="switchTab('tab-arab-tiktok')">📱 سكريبتات تيك توك وريلز خليجية</button>
+          <button class="tab-btn" onclick="switchTab('tab-arab-wa')">💬 رسائل واتساب وتيليجرام للمجموعات والمسوقين</button>
+          <button class="tab-btn" onclick="switchTab('tab-usa')">💼 رسائل لينكدإن للمدراء والمدربين المهنيين</button>
+          <button class="tab-btn" onclick="switchTab('tab-bot')">🤖 كود بوت تيليجرام للبيع الآلي (بايثون معرب)</button>
+        {% else %}
+          <button class="tab-btn active" onclick="switchTab('tab-usa')">💼 LinkedIn & Coach Outreach</button>
+          <button class="tab-btn" onclick="switchTab('tab-x')">🐦 Twitter / X Viral Posts</button>
+          <button class="tab-btn" onclick="switchTab('tab-reddit')">🚀 Reddit Community Guides</button>
+          <button class="tab-btn" onclick="switchTab('tab-bot')">🤖 1-Click Telegram Reseller Bot</button>
+        {% endif %}
+      </div>
+
+      {% if lang == 'zh' %}
+        <!-- Tab 1: Xianyu / Taobao -->
+        <div id="tab-xianyu" class="tab-content active glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">📌 闲鱼/淘宝高转化商品标题 (直接复制)：</h4>
+          <div class="chinese-marketing-box">
+            {{ marketing_pack.china_market_assets.xianyu_listing.title }}
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+
+          <h4 style="color:var(--primary); margin: 16px 0 8px;">📝 闲鱼/淘宝商品详情页完整描述 (带消保法第25条免责抗辩)：</h4>
+          <div class="chinese-marketing-box">
+{{ marketing_pack.china_market_assets.xianyu_listing.description }}
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+
+          <h4 style="color:var(--primary); margin: 16px 0 8px;">⚡ 自动回复机器人设置 (客户发来咨询时自动秒回)：</h4>
+          <div class="chinese-marketing-box">
+{{ marketing_pack.china_market_assets.xianyu_listing.auto_reply_presale }}
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: Xiaohongshu & WeChat -->
+        <div id="tab-xhs" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">📱 小红书爆款求职笔记模板 (配图建议：ATS 95分打分截图)：</h4>
+          <div class="chinese-marketing-box">
+🔥 救命！原来大厂 HR 都在看 ATS 评分！教你用 AI 投递拿爆面试邀请 😭💼
+
+海投 100 家已读不回？不是你不够优秀，是你的简历根本没过机器筛查！
+很多欧美外企和互联网大厂第一关都是用 ATS 系统自动化筛选关键词。
+
+🌟 我亲测用 JobHunt Pro 智能优化：
+1️⃣ 智能解析岗位要求，自动将简历关键词匹配度拉升至 95%+！
+2️⃣ 深度挖掘海外名企 / 独角兽企业 HR 直聘邮箱。
+3️⃣ 24 小时全自动 AI 投递矩阵与跟进，效率直接拉满！
+
+🔗 测一测你的简历能拿多少分（群友免费入口）：
+https://jobhunt-pro.com/free-ats-score?ref={{ ref }}
+
+#求职季 #AI简历优化 #留学生求职 #大厂内推 #找工作 #远程办公 #外企求职
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+
+          <h4 style="color:var(--primary); margin: 16px 0 8px;">💬 微信群 / 朋友圈成交话术：</h4>
+          <div class="chinese-marketing-box">
+🚀【求职黑科技】还在手动一家家投简历？
+JobHunt Pro 智能求职系统：
+✅ AI 深度定制每一份投递的简历与 Cover Letter
+✅ 精准直连海外名企 & 独角兽高管直聘邮箱
+✅ 24小时全自动投递，零跳出率与智能防拦截
+
+限时开放免费 ATS 简历评分测试通道 👇
+https://jobhunt-pro.com/free-ats-score?ref={{ ref }}
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+        </div>
+
+        <!-- Tab 3: Overseas & Sea-Turtle -->
+        <div id="tab-overseas" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">🎓 海归留学生 / 外企高薪求职专属推广文案：</h4>
+          <div class="chinese-marketing-box">
+【海归留学生 & 外企求职专享】
+精准契合欧美大厂（Google、Meta、微软、亚马逊等）ATS 算法与 HR 筛选系统！
+覆盖全球 1000+ 顶尖企业直聘邮箱，打破求职信息差，助你斩获高薪 Offer！
+
+官方正版卡密，支持官网即时验真与 24 小时技术保障。
+直达兑换：https://jobhunt-pro.com/store?ref={{ ref }}
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+
+          <h4 style="color:var(--primary); margin: 16px 0 8px;">🛡️ 闲鱼/淘宝防恶意退款司法抗辩声明 (遇纠纷直接提交平台客服)：</h4>
+          <div class="chinese-marketing-box">
+依据《中华人民共和国消费者权益保护法》第二十五条第三款规定，交付的数字化商品不适用七天无理由退货。
+本商品为在线即时生成的官方激活凭证与算力服务，系统已在拍下后 3 秒内完成自动发货与哈希存证（SHA-256 Merkle Proof），卡密一经交付即视为已消费完毕，依法不支持任何形式的退换，特此声明！
+            <button class="copy-btn" onclick="copyCode(this)">复制</button>
+          </div>
+        </div>
+
+
+      {% elif lang == 'ar' %}
+        <!-- Tab: Arabic TikTok -->
+        <div id="tab-arab-tiktok" class="tab-content active glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 12px; font-size: 16px; font-weight: 700;">📱 سكريبت تيك توك وريلز خليجي (فيديو سريع وجذاب):</h4>
+          <div class="arabic-marketing-box">
+{{ marketing_pack.gulf_arab_assets.tiktok_reels_script }}
+            <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+          </div>
+        </div>
+
+        <!-- Tab: Arabic WhatsApp -->
+        <div id="tab-arab-wa" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 12px; font-size: 16px; font-weight: 700;">💬 نص نشر واتساب وتيليجرام للمجموعات والمسوقين:</h4>
+          <div class="arabic-marketing-box">
+{{ marketing_pack.gulf_arab_assets.whatsapp_broadcast }}
+            <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+          </div>
+        </div>
+
+        <!-- Tab: Arabic LinkedIn & Coaches -->
+        <div id="tab-usa" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 12px; font-size: 16px; font-weight: 700;">💼 رسالة تواصل احترافية موجهة لمدراء التوظيف والمدربين المهنيين (LinkedIn DM):</h4>
+          <div class="arabic-marketing-box">
+مرحباً [الاسم]، لاحظت اهتمامك بمساعدة الكفاءات والباحثين عن عمل في تطوير مسيرتهم المهنية واجتياز المقابلات الوظيفية.
+
+أطلقنا مؤخراً منصة JobHunt Pro — المنظومة الذكية الأوتوماتيكية الأولى لتخصيص السير الذاتية بالذكاء الاصطناعي وإرسال طلبات التقديم المباشرة لإيميلات مدراء التوظيف المعتمدين في كبرى الشركات الخليجية والعالمية.
+
+🌟 يمكنك الآن تقديم خدمة فحص مجاني للـ ATS ومطابقة السيرة الذاتية لجمهورك ومتابعيك عبر هذا الرابط:
+https://jobhunt-pro.com/free-ats-score?ref={{ ref }}
+
+أو كسب عمولة أرباح فورية ومستمرة بنسبة 50% على كل اشتراك وترقية من خلال متجرك الخاص:
+https://jobhunt-pro.com/store?ref={{ ref }}
+
+يسعدني تزويدك بكود وصول VIP مجاني لتجربة المنظومة بنفسك!
+            <button class="copy-btn" onclick="copyCode(this)">نسخ</button>
+          </div>
+
+          <h4 style="color:var(--primary); margin: 20px 0 12px; font-size: 16px; font-weight: 700;">🌐 نموذج إنجليزي إضافي (اختياري للشركات الدولية والمدراء الأجانب):</h4>
+          <div class="english-marketing-box">
+{{ marketing_pack.usa_global_assets.linkedin_dm_pitch }}
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+        </div>
+
+      {% else %}
+        <!-- Tab: LinkedIn (English) -->
+        <div id="tab-usa" class="tab-content active glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">💼 LinkedIn & Career Coach Outreach DM:</h4>
+          <div class="code-block">
+{{ marketing_pack.usa_global_assets.linkedin_dm_pitch }}
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+        </div>
+
+        <!-- Tab: Twitter / X -->
+        <div id="tab-x" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">🐦 Twitter / X Viral Post Template:</h4>
+          <div class="code-block">
+{{ marketing_pack.usa_global_assets.twitter_x_post }}
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+        </div>
+
+        <!-- Tab: Reddit -->
+        <div id="tab-reddit" class="tab-content glass-card">
+          <h4 style="color:var(--primary); margin-bottom: 8px;">🚀 Reddit Community Post (r/resumes, r/cscareerquestions):</h4>
+          <div class="code-block">
+{{ marketing_pack.usa_global_assets.reddit_post_template.body }}
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Tab: Telegram Reseller Bot -->
+      <div id="tab-bot" class="tab-content glass-card">
+        <h4 style="color:var(--primary); margin-bottom: 8px;">🤖 {% if lang == 'zh' %}独立 Telegram 自动发卡机器人源码 (Python 脚本)：{% elif lang == 'ar' %}كود بوت تيليجرام مستقل للبيع والتسليم التلقائي:{% else %}Standalone Telegram Reseller Bot Python Code:{% endif %}</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+          {% if lang == 'zh' %}
+            将此脚本保存为 <code>reseller_bot.py</code>，填入 @BotFather 申请的 Token，即可在 Telegram 上 24 小时全自动售卡派单！
+          {% elif lang == 'ar' %}
+            انسخ هذا الكود في ملف <code>reseller_bot.py</code>، ضع التوكن من @BotFather، وشغله ليبيع كروت JobHunt Pro في تيليجرام 24/7!
+          {% else %}
+            Save this as <code>reseller_bot.py</code>, insert your Telegram Bot Token from @BotFather, and run to sell keys 24/7!
+          {% endif %}
+        </p>
+        <div class="code-block" id="bot-code-display">
+# Loading bot code...
+        </div>
+        <button class="btn-primary" onclick="downloadBotScript()" style="margin-top: 12px;">
+          📥 {% if lang == 'zh' %}一键下载机器人脚本 (reseller_bot.py){% elif lang == 'ar' %}تحميل كود البوت كملف reseller_bot.py{% else %}Download reseller_bot.py{% endif %}
+        </button>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Register Modal -->
+  <div id="register-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 20px; font-weight: 800; color: #fff;">🔑 {% if lang == 'zh' %}即刻生成分销商凭证与专属 API Key{% elif lang == 'en' %}Generate Instant Reseller Key{% else %}الحصول على مفتاح الموزع الفوري{% endif %}</h3>
+        <button onclick="closeRegisterModal()" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">&times;</button>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:#cbd5e1;">{% if lang == 'zh' %}店铺/渠道名称 (昵称):{% elif lang == 'en' %}Store/Channel Name:{% else %}اسم القناة أو الموزع:{% endif %}</label>
+        <input type="text" id="reg-name" placeholder="{% if lang == 'zh' %}闲鱼数码专营店{% else %}Top-Reseller-Store{% endif %}" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid var(--card-border);">
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display:block; font-size:13px; margin-bottom:6px; color:#cbd5e1;">{% if lang == 'zh' %}联系邮箱 (用于接收结算与通知):{% elif lang == 'en' %}Email Address:{% else %}البريد الإلكتروني:{% endif %}</label>
+        <input type="email" id="reg-email" placeholder="seller@domain.com" style="width:100%; padding:12px; border-radius:8px; background:#1e293b; color:#fff; border:1px solid var(--card-border);">
+      </div>
+
+      <button onclick="submitRegister()" id="btn-do-reg" class="btn-primary" style="width:100%; justify-content:center; margin-top:10px;">
+        ⚡ {% if lang == 'zh' %}一键生成 API Key & 推广链接{% elif lang == 'en' %}Generate API Key & Links{% else %}توليد المفتاح ورابط التسويق{% endif %}
+      </button>
+
+      <div id="reg-result" style="display:none; margin-top: 20px; background:#030712; padding:16px; border-radius:12px; border:1px solid var(--primary);">
+        <div style="font-size:13px; color:var(--accent-green); font-weight:700; margin-bottom:8px;">{% if lang == 'zh' %}✅ 分销商账号已成功开通！{% else %}✅ تم تفعيل حساب الموزع بنجاح!{% endif %}</div>
+        <div style="font-size:12px; color:#94a3b8;">API Key:</div>
+        <div id="out-key" style="font-family:monospace; color:var(--primary); font-size:13px; word-break:break-all; margin-bottom:8px;"></div>
+        <div style="font-size:12px; color:#94a3b8;">{% if lang == 'zh' %}专属推广店铺链接 (即时佣金结算):{% else %}رابط المتجر الخاص بك (عمولة فورية):{% endif %}</div>
+        <div id="out-url" style="font-family:monospace; color:#38bdf8; font-size:12px; word-break:break-all;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const currentLang = "{{ lang }}";
+
+    function updateCalculator() {
+      const sales = parseInt(document.getElementById('sales-slider').value);
+      document.getElementById('sales-val').innerText = sales;
+      const planPrice = parseFloat(document.getElementById('plan-select').value);
+      const discount = parseFloat(document.getElementById('tier-select').value);
+
+      const profitPerSale = planPrice * discount;
+      const dailyProfit = sales * profitPerSale;
+      const monthlyProfit = dailyProfit * 30;
+
+      const unitSuffix = currentLang === 'zh' ? ' / 月' : (currentLang === 'en' ? ' / Mo' : (currentLang === 'ru' ? ' / мес' : ' / شهر'));
+
+      document.getElementById('daily-profit').innerText = '$' + dailyProfit.toFixed(2);
+      document.getElementById('monthly-profit').innerText = '$' + monthlyProfit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + unitSuffix;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+
+      if (tabId === 'tab-bot') {
+        loadBotCode();
+      }
+    }
+
+    function copyCode(btn) {
+      let text = btn.parentElement.innerText;
+      text = text.replace(/✓\s*(تم النسخ|已复制|Copied)/g, '')
+                 .replace(/(نسخ|复制|Copy)/g, '')
+                 .trim();
+      navigator.clipboard.writeText(text);
+      const old = btn.innerText;
+      btn.innerText = currentLang === 'zh' ? '✓ 已复制' : (currentLang === 'ar' ? '✓ تم النسخ' : '✓ Copied');
+      setTimeout(() => btn.innerText = old, 2000);
+    }
+
+    function openRegisterModal() {
+      document.getElementById('register-modal').style.display = 'flex';
+    }
+    function closeRegisterModal() {
+      document.getElementById('register-modal').style.display = 'none';
+    }
+
+    async function submitRegister() {
+      const name = document.getElementById('reg-name').value || 'Partner-Reseller';
+      const email = document.getElementById('reg-email').value || ('reseller_' + Math.random().toString(36).substring(7) + '@jobhunt-pro.com');
+      const btn = document.getElementById('btn-do-reg');
+      btn.innerText = currentLang === 'zh' ? '⏳ 正在生成中...' : (currentLang === 'ar' ? '⏳ جارٍ التوليد...' : '⏳ Generating...');
+
+      try {
+        const resp = await fetch('/api/v2/reseller/register', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({name: name, email: email, tier: 'starter_reseller'})
+        });
+        const data = await resp.json();
+        document.getElementById('out-key').innerText = data.reseller_key;
+        document.getElementById('out-url').innerText = data.referral_url;
+        document.getElementById('reg-result').style.display = 'block';
+        btn.innerText = currentLang === 'zh' ? '⚡ 生成新凭证' : (currentLang === 'ar' ? '⚡ توليد مفتاح جديد' : '⚡ Generate New Key');
+      } catch (e) {
+        alert('Error generating key: ' + e);
+        btn.innerText = currentLang === 'zh' ? '⚡ 重试' : (currentLang === 'ar' ? '⚡ حاول مجدداً' : '⚡ Try Again');
+      }
+    }
+
+    async function loadBotCode() {
+      try {
+        const resp = await fetch('/api/v2/reseller/bot-script?lang=' + encodeURIComponent(currentLang));
+        const text = await resp.text();
+        document.getElementById('bot-code-display').innerText = text;
+      } catch (e) {
+        document.getElementById('bot-code-display').innerText = '# Error loading bot script';
+      }
+    }
+
+    function downloadBotScript() {
+      const text = document.getElementById('bot-code-display').innerText;
+      const blob = new Blob([text], {type: 'text/x-python'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'reseller_bot_' + currentLang + '.py';
+      a.click();
+    }
+
+    // Initial run
+    updateCalculator();
+  </script>
+</body>
+</html>

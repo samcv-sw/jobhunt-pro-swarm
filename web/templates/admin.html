@@ -386,6 +386,65 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Universal Apex Floating Hover Tooltip Engine */
+  #apexUniversalTooltip {
+    position: fixed;
+    z-index: 9999999;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.96) translateY(6px);
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-inline-size: 320px;
+    color: #f8fafc;
+    font-family: 'Cairo', 'IBM Plex Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: start;
+  }
+  #apexUniversalTooltip.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+  }
+  #apexUniversalTooltip .tip-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    color: #38bdf8;
+    margin-block-end: 4px;
+    letter-spacing: 0.2px;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+  }
+  #apexUniversalTooltip .tip-badge {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    margin-inline-start: auto;
+  }
+  #apexUniversalTooltip .tip-body {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #e2e8f0;
+    font-weight: 500;
+  }
+  [data-apex-tip] {
+    cursor: pointer;
+  }
+
   /* أزرار الحزم السريعة */
   .preset-pill-group {
     display: flex;
@@ -480,31 +539,66 @@
     inline-size: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.7);
+    padding-block-end: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    block-size: 6px;
+    inline-size: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 8px;
+    margin: 0 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.5), rgba(99, 102, 241, 0.5));
+    border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
   }
 
   .admin-table {
     inline-size: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: 13.5px;
     text-align: start;
   }
 
+  .admin-table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: start;
+    table-layout: auto;
+  }
+
   .admin-table th {
-    background: rgba(30, 41, 59, 0.85);
-    padding: 14px 18px;
+    background: rgba(30, 41, 59, 0.95);
+    padding: 9px 10px;
     color: #94a3b8;
-    font-size: 12.5px;
+    font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 0.04em;
     border-block-end: 1px solid rgba(255, 255, 255, 0.08);
     white-space: nowrap;
   }
 
   .admin-table td {
-    padding: 14px 18px;
+    padding: 8px 10px;
     border-block-end: 1px solid rgba(255, 255, 255, 0.05);
     color: #cbd5e1;
     vertical-align: middle;
+    white-space: nowrap;
   }
 
   .admin-table tr:last-child td {
@@ -516,15 +610,129 @@
     color: #ffffff;
   }
 
+  /* Sticky Actions Column - Ensures action buttons are NEVER cut off in Arabic RTL */
+  .admin-table th.col-actions,
+  .admin-table td.col-actions,
+  .admin-table th:last-child,
+  .admin-table td:last-child {
+    position: sticky;
+    inset-inline-end: 0;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 6px 0 16px rgba(0, 0, 0, 0.45);
+    z-index: 5;
+    text-align: center;
+  }
+
+  .admin-table th.col-actions,
+  .admin-table th:last-child {
+    background: rgba(30, 41, 59, 0.98);
+    z-index: 10;
+  }
+
+  .admin-table tr:hover td.col-actions,
+  .admin-table tr:hover td:last-child {
+    background: rgba(26, 37, 56, 0.98);
+  }
+
+  /* Luxury Cyberpunk Action Badges */
+  .btn-action-badge {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    text-decoration: none;
+    line-height: 1.2;
+  }
+
+  .btn-action-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-action-disable {
+    background: rgba(244, 63, 94, 0.12);
+    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.3);
+  }
+
+  .btn-action-disable:hover {
+    background: rgba(244, 63, 94, 0.25);
+    color: #ffffff;
+    border-color: #f43f5e;
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+  }
+
+  .btn-action-enable {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-enable:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  .btn-action-delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-action-pause {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-action-pause:hover {
+    background: rgba(245, 158, 11, 0.25);
+    color: #ffffff;
+    border-color: #f59e0b;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-action-resume {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-resume:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
   /* مؤشرات الحالة */
   .status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 11px;
+    gap: 4px;
+    padding: 2px 7px;
     border-radius: 9999px;
-    font-size: 12.5px;
-    font-weight: 800;
+    font-size: 11px;
+    font-weight: 700;
     white-space: nowrap;
   }
 
@@ -558,18 +766,106 @@
     color: #94a3b8;
   }
 
+  /* شرائح الأكواد فائقة الأناقة ومضغوطة لصف واحد */
+  .code-cell-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  .code-chip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: #38bdf8;
+    background: rgba(14, 165, 233, 0.08);
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .code-chip-badge:hover {
+    background: rgba(14, 165, 233, 0.18);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #e0f2fe;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+  }
+
+  .code-chip-entropy {
+    font-size: 9px;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 800;
+    direction: ltr;
+  }
+
+  .btn-code-action {
+    padding: 3px 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  .btn-code-copy {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-code-copy:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    transform: translateY(-1px);
+  }
+
+  .btn-code-link {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-code-link:hover {
+    background: rgba(59, 130, 246, 0.25);
+    color: #ffffff;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+  }
+
   /* شرائح الأكواد */
   .code-chip {
     font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
-    font-size: 13px;
-    color: #a5b4fc;
-    background: rgba(99, 102, 241, 0.1);
+    font-size: 12px;
+    color: #38bdf8;
+    background: rgba(14, 165, 233, 0.08);
     padding: 4px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border: 1px solid rgba(14, 165, 233, 0.25);
     direction: ltr;
     display: inline-block;
+    white-space: nowrap;
   }
 
   /* أزرار الإجراءات المصغرة */
@@ -667,10 +963,10 @@
       <p>المؤشرات اللحظية للنظام، إدارة المستخدمين، السجلات المالية، عروض الفلاش ومحرك الأكواد الحصرية</p>
     </div>
     <div class="admin-header-actions">
-      <a href="/admin/analytics" class="header-nav-btn" title="عرض التحليلات المتقدمة وإحصائيات المبيعات">📊 التحليلات المتقدمة</a>
-      <a href="/admin/sys-logs" class="header-nav-btn" title="استعراض سجلات النظام والأحداث">📜 سجلات النظام</a>
-      <a href="/user-dashboard" class="header-nav-btn" title="الانتقال إلى واجهة المستخدم وتجربة المنصة">🚀 لوحة المستخدم</a>
-      <div class="live-pill" title="محرك النظام يعمل بتناغم وجاهز لتنفيذ المهام">
+      <a href="/admin/analytics" class="header-nav-btn" data-apex-title="مركز التحليلات المتقدمة والرسوم البيانية" data-apex-tip="لوحة إحصائية تفاعلية تعرض مسارات التحويل اللحظية، مؤشرات التوزيع الجغرافي لحملات التوظيف، ونمو العوائد المالية." data-apex-icon="📊" data-apex-color="cyan">📊 التحليلات المتقدمة</a>
+      <a href="/admin/sys-logs" class="header-nav-btn" data-apex-title="سجلات النظام والأمان الحية" data-apex-tip="متابعة حية وفورية لكافة طلبات الخوادم، أحداث بوتات الإرسال، إشعارات بوابات الدفع (Webhooks)، واعتراضات جدار الحماية." data-apex-icon="📜" data-apex-color="amber">📜 سجلات النظام</a>
+      <a href="/user-dashboard" class="header-nav-btn" data-apex-title="الانتقال إلى لوحة تحكم المرشح" data-apex-tip="الانتقال المباشر لواجهة المستخدم لتجربة إطلاق الحملات، فحص رصيد التوكنات، واختبار وكلاء التقديم الذاتي." data-apex-icon="🚀" data-apex-color="indigo">🚀 لوحة المستخدم</a>
+      <div class="live-pill" data-apex-title="حالة محرك السرب: نشط ومتصل" data-apex-tip="عمال الخلفية السحابية المستقلة وطوابير التحقق المباشر من الإيميلات تعمل بكفاءة فائقة وسرعة استجابة لحظية 24/7." data-apex-icon="🟢" data-apex-color="emerald">
         <span class="live-dot"></span>
         <span>المحرك نشط ومتصل</span>
       </div>
@@ -695,13 +991,19 @@
             const codes = parts[1].split(',').map(c => c.trim()).filter(Boolean);
             const container = document.getElementById('generatedCodesContainer');
             if (container && codes.length > 0) {
-              container.innerHTML = codes.map(code => `
-                <div style="background:rgba(2,6,23,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px;">
-                  <span class="code-chip">${code}</span>
-                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('${code}', this)" title="نسخ كود التفعيل إلى الحافظة">📋 نسخ الكود</button>
-                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('${code}', this)" title="نسخ رابط الاسترداد الفوري المباشر">🔗 رابط مباشر</button>
+              container.innerHTML = codes.map(code => {
+                const preview = code.length > 24 ? (code.substring(0, 14) + '...' + code.substring(code.length - 8)) : code;
+                return `
+                <div style="background:rgba(2,6,23,0.85); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:6px 12px; display:inline-flex; align-items:center; gap:8px;">
+                  <span class="code-chip-badge" onclick="inspectFullCode('${code}', '0.00', 'مولد')" title="عرض ومعاينة الكود الكامل">
+                    <span style="color:#38bdf8; font-weight:800;">🔑</span>
+                    <span style="font-family:monospace; direction:ltr;">${preview}</span>
+                    <span class="code-chip-entropy">579-Bit</span>
+                  </span>
+                  <button type="button" class="btn-code-action btn-code-copy" onclick="copyCodeText('${code}', this)" title="نسخ كود التفعيل">📋 نسخ</button>
+                  <button type="button" class="btn-code-action btn-code-link" onclick="copyRedeemLink('${code}', this)" title="نسخ الرابط المباشر">🔗 رابط</button>
                 </div>
-              `).join('');
+              `;}).join('');
             }
           }
         });
@@ -737,35 +1039,35 @@
 
   <!-- شبكة مؤشرات الأداء الرئيسية KPI -->
   <div class="kpi-grid">
-    <div class="kpi-card" title="إجمالي عدد حسابات المرشحين المسجلة في المنصة">
+    <div class="kpi-card" data-apex-title="إجمالي المستخدمين المسجلين" data-apex-tip="العدد الكلي لحسابات المرشحين والباحثين عن عمل المسجلين عبر كافة قنوات التسجيل والمصادقة الذكية." data-apex-icon="👥" data-apex-color="indigo">
       <div class="kpi-val" style="color:#818cf8;">{{ stats.total_users }}</div>
       <div class="kpi-lbl">👥 إجمالي المستخدمين</div>
     </div>
-    <div class="kpi-card" title="عدد حملات التقديم التي يتم تنفيذها أو المجدولة حالياً">
+    <div class="kpi-card" data-apex-title="الحملات التوظيفية النشطة" data-apex-tip="عدد حملات التقديم والمراسلة التلقائية الجارية حالياً أو المجدولة في مسار الإرسال الذكي للمرشحين." data-apex-icon="🚀" data-apex-color="emerald">
       <div class="kpi-val" style="color:#34d399;">{{ stats.total_campaigns }}</div>
       <div class="kpi-lbl">🚀 الحملات النشطة</div>
     </div>
-    <div class="kpi-card" title="إجمالي رسائل التقديم المخصصة الجاهزة في خط الإرسال">
+    <div class="kpi-card" data-apex-title="رسائل التقديم قيد التجهيز" data-apex-tip="إجمالي رسائل التوظيف المخصصة والمكتوبة بالذكاء الاصطناعي الجاهزة في خط التوزيع للتقديم على الشركات." data-apex-icon="📧" data-apex-color="purple">
       <div class="kpi-val" style="color:#c084fc;">{{ stats.total_emails }}</div>
       <div class="kpi-lbl">📧 رسائل قيد التجهيز</div>
     </div>
-    <div class="kpi-card" title="عدد الرسائل التي تم التحقق من deliverability وإرسالها بنجاح لمسؤولي التوظيف">
+    <div class="kpi-card" data-apex-title="الرسائل المرسلة والمؤكدة" data-apex-tip="عدد الرسائل التي اجتازت فحص السيرفرات الحي (Live MX) وتم تسليمها بنجاح إلى صناديق بريد مسؤولي التوظيف." data-apex-icon="⚡" data-apex-color="cyan">
       <div class="kpi-val" style="color:#38bdf8;">{{ stats.emails_sent }}</div>
       <div class="kpi-lbl">⚡ الرسائل المرسلة</div>
     </div>
-    <div class="kpi-card" title="إجمالي الإيرادات المالية المحققة من شراء الباقات">
+    <div class="kpi-card" data-apex-title="إجمالي الإيرادات المحققة" data-apex-tip="إجمالي العوائد المالية المتراكمة للمنصة من مبيعات الباقات، اشتراكات التقديم، والمدفوعات الرقمية بالدولار." data-apex-icon="💰" data-apex-color="amber">
       <div class="kpi-val" style="color:#fbbf24;">${{ stats.total_revenue }}</div>
       <div class="kpi-lbl">💰 إجمالي الإيرادات</div>
     </div>
-    <div class="kpi-card" title="مجموع الأرصدة المتوفرة داخل محافظ المستخدمين">
+    <div class="kpi-card" data-apex-title="أرصدة محافظ المستخدمين" data-apex-tip="مجموع المبالغ والأرصدة غير المستهلكة المتوفرة داخل محافظ المرشحين والمتاحة لتشغيل حملات التوظيف فوراً." data-apex-icon="💳" data-apex-color="rose">
       <div class="kpi-val" style="color:#fb7185;">${{ stats.total_wallets }}</div>
       <div class="kpi-lbl">💳 أرصدة المحافظ</div>
     </div>
-    <div class="kpi-card" title="عدد المعاملات التي تمت عبر بوابات الدفع بالعملات الرقمية">
+    <div class="kpi-card" data-apex-title="معاملات الكريبتو المكتملة" data-apex-tip="عدد عمليات الدفع والشحن الناجحة التي تمت عبر بوابات العملات الرقمية غير الاحتجازية المشفرة." data-apex-icon="🪙" data-apex-color="amber">
       <div class="kpi-val" style="color:#f59e0b;">{{ payment_stats.total_payments }}</div>
       <div class="kpi-lbl">🪙 معاملات العملات المشفرة</div>
     </div>
-    <div class="kpi-card" title="إجمالي القيمة المالية بالدولار للعملات الرقمية المستلمة">
+    <div class="kpi-card" data-apex-title="حجم المدفوعات بالعملات الرقمية" data-apex-tip="القيمة المالية الإجمالية بالدولار للعملات الرقمية المستلمة عبر شبكات البلوكشين (USDT TRC20/BEP20, BTC, SOL)." data-apex-icon="📊" data-apex-color="emerald">
       <div class="kpi-val" style="color:#34d399;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div>
       <div class="kpi-lbl">📊 حجم تداول الكريبتو</div>
     </div>
@@ -791,13 +1093,13 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="تحديد الكل"></th>
-                <th>عنوان العرض</th>
-                <th>نسبة الخصم</th>
-                <th>الحالة الحية</th>
-                <th>تاريخ الانتهاء</th>
-                <th>تاريخ الإنشاء</th>
-                <th>الإجراءات والتحكم</th>
+                <th style="inline-size:40px; text-align:center;" data-apex-title="تحديد الكل" data-apex-tip="تحديد أو إلغاء تحديد كافة عروض الخصم الترويجي لإجراء الحذف الجماعي." data-apex-icon="☑️"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="تحديد الكل"></th>
+                <th data-apex-title="عنوان العرض الترويجي" data-apex-tip="شريط العنوان التسويقي والوصف البارز الذي يظهر للمرشحين في صفحات الدفع ولوحة التحكم." data-apex-icon="⚡" data-apex-color="cyan">عنوان العرض</th>
+                <th data-apex-title="نسبة الخصم المئوية" data-apex-tip="النسبة المئوية التي يتم خصمها تلقائياً وفوراً من سعر كافة باقات التقديم المتاحة." data-apex-icon="🏷️" data-apex-color="emerald">نسبة الخصم</th>
+                <th data-apex-title="الحالة الحية للعرض" data-apex-tip="مؤشر يوضح ما إذا كان شريط الخصم التنازلي فعالاً حالياً، متوقفاً مؤقتاً، أو منتهي الصلاحية." data-apex-icon="🟢" data-apex-color="indigo">الحالة الحية</th>
+                <th data-apex-title="عداد وقت الانتهاء" data-apex-tip="التوقيت الزمني الدقيق لانتهاء فترة العرض الترويجي وعودة الأسعار لوضعها الطبيعي." data-apex-icon="⏱️" data-apex-color="amber">تاريخ الانتهاء</th>
+                <th data-apex-title="تاريخ وتوقيت الإطلاق" data-apex-tip="التاريخ والوقت الدقيق الذي تم فيه تهيئة وتفعيل هذا العرض الترويجي على المنصة." data-apex-icon="📅" data-apex-color="cyan">تاريخ الإنشاء</th>
+                <th class="col-actions" data-apex-title="أدوات التحكم بالعرض" data-apex-tip="إيقاف مؤقت، استئناف، تمديد مهلة العداد التنازلي، أو حذف العرض نهائياً." data-apex-icon="⚙️" data-apex-color="rose">الإجراءات والتحكم</th>
               </tr>
             </thead>
             <tbody>
@@ -811,7 +1113,7 @@
               {% set is_expired = s.is_expired if (s.is_expired is defined and s.is_expired is not none) else (s_active and not s_is_time_valid) %}
               {% set display_end = s.formatted_end if (s.formatted_end is defined and s.formatted_end) else ((s_end_str|replace('T', ' '))[:16] if s_end_str else '—') %}
               {% set display_created = s.formatted_created if (s.formatted_created is defined and s.formatted_created) else ((s.created_at|string)[:16] if (s.created_at is defined and s.created_at) else '—') %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;"><input type="checkbox" class="sale-checkbox" name="sale_ids" value="{{ s.id }}" onclick="updateSelectCount('sale-checkbox', 'btnDeleteSelectedSales', 'countSelectedSales', 'selectAllSalesCheckbox')"></td>
                 <td style="font-weight:700; color:#f8fafc;">
                   <div style="display:flex; align-items:center; gap:8px;">
@@ -831,13 +1133,13 @@
                 <td style="font-family:monospace; color:#38bdf8; font-size:12.5px; direction:ltr; text-align:start;">{{ display_end }}</td>
                 <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ display_created }}</td>
                 <td>
-                  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                  <div style="display:inline-flex; gap:6px; align-items:center;">
                     {% if is_live %}
-                      <button type="button" class="btn-sm-action btn-sm-amber" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إيقاف العرض مؤقتاً لإخفائه عن المستخدمين">⏸️ إيقاف مؤقت</button>
+                      <button type="button" class="btn-action-badge btn-action-pause" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إيقاف العرض مؤقتاً لإخفائه عن المستخدمين">⏸️ إيقاف مؤقت</button>
                     {% else %}
-                      <button type="button" class="btn-sm-action btn-sm-success" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إعادة تنشيط العرض وتمديده لمدة 24 ساعة إضافية">▶️ استئناف (+24س)</button>
+                      <button type="button" class="btn-action-badge btn-action-resume" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="إعادة تنشيط العرض وتمديده لمدة 24 ساعة إضافية">▶️ استئناف (+24س)</button>
                     {% endif %}
-                    <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="حذف هذا العرض نهائياً من قاعدة البيانات">🗑️ حذف</button>
+                    <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="حذف هذا العرض نهائياً من قاعدة البيانات">🗑️ حذف</button>
                   </div>
                 </td>
               </tr>
@@ -849,6 +1151,20 @@
           </table>
         </form>
       </div>
+      {% if flash_sales|length > 10 %}
+      <div class="table-expand-bar" id="salesExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="salesCountDisplay">عرض <strong style="color:#38bdf8;">10</strong> من أصل <strong style="color:#f8fafc;">{{ flash_sales|length }}</strong> عروض</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('salesForm', 'salesExpandBar', 'salesCountDisplay', {{ flash_sales|length }}, 'عروض')" data-apex-title="عرض 10 عروض إضافية" data-apex-tip="توسيع الجدول لعرض الدفعة التالية من عروض الفلاش." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('salesForm', 'salesExpandBar', 'salesCountDisplay', {{ flash_sales|length }}, 'عروض')" data-apex-title="إظهار كافة العروض" data-apex-tip="عرض القائمة الكاملة لجميع عروض الفلاش والتخفيضات الترويجية." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ flash_sales|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
     </div>
   </div>
 
@@ -869,24 +1185,23 @@
       <!-- بطاقة 1 المميزة: مولد ومصدر أكواد VIP المجمعة (Xianyu / B2B) -->
       <div class="action-real-card action-card-featured">
         <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:14px;">
             <h3 style="color:#a5b4fc; font-size:17.5px; margin:0;">
               <span>💎 المولد الكمومي للأكواد المجمعة وتصدير إكسل (Xianyu / Taobao / B2B)</span>
               <div class="has-tooltip">
                 <span class="tooltip-trigger">ℹ️</span>
-                <div class="tooltip-bubble">توليد آلاف المفاتيح التشفيرية وتصدير ملف Excel/CSV مهيأ تلقائياً للربط مع روبوتات التسليم الفوري في المتاجر الإلكترونية.</div>
+                <div class="tooltip-bubble">توليد آلاف المفاتيح التشفيرية الكمومية وتصدير ملف Excel/CSV مهيأ تلقائياً للربط مع روبوتات التسليم الفوري في المتاجر الإلكترونية.</div>
               </div>
             </h3>
-            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">تشفير 256-بت كمومي</span>
+            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">تشفير كمومي فائق الأمان</span>
           </div>
-          <p style="margin-block-end:16px; font-size:14px; color:#94a3b8;">توليد آلاف أكواد التفعيل الحصرية في دفعة واحدة وتنزيل ملف Excel / CSV جاهز ومخصص لمنصات التسليم التلقائي في Xianyu و Taobao والمبيعات المباشرة.</p>
           
           <!-- أزرار اختيار الباقة -->
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin-block-end:14px;">
-            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" title="باقة المبتدئ: بقيمة 9$ تتيح التقديم إلى 100 شركة مستهدفة">⚡ المبتدئ ($9 / 100)</button>
-            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" title="الباقة الأساسية: بقيمة 19$ تتيح التقديم إلى 350 شركة مستهدفة">🚀 الأساسي ($19 / 350)</button>
-            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" title="الباقة الاحترافية VIP: بقيمة 49$ تتيح التقديم إلى 1,000 شركة مستهدفة">💎 الاحترافي VIP ($49 / 1,000)</button>
-            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" title="باقة الشركات B2B: بقيمة 149$ تتيح الوصول إلى 3,000 جهة اتصال">👑 الشركات B2B ($149 / 3,000)</button>
+            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" data-apex-title="باقة المبتدئ ($9 / 100 شركة)" data-apex-tip="باقة التقديم السريع تستهدف 100 شركة ومسؤول توظيف مع رسائل دافع فورية وتحقق حي من تسليم البريد." data-apex-icon="⚡" data-apex-color="amber">⚡ المبتدئ ($9 / 100)</button>
+            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" data-apex-title="الباقة الأساسية ($19 / 350 شركة)" data-apex-tip="حملة واسعة النطاق تغطي 350 شركة وجهة توظيف مع تخصيص ذكي للرسائل وتتبع دعوات المقابلات." data-apex-icon="🚀" data-apex-color="indigo">🚀 الأساسي ($19 / 350)</button>
+            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" data-apex-title="الباقة الاحترافية VIP ($49 / 1,000 شركة)" data-apex-tip="حملة كبرى تخترق 1,000 جهة توظيف بأعلى أولوية وصول لصندوق الوارد، مع دروع فحص السيرفرات والتسريع الفوري." data-apex-icon="💎" data-apex-color="cyan">💎 الاحترافي VIP ($49 / 1,000)</button>
+            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" data-apex-title="باقة الشركات و B2B ($149 / 3,000 جهة)" data-apex-tip="حملة مؤسسية ضخمة مدعومة بسرب AI SDR المستقل لاستهداف 3,000 صانع قرار، وكالات توظيف، واستوديوهات تجارية." data-apex-icon="👑" data-apex-color="purple">👑 الشركات B2B ($149 / 3,000)</button>
           </div>
         </div>
 
@@ -922,12 +1237,13 @@
           <!-- أزرار الأعداد السريعة -->
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <span style="font-size:12.5px; color:#64748b; font-weight:700;">أعداد سريعة:</span>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" title="تحديد كمية 25 كود">25</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" title="تحديد كمية 50 كود">50</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" title="تحديد كمية 100 كود">100</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" title="تحديد كمية 200 كود">200</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" title="تحديد كمية 500 كود">500</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" title="تحديد كمية 1000 كود">1000</button>
+            <button type="button" class="preset-pill" style="padding:4px 10px; font-size:12px; border-color:rgba(6,182,212,0.4); color:#38bdf8; font-weight:700;" onclick="setBulkCount(1)" data-apex-title="توليد كود واحد فردي" data-apex-tip="توليد كود تفعيل كمومي واحد فقط للتسليم الفوري والمباشر لعميل محدد." data-apex-icon="⚡" data-apex-color="cyan">⚡ 1 (فردي)</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" data-apex-title="دفعة 25 كود" data-apex-tip="توليد دفعة من 25 كود تفعيل مناسبة لمخزون المتاجر الصغيرة." data-apex-icon="📦" data-apex-color="cyan">25</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" data-apex-title="دفعة 50 كود" data-apex-tip="توليد 50 كود تفعيل مع تصدير فوري لملف Excel و CSV جاهز للإدراج." data-apex-icon="📦" data-apex-color="cyan">50</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" data-apex-title="دفعة 100 كود" data-apex-tip="توليد 100 كود تفعيل لتلبية الطلبات التلقائية المرتفعة على منصات البيع." data-apex-icon="📦" data-apex-color="cyan">100</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" data-apex-title="دفعة 200 كود" data-apex-tip="توليد 200 كود تفعيل مشفرة مع حماية كاملة من تكرار المفاتيح." data-apex-icon="📦" data-apex-color="cyan">200</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" data-apex-title="دفعة 500 كود" data-apex-tip="دفعة جملة كبيرة من 500 كود تفعيل لشركاء التوزيع والوكالات." data-apex-icon="📦" data-apex-color="cyan">500</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" data-apex-title="دفعة 1,000 كود" data-apex-tip="توليد وتشفير دفعة عملاقة من 1,000 كود في أجزاء من الثانية داخل الذاكرة." data-apex-icon="📦" data-apex-color="cyan">1000</button>
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -951,7 +1267,7 @@
                   <div class="tooltip-bubble">مبيعات مدفوعة: تُحتسب قيمتها ضمن إيرادات المنصة الإجمالية. مجاني إداري: أكواد ترويجية لا تضاف للإيرادات.</div>
                 </div>
               </div>
-              <select dir="auto" class="admin-select" name="code_type">
+              <select dir="auto" class="admin-select" name="code_type" id="adminBulkCodeType">
                 <option value="sale">💳 مبيعات مدفوعة (يُحتسب في الإيرادات)</option>
                 <option value="admin_free">🆓 مجاني إداري (بدون احتساب إيراد)</option>
               </select>
@@ -964,9 +1280,14 @@
             <label for="exportExcelCheck" style="font-size:13.5px; color:#cbd5e1; cursor:pointer; font-weight:700;">📥 تنزيل فوري كملف Excel / CSV (مهيأ لـ Xianyu & Taobao)</label>
           </div>
 
-          <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:15px; padding:13px 20px;" title="بدء التوليد وتنزيل الملف مباشرة">
-            ⚡ توليد الدفعة وتنزيل ملف الإكسل 📥
-          </button>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-block-start:4px;">
+            <button type="button" id="btnGenSingleKeyCopy" onclick="generateAndCopySingleKey(this)" class="btn-real" style="font-weight:800; font-size:15px; padding:13px 18px; background:linear-gradient(135deg, #06b6d4, #3b82f6); border:1px solid rgba(6,182,212,0.5); color:#ffffff; box-shadow:0 4px 20px rgba(6,182,212,0.28); justify-content:center; font-family:'Cairo',sans-serif;" title="توليد كود واحد ونسخه إلى الحافظة فوراً بنقرة واحدة" data-apex-title="مولد الأكواد الفردية" data-apex-tip="توليد مفتاح تفعيل تشفيري واحد بدقة 8,192 بت ونسخه تلقائياً إلى الحافظة لمشاركته فوراً مع العميل." data-apex-icon="📋" data-apex-color="cyan">
+              📋 توليد كود واحد ونسخه فوراً ⚡
+            </button>
+            <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:15px; padding:13px 18px; justify-content:center; font-family:'Cairo',sans-serif;" title="بدء التوليد وتنزيل الملف مباشرة" data-apex-title="مصنع الدفعات الضخمة" data-apex-tip="توليد حتى 5,000 كود تفعيل تشفيري فريد وتنزيل ملف Excel مهيأ للتسليم التلقائي في المتاجر." data-apex-icon="⚡" data-apex-color="indigo">
+              ⚡ توليد الدفعة وتنزيل ملف الإكسل 📥
+            </button>
+          </div>
         </form>
 
         <script dir="auto">
@@ -984,6 +1305,66 @@
           }
           function setBulkCount(cnt) {
             document.getElementById('bulkCountInput').value = cnt;
+          }
+
+          async function generateAndCopySingleKey(btn) {
+            const tier = document.getElementById('bulkTierInput').value || 'starter';
+            const codeTypeSelect = document.getElementById('adminBulkCodeType');
+            const codeType = codeTypeSelect ? codeTypeSelect.value : 'sale';
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '⏳ جاري التوليد والنسخ...';
+            btn.disabled = true;
+            try {
+              const resp = await fetch('/admin/generate-single-code-ajax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tier: tier, code_type: codeType })
+              });
+              const data = await resp.json();
+              if (data.success && data.code) {
+                await navigator.clipboard.writeText(data.code);
+                showAdminSingleKeyModal(data.code, data.tier, data.value_usd, data.companies);
+              } else {
+                alert(data.error || 'تعذر توليد الكود');
+              }
+            } catch (err) {
+              alert('حدث خطأ أثناء التوليد: ' + err.message);
+            } finally {
+              btn.innerHTML = origHtml;
+              btn.disabled = false;
+            }
+          }
+
+          function showAdminSingleKeyModal(code, tierName, value, companies) {
+            let m = document.getElementById('adminSingleKeyModal');
+            if (!m) {
+              m = document.createElement('div');
+              m.id = 'adminSingleKeyModal';
+              m.style.cssText = 'position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(5,8,22,0.82); backdrop-filter:blur(16px);';
+              m.innerHTML = `
+                <div dir="rtl" style="position:relative; width:100%; max-width:560px; background:linear-gradient(145deg, rgba(17,24,39,0.98), rgba(15,23,42,0.99)); border:1px solid rgba(6,182,212,0.4); border-radius:20px; padding:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(6,182,212,0.2); text-align:center; font-family:'Cairo',sans-serif;">
+                  <div style="width:54px; height:54px; margin:0 auto 14px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.4); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px;">✨</div>
+                  <h3 style="color:#ffffff; font-size:19px; font-weight:800; margin:0 0 6px;">تم توليد الكود ونسخه بنجاح!</h3>
+                  <p style="color:#94a3b8; font-size:13.5px; margin:0 0 16px;">تم إنشاء كود التفعيل و<strong style="color:#38bdf8;">نسخه تلقائياً إلى الحافظة</strong> جاهزاً للإرسال أو الاستخدام.</p>
+                  
+                  <div style="display:flex; justify-content:center; gap:8px; margin-bottom:14px;">
+                    <span id="mTierBadge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; border:1px solid rgba(99,102,241,0.4); padding:4px 12px; border-radius:9999px; font-size:12.5px; font-weight:700;"></span>
+                    <span id="mValueBadge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:4px 12px; border-radius:9999px; font-size:12.5px; font-weight:700;"></span>
+                  </div>
+
+                  <div style="background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; word-break:break-all; font-family:monospace; font-size:12.5px; color:#38bdf8; max-height:120px; overflow-y:auto; margin-bottom:18px; text-align:left; direction:ltr;" id="mCodeDisplay"></div>
+
+                  <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('mCodeDisplay').innerText); alert('تم نسخ الكود مجدداً!');" style="flex:1; padding:11px 16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; color:#ffffff; font-weight:700; font-size:13.5px; cursor:pointer; font-family:'Cairo',sans-serif;">📋 نسخ الكود مجدداً</button>
+                    <button type="button" onclick="document.getElementById('adminSingleKeyModal').remove()" style="flex:1; padding:11px 16px; background:linear-gradient(135deg, #06b6d4, #3b82f6); border:1px solid rgba(6,182,212,0.5); border-radius:12px; color:#ffffff; font-weight:800; font-size:13.5px; cursor:pointer; font-family:'Cairo',sans-serif;">إغلاق وتم ✅</button>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(m);
+            }
+            document.getElementById('mTierBadge').innerText = tierName;
+            document.getElementById('mValueBadge').innerText = '$' + value;
+            document.getElementById('mCodeDisplay').innerText = code;
           }
         </script>
       </div>
@@ -1042,7 +1423,7 @@
             </div>
           </div>
 
-          <button class="btn-real btn-rose" type="submit" title="نشر وتفعيل هذا العرض فوراً في لوحة التحكم لكافة المستخدمين">
+          <button class="btn-real btn-rose" type="submit" title="نشر وتفعيل هذا العرض فوراً في لوحة التحكم لكافة المستخدمين" data-apex-title="إطلاق عرض التخفيض" data-apex-tip="نشر وتفعيل شريط العد التنازلي الترويجي فوراً على صفحات الدفع ولوحة تحكم جميع المرشحين." data-apex-icon="⚡" data-apex-color="rose">
             ⚡ إطلاق عرض التخفيض الآن
           </button>
         </form>
@@ -1102,7 +1483,7 @@
             </div>
           </div>
 
-          <button class="btn-real btn-emerald" type="submit" title="شحن المحفظة فوراً">
+          <button class="btn-real btn-emerald" type="submit" title="شحن المحفظة فوراً" data-apex-title="إيداع فوري في المحفظة" data-apex-tip="إيداع رصيد مالي بالدولار الأمريكي مباشرة في المحفظة الرقمية للمرشح مع تسجيل قيد محاسبي موثق." data-apex-icon="💳" data-apex-color="emerald">
             💳 إضافة الرصيد الآن
           </button>
         </form>
@@ -1148,7 +1529,7 @@
             <span class="field-hint-text">نطاق الاستهداف (مثال: 100 شركة).</span>
           </div>
 
-          <button class="btn-real btn-indigo" type="submit" title="إطلاق الحملة التوظيفية فوراً">
+          <button class="btn-real btn-indigo" type="submit" title="إطلاق الحملة التوظيفية فوراً" data-apex-title="منح حملة توظيف ذكية" data-apex-tip="تجهيز وبدء حملة مراسلة كاملة للمرشح بالذكاء الاصطناعي مع الشركات دون اقتطاع أي رسوم من حسابه." data-apex-icon="🚀" data-apex-color="indigo">
             🚀 منح الحملة فوراً
           </button>
         </form>
@@ -1203,13 +1584,174 @@
             <textarea dir="auto" class="admin-textarea" name="body" placeholder="محتوى الرسالة (نص عادي أو HTML)..." required style="height: 65px; resize:vertical;"></textarea>
           </div>
 
-          <button class="btn-real btn-emerald" type="submit" title="إرسال الرسالة فوراً عبر خادم البريد">
+          <button class="btn-real btn-emerald" type="submit" title="إرسال الرسالة فوراً عبر خادم البريد" data-apex-title="إرسال بريد خادم مباشر" data-apex-tip="إرسال رسالة بريدية موثقة ومعتمدة من خادم المنصة مباشرة إلى عنوان المستلم مع فحص تسليم حي." data-apex-icon="✉️" data-apex-color="emerald">
             ✉️ إرسال البريد الآن
           </button>
         </form>
       </div>
 
     </div>
+  </div>
+
+  <!-- قسم مركز المبيعات الآلية والأمان لـ Xianyu & Taobao -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🤖 مركز قيادة المبيعات الآلية والأمان لـ Xianyu و Taobao</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">نظام البيع الآلي والتسليم اللحظي 24/7 مع حماية التشفير الكمومي ومساعد المبيعات الذكي باللغة الصينية.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <button type="button" onclick="openExecutiveBriefingModal()" class="btn-sm-action" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(245,158,11,0.3);" data-apex-title="التقرير التنفيذي الذكي" data-apex-tip="تحليل شامل وفوري مدعوم بالذكاء الاصطناعي لمؤشرات أداء المنصة، معدلات تحويل المرشحين، وسرعة نمو الإيرادات اليومية." data-apex-icon="👑" data-apex-color="amber">
+          👑 التقرير التنفيذي الذكي (AI Executive)
+        </button>
+        <button type="button" onclick="openXianyuCopywriterModal()" class="btn-sm-action" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(236,72,153,0.3);" data-apex-title="كاتب إعلانات المتاجر الصينية" data-apex-tip="توليد نصوص إعلانات احترافية وعالية الإقناع باللغة الصينية بنقرة واحدة مهيأة للنشر المباشر على Xianyu و Taobao." data-apex-icon="✨" data-apex-color="rose">
+          ✨ مولّد إعلانات المتاجر الصينية (AI Copywriter)
+        </button>
+        <button type="button" onclick="triggerVaultBackup(this)" class="btn-sm-action" style="background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(2,132,199,0.3);" data-apex-title="النسخ الاحتياطي الفوري للخزنة" data-apex-tip="تشفير وتنزيل نسخة احتياطية فورية لجميع قواعد البيانات والمفاتيح والسجلات والمعاملات المالية." data-apex-icon="💾" data-apex-color="cyan">
+          💾 نسخ احتياطي سحابي
+        </button>
+        <span style="font-size:12px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:9999px; font-weight:700;" data-apex-title="درع الحماية الفولاذي (Titanium Shield)" data-apex-tip="نظام دفاع نشط ضد هجمات القوة العمياء والتكرار وعزل عناوين IP المشبوهة تلقائياً." data-apex-icon="🟢" data-apex-color="emerald">🟢 محمي بدرع التيتانيوم السيادي</span>
+        <span style="font-size:12px; background:rgba(99,102,241,0.15); color:#c7d2fe; border:1px solid rgba(99,102,241,0.3); padding:4px 10px; border-radius:9999px; font-weight:700;" data-apex-title="مساعد المبيعات الذكي" data-apex-tip="محرك ذكاء اصطناعي فائق السرعة للرد على استفسارات المشترين باللغة الصينية وإتمام المبيعات في أقل من 0.1 ثانية." data-apex-icon="🤖" data-apex-color="indigo">🤖 AI Copilot شغال</span>
+      </div>
+    </div>
+
+    <!-- بطاقات الإحصائيات السريعة -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-block-end:16px;">
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="إجمالي الطلبات الآلية" data-apex-tip="العدد الإجمالي للمشتريات الرقمية التي تم تسليمها وتوليد أكوادها تلقائياً بدون تدخل بشري." data-apex-icon="📦" data-apex-color="cyan">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">📦 إجمالي الطلبات الآلية</span>
+        <span style="font-size:22px; font-weight:800; color:#38bdf8;">{{ xianyu_stats.total_orders if xianyu_stats else (xianyu_orders|length) }}</span>
+        <span style="font-size:11px; color:#64748b;">تسليم فوري &lt; 0.1 ثانية</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="إجمالي الإيرادات الآلية" data-apex-tip="إجمالي العوائد المالية المحققة بالدولار من مبيعات التفعيل الآلية عبر المتاجر الصينية." data-apex-icon="💰" data-apex-color="emerald">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">💰 إجمالي الإيرادات الآلية</span>
+        <span style="font-size:22px; font-weight:800; color:#34d399;">${{ xianyu_stats.total_revenue if xianyu_stats else '0.00' }}</span>
+        <span style="font-size:11px; color:#64748b;">تحويل فوري بدون عمولة</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="مصفوفة الحماية والأمان" data-apex-tip="درع دفاعي متقدم يضمن عدم تكرار الأكواد والحماية الصارمة من أي محاولات تلاعب." data-apex-icon="🛡️" data-apex-color="purple">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">🛡️ مستوى الأمان والحماية</span>
+        <span style="font-size:15px; font-weight:800; color:#c084fc;">Quantum Matrix Vault</span>
+        <span style="font-size:11px; color:#64748b;">حظر تلقائي للهجمات وتكرار الطلب</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="مسار الرد الصيني الذكي" data-apex-tip="نقطة اتصال فائقة السرعة للرد التلقائي على المشترين الصينيين بالذكاء الاصطناعي." data-apex-icon="🤖" data-apex-color="amber">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">🤖 مسار المبيعات والرد الذكي</span>
+        <span style="font-size:14px; font-weight:700; color:#fbbf24;">/api/v2/xianyu/ai-reply</span>
+        <span style="font-size:11px; color:#64748b;">Groq + Gemini AI فوري</span>
+      </div>
+    </div>
+
+    <!-- جدول سجل الطلبات الآلية الحديثة -->
+    <div class="table-card" id="xianyuOrdersContainer" style="margin-block-end:16px;">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-apex-title="رقم الطلب (Order ID)" data-apex-tip="المعرف الفريد الصادر من منصات البيع الصينية مثل Xianyu أو Taobao أو FaKa." data-apex-icon="🆔" data-apex-color="cyan">رقم الطلب (Order ID)</th>
+              <th data-apex-title="منصة الشراء" data-apex-tip="بوابة الدفع أو المنصة الإلكترونية التي ورد منها الطلب الرقمي." data-apex-icon="🌐" data-apex-color="amber">المنصة</th>
+              <th data-apex-title="الباقة المشتراة" data-apex-tip="نوع باقة التقديم التي اختارها الزبون (Starter 100, Basic 350, Pro 1000, Enterprise 2500)." data-apex-icon="📦" data-apex-color="indigo">الباقة</th>
+              <th data-apex-title="المبلغ المدفوع" data-apex-tip="المبلغ الإجمالي المحصل بالدولار الأمريكي عن هذه العملية." data-apex-icon="💰" data-apex-color="emerald">المبلغ</th>
+              <th data-apex-title="كمية الأكواد" data-apex-tip="عدد أكواد التفعيل التي تم توليدها وتسليمها في هذا الطلب." data-apex-icon="🔢" data-apex-color="cyan">الكمية</th>
+              <th data-apex-title="عنوان IP للمشتري" data-apex-tip="عنوان الإنترنت الخاص بالمشتري أو بوت التسليم الآلي مع التحقق من الهوية." data-apex-icon="📍" data-apex-color="rose">عنوان IP المشتري</th>
+              <th data-apex-title="حالة التسليم" data-apex-tip="تأكيد التسليم الفوري للكود الرقمي ورابط التفعيل بنجاح." data-apex-icon="⚡" data-apex-color="emerald">الحالة</th>
+              <th data-apex-title="توقيت العملية" data-apex-tip="التاريخ والوقت الدقيق لمعالجة وتسليم الطلب آلياً." data-apex-icon="⏱️" data-apex-color="amber">التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for xo in xianyu_orders %}
+            <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+              <td><code style="color:#38bdf8; font-size:12px;">{{ xo.order_id }}</code></td>
+              <td><span style="background:rgba(234,88,12,0.15); color:#fb923c; border:1px solid rgba(234,88,12,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">{{ xo.platform|upper }}</span></td>
+              <td><span style="color:#e2e8f0; font-weight:600; font-size:12.5px;">{{ xo.tier|upper }}</span></td>
+              <td><strong style="color:#34d399; font-size:13px;">${{ "%.2f"|format(xo.amount) }}</strong></td>
+              <td><span style="color:#cbd5e1; font-weight:700;">{{ xo.quantity }}</span></td>
+              <td><code style="color:#94a3b8; font-size:11.5px;">{{ xo.buyer_ip or '127.0.0.1' }}</code></td>
+              <td><span style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">⚡ تم التسليم</span></td>
+              <td style="color:#94a3b8; font-size:12px;">{{ xo.created_at }}</td>
+            </tr>
+            {% endfor %}
+            {% if not xianyu_orders %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:28px 16px; color:#94a3b8;">
+                <div style="font-size:28px; margin-bottom:8px;">🤖</div>
+                <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">محرك البيع الآلي لـ Xianyu جاهز وفي وضع الاستعداد النشط ⚡</div>
+                <div style="font-size:12.5px; color:#64748b;">بمجرد استلام أول طلبية من البوت، ستظهر هنا فوراً مع بيانات التشفير والإيرادات آلياً.</div>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      {% if xianyu_orders|length > 10 %}
+      <div class="table-expand-bar" id="xianyuOrdersExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="xianyuOrdersCountDisplay">عرض <strong style="color:#38bdf8;">10</strong> من أصل <strong style="color:#f8fafc;">{{ xianyu_orders|length }}</strong> طلبية</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('xianyuOrdersContainer', 'xianyuOrdersExpandBar', 'xianyuOrdersCountDisplay', {{ xianyu_orders|length }}, 'طلبات')" data-apex-title="عرض 10 طلبات إضافية" data-apex-tip="توسيع الجدول لعرض الدفعة التالية المكونة من 10 طلبات شراء بسلاسة." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('xianyuOrdersContainer', 'xianyuOrdersExpandBar', 'xianyuOrdersCountDisplay', {{ xianyu_orders|length }}, 'طلبات')" data-apex-title="إظهار كافة الطلبات" data-apex-tip="عرض القائمة الكاملة لجميع طلبات المبيعات المخزنة في قاعدة البيانات." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ xianyu_orders|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <!-- جدول سجن الأمان وعناوين IP المحظورة -->
+    {% if jailed_ips %}
+    <div id="jailedIpsContainer" style="margin-block-start:14px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:14px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+        <span style="font-size:14px; font-weight:800; color:#f87171;">🚨 سجن العناوين المحظورة أمنياً (Security Jail - {{ jailed_ips|length }})</span>
+        <span style="font-size:11.5px; color:#cbd5e1;">عزل فوري تلقائي ضد التخمين والهجمات</span>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-apex-title="عنوان IP المحظور" data-apex-tip="عنوان الإنترنت المعزول حالياً بواسطة منظومة الدفاع لمنع الهجمات ومحاولات التخمين." data-apex-icon="🛡️" data-apex-color="rose">عنوان IP المحظور</th>
+              <th data-apex-title="نطاق الشبكة الفرعي" data-apex-tip="نطاق الشبكة الفرعي المكتشف لرصد أي هجمات موزعة." data-apex-icon="🌐" data-apex-color="cyan">نطاق الشبكة</th>
+              <th data-apex-title="مستوى العقوبة" data-apex-tip="درجة الحظر المطبقة تلقائياً بحسب خطورة وعدد المحاولات غير المصرح بها." data-apex-icon="⚠️" data-apex-color="amber">مستوى العقوبة</th>
+              <th data-apex-title="عدد المحاولات الفاشلة" data-apex-tip="إجمالي المحاولات المرفوضة أو المفاتيح الخاطئة الصادرة من هذا العنوان." data-apex-icon="🚫" data-apex-color="rose">المحاولات</th>
+              <th data-apex-title="سبب الحظر" data-apex-tip="السبب الأمني المباشر الذي أدى إلى تفعيل العزل التلقائي." data-apex-icon="🔍" data-apex-color="indigo">سبب الحظر</th>
+              <th data-apex-title="مدة الحظر" data-apex-tip="التوقيت الذي ينتهي عنده الحظر التلقائي ويعود العنوان للوضع الطبيعي." data-apex-icon="⏱️" data-apex-color="amber">محظور حتى</th>
+              <th data-apex-title="إلغاء الحظر اليدوي" data-apex-tip="فك الحظر عن عنوان IP فورياً وإعادة السماح له بالوصول." data-apex-icon="🔓" data-apex-color="emerald">إلغاء الحظر</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for j in jailed_ips %}
+            <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+              <td><code style="color:#f87171; font-weight:700;">{{ j.ip_address }}</code></td>
+              <td><code style="color:#94a3b8; font-size:11.5px;">{{ j.subnet_24 }}</code></td>
+              <td><span style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">Level {{ j.penalty_level }}</span></td>
+              <td><span style="color:#e2e8f0; font-weight:700;">{{ j.failed_count }}</span></td>
+              <td style="color:#cbd5e1; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ j.reason }}">{{ j.reason }}</td>
+              <td style="color:#fbbf24; font-size:12px; font-weight:600;">{{ j.locked_until }}</td>
+              <td>
+                <form action="/admin/security-jail/unban" method="POST" style="margin:0;">
+                  <input type="hidden" name="ip" value="{{ j.ip_address }}">
+                  <button type="submit" class="btn-sm-action" style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; cursor:pointer;" data-apex-title="فك الحظر الفوري" data-apex-tip="إلغاء الحظر عن هذا العنوان فوراً واستعادة صلاحيات الوصول لكافة المسارات." data-apex-icon="🔓" data-apex-color="emerald">🔓 فك الحظر</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if jailed_ips|length > 10 %}
+      <div class="table-expand-bar" id="jailedIpsExpandBar" style="padding:12px 18px; border-top:1px solid rgba(239,68,68,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4); border-radius:0 0 14px 14px; margin-top:10px;">
+        <span style="font-size:12px; color:#94a3b8;" id="jailedIpsCountDisplay">عرض <strong style="color:#f87171;">10</strong> من أصل <strong style="color:#f8fafc;">{{ jailed_ips|length }}</strong> عنوان محظور</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('jailedIpsContainer', 'jailedIpsExpandBar', 'jailedIpsCountDisplay', {{ jailed_ips|length }}, 'عناوين')" data-apex-title="عرض 10 عناوين إضافية" data-apex-tip="توسيع الجدول لعرض الدفعة التالية المكونة من 10 عناوين محظورة." data-apex-icon="⬇️" data-apex-color="rose">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('jailedIpsContainer', 'jailedIpsExpandBar', 'jailedIpsCountDisplay', {{ jailed_ips|length }}, 'عناوين')" data-apex-title="إظهار كافة العناوين" data-apex-tip="عرض القائمة الكاملة لجميع عناوين IP المحظورة أمنياً." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ jailed_ips|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- جدول أكواد التفعيل والمكافآت -->
@@ -1223,8 +1765,8 @@
         </div>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير الأكواد المتاحة غير المستخدمة فقط إلى Excel">📥 تصدير المتاح (Excel)</a>
-        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير جميع الأكواد المستخدمة وغير المستخدمة إلى Excel">📥 تصدير الكل (Excel)</a>
+        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير الأكواد المتاحة غير المستخدمة فقط إلى Excel" data-apex-title="تصدير المفاتيح المتاحة" data-apex-tip="تنزيل جدول إكسل يحتوي حصراً على المفاتيح والأكواد المتاحة والجاهزة للبيع أو التوزيع." data-apex-icon="📥" data-apex-color="indigo">📥 تصدير المتاح (Excel)</a>
+        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="تصدير جميع الأكواد المستخدمة وغير المستخدمة إلى Excel" data-apex-title="تصدير كامل الأرشيف" data-apex-tip="تنزيل جدول إكسل شامل لكافة الأكواد المنشأة، بما في ذلك الأكواد المستردة وتفاصيل المستخدمين." data-apex-icon="📥" data-apex-color="purple">📥 تصدير الكل (Excel)</a>
         <button id="btnDeleteSelectedCodes" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('codesForm', 'هل أنت متأكد من حذف أكواد التفعيل المحددة؟', 'أكواد التفعيل')">🗑️ حذف المحدد (<span id="countSelectedCodes">0</span>)</button>
       </div>
     </div>
@@ -1234,33 +1776,37 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="تحديد كل الأكواد"></th>
-                <th>كود التفعيل</th>
-                <th>القيمة</th>
-                <th>النوع</th>
-                <th>الحالة</th>
-                <th>المستخدم المستفيد</th>
-                <th>تاريخ الإنشاء</th>
-                <th>الإجراءات</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="تحديد كل الأكواد" data-apex-tip="تحديد أو إلغاء تحديد كافة أكواد التفعيل لإجراء الحذف الجماعي." data-apex-icon="☑️"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="تحديد كل الأكواد"></th>
+                <th data-apex-title="مفتاح التفعيل التشفيري" data-apex-tip="كود رقمي فريد مشفر بدقة 8192-bit يُشحن به رصيد المحفظة أو باقة التقديم فوراً." data-apex-icon="🔑" data-apex-color="cyan">كود التفعيل</th>
+                <th data-apex-title="القيمة المالية بالدولار" data-apex-tip="المبلغ المالي الذي يتم إيداعه في محفظة المستخدم بمجرد إدخال هذا الكود." data-apex-icon="💰" data-apex-color="emerald">القيمة</th>
+                <th data-apex-title="التصنيف المالي للكود" data-apex-tip="مبيعات مدفوعة (تُحسب ضمن الأرباح) أو كود مجاني ترويجي ممنوح من الإدارة." data-apex-icon="💳" data-apex-color="indigo">النوع</th>
+                <th data-apex-title="حالة الاستخدام" data-apex-tip="يوضح ما إذا كان الكود متاحاً للتوزيع أو تم تفعيله واستخدامه مسبقاً." data-apex-icon="📊" data-apex-color="cyan">الحالة</th>
+                <th data-apex-title="المستخدم المستفيد" data-apex-tip="البريد الإلكتروني واسم المرشح الذي قام بتفعيل واستخدام هذا الكود، أو متاح للتوزيع." data-apex-icon="👤" data-apex-color="cyan">المستخدم</th>
+                <th data-apex-title="تاريخ الإنشاء التشفيري" data-apex-tip="التاريخ والتوقيت الدقيق لتوليد هذا الكود التشفيري وحفظه في السجل." data-apex-icon="📅" data-apex-color="cyan">تاريخ الإنشاء</th>
+                <th class="col-actions" data-apex-title="إجراءات الكود" data-apex-tip="حذف أو إلغاء تفعيل هذا الكود نهائياً من قاعدة البيانات." data-apex-icon="🗑️" data-apex-color="rose">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {% for r in redeem_codes %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')"></td>
                 <td>
-                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span class="code-chip">{{ r.code }}</span>
+                  <div class="code-cell-container">
+                    <span class="code-chip-badge" onclick="inspectFullCode('{{ r.code }}', '{{ '%.2f'|format(r.value_usd or 0) }}', '{{ r.code_type }}')" title="انقر لمعاينة ونسخ الكود الكامل (1024 محرف)">
+                      <span style="color:#38bdf8; font-weight:800;">🔑</span>
+                      <span style="font-family:monospace; direction:ltr;">{{ (r.code or '')[:8] }}...{{ (r.code or '')[-4:] }}</span>
+                      <span class="code-chip-entropy">8192-BIT</span>
+                    </span>
                     {% if not r.is_used %}
-                      <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)" title="نسخ الكود">📋 نسخ</button>
-                      <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="نسخ رابط الاسترداد الفوري">🔗 رابط</button>
+                      <button type="button" class="btn-code-action btn-code-copy" onclick="copyCodeText('{{ r.code }}', this)" title="نسخ كود التفعيل">📋</button>
+                      <button type="button" class="btn-code-action btn-code-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="نسخ الرابط المباشر">🔗</button>
                     {% endif %}
                   </div>
                 </td>
-                <td style="color:#34d399; font-weight:800; font-size:14px; direction:ltr; text-align:start;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+                <td style="color:#34d399; font-weight:800; font-size:13px; direction:ltr; text-align:start;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
                 <td>
                   {% if r.code_type == 'admin_free' %}
-                    <span class="status-pill pill-emerald">🆓 مجاني إداري</span>
+                    <span class="status-pill pill-emerald">🆓 مجاني</span>
                   {% else %}
                     <span class="status-pill pill-indigo">💳 مدفوع</span>
                   {% endif %}
@@ -1272,10 +1818,30 @@
                     <span class="status-pill pill-emerald">متاح</span>
                   {% endif %}
                 </td>
-                <td style="color:#94a3b8; font-size:13.5px;">{{ r.used_by or '—' }}</td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (r.created_at or '')[:16] }}</td>
                 <td>
-                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCode('{{ r.code }}')" title="حذف الكود نهائياً">🗑️ حذف</button>
+                  {% if r.is_used %}
+                    <div style="display:flex; flex-direction:column; gap:3px;">
+                      <a href="/admin/user/{{ r.used_by }}" style="color:#38bdf8; font-weight:700; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="عرض حساب المستخدم">
+                        <span>👤</span>
+                        <span style="direction:ltr;">{{ r.user_email or r.used_by }}</span>
+                      </a>
+                      {% if r.user_name and r.user_name != r.user_email %}
+                        <span style="font-size:11px; color:#cbd5e1; font-weight:500;">{{ r.user_name }}</span>
+                      {% endif %}
+                      {% if r.used_at %}
+                        <span style="font-size:10px; color:#64748b; font-family:monospace; direction:ltr; text-align:start;">🕒 {{ (r.used_at|string)[:16] }}</span>
+                      {% endif %}
+                    </div>
+                  {% else %}
+                    <span style="color:#10b981; font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:3px 8px; border-radius:6px;">
+                      <span style="inline-size:6px; block-size:6px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
+                      <span>متاح (جاهز للتوزيع)</span>
+                    </span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px; direction:ltr; text-align:start;">{{ (r.created_at|string)[:10] if r.created_at else '' }}</td>
+                <td class="col-actions">
+                  <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteCode('{{ r.code }}')" title="حذف الكود نهائياً">🗑️ حذف</button>
                 </td>
               </tr>
               {% endfor %}
@@ -1286,6 +1852,19 @@
           </table>
         </form>
       </div>
+      {% if redeem_codes|length > 10 %}
+      <div class="table-expand-bar" id="codesExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="codesCountDisplay">عرض <strong style="color:#38bdf8;">10</strong> من أصل <strong style="color:#f8fafc;">{{ redeem_codes|length }}</strong> كود</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('codesForm', 'codesExpandBar', 'codesCountDisplay', {{ redeem_codes|length }}, 'أكواد')" data-apex-title="عرض 10 أكواد إضافية" data-apex-tip="توسيع الجدول لعرض الدفعة التالية المكونة من 10 أكواد تفعيل بسلاسة وبدون إعادة تحميل." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('codesForm', 'codesExpandBar', 'codesCountDisplay', {{ redeem_codes|length }}, 'أكواد')" data-apex-title="إظهار كافة الأكواد" data-apex-tip="عرض القائمة الكاملة لجميع أكواد التفعيل الفائقة المخزنة في قاعدة البيانات." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ redeem_codes|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -1309,47 +1888,62 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="تحديد كل المستخدمين"></th>
-                <th>البريد الإلكتروني</th>
-                <th>الاسم</th>
-                <th>الدور</th>
-                <th>الرصيد</th>
-                <th>إجمالي الإنفاق</th>
-                <th>الحالة</th>
-                <th>تاريخ الانضمام</th>
-                <th>الإجراءات</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="تحديد كل المستخدمين" data-apex-tip="تحديد أو إلغاء تحديد كافة حسابات المستخدمين لإجراء العمليات الجماعية." data-apex-icon="☑️"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="تحديد كل المستخدمين"></th>
+                <th data-apex-title="البريد الإلكتروني للحساب" data-apex-tip="عنوان البريد الإلكتروني الأساسي المسجل به حساب المرشح لتسجيل الدخول." data-apex-icon="📧" data-apex-color="cyan">البريد الإلكتروني</th>
+                <th data-apex-title="اسم المرشح الكامل" data-apex-tip="الاسم المعروض وهوية الملف الشخصي للمرشح في طلبات التوظيف." data-apex-icon="👤" data-apex-color="cyan">الاسم</th>
+                <th data-apex-title="صلاحيات الحساب" data-apex-tip="مستوى صلاحية الحساب: مدير نظام، مشترك VIP، أو مستخدم قياسي." data-apex-icon="🛡️" data-apex-color="indigo">الدور</th>
+                <th data-apex-title="رصيد المحفظة المتاح" data-apex-tip="الرصيد المالي الحالي المتاح بالدولار في المحفظة الرقمية للمرشح." data-apex-icon="💰" data-apex-color="emerald">الرصيد</th>
+                <th data-apex-title="إجمالي الإنفاق التراكمي" data-apex-tip="مجموع المبالغ المالية التي أنفقها المستخدم على حملات التوظيف التلقائية." data-apex-icon="💳" data-apex-color="amber">الإنفاق</th>
+                <th data-apex-title="حالة الحساب" data-apex-tip="حالة الحساب الحالية: نشط وموثق أو محظور/معلق إدارياً." data-apex-icon="🟢" data-apex-color="cyan">الحالة</th>
+                <th data-apex-title="تاريخ التسجيل" data-apex-tip="التاريخ والوقت الدقيق لإنشاء هذا الحساب على المنصة." data-apex-icon="📅" data-apex-color="cyan">تاريخ الانضمام</th>
+                <th class="col-actions" data-apex-title="إدارة وتحكم الحساب" data-apex-tip="عرض الملف الكامل، تعديل الرصيد، شحن المحفظة، أو التحكم بالصلاحيات." data-apex-icon="⚙️" data-apex-color="rose">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {% for u in users %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;">
                   {% if u.user_type != 'admin' %}
-                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
+                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id or u.id or u.email }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
                   {% else %}
-                    <span title="حساب إدارة محمي">🔒</span>
+                    <span title="حساب إدارة محمي بحصانة برمجية">🔒</span>
                   {% endif %}
                 </td>
-                <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:700; text-decoration:none; direction:ltr; display:inline-block;" title="فتح الملف الشخصي وتفاصيل الحساب">{{ u.email }}</a></td>
-                <td style="font-weight:700; color:#f1f5f9;">{{ u.name or '—' }}</td>
-                <td><span class="status-pill pill-indigo">{{ u.user_type or 'باحث عن عمل' }}</span></td>
-                <td style="color:#34d399; font-weight:800; direction:ltr; text-align:start;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
-                <td style="color:#94a3b8; direction:ltr; text-align:start;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
+                <td>
+                  <a href="/admin/user/{{ u.user_id or u.id }}" style="display:inline-flex; align-items:center; gap:6px; color:#38bdf8; font-weight:700; text-decoration:none; direction:ltr; transition:all 0.2s;" title="{{ u.email }}">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-size:10px; font-weight:900;">{{ (u.name or u.email or 'U')[0]|upper }}</span>
+                    <span style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;">{{ u.email }}</span>
+                  </a>
+                </td>
+                <td style="font-weight:700; color:#f1f5f9;">
+                  <span style="max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;" title="{{ u.name or '' }}">{{ u.name or '—' }}</span>
+                </td>
+                <td>
+                  {% if u.user_type == 'admin' %}
+                    <span class="status-pill pill-amber" style="padding:2px 6px; font-size:10.5px; box-shadow:0 0 10px rgba(245,158,11,0.2);">👑 مسؤول</span>
+                  {% elif u.user_type == 'recruiter' %}
+                    <span class="status-pill pill-indigo" style="padding:2px 6px; font-size:10.5px;">💼 توظيف</span>
+                  {% else %}
+                    <span class="status-pill pill-indigo" style="padding:2px 6px; font-size:10.5px;">🎯 باحث</span>
+                  {% endif %}
+                </td>
+                <td style="color:#34d399; font-weight:800; font-family:monospace; font-size:12.5px; direction:ltr; text-align:start;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+                <td style="color:#94a3b8; font-family:monospace; font-size:12.5px; direction:ltr; text-align:start;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
                 <td>
                   {% if u.is_active %}
-                    <span class="status-pill pill-emerald">🟢 نشط</span>
+                    <span class="status-pill pill-emerald" style="padding:2px 6px; font-size:10.5px;"><span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span> نشط</span>
                   {% else %}
-                    <span class="status-pill pill-rose">🔴 معطل</span>
+                    <span class="status-pill pill-rose" style="padding:2px 6px; font-size:10.5px;"><span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#f43f5e;"></span> معطل</span>
                   {% endif %}
                 </td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (u.created_at or '')[:10] }}</td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <button type="button" class="btn-sm-action {% if u.is_active %}btn-sm-danger{% else %}btn-sm-success{% endif %}" onclick="handleToggleUser('{{ u.user_id }}')" title="تغيير حالة الحساب (تفعيل / تعطيل)">
-                      {% if u.is_active %}تعطيل{% else %}تفعيل{% endif %}
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px; direction:ltr; text-align:start;">{{ (u.created_at|string)[:10] if u.created_at else '—' }}</td>
+                <td class="col-actions">
+                  <div style="display:inline-flex; gap:4px; align-items:center;">
+                    <button type="button" class="btn-action-badge {% if u.is_active %}btn-action-disable{% else %}btn-action-enable{% endif %}" onclick="handleToggleUser('{{ u.user_id or u.id or u.email }}')" title="تغيير حالة الحساب (تفعيل / تعطيل)">
+                      {% if u.is_active %}⛔ تعطيل{% else %}✅ تفعيل{% endif %}
                     </button>
                     {% if u.user_type != 'admin' %}
-                      <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteUser('{{ u.user_id }}', '{{ u.email }}')" title="حذف حساب المستخدم نهائياً">🗑️ حذف</button>
+                      <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteUser('{{ u.user_id or u.id or u.email }}', '{{ u.email }}')" title="حذف حساب المستخدم نهائياً">🗑️ حذف</button>
                     {% endif %}
                   </div>
                 </td>
@@ -1359,6 +1953,19 @@
           </table>
         </form>
       </div>
+      {% if users|length > 10 %}
+      <div class="table-expand-bar" id="usersExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="usersCountDisplay">عرض <strong style="color:#38bdf8;">10</strong> من أصل <strong style="color:#f8fafc;">{{ users|length }}</strong> مستخدم</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('usersForm', 'usersExpandBar', 'usersCountDisplay', {{ users|length }}, 'مستخدمين')" data-apex-title="عرض 10 مستخدمين إضافيين" data-apex-tip="توسيع الجدول لعرض الدفعة التالية من حسابات المستخدمين بسلاسة وبدون إعادة تحميل." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('usersForm', 'usersExpandBar', 'usersCountDisplay', {{ users|length }}, 'مستخدمين')" data-apex-title="إظهار كافة المستخدمين" data-apex-tip="عرض القائمة الكاملة لجميع حسابات المرشحين والمستخدمين المسجلين في النظام." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ users|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -1382,35 +1989,39 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="تحديد كل الحملات"></th>
-                <th>معرف الحملة</th>
-                <th>حساب المستخدم</th>
-                <th>الحالة</th>
-                <th>الشركات المستهدفة</th>
-                <th>المرسل</th>
-                <th>تاريخ الإنشاء</th>
-                <th>الإجراءات</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="تحديد كل الحملات" data-apex-tip="تحديد أو إلغاء تحديد كافة حملات التوظيف لإجراء الحذف الجماعي." data-apex-icon="☑️"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="تحديد كل الحملات"></th>
+                <th data-apex-title="معرف الحملة التوظيفية" data-apex-tip="الرمز التتبعي الفريد لحملة المراسلة والتقديم التلقائي على الوظائف." data-apex-icon="🚀" data-apex-color="cyan">معرف الحملة</th>
+                <th data-apex-title="حساب المرشح المالك" data-apex-tip="المرشح الذي يتم إرسال سيرته الذاتية وملفه الشخصي في هذه الحملة." data-apex-icon="👤" data-apex-color="cyan">حساب المستخدم</th>
+                <th data-apex-title="الحالة التشغيلية للحملة" data-apex-tip="الحالة الحالية: قيد الإرسال النشط، في قائمة الانتظار، أو مكتملة بنجاح." data-apex-icon="🟢" data-apex-color="indigo">الحالة</th>
+                <th data-apex-title="الشركات المستهدفة" data-apex-tip="إجمالي عدد الشركات ومسؤولي التوظيف المعتمدين المستهدفين في الحملة." data-apex-icon="🏢" data-apex-color="amber">الأهداف</th>
+                <th data-apex-title="الإيميلات المرسلة بنجاح" data-apex-tip="عدد رسائل البريد المرسلة والمؤكدة عبر فحص تسليم السيرفرات الحي." data-apex-icon="✉️" data-apex-color="emerald">المرسل</th>
+                <th data-apex-title="توقيت بدء الحملة" data-apex-tip="التاريخ والوقت الذي تم فيه إنشاء وإطلاق هذه الحملة التوظيفية." data-apex-icon="📅" data-apex-color="cyan">تاريخ الإنشاء</th>
+                <th class="col-actions" data-apex-title="التحكم بالحملة" data-apex-tip="معاينة سجلات الإرسال الحية، إيقاف/استئناف الحملة، أو حذفها نهائياً." data-apex-icon="⚙️" data-apex-color="rose">الإجراءات</th>
               </tr>
             </thead>
             <tbody>
               {% for c in campaigns %}
-              <tr>
-                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
-                <td style="font-family:monospace; color:#a5b4fc; font-size:12.5px; direction:ltr; text-align:start;">{{ c.campaign_id[:18] }}...</td>
-                <td style="font-weight:700; color:#f1f5f9; direction:ltr; text-align:start;">{{ c.email or c.user_id[:12] }}</td>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id or c.id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
+                <td style="font-family:monospace; color:#38bdf8; font-size:11.5px; font-weight:700; direction:ltr; text-align:start;">
+                  <span style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 6px; border-radius:5px;">🚀 {{ (c.campaign_id or c.id|string or '')[:10] }}...</span>
+                </td>
+                <td style="font-weight:700; color:#f1f5f9; direction:ltr; text-align:start;">
+                  <span style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;" title="{{ c.email or c.user_id }}">{{ c.email or (c.user_id|string)[:10] }}</span>
+                </td>
                 <td>
-                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
-                    {% if c.status == 'completed' %}مكتملة
-                    {% elif c.status == 'running' %}جارية
-                    {% elif c.status == 'failed' %}فشلت
-                    {% else %}{{ c.status }}{% endif %}
+                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}" style="padding:2px 6px; font-size:10.5px;">
+                    {% if c.status == 'completed' %}✨ مكتملة
+                    {% elif c.status == 'running' %}⚡ جارية
+                    {% elif c.status == 'failed' %}❌ فشلت
+                    {% else %}⏳ {{ c.status }}{% endif %}
                   </span>
                 </td>
-                <td style="font-weight:800; color:#ffffff;">{{ c.total_companies }}</td>
-                <td style="color:#34d399; font-weight:800;">{{ c.sent_count }}</td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px; direction:ltr; text-align:start;">{{ (c.created_at or '')[:16] }}</td>
-                <td>
-                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCampaign('{{ c.campaign_id }}')" title="حذف الحملة نهائياً">🗑️ حذف</button>
+                <td style="font-weight:800; font-family:monospace; color:#94a3b8; font-size:12px; direction:ltr; text-align:start;">{{ c.total_companies }} أهداف</td>
+                <td style="color:#34d399; font-weight:800; font-family:monospace; font-size:12px; direction:ltr; text-align:start;">{{ c.sent_count }} تم الإرسال</td>
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px; direction:ltr; text-align:start;">{{ (c.created_at|string)[:10] if c.created_at else '—' }}</td>
+                <td class="col-actions">
+                  <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteCampaign('{{ c.campaign_id or c.id }}')" title="حذف الحملة نهائياً">🗑️ حذف</button>
                 </td>
               </tr>
               {% endfor %}
@@ -1421,6 +2032,226 @@
           </table>
         </form>
       </div>
+      {% if campaigns|length > 10 %}
+      <div class="table-expand-bar" id="campaignsExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="campaignsCountDisplay">عرض <strong style="color:#38bdf8;">10</strong> من أصل <strong style="color:#f8fafc;">{{ campaigns|length }}</strong> حملة</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('campaignsForm', 'campaignsExpandBar', 'campaignsCountDisplay', {{ campaigns|length }}, 'حملات')" data-apex-title="عرض 10 حملات إضافية" data-apex-tip="توسيع الجدول لعرض الدفعة التالية من الحملات التوظيفية بسلاسة وبدون إعادة تحميل." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ عرض المزيد (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('campaignsForm', 'campaignsExpandBar', 'campaignsCountDisplay', {{ campaigns|length }}, 'حملات')" data-apex-title="إظهار كافة الحملات" data-apex-tip="عرض القائمة الكاملة لجميع الحملات التوظيفية للمرشحين في قاعدة البيانات." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ إظهار الكل ({{ campaigns|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       FAMILY BENEFICIARY VAULT & MULTI-WALLET REVENUE SPLITTER
+       ========================================================================= -->
+  <div class="admin-section" id="familyVaultSection">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🏛️ صندوق العائلة والورثة — نظام التوزيع الآلي متعدد المحافظ</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">نظام غير احتجازي (Non-Custodial) فائق الأمان (0/1,000,000 Risk) يوزع أرباح المنصة بنسب مئوية محددة مباشرة إلى كافة محافظ Trust Wallet العائلية المضافة.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="status-pill pill-emerald" style="padding:5px 12px; font-weight:700; font-size:12px;">🔒 حماية غير احتجازية 100%</span>
+        <span class="status-pill pill-amber" style="padding:5px 12px; font-weight:700; font-size:12px;">💰 الإجمالي الموزع: <span id="vaultTotalDistributedDisplay" style="font-family:'JetBrains Mono', monospace; font-weight:800;">${{ "%.2f"|format(family_vault.total_distributed_usd if family_vault else 0) }}</span></span>
+      </div>
+    </div>
+    
+    <div class="table-card" style="padding: 24px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.92) 100%); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 20px; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.6);">
+      
+      <!-- Master Wallet & Schedule Header Controls -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:18px; margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08);">
+        
+        <!-- Master Receiving Wallet -->
+        <div style="background:rgba(2,6,23,0.55); padding:16px 18px; border-radius:14px; border:1px solid rgba(56,189,248,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:6px;">
+              👑 محفظتك الرئيسية لاستقبال الأرباح
+            </label>
+            <span style="font-size:11px; color:#94a3b8;">تستقبل أرباح البوابات أولاً</span>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="vaultMasterAddress" class="admin-input" value="{{ family_vault.master_wallet_address if family_vault else '' }}" placeholder="الصق عنوان المحفظة الرئيسية (Tron, BSC, Solana, Bitcoin...)" style="font-size:12px; font-family:'JetBrains Mono', monospace; padding:9px 12px; flex:1; border-radius:9px;" dir="ltr">
+            <select id="vaultMasterNetwork" class="admin-input" style="width:170px; font-size:12px; font-weight:700; background:rgba(15,23,42,0.95); color:#f1f5f9; padding:9px 10px; border-radius:9px;">
+              <optgroup label="💵 العملات المستقرة (Stablecoins)">
+                <option value="USDT (TRC20)" {% if not family_vault or family_vault.master_wallet_network == 'USDT (TRC20)' %}selected{% endif %}>💵 USDT (TRC20) ⭐</option>
+                <option value="USDT (BEP20)" {% if family_vault and family_vault.master_wallet_network == 'USDT (BEP20)' %}selected{% endif %}>💵 USDT (BEP20)</option>
+                <option value="USDT (Polygon)" {% if family_vault and family_vault.master_wallet_network == 'USDT (Polygon)' %}selected{% endif %}>💵 USDT (Polygon)</option>
+                <option value="USDT (Solana)" {% if family_vault and family_vault.master_wallet_network == 'USDT (Solana)' %}selected{% endif %}>💵 USDT (Solana)</option>
+                <option value="USDC (BEP20)" {% if family_vault and family_vault.master_wallet_network == 'USDC (BEP20)' %}selected{% endif %}>🪙 USDC (BEP20)</option>
+                <option value="USDC (Polygon)" {% if family_vault and family_vault.master_wallet_network == 'USDC (Polygon)' %}selected{% endif %}>🪙 USDC (Polygon)</option>
+                <option value="USDC (Solana)" {% if family_vault and family_vault.master_wallet_network == 'USDC (Solana)' %}selected{% endif %}>🪙 USDC (Solana)</option>
+              </optgroup>
+              <optgroup label="💎 كبار العملات الموثوقة (Major Cryptos)">
+                <option value="BTC (Bitcoin)" {% if family_vault and 'BTC' in family_vault.master_wallet_network %}selected{% endif %}>₿ BTC (Bitcoin)</option>
+                <option value="ETH (Ethereum)" {% if family_vault and 'ETH' in family_vault.master_wallet_network %}selected{% endif %}>Ξ ETH (Ethereum)</option>
+                <option value="SOL (Solana)" {% if family_vault and 'SOL' in family_vault.master_wallet_network %}selected{% endif %}>◎ SOL (Solana)</option>
+                <option value="BNB (Smart Chain)" {% if family_vault and 'BNB' in family_vault.master_wallet_network %}selected{% endif %}>🟡 BNB (Chain)</option>
+                <option value="TON (Telegram)" {% if family_vault and 'TON' in family_vault.master_wallet_network %}selected{% endif %}>💎 TON (Telegram)</option>
+                <option value="TRX (Tron)" {% if family_vault and 'TRX' in family_vault.master_wallet_network %}selected{% endif %}>🔴 TRX (Tron)</option>
+                <option value="LTC (Litecoin)" {% if family_vault and 'LTC' in family_vault.master_wallet_network %}selected{% endif %}>Ł LTC (Litecoin)</option>
+                <option value="XRP (Ripple)" {% if family_vault and 'XRP' in family_vault.master_wallet_network %}selected{% endif %}>✕ XRP (Ripple)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- Default Fallback Payout Interval Scheduler -->
+        <div style="background:rgba(2,6,23,0.55); padding:16px 18px; border-radius:14px; border:1px solid rgba(168,85,247,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:800; color:#c084fc; display:flex; align-items:center; gap:6px;">
+              ⏱️ الدورة الزمنية الافتراضية
+            </label>
+            <span style="font-size:11px; font-weight:700; color:#34d399; font-family:'JetBrains Mono', monospace;">
+              التوزيع القادم: <span id="vaultNextPayoutDisplay" style="color:#34d399;">{{ (family_vault.next_payout_date[:10] if family_vault and family_vault.next_payout_date else 'شهرياً') }}</span>
+            </span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="vaultIntervalMode" class="admin-input" onchange="updateNextPayoutLiveDisplay()" style="font-size:12px; font-weight:700; background:rgba(15,23,42,0.95); color:#f1f5f9; padding:9px 12px; flex:1; border-radius:9px;">
+              <option value="30_days" {% if not family_vault or family_vault.payout_interval_mode == '30_days' %}selected{% endif %}>📅 كل 30 يوم (شهرياً - مستحسن لتوفير الغاز)</option>
+              <option value="60_days" {% if family_vault and family_vault.payout_interval_mode == '60_days' %}selected{% endif %}>📅 كل 60 يوم (كل شهرين)</option>
+              <option value="instant" {% if family_vault and family_vault.payout_interval_mode == 'instant' %}selected{% endif %}>⚡ فوري مع كل عملية شراء (Real-time)</option>
+              <option value="custom_days" {% if family_vault and family_vault.payout_interval_mode == 'custom_days' %}selected{% endif %}>⚙️ مخصص (أدخل عدد الأيام...)</option>
+            </select>
+            <div id="vaultCustomDaysWrapper" style="display:{% if family_vault and family_vault.payout_interval_mode == 'custom_days' %}flex{% else %}none{% endif %}; align-items:center; gap:4px;">
+              <input type="number" id="vaultCustomDays" class="admin-input" value="{{ family_vault.custom_payout_days if family_vault else 30 }}" min="1" max="365" oninput="updateNextPayoutLiveDisplay()" style="width:65px; font-size:12px; padding:8px 4px; text-align:center; font-weight:800; font-family:monospace; border-radius:9px;">
+              <span style="font-size:11px; color:#94a3b8; font-weight:700;">يوم</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+        <div style="font-size:12.5px; color:#94a3b8; display:flex; align-items:center; gap:6px;">
+          💡 <span style="color:#e2e8f0;"><strong style="color:#38bdf8;">نظام المحافظ الديناميكي:</strong> أضف أي عدد تريده من أفراد العائلة أو الصناديق الاحتياطية مع تخصيص عملة ونسبة مئوية وموعد سحب لكل شخص.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <button type="button" onclick="addNewBeneficiaryRow()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:10px; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); border:none; color:#ffffff; font-weight:800; font-size:12.5px; cursor:pointer; box-shadow:0 4px 14px rgba(37,99,235,0.35); transition:all 0.2s ease;" data-apex-title="إضافة مستفيد جديد" data-apex-tip="إضافة محفظة رقمية جديدة لتوزيع الأرباح وعوائد المبيعات بشكل مشفر وغير احتجازي." data-apex-icon="➕" data-apex-color="cyan">
+            ➕ إضافة مستفيد جديد
+          </button>
+          <div style="font-size:13px; font-weight:800; color:#f1f5f9; background:rgba(255,255,255,0.06); padding:7px 18px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; gap:6px;">
+            مجموع التوزيع: <span id="vaultTotalPctDisplay" style="color:#34d399; font-family:'JetBrains Mono', monospace; font-size:14px; font-weight:800;">100%</span> / 100%
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow-x:auto; background:rgba(2,6,23,0.55);">
+        <table class="admin-table" id="familyVaultTable" style="margin:0; width:100%; border-collapse:separate; border-spacing:0;">
+          <thead>
+            <tr style="background:rgba(15,23,42,0.85);">
+              <th style="width:36px; text-align:center; padding:10px 6px; color:#38bdf8; font-size:11.5px;" data-apex-title="ترتيب المستفيد" data-apex-tip="الرقم التسلسلي للمستفيد داخل مصفوفة التوزيع المالي اللامركزية." data-apex-icon="🔢">#</th>
+              <th style="min-width:145px; padding:10px 10px; font-size:11.5px;" data-apex-title="اسم وتسمية المستفيد" data-apex-tip="اسم توضيحي لتمييز المحفظة المستفيدة (مثال: محفظة الادخار، العائلة، الشريك)." data-apex-icon="🏷️" data-apex-color="cyan">المستفيد (العائلة)</th>
+              <th style="min-width:145px; padding:10px 10px; font-size:11.5px;" data-apex-title="العملة المشفرة وشبكة البلوكتشين" data-apex-tip="العملة الرقمية وشبكة التحويل المستهدفة لتحويل العوائد تلقائياً (مثل USDT TRC20، BTC، SOL)." data-apex-icon="🪙" data-apex-color="emerald">العملة والشبكة (Crypto)</th>
+              <th style="min-width:160px; padding:10px 10px; font-size:11.5px;" data-apex-title="عنوان المحفظة اللامركزية" data-apex-tip="عنوان المحفظة الرقمية للمستلم والمحمي بدرع أمني يمنع إدخال المفاتيح الخاصة." data-apex-icon="🔐" data-apex-color="indigo">عنوان المحفظة (Address)</th>
+              <th style="width:82px; min-width:82px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="النسبة المئوية من الإيراد" data-apex-tip="النسبة المخصصة لهذه المحفظة من إجمالي كل دولار يدخل المنصة (مجموع النسب = 100%)." data-apex-icon="📊" data-apex-color="amber">النسبة (%)</th>
+              <th style="min-width:175px; padding:10px 10px; font-size:11.5px;" data-apex-title="جدول ودورة التحويل التلقائي" data-apex-tip="دورة ترحيل الأرباح: تحويل فوري مع كل عملية، شهرياً كل 30 يوم، أو جدول مخصص." data-apex-icon="⏱️" data-apex-color="cyan">⏱️ موعد ودورة السحب</th>
+              <th style="width:95px; min-width:95px; text-align:center; padding:10px 8px; font-size:11.5px;" data-apex-title="إجمالي المبالغ المستلمة" data-apex-tip="المجموع التراكمي التاريخي للأرباح المحولة لهذه المحفظة عبر كافة الدورات السابقة." data-apex-icon="💰" data-apex-color="emerald">المستلم (USD)</th>
+              <th class="col-actions" style="width:45px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="تفعيل/تعطيل التحويل" data-apex-tip="تشغيل أو إيقاف توجيه حصص الأرباح مؤقتاً لهذه المحفظة المحددة." data-apex-icon="🟢" data-apex-color="emerald">الحالة</th>
+              <th style="width:45px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="حذف المستفيد" data-apex-tip="إزالة سطر هذه المحفظة نهائياً من مصفوفة توزيع الإيرادات." data-apex-icon="🗑️" data-apex-color="rose">حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in (family_vault.beneficiaries if family_vault else []) %}
+            <tr data-ben-id="{{ b.id }}" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+              <td class="ben-index" style="text-align:center; font-weight:800; color:#38bdf8; font-size:12px; padding:8px 4px;">{{ loop.index }}</td>
+              <td style="padding:8px 8px;">
+                <input type="text" class="admin-input ben-name" value="{{ b.name }}" placeholder="اسم المستفيد (أمي، الابن...)" style="font-size:12px; font-weight:600; padding:6px 10px; width:100%; border-radius:8px; background:rgba(15,23,42,0.9); color:#f8fafc;">
+              </td>
+              <td style="padding:8px 8px;">
+                <select class="admin-input ben-network" style="font-size:11.5px; font-weight:700; padding:6px 8px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:8px;">
+                  <optgroup label="💵 العملات المستقرة (Stablecoins - دولار رقمي)">
+                    <option value="USDT (TRC20)" {% if b.network == 'USDT (TRC20)' or (not b.network and loop.index == 1) %}selected{% endif %}>💵 USDT (TRC20) ⭐</option>
+                    <option value="USDT (BEP20)" {% if b.network == 'USDT (BEP20)' %}selected{% endif %}>💵 USDT (BEP20)</option>
+                    <option value="USDT (Polygon)" {% if b.network == 'USDT (Polygon)' %}selected{% endif %}>💵 USDT (Polygon)</option>
+                    <option value="USDT (Solana)" {% if b.network == 'USDT (Solana)' %}selected{% endif %}>💵 USDT (Solana)</option>
+                    <option value="USDC (BEP20)" {% if b.network == 'USDC (BEP20)' %}selected{% endif %}>🪙 USDC (BEP20)</option>
+                    <option value="USDC (Polygon)" {% if b.network == 'USDC (Polygon)' %}selected{% endif %}>🪙 USDC (Polygon)</option>
+                    <option value="USDC (Solana)" {% if b.network == 'USDC (Solana)' %}selected{% endif %}>🪙 USDC (Solana)</option>
+                  </optgroup>
+                  <optgroup label="💎 كبار العملات المشفرة الموثوقة (Major Cryptos)">
+                    <option value="BTC (Bitcoin)" {% if 'BTC' in b.network or 'Bitcoin' in b.network %}selected{% endif %}>₿ BTC (Bitcoin)</option>
+                    <option value="ETH (Ethereum)" {% if 'ETH' in b.network or 'Ethereum' in b.network %}selected{% endif %}>Ξ ETH (Ethereum)</option>
+                    <option value="SOL (Solana)" {% if 'SOL' in b.network or 'Solana' in b.network and 'USDT' not in b.network and 'USDC' not in b.network %}selected{% endif %}>◎ SOL (Solana)</option>
+                    <option value="BNB (Smart Chain)" {% if 'BNB' in b.network and 'USDT' not in b.network and 'USDC' not in b.network %}selected{% endif %}>🟡 BNB (Chain)</option>
+                    <option value="TON (Telegram)" {% if 'TON' in b.network or 'Telegram' in b.network %}selected{% endif %}>💎 TON (Telegram)</option>
+                    <option value="TRX (Tron)" {% if 'TRX' in b.network and 'USDT' not in b.network %}selected{% endif %}>🔴 TRX (Tron)</option>
+                    <option value="LTC (Litecoin)" {% if 'LTC' in b.network or 'Litecoin' in b.network %}selected{% endif %}>Ł LTC (Litecoin)</option>
+                    <option value="XRP (Ripple)" {% if 'XRP' in b.network or 'Ripple' in b.network %}selected{% endif %}>✕ XRP (Ripple)</option>
+                  </optgroup>
+                </select>
+              </td>
+              <td style="padding:8px 8px;">
+                <input type="text" class="admin-input ben-address" value="{{ b.address }}" placeholder="عنوان المحفظة..." style="font-size:11.5px; font-family:'JetBrains Mono', monospace; padding:6px 10px; color:#38bdf8; width:100%; border-radius:8px; background:rgba(15,23,42,0.9);" dir="ltr">
+              </td>
+              <td style="text-align:center; padding:8px 4px;">
+                <div class="ben-pct-pill">
+                  <input type="number" class="ben-pct" value="{{ '%.0f'|format(b.percentage) if b.percentage == b.percentage|int else b.percentage }}" min="0" max="100" step="1" oninput="recalcVaultPct()" dir="ltr">
+                  <span class="ben-pct-unit">%</span>
+                </div>
+              </td>
+              <td style="padding:8px 8px;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    <select class="admin-input ben-interval" onchange="recalcBenIntervalRow(this)" style="font-size:11px; font-weight:700; padding:5px 6px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:8px;">
+                      <option value="instant" {% if b.payout_interval_mode == 'instant' %}selected{% endif %}>⚡ فوري</option>
+                      <option value="15_days" {% if b.payout_interval_mode == '15_days' %}selected{% endif %}>📅 كل 15 يوم</option>
+                      <option value="30_days" {% if not b.payout_interval_mode or b.payout_interval_mode == '30_days' %}selected{% endif %}>📅 كل 30 يوم (شهرياً)</option>
+                      <option value="60_days" {% if b.payout_interval_mode == '60_days' %}selected{% endif %}>📅 كل 60 يوم</option>
+                      <option value="custom_days" {% if b.payout_interval_mode == 'custom_days' %}selected{% endif %}>⚙️ مخصص (أيام)...</option>
+                    </select>
+                    <input type="number" class="admin-input ben-custom-days" value="{{ b.custom_payout_days or 30 }}" min="1" max="365" oninput="recalcBenIntervalRow(this)" placeholder="أيام" style="display:{% if b.payout_interval_mode == 'custom_days' %}block{% else %}none{% endif %}; width:44px; font-size:11px; padding:5px 3px; text-align:center; font-weight:800; font-family:monospace; border-radius:7px;">
+                  </div>
+                  <div class="ben-next-date-badge" style="display:flex; align-items:center; justify-content:center; gap:4px; padding:3px 6px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.28); color:#34d399; font-size:10px; font-weight:700; font-family:'JetBrains Mono', monospace;">
+                    ⏱️ التالي: <span>{{ (b.next_payout_date[:10] if b.next_payout_date else 'شهرياً') }}</span>
+                  </div>
+                </div>
+              </td>
+              <td style="color:#34d399; font-weight:800; font-family:'JetBrains Mono', monospace; font-size:13px; text-align:center; text-shadow:0 0 8px rgba(52,211,153,0.3); direction:ltr; padding:8px 6px;">
+                ${{ "%.2f"|format(b.total_received_usd or 0) }}
+              </td>
+              <td class="col-actions" style="text-align:center; padding:8px 4px;">
+                <label style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+                  <input type="checkbox" class="ben-active" {% if b.is_active %}checked{% endif %} onchange="recalcVaultPct()" style="width:16px; height:16px; cursor:pointer; accent-color:#10b981;">
+                </label>
+              </td>
+              <td style="text-align:center; padding:8px 4px;">
+                <button type="button" onclick="removeBeneficiaryRow(this)" title="حذف المستفيد" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fb7185; font-size:12px; cursor:pointer; transition:all 0.2s ease;">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Luxury Actions Toolbar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:22px; flex-wrap:wrap; gap:14px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <button type="button" onclick="saveFamilyVaultConfig()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 24px; border-radius:10px; background:linear-gradient(135deg, #059669 0%, #10b981 100%); color:#ffffff; font-weight:800; font-size:13px; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.35); transition:all 0.2s ease;" data-apex-title="حفظ إعدادات المحافظ" data-apex-tip="تشفير وحفظ وتأمين كافة عناوين محافظ المستفيدين ونسب التوزيع وجدول السحب التلقائي." data-apex-icon="💾" data-apex-color="emerald">
+            💾 حفظ إعدادات المحافظ والتوقيت
+          </button>
+          <button type="button" onclick="simulateVaultSplit()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s ease;" data-apex-title="تجربة توزيع افتراضي ($100)" data-apex-tip="إجراء محاكاة تجريبية حية لتوزيع 100 دولار عبر نسب المحافظ المفعلة وتحديث سجل المحاسبة." data-apex-icon="⚡" data-apex-color="indigo">
+            ⚡ تجربة توزيع تجريبي ($100)
+          </button>
+          <button type="button" onclick="resetFamilyVaultStats()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 18px; border-radius:10px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.35); color:#fb7185; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s ease;" data-apex-title="تصفير الأرقام التجريبية" data-apex-tip="إعادة تعيين أرقام المحاكاة المسجلة إلى $0.00 مع الحفاظ التام على عناوين المحافظ والنسب المحفوظة." data-apex-icon="🔄" data-apex-color="rose">
+            🔄 تصفير الإحصائيات ($0.00)
+          </button>
+        </div>
+        <div style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#94a3b8; font-weight:600;">
+          🛡️ بروتوكول تحويل لامركزي غير احتجازي (Zero Server Key Custody)
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1428,6 +2259,71 @@
        APEX LUXURY GLASSMORPHIC CONFIRMATION MODAL & TOAST NOTIFICATION ENGINE
        ========================================================================= -->
   <style>
+    /* BEN-PCT NUMBER PILL NO-SPINNER LUXURY STYLING */
+    .ben-pct-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 2px !important;
+      background: rgba(15, 23, 42, 0.95) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+      border-radius: 8px !important;
+      padding: 4px 6px !important;
+      width: 72px !important;
+      min-width: 72px !important;
+      max-width: 72px !important;
+      box-sizing: border-box !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(56, 189, 248, 0.12) !important;
+      transition: all 0.2s ease !important;
+    }
+    .ben-pct-pill:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.35) !important;
+    }
+    .ben-pct {
+      width: 36px !important;
+      min-width: 36px !important;
+      max-width: 36px !important;
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      color: #38bdf8 !important;
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Segoe UI', monospace !important;
+      text-align: center !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      -moz-appearance: textfield !important;
+      appearance: textfield !important;
+      -webkit-appearance: none !important;
+    }
+    .ben-pct:focus {
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      outline: none !important;
+      border: none !important;
+    }
+    .ben-pct::-webkit-inner-spin-button,
+    .ben-pct::-webkit-outer-spin-button {
+      -webkit-appearance: none !important;
+      margin: 0 !important;
+      display: none !important;
+    }
+    .ben-pct-unit {
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: #38bdf8 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      user-select: none !important;
+      line-height: 1 !important;
+    }
+
     .apex-modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1774,7 +2670,7 @@
           for (const [k, v] of Object.entries(bodyData)) {
             if (Array.isArray(v)) {
               v.forEach(item => formData.append(k, item));
-            } else {
+            } else if (v !== undefined && v !== null && String(v).trim() !== '') {
               formData.append(k, v);
             }
           }
@@ -1785,7 +2681,12 @@
           headers: { 'Accept': 'application/json' }
         });
         if (!resp.ok && resp.status !== 303 && resp.status !== 200) {
-          throw new Error(`Server returned HTTP ${resp.status}`);
+          let errDetail = `Server returned HTTP ${resp.status}`;
+          try {
+            const errJson = await resp.json();
+            if (errJson && errJson.error) errDetail = errJson.error;
+          } catch (_) {}
+          throw new Error(errDetail);
         }
         showApexToast(successMsg || 'تم تنفيذ الإجراء بنجاح', 'success');
         if (onDomUpdate) {
@@ -1852,25 +2753,35 @@
     }
 
     function handleDeleteUser(userId, email) {
+      const targetId = userId || email;
+      if (!targetId) {
+        showApexToast('معرف المستخدم غير متوفر', 'danger');
+        return;
+      }
       openApexConfirmModal({
         type: 'danger',
         icon: '🗑️',
         title: 'حذف حساب المستخدم نهائياً',
-        badge: email || userId,
+        badge: email || targetId,
         message: 'هل أنت متأكد من رغبتك في حذف هذا المستخدم وسجلاته بالكامل؟ لا يمكن التراجع عن هذا الإجراء.',
         confirmText: '🗑️ حذف المستخدم',
         cancelText: 'إلغاء',
-        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: userId }, 'تم حذف حساب المستخدم بنجاح')
+        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: targetId }, 'تم حذف حساب المستخدم بنجاح')
       });
     }
 
     function handleDeleteCampaign(campaignId) {
+      if (!campaignId) {
+        showApexToast('معرف الحملة غير متوفر', 'danger');
+        return;
+      }
+      const shortId = String(campaignId).substring(0, 16);
       openApexConfirmModal({
         type: 'danger',
         icon: '🗑️',
         title: 'حذف سجل حملة التوظيف',
-        badge: `حملة #${campaignId.substring(0, 16)}`,
-        message: 'هل أنت متأكد من حذف سجل هذه الحملة التوظيفية نهائياً من قاعدة البيانات؟',
+        badge: `حملة #${shortId}`,
+        message: 'هل أنت متأكد من حذف سجل هذه الحملة التوظيفية نهائياً من قاعدة البيانات؟ لا يمكن التراجع عن هذا الإجراء.',
         confirmText: '🗑️ حذف الحملة',
         cancelText: 'إلغاء',
         onConfirm: () => executeApexAction('/admin/delete-campaign', { campaign_id: campaignId }, 'تم حذف الحملة بنجاح')
@@ -1878,6 +2789,10 @@
     }
 
     function handleToggleUser(userId) {
+      if (!userId) {
+        showApexToast('معرف المستخدم غير متوفر', 'danger');
+        return;
+      }
       executeApexAction('/admin/toggle-user', { target_user_id: userId }, 'تم تحديث حالة المستخدم بنجاح');
     }
 
@@ -1920,6 +2835,743 @@
       if (countSpan) countSpan.innerText = checked.length;
       if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
       if (master && all.length > 0) master.checked = (checked.length === all.length);
+    }
+
+    // Global Key Actions
+    function copyCodeText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '✨ تم النسخ!';
+          btn.style.background = 'rgba(16, 185, 129, 0.4)';
+          btn.style.color = '#ffffff';
+          setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+        }
+        showApexToast('تم نسخ كود التفعيل إلى الحافظة بنجاح!', 'success');
+      }).catch(() => {
+        showApexToast('فشل النسخ إلى الحافظة', 'danger');
+      });
+    }
+
+    function copyRedeemLink(code, btn) {
+      const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
+      navigator.clipboard.writeText(link).then(() => {
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '✨ تم نسخ الرابط!';
+          btn.style.background = 'rgba(14, 165, 233, 0.4)';
+          btn.style.color = '#ffffff';
+          setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+        }
+        showApexToast('تم نسخ رابط الاسترداد الفوري المباشر بنجاح!', 'success');
+      }).catch(() => {
+        showApexToast('فشل نسخ الرابط المباشر', 'danger');
+      });
+    }
+
+    function inspectFullCode(code, value, type) {
+      const modal = document.getElementById('adminCodeInspectorModal');
+      if (!modal) return;
+      document.getElementById('inspectorCodeValue').textContent = '$' + value;
+      document.getElementById('inspectorCodeType').textContent = type || 'مدفوع';
+      document.getElementById('inspectorCodeLength').textContent = code.length + ' محرف (تشفير كمي 8192-BIT)';
+      document.getElementById('inspectorCodeTextarea').value = code;
+      modal.style.display = 'flex';
+    }
+
+    function closeInspectorModal() {
+      const modal = document.getElementById('adminCodeInspectorModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Universal Table Row Collapsing / Expanding Engine
+    function loadMoreTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      let currentVisible = 0;
+      rows.forEach(r => {
+        if (r.style.display !== 'none') currentVisible++;
+      });
+      
+      const nextTarget = Math.min(totalCount, currentVisible + 10);
+      rows.forEach((r, idx) => {
+        if (idx < nextTarget) {
+          r.style.display = '';
+        }
+      });
+
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, nextTarget, totalCount, entityName);
+    }
+
+    function showAllTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      rows.forEach(r => {
+        r.style.display = '';
+      });
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, totalCount, totalCount, entityName);
+    }
+
+    function collapseTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      rows.forEach((r, idx) => {
+        if (idx >= 10) {
+          r.style.display = 'none';
+        }
+      });
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, 10, totalCount, entityName);
+      const section = form.closest('.admin-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateTablePaginationBar(formId, expandBarId, countDisplayId, visibleCount, totalCount, entityName) {
+      const countDisplay = document.getElementById(countDisplayId);
+      const expandBar = document.getElementById(expandBarId);
+      if (!expandBar) return;
+      
+      const isArabic = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+      const isChinese = document.documentElement.lang === 'zh';
+      
+      if (countDisplay) {
+        if (isArabic) {
+          countDisplay.innerHTML = `عرض <strong style="color:#38bdf8;">${visibleCount}</strong> من أصل <strong style="color:#f8fafc;">${totalCount}</strong> ${entityName}`;
+        } else if (isChinese) {
+          countDisplay.innerHTML = `显示 <strong style="color:#38bdf8;">${visibleCount}</strong> / <strong style="color:#f8fafc;">${totalCount}</strong>`;
+        } else {
+          countDisplay.innerHTML = `Showing <strong style="color:#38bdf8;">${visibleCount}</strong> of <strong style="color:#f8fafc;">${totalCount}</strong> ${entityName}`;
+        }
+      }
+
+      const btnContainer = expandBar.querySelector('.table-expand-buttons');
+      if (!btnContainer) return;
+
+      if (visibleCount >= totalCount) {
+        const collapseText = isArabic ? '⬆️ طي القائمة (إظهار 10 فقط)' : (isChinese ? '⬆️ 收起列表 (仅显示10条)' : '⬆️ Collapse (Show 10 Only)');
+        btnContainer.innerHTML = `
+          <button type="button" class="btn-sm-action" style="background:rgba(239,68,68,0.12); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="collapseTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')">
+            ${collapseText}
+          </button>
+        `;
+      } else {
+        const remaining = totalCount - visibleCount;
+        const nextBatch = Math.min(10, remaining);
+        const loadMoreText = isArabic ? `⬇️ عرض المزيد (+${nextBatch})` : (isChinese ? `⬇️ 加载更多 (+${nextBatch})` : `⬇️ Load More (+${nextBatch})`);
+        const showAllText = isArabic ? `👁️ إظهار الكل (${totalCount})` : (isChinese ? `👁️ 显示全部 (${totalCount})` : `👁️ Show All (${totalCount})`);
+        
+        const loadMoreTip = isArabic ? 'توسيع الجدول لعرض الدفعة التالية من السجلات' : (isChinese ? '平滑展开显示接下来的数据记录' : 'Expands the table to display the next batch of records');
+        const showAllTip = isArabic ? 'عرض كافة السجلات المخزنة بدون طي' : (isChinese ? '一次性展开显示当前数据库中全部记录' : 'Expands the full list of all records without pagination');
+        const loadMoreTitle = isArabic ? 'عرض المزيد' : (isChinese ? '加载更多' : 'Load More');
+        const showAllTitle = isArabic ? 'عرض الكل' : (isChinese ? '显示全部' : 'Show All');
+        
+        btnContainer.innerHTML = `
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')" data-apex-title="${loadMoreTitle}" data-apex-tip="${loadMoreTip}" data-apex-icon="⬇️" data-apex-color="cyan">
+            ${loadMoreText}
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')" data-apex-title="${showAllTitle}" data-apex-tip="${showAllTip}" data-apex-icon="👁️" data-apex-color="indigo">
+            ${showAllText}
+          </button>
+        `;
+      }
+    }
+
+    // Family Beneficiary Vault Engine Handlers
+    function updateNextPayoutLiveDisplay() {
+      const mode = document.getElementById('vaultIntervalMode').value;
+      const customWrapper = document.getElementById('vaultCustomDaysWrapper');
+      const customDaysInput = document.getElementById('vaultCustomDays');
+      const display = document.getElementById('vaultNextPayoutDisplay');
+      if (customWrapper) {
+        customWrapper.style.display = (mode === 'custom_days') ? 'flex' : 'none';
+      }
+      if (!display) return;
+
+      const now = new Date();
+      if (mode === 'instant') {
+        display.textContent = '⚡ فوري مع كل عملية شراء (Real-time)';
+        display.style.color = '#f59e0b';
+      } else if (mode === '30_days') {
+        const nextDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10);
+        display.style.color = '#34d399';
+      } else if (mode === '60_days') {
+        const nextDate = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10);
+        display.style.color = '#38bdf8';
+      } else if (mode === 'custom_days') {
+        const days = parseInt(customDaysInput ? customDaysInput.value : 30) || 30;
+        const nextDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10) + ' (بعد ' + days + ' يوم)';
+        display.style.color = '#c084fc';
+      }
+    }
+
+    function toggleCustomDaysInput() {
+      updateNextPayoutLiveDisplay();
+    }
+
+    function recalcVaultPct() {
+      let total = 0;
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach(tr => {
+        const activeInput = tr.querySelector('.ben-active');
+        const active = activeInput ? activeInput.checked : true;
+        const pctInput = tr.querySelector('.ben-pct');
+        const pct = pctInput ? (parseFloat(pctInput.value) || 0) : 0;
+        if (active) total += pct;
+      });
+      const display = document.getElementById('vaultTotalPctDisplay');
+      if (display) {
+        display.textContent = total.toFixed(1) + '%';
+        if (total > 100) {
+          display.style.color = '#f43f5e';
+        } else if (total === 100) {
+          display.style.color = '#34d399';
+        } else {
+          display.style.color = '#fbbf24';
+        }
+      }
+      return total;
+    }
+
+    function addNewBeneficiaryRow() {
+      const tbody = document.querySelector('#familyVaultTable tbody');
+      if (!tbody) return;
+      const count = tbody.querySelectorAll('tr').length + 1;
+      const benId = 'ben_' + Date.now();
+      
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-ben-id', benId);
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      tr.innerHTML = `
+        <td class="ben-index" style="text-align:center; font-weight:800; color:#38bdf8; font-size:13px;">${count}</td>
+        <td style="padding:8px 8px;">
+          <input type="text" class="admin-input ben-name" value="المستفيد ${count}" placeholder="اسم المستفيد (أمي، الابن...)" style="font-size:12px; font-weight:600; padding:6px 10px; width:100%; border-radius:8px; background:rgba(15,23,42,0.9); color:#f8fafc;">
+        </td>
+        <td style="padding:8px 8px;">
+          <select class="admin-input ben-network" style="font-size:11.5px; font-weight:700; padding:6px 8px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:8px;">
+            <optgroup label="💵 العملات المستقرة (Stablecoins - دولار رقمي)">
+              <option value="USDT (TRC20)" selected>💵 USDT (TRC20) ⭐</option>
+              <option value="USDT (BEP20)">💵 USDT (BEP20)</option>
+              <option value="USDT (Polygon)">💵 USDT (Polygon)</option>
+              <option value="USDT (Solana)">💵 USDT (Solana)</option>
+              <option value="USDC (BEP20)">🪙 USDC (BEP20)</option>
+              <option value="USDC (Polygon)">🪙 USDC (Polygon)</option>
+              <option value="USDC (Solana)">🪙 USDC (Solana)</option>
+            </optgroup>
+            <optgroup label="💎 كبار العملات المشفرة الموثوقة (Major Cryptos)">
+              <option value="BTC (Bitcoin)">₿ BTC (Bitcoin)</option>
+              <option value="ETH (Ethereum)">Ξ ETH (Ethereum)</option>
+              <option value="SOL (Solana)">◎ SOL (Solana)</option>
+              <option value="BNB (Smart Chain)">🟡 BNB (Chain)</option>
+              <option value="TON (Telegram)">💎 TON (Telegram)</option>
+              <option value="TRX (Tron)">🔴 TRX (Tron)</option>
+              <option value="LTC (Litecoin)">Ł LTC (Litecoin)</option>
+              <option value="XRP (Ripple)">✕ XRP (Ripple)</option>
+            </optgroup>
+          </select>
+        </td>
+        <td style="padding:8px 8px;">
+          <input type="text" class="admin-input ben-address" value="" placeholder="عنوان المحفظة..." style="font-size:11.5px; font-family:'JetBrains Mono', monospace; padding:6px 10px; color:#38bdf8; width:100%; border-radius:8px; background:rgba(15,23,42,0.9);" dir="ltr">
+        </td>
+        <td style="text-align:center; padding:8px 4px;">
+          <div class="ben-pct-pill">
+            <input type="number" class="ben-pct" value="0" min="0" max="100" step="1" oninput="recalcVaultPct()" dir="ltr">
+            <span class="ben-pct-unit">%</span>
+          </div>
+        </td>
+        <td style="padding:8px 8px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <select class="admin-input ben-interval" onchange="recalcBenIntervalRow(this)" style="font-size:11px; font-weight:700; padding:5px 6px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:7px;">
+                <option value="instant">⚡ فوري</option>
+                <option value="15_days">📅 كل 15 يوم</option>
+                <option value="30_days" selected>📅 كل 30 يوم (شهرياً)</option>
+                <option value="60_days">📅 كل 60 يوم</option>
+                <option value="custom_days">⚙️ مخصص (أيام)...</option>
+              </select>
+              <input type="number" class="admin-input ben-custom-days" value="30" min="1" max="365" oninput="recalcBenIntervalRow(this)" placeholder="أيام" style="display:none; width:44px; font-size:11px; padding:5px 3px; text-align:center; font-weight:800; font-family:monospace; border-radius:7px;">
+            </div>
+            <div class="ben-next-date-badge" style="display:flex; align-items:center; justify-content:center; gap:4px; padding:3px 6px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.28); color:#34d399; font-size:10px; font-weight:700; font-family:monospace;">
+              ⏱️ التالي: <span>${new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)}</span>
+            </div>
+          </div>
+        </td>
+        <td style="color:#34d399; font-weight:800; font-family:'JetBrains Mono', monospace; font-size:13px; text-align:center; text-shadow:0 0 8px rgba(52,211,153,0.3); direction:ltr; padding:8px 6px;">
+          $0.00
+        </td>
+        <td class="col-actions" style="text-align:center; padding:8px 4px;">
+          <label style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+            <input type="checkbox" class="ben-active" checked onchange="recalcVaultPct()" style="width:16px; height:16px; cursor:pointer; accent-color:#10b981;">
+          </label>
+        </td>
+        <td style="text-align:center; padding:8px 4px;">
+          <button type="button" onclick="removeBeneficiaryRow(this)" title="حذف المستفيد" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fb7185; font-size:12px; cursor:pointer; transition:all 0.2s ease;">
+            🗑️
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+      renumberBeneficiaryRows();
+      recalcVaultPct();
+      showApexToast('تمت إضافة المستفيد ' + count + '. لا تنس الضغط على زر الحفظ!', 'info');
+    }
+
+    function removeBeneficiaryRow(btn) {
+      const row = btn.closest('tr');
+      if (!row) return;
+      const tbody = row.parentElement;
+      if (tbody.querySelectorAll('tr').length <= 1) {
+        showApexToast('يجب إبقاء مستفيد واحد على الأقل في القائمة.', 'warning');
+        return;
+      }
+      row.remove();
+      renumberBeneficiaryRows();
+      recalcVaultPct();
+      showApexToast('تم حذف المستفيد. يرجى الضغط على حفظ لتثبيت التعديل.', 'warning');
+    }
+
+    function renumberBeneficiaryRows() {
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach((tr, idx) => {
+        const idxCell = tr.querySelector('.ben-index');
+        if (idxCell) idxCell.textContent = (idx + 1);
+      });
+    }
+
+    function recalcBenIntervalRow(elem) {
+      const row = elem.closest('tr');
+      if (!row) return;
+      const intervalSelect = row.querySelector('.ben-interval');
+      const customDaysInput = row.querySelector('.ben-custom-days');
+      const dateBadgeSpan = row.querySelector('.ben-next-date-badge span');
+      const dateBadge = row.querySelector('.ben-next-date-badge');
+      if (!intervalSelect || !dateBadgeSpan) return;
+
+      const mode = intervalSelect.value;
+      if (customDaysInput) {
+        customDaysInput.style.display = (mode === 'custom_days') ? 'block' : 'none';
+      }
+
+      const now = new Date();
+      if (mode === 'instant') {
+        dateBadgeSpan.textContent = '⚡ فوري';
+        dateBadge.style.color = '#f59e0b';
+      } else if (mode === '15_days') {
+        const nextDate = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#38bdf8';
+      } else if (mode === '30_days') {
+        const nextDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#34d399';
+      } else if (mode === '60_days') {
+        const nextDate = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#a855f7';
+      } else if (mode === 'custom_days') {
+        const days = parseInt(customDaysInput ? customDaysInput.value : 30) || 30;
+        const nextDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10) + ' (' + days + 'يوم)';
+        dateBadge.style.color = '#ec4899';
+      }
+    }
+
+    async function saveFamilyVaultConfig() {
+      const total = recalcVaultPct();
+      if (total > 100.001) {
+        showApexToast('مجموع النسب المئوية لا يمكن أن يتجاوز 100% (الحالي: ' + total + '%)', 'danger');
+        return;
+      }
+      
+      const master_wallet_address = (document.getElementById('vaultMasterAddress') ? document.getElementById('vaultMasterAddress').value.trim() : '');
+      const master_wallet_network = (document.getElementById('vaultMasterNetwork') ? document.getElementById('vaultMasterNetwork').value : 'USDT (TRC20 / BEP20)');
+      const payout_interval_mode = (document.getElementById('vaultIntervalMode') ? document.getElementById('vaultIntervalMode').value : '30_days');
+      const custom_payout_days = (document.getElementById('vaultCustomDays') ? (parseInt(document.getElementById('vaultCustomDays').value) || 30) : 30);
+
+      const beneficiaries = [];
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach(tr => {
+        const id = tr.getAttribute('data-ben-id');
+        const name = tr.querySelector('.ben-name').value.trim();
+        const network = tr.querySelector('.ben-network').value;
+        const address = tr.querySelector('.ben-address').value.trim();
+        const percentage = parseFloat(tr.querySelector('.ben-pct').value) || 0;
+        const payout_interval_mode = tr.querySelector('.ben-interval') ? tr.querySelector('.ben-interval').value : '30_days';
+        const custom_payout_days = tr.querySelector('.ben-custom-days') ? (parseInt(tr.querySelector('.ben-custom-days').value) || 30) : 30;
+        const is_active = tr.querySelector('.ben-active').checked;
+        beneficiaries.push({
+          id,
+          name,
+          network,
+          currency: network,
+          address,
+          percentage,
+          payout_interval_mode,
+          custom_payout_days,
+          is_active
+        });
+      });
+
+      // فحص الأمان والحماية الاستباقية للعميل
+      for (const ben of beneficiaries) {
+        if (ben.address) {
+          if (ben.address.length === 64 && /^[a-fA-F0-9]{64}$/.test(ben.address)) {
+            showApexToast('درع الأمان: تم رصد مفتاح خاص (Private Key) للمستفيد "' + ben.name + '". لا تقم أبداً بإدخال المفاتيح الخاصة!', 'danger');
+            return;
+          }
+          if (ben.address.split(' ').length >= 12) {
+            showApexToast('درع الأمان: تم رصد كلمات استرداد (Seed Phrase) للمستفيد "' + ben.name + '". لا تدخل كلمات السر أبداً!', 'danger');
+            return;
+          }
+        }
+      }
+
+      try {
+        const res = await fetch('/api/admin/family-vault/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            beneficiaries,
+            enabled: true,
+            master_wallet_address,
+            master_wallet_network,
+            master_wallet_currency: master_wallet_network,
+            payout_interval_mode,
+            custom_payout_days
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showApexToast('🛡️ تم حفظ إعدادات المحافظ والمستفيدين بحماية غير وصائية 100% وأمان تام!', 'success');
+        } else {
+          showApexToast(data.error || 'حدث خطأ أثناء الحفظ', 'danger');
+        }
+      } catch (err) {
+        showApexToast('خطأ في الاتصال: ' + err.message, 'danger');
+      }
+    }
+
+    async function simulateVaultSplit() {
+      try {
+        const res = await fetch('/api/admin/family-vault/simulate-split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gross_usd: 100.0, source: 'Admin Live Simulation' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showApexToast('تم تنفيذ التوزيع التجريبي ($100) بنجاح وتسجيله في سجل البلوكشين!', 'success');
+          setTimeout(() => location.reload(), 1400);
+        } else {
+          showApexToast(data.error || 'حدث خطأ أثناء التوزيع', 'danger');
+        }
+      } catch (err) {
+        showApexToast('خطأ: ' + err.message, 'danger');
+      }
+    }
+
+    async function resetFamilyVaultStats() {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🔄',
+        title: 'تصفير إحصائيات التوزيع التجريبي',
+        badge: 'إعادة التعيين إلى $0.00',
+        message: 'هل أنت متأكد من تصفير مبالغ الأرباح الموزعة لتبدأ من الصفر الحقيقي ($0.00)؟ ستبقى عناوين المحافظ والنسب محفوظة كما هي.',
+        confirmText: '🔄 تصفير إلى $0.00',
+        cancelText: 'إلغاء',
+        onConfirm: async () => {
+          try {
+            const res = await fetch('/api/admin/family-vault/reset-stats', { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+              showApexToast('تم تصفير جميع المبالغ المسجلة بنجاح إلى $0.00!', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showApexToast(data.error || 'خطأ في التصفير', 'danger');
+            }
+          } catch (err) {
+            showApexToast('خطأ: ' + err.message, 'danger');
+          }
+        }
+      });
+    }
+
+    // Universal Post-Quantum Apex Floating Hover Tooltip Engine
+    function initApexUniversalTooltip() {
+      let tooltip = document.getElementById('apexUniversalTooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'apexUniversalTooltip';
+        tooltip.innerHTML = `
+          <div class="tip-header">
+            <span class="tip-icon">✨</span>
+            <span class="tip-title"></span>
+            <span class="tip-badge">APEX PRO</span>
+          </div>
+          <div class="tip-body"></div>
+        `;
+        document.body.appendChild(tooltip);
+      }
+
+      const iconMap = {
+        'cyan': '⚡',
+        'emerald': '💳',
+        'indigo': '🚀',
+        'rose': '🔥',
+        'amber': '⏱️',
+        'purple': '📥',
+        'default': '✨'
+      };
+
+      document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-apex-tip]');
+        if (!target) return;
+
+        const tipText = target.getAttribute('data-apex-tip');
+        if (!tipText) return;
+
+        const titleText = target.getAttribute('data-apex-title') || target.innerText.trim().slice(0, 30) || 'تفاصيل الإجراء';
+        const color = target.getAttribute('data-apex-color') || 'cyan';
+        const icon = target.getAttribute('data-apex-icon') || (iconMap[color] || '✨');
+
+        tooltip.querySelector('.tip-title').textContent = titleText;
+        tooltip.querySelector('.tip-icon').textContent = icon;
+        tooltip.querySelector('.tip-body').textContent = tipText;
+
+        const rect = target.getBoundingClientRect();
+        const tooltipWidth = 320;
+        const tooltipHeight = tooltip.offsetHeight || 90;
+        
+        let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+        let top = rect.top - tooltipHeight - 12;
+
+        if (left < 14) left = 14;
+        if (left + tooltipWidth > window.innerWidth - 14) {
+          left = window.innerWidth - tooltipWidth - 14;
+        }
+
+        if (top < 14) {
+          top = rect.bottom + 12;
+        }
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.classList.add('active');
+      });
+
+      document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-apex-tip]');
+        if (!target) return;
+        tooltip.classList.remove('active');
+      });
+
+      document.addEventListener('scroll', () => {
+        if (tooltip.classList.contains('active')) {
+          tooltip.classList.remove('active');
+        }
+      }, { passive: true });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApexUniversalTooltip);
+    } else {
+      initApexUniversalTooltip();
+    }
+  </script>
+
+  <!-- نافذة معاينة كود التفعيل الكامل (Apex Modal) -->
+  <div id="adminCodeInspectorModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%); border:1px solid rgba(56,189,248,0.3); border-radius:18px; max-width:680px; width:100%; padding:26px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(56,189,248,0.15); animation:apexModalFadeIn 0.25s ease-out;" dir="rtl">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:14px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">💎</span>
+          <div>
+            <h3 style="margin:0; font-size:17px; font-weight:800; color:#f8fafc; font-family:'Cairo',sans-serif;">معاينة كود التفعيل الفائق (Post-Quantum Key)</h3>
+            <p style="margin:2px 0 0; font-size:12px; color:#94a3b8;">كود مشفر عالي التعقيد بطول 579 محرفاً مضاد للاختراق الكمي</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeInspectorModal()" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:16px;">
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">القيمة المالية</div>
+          <div id="inspectorCodeValue" style="font-size:16px; font-weight:900; color:#34d399; margin-top:2px; direction:ltr; text-align:start;">$0.00</div>
+        </div>
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">نوع الكود</div>
+          <div id="inspectorCodeType" style="font-size:14px; font-weight:800; color:#60a5fa; margin-top:4px;">مدفوع</div>
+        </div>
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">مستوى التعقيد التشفيري</div>
+          <div id="inspectorCodeLength" style="font-size:12px; font-weight:700; color:#a5b4fc; margin-top:4px;">579 محرف</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block; font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px;">الكود التشفيري الكامل (انقر لتحديد الكل):</label>
+        <textarea id="inspectorCodeTextarea" readonly onclick="this.select()" rows="4" style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:12px; font-family:monospace; font-size:12px; color:#38bdf8; resize:none; line-height:1.5; outline:none; word-break:break-all; direction:ltr; text-align:start;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+        <button type="button" onclick="copyCodeText(document.getElementById('inspectorCodeTextarea').value, this)" style="padding:10px 22px; border-radius:10px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border:none; color:#ffffff; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.4); font-family:'Cairo',sans-serif;">📋 نسخ الكود بالكامل</button>
+        <button type="button" onclick="copyRedeemLink(document.getElementById('inspectorCodeTextarea').value, this)" style="padding:10px 18px; border-radius:10px; background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.4); color:#60a5fa; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;">🔗 نسخ الرابط المباشر</button>
+        <button type="button" onclick="closeInspectorModal()" style="padding:10px 18px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال مولد إعلانات المتاجر الصينية Xianyu Copywriter Modal -->
+  <div id="xianyuCopywriterModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(3,7,18,0.85); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:16px;">
+    <div dir="rtl" style="width:100%; max-width:680px; background:linear-gradient(145deg, #0f172a, #1e1b4b); border:1px solid rgba(236,72,153,0.4); border-radius:20px; padding:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(236,72,153,0.2); font-family:'Cairo',sans-serif;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">✨</span>
+          <h3 style="color:#ffffff; font-size:18px; font-weight:800; margin:0;">مولّد إعلانات المتاجر الصينية (Xianyu / Taobao Copywriter)</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('xianyuCopywriterModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <p style="color:#cbd5e1; font-size:13px; margin:0 0 16px;">اختر نمط الإعلان الصيني الذي تريده لتوليد عنوان ونص تسويقي جذاب جاهز للنسخ واللصق في متجرك:</p>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:16px;">
+        <button type="button" onclick="fetchXianyuListing('general', this)" class="preset-pill active" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="نمط الباحثين عن عمل العام" data-apex-tip="توليد نص إعلاني صيني جذاب يركز على سرعة الحصول على المقابلات وضمان النتائج لعموم الباحثين عن عمل." data-apex-icon="🎯" data-apex-color="cyan">🎯 إعلان شامل عام</button>
+        <button type="button" onclick="fetchXianyuListing('remote_overseas', this)" class="preset-pill" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="نمط الوظائف الدولية والعمل عن بعد" data-apex-tip="توليد نص تسويقي صيني يركز على الرواتب بالدولار الأمريكي، فيزا العمل، وعقود العمل عن بعد في الخليج وأمريكا." data-apex-icon="🌍" data-apex-color="emerald">🌍 وظائف ريموت وخارجية</button>
+        <button type="button" onclick="fetchXianyuListing('b2b_wholesale', this)" class="preset-pill" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="نمط مبيعات الجملة والشركات B2B" data-apex-tip="توليد نص تجاري مخصص للمكاتب، وكالات التوظيف، واستوديوهات إعادة البيع بالجملة." data-apex-icon="💼" data-apex-color="amber">💼 مبيعات جملة واستوديوهات</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#f472b6; font-weight:700;">📌 عنوان الإعلان (Title - 闲鱼标题):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTitleBox').value); alert('تم نسخ العنوان الصيني!');" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 نسخ العنوان</button>
+        </div>
+        <input type="text" id="xyTitleBox" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#f8fafc; font-size:13px; direction:ltr; text-align:left;">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#a78bfa; font-weight:700;">🏷️ الهاشتاغات والكلمات المفتاحية (Tags - 标签):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTagsBox').value); alert('تم نسخ الهاشتاغات!');" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 نسخ الهاشتاغات</button>
+        </div>
+        <input type="text" id="xyTagsBox" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#c7d2fe; font-size:12.5px; direction:ltr; text-align:left;">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#38bdf8; font-weight:700;">📝 الوصف التسويقي الكامل (Listing Description - 宝贝详情):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyDescBox').value); alert('تم نسخ الوصف بالكامل!');" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 نسخ الوصف بالكامل</button>
+        </div>
+        <textarea id="xyDescBox" rows="6" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#94a3b8; font-size:12px; line-height:1.6; resize:none; direction:ltr; text-align:left;"></textarea>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTitleBox').value + '\n\n' + document.getElementById('xyDescBox').value + '\n\n' + document.getElementById('xyTagsBox').value); alert('تم نسخ كامل بيانات الإعلان بنجاح!');" style="flex:1; padding:12px; background:linear-gradient(135deg, #ec4899, #8b5cf6); border:none; border-radius:10px; color:#ffffff; font-weight:800; font-size:14px; cursor:pointer; font-family:'Cairo',sans-serif;">📋 نسخ كل شيء دفعة واحدة (Title + Desc + Tags)</button>
+        <button type="button" onclick="document.getElementById('xianyuCopywriterModal').style.display='none'" style="padding:12px 20px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#cbd5e1; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openXianyuCopywriterModal() {
+      document.getElementById('xianyuCopywriterModal').style.display = 'flex';
+      fetchXianyuListing('general');
+    }
+    async function fetchXianyuListing(style, btn) {
+      if (btn) {
+        btn.parentElement.querySelectorAll('.preset-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      document.getElementById('xyTitleBox').value = '⏳ جاري التوليد...';
+      document.getElementById('xyTagsBox').value = '⏳ جاري التوليد...';
+      document.getElementById('xyDescBox').value = '⏳ جاري توليد الوصف الصيني بالذكاء الاصطناعي...';
+      try {
+        const resp = await fetch('/api/admin/xianyu/generate-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ style: style })
+        });
+        const d = await resp.json();
+        if (d.status === 'success' && d.listing) {
+          document.getElementById('xyTitleBox').value = d.listing.title;
+          document.getElementById('xyTagsBox').value = d.listing.tags;
+          document.getElementById('xyDescBox').value = d.listing.description;
+        }
+      } catch (err) {
+        document.getElementById('xyDescBox').value = 'خطأ في الاتصال بالسيرفر.';
+      }
+    }
+  <!-- نافذة التقرير التنفيذي الذكي للأدمن (AI Executive Briefing Modal) -->
+  <div id="executiveBriefingModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(16px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:linear-gradient(180deg, rgba(15,23,42,0.98), rgba(10,15,29,0.99)); border:1px solid rgba(245,158,11,0.4); border-radius:24px; padding:28px; max-width:650px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(245,158,11,0.2); color:#fff; position:relative;" dir="rtl">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">👑</span>
+          <div>
+            <h3 style="margin:0; font-size:18px; color:#fbbf24;">التقرير التنفيذي الذكي للأدمن (AI Co-Pilot)</h3>
+            <span style="font-size:11.5px; color:#94a3b8;">تحليل حي وفوري للمبيعات، الأمان، ومؤشرات نجاح المستخدمين</span>
+          </div>
+        </div>
+        <button type="button" onclick="document.getElementById('executiveBriefingModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+
+      <div id="executiveBriefingContent" style="background:#030712; border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:16px; max-height:360px; overflow-y:auto; font-size:13.5px; line-height:1.7; color:#e2e8f0; white-space:pre-wrap; font-family:'Cairo', 'IBM Plex Arabic', sans-serif;">
+        ⏳ جاري استدعاء البيانات وتحليل الذكاء الاصطناعي...
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" onclick="copyExecutiveBriefing()" class="btn-sm-action" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
+          📋 نسخ التقرير
+        </button>
+        <button type="button" onclick="document.getElementById('executiveBriefingModal').style.display='none'" class="btn-sm-action" style="background:#334155; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function openExecutiveBriefingModal() {
+      document.getElementById('executiveBriefingModal').style.display = 'flex';
+      const box = document.getElementById('executiveBriefingContent');
+      box.innerText = '⏳ جاري استدعاء بيانات الأمان والمبيعات وتحليل الذكاء الاصطناعي...';
+      try {
+        const resp = await fetch('/api/admin/executive-briefing');
+        const d = await resp.json();
+        if (d.status === 'success') {
+          box.innerText = d.briefing_ar;
+        } else {
+          box.innerText = 'خطأ في جلب التقرير: ' + (d.message || 'فشل');
+        }
+      } catch (err) {
+        box.innerText = 'فشل الاتصال بالسيرفر.';
+      }
+    }
+    function copyExecutiveBriefing() {
+      const text = document.getElementById('executiveBriefingContent').innerText;
+      navigator.clipboard.writeText(text).then(() => alert('تم نسخ التقرير التنفيذي بنجاح! 📋'));
+    }
+    async function triggerVaultBackup(btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '⏳ جاري النسخ والتشفير...';
+      btn.disabled = true;
+      try {
+        const resp = await fetch('/admin/system/backup-now', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const d = await resp.json();
+        if (d.status === 'success') {
+          btn.innerHTML = '✅ تم النسخ بنجاح!';
+          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+        } else {
+          alert('خطأ أثناء النسخ: ' + (d.message || 'فشل'));
+          btn.innerHTML = orig; btn.disabled = false;
+        }
+      } catch (err) {
+        alert('خطأ في الاتصال');
+        btn.innerHTML = orig; btn.disabled = false;
+      }
     }
   </script>
 </div>

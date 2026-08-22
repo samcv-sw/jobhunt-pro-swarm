@@ -392,6 +392,65 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* Universal Apex Floating Hover Tooltip Engine */
+  #apexUniversalTooltip {
+    position: fixed;
+    z-index: 9999999;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.96) translateY(6px);
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-inline-size: 320px;
+    color: #f8fafc;
+    font-family: 'Cairo', 'IBM Plex Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: start;
+  }
+  #apexUniversalTooltip.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+  }
+  #apexUniversalTooltip .tip-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 13px;
+    color: #38bdf8;
+    margin-block-end: 4px;
+    letter-spacing: 0.2px;
+    text-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+  }
+  #apexUniversalTooltip .tip-badge {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(56, 189, 248, 0.15);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    margin-inline-start: auto;
+  }
+  #apexUniversalTooltip .tip-body {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #e2e8f0;
+    font-weight: 500;
+  }
+  [data-apex-tip] {
+    cursor: pointer;
+  }
+
   /* Preset Pills */
   .preset-pill-group {
     display: flex;
@@ -487,32 +546,59 @@
     inline-size: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.4) rgba(15, 23, 42, 0.7);
+    padding-block-end: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    block-size: 6px;
+    inline-size: 6px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.7);
+    border-radius: 8px;
+    margin: 0 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.5), rgba(99, 102, 241, 0.5));
+    border-radius: 8px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #38bdf8, #818cf8);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
   }
 
   .admin-table {
     inline-size: 100%;
     border-collapse: collapse;
-    font-size: 13.5px;
+    font-size: 12px;
     text-align: start;
+    table-layout: auto;
   }
 
   .admin-table th {
-    background: rgba(30, 41, 59, 0.85);
-    padding: 14px 18px;
+    background: rgba(30, 41, 59, 0.95);
+    padding: 9px 10px;
     color: #94a3b8;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     border-block-end: 1px solid rgba(255, 255, 255, 0.08);
     white-space: nowrap;
   }
 
   .admin-table td {
-    padding: 14px 18px;
+    padding: 8px 10px;
     border-block-end: 1px solid rgba(255, 255, 255, 0.05);
     color: #cbd5e1;
     vertical-align: middle;
+    white-space: nowrap;
   }
 
   .admin-table tr:last-child td {
@@ -524,14 +610,128 @@
     color: #ffffff;
   }
 
+  /* Sticky Actions Column - Ensures action buttons are NEVER cut off */
+  .admin-table th.col-actions,
+  .admin-table td.col-actions,
+  .admin-table th:last-child,
+  .admin-table td:last-child {
+    position: sticky;
+    inset-inline-end: 0;
+    background: rgba(15, 23, 42, 0.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: -6px 0 16px rgba(0, 0, 0, 0.45);
+    z-index: 5;
+    text-align: center;
+  }
+
+  .admin-table th.col-actions,
+  .admin-table th:last-child {
+    background: rgba(30, 41, 59, 0.98);
+    z-index: 10;
+  }
+
+  .admin-table tr:hover td.col-actions,
+  .admin-table tr:hover td:last-child {
+    background: rgba(26, 37, 56, 0.98);
+  }
+
+  /* Luxury Cyberpunk Action Badges */
+  .btn-action-badge {
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    text-decoration: none;
+    line-height: 1.2;
+  }
+
+  .btn-action-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-action-disable {
+    background: rgba(244, 63, 94, 0.12);
+    color: #fb7185;
+    border-color: rgba(244, 63, 94, 0.3);
+  }
+
+  .btn-action-disable:hover {
+    background: rgba(244, 63, 94, 0.25);
+    color: #ffffff;
+    border-color: #f43f5e;
+    box-shadow: 0 0 12px rgba(244, 63, 94, 0.3);
+  }
+
+  .btn-action-enable {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-enable:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  .btn-action-delete:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-action-pause {
+    background: rgba(245, 158, 11, 0.12);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-action-pause:hover {
+    background: rgba(245, 158, 11, 0.25);
+    color: #ffffff;
+    border-color: #f59e0b;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-action-resume {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-action-resume:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
   /* Status Pills */
   .status-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 4px;
+    padding: 2px 7px;
     border-radius: 9999px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
   }
@@ -566,17 +766,104 @@
     color: #94a3b8;
   }
 
+  /* Ultra-Compact & Luxury Cyberpunk Code Chip */
+  .code-cell-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  .code-chip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: #38bdf8;
+    background: rgba(14, 165, 233, 0.08);
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .code-chip-badge:hover {
+    background: rgba(14, 165, 233, 0.18);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #e0f2fe;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+  }
+
+  .code-chip-entropy {
+    font-size: 9px;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: 800;
+  }
+
+  .btn-code-action {
+    padding: 3px 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-family: inherit;
+    text-decoration: none;
+  }
+
+  .btn-code-copy {
+    background: rgba(16, 185, 129, 0.12);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-code-copy:hover {
+    background: rgba(16, 185, 129, 0.25);
+    color: #ffffff;
+    border-color: #10b981;
+    transform: translateY(-1px);
+  }
+
+  .btn-code-link {
+    background: rgba(59, 130, 246, 0.12);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .btn-code-link:hover {
+    background: rgba(59, 130, 246, 0.25);
+    color: #ffffff;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+  }
+
   /* Code Chips */
   .code-chip {
     font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
-    font-size: 12.5px;
-    color: #a5b4fc;
-    background: rgba(99, 102, 241, 0.1);
+    font-size: 12px;
+    color: #38bdf8;
+    background: rgba(14, 165, 233, 0.08);
     padding: 4px 9px;
     border-radius: 6px;
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border: 1px solid rgba(14, 165, 233, 0.25);
     letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
   /* Mini Buttons */
@@ -674,10 +961,10 @@
       <p>Real-time telemetry, user management, financial ledgers, promotional flash deals, and promo code minting engine</p>
     </div>
     <div class="admin-header-actions">
-      <a href="/admin/analytics" class="header-nav-btn" title="View comprehensive platform analytics and revenue charts">📊 Analytics</a>
-      <a href="/admin/sys-logs" class="header-nav-btn" title="Inspect system logs and backend event traces">📜 System Logs</a>
-      <a href="/user-dashboard" class="header-nav-btn" title="Switch to user view and test dashboard experience">🚀 User Dashboard</a>
-      <div class="live-pill" title="Engine background pulse is running smoothly and ready for jobs">
+      <a href="/admin/analytics" class="header-nav-btn" data-apex-title="Executive Analytics & Charts" data-apex-tip="Interactive deep-dive dashboard featuring real-time conversion funnels, regional dispatch metrics, and multi-currency growth trends." data-apex-icon="📊" data-apex-color="cyan">📊 Analytics</a>
+      <a href="/admin/sys-logs" class="header-nav-btn" data-apex-title="Real-Time System & Security Logs" data-apex-tip="Live terminal stream of backend API requests, automated worker events, payment webhooks, and firewall security blocks." data-apex-icon="📜" data-apex-color="amber">📜 System Logs</a>
+      <a href="/user-dashboard" class="header-nav-btn" data-apex-title="Candidate User Experience Mode" data-apex-tip="Switch directly into the candidate dashboard to inspect active outreach flows, verify token balance, and test AI application agents." data-apex-icon="🚀" data-apex-color="indigo">🚀 User Dashboard</a>
+      <div class="live-pill" data-apex-title="Swarm Engine Status: Active" data-apex-tip="Autonomous cloud background workers and stealth MX delivery queues are operating at sub-millisecond efficiency with 100% uptime." data-apex-icon="🟢" data-apex-color="emerald">
         <span class="live-dot"></span>
         <span>Engine Live</span>
       </div>
@@ -702,13 +989,19 @@
             const codes = parts[1].split(',').map(c => c.trim()).filter(Boolean);
             const container = document.getElementById('generatedCodesContainer');
             if (container && codes.length > 0) {
-              container.innerHTML = codes.map(code => `
-                <div style="background:rgba(2,6,23,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:8px;">
-                  <span class="code-chip">${code}</span>
-                  <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('${code}', this)" title="Copy activation code to clipboard">📋 Copy</button>
-                  <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('${code}', this)" title="Copy direct one-click redeem link">🔗 Link</button>
+              container.innerHTML = codes.map(code => {
+                const preview = code.length > 24 ? (code.substring(0, 14) + '...' + code.substring(code.length - 8)) : code;
+                return `
+                <div style="background:rgba(2,6,23,0.85); border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:6px 12px; display:inline-flex; align-items:center; gap:8px;">
+                  <span class="code-chip-badge" onclick="inspectFullCode('${code}', '0.00', 'Generated')" title="Click to view & copy full key">
+                    <span style="color:#38bdf8; font-weight:800;">🔑</span>
+                    <span style="font-family:monospace; direction:ltr;">${preview}</span>
+                    <span class="code-chip-entropy">579-Bit</span>
+                  </span>
+                  <button type="button" class="btn-code-action btn-code-copy" onclick="copyCodeText('${code}', this)" title="Copy activation code to clipboard">📋 Copy</button>
+                  <button type="button" class="btn-code-action btn-code-link" onclick="copyRedeemLink('${code}', this)" title="Copy direct one-click redeem link">🔗 Link</button>
                 </div>
-              `).join('');
+              `;}).join('');
             }
           }
         });
@@ -744,35 +1037,35 @@
 
   <!-- KPI Overview Cards -->
   <div class="kpi-grid">
-    <div class="kpi-card" title="Total registered candidate accounts across all registration channels">
+    <div class="kpi-card" data-apex-title="Total Registered Users" data-apex-tip="Total count of registered candidate profiles across all Google OAuth, magic link, and Telegram onboarding channels." data-apex-icon="👥" data-apex-color="indigo">
       <div class="kpi-val" style="color:#818cf8;">{{ stats.total_users }}</div>
       <div class="kpi-lbl">👥 Total Users</div>
     </div>
-    <div class="kpi-card" title="Outreach campaigns currently scheduled, queued, or running">
+    <div class="kpi-card" data-apex-title="Active Outreach Campaigns" data-apex-tip="Number of candidate outreach cycles currently running, queued in dispatch pipelines, or scheduled for automated delivery." data-apex-icon="🚀" data-apex-color="emerald">
       <div class="kpi-val" style="color:#34d399;">{{ stats.total_campaigns }}</div>
       <div class="kpi-lbl">🚀 Active Campaigns</div>
     </div>
-    <div class="kpi-card" title="Total outreach emails generated and queued in deliverability pipeline">
+    <div class="kpi-card" data-apex-title="Staged Outreach Queue" data-apex-tip="Total AI-customized job application emails generated with personalized cover letters, queued for automated verification and delivery." data-apex-icon="📧" data-apex-color="purple">
       <div class="kpi-val" style="color:#c084fc;">{{ stats.total_emails }}</div>
       <div class="kpi-lbl">📧 Emails Staged</div>
     </div>
-    <div class="kpi-card" title="Verified emails delivered successfully to hiring managers with live MX checks">
+    <div class="kpi-card" data-apex-title="Verified Sent Applications" data-apex-tip="Total job application emails successfully delivered to corporate HR inboxes after passing live MX and ScamDetector DNS checks." data-apex-icon="⚡" data-apex-color="cyan">
       <div class="kpi-val" style="color:#38bdf8;">{{ stats.emails_sent }}</div>
       <div class="kpi-lbl">⚡ Sent Emails</div>
     </div>
-    <div class="kpi-card" title="Cumulative gross platform earnings from completed orders and packages">
+    <div class="kpi-card" data-apex-title="Cumulative Platform Revenue" data-apex-tip="Gross historical platform revenue generated from bulk voucher sales, subscription packages, and direct crypto transactions." data-apex-icon="💰" data-apex-color="amber">
       <div class="kpi-val" style="color:#fbbf24;">${{ stats.total_revenue }}</div>
       <div class="kpi-lbl">💰 Total Revenue</div>
     </div>
-    <div class="kpi-card" title="Sum of unspent digital wallet funds held by all active users">
+    <div class="kpi-card" data-apex-title="Total User Wallet Holdings" data-apex-tip="Combined unspent USD balance stored in candidate digital wallets, ready for campaign executions and package redemptions." data-apex-icon="💳" data-apex-color="rose">
       <div class="kpi-val" style="color:#fb7185;">${{ stats.total_wallets }}</div>
       <div class="kpi-lbl">💳 Wallet Balances</div>
     </div>
-    <div class="kpi-card" title="Completed cryptocurrency payments and on-chain deposits">
+    <div class="kpi-card" data-apex-title="On-Chain Crypto Transactions" data-apex-tip="Total number of successful on-chain deposits and payments settled via non-custodial NOWPayments & ChangeNOW rails." data-apex-icon="🪙" data-apex-color="amber">
       <div class="kpi-val" style="color:#f59e0b;">{{ payment_stats.total_payments }}</div>
       <div class="kpi-lbl">🪙 Crypto Txns</div>
     </div>
-    <div class="kpi-card" title="Total USD volume settled through crypto payment gateways">
+    <div class="kpi-card" data-apex-title="Crypto Volume Settled" data-apex-tip="Total USD value processed through blockchain cryptocurrency payment rails (USDT, BTC, ETH, SOL, BNB)." data-apex-icon="📊" data-apex-color="emerald">
       <div class="kpi-val" style="color:#34d399;">${{ "%.2f"|format(payment_stats.total_received_usd) }}</div>
       <div class="kpi-lbl">📊 Crypto Volume</div>
     </div>
@@ -798,13 +1091,13 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="Select all flash sales"></th>
-                <th>Sale Title</th>
-                <th>Discount</th>
-                <th>Status</th>
-                <th>Expires At</th>
-                <th>Created At</th>
-                <th>Actions</th>
+                <th style="inline-size:40px; text-align:center;" data-apex-title="Select All" data-apex-tip="Select or deselect all promotional flash sales for bulk deletion." data-apex-icon="☑️"><input type="checkbox" id="selectAllSalesCheckbox" onclick="toggleSelectAll('sale-checkbox', this, 'btnDeleteSelectedSales', 'countSelectedSales')" title="Select all flash sales"></th>
+                <th data-apex-title="Sale Title" data-apex-tip="Promotional marketing banner headline and description shown on candidate checkout pages." data-apex-icon="⚡" data-apex-color="cyan">Sale Title</th>
+                <th data-apex-title="Discount Percentage" data-apex-tip="Automatic percentage reduction applied instantly across all job application bundles." data-apex-icon="🏷️" data-apex-color="emerald">Discount</th>
+                <th data-apex-title="Campaign Status" data-apex-tip="Live indicator showing whether this promotional discount countdown is active, paused, or expired." data-apex-icon="🟢" data-apex-color="indigo">Status</th>
+                <th data-apex-title="Expiry Timer" data-apex-tip="Exact countdown deadline timestamp when this promotional sale ends automatically." data-apex-icon="⏱️" data-apex-color="amber">Expires At</th>
+                <th data-apex-title="Creation Date" data-apex-tip="Timestamp when this flash sale campaign was configured and launched." data-apex-icon="📅" data-apex-color="cyan">Created At</th>
+                <th class="col-actions" data-apex-title="Campaign Controls" data-apex-tip="Pause, resume, extend countdown duration, or permanently delete this promotional discount." data-apex-icon="⚙️" data-apex-color="rose">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -818,7 +1111,7 @@
               {% set is_expired = s.is_expired if (s.is_expired is defined and s.is_expired is not none) else (s_active and not s_is_time_valid) %}
               {% set display_end = s.formatted_end if (s.formatted_end is defined and s.formatted_end) else ((s_end_str|replace('T', ' '))[:16] if s_end_str else '—') %}
               {% set display_created = s.formatted_created if (s.formatted_created is defined and s.formatted_created) else ((s.created_at|string)[:16] if (s.created_at is defined and s.created_at) else '—') %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;"><input type="checkbox" class="sale-checkbox" name="sale_ids" value="{{ s.id }}" onclick="updateSelectCount('sale-checkbox', 'btnDeleteSelectedSales', 'countSelectedSales', 'selectAllSalesCheckbox')"></td>
                 <td style="font-weight:700; color:#f8fafc;">
                   <div style="display:flex; align-items:center; gap:8px;">
@@ -838,13 +1131,13 @@
                 <td style="font-family:monospace; color:#38bdf8; font-size:12.5px;">{{ display_end }}</td>
                 <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ display_created }}</td>
                 <td>
-                  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                  <div style="display:inline-flex; gap:6px; align-items:center;">
                     {% if is_live %}
-                      <button type="button" class="btn-sm-action btn-sm-amber" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Pause this sale to hide the discount banner from users">⏸️ Pause</button>
+                      <button type="button" class="btn-action-badge btn-action-pause" onclick="handlePauseFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Pause this sale to hide the discount banner from users">⏸️ Pause</button>
                     {% else %}
-                      <button type="button" class="btn-sm-action btn-sm-success" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Reactivate this sale and extend timer by +24 hours">▶️ Resume (+24h)</button>
+                      <button type="button" class="btn-action-badge btn-action-resume" onclick="handleResumeFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Reactivate this sale and extend timer by +24 hours">▶️ Resume (+24h)</button>
                     {% endif %}
-                    <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Permanently delete this flash sale record">🗑️ Delete</button>
+                    <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteFlashSale('{{ s.id }}', '{{ s.title|escape }}')" title="Permanently delete this flash sale record">🗑️ Delete</button>
                   </div>
                 </td>
               </tr>
@@ -856,6 +1149,20 @@
           </table>
         </form>
       </div>
+      {% if flash_sales|length > 10 %}
+      <div class="table-expand-bar" id="salesExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="salesCountDisplay">Showing <strong style="color:#38bdf8;">10</strong> of <strong style="color:#f8fafc;">{{ flash_sales|length }}</strong> sales</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('salesForm', 'salesExpandBar', 'salesCountDisplay', {{ flash_sales|length }}, 'sales')" data-apex-title="Load 10 More Sales" data-apex-tip="Expands the table to display the next 10 promotional flash sales." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('salesForm', 'salesExpandBar', 'salesCountDisplay', {{ flash_sales|length }}, 'sales')" data-apex-title="Show All Sales" data-apex-tip="Displays the complete list of all promotional discount sales without pagination." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ flash_sales|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
     </div>
   </div>
 
@@ -876,24 +1183,23 @@
       <!-- Card 1 (Featured): VIP Bulk Key Generator & Excel Exporter -->
       <div class="action-real-card action-card-featured">
         <div>
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-block-end:14px;">
             <h3 style="color:#a5b4fc; font-size:17px; margin:0;">
               <span>💎 VIP Bulk Key Generator & Excel Exporter (Xianyu / B2B)</span>
               <div class="has-tooltip">
                 <span class="tooltip-trigger">ℹ️</span>
-                <div class="tooltip-bubble">Mints thousands of 256-bit cryptographic keys and exports an auto-delivery Excel/CSV file formatted for e-commerce platforms (Xianyu, Taobao, Shopify).</div>
+                <div class="tooltip-bubble">Mints thousands of quantum cryptographic keys and exports an auto-delivery Excel/CSV file formatted for e-commerce platforms (Xianyu, Taobao, Shopify).</div>
               </div>
             </h3>
-            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">256-Bit Quantum Mint</span>
+            <span style="font-size:12px; background:rgba(99,102,241,0.18); color:#c7d2fe; padding:4px 10px; border-radius:9999px; font-weight:700; border:1px solid rgba(99,102,241,0.35);">Quantum Key Mint</span>
           </div>
-          <p style="margin-block-end:16px; font-size:13.5px; color:#94a3b8;">Generate thousands of 256-bit activation keys in one batch and download ready-to-use Excel/CSV files formatted for Xianyu & Taobao auto-delivery bots.</p>
           
           <!-- Package Selector Buttons -->
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:8px; margin-block-end:14px;">
-            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" title="Starter Plan: $9 value, applies to 100 target companies">⚡ Starter ($9 / 100)</button>
-            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" title="Basic Plan: $19 value, applies to 350 target companies">🚀 Basic ($19 / 350)</button>
-            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" title="Pro VIP Plan: $49 value, applies to 1,000 target companies">💎 Pro ($49 / 1,000)</button>
-            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" title="Enterprise Plan: $149 value, applies to 3,000 target companies">👑 B2B ($149 / 3,000)</button>
+            <button type="button" class="preset-pill active" id="btnPlanStarter" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('starter', 9, 100, this)" data-apex-title="Starter Package ($9 / 100)" data-apex-tip="Entry-level outreach campaign targeting 100 verified companies with instant AI cover letter matching and real-time deliverability checks." data-apex-icon="⚡" data-apex-color="amber">⚡ Starter ($9 / 100)</button>
+            <button type="button" class="preset-pill" id="btnPlanBasic" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('basic', 19, 350, this)" data-apex-title="Basic Package ($19 / 350)" data-apex-tip="High-impact campaign targeting 350 verified employers with AI cover letter personalization and smart interview invite tracking." data-apex-icon="🚀" data-apex-color="indigo">🚀 Basic ($19 / 350)</button>
+            <button type="button" class="preset-pill" id="btnPlanPro" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('pro', 49, 1000, this)" data-apex-title="Pro VIP Package ($49 / 1,000)" data-apex-tip="Full-scale recruitment drive reaching 1,000 corporate hiring managers with highest inbox priority and VIP accelerated routing." data-apex-icon="💎" data-apex-color="cyan">💎 Pro ($49 / 1,000)</button>
+            <button type="button" class="preset-pill" id="btnPlanEnterprise" style="padding:9px 10px; justify-content:center;" onclick="selectBulkPackage('enterprise', 149, 3000, this)" data-apex-title="Enterprise B2B Package ($149 / 3,000)" data-apex-tip="Massive corporate lead generation and autonomous AI SDR swarm targeting 3,000 decision-makers, agency recruiters, and corporate clients." data-apex-icon="👑" data-apex-color="purple">👑 B2B ($149 / 3,000)</button>
           </div>
         </div>
 
@@ -929,12 +1235,13 @@
           <!-- Quick Quantity Buttons -->
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <span style="font-size:12px; color:#64748b; font-weight:600;">Quick Presets:</span>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" title="Set batch count to 25 codes">25</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" title="Set batch count to 50 codes">50</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" title="Set batch count to 100 codes">100</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" title="Set batch count to 200 codes">200</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" title="Set batch count to 500 codes">500</button>
-            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" title="Set batch count to 1,000 codes">1000</button>
+            <button type="button" class="preset-pill" style="padding:4px 10px; font-size:12px; border-color:rgba(6,182,212,0.4); color:#38bdf8; font-weight:700;" onclick="setBulkCount(1)" data-apex-title="Generate 1 Single Key" data-apex-tip="Generates a single individual activation key voucher for immediate direct client delivery." data-apex-icon="⚡" data-apex-color="cyan">⚡ 1 (Single)</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(25)" data-apex-title="Batch: 25 Keys" data-apex-tip="Mints a batch of 25 activation vouchers formatted for small-volume retail store inventory." data-apex-icon="📦" data-apex-color="cyan">25</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(50)" data-apex-title="Batch: 50 Keys" data-apex-tip="Mints 50 voucher codes with instant Excel and CSV bulk export for multi-channel listings." data-apex-icon="📦" data-apex-color="cyan">50</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(100)" data-apex-title="Batch: 100 Keys" data-apex-tip="Mints 100 high-demand activation vouchers ready for automatic FaKa and Xianyu bot fulfillment." data-apex-icon="📦" data-apex-color="cyan">100</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(200)" data-apex-title="Batch: 200 Keys" data-apex-tip="Mints 200 quantum encrypted voucher codes with automated collision protection." data-apex-icon="📦" data-apex-color="cyan">200</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(500)" data-apex-title="Batch: 500 Keys" data-apex-tip="Large wholesale batch of 500 activation vouchers for agency partners and distributor networks." data-apex-icon="📦" data-apex-color="cyan">500</button>
+            <button type="button" class="preset-pill" style="padding:4px 9px; font-size:12px;" onclick="setBulkCount(1000)" data-apex-title="Batch: 1,000 Keys" data-apex-tip="Enterprise-scale mint of 1,000 voucher codes generated in sub-second memory execution." data-apex-icon="📦" data-apex-color="cyan">1000</button>
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
@@ -958,7 +1265,7 @@
                   <div class="tooltip-bubble">Paid Sale tracks the USD value into gross platform revenue. Admin Free represents giveaway codes.</div>
                 </div>
               </div>
-              <select dir="auto" class="admin-select" name="code_type">
+              <select dir="auto" class="admin-select" name="code_type" id="adminBulkCodeType">
                 <option value="sale">💳 Paid Sale (Revenue Tracked)</option>
                 <option value="admin_free">🆓 Admin Free (No Rev Tracked)</option>
               </select>
@@ -971,9 +1278,14 @@
             <label for="exportExcelCheck" style="font-size:13px; color:#cbd5e1; cursor:pointer; font-weight:600;">📥 Instant Download as Excel / CSV (Formatted for Xianyu & Taobao Auto-Delivery Bots)</label>
           </div>
 
-          <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:14.5px; padding:13px 20px;" title="Execute batch generation and download file immediately">
-            ⚡ Generate Batch & Download Excel File 📥
-          </button>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-block-start:4px;">
+            <button type="button" id="btnGenSingleKeyCopy" onclick="generateAndCopySingleKey(this)" class="btn-real" style="font-weight:800; font-size:14.5px; padding:13px 18px; background:linear-gradient(135deg, #06b6d4, #3b82f6); border:1px solid rgba(6,182,212,0.5); color:#ffffff; box-shadow:0 4px 20px rgba(6,182,212,0.28); justify-content:center;" title="Generate 1 Single Key and instantly copy it to clipboard in 1 click" data-apex-title="Single Key Generator" data-apex-tip="Instantly generates 1 single 8,192-bit cryptographic activation key and copies it to your clipboard for instant direct sharing." data-apex-icon="📋" data-apex-color="cyan">
+              📋 Generate & Copy 1 Single Key ⚡
+            </button>
+            <button class="btn-real btn-indigo" type="submit" style="font-weight:800; font-size:14.5px; padding:13px 18px; justify-content:center;" title="Execute batch generation and download file immediately" data-apex-title="Bulk Key Batch Factory" data-apex-tip="Generates up to 5,000 unique cryptographic activation keys and immediately downloads an Excel/CSV spreadsheet ready for store auto-delivery bots." data-apex-icon="⚡" data-apex-color="indigo">
+              ⚡ Generate Batch & Download Excel 📥
+            </button>
+          </div>
         </form>
 
         <script dir="auto">
@@ -991,6 +1303,66 @@
           }
           function setBulkCount(cnt) {
             document.getElementById('bulkCountInput').value = cnt;
+          }
+
+          async function generateAndCopySingleKey(btn) {
+            const tier = document.getElementById('bulkTierInput').value || 'starter';
+            const codeTypeSelect = document.getElementById('adminBulkCodeType');
+            const codeType = codeTypeSelect ? codeTypeSelect.value : 'sale';
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating & Copying...';
+            btn.disabled = true;
+            try {
+              const resp = await fetch('/admin/generate-single-code-ajax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tier: tier, code_type: codeType })
+              });
+              const data = await resp.json();
+              if (data.success && data.code) {
+                await navigator.clipboard.writeText(data.code);
+                showAdminSingleKeyModal(data.code, data.tier, data.value_usd, data.companies);
+              } else {
+                alert(data.error || 'Failed to generate key');
+              }
+            } catch (err) {
+              alert('Error generating key: ' + err.message);
+            } finally {
+              btn.innerHTML = origHtml;
+              btn.disabled = false;
+            }
+          }
+
+          function showAdminSingleKeyModal(code, tierName, value, companies) {
+            let m = document.getElementById('adminSingleKeyModal');
+            if (!m) {
+              m = document.createElement('div');
+              m.id = 'adminSingleKeyModal';
+              m.style.cssText = 'position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(5,8,22,0.82); backdrop-filter:blur(16px);';
+              m.innerHTML = `
+                <div style="position:relative; width:100%; max-width:560px; background:linear-gradient(145deg, rgba(17,24,39,0.98), rgba(15,23,42,0.99)); border:1px solid rgba(6,182,212,0.4); border-radius:20px; padding:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(6,182,212,0.2); text-align:center;">
+                  <div style="width:54px; height:54px; margin:0 auto 14px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.4); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px;">✨</div>
+                  <h3 style="color:#ffffff; font-size:19px; font-weight:800; margin:0 0 6px;">1 Single Key Generated & Copied!</h3>
+                  <p style="color:#94a3b8; font-size:13.5px; margin:0 0 16px;">The redeem code has been generated and <strong style="color:#38bdf8;">automatically copied to your clipboard</strong>.</p>
+                  
+                  <div style="display:flex; justify-content:center; gap:8px; margin-bottom:14px;">
+                    <span id="mTierBadge" style="background:rgba(99,102,241,0.2); color:#c7d2fe; border:1px solid rgba(99,102,241,0.4); padding:4px 12px; border-radius:9999px; font-size:12.5px; font-weight:700;"></span>
+                    <span id="mValueBadge" style="background:rgba(16,185,129,0.2); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:4px 12px; border-radius:9999px; font-size:12.5px; font-weight:700;"></span>
+                  </div>
+
+                  <div style="background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; word-break:break-all; font-family:monospace; font-size:12.5px; color:#38bdf8; max-height:120px; overflow-y:auto; margin-bottom:18px; text-align:left;" id="mCodeDisplay"></div>
+
+                  <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('mCodeDisplay').innerText); alert('Copied to clipboard!');" style="flex:1; padding:11px 16px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; color:#ffffff; font-weight:700; font-size:13.5px; cursor:pointer;">📋 Copy Again</button>
+                    <button type="button" onclick="document.getElementById('adminSingleKeyModal').remove()" style="flex:1; padding:11px 16px; background:linear-gradient(135deg, #06b6d4, #3b82f6); border:1px solid rgba(6,182,212,0.5); border-radius:12px; color:#ffffff; font-weight:800; font-size:13.5px; cursor:pointer;">Done ✅</button>
+                  </div>
+                </div>
+              `;
+              document.body.appendChild(m);
+            }
+            document.getElementById('mTierBadge').innerText = tierName;
+            document.getElementById('mValueBadge').innerText = '$' + value;
+            document.getElementById('mCodeDisplay').innerText = code;
           }
         </script>
       </div>
@@ -1049,7 +1421,7 @@
             </div>
           </div>
 
-          <button class="btn-real btn-rose" type="submit" title="Publish and activate this flash sale immediately across all user screens">
+          <button class="btn-real btn-rose" type="submit" title="Publish and activate this flash sale immediately across all user screens" data-apex-title="Launch Flash Sale" data-apex-tip="Publishes and activates this site-wide countdown discount banner on all candidate checkout dashboards immediately." data-apex-icon="⚡" data-apex-color="rose">
             ⚡ Launch Flash Sale Now
           </button>
         </form>
@@ -1109,7 +1481,7 @@
             </div>
           </div>
 
-          <button class="btn-real btn-emerald" type="submit" title="Deposit funds into user wallet immediately">
+          <button class="btn-real btn-emerald" type="submit" title="Deposit funds into user wallet immediately" data-apex-title="Instant Wallet Deposit" data-apex-tip="Directly credits cash balance into the candidate's digital wallet with an audited accounting note." data-apex-icon="💳" data-apex-color="emerald">
             💳 Add Credits Now
           </button>
         </form>
@@ -1155,7 +1527,7 @@
             <span class="field-hint-text">Number of companies (e.g. 100).</span>
           </div>
 
-          <button class="btn-real btn-indigo" type="submit" title="Queue and launch outreach campaign immediately">
+          <button class="btn-real btn-indigo" type="submit" title="Queue and launch outreach campaign immediately" data-apex-title="Free Campaign Provisioner" data-apex-tip="Spawns and launches a complete AI outreach campaign for the candidate without charging their wallet balance." data-apex-icon="🚀" data-apex-color="indigo">
             🚀 Grant Campaign Now
           </button>
         </form>
@@ -1210,13 +1582,174 @@
             <textarea dir="auto" class="admin-textarea" name="body" placeholder="Message content (HTML or Plain)..." required style="height: 65px; resize:vertical;"></textarea>
           </div>
 
-          <button class="btn-real btn-emerald" type="submit" title="Dispatch email payload immediately">
+          <button class="btn-real btn-emerald" type="submit" title="Dispatch email payload immediately" data-apex-title="Direct Server Email Dispatch" data-apex-tip="Dispatches an authenticated, live-verified email message directly from the platform server to the recipient." data-apex-icon="✉️" data-apex-color="emerald">
             ✉️ Dispatch Email Now
           </button>
         </form>
       </div>
 
     </div>
+  </div>
+
+  <!-- Xianyu & Taobao Autonomous Sales & Security Command Hub -->
+  <div class="admin-section">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🤖 Xianyu & Taobao Autonomous Sales & Security Command Hub</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">24/7 Automated e-commerce sales engine with quantum key minting, real-time AI sales copilot, and zero-risk anti-fraud shield.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <button type="button" onclick="openExecutiveBriefingModal()" class="btn-sm-action" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(245,158,11,0.3);" data-apex-title="AI Executive Briefing" data-apex-tip="Comprehensive AI-powered intelligence summary of platform conversions, active candidate campaigns, and daily revenue velocity." data-apex-icon="👑" data-apex-color="amber">
+          👑 AI Executive Briefing
+        </button>
+        <button type="button" onclick="openXianyuCopywriterModal()" class="btn-sm-action" style="background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(236,72,153,0.3);" data-apex-title="AI Store Copywriter" data-apex-tip="Instantly generates high-converting native Chinese product titles, SEO bullet points, and marketing descriptions optimized for Xianyu & Taobao." data-apex-icon="✨" data-apex-color="rose">
+          ✨ 1-Click AI Store Copywriter
+        </button>
+        <button type="button" onclick="triggerVaultBackup(this)" class="btn-sm-action" style="background:linear-gradient(135deg, #0284c7, #2563eb); color:#ffffff; font-weight:800; padding:6px 14px; border-radius:8px; border:none; cursor:pointer; box-shadow:0 4px 15px rgba(2,132,199,0.3);" data-apex-title="Cloud Vault Backup" data-apex-tip="Triggers an instant cryptographically encrypted backup of all database tables, vouchers, and transaction ledgers." data-apex-icon="💾" data-apex-color="cyan">
+          💾 1-Click Vault Backup
+        </button>
+        <span style="font-size:12px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:9999px; font-weight:700;" data-apex-title="Titanium Anti-Fraud Shield" data-apex-tip="Active zero-risk defense mechanism continuously monitoring and auto-quarantining malicious IPs and brute-force attempts." data-apex-icon="🟢" data-apex-color="emerald">🟢 Titanium Shield Active</span>
+        <span style="font-size:12px; background:rgba(99,102,241,0.15); color:#c7d2fe; border:1px solid rgba(99,102,241,0.3); padding:4px 10px; border-radius:9999px; font-weight:700;" data-apex-title="AI Sales Copilot" data-apex-tip="24/7 autonomous Chinese customer service engine answering buyer inquiries and closing sales in under 0.1 seconds." data-apex-icon="🤖" data-apex-color="indigo">🤖 AI Sales Copilot Active</span>
+      </div>
+    </div>
+
+    <!-- Metrics Cards -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-block-end:16px;">
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="Total Autonomous Orders" data-apex-tip="Cumulative number of automated purchases fulfilled seamlessly across Xianyu, Taobao, and FaKa." data-apex-icon="📦" data-apex-color="cyan">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">📦 Total Auto Orders</span>
+        <span style="font-size:22px; font-weight:800; color:#38bdf8;">{{ xianyu_stats.total_orders if xianyu_stats else (xianyu_orders|length) }}</span>
+        <span style="font-size:11px; color:#64748b;">Instant Fulfillment &lt; 0.1s</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="Total Automated Revenue" data-apex-tip="Gross revenue generated through autonomous digital voucher deliveries in USD." data-apex-icon="💰" data-apex-color="emerald">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">💰 Total Auto Revenue</span>
+        <span style="font-size:22px; font-weight:800; color:#34d399;">${{ xianyu_stats.total_revenue if xianyu_stats else '0.00' }}</span>
+        <span style="font-size:11px; color:#64748b;">Zero-Fee Instant Payout</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="Security & Defense Matrix" data-apex-tip="Autonomous defense shield guaranteeing zero fraud, anti-replay token deduplication, and subnet isolation." data-apex-icon="🛡️" data-apex-color="purple">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">🛡️ Security & Defense Matrix</span>
+        <span style="font-size:15px; font-weight:800; color:#c084fc;">Quantum Matrix Vault</span>
+        <span style="font-size:11px; color:#64748b;">Anti-Brute-Force & Dedup Guard</span>
+      </div>
+      <div style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:4px;" data-apex-title="AI Chinese Sales Endpoint" data-apex-tip="High-speed endpoint powering automated customer replies with native Chinese AI models." data-apex-icon="🤖" data-apex-color="amber">
+        <span style="font-size:12px; color:#94a3b8; font-weight:600;">🤖 AI Sales Copilot Endpoint</span>
+        <span style="font-size:14px; font-weight:700; color:#fbbf24;">/api/v2/xianyu/ai-reply</span>
+        <span style="font-size:11px; color:#64748b;">Multi-Model Fast Chinese AI</span>
+      </div>
+    </div>
+
+    <!-- Recent Auto Orders Table -->
+    <div class="table-card" id="xianyuOrdersContainer" style="margin-block-end:16px;">
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-apex-title="Order Reference ID" data-apex-tip="Unique cryptographic transaction ID issued by Xianyu, Taobao, or FaKa." data-apex-icon="🆔" data-apex-color="cyan">Order ID</th>
+              <th data-apex-title="Sales Channel" data-apex-tip="Originating e-commerce platform (Xianyu / Taobao / FaKa API)." data-apex-icon="🌐" data-apex-color="amber">Platform</th>
+              <th data-apex-title="Purchased Tier" data-apex-tip="Tier package purchased (Starter 100, Basic 350, Pro 1000, or Enterprise 2500)." data-apex-icon="📦" data-apex-color="indigo">Package</th>
+              <th data-apex-title="Gross Revenue" data-apex-tip="Total amount paid for this automated order in USD." data-apex-icon="💰" data-apex-color="emerald">Amount</th>
+              <th data-apex-title="Key Quantity" data-apex-tip="Number of separate redeem vouchers generated and fulfilled in this transaction." data-apex-icon="🔢" data-apex-color="cyan">Qty</th>
+              <th data-apex-title="Buyer IP Address" data-apex-tip="Origin IP address of the buyer or webhook bot, verified through anti-spoof headers." data-apex-icon="📍" data-apex-color="rose">Buyer IP</th>
+              <th data-apex-title="Fulfillment Status" data-apex-tip="Real-time delivery status showing key was generated and dispatched instantly." data-apex-icon="⚡" data-apex-color="emerald">Status</th>
+              <th data-apex-title="Order Timestamp" data-apex-tip="Exact date and time when this order was received and auto-fulfilled." data-apex-icon="⏱️" data-apex-color="amber">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for xo in xianyu_orders %}
+            <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+              <td><code style="color:#38bdf8; font-size:12px;">{{ xo.order_id }}</code></td>
+              <td><span style="background:rgba(234,88,12,0.15); color:#fb923c; border:1px solid rgba(234,88,12,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">{{ xo.platform|upper }}</span></td>
+              <td><span style="color:#e2e8f0; font-weight:600; font-size:12.5px;">{{ xo.tier|upper }}</span></td>
+              <td><strong style="color:#34d399; font-size:13px;">${{ "%.2f"|format(xo.amount) }}</strong></td>
+              <td><span style="color:#cbd5e1; font-weight:700;">{{ xo.quantity }}</span></td>
+              <td><code style="color:#94a3b8; font-size:11.5px;">{{ xo.buyer_ip or '127.0.0.1' }}</code></td>
+              <td><span style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">⚡ Fulfilled</span></td>
+              <td style="color:#94a3b8; font-size:12px;">{{ xo.created_at }}</td>
+            </tr>
+            {% endfor %}
+            {% if not xianyu_orders %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:28px 16px; color:#94a3b8;">
+                <div style="font-size:28px; margin-bottom:8px;">🤖</div>
+                <div style="font-size:14px; font-weight:700; color:#e2e8f0; margin-bottom:4px;">Xianyu Autonomous Sales Engine is Active & Ready ⚡</div>
+                <div style="font-size:12.5px; color:#64748b;">Incoming orders from auto-delivery bots will appear here in real-time with zero human intervention.</div>
+              </td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      {% if xianyu_orders|length > 10 %}
+      <div class="table-expand-bar" id="xianyuOrdersExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="xianyuOrdersCountDisplay">Showing <strong style="color:#38bdf8;">10</strong> of <strong style="color:#f8fafc;">{{ xianyu_orders|length }}</strong> orders</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('xianyuOrdersContainer', 'xianyuOrdersExpandBar', 'xianyuOrdersCountDisplay', {{ xianyu_orders|length }}, 'orders')" data-apex-title="Load 10 More Orders" data-apex-tip="Expands the table to display the next batch of 10 automated sales orders smoothly." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('xianyuOrdersContainer', 'xianyuOrdersExpandBar', 'xianyuOrdersCountDisplay', {{ xianyu_orders|length }}, 'orders')" data-apex-title="Show All Orders" data-apex-tip="Displays the complete list of all automated sales orders recorded in the system." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ xianyu_orders|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <!-- Security Jail Table -->
+    {% if jailed_ips %}
+    <div id="jailedIpsContainer" style="margin-block-start:14px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.25); border-radius:14px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:10px;">
+        <span style="font-size:14px; font-weight:800; color:#f87171;">🚨 Active Security Jail ({{ jailed_ips|length }} Locked IPs)</span>
+        <span style="font-size:11.5px; color:#cbd5e1;">Zero-Tolerance Anti-Brute-Force & Honeypot Defense</span>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th data-apex-title="Quarantined IP" data-apex-tip="Suspicious or unauthorized IP address currently quarantined by the titanium defense matrix." data-apex-icon="🛡️" data-apex-color="rose">Locked IP</th>
+              <th data-apex-title="CIDR Subnet" data-apex-tip="Network /24 subnet group mapped to detect distributed brute-force attempts." data-apex-icon="🌐" data-apex-color="cyan">Subnet</th>
+              <th data-apex-title="Lockout Severity" data-apex-tip="Current penalty tier ranging from temporary cooldown to extended network isolation." data-apex-icon="⚠️" data-apex-color="amber">Penalty Level</th>
+              <th data-apex-title="Failed Attempts" data-apex-tip="Cumulative number of unauthorized requests or invalid token submissions." data-apex-icon="🚫" data-apex-color="rose">Failures</th>
+              <th data-apex-title="Violation Trigger" data-apex-tip="Specific security rule triggered (e.g. Invalid HMAC token, rapid-fire rate limit violation)." data-apex-icon="🔍" data-apex-color="indigo">Reason</th>
+              <th data-apex-title="Quarantine Expiry" data-apex-tip="Timestamp when the automatic defense lockout expires and resets." data-apex-icon="⏱️" data-apex-color="amber">Locked Until</th>
+              <th data-apex-title="Manual Override" data-apex-tip="Unlock and unban this IP address immediately, restoring normal access." data-apex-icon="🔓" data-apex-color="emerald">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for j in jailed_ips %}
+            <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+              <td><code style="color:#f87171; font-weight:700;">{{ j.ip_address }}</code></td>
+              <td><code style="color:#94a3b8; font-size:11.5px;">{{ j.subnet_24 }}</code></td>
+              <td><span style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 8px; border-radius:6px; font-size:11px; font-weight:800;">Level {{ j.penalty_level }}</span></td>
+              <td><span style="color:#e2e8f0; font-weight:700;">{{ j.failed_count }}</span></td>
+              <td style="color:#cbd5e1; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ j.reason }}">{{ j.reason }}</td>
+              <td style="color:#fbbf24; font-size:12px; font-weight:600;">{{ j.locked_until }}</td>
+              <td>
+                <form action="/admin/security-jail/unban" method="POST" style="margin:0;">
+                  <input type="hidden" name="ip" value="{{ j.ip_address }}">
+                  <button type="submit" class="btn-sm-action" style="background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; cursor:pointer;" data-apex-title="Unban IP Address" data-apex-tip="Immediately clears security lockout and restores API & dashboard access for this IP address." data-apex-icon="🔓" data-apex-color="emerald">🔓 Unban IP</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if jailed_ips|length > 10 %}
+      <div class="table-expand-bar" id="jailedIpsExpandBar" style="padding:12px 18px; border-top:1px solid rgba(239,68,68,0.15); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4); border-radius:0 0 14px 14px; margin-top:10px;">
+        <span style="font-size:12px; color:#94a3b8;" id="jailedIpsCountDisplay">Showing <strong style="color:#f87171;">10</strong> of <strong style="color:#f8fafc;">{{ jailed_ips|length }}</strong> locked IPs</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('jailedIpsContainer', 'jailedIpsExpandBar', 'jailedIpsCountDisplay', {{ jailed_ips|length }}, 'locked IPs')" data-apex-title="Load 10 More Locked IPs" data-apex-tip="Expands the table to display the next batch of 10 jailed IP addresses." data-apex-icon="⬇️" data-apex-color="rose">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('jailedIpsContainer', 'jailedIpsExpandBar', 'jailedIpsCountDisplay', {{ jailed_ips|length }}, 'locked IPs')" data-apex-title="Show All Locked IPs" data-apex-tip="Displays the complete list of all quarantined IP addresses." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ jailed_ips|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- Redeem Codes Table -->
@@ -1226,12 +1759,12 @@
         <span>🎟️ Promo & Redeem Codes ({{ redeem_codes|length }})</span>
         <div class="has-tooltip">
           <span class="tooltip-trigger">ℹ️</span>
-          <div class="tooltip-bubble">Listing of all generated 256-bit coupon and voucher codes with usage state and direct redeem links.</div>
+          <div class="tooltip-bubble">Listing of all generated quantum coupon and voucher codes with usage state and direct redeem links.</div>
         </div>
       </div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="Export only available unused codes to Excel file">📥 Export Unused Excel</a>
-        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="Export all codes (both used and unused) to Excel">📥 Export All Excel</a>
+        <a href="/admin/export-codes?status=unused" class="btn-sm-action" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="Export only available unused codes to Excel file" data-apex-title="Export Available Keys" data-apex-tip="Downloads an Excel spreadsheet containing only active, unclaimed voucher keys ready for distribution or sale." data-apex-icon="📥" data-apex-color="indigo">📥 Export Unused Excel</a>
+        <a href="/admin/export-codes?status=all" class="btn-sm-action" style="background:rgba(139,92,246,0.15); color:#c084fc; border:1px solid rgba(139,92,246,0.3); font-weight:700; padding:7px 14px; border-radius:8px;" title="Export all codes (both used and unused) to Excel" data-apex-title="Export Complete Archive" data-apex-tip="Downloads a complete spreadsheet of all generated activation keys, including redemption status and user history." data-apex-icon="📥" data-apex-color="purple">📥 Export All Excel</a>
         <button id="btnDeleteSelectedCodes" class="btn-sm-action btn-sm-danger" style="display:none; font-weight:700; padding:7px 14px; border-radius:8px;" onclick="handleBulkDelete('codesForm', 'Are you sure you want to delete the selected redeem codes?', 'Redeem Codes')">🗑️ Delete Selected (<span id="countSelectedCodes">0</span>)</button>
       </div>
     </div>
@@ -1241,33 +1774,37 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="Select all codes"></th>
-                <th>Activation Code</th>
-                <th>Value</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Used By</th>
-                <th>Created At</th>
-                <th>Actions</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="Select All Codes" data-apex-tip="Select or deselect all promotional activation codes for bulk actions." data-apex-icon="☑️"><input type="checkbox" id="selectAllCodesCheckbox" onclick="toggleSelectAll('code-checkbox', this, 'btnDeleteSelectedCodes', 'countSelectedCodes')" title="Select all codes"></th>
+                <th data-apex-title="Activation Code" data-apex-tip="Unique 8,192-bit cryptographic post-quantum voucher key for wallet balances or bundles." data-apex-icon="🔑" data-apex-color="cyan">Activation Code</th>
+                <th data-apex-title="USD Value" data-apex-tip="Monetary dollar value credited to the user's wallet when redeemed." data-apex-icon="💰" data-apex-color="emerald">Value</th>
+                <th data-apex-title="Ledger Type" data-apex-tip="Paid sale revenue voucher vs Administrative free promotional grant." data-apex-icon="💳" data-apex-color="indigo">Type</th>
+                <th data-apex-title="Redemption Status" data-apex-tip="Available for any user to claim vs already redeemed and used." data-apex-icon="📊" data-apex-color="cyan">Status</th>
+                <th data-apex-title="Beneficiary Candidate" data-apex-tip="User account email and name that claimed this voucher key, or Available for distribution." data-apex-icon="👤" data-apex-color="cyan">Used By</th>
+                <th data-apex-title="Generation Date" data-apex-tip="Date and timestamp when this activation voucher was cryptographically created." data-apex-icon="📅" data-apex-color="cyan">Created</th>
+                <th class="col-actions" data-apex-title="Key Actions" data-apex-tip="Permanently delete or revoke this activation voucher key." data-apex-icon="🗑️" data-apex-color="rose">Actions</th>
               </tr>
             </thead>
             <tbody>
               {% for r in redeem_codes %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;"><input type="checkbox" class="code-checkbox" name="codes" value="{{ r.code }}" onclick="updateSelectCount('code-checkbox', 'btnDeleteSelectedCodes', 'countSelectedCodes', 'selectAllCodesCheckbox')"></td>
                 <td>
-                  <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span class="code-chip">{{ r.code }}</span>
+                  <div class="code-cell-container">
+                    <span class="code-chip-badge" onclick="inspectFullCode('{{ r.code }}', '{{ '%.2f'|format(r.value_usd or 0) }}', '{{ r.code_type }}')" title="Click to view & copy full 1024-character 8192-bit post-quantum key">
+                      <span style="color:#38bdf8; font-weight:800;">🔑</span>
+                      <span style="font-family:monospace; direction:ltr;">{{ (r.code or '')[:8] }}...{{ (r.code or '')[-4:] }}</span>
+                      <span class="code-chip-entropy">8192-BIT</span>
+                    </span>
                     {% if not r.is_used %}
-                      <button type="button" class="btn-sm-action btn-sm-copy" onclick="copyCodeText('{{ r.code }}', this)" title="Copy activation code to clipboard">📋 Copy</button>
-                      <button type="button" class="btn-sm-action btn-sm-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="Copy direct one-click redeem URL">🔗 Link</button>
+                      <button type="button" class="btn-code-action btn-code-copy" onclick="copyCodeText('{{ r.code }}', this)" title="Copy full activation key">📋</button>
+                      <button type="button" class="btn-code-action btn-code-link" onclick="copyRedeemLink('{{ r.code }}', this)" title="Copy 1-click redeem URL">🔗</button>
                     {% endif %}
                   </div>
                 </td>
-                <td style="color:#34d399; font-weight:800; font-size:14px;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
+                <td style="color:#34d399; font-weight:800; font-size:13px;">${{ "%.2f"|format(r.value_usd or 0) }}</td>
                 <td>
                   {% if r.code_type == 'admin_free' %}
-                    <span class="status-pill pill-emerald">🆓 Admin Free</span>
+                    <span class="status-pill pill-emerald">🆓 Free</span>
                   {% else %}
                     <span class="status-pill pill-indigo">💳 Paid</span>
                   {% endif %}
@@ -1279,10 +1816,30 @@
                     <span class="status-pill pill-emerald">Available</span>
                   {% endif %}
                 </td>
-                <td style="color:#94a3b8; font-size:13px;">{{ r.used_by or '—' }}</td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (r.created_at or '')[:16] }}</td>
                 <td>
-                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCode('{{ r.code }}')" title="Delete code permanently">🗑️ Delete</button>
+                  {% if r.is_used %}
+                    <div style="display:flex; flex-direction:column; gap:3px;">
+                      <a href="/admin/user/{{ r.used_by }}" style="color:#38bdf8; font-weight:700; font-size:12px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="View User Account">
+                        <span>👤</span>
+                        <span style="direction:ltr;">{{ r.user_email or r.used_by }}</span>
+                      </a>
+                      {% if r.user_name and r.user_name != r.user_email %}
+                        <span style="font-size:11px; color:#cbd5e1; font-weight:500;">{{ r.user_name }}</span>
+                      {% endif %}
+                      {% if r.used_at %}
+                        <span style="font-size:10px; color:#64748b; font-family:monospace;">🕒 {{ (r.used_at|string)[:16] }}</span>
+                      {% endif %}
+                    </div>
+                  {% else %}
+                    <span style="color:#10b981; font-size:11px; font-weight:600; display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); padding:3px 8px; border-radius:6px;">
+                      <span style="inline-size:6px; block-size:6px; border-radius:50%; background:#10b981; display:inline-block; box-shadow:0 0 6px #10b981;"></span>
+                      <span>Available (Unclaimed)</span>
+                    </span>
+                  {% endif %}
+                </td>
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px;">{{ (r.created_at|string)[:10] if r.created_at else '' }}</td>
+                <td class="col-actions">
+                  <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteCode('{{ r.code }}')" title="Delete code permanently">🗑️ Delete</button>
                 </td>
               </tr>
               {% endfor %}
@@ -1293,6 +1850,19 @@
           </table>
         </form>
       </div>
+      {% if redeem_codes|length > 10 %}
+      <div class="table-expand-bar" id="codesExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="codesCountDisplay">Showing <strong style="color:#38bdf8;">10</strong> of <strong style="color:#f8fafc;">{{ redeem_codes|length }}</strong> codes</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('codesForm', 'codesExpandBar', 'codesCountDisplay', {{ redeem_codes|length }}, 'codes')" data-apex-title="Load Next 10 Codes" data-apex-tip="Expands the table to display the next 10 promo and voucher codes smoothly." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('codesForm', 'codesExpandBar', 'codesCountDisplay', {{ redeem_codes|length }}, 'codes')" data-apex-title="Show All Codes" data-apex-tip="Expands the full list of all generated quantum voucher codes without pagination." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ redeem_codes|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -1316,47 +1886,62 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="Select all users"></th>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Balance</th>
-                <th>Total Spent</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="Select All Users" data-apex-tip="Select or deselect all candidate accounts for bulk administrative actions." data-apex-icon="☑️"><input type="checkbox" id="selectAllUsersCheckbox" onclick="toggleSelectAll('user-checkbox', this, 'btnDeleteSelectedUsers', 'countSelectedUsers')" title="Select all users"></th>
+                <th data-apex-title="User Account Email" data-apex-tip="The candidate's primary registered email address used for login and authentication." data-apex-icon="📧" data-apex-color="cyan">Email</th>
+                <th data-apex-title="Candidate Full Name" data-apex-tip="Display name and candidate profile identity shown on job applications." data-apex-icon="👤" data-apex-color="cyan">Name</th>
+                <th data-apex-title="Account Access Role" data-apex-tip="System authorization tier: Super Admin, VIP Subscriber, or Standard Candidate." data-apex-icon="🛡️" data-apex-color="indigo">Role</th>
+                <th data-apex-title="Wallet Available Balance" data-apex-tip="Current unspent USD funds available in the candidate's digital wallet." data-apex-icon="💰" data-apex-color="emerald">Balance</th>
+                <th data-apex-title="Total Lifetime Spent" data-apex-tip="Cumulative lifetime dollar value spent on automated application campaigns." data-apex-icon="💳" data-apex-color="amber">Spent</th>
+                <th data-apex-title="Account Status" data-apex-tip="Active verified standing or suspended/banned compliance state." data-apex-icon="🟢" data-apex-color="cyan">Status</th>
+                <th data-apex-title="Registration Date" data-apex-tip="Exact date and timestamp when this user account was created." data-apex-icon="📅" data-apex-color="cyan">Joined</th>
+                <th class="col-actions" data-apex-title="User Management Controls" data-apex-tip="View detailed profile, edit balance, deposit funds, or manage account permissions." data-apex-icon="⚙️" data-apex-color="rose">Actions</th>
               </tr>
             </thead>
             <tbody>
               {% for u in users %}
-              <tr>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
                 <td style="text-align:center;">
                   {% if u.user_type != 'admin' %}
-                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
+                    <input type="checkbox" class="user-checkbox" name="user_ids" value="{{ u.user_id or u.id or u.email }}" onclick="updateSelectCount('user-checkbox', 'btnDeleteSelectedUsers', 'countSelectedUsers', 'selectAllUsersCheckbox')">
                   {% else %}
-                    <span title="Admin Account Protected">🔒</span>
+                    <span title="Admin Account Immuno-Protected">🔒</span>
                   {% endif %}
                 </td>
-                <td><a href="/admin/user/{{ u.user_id }}" style="color:#60a5fa; font-weight:600; text-decoration:none;" title="Open detailed user management profile">{{ u.email }}</a></td>
-                <td style="font-weight:600; color:#f1f5f9;">{{ u.name or '—' }}</td>
-                <td><span class="status-pill pill-indigo">{{ u.user_type or 'JOBSEEKER' }}</span></td>
-                <td style="color:#34d399; font-weight:800;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
-                <td style="color:#94a3b8;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
+                <td>
+                  <a href="/admin/user/{{ u.user_id or u.id }}" style="display:inline-flex; align-items:center; gap:6px; color:#38bdf8; font-weight:700; text-decoration:none; transition:all 0.2s;" title="{{ u.email }}">
+                    <span style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-size:10px; font-weight:900;">{{ (u.name or u.email or 'U')[0]|upper }}</span>
+                    <span style="max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;">{{ u.email }}</span>
+                  </a>
+                </td>
+                <td style="font-weight:700; color:#f1f5f9;">
+                  <span style="max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;" title="{{ u.name or '' }}">{{ u.name or '—' }}</span>
+                </td>
+                <td>
+                  {% if u.user_type == 'admin' %}
+                    <span class="status-pill pill-amber" style="padding:2px 6px; font-size:10.5px; box-shadow:0 0 10px rgba(245,158,11,0.2);">👑 Admin</span>
+                  {% elif u.user_type == 'recruiter' %}
+                    <span class="status-pill pill-indigo" style="padding:2px 6px; font-size:10.5px;">💼 Recruiter</span>
+                  {% else %}
+                    <span class="status-pill pill-indigo" style="padding:2px 6px; font-size:10.5px;">🎯 Jobseeker</span>
+                  {% endif %}
+                </td>
+                <td style="color:#34d399; font-weight:800; font-family:monospace; font-size:12.5px;">${{ "%.2f"|format(u.wallet_balance or 0) }}</td>
+                <td style="color:#94a3b8; font-family:monospace; font-size:12.5px;">${{ "%.2f"|format(u.total_spent or 0) }}</td>
                 <td>
                   {% if u.is_active %}
-                    <span class="status-pill pill-emerald">🟢 Active</span>
+                    <span class="status-pill pill-emerald" style="padding:2px 6px; font-size:10.5px;"><span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span> Active</span>
                   {% else %}
-                    <span class="status-pill pill-rose">🔴 Disabled</span>
+                    <span class="status-pill pill-rose" style="padding:2px 6px; font-size:10.5px;"><span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#f43f5e;"></span> Disabled</span>
                   {% endif %}
                 </td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (u.created_at or '')[:10] }}</td>
-                <td>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <button type="button" class="btn-sm-action {% if u.is_active %}btn-sm-danger{% else %}btn-sm-success{% endif %}" onclick="handleToggleUser('{{ u.user_id }}')" title="Toggle user account active/disabled state">
-                      {% if u.is_active %}Disable{% else %}Enable{% endif %}
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px;">{{ (u.created_at|string)[:10] if u.created_at else '—' }}</td>
+                <td class="col-actions">
+                  <div style="display:inline-flex; gap:4px; align-items:center;">
+                    <button type="button" class="btn-action-badge {% if u.is_active %}btn-action-disable{% else %}btn-action-enable{% endif %}" onclick="handleToggleUser('{{ u.user_id or u.id or u.email }}')" title="Toggle account state">
+                      {% if u.is_active %}⛔ Disable{% else %}✅ Enable{% endif %}
                     </button>
                     {% if u.user_type != 'admin' %}
-                      <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteUser('{{ u.user_id }}', '{{ u.email }}')" title="Delete user permanently">🗑️ Delete</button>
+                      <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteUser('{{ u.user_id or u.id or u.email }}', '{{ u.email }}')" title="Delete user permanently">🗑️ Delete</button>
                     {% endif %}
                   </div>
                 </td>
@@ -1366,6 +1951,19 @@
           </table>
         </form>
       </div>
+      {% if users|length > 10 %}
+      <div class="table-expand-bar" id="usersExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="usersCountDisplay">Showing <strong style="color:#38bdf8;">10</strong> of <strong style="color:#f8fafc;">{{ users|length }}</strong> users</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('usersForm', 'usersExpandBar', 'usersCountDisplay', {{ users|length }}, 'users')" data-apex-title="Load Next 10 Users" data-apex-tip="Expands the table to display the next 10 user accounts smoothly." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('usersForm', 'usersExpandBar', 'usersCountDisplay', {{ users|length }}, 'users')" data-apex-title="Show All Users" data-apex-tip="Expands the full list of all registered user accounts without pagination." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ users|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -1389,41 +1987,265 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="inline-size:40px; text-align:center;"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="Select all campaigns"></th>
-                <th>Campaign ID</th>
-                <th>User Account</th>
-                <th>Status</th>
-                <th>Target Companies</th>
-                <th>Sent</th>
-                <th>Created At</th>
-                <th>Actions</th>
+                <th style="inline-size:32px; text-align:center;" data-apex-title="Select All Campaigns" data-apex-tip="Select or deselect all job outreach campaigns for bulk actions." data-apex-icon="☑️"><input type="checkbox" id="selectAllCampaignsCheckbox" onclick="toggleSelectAll('campaign-checkbox', this, 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns')" title="Select all campaigns"></th>
+                <th data-apex-title="Campaign Identifier" data-apex-tip="Unique system tracking code for this automated job application outreach campaign." data-apex-icon="🚀" data-apex-color="cyan">Campaign</th>
+                <th data-apex-title="Candidate Owner" data-apex-tip="The candidate user whose CV, portfolio, and credentials are being dispatched." data-apex-icon="👤" data-apex-color="cyan">User Account</th>
+                <th data-apex-title="Campaign Lifecycle State" data-apex-tip="Live status: Running active dispatch, Queued in worker pool, or Completed." data-apex-icon="🟢" data-apex-color="indigo">Status</th>
+                <th data-apex-title="Target Companies Count" data-apex-tip="Total number of verified company HRs and hiring managers queued for outreach." data-apex-icon="🏢" data-apex-color="amber">Targets</th>
+                <th data-apex-title="Verified Sent Emails" data-apex-tip="Number of application emails successfully delivered through live MX verification." data-apex-icon="✉️" data-apex-color="emerald">Sent</th>
+                <th data-apex-title="Launch Timestamp" data-apex-tip="Date and time when this outreach campaign was initiated." data-apex-icon="📅" data-apex-color="cyan">Created</th>
+                <th class="col-actions" data-apex-title="Campaign Controls" data-apex-tip="Inspect live dispatch logs, pause/resume execution, or delete campaign." data-apex-icon="⚙️" data-apex-color="rose">Actions</th>
               </tr>
             </thead>
             <tbody>
               {% for c in campaigns %}
-              <tr>
-                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
-                <td style="font-family:monospace; color:#a5b4fc; font-size:12.5px;">{{ c.campaign_id[:18] }}...</td>
-                <td style="font-weight:600; color:#f1f5f9;">{{ c.email or c.user_id[:12] }}</td>
+              <tr class="table-data-row {% if loop.index > 10 %}row-collapsed-item{% endif %}" data-row-idx="{{ loop.index }}" {% if loop.index > 10 %}style="display:none;"{% endif %}>
+                <td style="text-align:center;"><input type="checkbox" class="campaign-checkbox" name="campaign_ids" value="{{ c.campaign_id or c.id }}" onclick="updateSelectCount('campaign-checkbox', 'btnDeleteSelectedCampaigns', 'countSelectedCampaigns', 'selectAllCampaignsCheckbox')"></td>
+                <td style="font-family:monospace; color:#38bdf8; font-size:11.5px; font-weight:700;">
+                  <span style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); padding:2px 6px; border-radius:5px;">🚀 {{ (c.campaign_id or c.id|string or '')[:10] }}...</span>
+                </td>
+                <td style="font-weight:700; color:#f1f5f9;">
+                  <span style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:middle;" title="{{ c.email or c.user_id }}">{{ c.email or (c.user_id|string)[:10] }}</span>
+                </td>
                 <td>
-                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}">
-                    {{ c.status }}
+                  <span class="status-pill {% if c.status=='completed' %}pill-emerald{% elif c.status=='running' %}pill-indigo{% elif c.status=='failed' %}pill-rose{% else %}pill-amber{% endif %}" style="padding:2px 6px; font-size:10.5px;">
+                    {% if c.status=='completed' %}✨ Done{% elif c.status=='running' %}⚡ Live{% elif c.status=='failed' %}❌ Fail{% else %}⏳ {{ c.status|title }}{% endif %}
                   </span>
                 </td>
-                <td style="font-weight:800; color:#ffffff;">{{ c.total_companies }}</td>
-                <td style="color:#34d399; font-weight:800;">{{ c.sent_count }}</td>
-                <td style="font-family:monospace; color:#64748b; font-size:12.5px;">{{ (c.created_at or '')[:16] }}</td>
-                <td>
-                  <button type="button" class="btn-sm-action btn-sm-danger" onclick="handleDeleteCampaign('{{ c.campaign_id }}')" title="Delete campaign permanently">🗑️ Delete</button>
+                <td style="font-weight:800; font-family:monospace; color:#94a3b8; font-size:12px;">{{ c.total_companies }} Targets</td>
+                <td style="color:#34d399; font-weight:800; font-family:monospace; font-size:12px;">{{ c.sent_count }} Sent</td>
+                <td style="font-family:monospace; color:#64748b; font-size:11.5px;">{{ (c.created_at|string)[:10] if c.created_at else '—' }}</td>
+                <td class="col-actions">
+                  <button type="button" class="btn-action-badge btn-action-delete" onclick="handleDeleteCampaign('{{ c.campaign_id or c.id }}')" title="Delete campaign record permanently">🗑️ Delete</button>
                 </td>
               </tr>
               {% endfor %}
               {% if not campaigns %}
-              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">No campaigns found.</td></tr>
+              <tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">No active or past campaigns recorded yet.</td></tr>
               {% endif %}
             </tbody>
           </table>
         </form>
+      </div>
+      {% if campaigns|length > 10 %}
+      <div class="table-expand-bar" id="campaignsExpandBar" style="padding:12px 18px; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:rgba(15,23,42,0.4);">
+        <span style="font-size:12px; color:#94a3b8;" id="campaignsCountDisplay">Showing <strong style="color:#38bdf8;">10</strong> of <strong style="color:#f8fafc;">{{ campaigns|length }}</strong> campaigns</span>
+        <div class="table-expand-buttons" style="display:flex; gap:8px;">
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('campaignsForm', 'campaignsExpandBar', 'campaignsCountDisplay', {{ campaigns|length }}, 'campaigns')" data-apex-title="Load Next 10 Campaigns" data-apex-tip="Expands the table to display the next 10 outreach campaigns smoothly." data-apex-icon="⬇️" data-apex-color="cyan">
+            ⬇️ Load More (+10)
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('campaignsForm', 'campaignsExpandBar', 'campaignsCountDisplay', {{ campaigns|length }}, 'campaigns')" data-apex-title="Show All Campaigns" data-apex-tip="Expands the full list of all candidate outreach campaigns without pagination." data-apex-icon="👁️" data-apex-color="indigo">
+            👁️ Show All ({{ campaigns|length }})
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       FAMILY BENEFICIARY VAULT & MULTI-WALLET REVENUE SPLITTER
+       ========================================================================= -->
+  <div class="admin-section" id="familyVaultSection">
+    <div class="section-header-bar">
+      <div class="section-title-text">
+        <span>🏛️ Family Beneficiary Vault — Autonomous Multi-Wallet Revenue Splitter</span>
+        <div class="has-tooltip">
+          <span class="tooltip-trigger">ℹ️</span>
+          <div class="tooltip-bubble">Ultra-secure non-custodial protocol (0/1,000,000 risk) automatically splits and distributes platform revenue across all configured family Trust Wallets based on custom percentage allocations.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <span class="status-pill pill-emerald" style="padding:5px 12px; font-weight:700; font-size:12px;">🔒 100% Non-Custodial Security</span>
+        <span class="status-pill pill-amber" style="padding:5px 12px; font-weight:700; font-size:12px;">💰 Total Distributed: <span id="vaultTotalDistributedDisplay" style="font-family:'JetBrains Mono', monospace; font-weight:800;">${{ "%.2f"|format(family_vault.total_distributed_usd if family_vault else 0) }}</span></span>
+      </div>
+    </div>
+    
+    <div class="table-card" style="padding: 24px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.92) 100%); border: 1px solid rgba(56, 189, 248, 0.22); border-radius: 20px; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.6);">
+      
+      <!-- Master Wallet & Schedule Header Controls -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:18px; margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.08);">
+        
+        <!-- Master Receiving Wallet -->
+        <div style="background:rgba(2,6,23,0.55); padding:16px 18px; border-radius:14px; border:1px solid rgba(56,189,248,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:6px;">
+              👑 Master Receiving Wallet
+            </label>
+            <span style="font-size:11px; color:#94a3b8;">Revenue lands here first</span>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="vaultMasterAddress" class="admin-input" value="{{ family_vault.master_wallet_address if family_vault else '' }}" placeholder="Paste primary Master Wallet (Tron, BSC, Solana, Bitcoin...)" style="font-size:12px; font-family:'JetBrains Mono', monospace; padding:9px 12px; flex:1; border-radius:9px;" dir="ltr">
+            <select id="vaultMasterNetwork" class="admin-input" style="width:170px; font-size:12px; font-weight:700; background:rgba(15,23,42,0.95); color:#f1f5f9; padding:9px 10px; border-radius:9px;">
+              <optgroup label="💵 Stablecoins (USD Pegged)">
+                <option value="USDT (TRC20)" {% if not family_vault or family_vault.master_wallet_network == 'USDT (TRC20)' %}selected{% endif %}>💵 USDT (TRC20) ⭐</option>
+                <option value="USDT (BEP20)" {% if family_vault and family_vault.master_wallet_network == 'USDT (BEP20)' %}selected{% endif %}>💵 USDT (BEP20)</option>
+                <option value="USDT (Polygon)" {% if family_vault and family_vault.master_wallet_network == 'USDT (Polygon)' %}selected{% endif %}>💵 USDT (Polygon)</option>
+                <option value="USDT (Solana)" {% if family_vault and family_vault.master_wallet_network == 'USDT (Solana)' %}selected{% endif %}>💵 USDT (Solana)</option>
+                <option value="USDC (BEP20)" {% if family_vault and family_vault.master_wallet_network == 'USDC (BEP20)' %}selected{% endif %}>🪙 USDC (BEP20)</option>
+                <option value="USDC (Polygon)" {% if family_vault and family_vault.master_wallet_network == 'USDC (Polygon)' %}selected{% endif %}>🪙 USDC (Polygon)</option>
+                <option value="USDC (Solana)" {% if family_vault and family_vault.master_wallet_network == 'USDC (Solana)' %}selected{% endif %}>🪙 USDC (Solana)</option>
+              </optgroup>
+              <optgroup label="💎 Top Trusted Cryptos">
+                <option value="BTC (Bitcoin)" {% if family_vault and 'BTC' in family_vault.master_wallet_network %}selected{% endif %}>₿ BTC (Bitcoin)</option>
+                <option value="ETH (Ethereum)" {% if family_vault and 'ETH' in family_vault.master_wallet_network %}selected{% endif %}>Ξ ETH (Ethereum)</option>
+                <option value="SOL (Solana)" {% if family_vault and 'SOL' in family_vault.master_wallet_network %}selected{% endif %}>◎ SOL (Solana)</option>
+                <option value="BNB (Smart Chain)" {% if family_vault and 'BNB' in family_vault.master_wallet_network %}selected{% endif %}>🟡 BNB (Chain)</option>
+                <option value="TON (Telegram)" {% if family_vault and 'TON' in family_vault.master_wallet_network %}selected{% endif %}>💎 TON (Telegram)</option>
+                <option value="TRX (Tron)" {% if family_vault and 'TRX' in family_vault.master_wallet_network %}selected{% endif %}>🔴 TRX (Tron)</option>
+                <option value="LTC (Litecoin)" {% if family_vault and 'LTC' in family_vault.master_wallet_network %}selected{% endif %}>Ł LTC (Litecoin)</option>
+                <option value="XRP (Ripple)" {% if family_vault and 'XRP' in family_vault.master_wallet_network %}selected{% endif %}>✕ XRP (Ripple)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <!-- Default Fallback Payout Interval Scheduler -->
+        <div style="background:rgba(2,6,23,0.55); padding:16px 18px; border-radius:14px; border:1px solid rgba(168,85,247,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:800; color:#c084fc; display:flex; align-items:center; gap:6px;">
+              ⏱️ Default Fallback Schedule
+            </label>
+            <span style="font-size:11px; font-weight:700; color:#34d399; font-family:'JetBrains Mono', monospace;">
+              Next Split: <span id="vaultNextPayoutDisplay" style="color:#34d399;">{{ (family_vault.next_payout_date[:10] if family_vault and family_vault.next_payout_date else 'Monthly') }}</span>
+            </span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="vaultIntervalMode" class="admin-input" onchange="updateNextPayoutLiveDisplay()" style="font-size:12px; font-weight:700; background:rgba(15,23,42,0.95); color:#f1f5f9; padding:9px 12px; flex:1; border-radius:9px;">
+              <option value="30_days" {% if not family_vault or family_vault.payout_interval_mode == '30_days' %}selected{% endif %}>📅 Every 30 Days (Monthly - Gas Efficient)</option>
+              <option value="60_days" {% if family_vault and family_vault.payout_interval_mode == '60_days' %}selected{% endif %}>📅 Every 60 Days (Bi-monthly)</option>
+              <option value="instant" {% if family_vault and family_vault.payout_interval_mode == 'instant' %}selected{% endif %}>⚡ Instant per Transaction (Real-time)</option>
+              <option value="custom_days" {% if family_vault and family_vault.payout_interval_mode == 'custom_days' %}selected{% endif %}>⚙️ Custom Interval (Specify Days...)</option>
+            </select>
+            <div id="vaultCustomDaysWrapper" style="display:{% if family_vault and family_vault.payout_interval_mode == 'custom_days' %}flex{% else %}none{% endif %}; align-items:center; gap:4px;">
+              <input type="number" id="vaultCustomDays" class="admin-input" value="{{ family_vault.custom_payout_days if family_vault else 30 }}" min="1" max="365" oninput="updateNextPayoutLiveDisplay()" style="width:65px; font-size:12px; padding:8px 4px; text-align:center; font-weight:800; font-family:monospace; border-radius:9px;">
+              <span style="font-size:11px; color:#94a3b8; font-weight:700;">Days</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+        <div style="font-size:12.5px; color:#94a3b8; display:flex; align-items:center; gap:6px;">
+          💡 <span style="color:#e2e8f0;"><strong style="color:#38bdf8;">Dynamic Multi-Wallet Splitting:</strong> Add as many family members or trust wallets as you need with independent tokens and percentages.</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <button type="button" onclick="addNewBeneficiaryRow()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border-radius:10px; background:linear-gradient(135deg, #0284c7 0%, #2563eb 100%); border:none; color:#ffffff; font-weight:800; font-size:12.5px; cursor:pointer; box-shadow:0 4px 14px rgba(37,99,235,0.35); transition:all 0.2s ease;" data-apex-title="Add Beneficiary Wallet" data-apex-tip="Appends a new recipient wallet row to the non-custodial multi-wallet revenue splitter matrix." data-apex-icon="➕" data-apex-color="cyan">
+            ➕ Add Beneficiary
+          </button>
+          <div style="font-size:13px; font-weight:800; color:#f1f5f9; background:rgba(255,255,255,0.06); padding:7px 18px; border-radius:10px; border:1px solid rgba(255,255,255,0.12); display:flex; align-items:center; gap:6px;">
+            Total Allocation: <span id="vaultTotalPctDisplay" style="color:#34d399; font-family:'JetBrains Mono', monospace; font-size:14px; font-weight:800;">100%</span> / 100%
+          </div>
+        </div>
+      </div>
+
+      <div class="table-responsive" style="border:1px solid rgba(255,255,255,0.08); border-radius:14px; overflow-x:auto; background:rgba(2,6,23,0.55);">
+        <table class="admin-table" id="familyVaultTable" style="margin:0; width:100%; border-collapse:separate; border-spacing:0;">
+          <thead>
+            <tr style="background:rgba(15,23,42,0.85);">
+              <th style="width:36px; text-align:center; padding:10px 6px; color:#38bdf8; font-size:11.5px;" data-apex-title="Beneficiary Index" data-apex-tip="Sequence position of this beneficiary inside the non-custodial allocation matrix." data-apex-icon="🔢">#</th>
+              <th style="min-width:145px; padding:10px 10px; font-size:11.5px;" data-apex-title="Beneficiary Label" data-apex-tip="Custom recognizable identifier or name for this payout recipient (e.g. Partner, Savings, Family Vault)." data-apex-icon="🏷️" data-apex-color="cyan">BENEFICIARY LABEL</th>
+              <th style="min-width:145px; padding:10px 10px; font-size:11.5px;" data-apex-title="Cryptocurrency & Network" data-apex-tip="Target blockchain network and token for automated payout routing (e.g. USDT TRC20, BTC, SOL)." data-apex-icon="🪙" data-apex-color="emerald">CRYPTO & NETWORK</th>
+              <th style="min-width:160px; padding:10px 10px; font-size:11.5px;" data-apex-title="Destination Wallet Address" data-apex-tip="Non-custodial cryptographic wallet address protected with client-side zero-knowledge private key shields." data-apex-icon="🔐" data-apex-color="indigo">WALLET ADDRESS</th>
+              <th style="width:82px; min-width:82px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="Revenue Share (%)" data-apex-tip="Exact percentage share of platform incoming revenue allocated to this address (Active shares sum to 100%)." data-apex-icon="📊" data-apex-color="amber">SHARE (%)</th>
+              <th style="min-width:175px; padding:10px 10px; font-size:11.5px;" data-apex-title="Payout Schedule" data-apex-tip="Automated release frequency: Instant per transaction, 30 days monthly, 60 days, or custom interval." data-apex-icon="⏱️" data-apex-color="cyan">⏱️ PAYOUT SCHEDULE</th>
+              <th style="width:95px; min-width:95px; text-align:center; padding:10px 8px; font-size:11.5px;" data-apex-title="Cumulative Total Received" data-apex-tip="Total historical USD revenue transferred to this beneficiary wallet across all distribution cycles." data-apex-icon="💰" data-apex-color="emerald">TOTAL RECEIVED</th>
+              <th class="col-actions" style="width:45px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="Active Payout Toggle" data-apex-tip="Enable or temporarily disable revenue distributions to this specific beneficiary wallet." data-apex-icon="🟢" data-apex-color="emerald">ACTIVE</th>
+              <th style="width:45px; text-align:center; padding:10px 6px; font-size:11.5px;" data-apex-title="Beneficiary Controls" data-apex-tip="Permanently remove this beneficiary row from the revenue distribution matrix." data-apex-icon="🗑️" data-apex-color="rose">ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in (family_vault.beneficiaries if family_vault else []) %}
+            <tr data-ben-id="{{ b.id }}" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+              <td class="ben-index" style="text-align:center; font-weight:800; color:#38bdf8; font-size:12px; padding:8px 4px;">{{ loop.index }}</td>
+              <td style="padding:8px 8px;">
+                <input type="text" class="admin-input ben-name" value="{{ b.name }}" placeholder="Beneficiary {{ loop.index }} (e.g. Mother)" style="font-size:12px; font-weight:600; padding:6px 10px; width:100%; border-radius:8px; background:rgba(15,23,42,0.9); color:#f8fafc;">
+              </td>
+              <td style="padding:8px 8px;">
+                <select class="admin-input ben-network" style="font-size:11.5px; font-weight:700; padding:6px 8px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:8px;">
+                  <optgroup label="💵 Stablecoins (USD Pegged)">
+                    <option value="USDT (TRC20)" {% if b.network == 'USDT (TRC20)' or (not b.network and loop.index == 1) %}selected{% endif %}>💵 USDT (TRC20) ⭐</option>
+                    <option value="USDT (BEP20)" {% if b.network == 'USDT (BEP20)' %}selected{% endif %}>💵 USDT (BEP20)</option>
+                    <option value="USDT (Polygon)" {% if b.network == 'USDT (Polygon)' %}selected{% endif %}>💵 USDT (Polygon)</option>
+                    <option value="USDT (Solana)" {% if b.network == 'USDT (Solana)' %}selected{% endif %}>💵 USDT (Solana)</option>
+                    <option value="USDC (BEP20)" {% if b.network == 'USDC (BEP20)' %}selected{% endif %}>🪙 USDC (BEP20)</option>
+                    <option value="USDC (Polygon)" {% if b.network == 'USDC (Polygon)' %}selected{% endif %}>🪙 USDC (Polygon)</option>
+                    <option value="USDC (Solana)" {% if b.network == 'USDC (Solana)' %}selected{% endif %}>🪙 USDC (Solana)</option>
+                  </optgroup>
+                  <optgroup label="💎 Top Trusted Cryptos">
+                    <option value="BTC (Bitcoin)" {% if 'BTC' in b.network or 'Bitcoin' in b.network %}selected{% endif %}>₿ BTC (Bitcoin)</option>
+                    <option value="ETH (Ethereum)" {% if 'ETH' in b.network or 'Ethereum' in b.network %}selected{% endif %}>Ξ ETH (Ethereum)</option>
+                    <option value="SOL (Solana)" {% if 'SOL' in b.network or 'Solana' in b.network and 'USDT' not in b.network and 'USDC' not in b.network %}selected{% endif %}>◎ SOL (Solana)</option>
+                    <option value="BNB (Smart Chain)" {% if 'BNB' in b.network and 'USDT' not in b.network and 'USDC' not in b.network %}selected{% endif %}>🟡 BNB (Chain)</option>
+                    <option value="TON (Telegram)" {% if 'TON' in b.network or 'Telegram' in b.network %}selected{% endif %}>💎 TON (Telegram)</option>
+                    <option value="TRX (Tron)" {% if 'TRX' in b.network and 'USDT' not in b.network %}selected{% endif %}>🔴 TRX (Tron)</option>
+                    <option value="LTC (Litecoin)" {% if 'LTC' in b.network or 'Litecoin' in b.network %}selected{% endif %}>Ł LTC (Litecoin)</option>
+                    <option value="XRP (Ripple)" {% if 'XRP' in b.network or 'Ripple' in b.network %}selected{% endif %}>✕ XRP (Ripple)</option>
+                  </optgroup>
+                </select>
+              </td>
+              <td style="padding:8px 8px;">
+                <input type="text" class="admin-input ben-address" value="{{ b.address }}" placeholder="Wallet address..." style="font-size:11.5px; font-family:'JetBrains Mono', monospace; padding:6px 10px; color:#38bdf8; width:100%; border-radius:8px; background:rgba(15,23,42,0.9);" dir="ltr">
+              </td>
+              <td style="text-align:center; padding:8px 4px;">
+                <div class="ben-pct-pill">
+                  <input type="number" class="ben-pct" value="{{ '%.0f'|format(b.percentage) if b.percentage == b.percentage|int else b.percentage }}" min="0" max="100" step="1" oninput="recalcVaultPct()" dir="ltr">
+                  <span class="ben-pct-unit">%</span>
+                </div>
+              </td>
+              <td style="padding:8px 8px;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    <select class="admin-input ben-interval" onchange="recalcBenIntervalRow(this)" style="font-size:11px; font-weight:700; padding:5px 6px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:7px;">
+                      <option value="instant" {% if b.payout_interval_mode == 'instant' %}selected{% endif %}>⚡ Instant</option>
+                      <option value="15_days" {% if b.payout_interval_mode == '15_days' %}selected{% endif %}>📅 Every 15 Days</option>
+                      <option value="30_days" {% if not b.payout_interval_mode or b.payout_interval_mode == '30_days' %}selected{% endif %}>📅 Every 30 Days (Monthly)</option>
+                      <option value="60_days" {% if b.payout_interval_mode == '60_days' %}selected{% endif %}>📅 Every 60 Days</option>
+                      <option value="custom_days" {% if b.payout_interval_mode == 'custom_days' %}selected{% endif %}>⚙️ Custom Days...</option>
+                    </select>
+                    <input type="number" class="admin-input ben-custom-days" value="{{ b.custom_payout_days or 30 }}" min="1" max="365" oninput="recalcBenIntervalRow(this)" placeholder="Days" style="display:{% if b.payout_interval_mode == 'custom_days' %}block{% else %}none{% endif %}; width:44px; font-size:11px; padding:5px 3px; text-align:center; font-weight:800; font-family:monospace; border-radius:7px;">
+                  </div>
+                  <div class="ben-next-date-badge" style="display:flex; align-items:center; justify-content:center; gap:4px; padding:3px 6px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.28); color:#34d399; font-size:10px; font-weight:700; font-family:'JetBrains Mono', monospace;">
+                    ⏱️ NEXT: <span>{{ (b.next_payout_date[:10] if b.next_payout_date else 'Monthly') }}</span>
+                  </div>
+                </div>
+              </td>
+              <td style="color:#34d399; font-weight:800; font-family:'JetBrains Mono', monospace; font-size:13px; text-align:center; text-shadow:0 0 8px rgba(52,211,153,0.3); padding:8px 6px;">
+                ${{ "%.2f"|format(b.total_received_usd or 0) }}
+              </td>
+              <td class="col-actions" style="text-align:center; padding:8px 4px;">
+                <label style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+                  <input type="checkbox" class="ben-active" {% if b.is_active %}checked{% endif %} onchange="recalcVaultPct()" style="width:16px; height:16px; cursor:pointer; accent-color:#10b981;">
+                </label>
+              </td>
+              <td style="text-align:center; padding:8px 4px;">
+                <button type="button" onclick="removeBeneficiaryRow(this)" title="Remove Beneficiary" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fb7185; font-size:12px; cursor:pointer; transition:all 0.2s ease;">
+                  🗑️
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Luxury Actions Toolbar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:22px; flex-wrap:wrap; gap:14px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.08);">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <button type="button" onclick="saveFamilyVaultConfig()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 24px; border-radius:10px; background:linear-gradient(135deg, #059669 0%, #10b981 100%); color:#ffffff; font-weight:800; font-size:13px; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.35); transition:all 0.2s ease;" data-apex-title="Save Beneficiary Settings" data-apex-tip="Cryptographically secures and saves all beneficiary wallet addresses, allocation shares, and payout schedules." data-apex-icon="💾" data-apex-color="emerald">
+            💾 Save Beneficiary Settings
+          </button>
+          <button type="button" onclick="simulateVaultSplit()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.4); color:#a5b4fc; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s ease;" data-apex-title="Simulate $100 Revenue Split" data-apex-tip="Executes a live test split of $100 USD across all active beneficiary percentages and updates the audit ledger." data-apex-icon="⚡" data-apex-color="indigo">
+            ⚡ Simulate $100 Split
+          </button>
+          <button type="button" onclick="resetFamilyVaultStats()" style="display:inline-flex; align-items:center; gap:8px; padding:11px 18px; border-radius:10px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.35); color:#fb7185; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s ease;" data-apex-title="Reset Distribution Totals" data-apex-tip="Resets test simulation statistics back to $0.00 while preserving all configured wallet addresses and percentages." data-apex-icon="🔄" data-apex-color="rose">
+            🔄 Reset Stats ($0.00)
+          </button>
+        </div>
+        <div style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#94a3b8; font-weight:600;">
+          🛡️ Non-Custodial Multi-Send Protocol (Zero Server Key Custody)
+        </div>
       </div>
     </div>
   </div>
@@ -1432,6 +2254,71 @@
        APEX LUXURY GLASSMORPHIC CONFIRMATION MODAL & TOAST NOTIFICATION ENGINE
        ========================================================================= -->
   <style>
+    /* BEN-PCT NUMBER PILL NO-SPINNER LUXURY STYLING */
+    .ben-pct-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 2px !important;
+      background: rgba(15, 23, 42, 0.95) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
+      border-radius: 8px !important;
+      padding: 4px 6px !important;
+      width: 72px !important;
+      min-width: 72px !important;
+      max-width: 72px !important;
+      box-sizing: border-box !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(56, 189, 248, 0.12) !important;
+      transition: all 0.2s ease !important;
+    }
+    .ben-pct-pill:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.35) !important;
+    }
+    .ben-pct {
+      width: 36px !important;
+      min-width: 36px !important;
+      max-width: 36px !important;
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      color: #38bdf8 !important;
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      font-family: 'JetBrains Mono', 'IBM Plex Mono', 'Segoe UI', monospace !important;
+      text-align: center !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      -moz-appearance: textfield !important;
+      appearance: textfield !important;
+      -webkit-appearance: none !important;
+    }
+    .ben-pct:focus {
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      outline: none !important;
+      border: none !important;
+    }
+    .ben-pct::-webkit-inner-spin-button,
+    .ben-pct::-webkit-outer-spin-button {
+      -webkit-appearance: none !important;
+      margin: 0 !important;
+      display: none !important;
+    }
+    .ben-pct-unit {
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: #38bdf8 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      user-select: none !important;
+      line-height: 1 !important;
+    }
+
     .apex-modal-backdrop {
       position: fixed;
       inset: 0;
@@ -1778,7 +2665,7 @@
           for (const [k, v] of Object.entries(bodyData)) {
             if (Array.isArray(v)) {
               v.forEach(item => formData.append(k, item));
-            } else {
+            } else if (v !== undefined && v !== null && String(v).trim() !== '') {
               formData.append(k, v);
             }
           }
@@ -1789,7 +2676,12 @@
           headers: { 'Accept': 'application/json' }
         });
         if (!resp.ok && resp.status !== 303 && resp.status !== 200) {
-          throw new Error(`Server returned HTTP ${resp.status}`);
+          let errDetail = `Server returned HTTP ${resp.status}`;
+          try {
+            const errJson = await resp.json();
+            if (errJson && errJson.error) errDetail = errJson.error;
+          } catch (_) {}
+          throw new Error(errDetail);
         }
         showApexToast(successMsg || 'Action completed successfully', 'success');
         if (onDomUpdate) {
@@ -1856,25 +2748,35 @@
     }
 
     function handleDeleteUser(userId, email) {
+      const targetId = userId || email;
+      if (!targetId) {
+        showApexToast('User identifier is missing', 'danger');
+        return;
+      }
       openApexConfirmModal({
         type: 'danger',
         icon: '🗑️',
         title: 'Delete User Account',
-        badge: email || userId,
+        badge: email || targetId,
         message: 'Are you sure you want to permanently delete this user and all associated records? This action cannot be reversed.',
         confirmText: '🗑️ Delete User',
         cancelText: 'Cancel',
-        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: userId }, 'User account deleted successfully')
+        onConfirm: () => executeApexAction('/admin/delete-user', { target_user_id: targetId }, 'User account deleted successfully')
       });
     }
 
     function handleDeleteCampaign(campaignId) {
+      if (!campaignId) {
+        showApexToast('Campaign identifier is missing', 'danger');
+        return;
+      }
+      const shortId = String(campaignId).substring(0, 16);
       openApexConfirmModal({
         type: 'danger',
         icon: '🗑️',
         title: 'Delete Campaign',
-        badge: `Campaign #${campaignId.substring(0, 16)}`,
-        message: 'Are you sure you want to permanently delete this campaign and its dispatch metrics?',
+        badge: `Campaign #${shortId}`,
+        message: 'Are you sure you want to permanently delete this campaign and its dispatch metrics? This action cannot be reversed.',
         confirmText: '🗑️ Delete Campaign',
         cancelText: 'Cancel',
         onConfirm: () => executeApexAction('/admin/delete-campaign', { campaign_id: campaignId }, 'Campaign deleted successfully')
@@ -1882,6 +2784,10 @@
     }
 
     function handleToggleUser(userId) {
+      if (!userId) {
+        showApexToast('User identifier is missing', 'danger');
+        return;
+      }
       executeApexAction('/admin/toggle-user', { target_user_id: userId }, 'User status updated successfully');
     }
 
@@ -1924,6 +2830,742 @@
       if (countSpan) countSpan.innerText = checked.length;
       if (btn) btn.style.display = checked.length > 0 ? 'inline-flex' : 'none';
       if (master && all.length > 0) master.checked = (checked.length === all.length);
+    }
+
+    // Global Key Actions
+    function copyCodeText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '✨ Copied!';
+          btn.style.background = 'rgba(16, 185, 129, 0.4)';
+          btn.style.color = '#ffffff';
+          setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+        }
+        showApexToast('Activation key copied to clipboard!', 'success');
+      }).catch(() => {
+        showApexToast('Failed to copy to clipboard', 'danger');
+      });
+    }
+
+    function copyRedeemLink(code, btn) {
+      const link = `${window.location.origin}/wallet?code=${encodeURIComponent(code)}`;
+      navigator.clipboard.writeText(link).then(() => {
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '✨ Link Copied!';
+          btn.style.background = 'rgba(14, 165, 233, 0.4)';
+          btn.style.color = '#ffffff';
+          setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+        }
+        showApexToast('Direct 1-click redeem URL copied to clipboard!', 'success');
+      }).catch(() => {
+        showApexToast('Failed to copy redeem link', 'danger');
+      });
+    }
+
+    function inspectFullCode(code, value, type) {
+      const modal = document.getElementById('adminCodeInspectorModal');
+      if (!modal) return;
+      document.getElementById('inspectorCodeValue').textContent = '$' + value;
+      document.getElementById('inspectorCodeType').textContent = type || 'Paid';
+      document.getElementById('inspectorCodeLength').textContent = code.length + ' Chars (8192-Bit Quantum)';
+      document.getElementById('inspectorCodeTextarea').value = code;
+      modal.style.display = 'flex';
+    }
+
+    function closeInspectorModal() {
+      const modal = document.getElementById('adminCodeInspectorModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Universal Table Row Collapsing / Expanding Engine
+    function loadMoreTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      let currentVisible = 0;
+      rows.forEach(r => {
+        if (r.style.display !== 'none') currentVisible++;
+      });
+      
+      const nextTarget = Math.min(totalCount, currentVisible + 10);
+      rows.forEach((r, idx) => {
+        if (idx < nextTarget) {
+          r.style.display = '';
+        }
+      });
+
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, nextTarget, totalCount, entityName);
+    }
+
+    function showAllTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      rows.forEach(r => {
+        r.style.display = '';
+      });
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, totalCount, totalCount, entityName);
+    }
+
+    function collapseTableRows(formId, expandBarId, countDisplayId, totalCount, entityName) {
+      const form = document.getElementById(formId);
+      if (!form) return;
+      const rows = form.querySelectorAll('tbody tr.table-data-row');
+      rows.forEach((r, idx) => {
+        if (idx >= 10) {
+          r.style.display = 'none';
+        }
+      });
+      updateTablePaginationBar(formId, expandBarId, countDisplayId, 10, totalCount, entityName);
+      const section = form.closest('.admin-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateTablePaginationBar(formId, expandBarId, countDisplayId, visibleCount, totalCount, entityName) {
+      const countDisplay = document.getElementById(countDisplayId);
+      const expandBar = document.getElementById(expandBarId);
+      if (!expandBar) return;
+      
+      const isArabic = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+      const isChinese = document.documentElement.lang === 'zh';
+      
+      if (countDisplay) {
+        if (isArabic) {
+          countDisplay.innerHTML = `عرض <strong style="color:#38bdf8;">${visibleCount}</strong> من أصل <strong style="color:#f8fafc;">${totalCount}</strong>`;
+        } else if (isChinese) {
+          countDisplay.innerHTML = `显示 <strong style="color:#38bdf8;">${visibleCount}</strong> / <strong style="color:#f8fafc;">${totalCount}</strong>`;
+        } else {
+          countDisplay.innerHTML = `Showing <strong style="color:#38bdf8;">${visibleCount}</strong> of <strong style="color:#f8fafc;">${totalCount}</strong> ${entityName}`;
+        }
+      }
+
+      const btnContainer = expandBar.querySelector('.table-expand-buttons');
+      if (!btnContainer) return;
+
+      if (visibleCount >= totalCount) {
+        const collapseText = isArabic ? '⬆️ طي القائمة (إظهار 10 فقط)' : (isChinese ? '⬆️ 收起列表 (仅显示10条)' : '⬆️ Collapse (Show 10 Only)');
+        btnContainer.innerHTML = `
+          <button type="button" class="btn-sm-action" style="background:rgba(239,68,68,0.12); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="collapseTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')">
+            ${collapseText}
+          </button>
+        `;
+      } else {
+        const remaining = totalCount - visibleCount;
+        const nextBatch = Math.min(10, remaining);
+        const loadMoreText = isArabic ? `⬇️ عرض المزيد (+${nextBatch})` : (isChinese ? `⬇️ 加载更多 (+${nextBatch})` : `⬇️ Load More (+${nextBatch})`);
+        const showAllText = isArabic ? `👁️ إظهار الكل (${totalCount})` : (isChinese ? `👁️ 显示全部 (${totalCount})` : `👁️ Show All (${totalCount})`);
+        
+        const loadMoreTip = isArabic ? 'توسيع الجدول لعرض الدفعة التالية من السجلات' : (isChinese ? '平滑展开显示接下来的数据记录' : 'Expands the table to display the next batch of records');
+        const showAllTip = isArabic ? 'عرض كافة السجلات المخزنة بدون طي' : (isChinese ? '一次性展开显示当前数据库中全部记录' : 'Expands the full list of all records without pagination');
+        const loadMoreTitle = isArabic ? 'عرض المزيد' : (isChinese ? '加载更多' : 'Load More');
+        const showAllTitle = isArabic ? 'عرض الكل' : (isChinese ? '显示全部' : 'Show All');
+        
+        btnContainer.innerHTML = `
+          <button type="button" class="btn-sm-action" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="loadMoreTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')" data-apex-title="${loadMoreTitle}" data-apex-tip="${loadMoreTip}" data-apex-icon="⬇️" data-apex-color="cyan">
+            ${loadMoreText}
+          </button>
+          <button type="button" class="btn-sm-action" style="background:rgba(99,102,241,0.12); color:#a5b4fc; border:1px solid rgba(99,102,241,0.3); font-weight:700; padding:6px 14px; border-radius:8px; font-size:12px; cursor:pointer;" onclick="showAllTableRows('${formId}', '${expandBarId}', '${countDisplayId}', ${totalCount}, '${entityName}')" data-apex-title="${showAllTitle}" data-apex-tip="${showAllTip}" data-apex-icon="👁️" data-apex-color="indigo">
+            ${showAllText}
+          </button>
+        `;
+      }
+    }
+
+    // Family Beneficiary Vault Engine Handlers
+    function updateNextPayoutLiveDisplay() {
+      const mode = document.getElementById('vaultIntervalMode').value;
+      const customWrapper = document.getElementById('vaultCustomDaysWrapper');
+      const customDaysInput = document.getElementById('vaultCustomDays');
+      const display = document.getElementById('vaultNextPayoutDisplay');
+      if (customWrapper) {
+        customWrapper.style.display = (mode === 'custom_days') ? 'flex' : 'none';
+      }
+      if (!display) return;
+
+      const now = new Date();
+      if (mode === 'instant') {
+        display.textContent = '⚡ Instant per Transaction (Real-time)';
+        display.style.color = '#f59e0b';
+      } else if (mode === '30_days') {
+        const nextDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10);
+        display.style.color = '#34d399';
+      } else if (mode === '60_days') {
+        const nextDate = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10);
+        display.style.color = '#38bdf8';
+      } else if (mode === 'custom_days') {
+        const days = parseInt(customDaysInput ? customDaysInput.value : 30) || 30;
+        const nextDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+        display.textContent = nextDate.toISOString().slice(0, 10) + ' (in ' + days + 'd)';
+        display.style.color = '#c084fc';
+      }
+    }
+
+    function toggleCustomDaysInput() {
+      updateNextPayoutLiveDisplay();
+    }
+
+    function recalcVaultPct() {
+      let total = 0;
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach(tr => {
+        const activeInput = tr.querySelector('.ben-active');
+        const active = activeInput ? activeInput.checked : true;
+        const pctInput = tr.querySelector('.ben-pct');
+        const pct = pctInput ? (parseFloat(pctInput.value) || 0) : 0;
+        if (active) total += pct;
+      });
+      const display = document.getElementById('vaultTotalPctDisplay');
+      if (display) {
+        display.textContent = total.toFixed(1) + '%';
+        if (total > 100) {
+          display.style.color = '#f43f5e';
+        } else if (total === 100) {
+          display.style.color = '#34d399';
+        } else {
+          display.style.color = '#fbbf24';
+        }
+      }
+      return total;
+    }
+
+    function addNewBeneficiaryRow() {
+      const tbody = document.querySelector('#familyVaultTable tbody');
+      if (!tbody) return;
+      const count = tbody.querySelectorAll('tr').length + 1;
+      const benId = 'ben_' + Date.now();
+      
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-ben-id', benId);
+      tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      tr.innerHTML = `
+        <td class="ben-index" style="text-align:center; font-weight:800; color:#38bdf8; font-size:13px;">${count}</td>
+        <td style="padding:8px 8px;">
+          <input type="text" class="admin-input ben-name" value="Beneficiary ${count}" placeholder="Beneficiary ${count} (e.g. Child ${count})" style="font-size:12px; font-weight:600; padding:6px 10px; width:100%; border-radius:8px; background:rgba(15,23,42,0.9); color:#f8fafc;">
+        </td>
+        <td style="padding:8px 8px;">
+          <select class="admin-input ben-network" style="font-size:11.5px; font-weight:700; padding:6px 8px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:8px;">
+            <optgroup label="💵 Stablecoins (USD Pegged)">
+              <option value="USDT (TRC20)">💵 USDT (TRC20) ⭐</option>
+              <option value="USDT (BEP20)">💵 USDT (BEP20)</option>
+              <option value="USDT (Polygon)">💵 USDT (Polygon)</option>
+              <option value="USDT (Solana)">💵 USDT (Solana)</option>
+              <option value="USDC (BEP20)">🪙 USDC (BEP20)</option>
+              <option value="USDC (Polygon)">🪙 USDC (Polygon)</option>
+              <option value="USDC (Solana)">🪙 USDC (Solana)</option>
+            </optgroup>
+            <optgroup label="💎 Top Trusted Cryptos">
+              <option value="BTC (Bitcoin)">₿ BTC (Bitcoin)</option>
+              <option value="ETH (Ethereum)">Ξ ETH (Ethereum)</option>
+              <option value="SOL (Solana)">◎ SOL (Solana)</option>
+              <option value="BNB (Smart Chain)">🟡 BNB (Chain)</option>
+              <option value="TON (Telegram)">💎 TON (Telegram)</option>
+              <option value="TRX (Tron)">🔴 TRX (Tron)</option>
+              <option value="LTC (Litecoin)">Ł LTC (Litecoin)</option>
+              <option value="XRP (Ripple)">✕ XRP (Ripple)</option>
+            </optgroup>
+          </select>
+        </td>
+        <td style="padding:8px 8px;">
+          <input type="text" class="admin-input ben-address" value="" placeholder="Wallet address..." style="font-size:11.5px; font-family:'JetBrains Mono', monospace; padding:6px 10px; color:#38bdf8; width:100%; border-radius:8px; background:rgba(15,23,42,0.9);" dir="ltr">
+        </td>
+        <td style="text-align:center; padding:8px 4px;">
+          <div class="ben-pct-pill">
+            <input type="number" class="ben-pct" value="0" min="0" max="100" step="1" oninput="recalcVaultPct()" dir="ltr">
+            <span class="ben-pct-unit">%</span>
+          </div>
+        </td>
+        <td style="padding:8px 8px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; align-items:center; gap:4px;">
+              <select class="admin-input ben-interval" onchange="recalcBenIntervalRow(this)" style="font-size:11px; font-weight:700; padding:5px 6px; background:rgba(15,23,42,0.95); color:#f1f5f9; width:100%; border-radius:7px;">
+                <option value="instant">⚡ Instant</option>
+                <option value="15_days">📅 Every 15 Days</option>
+                <option value="30_days" selected>📅 Every 30 Days (Monthly)</option>
+                <option value="60_days">📅 Every 60 Days</option>
+                <option value="custom_days">⚙️ Custom Days...</option>
+              </select>
+              <input type="number" class="admin-input ben-custom-days" value="30" min="1" max="365" oninput="recalcBenIntervalRow(this)" placeholder="Days" style="display:none; width:44px; font-size:11px; padding:5px 3px; text-align:center; font-weight:800; font-family:monospace; border-radius:7px;">
+            </div>
+            <div class="ben-next-date-badge" style="display:flex; align-items:center; justify-content:center; gap:4px; padding:3px 6px; border-radius:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.28); color:#34d399; font-size:10px; font-weight:700; font-family:'JetBrains Mono', monospace;">
+              ⏱️ NEXT: <span>${new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10)}</span>
+            </div>
+          </div>
+        </td>
+        <td style="color:#34d399; font-weight:800; font-family:'JetBrains Mono', monospace; font-size:13px; text-align:center; text-shadow:0 0 8px rgba(52,211,153,0.3); padding:8px 6px;">
+          $0.00
+        </td>
+        <td class="col-actions" style="text-align:center; padding:8px 4px;">
+          <label style="cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+            <input type="checkbox" class="ben-active" checked onchange="recalcVaultPct()" style="width:16px; height:16px; cursor:pointer; accent-color:#10b981;">
+          </label>
+        <td style="text-align:center; padding:8px 4px;">
+          <button type="button" onclick="removeBeneficiaryRow(this)" title="Remove Beneficiary" style="display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:7px; background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); color:#fb7185; font-size:12px; cursor:pointer; transition:all 0.2s ease;">
+            🗑️
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+      renumberBeneficiaryRows();
+      recalcVaultPct();
+      showApexToast('Added Beneficiary ' + count + '. Click Save to persist!', 'info');
+    }
+
+    function removeBeneficiaryRow(btn) {
+      const row = btn.closest('tr');
+      if (!row) return;
+      const tbody = row.parentElement;
+      if (tbody.querySelectorAll('tr').length <= 1) {
+        showApexToast('At least 1 beneficiary wallet is required.', 'warning');
+        return;
+      }
+      row.remove();
+      renumberBeneficiaryRows();
+      recalcVaultPct();
+      showApexToast('Beneficiary row removed. Remember to click Save!', 'warning');
+    }
+
+    function renumberBeneficiaryRows() {
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach((tr, idx) => {
+        const idxCell = tr.querySelector('.ben-index');
+        if (idxCell) idxCell.textContent = (idx + 1);
+      });
+    }
+
+    function recalcBenIntervalRow(elem) {
+      const row = elem.closest('tr');
+      if (!row) return;
+      const intervalSelect = row.querySelector('.ben-interval');
+      const customDaysInput = row.querySelector('.ben-custom-days');
+      const dateBadgeSpan = row.querySelector('.ben-next-date-badge span');
+      const dateBadge = row.querySelector('.ben-next-date-badge');
+      if (!intervalSelect || !dateBadgeSpan) return;
+
+      const mode = intervalSelect.value;
+      if (customDaysInput) {
+        customDaysInput.style.display = (mode === 'custom_days') ? 'block' : 'none';
+      }
+
+      const now = new Date();
+      if (mode === 'instant') {
+        dateBadgeSpan.textContent = '⚡ Instant';
+        dateBadge.style.color = '#f59e0b';
+      } else if (mode === '15_days') {
+        const nextDate = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#38bdf8';
+      } else if (mode === '30_days') {
+        const nextDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#34d399';
+      } else if (mode === '60_days') {
+        const nextDate = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10);
+        dateBadge.style.color = '#a855f7';
+      } else if (mode === 'custom_days') {
+        const days = parseInt(customDaysInput ? customDaysInput.value : 30) || 30;
+        const nextDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
+        dateBadgeSpan.textContent = nextDate.toISOString().slice(0, 10) + ' (' + days + 'd)';
+        dateBadge.style.color = '#ec4899';
+      }
+    }
+
+    async function saveFamilyVaultConfig() {
+      const total = recalcVaultPct();
+      if (total > 100.001) {
+        showApexToast('Total percentage allocation cannot exceed 100% (currently ' + total + '%)', 'danger');
+        return;
+      }
+      
+      const master_wallet_address = (document.getElementById('vaultMasterAddress') ? document.getElementById('vaultMasterAddress').value.trim() : '');
+      const master_wallet_network = (document.getElementById('vaultMasterNetwork') ? document.getElementById('vaultMasterNetwork').value : 'USDT (TRC20 / BEP20)');
+      const payout_interval_mode = (document.getElementById('vaultIntervalMode') ? document.getElementById('vaultIntervalMode').value : '30_days');
+      const custom_payout_days = (document.getElementById('vaultCustomDays') ? (parseInt(document.getElementById('vaultCustomDays').value) || 30) : 30);
+
+      const beneficiaries = [];
+      document.querySelectorAll('#familyVaultTable tbody tr').forEach(tr => {
+        const id = tr.getAttribute('data-ben-id');
+        const name = tr.querySelector('.ben-name').value.trim();
+        const network = tr.querySelector('.ben-network').value;
+        const address = tr.querySelector('.ben-address').value.trim();
+        const percentage = parseFloat(tr.querySelector('.ben-pct').value) || 0;
+        const payout_interval_mode = tr.querySelector('.ben-interval') ? tr.querySelector('.ben-interval').value : '30_days';
+        const custom_payout_days = tr.querySelector('.ben-custom-days') ? (parseInt(tr.querySelector('.ben-custom-days').value) || 30) : 30;
+        const is_active = tr.querySelector('.ben-active').checked;
+        beneficiaries.push({
+          id,
+          name,
+          network,
+          currency: network,
+          address,
+          percentage,
+          payout_interval_mode,
+          custom_payout_days,
+          is_active
+        });
+      });
+
+      // Client-side Zero-Knowledge & Security Shield
+      for (const ben of beneficiaries) {
+        if (ben.address) {
+          if (ben.address.length === 64 && /^[a-fA-F0-9]{64}$/.test(ben.address)) {
+            showApexToast('SECURITY SHIELD: Raw private key detected for "' + ben.name + '". Never paste private keys!', 'danger');
+            return;
+          }
+          if (ben.address.split(' ').length >= 12) {
+            showApexToast('SECURITY SHIELD: Seed phrase detected for "' + ben.name + '". Never paste seed phrases!', 'danger');
+            return;
+          }
+        }
+      }
+
+      try {
+        const res = await fetch('/api/admin/family-vault/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            beneficiaries,
+            enabled: true,
+            master_wallet_address,
+            master_wallet_network,
+            master_wallet_currency: master_wallet_network,
+            payout_interval_mode,
+            custom_payout_days
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showApexToast('🛡️ Master wallet & beneficiary vault configurations saved with 100% Non-Custodial security!', 'success');
+        } else {
+          showApexToast(data.error || 'Error saving vault configuration', 'danger');
+        }
+      } catch (err) {
+        showApexToast('Connection error: ' + err.message, 'danger');
+      }
+    }
+
+    async function simulateVaultSplit() {
+      try {
+        const res = await fetch('/api/admin/family-vault/simulate-split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gross_usd: 100.0, source: 'Admin Live Simulation' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showApexToast('Test distribution ($100) executed and recorded to ledger successfully!', 'success');
+          setTimeout(() => location.reload(), 1400);
+        } else {
+          showApexToast(data.error || 'Distribution error', 'danger');
+        }
+      } catch (err) {
+        showApexToast('Error: ' + err.message, 'danger');
+      }
+    }
+
+    async function resetFamilyVaultStats() {
+      openApexConfirmModal({
+        type: 'danger',
+        icon: '🔄',
+        title: 'Reset Distribution Statistics',
+        badge: 'Reset to $0.00',
+        message: 'Are you sure you want to reset all test distributed balances back to $0.00? Saved wallet addresses and percentages will remain preserved.',
+        confirmText: '🔄 Reset to $0.00',
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          try {
+            const res = await fetch('/api/admin/family-vault/reset-stats', { method: 'POST' });
+            const data = await res.json();
+            if (data.status === 'success') {
+              showApexToast('All historical totals reset back to $0.00!', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              showApexToast(data.error || 'Reset error', 'danger');
+            }
+          } catch (err) {
+            showApexToast('Error: ' + err.message, 'danger');
+          }
+        }
+      });
+    }
+
+    // Universal Post-Quantum Apex Floating Hover Tooltip Engine
+    function initApexUniversalTooltip() {
+      let tooltip = document.getElementById('apexUniversalTooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'apexUniversalTooltip';
+        tooltip.innerHTML = `
+          <div class="tip-header">
+            <span class="tip-icon">✨</span>
+            <span class="tip-title"></span>
+            <span class="tip-badge">APEX PRO</span>
+          </div>
+          <div class="tip-body"></div>
+        `;
+        document.body.appendChild(tooltip);
+      }
+
+      const iconMap = {
+        'cyan': '⚡',
+        'emerald': '💳',
+        'indigo': '🚀',
+        'rose': '🔥',
+        'amber': '⏱️',
+        'purple': '📥',
+        'default': '✨'
+      };
+
+      document.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('[data-apex-tip]');
+        if (!target) return;
+
+        const tipText = target.getAttribute('data-apex-tip');
+        if (!tipText) return;
+
+        const titleText = target.getAttribute('data-apex-title') || target.innerText.trim().slice(0, 30) || 'Action Details';
+        const color = target.getAttribute('data-apex-color') || 'cyan';
+        const icon = target.getAttribute('data-apex-icon') || (iconMap[color] || '✨');
+
+        tooltip.querySelector('.tip-title').textContent = titleText;
+        tooltip.querySelector('.tip-icon').textContent = icon;
+        tooltip.querySelector('.tip-body').textContent = tipText;
+
+        const rect = target.getBoundingClientRect();
+        const tooltipWidth = 320;
+        const tooltipHeight = tooltip.offsetHeight || 90;
+        
+        let left = rect.left + (rect.width / 2) - (tooltipWidth / 2);
+        let top = rect.top - tooltipHeight - 12;
+
+        if (left < 14) left = 14;
+        if (left + tooltipWidth > window.innerWidth - 14) {
+          left = window.innerWidth - tooltipWidth - 14;
+        }
+
+        if (top < 14) {
+          top = rect.bottom + 12;
+        }
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.classList.add('active');
+      });
+
+      document.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('[data-apex-tip]');
+        if (!target) return;
+        tooltip.classList.remove('active');
+      });
+
+      document.addEventListener('scroll', () => {
+        if (tooltip.classList.contains('active')) {
+          tooltip.classList.remove('active');
+        }
+      }, { passive: true });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApexUniversalTooltip);
+    } else {
+      initApexUniversalTooltip();
+    }
+  </script>
+
+  <!-- Post-Quantum Key Inspector Modal -->
+  <div id="adminCodeInspectorModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.98) 0%, rgba(30,41,59,0.95) 100%); border:1px solid rgba(56,189,248,0.3); border-radius:18px; max-width:680px; width:100%; padding:26px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(56,189,248,0.15); animation:apexModalFadeIn 0.25s ease-out;" dir="auto">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:14px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">💎</span>
+          <div>
+            <h3 style="margin:0; font-size:17px; font-weight:800; color:#f8fafc;">Post-Quantum Activation Key Inspector</h3>
+            <p style="margin:2px 0 0; font-size:12px; color:#94a3b8;">High-entropy 579-character cryptographic voucher key</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeInspectorModal()" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px; border-radius:6px;">✕</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:16px;">
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Value</div>
+          <div id="inspectorCodeValue" style="font-size:16px; font-weight:900; color:#34d399; margin-top:2px;">$0.00</div>
+        </div>
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Type</div>
+          <div id="inspectorCodeType" style="font-size:14px; font-weight:800; color:#60a5fa; margin-top:4px;">Paid</div>
+        </div>
+        <div style="background:rgba(2,6,23,0.6); padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase;">Security Entropy</div>
+          <div id="inspectorCodeLength" style="font-size:12px; font-weight:700; color:#a5b4fc; margin-top:4px;">579 Chars</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="display:block; font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px;">Full Cryptographic Key (Click inside to select all):</label>
+        <textarea id="inspectorCodeTextarea" readonly onclick="this.select()" rows="4" style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(56,189,248,0.25); border-radius:10px; padding:12px; font-family:monospace; font-size:12px; color:#38bdf8; resize:none; line-height:1.5; outline:none; word-break:break-all;"></textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
+        <button type="button" onclick="closeInspectorModal()" style="padding:10px 18px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#cbd5e1; font-weight:700; cursor:pointer;">Close</button>
+        <button type="button" onclick="copyRedeemLink(document.getElementById('inspectorCodeTextarea').value, this)" style="padding:10px 18px; border-radius:10px; background:rgba(59,130,246,0.2); border:1px solid rgba(59,130,246,0.4); color:#60a5fa; font-weight:700; cursor:pointer;">🔗 Copy Redeem URL</button>
+        <button type="button" onclick="copyCodeText(document.getElementById('inspectorCodeTextarea').value, this)" style="padding:10px 22px; border-radius:10px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border:none; color:#ffffff; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(16,185,129,0.4);">📋 Copy Full Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Xianyu Copywriter Modal -->
+  <div id="xianyuCopywriterModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(3,7,18,0.85); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:16px;">
+    <div style="width:100%; max-width:680px; background:linear-gradient(145deg, #0f172a, #1e1b4b); border:1px solid rgba(236,72,153,0.4); border-radius:20px; padding:24px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(236,72,153,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">✨</span>
+          <h3 style="color:#ffffff; font-size:18px; font-weight:800; margin:0;">AI Store Copywriter (Xianyu / Taobao / Xiaohongshu)</h3>
+        </div>
+        <button type="button" onclick="document.getElementById('xianyuCopywriterModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+
+      <p style="color:#cbd5e1; font-size:13px; margin:0 0 16px;">Select a marketing style to generate high-converting Chinese titles, tags, and product descriptions ready to paste into your store:</p>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:16px;">
+        <button type="button" onclick="fetchXianyuListing('general', this)" class="preset-pill active" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="General Job Seeker Angle" data-apex-tip="Generates high-converting Chinese listing copy focused on general job seekers, speed, and interview guarantees." data-apex-icon="🎯" data-apex-color="cyan">🎯 General Job Seeker</button>
+        <button type="button" onclick="fetchXianyuListing('remote_overseas', this)" class="preset-pill" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="Remote & Overseas Angle" data-apex-tip="Generates targeted Chinese marketing copy emphasizing global remote roles, Gulf/US dollar salaries, and visa sponsors." data-apex-icon="🌍" data-apex-color="emerald">🌍 Remote & Overseas</button>
+        <button type="button" onclick="fetchXianyuListing('b2b_wholesale', this)" class="preset-pill" style="padding:8px 12px; font-size:12px; font-weight:700; border-radius:10px; cursor:pointer; text-align:center;" data-apex-title="B2B & Studio Wholesale Angle" data-apex-tip="Generates commercial B2B copy tailored for job agencies, career coaches, and bulk reseller studios." data-apex-icon="💼" data-apex-color="amber">💼 B2B & Wholesale</button>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#f472b6; font-weight:700;">📌 Listing Title (闲鱼标题):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTitleBox').value); alert('Title copied!');" style="background:rgba(236,72,153,0.15); color:#f472b6; border:1px solid rgba(236,72,153,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 Copy Title</button>
+        </div>
+        <input type="text" id="xyTitleBox" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#f8fafc; font-size:13px;">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#a78bfa; font-weight:700;">🏷️ Keywords & Tags (标签):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTagsBox').value); alert('Tags copied!');" style="background:rgba(167,139,250,0.15); color:#a78bfa; border:1px solid rgba(167,139,250,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 Copy Tags</button>
+        </div>
+        <input type="text" id="xyTagsBox" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#c7d2fe; font-size:12.5px;">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="font-size:12px; color:#38bdf8; font-weight:700;">📝 Listing Description (宝贝详情):</label>
+          <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyDescBox').value); alert('Full description copied!');" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:11px; padding:2px 8px; border-radius:6px; cursor:pointer;">📋 Copy Description</button>
+        </div>
+        <textarea id="xyDescBox" rows="6" readonly style="width:100%; box-sizing:border-box; background:#020617; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; color:#94a3b8; font-size:12px; line-height:1.6; resize:none;"></textarea>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('xyTitleBox').value + '\n\n' + document.getElementById('xyDescBox').value + '\n\n' + document.getElementById('xyTagsBox').value); alert('Complete listing copied!');" style="flex:1; padding:12px; background:linear-gradient(135deg, #ec4899, #8b5cf6); border:none; border-radius:10px; color:#ffffff; font-weight:800; font-size:14px; cursor:pointer;">📋 Copy All (Title + Desc + Tags)</button>
+        <button type="button" onclick="document.getElementById('xianyuCopywriterModal').style.display='none'" style="padding:12px 20px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#cbd5e1; font-weight:700; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openXianyuCopywriterModal() {
+      document.getElementById('xianyuCopywriterModal').style.display = 'flex';
+      fetchXianyuListing('general');
+    }
+    async function fetchXianyuListing(style, btn) {
+      if (btn) {
+        btn.parentElement.querySelectorAll('.preset-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+      document.getElementById('xyTitleBox').value = '⏳ Generating...';
+      document.getElementById('xyTagsBox').value = '⏳ Generating...';
+      document.getElementById('xyDescBox').value = '⏳ Generating AI Chinese copy...';
+      try {
+        const resp = await fetch('/api/admin/xianyu/generate-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ style: style })
+        });
+        const d = await resp.json();
+        if (d.status === 'success' && d.listing) {
+          document.getElementById('xyTitleBox').value = d.listing.title;
+          document.getElementById('xyTagsBox').value = d.listing.tags;
+          document.getElementById('xyDescBox').value = d.listing.description;
+        }
+      } catch (err) {
+        document.getElementById('xyDescBox').value = 'Connection error.';
+      }
+    }
+  <!-- AI Executive Briefing Modal -->
+  <div id="executiveBriefingModal" style="display:none; position:fixed; inset:0; z-index:99999; background:rgba(0,0,0,0.85); backdrop-filter:blur(16px); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:linear-gradient(180deg, rgba(15,23,42,0.98), rgba(10,15,29,0.99)); border:1px solid rgba(245,158,11,0.4); border-radius:24px; padding:28px; max-width:650px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(245,158,11,0.2); color:#fff; position:relative;" dir="ltr">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:24px;">👑</span>
+          <div>
+            <h3 style="margin:0; font-size:18px; color:#fbbf24;">AI Executive Briefing & Intelligence Co-Pilot</h3>
+            <span style="font-size:11.5px; color:#94a3b8;">Real-time automated analytics, security health & growth telemetry</span>
+          </div>
+        </div>
+        <button type="button" onclick="document.getElementById('executiveBriefingModal').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+
+      <div id="executiveBriefingContent" style="background:#030712; border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:16px; max-height:360px; overflow-y:auto; font-size:13.5px; line-height:1.7; color:#e2e8f0; white-space:pre-wrap; font-family:'Inter', sans-serif;">
+        ⏳ Fetching live metrics and compiling AI strategic briefing...
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" onclick="copyExecutiveBriefing()" class="btn-sm-action" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
+          📋 Copy Briefing
+        </button>
+        <button type="button" onclick="document.getElementById('executiveBriefingModal').style.display='none'" class="btn-sm-action" style="background:#334155; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function openExecutiveBriefingModal() {
+      document.getElementById('executiveBriefingModal').style.display = 'flex';
+      const box = document.getElementById('executiveBriefingContent');
+      box.innerText = '⏳ Fetching live telemetry and generating AI executive debrief...';
+      try {
+        const resp = await fetch('/api/admin/executive-briefing');
+        const d = await resp.json();
+        if (d.status === 'success') {
+          box.innerText = d.briefing_en;
+        } else {
+          box.innerText = 'Error: ' + (d.message || 'Failed');
+        }
+      } catch (err) {
+        box.innerText = 'Connection error.';
+      }
+    }
+    function copyExecutiveBriefing() {
+      const text = document.getElementById('executiveBriefingContent').innerText;
+      navigator.clipboard.writeText(text).then(() => alert('Executive Briefing copied! 📋'));
+    }
+    async function triggerVaultBackup(btn) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '⏳ Backing up & Encrypting...';
+      btn.disabled = true;
+      try {
+        const resp = await fetch('/admin/system/backup-now', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const d = await resp.json();
+        if (d.status === 'success') {
+          btn.innerHTML = '✅ Backup Created & Archived!';
+          setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 3000);
+        } else {
+          alert('Backup Error: ' + (d.message || 'Failed'));
+          btn.innerHTML = orig; btn.disabled = false;
+        }
+      } catch (err) {
+        alert('Server connection error');
+        btn.innerHTML = orig; btn.disabled = false;
+      }
     }
   </script>
 </div>

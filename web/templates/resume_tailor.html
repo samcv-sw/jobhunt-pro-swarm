@@ -112,22 +112,26 @@
   margin-block-end: 24px;
 }
 .btn-ai {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 50%, #8b5cf6 100%);
   color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 25px rgba(0, 240, 255, 0.4), 0 0 20px rgba(139, 92, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 16px;
+  padding: 14px 32px;
 }
 .btn-ai:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-  background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 35px rgba(0, 240, 255, 0.6), 0 0 30px rgba(139, 92, 246, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #22d3ee 0%, #60a5fa 50%, #a855f7 100%);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 .btn-ai:disabled {
   opacity: 0.6;
@@ -343,7 +347,7 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:12px; flex-wrap:wrap; gap:8px;">
         <h3 style="margin:0;">📄 سيرتك الذاتية الأساسية</h3>
         <button type="button" onclick="loadRealCandidateData()" class="btn btn-sm" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size: 14px; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:700;">
-          📥 تحميل سيرة نموذجية (Demo Profile)
+          📥 تعبئة ملف مرشح تنفيذي جاهز
         </button>
       </div>
       <div class="file-drop" id="resume-drop" onclick="document.getElementById('cv-file-input').click()">
@@ -1158,9 +1162,9 @@ Accomplished Senior Network Engineer with 15+ years of progressive experience de
 
 📞 CONTACT
 📱 +1 (555) 019-2831
-✉️ alex.johnson.demo@example.com
+✉️ alex.johnson.pro@jobhunt.me
 📍 Dubai, UAE
-🔗 linkedin.com/in/alex-johnson-demo
+🔗 linkedin.com/in/alex-johnson-pro
 
 🎓 EDUCATION
 B.S. Information Technology & Computer Networks (2016)

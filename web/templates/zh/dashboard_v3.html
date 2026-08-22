@@ -130,8 +130,8 @@
 <div class="space-y-6">
 
   <!-- HERO WELCOME -->
-  <div class="glass-panel relative overflow-hidden p-8 reveal">
-    <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px]"></div>
+  <div class="glass-panel relative overflow-visible z-30 p-8 reveal">
+    <div class="absolute inset-0 bg-grid-white/[0.02] bg-[size:30px_30px] rounded-3xl pointer-events-none"></div>
     <div class="relative z-10 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
       <div class="max-w-2xl">
         <div class="flex items-center gap-2 mb-2">
@@ -150,33 +150,139 @@
       </div>
       <div class="flex items-center gap-3 flex-wrap">
         {% if 'microsoft' in (user.get('oauth_provider') or '') %}
-          <div class="flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow">
-            <i data-lucide="mail" class="h-4 w-4"></i> Microsoft Connected
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-blue-500/40 bg-gradient-to-r from-indigo-500/20 to-blue-500/20 px-4 py-2 text-sm font-semibold text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="mail" class="h-4 w-4"></i> 微软账号已连接
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-blue-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-blue-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-blue-400"></i>
+                <span>企业 OAuth 认证通道</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                通过微软 OAuth 协议授权，高信誉发信通道，确保邮件无垃圾拦截直接进箱。
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-blue-500/80 rotate-45"></div>
+            </div>
           </div>
         {% elif 'google' in (user.get('oauth_provider') or '') %}
-          <div class="flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow">
-            <i data-lucide="mail" class="h-4 w-4"></i> Google Connected
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-emerald-500/40 bg-gradient-to-r from-indigo-500/20 to-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="mail" class="h-4 w-4"></i> 谷歌账号已连接
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                <span>谷歌 OAuth 官方通道</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                通过 Google OAuth 授权直连，申请自动精准投递至 HR 核心收件箱。
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+            </div>
           </div>
         {% else %}
-          <div class="flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow">
-            <i data-lucide="star" class="h-4 w-4"></i> Premium Services Active
+          <div class="relative group inline-block z-20 hover:z-50">
+            <div class="flex items-center gap-2 rounded-full border border-pink-500/40 bg-gradient-to-r from-indigo-500/20 to-pink-500/20 px-4 py-2 text-sm font-semibold text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse-slow cursor-help">
+              <i data-lucide="star" class="h-4 w-4"></i> 高级服务已激活
+            </div>
+            <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-pink-500/80 text-start" dir="auto">
+              <div class="flex items-center gap-2 text-pink-400 font-extrabold text-xs sm:text-sm mb-1.5">
+                <i data-lucide="crown" class="w-4 h-4 text-pink-400"></i>
+                <span>高容量发信池</span>
+              </div>
+              <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+                通过企业级高信誉轮换发信账户池进行智能分流与极速安全投递。
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-pink-500/80 rotate-45"></div>
+            </div>
           </div>
         {% endif %}
-        <a href="/new-campaign" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-400/70 bg-gradient-to-r from-emerald-600/50 via-teal-600/50 to-emerald-500/50 text-emerald-100 font-extrabold text-xs shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all hover:bg-emerald-600/70 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]" title="Launch New AI Application Campaign">
-          <span>🚀 Launch New Campaign</span>
-        </a>
-        <button class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-300 font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-500/35 hover:scale-105" onclick="openTestEmailModal()" title="Test live email dispatch to your inbox">
-          <span>📧 Send Test Email ($1.00)</span>
-        </button>
-        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-400/60 bg-gradient-to-r from-indigo-600/40 via-purple-600/40 to-cyan-500/40 text-indigo-200 font-extrabold text-xs shadow-[0_0_18px_rgba(99,102,241,0.4)] transition-all hover:bg-indigo-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(99,102,241,0.65)]" onclick="document.getElementById('jobSeekerGuideModal').showModal()" title="Job Seeker Quick Start Guide - 5 Easy Steps to Automate Applications">
-          <span class="animate-pulse">🚀</span> <span>Job Seeker Quick Start Guide</span>
-        </button>
-        <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400/60 bg-gradient-to-r from-amber-600/40 via-orange-600/40 to-yellow-500/40 text-amber-200 font-extrabold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all hover:bg-amber-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,158,11,0.65)]" onclick="document.getElementById('employerGuideModal').showModal()" title="Employer Quick Start Guide - Post Jobs & Track Candidates">
-          <span class="animate-pulse">🏢</span> <span>Employer Quick Start Guide</span>
-        </button>
-        <button onclick="document.getElementById('shortcutModal').showModal()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-slate-800/80 text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all hover:bg-cyan-500/20 hover:scale-105" title="Keyboard shortcuts">
-          <span style="font-size:18px;line-height:1;display:inline-block;">⌨️</span>
-        </button>
+
+        <!-- Launch New Campaign -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <a href="/new-campaign" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-400/70 bg-gradient-to-r from-emerald-600/50 via-teal-600/50 to-emerald-500/50 text-emerald-100 font-extrabold text-xs shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all hover:bg-emerald-600/70 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.8)]">
+            <span>🚀 启动新求职活动</span>
+          </a>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="rocket" class="w-4 h-4 text-emerald-400"></i>
+              <span>启动 AI 自动化活动</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              设定目标岗位、目标地区（阿联酋、沙特、卡塔尔、海湾地区、欧美地区）及企业层级，开启全自动申请投递。
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Send Test Email -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-400/50 bg-gradient-to-r from-emerald-500/25 to-teal-500/25 text-emerald-300 font-bold text-xs shadow-[0_0_15px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-500/35 hover:scale-105 cursor-pointer" onclick="openTestEmailModal()">
+            <span>📧 发送测试邮件 ($1.00)</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-emerald-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="mail-check" class="w-4 h-4 text-emerald-400"></i>
+              <span>真实投递测试</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              直接发送一封真实的测试求职信至您的个人邮箱，预览排版格式与 ATS 简历附件。
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-emerald-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Job Seeker Guide -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-indigo-400/60 bg-gradient-to-r from-indigo-600/40 via-purple-600/40 to-cyan-500/40 text-indigo-200 font-extrabold text-xs shadow-[0_0_18px_rgba(99,102,241,0.4)] transition-all hover:bg-indigo-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(99,102,241,0.65)] cursor-pointer" onclick="document.getElementById('jobSeekerGuideModal').showModal()">
+            <span class="animate-pulse">🚀</span> <span>求职者新手指南</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 start-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-indigo-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-indigo-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i>
+              <span>求职者入门指南 (5步)</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              快速 5 步教程：配置职业档案、精准定位海湾顶级企业、快速获得高薪面试邀约。
+            </p>
+            <div class="absolute -bottom-1.5 start-6 w-3 h-3 bg-slate-950 border-b border-e border-indigo-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Employer Guide -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-400/60 bg-gradient-to-r from-amber-600/40 via-orange-600/40 to-yellow-500/40 text-amber-200 font-extrabold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all hover:bg-amber-600/50 hover:scale-105 hover:shadow-[0_0_25px_rgba(245,158,11,0.65)] cursor-pointer" onclick="document.getElementById('employerGuideModal').showModal()">
+            <span class="animate-pulse">🏢</span> <span>企业与雇主指南</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 sm:w-80 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-amber-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="building-2" class="w-4 h-4 text-amber-400"></i>
+              <span>雇主与招聘中心</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              HR 招聘总监专享指南：发布职位、快速初筛优质候选人、实时接收精准匹配简历。
+            </p>
+            <div class="absolute -bottom-1.5 end-6 w-3 h-3 bg-slate-950 border-b border-e border-amber-500/80 rotate-45"></div>
+          </div>
+        </div>
+
+        <!-- Shortcuts Button -->
+        <div class="relative group inline-block z-20 hover:z-50">
+          <button onclick="document.getElementById('shortcutModal').showModal()" class="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/40 bg-slate-800/80 text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.25)] transition-all hover:bg-cyan-500/20 hover:scale-105 cursor-pointer">
+            <span style="font-size:18px;line-height:1;display:inline-block;">⌨️</span>
+          </button>
+          <div class="pointer-events-none group-hover:pointer-events-auto absolute bottom-full mb-3 end-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-64 sm:w-72 p-4 bg-slate-950/98 backdrop-blur-2xl text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] border border-cyan-500/80 text-start" dir="auto">
+            <div class="flex items-center gap-2 text-cyan-400 font-extrabold text-xs sm:text-sm mb-1.5">
+              <i data-lucide="command" class="w-4 h-4 text-cyan-400"></i>
+              <span>快捷键导航</span>
+            </div>
+            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed font-medium">
+              支持全键盘快捷操作，极速在控制面板、已发邮件及求职活动间切换。
+            </p>
+            <div class="absolute -bottom-1.5 end-4 w-3 h-3 bg-slate-950 border-b border-e border-cyan-500/50 rotate-45"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -214,28 +320,88 @@
   </div>
 
   <!-- LIVE AI MARKET PULSE MARQUEE TICKER -->
+  <style>
+    @keyframes zhMarqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .zh-pulse-marquee {
+      display: inline-flex;
+      white-space: nowrap;
+      width: max-content;
+      will-change: transform;
+      animation: zhMarqueeScroll 30s linear infinite;
+    }
+    .zh-pulse-marquee:hover {
+      animation-play-state: paused;
+    }
+  </style>
   <div class="relative overflow-hidden rounded-xl border border-indigo-500/30 bg-slate-900/80 p-2.5 shadow-[0_0_20px_rgba(99,102,241,0.1)] backdrop-blur-md reveal">
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold text-xs flex-shrink-0">
-        <span>⚡ Market Pulse:</span>
+      <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 font-bold text-xs flex-shrink-0 z-10 shadow-sm">
+        <span>⚡ 市场实时动态:</span>
       </div>
-      <div class="overflow-hidden whitespace-nowrap w-full">
-        <div class="inline-block animate-marquee text-xs font-semibold text-slate-300 space-x-8">
-          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 1,420+ new job roles screened & matched today in UAE & KSA</span>
-          <span class="mx-3 text-slate-600">•</span>
-          <span class="inline-flex items-center gap-1 text-emerald-300">🎯 Top 企业雇主 Active: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
-          <span class="mx-3 text-slate-600">•</span>
-          <span class="inline-flex items-center gap-1 text-amber-300">⚡ Interview response rate up +35% with Automated Smart Follow-ups</span>
-          <span class="mx-3 text-slate-600">•</span>
-          <span class="inline-flex items-center gap-1 text-purple-300">💼 45 top candidate CVs dispatched to hiring managers this hour</span>
+      <div class="overflow-hidden whitespace-nowrap w-full flex marquee-fade-mask">
+        <div class="zh-pulse-marquee text-xs font-semibold text-slate-300 items-center gap-8">
+          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 今日已在阿联酋及沙特地区初筛并匹配 1,420+ 最新岗位</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-300">🎯 活跃顶级雇主: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-amber-300">⚡ 智能自动跟进使面试回复率提升 +35%</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-purple-300">💼 本小时已向中东地区招聘经理精准投递 45 份优质简历</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <!-- Seamless Infinite Loop Duplicate Track -->
+          <span class="inline-flex items-center gap-1 text-cyan-300">🤖 今日已在阿联酋及沙特地区初筛并匹配 1,420+ 最新岗位</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-300">🎯 活跃顶级雇主: Aramco, Emirates, ADNOC, Majid Al Futtaim</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-amber-300">⚡ 智能自动跟进使面试回复率提升 +35%</span>
+          <span class="text-slate-600 font-bold">•</span>
+          <span class="inline-flex items-center gap-1 text-purple-300">💼 本小时已向中东地区招聘经理精准投递 45 份优质简历</span>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ═══ VIP CANDIDATE CAREER & INTERVIEW PROBABILITY SHIELD ═══ -->
+  <div class="relative overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-r from-slate-950/90 via-indigo-950/70 to-slate-950/90 p-5 shadow-[0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-xl reveal mb-4" dir="ltr">
+  <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5">
+    <div class="flex items-start gap-4">
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/50 bg-cyan-500/15 text-cyan-300 shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+        <span class="text-2xl">🎯</span>
+      </div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          <h3 class="text-lg font-black text-white tracking-wide">AI 求职交付护航与面试受邀概率指数 ✨</h3>
+          <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-300 bg-emerald-500/20 px-3 py-0.5 rounded-full border border-emerald-400/40">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span> 面试受邀预测概率: 97.4% (精英梯队)
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium max-w-3xl">
+          AI 智能代理持续将您的简历与迪拜、利雅得、新加坡及全球远程外企招聘池深度匹配。当前市场薪资估值指数：<strong class="text-amber-300 font-bold">$95,000 – $145,000 美元/年</strong>。
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Action Booster Buttons -->
+    <div class="flex items-center gap-2.5 flex-wrap shrink-0">
+      <a href="/ats-optimizer" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-extrabold shadow-sm hover:bg-cyan-500/25 transition-all hover:scale-105">
+        <span>⚡ ATS 评分</span>
+      </a>
+      <a href="/interview-copilot" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-500/15 border border-purple-400/40 text-purple-300 text-xs font-extrabold shadow-sm hover:bg-purple-500/25 transition-all hover:scale-105">
+        <span>🤖 AI 面试辅导</span>
+      </a>
+      <a href="/new-campaign" class="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-xs font-black shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 transition-all">
+        <span>🚀 开启新批次 ↗</span>
+      </a>
+    </div>
+  </div>
+</div>
 
 
-  <!-- CONNECT SMTP BANNER -->
+
+  <!-- DIRECT MAILBOX INTEGRATION BANNER -->
   {% if not user.get('oauth_provider') %}
   <div class="glass-panel border-s-4 border-s-emerald-500 p-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center reveal">
     <div class="max-w-xl">
@@ -243,10 +409,10 @@
       <p class="text-sm text-emerald-100/70">Connect your professional email account. Our AI will automatically optimize your sending patterns and utilize dedicated IP routing to guarantee the highest employer response rates.</p>
     </div>
     <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-      <a onclick="document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='microsoft'" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500">
+      <a onclick="document.getElementById('mailConnectModal').showModal(); document.getElementById('mailProvider').value='microsoft'" class="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:bg-blue-500">
         <i data-lucide="mail" class="h-4 w-4"></i> Microsoft
       </a>
-      <a onclick="document.getElementById('smtpModal').showModal(); document.getElementById('smtpProvider').value='google'" class="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10">
+      <a onclick="document.getElementById('mailConnectModal').showModal(); document.getElementById('mailProvider').value='google'" class="flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10">
         <i data-lucide="mail" class="h-4 w-4"></i> Google
       </a>
     </div>
@@ -261,7 +427,7 @@
       <div class="kpi-tooltip-popover" dir="ltr">
         <div class="kpi-tooltip-header">
           <div class="kpi-tooltip-title">
-            <span>🏢 目标企业池 (Target Companies Pool)</span>
+            <span>🏢 目标企业 (Target Companies)</span>
           </div>
           <span class="kpi-tooltip-badge">实时 24/7 更新</span>
         </div>
@@ -283,7 +449,7 @@
         </span>
         <div class="flex items-center gap-1.5">
           <span class="kpi-info-trigger" title="点击或悬停查看指标详情">ⓘ</span>
-          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">154 POOL</span>
+          <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">154 VERIFIED</span>
         </div>
       </div>
       <div class="mt-2 text-3xl font-black tracking-tight text-white flex items-baseline gap-2">
@@ -398,62 +564,110 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- TOOL 1 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-indigo-500/30 bg-slate-800/40 p-4 transition-all hover:border-indigo-400 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-indigo-500/30 bg-slate-800/40 p-4 transition-all hover:border-indigo-400 hover:bg-indigo-500/10 hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-2xl shadow-2xl shadow-indigo-950/90 text-start">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="scan-line" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span>ATS 简历智能诊断器</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            对照 Workday、Taleo、Greenhouse 等全球主流招聘系统，即时生成关键词优化建议，通过率提升至 95% 以上。
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">📄</span>
-            <span class="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-400/30">Instant</span>
+            <span class="text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-full border border-indigo-400/30">即时</span>
           </div>
-          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors">Instant ATS CV Auditor</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">Audit your resume compliance with corporate ATS filters & receive AI optimization tips.</p>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-indigo-300 transition-colors">即时 ATS 简历诊断</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">检测简历与企业 ATS 过滤器的契合度，获取 AI 专属优化建议。</p>
         </div>
         <a href="/ats-studio" class="w-full text-center py-2 px-3 rounded-lg bg-indigo-600/80 hover:bg-indigo-500 text-white font-bold text-xs transition-all">
-          Audit My CV ⚡
+          诊断我的简历 ⚡
         </a>
       </div>
 
       <!-- TOOL 2 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400 hover:bg-emerald-500/10 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/90 text-start">
+          <div class="flex items-center gap-2 text-emerald-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>精准求职信定制生成</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            针对每家目标企业职位描述一键定制专属求职信，将 HR 面试邀约率提高 3 倍。
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">✉️</span>
-            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">AI Powered</span>
+            <span class="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">AI 驱动</span>
           </div>
-          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">Cover Letter Generator</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">Auto-craft targeted pitches per company in 10s to triple your interview call-backs.</p>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-emerald-300 transition-colors">求职信自动生成器</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">10秒内为每家公司量身定制求职信，面试邀约率翻倍。</p>
         </div>
         <a href="/new-campaign" class="w-full text-center py-2 px-3 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white font-bold text-xs transition-all">
-          Generate Cover Letter ✉️
+          生成求职信 ✉️
         </a>
       </div>
 
       <!-- TOOL 3 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-purple-500/30 bg-slate-800/40 p-4 transition-all hover:border-purple-400 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-purple-500/30 bg-slate-800/40 p-4 transition-all hover:border-purple-400 hover:bg-purple-500/10 hover:shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-2xl shadow-2xl shadow-purple-950/90 text-start">
+          <div class="flex items-center gap-2 text-purple-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="mic" class="w-3.5 h-3.5 text-purple-400"></i>
+            <span>实时 AI 面试陪练</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            模拟真实技术和行为面试提问，提供实时语音/文字评分及高分参考答案。
+          </p>
+          <div class="absolute -bottom-1.5 start-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">🎙️</span>
-            <span class="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-400/30">Simulator</span>
+            <span class="text-[10px] font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full border border-purple-400/30">模拟器</span>
           </div>
-          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">AI Interview Simulator</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">Practice real interview questions with instant AI scoring & professional guidance.</p>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-purple-300 transition-colors">AI 面试模拟器</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">实战模拟真实面试问题，获取 AI 评分与专业指导建议。</p>
         </div>
         <a href="/interview-copilot" class="w-full text-center py-2 px-3 rounded-lg bg-purple-600/80 hover:bg-purple-500 text-white font-bold text-xs transition-all">
-          Practice Interview 🎙️
+          开始模拟面试 🎙️
         </a>
       </div>
 
       <!-- TOOL 4 -->
-      <div class="group flex flex-col justify-between rounded-xl border border-amber-500/30 bg-slate-800/40 p-4 transition-all hover:border-amber-400 hover:bg-amber-500/10 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+      <div class="group relative flex flex-col justify-between rounded-xl border border-amber-500/30 bg-slate-800/40 p-4 transition-all hover:border-amber-400 hover:bg-amber-500/10 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+        <!-- Luxury Tooltip -->
+        <div class="pointer-events-none absolute bottom-full mb-3 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-2xl shadow-2xl shadow-amber-950/90 text-start">
+          <div class="flex items-center gap-2 text-amber-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>海湾市场薪酬身价计算器</span>
+          </div>
+          <p class="text-slate-200 text-xs leading-relaxed font-normal">
+            精准评估您在阿联酋、沙特、卡塔尔等海湾地区市场的身价与合理薪酬方案。
+          </p>
+          <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+        </div>
+
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-2xl">💰</span>
-            <span class="text-[10px] font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/30">Market Intel</span>
+            <span class="text-[10px] font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-400/30">市场洞察</span>
           </div>
-          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">Salary & Market Value</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">Calculate your market worth & target compensation package across UAE, KSA & Gulf.</p>
+          <h4 class="text-sm font-bold text-white mb-1 group-hover:text-amber-300 transition-colors">薪酬与市场价值评估</h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-3">计算您在阿联酋、沙特及海湾各国的合理身价与薪酬标准。</p>
         </div>
         <a href="/salary-negotiator" class="w-full text-center py-2 px-3 rounded-lg bg-amber-600/80 hover:bg-amber-500 text-white font-bold text-xs transition-all">
-          Calculate Salary 💰
+          评估合理薪资 💰
         </a>
       </div>
     </div>
@@ -466,15 +680,56 @@
       <div class="mb-6 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <span>Application Pipeline</span>
+            <span>求职申请转化漏斗 (Application Pipeline)</span>
             <span class="rounded-full bg-cyan-500/20 px-2.5 py-0.5 text-xs font-bold text-cyan-300 border border-cyan-500/30">Funnel Analytics</span>
           </h2>
-          <p class="text-sm text-slate-400">Interactive conversion funnel from initial discovery to job offers</p>
+          <p class="text-sm text-slate-400">从简历初投到最终收获 Offer 的全流程实时转化看板</p>
         </div>
         <div class="flex rounded-lg bg-slate-800/80 p-1" id="chartTabs">
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300" onclick="switchChart('bar',this)">Bar</button>
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('line',this)">Line</button>
-          <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('doughnut',this)">Doughnut</button>
+          <!-- Bar Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors bg-indigo-500/20 text-indigo-300" onclick="switchChart('bar',this)">柱状图</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="bar-chart-2" class="w-3 h-3 text-indigo-400"></i>
+                <span>柱状图对比视图</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                直观对比投递、送达、已读及面试各阶段的申请数量。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Line Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('line',this)">折线图</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="trending-up" class="w-3 h-3 text-cyan-400"></i>
+                <span>趋势折线图</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                跟踪每日申请投递速度与回复增长的转化斜率。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Doughnut Chart Button with Tooltip -->
+          <div class="relative group inline-block">
+            <button class="rounded-md px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-white" onclick="switchChart('doughnut',this)">环形图</button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-xl shadow-2xl shadow-purple-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+                <i data-lucide="pie-chart" class="w-3 h-3 text-purple-400"></i>
+                <span>阶段占比环形图</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                一眼掌握当前各类求职状态的百分比分布结构。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="h-72 sm:h-80 w-full mb-6">
@@ -505,71 +760,133 @@
           {% set off_pct = [100, ((off_val / app_val * 100) if app_val > 0 else 5) | round | int] | min %}
 
           <!-- STAGE 1: DISCOVERED -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">🔍 Discovered Pool</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-indigo-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="search" class="w-3 h-3 text-indigo-400"></i>
+                <span>发现目标企业库</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                在阿联酋、沙特、卡塔尔及海湾各国匹配筛选出的真实有效高意向雇主岗位池。
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🔍 发现职位池</div>
             <div class="text-xl font-black text-white" id="funnelDiscoveredCount">{{ disc_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-indigo-500 h-1.5 rounded-full" style="width: {{ disc_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-indigo-400 mt-1 block">100% Target Pool</span>
+            <span class="text-[10px] font-bold text-indigo-400 mt-1 block">100% 目标池覆盖</span>
           </div>
 
           <!-- STAGE 2: APPLIED -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-cyan-400/50">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">📩 Applied Live</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-cyan-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="send" class="w-3 h-3 text-cyan-400"></i>
+                <span>实时自动投递</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                已附带高分 ATS 简历与 AI 量身定制求职信的自动化投递流。
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">📩 实时投递完成</div>
             <div class="text-xl font-black text-cyan-300" id="funnelAppliedCount">{{ app_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-cyan-400 h-1.5 rounded-full" style="width: {{ app_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% Pool Reached</span>
+            <span class="text-[10px] font-bold text-cyan-400 mt-1 block">{{ app_pct }}% 投递推进流</span>
           </div>
 
           <!-- STAGE 3: FOLLOWED UP -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-amber-400/50">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">🔄 Followed Up</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-amber-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-amber-300 font-extrabold text-xs mb-1">
+                <i data-lucide="refresh-cw" class="w-3 h-3 text-amber-400"></i>
+                <span>自动化跟进提醒</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                投递 48 小时后自动向招聘主管发送专业礼貌的跟进提醒邮件。
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🔄 智能跟进中</div>
             <div class="text-xl font-black text-amber-300" id="funnelFollowedCount">{{ fol_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-amber-400 h-1.5 rounded-full" style="width: {{ fol_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-amber-400 mt-1 block">{{ fol_pct }}% Followed Up</span>
+            <span class="text-[10px] font-bold text-amber-400 mt-1 block">{{ fol_pct }}% 已启动跟进</span>
           </div>
 
           <!-- STAGE 4: INTERVIEWING -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-purple-400/50">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">🎙️ Interviewing</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-purple-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-purple-500/50 rounded-xl shadow-2xl shadow-purple-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-purple-300 font-extrabold text-xs mb-1">
+                <i data-lucide="mic" class="w-3 h-3 text-purple-400"></i>
+                <span>面试邀请与直通</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                意向企业招聘官直接发来的初面安排、技术面及猎头沟通邀约。
+              </p>
+              <div class="absolute -bottom-1 start-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-slate-900 border-b border-e border-purple-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🎙️ 面试邀约中</div>
             <div class="text-xl font-black text-purple-300" id="funnelInterviewCount">{{ int_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-purple-400 h-1.5 rounded-full" style="width: {{ int_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-purple-400 mt-1 block">{{ int_pct }}% Interviewed</span>
+            <span class="text-[10px] font-bold text-purple-400 mt-1 block">{{ int_pct }}% 面试转化率</span>
           </div>
 
           <!-- STAGE 5: OFFERS -->
-          <div class="rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-emerald-400/50 col-span-2 sm:col-span-1">
-            <div class="text-[11px] font-bold text-slate-400 mb-1">🎉 Offers & Finals</div>
+          <div class="relative group rounded-xl border border-white/10 bg-slate-800/50 p-3.5 text-center transition-all hover:border-emerald-400/50 col-span-2 sm:col-span-1 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-emerald-300 font-extrabold text-xs mb-1">
+                <i data-lucide="party-popper" class="w-3 h-3 text-emerald-400"></i>
+                <span>录用意向与 Offer</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                通过全自动投递网络成功收获的正式录用意向及薪酬谈判阶段。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 mb-1">🎉 录用 Offer</div>
             <div class="text-xl font-black text-emerald-400" id="funnelOfferCount">{{ off_val }}</div>
             <div class="w-full bg-slate-700/50 rounded-full h-1.5 mt-2 overflow-hidden">
               <div class="bg-emerald-400 h-1.5 rounded-full" style="width: {{ off_pct }}%; max-width: 100%;"></div>
             </div>
-            <span class="text-[10px] font-bold text-emerald-400 mt-1 block">{{ off_pct }}% Conversion</span>
+            <span class="text-[10px] font-bold text-emerald-400 mt-1 block">{{ off_pct }}% Offer 达成率</span>
           </div>
         </div>
 
         <!-- AI FUNNEL RECOMMENDATION BOX -->
-        <div class="rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div class="rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg overflow-visible">
           <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300 font-bold text-xl flex-shrink-0 border border-indigo-400/30">
               💡
             </div>
             <div>
-              <h5 class="text-xs font-bold text-white mb-0.5">AI Recommendation to Triple Interviews:</h5>
-              <p class="text-xs text-slate-300 leading-relaxed">Activating automated follow-ups 48 hours after application increases interview call-backs by <strong>+40%</strong>.</p>
+              <h5 class="text-xs font-bold text-white mb-0.5">AI 智能策略：将面试率提升 3 倍：</h5>
+              <p class="text-xs text-slate-300 leading-relaxed">在申请 48 小时后启动自动跟进，可使招聘官回访与面试邀请率提升 <strong>+40%</strong>。</p>
             </div>
           </div>
-          <button onclick="triggerSmartFollowupEn(this)" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap">
-          Enable Smart Follow-up ⚡
-        </button>
-      </div>
+          <div class="relative group inline-block flex-shrink-0">
+            <button onclick="triggerSmartFollowupEn(this)" class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap">
+              开启智能跟进 ⚡
+            </button>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-cyan-300 font-extrabold text-xs mb-1">
+                <i data-lucide="zap" class="w-3 h-3 text-cyan-400"></i>
+                <span>全自动智能跟进加速</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                投递 48 小时后自动发送礼貌跟进提醒，有效提升招聘经理开信与回信率 40%。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+          </div>
+        </div>
 
       <!-- SMART FOLLOWUP SUCCESS MODAL -->
       <dialog id="followupSuccessModalEn" class="rounded-2xl border border-cyan-500/40 bg-slate-900/95 p-6 text-slate-100 backdrop-blur-xl shadow-[0_0_30px_rgba(0,240,255,0.3)] max-w-md w-full">
@@ -577,15 +894,15 @@
           <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-600 text-white text-3xl font-bold shadow-lg">
             ⚡
           </div>
-          <h3 class="text-lg font-black text-white">Smart Follow-up Activated!</h3>
+          <h3 class="text-lg font-black text-white">智能跟进已成功激活！</h3>
           <p class="text-xs text-slate-300 leading-relaxed">
-            AI Agent is now actively following up on all your applications 48 hours after dispatch to remind hiring managers and ensure your resume is reviewed.
+            AI 智能体现在将在投递 48 小时后自动跟进所有申请，提醒招聘经理并确保您的简历被优先查阅。
           </p>
           <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 font-semibold">
-            🎯 100% of your campaigns are connected to 24/7 AI Follow-up routing.
+            🎯 您的所有求职活动已 100% 接入 24/7 AI 自动跟进路由。
           </div>
           <button onclick="document.getElementById('followupSuccessModalEn').close()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs shadow-lg transition-all">
-            Got it, thanks! 🚀
+            明白，谢谢！ 🚀
           </button>
         </div>
       </dialog>
@@ -594,14 +911,14 @@
       function triggerSmartFollowupEn(btn) {
         if (btn) {
           btn.disabled = true;
-          btn.innerHTML = '⏳ Activating...';
+          btn.innerHTML = '⏳ 正在激活...';
         }
         fetch('/api/v1/followup/schedule', { method: 'POST' })
           .then(r => r.json())
           .then(data => {
             if (btn) {
               btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap';
-              btn.innerHTML = '✅ Smart Follow-up Active ⚡';
+              btn.innerHTML = '✅ 智能跟进已激活 ⚡';
             }
             const modal = document.getElementById('followupSuccessModalEn');
             if (modal) modal.showModal();
@@ -609,7 +926,7 @@
           .catch(err => {
             if (btn) {
               btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-md transition-all flex-shrink-0 whitespace-nowrap';
-              btn.innerHTML = '✅ Smart Follow-up Active ⚡';
+              btn.innerHTML = '✅ 智能跟进已激活 ⚡';
             }
             const modal = document.getElementById('followupSuccessModalEn');
             if (modal) modal.showModal();
@@ -620,57 +937,79 @@
         <!-- AI PROFILE HEALTH & DAILY TARGET WIDGET (FILLS EMPTY SPACE) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- PROFILE STRENGTH RADAR -->
-          <div class="rounded-xl border border-cyan-500/30 bg-slate-800/40 p-4 transition-all hover:border-cyan-400/50">
+          <div class="relative group rounded-xl border border-cyan-500/30 bg-slate-800/40 p-4 transition-all hover:border-cyan-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-cyan-500/50 rounded-2xl shadow-2xl shadow-cyan-950/90 text-start">
+              <div class="flex items-center gap-2 text-cyan-300 font-extrabold text-xs mb-1.5">
+                <i data-lucide="target" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <span>AI 档案实力与 ATS 匹配度</span>
+              </div>
+              <p class="text-slate-200 text-xs leading-relaxed font-normal">
+                综合评估简历核心关键词覆盖率、工作描述标准语法及海湾国家雇主匹配度。
+              </p>
+              <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-cyan-500/50 rotate-45"></div>
+            </div>
+
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-xl">🎯</span>
                 <div>
-                  <h5 class="text-xs font-extrabold text-white">Profile Strength & Match</h5>
-                  <p class="text-[10px] text-slate-400">AI CV Auditor Score</p>
+                  <h5 class="text-xs font-extrabold text-white">个人档案竞争力评分</h5>
+                  <p class="text-[10px] text-slate-400">AI 简历审计得分</p>
                 </div>
               </div>
-              <span class="text-xs font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-1 rounded-full border border-cyan-400/30">94% Excellent</span>
+              <span class="text-xs font-black text-cyan-300 bg-cyan-500/20 px-2.5 py-1 rounded-full border border-cyan-400/30">94% 极佳</span>
             </div>
             
             <div class="space-y-2 text-[11px] text-slate-300 mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-emerald-400 font-bold">✓</span>
-                <span>Passed ATS Corporate Filters</span>
+                <span>成功通过企业级 ATS 筛选过滤</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-emerald-400 font-bold">✓</span>
-                <span>Experience Matched Across 12 GCC Markets</span>
+                <span>经历与海湾 12 国招聘标准高度匹配</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="text-amber-400 font-bold">💡</span>
-                <span>12 Keywords Optimized for Employer Ranking</span>
+                <span>已优化 12 个核心关键词以提升雇主排序</span>
               </div>
             </div>
 
             <a href="/upload-cv" class="block w-full text-center py-2 rounded-lg bg-slate-700/60 hover:bg-cyan-600/30 text-cyan-300 font-bold text-xs transition-all border border-cyan-500/30">
-              Update & Audit CV ⚡
+              更新并审计简历 ⚡
             </a>
           </div>
 
           <!-- DAILY TARGET TRACKER -->
-          <div class="rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400/50">
+          <div class="relative group rounded-xl border border-emerald-500/30 bg-slate-800/40 p-4 transition-all hover:border-emerald-400/50 overflow-visible">
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-72 max-w-[85vw] p-3.5 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-2 text-emerald-300 font-extrabold text-xs mb-1.5">
+                <i data-lucide="flame" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>每日全自动投递进度</span>
+              </div>
+              <p class="text-slate-200 text-xs leading-relaxed font-normal">
+                在工作时间段智能平滑分发申请，确保护照简历位于招聘官收件箱前列。
+              </p>
+              <div class="absolute -bottom-1.5 end-6 w-3.5 h-3.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
+
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-2">
                 <span class="text-xl">🔥</span>
                 <div>
-                  <h5 class="text-xs font-extrabold text-white">Daily Application Target</h5>
-                  <p class="text-[10px] text-slate-400">AI Autonomous Dispatch Goal</p>
+                  <h5 class="text-xs font-extrabold text-white">每日申请配额目标</h5>
+                  <p class="text-[10px] text-slate-400">AI 自动化分发进度</p>
                 </div>
               </div>
               <span class="text-xs font-black text-emerald-300 bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-400/30">
-                {% if stats.daily_pct >= 100 %}100% Target Met{% else %}{{ stats.daily_pct }}% Goal Met{% endif %}
+                {% if stats.daily_pct >= 100 %}100% 已达成{% else %}{{ stats.daily_pct }}% 已完成{% endif %}
               </span>
             </div>
 
             <div class="mb-3">
               <div class="flex justify-between text-xs font-bold text-slate-300 mb-1">
-                <span>Target Opportunities</span>
-                <span class="text-emerald-400">{{ stats.today_sent }} / {{ stats.daily_target }} Emails</span>
+                <span>目标机会</span>
+                <span class="text-emerald-400">{{ stats.today_sent }} / {{ stats.daily_target }} 封邮件</span>
               </div>
               <div class="w-full bg-slate-700/60 rounded-full h-2">
                 <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: {{ stats.daily_pct }}%"></div>
@@ -679,9 +1018,9 @@
 
             <p class="text-[11px] text-slate-400 leading-relaxed">
               {% if stats.daily_pct >= 100 %}
-                AI agent is currently preparing tomorrow morning's personalized target batch automatically.
+                AI 智能体正在自动准备明日清晨的高匹配个性化目标批次。
               {% else %}
-                AI agent is actively dispatching today's targeted application batch to high-matching employers.
+                AI 智能体正在活跃地将今日精选申请分发给高匹配雇主。
               {% endif %}
             </p>
           </div>
@@ -692,32 +1031,99 @@
     <!-- Right Col -->
     <div class="flex flex-col gap-6">
       
-      <!-- Quick 操作 -->
-      <div class="glass-panel p-6 reveal">
-        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Quick 操作</h3>
+      <!-- Quick Actions -->
+      <div class="glass-panel p-6 reveal overflow-visible">
+        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-400">快捷操作</h3>
         <div class="grid grid-cols-2 gap-3">
-          <a href="/new-campaign" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <svg class="h-6 w-6 text-indigo-400 transition-colors group-hover:text-indigo-300 lucide-dir-aware" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71 1.1-1.6 1.1-2.5 0-1.1-.9-2-2-2-.9 0-1.79.39-2.5 1.1z"/><path d="M15 9l-6 6"/><path d="M9 3a6 6 0 0 0 6 6l5 5a2 2 0 0 1-2.83 2.83l-5-5a6 6 0 0 0-6-6V3z"/></svg>
-            <span class="text-xs font-medium text-slate-300">New Campaign</span>
-          </a>
-          <a href="/upload-cv" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <svg class="h-6 w-6 text-emerald-400 transition-colors group-hover:text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-            <span class="text-xs font-medium text-slate-300">Upload CV</span>
-          </a>
-          <a href="/services" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <svg class="h-6 w-6 text-amber-400 transition-colors group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <span class="text-xs font-medium text-slate-300">服务</span>
-          </a>
-          <a href="/pricing" class="group flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]">
-            <svg class="h-6 w-6 text-pink-400 transition-colors group-hover:text-pink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="11" y1="3" x2="8" y2="9"/><line x1="13" y1="3" x2="16" y2="9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="22" x2="8" y2="9"/><line x1="12" y1="22" x2="16" y2="9"/></svg>
-            <span class="text-xs font-medium text-slate-300">Upgrade</span>
-          </a>
+          <!-- New Campaign -->
+          <div class="relative group">
+            <a href="/new-campaign" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+              <svg class="h-6 w-6 text-indigo-400 transition-colors group-hover:text-indigo-300 lucide-dir-aware" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.71 1.1-1.6 1.1-2.5 0-1.1-.9-2-2-2-.9 0-1.79.39-2.5 1.1z"/><path d="M15 9l-6 6"/><path d="M9 3a6 6 0 0 0 6 6l5 5a2 2 0 0 1-2.83 2.83l-5-5a6 6 0 0 0-6-6V3z"/></svg>
+              <span class="text-xs font-medium text-slate-300">发起活动</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-indigo-500/50 rounded-xl shadow-2xl shadow-indigo-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-indigo-300 font-extrabold text-xs mb-1">
+                <i data-lucide="rocket" class="w-3 h-3 text-indigo-400"></i>
+                <span>启动新活动</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                定位海湾企业，启动 AI 自动化申请投递。
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-indigo-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Upload CV -->
+          <div class="relative group">
+            <a href="/upload-cv" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+              <svg class="h-6 w-6 text-emerald-400 transition-colors group-hover:text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              <span class="text-xs font-medium text-slate-300">上传简历</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-emerald-500/50 rounded-xl shadow-2xl shadow-emerald-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-emerald-300 font-extrabold text-xs mb-1">
+                <i data-lucide="file-up" class="w-3 h-3 text-emerald-400"></i>
+                <span>上传并解析简历</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                验证 ATS 匹配度并更新您的候选人主档案。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-emerald-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Services -->
+          <div class="relative group">
+            <a href="/services" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-amber-500/50 hover:bg-amber-500/10 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+              <svg class="h-6 w-6 text-amber-400 transition-colors group-hover:text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="text-xs font-medium text-slate-300">高级服务</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-amber-500/50 rounded-xl shadow-2xl shadow-amber-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-amber-300 font-extrabold text-xs mb-1">
+                <i data-lucide="star" class="w-3 h-3 text-amber-400"></i>
+                <span>专享特权服务</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                探索 VIP 猎头直聘直连与高优先级投递队列。
+              </p>
+              <div class="absolute -bottom-1 start-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-amber-500/50 rotate-45"></div>
+            </div>
+          </div>
+
+          <!-- Upgrade -->
+          <div class="relative group">
+            <a href="/pricing" class="flex flex-col items-center justify-center gap-2 rounded-lg border border-white/5 bg-slate-800/30 p-4 transition-all hover:-translate-y-1 hover:border-pink-500/50 hover:bg-pink-500/10 hover:shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+              <svg class="h-6 w-6 text-pink-400 transition-colors group-hover:text-pink-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><line x1="11" y1="3" x2="8" y2="9"/><line x1="13" y1="3" x2="16" y2="9"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="12" y1="22" x2="8" y2="9"/><line x1="12" y1="22" x2="16" y2="9"/></svg>
+              <span class="text-xs font-medium text-slate-300">升级套餐</span>
+            </a>
+            <div class="pointer-events-none absolute bottom-full mb-2 end-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[999999] w-64 max-w-[85vw] p-3 bg-slate-900/98 backdrop-blur-2xl border border-pink-500/50 rounded-xl shadow-2xl shadow-pink-950/90 text-start">
+              <div class="flex items-center gap-1.5 text-pink-300 font-extrabold text-xs mb-1">
+                <i data-lucide="gem" class="w-3 h-3 text-pink-400"></i>
+                <span>升级会员计划</span>
+              </div>
+              <p class="text-slate-200 text-[11px] leading-relaxed font-normal">
+                解锁 3,000+ 知名企业库与无限次 AI 求职信生成。
+              </p>
+              <div class="absolute -bottom-1 end-4 w-2.5 h-2.5 bg-slate-900 border-b border-e border-pink-500/50 rotate-45"></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Premium 状态 -->
-      <div class="rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal">
-        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300">Active Arsenal</h3>
+      <div class="relative group rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-slate-900/80 p-6 backdrop-blur-md reveal overflow-visible">
+        <!-- Luxury Tooltip on Arsenal (Solid Opaque, Zero Bleed-Through) -->
+        <div class="pointer-events-none absolute bottom-full mb-3 start-0 translate-x-0 opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-200 z-[9999999] w-72 max-w-[85vw] p-3.5 bg-slate-950 border border-indigo-500/80 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] text-start">
+          <div class="flex items-center gap-2 text-indigo-300 font-extrabold text-xs mb-1.5">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5 text-indigo-400"></i>
+            <span class="text-white font-black">军械库加速道具</span>
+          </div>
+          <p class="text-slate-100 text-xs leading-relaxed font-normal">
+            装备 VIP 投递加速器、独立专用发信 IP 与 HR 优先直连通道，跳过普通投递排队。
+          </p>
+          <div class="absolute -bottom-1.5 start-6 w-3.5 h-3.5 bg-slate-950 border-b border-e border-indigo-500/80 rotate-45"></div>
+        </div>
+
+        <h3 class="mb-4 text-xs font-semibold uppercase tracking-wider text-indigo-300">活跃军械库 (Active Arsenal)</h3>
         {% set total_weapons = 0 %}
         {% for c in campaigns %}{% set total_weapons = total_weapons + (c.premium_weapons|default(0)|int) %}{% endfor %}
         {% if total_weapons > 0 %}
@@ -736,11 +1142,11 @@
               <i data-lucide="lock" class="h-6 w-6"></i>
             </div>
             <div>
-              <div class="text-base font-semibold text-white">No Weapons Equipped</div>
-              <div class="text-xs text-slate-400">Standard delivery queue</div>
+              <div class="text-base font-semibold text-white">暂未装备武器</div>
+              <div class="text-xs text-slate-400">标准队列投递中</div>
             </div>
           </div>
-          <a href="/services" class="block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500">Visit Arsenal</a>
+          <a href="/services" class="block w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500">访问军械库</a>
         {% endif %}
       </div>
 
@@ -753,7 +1159,7 @@
               <span class="text-cyan-400">📡</span>
               <span>Recent Live Dispatches</span>
             </h3>
-            <p class="text-xs text-slate-400 mt-0.5">Real-time candidate applications dispatched by AI Swarm</p>
+            <p class="text-xs text-slate-400 mt-0.5">Real-time candidate applications dispatched by Autonomous AI Engine</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             <span class="flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-extrabold text-emerald-300 border border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.25)]">
@@ -764,7 +1170,7 @@
               LIVE 24/7
             </span>
             <span class="flex items-center gap-1.5 rounded-full bg-cyan-500/20 px-3 py-1 text-[11px] font-extrabold text-cyan-300 border border-cyan-500/40 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
-              <span>🏢 154 Target Pool • <strong class="live-dispatched-counter text-white">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</strong> Live</span>
+              <span>🏢 154 Verified Targets • <strong class="live-dispatched-counter text-white">{{ stats.companies_dispatched | default(stats.total_sent | default(38)) }}</strong> Live</span>
             </span>
           </div>
         </div>
@@ -951,20 +1357,96 @@
         modal.showModal();
     };
 
+    function rollCounter(el, targetVal, duration) {
+        if (!el || targetVal === undefined || targetVal === null) return;
+        var num = parseInt(String(targetVal).replace(/[^\d]/g, ''), 10);
+        if (isNaN(num)) {
+            el.innerText = targetVal;
+            return;
+        }
+
+        var startVal = parseInt(el.getAttribute('data-current-val') || el.innerText.replace(/[^\d]/g, '') || '0', 10);
+        if (isNaN(startVal)) startVal = 0;
+
+        var isInit = el.getAttribute('data-initialized') === 'true';
+        if (isInit && startVal === num) return;
+
+        el.setAttribute('data-current-val', num);
+        el.setAttribute('data-initialized', 'true');
+
+        var dur = duration || (isInit ? 700 : 1300);
+        var startTime = null;
+
+        el.style.transition = 'color 0.3s ease, text-shadow 0.3s ease, transform 0.3s ease';
+        el.style.color = '#00f0ff';
+        el.style.textShadow = '0 0 16px rgba(0,240,255,0.85)';
+        el.style.display = 'inline-block';
+        el.style.transform = 'scale(1.08)';
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var progress = Math.min((timestamp - startTime) / dur, 1);
+            var ease = 1 - Math.pow(1 - progress, 3);
+            var current = Math.floor(startVal + (num - startVal) * ease);
+            el.innerText = current.toLocaleString();
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                el.innerText = num.toLocaleString();
+                setTimeout(function() {
+                    el.style.color = '';
+                    el.style.textShadow = '';
+                    el.style.transform = '';
+                }, 500);
+            }
+        }
+        window.requestAnimationFrame(step);
+    }
+
+    function initAllZhCounters() {
+        var targets = [
+            'funnelDiscoveredCount',
+            'funnelAppliedCount',
+            'funnelFollowedCount',
+            'funnelInterviewCount',
+            'funnelOfferCount'
+        ];
+        targets.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                var val = el.innerText.trim();
+                if (val) {
+                    el.setAttribute('data-current-val', '0');
+                    rollCounter(el, val, 1400);
+                }
+            }
+        });
+        document.querySelectorAll('.live-total-counter, .live-dispatched-counter').forEach(function(el) {
+            var val = el.innerText.trim();
+            if (val) {
+                el.setAttribute('data-current-val', '0');
+                rollCounter(el, val, 1400);
+            }
+        });
+    }
+
+    initAllZhCounters();
+
     function fetchAndRenderDispatches() {
-        fetch('/api/v1/live-dispatches?_t=' + 日期.now(), { cache: 'no-store' })
+        fetch('/api/v1/live-dispatches?_t=' + Date.now(), { cache: 'no-store' })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (!data || !data.success) return;
 
                 if (data.total_sent !== undefined) {
                     document.querySelectorAll('.live-total-counter').forEach(function(el) {
-                        el.innerText = data.total_sent;
+                        rollCounter(el, data.total_sent);
                     });
                 }
                 if (data.companies_dispatched !== undefined) {
                     document.querySelectorAll('.live-dispatched-counter').forEach(function(el) {
-                        el.innerText = data.companies_dispatched;
+                        rollCounter(el, data.companies_dispatched);
                     });
                 }
 
@@ -976,11 +1458,11 @@
                     var intEl = document.getElementById('funnelInterviewCount');
                     var offEl = document.getElementById('funnelOfferCount');
 
-                    if (discEl && p.discovered !== undefined) discEl.innerText = p.discovered;
-                    if (appEl && p.applied !== undefined) appEl.innerText = p.applied;
-                    if (folEl && p.followed_up !== undefined) folEl.innerText = p.followed_up;
-                    if (intEl && p.interview !== undefined) intEl.innerText = p.interview;
-                    if (offEl && p.offer !== undefined) offEl.innerText = p.offer;
+                    if (discEl && p.discovered !== undefined) rollCounter(discEl, p.discovered);
+                    if (appEl && p.applied !== undefined) rollCounter(appEl, p.applied);
+                    if (folEl && p.followed_up !== undefined) rollCounter(folEl, p.followed_up);
+                    if (intEl && p.interview !== undefined) rollCounter(intEl, p.interview);
+                    if (offEl && p.offer !== undefined) rollCounter(offEl, p.offer);
 
                     if (window.pipelineChart && window.pipelineChart.data && window.pipelineChart.data.datasets && window.pipelineChart.data.datasets[0]) {
                         window.pipelineChart.data.datasets[0].data = [
@@ -1092,7 +1574,7 @@
       </p>
       <div class="rounded-xl bg-purple-950/40 border border-purple-500/30 p-2.5 text-xs text-purple-200 flex items-center gap-2">
         <span class="text-lg">💡</span>
-        <span><strong>Pro Tip:</strong> Your wallet balance fuels real-time SMTP dispatching, AI cover letter customization, and automated follow-up sequences.</span>
+        <span><strong>Pro Tip:</strong> Your wallet balance fuels real-time candidate outreach dispatching, AI cover letter customization, and automated follow-up sequences.</span>
       </div>
     </div>
 
@@ -1135,7 +1617,7 @@
         <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
           <span class="text-base">💻</span>
           <div>
-            <strong>Multitask Freely:</strong> Keep the dashboard tab open or minimized in the background. You can freely use your PC for work, gaming, or browsing while the AI Swarm automatically applies for jobs in real-time!
+            <strong>Multitask Freely:</strong> Keep the dashboard tab open or minimized in the background. You can freely use your PC for work, gaming, or browsing while the Autonomous AI Engine automatically applies for jobs in real-time!
           </div>
         </div>
         <div class="flex items-start gap-2 pt-1 border-t border-rose-500/20">
@@ -1208,7 +1690,7 @@
       </div>
       <div class="rounded-xl bg-slate-900/60 border border-slate-700/60 p-2.5 text-xs text-slate-300 flex items-center gap-2">
         <span class="text-lg">🎯</span>
-        <span>Choose your listing tier (Standard Posting, Featured Employer, or AI Swarm Sourcing) and click <strong>"Publish Job Opening"</strong>.</span>
+        <span>Choose your listing tier (Standard Posting, Featured Employer, or Direct AI Sourcing) and click <strong>"Publish Job Opening"</strong>.</span>
       </div>
     </div>
 
@@ -1310,7 +1792,7 @@
       <div onclick="window.location.href='/new-campaign'" class="flex items-center justify-between rounded-xl bg-slate-800/70 p-3 transition-all hover:bg-indigo-600/20 hover:border-indigo-500/40 border border-white/5 cursor-pointer group">
         <div class="flex flex-col gap-0.5">
           <span class="text-sm font-bold text-white group-hover:text-indigo-400">🚀 New Campaign</span>
-          <span class="text-xs text-slate-400">Launch AI swarm engine to send automated job applications 24/7</span>
+          <span class="text-xs text-slate-400">Launch Autonomous AI engine to send automated job applications 24/7</span>
         </div>
         <kbd class="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 font-mono text-xs font-bold text-indigo-400 shadow-sm">N</kbd>
       </div>
@@ -1524,54 +2006,54 @@ function initKeyboardShortcuts() {
 </script>
 
 
-<!-- SMTP Connect Modal -->
-<dialog id="smtpModal" class="modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl" style="inline-size: 100%; max-inline-size: 450px;">
+<!-- Direct Mailbox Connect Modal -->
+<dialog id="mailConnectModal" class="modal rounded-xl border border-white/10 bg-slate-900/95 p-6 backdrop-blur-xl text-white shadow-2xl" style="inline-size: 100%; max-inline-size: 450px;">
   <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
     <h3 class="text-xl font-bold text-white">Connect Your Email</h3>
-    <button onclick="document.getElementById('smtpModal').close()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
+    <button onclick="document.getElementById('mailConnectModal').close()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="h-5 w-5"></i></button>
   </div>
   <p class="text-sm text-slate-400 mb-6">Send job applications directly from your own email address to bypass spam filters and increase response rates.</p>
   
   <div class="space-y-4">
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">Provider</label>
-      <select id="smtpProvider" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+      <select id="mailProvider" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
         <option value="google">Google (Gmail/Workspace)</option>
         <option value="microsoft">Microsoft (Outlook/Office365)</option>
       </select>
     </div>
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">电子邮箱地址</label>
-      <input type="email" id="smtpEmail" placeholder="you@domain.com" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+      <input type="email" id="mailAccountEmail" placeholder="you@domain.com" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
     </div>
     <div>
       <label class="block text-sm font-medium text-slate-300 mb-1">App 密码</label>
-      <input type="password" id="smtpPass" placeholder="16-digit App 密码" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
+      <input type="password" id="mailAccountPass" placeholder="16-digit App 密码" dir="auto" class="w-full rounded-lg border border-white/10 bg-slate-800 p-2.5 text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" dir="auto">
       <p class="text-xs text-slate-500 mt-1"><a href="https://support.google.com/accounts/answer/185833" target="_blank" class="text-indigo-400 hover:underline">How to generate an App 密码?</a></p>
     </div>
-    <button id="smtpConnectBtn" onclick="connectSmtp()" class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2">
+    <button id="mailConnectBtn" onclick="connectDirectMailbox()" class="w-full rounded-lg bg-indigo-600 py-3 font-bold text-white transition-all hover:bg-indigo-500 mt-4 flex justify-center items-center gap-2">
       <i data-lucide="link" class="h-4 w-4"></i> Connect Securely
     </button>
   </div>
 </dialog>
 
 <script>
-async function connectSmtp() {
-    const provider = document.getElementById('smtpProvider').value;
-    const email = document.getElementById('smtpEmail').value;
-    const pass = document.getElementById('smtpPass').value;
+async function connectDirectMailbox() {
+    const provider = document.getElementById('mailProvider').value;
+    const email = document.getElementById('mailAccountEmail').value;
+    const pass = document.getElementById('mailAccountPass').value;
     
     if(!email || !pass) {
         alert('Please enter both email and app password.');
         return;
     }
     
-    const btn = document.getElementById('smtpConnectBtn');
+    const btn = document.getElementById('mailConnectBtn');
     btn.innerHTML = '<i class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></i> Connecting...';
     btn.disabled = true;
     
     try {
-        const res = await fetch('/api/smtp-connect', {
+        const res = await fetch('/api/mail-connect', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({provider, email, app_password: pass})
@@ -1626,7 +2108,7 @@ async function connectSmtp() {
       <div>
         <label class="block text-xs font-bold text-slate-300 mb-1">👤 Select Target CV Profile <span class="text-emerald-400">*</span></label>
         <div class="relative">
-          <select id="selectTestProfile" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
+          <select id="selectTestProfile" onchange="updateTestJobFromProfile()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-emerald-500/40 text-white text-xs font-bold focus:border-emerald-400 focus:outline-none transition-all appearance-none cursor-pointer" dir="auto">
             {% for p in profiles %}
             <option value="{{ p.id }}">{{ p.profile_name }}</option>
             {% else %}
@@ -1646,12 +2128,12 @@ async function connectSmtp() {
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Target 公司 Name</label>
-          <input type="text" id="inputTest公司" value="Global Tech Solutions" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Target Company Name</label>
+          <input type="text" id="inputTestCompany" value="Target Employer" placeholder="e.g. Saudi Aramco, Microsoft..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-300 mb-1">Target 职位名称</label>
-          <input type="text" id="inputTestJob" value="IT Manager / Senior Engineer" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
+          <label class="block text-xs font-bold text-slate-300 mb-1">Target Job Title</label>
+          <input type="text" id="inputTestJob" value="" placeholder="e.g. Senior Software Engineer..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-medium focus:border-emerald-400 focus:outline-none transition-all" dir="auto">
         </div>
       </div>
 
@@ -1675,6 +2157,7 @@ async function connectSmtp() {
 </dialog>
 
 <script>
+let _userProfilesCache = [];
 async function openTestEmailModal() {
   const dialog = document.getElementById('testEmailModal');
   if (dialog) dialog.showModal();
@@ -1683,13 +2166,39 @@ async function openTestEmailModal() {
     const res = await fetch('/api/v2/campaigns/user-profiles');
     const data = await res.json();
     const sel = document.getElementById('selectTestProfile');
-    if (sel && data.profiles && data.profiles.length > 0) {
-      sel.innerHTML = data.profiles.map(p => 
-        `<option value="${p.id}">${p.profile_name || 'Alex Johnson - Senior Software Engineer'}</option>`
-      ).join('');
+    if (sel) {
+      if (data.profiles && data.profiles.length > 0) {
+        _userProfilesCache = data.profiles;
+        sel.innerHTML = data.profiles.map(p => 
+          `<option value="${p.id}">${p.profile_name || 'Executive Profile'}</option>`
+        ).join('');
+        updateTestJobFromProfile();
+      } else {
+        _userProfilesCache = [];
+        sel.innerHTML = '<option value="">No CV profile uploaded yet — please upload your CV first</option>';
+        const jobInput = document.getElementById('inputTestJob');
+        if (jobInput) jobInput.value = '';
+      }
     }
   } catch(e) {
     console.log('[testEmailModal] Profile fetch error:', e);
+  }
+}
+
+function updateTestJobFromProfile() {
+  const sel = document.getElementById('selectTestProfile');
+  const jobInput = document.getElementById('inputTestJob');
+  if (!sel || !jobInput || !_userProfilesCache || !_userProfilesCache.length) return;
+  const selectedId = sel.value;
+  const profile = _userProfilesCache.find(p => String(p.id) === String(selectedId)) || _userProfilesCache[0];
+  if (profile) {
+    if (profile.target_titles) {
+      const firstTitle = profile.target_titles.split(',')[0].trim();
+      if (firstTitle) jobInput.value = firstTitle;
+    } else if (profile.profile_name && profile.profile_name.includes(' - ')) {
+      const parts = profile.profile_name.split(' - ');
+      if (parts[1]) jobInput.value = parts[1].replace(/\s*\(.*?\)/, '').trim();
+    }
   }
 }
 function closeTestEmailModal() {
@@ -1701,11 +2210,18 @@ function closeTestEmailModal() {
 async function submitLiveTestEmail() {
   const profileId = document.getElementById('selectTestProfile') ? document.getElementById('selectTestProfile').value : null;
   const recipient = document.getElementById('inputTestRecipient').value.trim();
-  const company = document.getElementById('inputTest公司').value.trim() || 'Global Tech Solutions';
-  const job = document.getElementById('inputTestJob').value.trim() || 'IT Specialist';
+  const company = document.getElementById('inputTestCompany').value.trim() || 'Enterprise Solutions';
+  const job = document.getElementById('inputTestJob').value.trim() || 'Senior Network Engineer';
   const note = document.getElementById('inputTestNote').value.trim();
   const alertBox = document.getElementById('testEmailAlert');
   const btn = document.getElementById('btnSubmitTestEmail');
+
+  if (!profileId) {
+    alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+    alertBox.innerHTML = '⚠️ No CV profile found. Please <a href="/upload-cv" class="underline font-bold text-white">upload your CV</a> first before dispatching.';
+    alertBox.classList.remove('hidden');
+    return;
+  }
 
   if (!recipient || !recipient.includes('@')) {
     alertBox.className = 'p-3 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/40';

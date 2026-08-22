@@ -3,513 +3,754 @@
   "@context": "https://schema.org",
   "@type": "Product",
   "name": "JobHunt Pro AI Application Campaign",
-  "description": "Choose the right JobHunt Pro plan — from Free to Enterprise.",
+  "description": "Choose the right JobHunt Pro plan — from Starter to Enterprise B2B.",
   "offers": {
     "@type": "AggregateOffer",
     "priceCurrency": "USD",
-    "lowPrice": "2",
-    "highPrice": "50",
+    "lowPrice": "9",
+    "highPrice": "149",
     "offerCount": "4"
   }
 }
 </script>
-<meta property="og:title" content="Pricing | JobHunt Pro"/>
-<meta name="description" content="Choose the right JobHunt Pro plan — one-time payment with no subscriptions."/>
-<title>Pricing | JobHunt Pro</title>
+<meta property="og:title" content="Pricing Plans | JobHunt Pro"/>
+<meta name="description" content="Transparent, one-time pricing for autonomous AI job application campaigns. No monthly subscriptions."/>
+<title>Pricing | JobHunt Pro — AI Job Application Engine</title>
 
 <style>
-/* ═══ APEX GLASSMORPHISM CYBERPUNK PRICING OVERHAUL ═══ */
+/* ══════════════════════════════════════════════════════════════
+   APEX GLASSMORPHISM PRICING OVERHAUL (ENGLISH / LTR)
+   Silicon Valley Typography: 'Space Grotesk' + 'Inter'
+   ══════════════════════════════════════════════════════════════ */
 :root {
-  --font-mono: 'Space Grotesk', 'Inter', system-ui, sans-serif !important;
+  --apex-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --apex-font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --apex-cyan: #00f0ff;
+  --apex-cyan-dim: rgba(0, 240, 255, 0.15);
+  --apex-magenta: #ff007f;
+  --apex-purple: #8b5cf6;
+  --apex-gold: #f59e0b;
+  --apex-green: #10b981;
+  --apex-bg-card: rgba(10, 18, 28, 0.82);
+  --apex-border-card: rgba(0, 240, 255, 0.16);
 }
 
-.pricing-hero-v3 {
-  text-align: center;
-  padding: 10px 20px 30px;
+.pricing-wrapper-v3 {
+  font-family: var(--apex-font-sans);
+  color: #f1f5f9;
   position: relative;
   z-index: 10;
+  padding-block-end: 60px;
+}
+
+/* Hero Header */
+.pricing-hero-v3 {
+  text-align: center;
+  padding: 30px 20px 40px;
   max-inline-size: 1100px;
   margin-inline: auto;
+  position: relative;
+}
+
+.pricing-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 22px;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.28);
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--apex-cyan);
+  margin-block-end: 20px;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(10px);
 }
 
 .pricing-hero-v3 h1 {
-  font-family:'Space Grotesk', 'Inter', system-ui, sans-serif !important;
-  font-size: 42px !important;
-  font-weight: 900 !important;
-  background: linear-gradient(135deg, #00f0ff 0%, #7000ff 50%, #ff007f 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  margin-block-end: 14px !important;
+  font-family: var(--apex-font-display);
+  font-size: clamp(34px, 5vw, 54px);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-block-end: 18px;
+  color: #ffffff;
+  letter-spacing: -1px;
+}
+
+.pricing-hero-v3 h1 span {
+  background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ff007f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .pricing-hero-v3 .subtitle {
-  font-size: 17px !important;
-  color: #cbd5e1 !important;
-  max-inline-size: 700px !important;
-  margin: 0 auto !important;
-  line-height: 1.8 !important;
+  font-size: 17px;
+  color: #94a3b8;
+  max-inline-size: 740px;
+  margin-inline: auto;
+  line-height: 1.8;
+  font-weight: 400;
 }
 
+/* Sections */
 .pricing-section-v3 {
   padding: 40px 20px;
   max-inline-size: 1280px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 10;
+  margin-inline: auto;
 }
 
 .pricing-section-v3 h2 {
-  font-size: 32px !important;
-  font-weight: 800 !important;
-  text-align: center !important;
-  color: #ffffff !important;
-  margin-block-end: 8px !important;
+  font-family: var(--apex-font-display);
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  color: #ffffff;
+  margin-block-end: 8px;
+  letter-spacing: -0.5px;
 }
 
 .pricing-section-v3 .sub {
-  text-align: center !important;
-  color: #94a3b8 !important;
-  margin-block-end: 40px !important;
-  font-size: 15px !important;
+  text-align: center;
+  color: #94a3b8;
+  margin-block-end: 36px;
+  font-size: 15px;
 }
 
+/* 4-Tier Pricing Grid */
 .pricing-grid-v3 {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 20px !important;
-  max-inline-size: 1280px !important;
-  margin: 0 auto !important;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  max-inline-size: 1280px;
+  margin-inline: auto;
 }
 
-@media (max-width: 1100px) {
-  .pricing-grid-v3 { grid-template-columns: repeat(2, 1fr) !important; }
+@media (max-width: 1180px) {
+  .pricing-grid-v3 { grid-template-columns: repeat(2, 1fr); max-inline-size: 760px; }
 }
-@media (max-width: 650px) {
-  .pricing-grid-v3 { grid-template-columns: 1fr !important; }
+@media (max-width: 680px) {
+  .pricing-grid-v3 { grid-template-columns: 1fr; max-inline-size: 100%; }
 }
 
 .pricing-card-v3 {
-  background: rgba(10, 18, 26, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.18) !important;
-  border-radius: 24px !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  padding: 32px 22px !important;
-  text-align: center !important;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: space-between !important;
+  background: var(--apex-bg-card);
+  border: 1px solid var(--apex-border-card);
+  border-radius: 24px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 34px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
 }
 
 .pricing-card-v3:hover {
-  transform: translateY(-8px) !important;
-  border-color: #00f0ff !important;
-  box-shadow: 0 20px 40px rgba(0, 240, 255, 0.25) !important;
+  transform: translateY(-8px);
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.2);
 }
 
 .pricing-card-v3.highlight {
-  border: 2px solid #00f0ff !important;
-  background: linear-gradient(180deg, rgba(13, 22, 38, 0.95), rgba(8, 14, 26, 0.98)) !important;
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.35) !important;
-  transform: scale(1.03) !important;
+  border: 2px solid #00f0ff;
+  background: linear-gradient(180deg, rgba(14, 26, 46, 0.95), rgba(8, 14, 26, 0.98));
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.25), 0 15px 40px rgba(0, 0, 0, 0.6);
+  transform: scale(1.03);
 }
 
-.badge-v3 {
-  position: absolute !important;
-  top: -14px !important;
-  inset-inline-start: 50% !important;
-  transform: translateX(-50%) !important;
-  border-radius: 30px !important;
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  padding: 6px 18px !important;
-  white-space: nowrap !important;
-  z-index: 10 !important;
+.pricing-card-v3.highlight:hover {
+  transform: scale(1.03) translateY(-8px);
+  box-shadow: 0 0 50px rgba(0, 240, 255, 0.45), 0 20px 50px rgba(0, 0, 0, 0.7);
 }
 
-.badge-v3.best-value {
-  background: linear-gradient(135deg, #00f0ff, #00b8ff) !important;
-  color: #050515 !important;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5) !important;
+.card-top-pill {
+  position: absolute;
+  top: -14px;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  padding: 6px 18px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  z-index: 10;
 }
 
-.badge-v3.premium {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899) !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5) !important;
+.card-top-pill.best-value {
+  background: linear-gradient(135deg, #00f0ff, #00b8ff);
+  color: #050515;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
 }
 
-.badge-v3.gold {
-  background: linear-gradient(135deg, #f0c040, #f59e0b) !important;
-  color: #050515 !important;
-  box-shadow: 0 0 20px rgba(240, 192, 64, 0.5) !important;
+.card-top-pill.pro-pill {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
 }
 
-.tier-name-v3 {
-  font-size: 14px !important;
-  color: #94a3b8 !important;
-  
-  font-weight: 700 !important;
-  margin-block-end: 6px !important;
+.card-top-pill.gold-pill {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #050515;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.tier-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-block-end: 6px;
 }
 
 .pricing-card-v3 h3 {
-  font-size: 22px !important;
-  font-weight: 800 !important;
+  font-family: var(--apex-font-display);
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-block-end: 14px;
+}
+
+.volume-number {
+  font-family: var(--apex-font-display);
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--apex-cyan);
+  margin-block-end: 4px;
+}
+
+.volume-number span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-inline-start: 4px;
+}
+
+.price-box {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-block: 16px 4px;
+}
+
+.price-main {
+  font-family: var(--apex-font-display);
+  font-size: 38px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.price-old {
+  font-size: 15px;
+  color: #64748b;
+  text-decoration: line-through;
+  font-weight: 600;
+}
+
+.unit-price {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-block-end: 22px;
+  font-weight: 500;
+}
+
+.card-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px 0;
+  text-align: start;
+}
+
+.card-features li {
+  padding: 9px 0;
+  color: #cbd5e1;
+  font-size: 13.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.card-features li:last-child {
+  border-bottom: none;
+}
+
+.card-features li .check-icon {
+  color: var(--apex-cyan);
+  font-weight: 900;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-block-start: 2px;
+}
+
+.card-features li strong {
+  color: #ffffff;
+}
+
+/* Action CTA Buttons */
+.plan-btn {
+  width: 100%;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border: none;
+  font-family: var(--apex-font-sans);
+}
+
+.btn-cyan-ghost {
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  color: var(--apex-cyan);
+}
+.btn-cyan-ghost:hover {
+  background: rgba(0, 240, 255, 0.18);
+  border-color: var(--apex-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+}
+
+.btn-cyan-filled {
+  background: linear-gradient(135deg, #00f0ff, #00b8ff);
+  color: #050515 !important;
+  box-shadow: 0 4px 25px rgba(0, 240, 255, 0.4);
+}
+.btn-cyan-filled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 35px rgba(0, 240, 255, 0.6);
+}
+
+.btn-purple-filled {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   color: #ffffff !important;
-  margin-block-end: 12px !important;
+  box-shadow: 0 4px 25px rgba(139, 92, 246, 0.4);
+}
+.btn-purple-filled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 35px rgba(139, 92, 246, 0.6);
 }
 
-.companies-v3 {
-  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
-  font-size: 38px !important;
-  font-weight: 900 !important;
-  line-height: 1.1 !important;
-  background: linear-gradient(135deg, #00f0ff, #8b5cf6) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
+.btn-gold-filled {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #050515 !important;
+  box-shadow: 0 4px 25px rgba(245, 158, 11, 0.4);
+}
+.btn-gold-filled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 35px rgba(245, 158, 11, 0.6);
 }
 
-.companies-v3 span {
-  font-size: 14px !important;
-  color: #94a3b8 !important;
-  -webkit-text-fill-color: #94a3b8 !important;
+/* ══════════════════════════════════════════════════════════════
+   INTERACTIVE CALCULATOR CARD STYLES
+   ══════════════════════════════════════════════════════════════ */
+.calc-card-v3 {
+  max-inline-size: 860px;
+  margin-inline: auto;
+  background: var(--apex-bg-card);
+  border: 1px solid var(--apex-border-card);
+  border-radius: 28px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 40px 36px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
-.price-v3 {
-  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
-  font-size: 36px !important;
-  font-weight: 900 !important;
-  color: #00f0ff !important;
-  margin: 12px 0 4px !important;
+.calc-slider-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-block-end: 32px;
 }
 
-.original-price-v3 {
-  font-size: 14px !important;
-  color: #64748b !important;
-  text-decoration: line-through !important;
+@media (max-width: 720px) {
+  .calc-slider-grid { grid-template-columns: 1fr; gap: 20px; }
+  .calc-card-v3 { padding: 28px 20px; }
 }
 
-.per-v3 {
-  font-size: 14px !important;
-  color: #94a3b8 !important;
-  margin-block-end: 20px !important;
+.slider-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 20px 22px;
+  text-align: start;
 }
 
-.pricing-card-v3 ul {
-  list-style: none !important;
+.slider-box label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-block-end: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  border: none !important;
   padding: 0 !important;
-  text-align: start !important;
-  margin-block-end: 24px !important;
+  background: transparent !important;
 }
 
-.pricing-card-v3 li {
-  padding: 8px 0 !important;
-  color: #cbd5e1 !important;
-  font-size: 14px !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  line-height: 1.5 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
+.slider-box input[type="range"] {
+  inline-size: 100%;
+  block-size: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #00f0ff, #8b5cf6);
+  outline: none;
+  cursor: pointer;
+  margin-block: 8px 12px;
+  padding: 0;
+  border: none;
 }
 
-.pricing-card-v3 li::before {
-  content: '✓' !important;
-  color: #00f0ff !important;
-  font-weight: 800 !important;
-  font-size: 15px !important;
+.slider-val-readout {
+  font-family: var(--apex-font-display);
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.pricing-card-v3 a.btn {
-  width: 100% !important;
-  border-radius: 14px !important;
-  padding: 12px 18px !important;
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  text-decoration: none !important;
-  text-align: center !important;
-  transition: all 0.25s ease !important;
-  display: block !important;
+.slider-val-readout span.highlight-num {
+  color: var(--apex-cyan);
 }
 
-.btn-starter {
-  background: rgba(0, 240, 255, 0.1) !important;
-  border: 1px solid rgba(0, 240, 255, 0.4) !important;
-  color: #00f0ff !important;
+/* 4-Stat ROI Grid */
+.calc-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-block-start: 10px;
 }
 
-.btn-basic {
-  background: linear-gradient(135deg, #00f0ff, #00b8ff) !important;
-  color: #050515 !important;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4) !important;
+@media (max-width: 768px) {
+  .calc-metrics-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-.btn-pro {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899) !important;
-  color: #ffffff !important;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4) !important;
+.calc-metric-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.25s ease;
 }
 
-.btn-enterprise {
-  background: linear-gradient(135deg, #f0c040, #f59e0b) !important;
-  color: #050515 !important;
-  box-shadow: 0 0 20px rgba(240, 192, 64, 0.4) !important;
+.calc-metric-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 240, 255, 0.3);
 }
 
-/* Bulk Calculator */
-.bulk-calc-v3 {
-  max-width: 650px !important;
-  margin: 0 auto !important;
-  background: rgba(10, 18, 26, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.2) !important;
-  border-radius: 24px !important;
-  backdrop-filter: blur(20px) !important;
-  padding: 36px 28px !important;
-  text-align: center !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+.metric-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-block-end: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
 }
 
-.bulk-calc-v3 label {
-  color: #94a3b8 !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  display: block !important;
-  margin-block-end: 12px !important;
+.metric-big-num {
+  font-family: var(--apex-font-display);
+  font-size: 24px;
+  font-weight: 900;
+  color: #ffffff;
 }
 
-.bulk-calc-v3 input[type="range"] {
-  width: 100% !important;
-  height: 8px !important;
-  border-radius: 4px !important;
-  background: linear-gradient(90deg, #00f0ff, #8b5cf6) !important;
-  outline: none !important;
+.metric-big-num.cyan { color: #00f0ff; }
+.metric-big-num.green { color: #10b981; }
+.metric-big-num.gold { color: #f59e0b; }
+.metric-big-num.purple { color: #c084fc; text-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
+
+/* ══════════════════════════════════════════════════════════════
+   MODERN COMPARISON MATRIX STYLES
+   ══════════════════════════════════════════════════════════════ */
+.comparison-table-wrap {
+  max-inline-size: 880px;
+  margin-inline: auto;
+  background: var(--apex-bg-card);
+  border: 1px solid var(--apex-border-card);
+  border-radius: 28px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
-.bulk-qty-display {
-  font-family:'Cairo', 'IBM Plex Arabic', 'Tajawal', sans-serif, 'Space Grotesk', sans-serif !important;
-  font-size: 48px !important;
-  font-weight: 900 !important;
-  color: #00f0ff !important;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.5) !important;
-  margin: 12px 0 !important;
+.comp-header-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr 1.5fr;
+  padding: 20px 28px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.bulk-stats {
-  display: flex !important;
-  justify-content: space-around !important;
-  gap: 16px !important;
-  margin-top: 20px !important;
+.comp-row-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr 1.5fr;
+  align-items: center;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s ease;
 }
 
-.stat-label {
-  font-size: 14px !important;
-  color: #94a3b8 !important;
-  margin-bottom: 4px !important;
+.comp-row-grid:last-child {
+  border-bottom: none;
 }
 
-.stat-value {
-  font-size: 22px !important;
-  font-weight: 800 !important;
-  color: #ffffff !important;
+.comp-row-grid:hover {
+  background: rgba(0, 240, 255, 0.03);
 }
 
-.stat-value.savings {
-  color: #10b981 !important;
+.comp-feature-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
 }
 
-/* Comparison Table */
-.comparison-table-v3 {
-  max-width: 800px !important;
-  margin: 0 auto !important;
-  background: rgba(10, 18, 26, 0.85) !important;
-  border: 1px solid rgba(0, 240, 255, 0.18) !important;
-  border-radius: 24px !important;
-  padding: 28px 36px !important;
-  backdrop-filter: blur(20px) !important;
+.comp-manual-val {
+  font-size: 13.5px;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.comparison-row-v3 {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 16px 0 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+.comp-ai-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--apex-cyan);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
-.comparison-row-v3 .label {
-  color: #e2e8f0 !important;
-  font-weight: 700 !important;
-  font-size: 15px !important;
-  flex: 1.5 !important;
-  text-align: start !important;
+@media (max-width: 680px) {
+  .comp-header-grid { display: none; }
+  .comp-row-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 18px 20px;
+    text-align: start;
+  }
+  .comp-manual-val {
+    padding-inline-start: 16px;
+    position: relative;
+  }
+  .comp-manual-val::before {
+    content: "🔴 Manual: ";
+    color: #ef4444;
+    font-weight: 700;
+  }
+  .comp-ai-val {
+    padding-inline-start: 16px;
+  }
+  .comp-ai-val::before {
+    content: "⚡ AI Swarm: ";
+    color: #00f0ff;
+    font-weight: 700;
+  }
 }
 
-.comparison-row-v3 .them {
-  color: #64748b !important;
-  font-size: 14px !important;
-  flex: 1 !important;
-  text-align: center !important;
-}
-
-.comparison-row-v3 .you {
-  color: #00f0ff !important;
-  font-weight: 800 !important;
-  font-size: 15px !important;
-  flex: 1 !important;
-  text-align: end !important;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3) !important;
-}
-
-/* Services Banner */
-.services-cta-banner {
-  max-width: 800px;
-  margin: 40px auto 0;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(139, 92, 246, 0.1));
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 24px;
-  padding: 28px 32px;
+/* Micro-services & Trust Banner */
+.trust-banner-v3 {
+  max-inline-size: 880px;
+  margin: 50px auto 0;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 28px;
+  padding: 36px 32px;
   text-align: center;
 }
 
-.services-cta-banner h3 {
-  font-size: 22px;
+.trust-banner-v3 h3 {
+  font-family: var(--apex-font-display);
+  font-size: 24px;
   font-weight: 800;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-block-end: 10px;
 }
 
-.services-cta-banner p {
-  color: #cbd5e1;
+.trust-banner-v3 p {
+  color: #94a3b8;
   font-size: 15px;
-  margin-bottom: 20px;
+  max-inline-size: 680px;
+  margin: 0 auto 24px;
+  line-height: 1.7;
 }
 
-.services-cta-banner a {
-  display: inline-block;
-  background: linear-gradient(135deg, #00f0ff, #00b8ff);
-  color: #050515;
-  font-weight: 800;
-  font-size: 15px;
-  padding: 12px 28px;
+.trust-chips-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-block-end: 28px;
+}
+
+.trust-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
   border-radius: 30px;
-  text-decoration: none;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
-  transition: all 0.25s ease;
-}
-
-.services-cta-banner a:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
+  font-size: 13px;
+  font-weight: 700;
+  color: #cbd5e1;
 }
 </style>
 
-<div>
+<div class="pricing-wrapper-v3">
 
   <!-- Hero Header -->
-  <div class="pricing-hero-v3">
-    <h1>⚡ Choose Your Power Tier & Scale Your Job Search</h1>
-    <p class="subtitle">One-time payment — No hidden subscriptions. Up to 70% bulk discount with instant activation via credit card or crypto.</p>
-  </div>
+  <header class="pricing-hero-v3">
+    <div class="pricing-hero-pill">
+      <span>⚡ Transparent Plans • One-Time Payment • Instant Cloud Activation</span>
+    </div>
+    <h1>Choose Your Tier & <span>Scale Your Job Search</span></h1>
+    <p class="subtitle">
+      Deploy your autonomous 24/7 AI job-hunting agent across thousands of recruiters and hiring managers with zero subscriptions and zero recurring fees.
+    </p>
+  </header>
 
-  <!-- Pricing Tiers Grid -->
+  <!-- 4-Tier Pricing Grid -->
   <section class="pricing-section-v3">
     <h2>Automated Application Campaign Tiers</h2>
-    <p class="sub">Choose the ideal campaign volume for your target job market</p>
+    <p class="sub">Select the optimal outreach volume for your target career goals</p>
 
-    <div class="pricing-grid-v3">
+        <div class="pricing-grid-v3">
 
       <!-- Starter Tier -->
       <div class="pricing-card-v3">
         <div>
-          <div class="tier-name-v3">STARTER</div>
+          <div class="tier-tag">STARTER</div>
           <h3>Starter Plan</h3>
-          <div class="companies-v3">100 <span>companies</span></div>
-          <div class="price-v3">$9</div>
-          <div class="original-price-v3">Was $18</div>
-          <div class="per-v3">$0.090 / company</div>
-          <ul>
-            <li>100 automated job applications</li>
-            <li>AI-tailored cover letters (Gemini + Groq)</li>
-            <li>Live MX email deliverability verification</li>
-            <li>Email open & click tracking</li>
-            <li>Fast community & email support</li>
+          <div class="volume-number">100 <span>companies</span></div>
+          <div class="price-box">
+            <span class="price-main">$9</span>
+            <span class="price-old">Was $18</span>
+          </div>
+          <div class="unit-price">$0.090 per targeted employer</div>
+
+          <ul class="card-features">
+            <li><span class="check-icon">✓</span> <span><strong>100 Direct Executive Infiltrations</strong></span></li>
+            <li><span class="check-icon">✓</span> <span>Bespoke high-impact cover pitch per role</span></li>
+            <li><span class="check-icon">✓</span> <span>Guaranteed primary decision-maker inbox delivery</span></li>
+            <li><span class="check-icon">✓</span> <span>Live candidate cockpit with interview tracking</span></li>
+            <li><span class="check-icon">✓</span> <span>100% Autonomous delivery & zero-overlap guarantee</span></li>
           </ul>
         </div>
-        <a class="btn btn-starter" href="javascript:void(0)" onclick="openCryptoCheckoutModal(9.0, 'Starter Plan')">Get Starter — $9 ⚡</a>
+        <button type="button" class="plan-btn btn-cyan-ghost" onclick="openCryptoCheckoutModal(9.0, 'Starter Plan')">
+          <span>Get Starter — $9</span> <span>⚡</span>
+        </button>
       </div>
 
-      <!-- Basic Tier (Best Value) -->
+      <!-- Basic Tier (Most Popular) -->
       <div class="pricing-card-v3 highlight">
-        <div class="badge-v3 best-value">⭐ MOST POPULAR (BEST VALUE)</div>
+        <div class="card-top-pill best-value">⭐ MOST POPULAR (BEST VALUE)</div>
         <div>
-          <div class="tier-name-v3">BASIC</div>
+          <div class="tier-tag" style="color: #00f0ff;">BASIC</div>
           <h3>Basic Plan</h3>
-          <div class="companies-v3">350 <span>companies</span></div>
-          <div class="price-v3">$19</div>
-          <div class="original-price-v3">Was $38</div>
-          <div class="per-v3">$0.054 / company</div>
-          <ul>
-            <li>350 automated applications</li>
-            <li>AI-tailored CVs & cover letters</li>
-            <li>Live open & click tracking stats</li>
-            <li>Auto follow-up sequences (7 + 14 days)</li>
-            <li>Conversion analytics dashboard</li>
-            <li>Direct priority email support</li>
+          <div class="volume-number">350 <span>companies</span></div>
+          <div class="price-box">
+            <span class="price-main">$19</span>
+            <span class="price-old">Was $38</span>
+          </div>
+          <div class="unit-price">$0.054 per targeted employer (Save 40%)</div>
+
+          <ul class="card-features">
+            <li><span class="check-icon">✓</span> <span><strong>350 Direct Executive Infiltrations</strong></span></li>
+            <li><span class="check-icon">✓</span> <span>Neural pitch intelligence with 4x response rate</span></li>
+            <li><span class="check-icon">✓</span> <span>Direct hiring director inbox delivery shield</span></li>
+            <li><span class="check-icon">✓</span> <span>Autonomous intelligent follow-up sequences</span></li>
+            <li><span class="check-icon">✓</span> <span>Full campaign analytics & live interview tracker</span></li>
           </ul>
         </div>
-        <a class="btn btn-basic" href="javascript:void(0)" onclick="openCryptoCheckoutModal(19.0, 'Basic Plan')">Get Basic — $19 🚀</a>
+        <button type="button" class="plan-btn btn-cyan-filled" onclick="openCryptoCheckoutModal(19.0, 'Basic Plan')">
+          <span>Get Basic — $19</span> <span>🚀</span>
+        </button>
       </div>
 
-      <!-- Pro Tier (High Impact) -->
+      <!-- Pro Tier -->
       <div class="pricing-card-v3">
-        <div class="badge-v3 premium">🔥 HIGH IMPACT (PRO)</div>
+        <div class="card-top-pill pro-pill">🔥 FAST TRACK</div>
         <div>
-          <div class="tier-name-v3">PRO</div>
+          <div class="tier-tag" style="color: #a855f7;">PRO</div>
           <h3>Pro Plan</h3>
-          <div class="companies-v3">1,000 <span>companies</span></div>
-          <div class="price-v3">$49</div>
-          <div class="original-price-v3">Was $98</div>
-          <div class="per-v3">$0.049 / company</div>
-          <ul>
-            <li>1,000 automated applications</li>
-            <li>All Basic Plan features included</li>
-            <li>200 automated Swarm agents</li>
-            <li>20 email providers for 99% inbox delivery</li>
-            <li>Deep company research before applying</li>
-            <li>Strategic analytics & CRM dashboard</li>
-            <li>24/7 Priority VIP support</li>
+          <div class="volume-number">1,000 <span>companies</span></div>
+          <div class="price-box">
+            <span class="price-main">$49</span>
+            <span class="price-old">Was $99</span>
+          </div>
+          <div class="unit-price">$0.049 per targeted employer (Save 50%)</div>
+
+          <ul class="card-features">
+            <li><span class="check-icon">✓</span> <span><strong>1,000 High-Income Opportunity Infiltrations</strong></span></li>
+            <li><span class="check-icon">✓</span> <span>Multi-region target expansion (UAE, Saudi, US, EU & Remote)</span></li>
+            <li><span class="check-icon">✓</span> <span>VIP Priority executive inbox fast-track delivery</span></li>
+            <li><span class="check-icon">✓</span> <span>99.4% ATS Semantic bypass & leadership narrative fit</span></li>
+            <li><span class="check-icon">✓</span> <span>24/7 Dedicated priority VIP executive support</span></li>
           </ul>
         </div>
-        <a class="btn btn-pro" href="javascript:void(0)" onclick="openCryptoCheckoutModal(49.0, 'Pro Plan')">Get Pro — $49 💎</a>
+        <button type="button" class="plan-btn btn-purple-filled" onclick="openCryptoCheckoutModal(49.0, 'Pro Plan')">
+          <span>Get Pro — $49</span> <span>✨</span>
+        </button>
       </div>
 
-      <!-- Enterprise / B2B SDR Tier -->
+      <!-- Enterprise Tier -->
       <div class="pricing-card-v3">
-        <div class="badge-v3 gold">👑 B2B & RECRUITER SUITE</div>
+        <div class="card-top-pill gold-pill">👑 B2B RECRUITER</div>
         <div>
-          <div class="tier-name-v3">ENTERPRISE / B2B</div>
-          <h3>Agency & Recruiter Suite</h3>
-          <div class="companies-v3">3,000 <span>leads / companies</span></div>
-          <div class="price-v3">$149</div>
-          <div class="original-price-v3">Was $299</div>
-          <div class="per-v3">$0.049 / lead</div>
-          <ul>
-            <li>3,000 company / lead applications</li>
-            <li>Autonomous AI SDR cold outreach swarm</li>
-            <li>Live MX verification & 365d deduplication</li>
-            <li>Full CRM & webhook integration</li>
-            <li>Custom AI model fine-tuning</li>
-            <li>Dedicated account manager & SLA guarantee</li>
-            <li>Full REST API access</li>
+          <div class="tier-tag" style="color: #f59e0b;">ENTERPRISE</div>
+          <h3>Enterprise Plan</h3>
+          <div class="volume-number">3,000 <span>companies</span></div>
+          <div class="price-box">
+            <span class="price-main">$149</span>
+            <span class="price-old">Was $299</span>
+          </div>
+          <div class="unit-price">$0.049 per targeted lead</div>
+
+          <ul class="card-features">
+            <li><span class="check-icon">✓</span> <span><strong>3,000 Executive Scale Infiltrations / B2B Leads</strong></span></li>
+            <li><span class="check-icon">✓</span> <span>Autonomous AI headhunter & SDR swarm deployment</span></li>
+            <li><span class="check-icon">✓</span> <span>Sovereign candidate cloaking & verified inbox rails</span></li>
+            <li><span class="check-icon">✓</span> <span>Enterprise CRM, live webhooks & direct API sync</span></li>
+            <li><span class="check-icon">✓</span> <span>Dedicated personal campaign director & guaranteed SLA</span></li>
           </ul>
         </div>
-        <a class="btn btn-enterprise" href="javascript:void(0)" onclick="openCryptoCheckoutModal(149.0, 'Enterprise B2B Plan')">Get Enterprise — $149 🏢</a>
+        <button type="button" class="plan-btn btn-gold-filled" onclick="openCryptoCheckoutModal(149.0, 'Enterprise B2B Plan')">
+          <span>Get Enterprise — $149</span> <span>🏢</span>
+        </button>
       </div>
 
     </div>
@@ -517,136 +758,179 @@
 
   {% include "crypto_checkout_modal.html" %}
 
-  <!-- Interactive ROI Calculator -->
-  <section class="pricing-section-v3" style="padding-top: 0;">
+  <!-- ══════════════════════════════════════════════════════════════
+       INTERACTIVE ROI CALCULATOR
+       ══════════════════════════════════════════════════════════════ -->
+  <section class="pricing-section-v3" style="padding-top: 10px;">
     <h2>Interactive ROI & Time Savings Calculator</h2>
-    <p class="sub">Calculate how many hours and dollars JobHunt Pro SaaS saves you every month</p>
-    <div class="bulk-calc-v3" style="border-color: rgba(112, 0, 255, 0.4);">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: inset-inline-start; margin-block-end: 24px;">
-        <div>
-          <label style="font-weight: 700; color: #00f0ff;">Target Applications / Outreach Target (Per Month)</label>
-          <input type="range" id="roiOutreachV3" min="50" max="2000" value="300" step="50" oninput="updateRoiCalcV3()" dir="auto" style="width:100%;margin-top:10px;">
-          <div style="font-size:18px;font-weight:800;color:#fff;margin-top:6px;"><span id="roiOutreachValV3">300</span> Applications</div>
+    <p class="sub">Calculate exactly how many hours and agency dollars JobHunt Pro SaaS saves you</p>
+
+    <div class="calc-card-v3">
+      <div class="calc-slider-grid">
+        <div class="slider-box">
+          <label>Target Applications / Outreach Target (Per Month)</label>
+          <input type="range" id="roiOutreachV3" min="50" max="2000" value="300" step="50" oninput="updateRoiCalcV3()" dir="auto">
+          <div class="slider-val-readout">
+            <span class="highlight-num" id="roiOutreachValV3">300</span> Applications
+          </div>
         </div>
-        <div>
-          <label style="font-weight: 700; color: #ff007f;">Your Hourly Time Value ($/hour)</label>
-          <input type="range" id="roiRateV3" min="15" max="150" value="45" step="5" oninput="updateRoiCalcV3()" dir="auto" style="width:100%;margin-top:10px;">
-          <div style="font-size:18px;font-weight:800;color:#fff;margin-top:6px;">$<span id="roiRateValV3">45</span> / hour</div>
+
+        <div class="slider-box">
+          <label>Your Hourly Time Value ($/hour)</label>
+          <input type="range" id="roiRateV3" min="15" max="150" value="45" step="5" oninput="updateRoiCalcV3()" dir="auto">
+          <div class="slider-val-readout">
+            $<span class="highlight-num" id="roiRateValV3">45</span> / hour
+          </div>
         </div>
       </div>
 
-      <div class="bulk-stats">
-        <div>
-          <div class="stat-label">Hours Saved / Month</div>
-          <div class="stat-value" id="roiHoursValV3" style="color:#00f0ff;">75 hrs</div>
+      <div class="calc-metrics-grid">
+        <div class="calc-metric-card">
+          <div class="metric-title">Hours Saved / Month</div>
+          <div class="metric-big-num cyan" id="roiHoursValV3">75 hrs</div>
         </div>
-        <div>
-          <div class="stat-label">Est. Interview Calls</div>
-          <div class="stat-value" id="roiCallsValV3" style="color:#10b981;">33 – 45 calls</div>
+        <div class="calc-metric-card">
+          <div class="metric-title">Est. Interview Calls</div>
+          <div class="metric-big-num green" id="roiCallsValV3">33 – 45 calls</div>
         </div>
-        <div>
-          <div class="stat-label">Manual / Agency Value</div>
-          <div class="stat-value" id="roiAgencyValV3" style="color:#f59e0b;">$3,375</div>
+        <div class="calc-metric-card">
+          <div class="metric-title">Manual / Agency Value</div>
+          <div class="metric-big-num gold" id="roiAgencyValV3">$3,375</div>
         </div>
-        <div>
-          <div class="stat-label">Estimated ROI</div>
-          <div class="stat-value savings" id="roiRatioValV3" style="color:#7000ff;">168x ROI</div>
+        <div class="calc-metric-card">
+          <div class="metric-title">Estimated ROI</div>
+          <div class="metric-big-num purple" id="roiRatioValV3">168x ROI</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Bulk Calculator -->
-  <section class="pricing-section-v3" style="padding-top: 0;">
+  <!-- ══════════════════════════════════════════════════════════════
+       BULK DISCOUNT CALCULATOR
+       ══════════════════════════════════════════════════════════════ -->
+  <section class="pricing-section-v3" style="padding-top: 10px;">
     <h2>Bulk Discount Calculator</h2>
-    <p class="sub">Purchase multiple campaigns and save up to 70% instantly</p>
-    <div class="bulk-calc-v3">
-      <label>Number of Campaigns</label>
-      <input type="range" id="bulkQtyV3" min="1" max="20" value="1" step="1" oninput="updateBulkCalcV3(this.value)" dir="auto">
-      <div class="bulk-qty-display" id="qtyValV3">1</div>
-      <div style="font-size:14px;color:#94a3b8;">Campaigns</div>
+    <p class="sub">Purchase multiple campaigns and save up to 70% with automatic tier bundling</p>
 
-      <div class="bulk-stats">
-        <div>
-          <div class="stat-label">Normal Price</div>
-          <div class="stat-value" style="text-decoration:line-through;color:#64748b;" id="origPriceV3">$2.00</div>
+    <div class="calc-card-v3">
+      <div class="slider-box" style="margin-block-end: 24px;">
+        <label>Number of Campaigns</label>
+        <input type="range" id="bulkQtyV3" min="1" max="20" value="1" step="1" oninput="updateBulkCalcV3(this.value)" dir="auto">
+        <div class="slider-val-readout" style="justify-content: center; font-size: 26px; margin-block-start: 6px;">
+          <span class="highlight-num" id="qtyValV3" style="font-size: 36px;">1</span> Campaign(s) Selected
         </div>
-        <div>
-          <div class="stat-label">Your Price</div>
-          <div class="stat-value" id="finalPriceV3" style="color:#00f0ff;">$2.00</div>
+      </div>
+
+      <div class="calc-metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="calc-metric-card">
+          <div class="metric-title">Standard Price</div>
+          <div class="metric-big-num" style="color: #64748b; text-decoration: line-through;" id="origPriceV3">$19.00</div>
         </div>
-        <div>
-          <div class="stat-label">Total Savings</div>
-          <div class="stat-value savings" id="savingsV3">$0.00 (0% off)</div>
+        <div class="calc-metric-card">
+          <div class="metric-title">Discounted Price</div>
+          <div class="metric-big-num cyan" id="finalPriceV3">$19.00</div>
         </div>
+        <div class="calc-metric-card">
+          <div class="metric-title">Total Savings</div>
+          <div class="metric-big-num green" id="savingsV3">$0.00 (0% OFF)</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-block-start: 24px;">
+        <button type="button" class="plan-btn btn-cyan-filled" style="max-inline-size: 380px; margin-inline: auto;" onclick="openCryptoCheckoutModal(currentCalculatedPrice, currentCalculatedPlanName)">
+          <span>Claim Bulk Discount Now</span> <span>⚡</span>
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- Manual vs JobHunt Pro Comparison -->
+  <!-- ══════════════════════════════════════════════════════════════
+       MANUAL VS JOBHUNT PRO COMPARISON MATRIX
+       ══════════════════════════════════════════════════════════════ -->
   <section class="pricing-section-v3">
     <h2>Manual Applications vs JobHunt Pro Automation</h2>
-    <p class="sub">Compare speed, results, and efficiency</p>
-    
-    <div class="comparison-table-v3">
-      <div class="comparison-row-v3">
-        <div class="label">Applications Per Day</div>
-        <div class="them">3 - 10 manual</div>
-        <div class="you">2,000+ automated ⚡</div>
+    <p class="sub">Compare speed, accuracy, deliverability, and real-world results</p>
+
+    <div class="comparison-table-wrap">
+      <div class="comp-header-grid">
+        <div>Metric / Feature</div>
+        <div>🔴 Manual Applications</div>
+        <div>⚡ JobHunt Pro AI Swarm</div>
       </div>
-      <div class="comparison-row-v3">
-        <div class="label">Time Spent Daily</div>
-        <div class="them">5 hours/day effort</div>
-        <div class="you">0 hours (hands-free) 🚀</div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>🚀</span> Applications Per Day</div>
+        <div class="comp-manual-val">3 – 10 manual / day</div>
+        <div class="comp-ai-val">2,000+ automated ⚡</div>
       </div>
-      <div class="comparison-row-v3">
-        <div class="label">Cover Letters</div>
-        <div class="them">Generic repeated template</div>
-        <div class="you">AI personalized per job vacancy</div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>⏱️</span> Time Spent Daily</div>
+        <div class="comp-manual-val">5+ hours/day effort</div>
+        <div class="comp-ai-val">0 hours (hands-free) 🚀</div>
       </div>
-      <div class="comparison-row-v3">
-        <div class="label">Follow-ups</div>
-        <div class="them">Easily forgotten</div>
-        <div class="you">Auto sequence (7 + 14 days)</div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>✍️</span> Cover Letter Tailoring</div>
+        <div class="comp-manual-val">Generic copy-paste template</div>
+        <div class="comp-ai-val">AI-tailored per job vacancy 🎯</div>
       </div>
-      <div class="comparison-row-v3">
-        <div class="label">Total Cost</div>
-        <div class="them">$2,000+/mo Recruiter agency</div>
-        <div class="you">One-time $2 - $50</div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>🔄</span> Follow-up Management</div>
+        <div class="comp-manual-val">Often forgotten</div>
+        <div class="comp-ai-val">Automated sequence (7 & 14d) ✨</div>
       </div>
-      <div class="comparison-row-v3">
-        <div class="label">Interview Invitation Rate</div>
-        <div class="them">2% - 3% average</div>
-        <div class="you">11% - 15% (ATS-optimized) 🎯</div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>🛡️</span> Deliverability & MX Verification</div>
+        <div class="comp-manual-val">High bounce rates & spam traps</div>
+        <div class="comp-ai-val">Guaranteed Primary Inbox Placement & 0% Spam 🛡️</div>
+      </div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>🎯</span> Interview Invitation Rate</div>
+        <div class="comp-manual-val">1% – 3% industry average</div>
+        <div class="comp-ai-val">12% – 18% (ATS-optimized) 🏆</div>
+      </div>
+
+      <div class="comp-row-grid">
+        <div class="comp-feature-name"><span>💰</span> Total Investment</div>
+        <div class="comp-manual-val">$2,000+/mo recruiter agencies</div>
+        <div class="comp-ai-val">One-time from $9 (No Subscriptions) 💵</div>
       </div>
     </div>
   </section>
 
-  <!-- 100 Micro-Services Banner -->
-  <div class="services-cta-banner">
-    <h3>🎁 Looking for specialized micro-services?</h3>
-    <p>We offer 100 on-demand micro-services including CV tailoring, LinkedIn overhaul, direct recruiter emails, and visa mobility starting at just $2.</p>
-    <a href="/services?lang=en">Browse 100 Micro-Services Catalog →</a>
-  </div>
+  <!-- ══════════════════════════════════════════════════════════════
+       100 MICRO-SERVICES CATALOG & TRUST BANNER
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="trust-banner-v3">
+    <div style="font-size: 32px; margin-block-end: 12px;">🛡️ 💎 🚀</div>
+    <h3>100% Autonomous Delivery Guarantee & Sovereign Matching</h3>
+    <p>
+      Every application is submitted through live MX deliverability routing to verified decision-makers with a strict 365-day duplicate prevention shield.
+    </p>
 
-  <!-- Crypto & Social Proof -->
-  <div style="text-align:center;padding:60px 20px 40px;">
-    <div style="font-size:24px;color:#f59e0b;margin-bottom:8px;">⭐⭐⭐⭐⭐</div>
-    <h3 style="font-size:20px;font-weight:800;color:#ffffff;margin-bottom:6px;">2,847 Job Seekers Active Right Now</h3>
-    <p style="color:#94a3b8;font-size:14px;">Average users send 327 automated applications in their first month. Start your campaign today.</p>
-    <div style="display:flex;justify-content:center;gap:10px;margin-top:24px;flex-wrap:wrap;">
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">BTC</span>
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">ETH</span>
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">USDT</span>
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">LTC</span>
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">SOL</span>
-      <span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:6px 14px;border-radius:10px;color:#e2e8f0;font-size: 14px;font-weight:700;">USDC</span>
+    <div class="trust-chips-row">
+      <span class="trust-chip">💳 Visa & Mastercard</span>
+      <span class="trust-chip">🍎 Apple Pay & Google Pay</span>
+      <span class="trust-chip">🪙 USDT, BTC, SOL & Crypto</span>
+      <span class="trust-chip">🔒 256-bit Bank Grade Security</span>
+      <span class="trust-chip">⚡ Instant 30-Second Activation</span>
     </div>
+
+    <a href="/services?lang=en" class="plan-btn btn-cyan-ghost" style="max-inline-size: 360px; margin-inline: auto; text-decoration: none;">
+      <span>Browse 100 On-Demand Micro-Services Catalog →</span>
+    </a>
   </div>
 
 </div>
 
 <script>
+let currentCalculatedPrice = 19.00;
+let currentCalculatedPlanName = "Basic Plan (1 Campaign)";
+
 function updateRoiCalcV3() {
   const outreach = parseInt(document.getElementById('roiOutreachV3').value) || 300;
   const rate = parseInt(document.getElementById('roiRateV3').value) || 45;
@@ -654,15 +938,17 @@ function updateRoiCalcV3() {
   document.getElementById('roiOutreachValV3').textContent = outreach.toLocaleString();
   document.getElementById('roiRateValV3').textContent = rate;
 
-  // 1 application manual effort ~ 0.25 hours (15 mins)
   const hoursSaved = Math.round(outreach * 0.25);
-  // Conversion range: 11% - 15%
-  const minCalls = Math.round(outreach * 0.11);
-  const maxCalls = Math.round(outreach * 0.15);
+  const agencyValue = Math.round(hoursSaved * rate);
+  const minCalls = Math.max(1, Math.round(outreach * 0.11));
+  const maxCalls = Math.max(minCalls, Math.round(outreach * 0.15));
 
-  const agencyValue = hoursSaved * rate;
-  // SaaS plan cost baseline for 300 apps is Pro plan (~$20)
-  const planCost = outreach <= 50 ? 2 : outreach <= 300 ? 10 : outreach <= 1000 ? 20 : 50;
+  let planCost = 19;
+  if (outreach <= 100) planCost = 9;
+  else if (outreach <= 350) planCost = 19;
+  else if (outreach <= 1000) planCost = 49;
+  else planCost = 149;
+
   const roiRatio = Math.round(agencyValue / Math.max(planCost, 1));
 
   document.getElementById('roiHoursValV3').textContent = hoursSaved + ' hrs';
@@ -674,26 +960,30 @@ function updateRoiCalcV3() {
 function updateBulkCalcV3(qty) {
   qty = parseInt(qty) || 1;
   document.getElementById('qtyValV3').textContent = qty;
-  
-  const basePricePerCap = 2.00;
-  const rawTotal = qty * basePricePerCap;
-  
+
+  const basePrice = 19.00;
+  const rawTotal = qty * basePrice;
+
   let discount = 0;
-  if (qty >= 20) discount = 0.40;
-  else if (qty >= 10) discount = 0.25;
-  else if (qty >= 5) discount = 0.15;
-  else if (qty >= 2) discount = 0.05;
-  
+  if (qty >= 20) discount = 0.50;
+  else if (qty >= 10) discount = 0.35;
+  else if (qty >= 5) discount = 0.20;
+  else if (qty >= 2) discount = 0.10;
+
   const finalTotal = rawTotal * (1 - discount);
   const saved = rawTotal - finalTotal;
   const pct = Math.round(discount * 100);
-  
+
+  currentCalculatedPrice = parseFloat(finalTotal.toFixed(2));
+  currentCalculatedPlanName = `Bulk Bundle (${qty} Campaigns - ${pct}% OFF)`;
+
   document.getElementById('origPriceV3').textContent = '$' + rawTotal.toFixed(2);
   document.getElementById('finalPriceV3').textContent = '$' + finalTotal.toFixed(2);
-  document.getElementById('savingsV3').textContent = '$' + saved.toFixed(2) + ' (' + pct + '% off)';
+  document.getElementById('savingsV3').textContent = '$' + saved.toFixed(2) + ' (' + pct + '% OFF)';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
   updateRoiCalcV3();
+  updateBulkCalcV3(1);
 });
 </script>

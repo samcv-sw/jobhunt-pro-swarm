@@ -392,35 +392,82 @@ def get_unlocked_features(user_id: str) -> set:
     return unlocked
 
 
-import functools
+def get_active_flash_sale() -> dict[str, Any] | None:
+    """Retrieve currently active flash sale from database if valid and live."""
+    from datetime import datetime as dt
+    now_iso = dt.now().isoformat()
+    try:
+        from web.shared import get_db
+        with get_db() as conn:
+            row = conn.execute(
+                "SELECT * FROM flash_sales WHERE active = 1 AND start_time <= ? AND end_time > ? ORDER BY id DESC LIMIT 1",
+                (now_iso, now_iso)
+            ).fetchone()
+            if row:
+                return dict(row)
+    except Exception:
+        pass
+    return None
 
 
-@functools.lru_cache(maxsize=1)
-def get_all_pricing() -> dict[str, Any]:
-    """Return all pricing info combined (Cached for Zero-Latency)."""
+def get_all_pricing(include_flash_discount: bool = True) -> dict[str, Any]:
+    """Return all pricing info combined with dynamic real-time flash discounts applied."""
+    active_sale = get_active_flash_sale() if include_flash_discount else None
+    flash_pct = float(active_sale.get("discount_percent", 0)) if active_sale else 0.0
+
+    tiers = []
+    for t in PRICING_TIERS:
+        base_price = float(t.get("price_usd", 0))
+        if flash_pct > 0:
+            discounted_price = round(base_price * (1.0 - flash_pct / 100.0), 2)
+            tier_dict = {
+                **t,
+                "price_usd": discounted_price,
+                "base_price_usd": base_price,
+                "original_price": base_price,
+                "flash_active": True,
+                "flash_discount_pct": flash_pct,
+                "flash_savings": round(base_price - discounted_price, 2),
+                "flash_title": active_sale.get("title", "Flash Sale"),
+                "button_text": f"Get {t['name']} – ${discounted_price:.2f}" if discounted_price != int(discounted_price) else f"Get {t['name']} – ${int(discounted_price)}",
+            }
+        else:
+            tier_dict = {
+                **t,
+                "price_usd": base_price,
+                "base_price_usd": base_price,
+                "flash_active": False,
+                "flash_discount_pct": 0,
+                "flash_savings": 0,
+            }
+        tiers.append(tier_dict)
+
     return {
-        "tiers": PRICING_TIERS,
+        "tiers": tiers,
         "services": SERVICE_PACKAGES,
         "bouquets": BOUQUET_PACKAGES,
+        "flash_sale": active_sale,
     }
 
 
-def get_tier_by_name(tier_name: str) -> dict[str, Any] | None:
-    """Get tier details by name."""
+def get_tier_by_name(tier_name: str, apply_discount: bool = True) -> dict[str, Any] | None:
+    """Get tier details by name with optional flash discount."""
     if not tier_name or not isinstance(tier_name, str):
         return None
     t_clean = tier_name.strip().lower()
+    pricing = get_all_pricing(include_flash_discount=apply_discount)
     if t_clean in ("free", "starter"):
-        return PRICING_TIERS[0]
-    for t in PRICING_TIERS:
+        return pricing["tiers"][0]
+    for t in pricing["tiers"]:
         if t["tier"].lower() == t_clean or t["name"].lower() == t_clean:
             return t
     return None
 
 
-def get_tier_by_company_count(company_count: int) -> dict[str, Any] | None:
-    """Get tier details by company count."""
-    for t in PRICING_TIERS:
+def get_tier_by_company_count(company_count: int, apply_discount: bool = True) -> dict[str, Any] | None:
+    """Get tier details by company count with optional flash discount."""
+    pricing = get_all_pricing(include_flash_discount=apply_discount)
+    for t in pricing["tiers"]:
         if t["companies"] == company_count:
             return t
     return None

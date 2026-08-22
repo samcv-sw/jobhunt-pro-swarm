@@ -502,6 +502,7 @@ app.include_router(self_healing_agent_router)
 app.include_router(agent_swarm_router)
 app.include_router(vision_form_filler_router)
 app.include_router(edge_cache_router)
+app.include_router(microsite_generator_router)
 
 from backend.routers.million_scale_router import router as million_scale_router
 app.include_router(million_scale_router)

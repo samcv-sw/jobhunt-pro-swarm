@@ -571,7 +571,7 @@ function updateAgencyRoi() {
 </div>
 <div class="form-group">
 <label>📍 الموقع * <span class="tip-badge">ℹ️<span class="tip-box">حدد المدينة والدولة، أو اكتب 'عن بُعد 100%' لتطبيق فلترة البحث الدولي.</span></span></label>
-<input dir="auto" id="location" placeholder="مثال: بيروت، لبنان" required="" type="text"/ dir="auto">
+<input dir="auto" id="location" placeholder="مثال: أوستن، تكساس، الولايات المتحدة / عن بُعد" required="" type="text" dir="auto">
 </div>
 <div class="form-group">
 <label>✈️ تسهيلات الفيزا والإقامة <span class="tip-badge">ℹ️<span class="tip-box">تحديد كفالة الفيزا يجذب النخب العالمية للمنتقلين والمغتربين.</span></span></label>
@@ -1184,8 +1184,8 @@ function updateAgencyRoi() {
         <span id="pvUrgentBadge" style="display:none; background:rgba(239,68,68,0.2); color:#f87171; border:1px solid rgba(239,68,68,0.4); font-size:0.7em; padding:2px 8px; border-radius:6px; font-weight:800;">🔥 عاجل جداً</span>
       </div>
       <div style="font-size:0.85em; color:#94a3b8; margin:4px 0; display:flex; gap:12px; flex-wrap:wrap;">
-        <span id="pvCompany">Murex</span>
-        <span id="pvLocation">📍 بيروت، لبنان</span>
+        <span id="pvCompany">Global Tech Solutions</span>
+        <span id="pvLocation">📍 أوستن، تكساس، الولايات المتحدة</span>
         <span id="pvSalary" style="color:#4ade80; font-weight:700;">💰 $2,500 - $3,500/شهر</span>
       </div>
       <p id="pvDesc" style="font-size:0.78em; color:#cbd5e1; margin-top:6px; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
@@ -1816,7 +1816,7 @@ function loadEmployerPreset(type) {
     network: {
       company: "Innovate AI Technologies",
       title: "Senior Network & Security Engineer",
-      location: "بيروت، لبنان / Remote",
+      location: "أوستن، تكساس، الولايات المتحدة / عن بُعد",
       category: "it",
       job_type: "full_time",
       salary: "$3,500 - $5,000 / شهر",
@@ -1839,11 +1839,11 @@ function loadEmployerPreset(type) {
     intern: {
       company: "Tech Startups Hub",
       title: "مساعد تطوير برمجيات (تدريب طلاب - Internship)",
-      location: "طرابلس / بيروت / مرن",
+      location: "أوستن / سان فرانسيسكو / مرن",
       category: "students",
       job_type: "internship",
       salary: "$500 - $800 / شهر",
-      email: "hr@techstartups.lb",
+      email: "hr@techstartups.com",
       desc: "فرصة تدريب ممتازة لطلاب المدارس والجامعات في مجالات التكنولوجيا والبرمجة مع ساعات عمل مرنة تتناسب مع فترة الامتحانات.",
       whatsapp: "yes"
     },
@@ -2138,15 +2138,15 @@ function aiImportJobFromUrl() {
   }
 
   // Auto-fill form from URL mock / parsed smart data
-  document.getElementById('company_name').value = 'Murex Enterprise Solutions';
+  document.getElementById('company_name').value = 'Enterprise Cloud Solutions';
   document.getElementById('job_title').value = 'Senior DevOps & Network Engineer';
-  document.getElementById('location').value = 'بيروت، لبنان (عمل مرن 100%)';
+  document.getElementById('location').value = 'أوستن، تكساس، الولايات المتحدة (عمل مرن 100%)';
   document.getElementById('category').value = 'it';
   document.getElementById('salary').value = '$3,500 - $5,000/شهر (+حوافز وبونص أداء)';
-  document.getElementById('contact_email').value = 'careers@murex.com';
+  document.getElementById('contact_email').value = 'careers@innovate-tech.com';
   document.getElementById('apply_url').value = url;
 
-  document.getElementById('description').value = `نبحث عن Senior DevOps & Network Engineer للانضمام لشركتنا الرائدة Murex Enterprise Solutions.
+  document.getElementById('description').value = `نبحث عن Senior DevOps & Network Engineer للانضمام لشركتنا الرائدة Enterprise Cloud Solutions.
 
 📌 المسؤليات ونطاق العمل:
 • إدارة البنية التحتية، السحابة، والشبكات عالية التوافر بكفاءة 99.99%.
@@ -2206,7 +2206,7 @@ function aiPolishGrammar() {
 
 function aiLoadTechTemplate() {
   const title = document.getElementById('job_title').value || 'Senior Network Engineer';
-  const company = document.getElementById('company_name').value || 'Murex / Enterprise Tech';
+  const company = document.getElementById('company_name').value || 'Enterprise Cloud Solutions';
   
   document.getElementById('description').value = `نبحث عن ${title} متميز للانضمام إلى فريق العمل الفني والتطويري في ${company}.
 
@@ -2231,8 +2231,8 @@ function aiLoadTechTemplate() {
 // ── AI Auto-Generator & Auto-Fill ──
 async function aiGenerateJobDescription() {
   const title = document.getElementById('job_title').value || prompt('أدخل المسمى الوظيفي (مثال: Senior Network Engineer):') || 'Senior Network Engineer';
-  const company = document.getElementById('company_name').value || 'Murex';
-  const location = document.getElementById('location').value || 'بيروت، لبنان';
+  const company = document.getElementById('company_name').value || 'Enterprise Cloud Solutions';
+  const location = document.getElementById('location').value || 'أوستن، تكساس، الولايات المتحدة';
 
   document.getElementById('job_title').value = title;
   const descBox = document.getElementById('description');
@@ -2258,7 +2258,7 @@ async function aiGenerateJobDescription() {
 }
 
 async function aiAutoFillJobForm() {
-  const promptText = prompt('أدخل نبذة سريعة عن الوظيفة والشركة لتعبئة النموذج بالكامل تلقائياً (مثال: مطلوب مهندس شبكات في شركة بيروت للتكنولوجيا براتب 3000$):');
+  const promptText = prompt('أدخل نبذة سريعة عن الوظيفة والشركة لتعبئة النموذج بالكامل تلقائياً (مثال: مطلوب مهندس شبكات في شركة جلوبال تكنولوجي براتب 3000$):');
   if (!promptText) return;
 
   const descBox = document.getElementById('description');
