@@ -909,11 +909,11 @@ def index_page(request: Request):
     tiers = get_all_pricing()
     lang = request.query_params.get("lang", "").lower()
     if lang == "en" or request.url.path.startswith("/en"):
-        tmpl = "en/index_v3.html"
+        tmpl = "en/index_v4.html"
     elif lang == "zh" or request.url.path.startswith("/zh"):
-        tmpl = "zh/index_v3.html"
+        tmpl = "zh/index_v4.html"
     else:
-        tmpl = "index_v3.html"
+        tmpl = "index_v4.html"
 
     return templates.TemplateResponse(request, tmpl, {
         "earnings": earnings,

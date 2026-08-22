@@ -22,7 +22,7 @@ def _deps():
 def en_home(request: Request):
     _, get_verified_user_id, templates, config, _, _ = _deps()
     user_id = get_verified_user_id(request)
-    return templates.TemplateResponse(request, "en/index_v3.html", {
+    return templates.TemplateResponse(request, "en/index_v4.html", {
         "VERSION": config.VERSION,
         "is_logged_in": bool(user_id),
     })
